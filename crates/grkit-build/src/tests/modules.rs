@@ -1012,3 +1012,35 @@ fn group_page_rejects_invalid_structure_and_text() -> Result<()> {
         .contains("camera cannot draw"));
     Ok(())
 }
+
+/// A recipe holds each module setting of `grkit_core::recipes::MODULE_SETTINGS`
+/// except a color-only one on GR IV Monochrome, so the color-only flags of the
+/// recipes are those of the manifests of the modules.
+#[test]
+fn recipe_module_settings_are_color_only_as_their_modules_say() -> Result<()> {
+    use grkit_core::recipes::{MODULE_SETTINGS, MODULE_SETTINGS_COLOR_ONLY};
+    let modules = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../modules");
+    let mut found = 0;
+    for entry in fs::read_dir(&modules)? {
+        let path = entry?.path().join("module.toml");
+        if !path.exists() {
+            continue;
+        }
+        let manifest: module::Manifest = toml::from_str(&fs::read_to_string(&path)?)?;
+        for setting in &manifest.settings {
+            if let Some(index) = MODULE_SETTINGS
+                .iter()
+                .position(|&(id, key)| id == manifest.id && key == setting.key)
+            {
+                assert_eq!(
+                    MODULE_SETTINGS_COLOR_ONLY[index], setting.color_only,
+                    "{}.{}",
+                    manifest.id, setting.key
+                );
+                found += 1;
+            }
+        }
+    }
+    assert_eq!(found, MODULE_SETTINGS.len());
+    Ok(())
+}
