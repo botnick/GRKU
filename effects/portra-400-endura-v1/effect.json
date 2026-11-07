@@ -15,6 +15,9 @@
     7685
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAq0lEQVR42u2V3Q2AIAyEWcM395/DHdzDBdCYkCBpi4Tyf01IKZT45dTDGMTscR3G9jzmATy3/ZOpuV9zvWFPMcDcXARQUoTK/hlK4fUUTPkGqwPCZjhA23mMD/jchu8I17h9V7u12HkVwJTMzaV+VQWpB+UorKZgiiLVFZTWmgPCZgDYAyBnFZR1UDYS2wdgbr0OYOwVAvD3rw/AQoDNbGY4QNzFANQERMweN1UYF/ProwM0AAAAAElFTkSuQmCC"
+  },
+  "cover": {
     "template": "box",
     "brand": "Kodak",
     "name": "PORTRA",

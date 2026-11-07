@@ -15,6 +15,9 @@
     7566
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAuUlEQVR42u2X0Q2AIAxEWcM/95/DHdzDBdAfk1JbyEVBxGtiClLgcRSMIdBGt20JsednHMB1mhNvlWXdi9Ux1QDv+iqAOUUsL/tYCv9PQSQHmwPymvEAY+fWP+BhZ0G+TMqyrtt1jOVz/b14UfcHRnxuwpK3FpgoWFoROOClHVRMx7+vYGE8LAe9eGRiSFFeMwT8IqBMZJ3U3sHSp5OAuQkJ+NQWe+0ERLeQgOgWE5DfYgI2/u2kDW07mwIm5GN6aMwAAAAASUVORK5CYII="
+  },
+  "cover": {
     "template": "box",
     "brand": "Kodak",
     "name": "KODACHROME",

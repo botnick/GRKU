@@ -340,8 +340,11 @@ pub fn publish_effects(
             "preview": preview,
         });
         // The site draws a film cover icon from its fields with web fonts, so it
-        // stays sharp at any size. The pixels remain the camera's icon.
-        if definition["icon"].get("template").is_some() {
+        // stays sharp at any size. The pixels remain the camera's icon. An
+        // effect with an own image keeps the fields in `cover`.
+        if let Some(cover) = definition.get("cover") {
+            entry["cover"] = cover.clone();
+        } else if definition["icon"].get("template").is_some() {
             entry["cover"] = definition["icon"].clone();
         }
         entries.push(entry);

@@ -15,6 +15,9 @@
     8401
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAoElEQVR42u2V0Q2AIAxEWcM/95/DHdzDBdD4VcmBmEIl5S4hpWlNXtpaQqC869hCHPn4AdyX9WHRXfq53DSnG6DWdgEsVQRZ+Q2q8HwV/DKD5oBcMznAOLh8Al4v5H2kj+4otzsgAkA2FzcDfLME1MygjJvPINcMAf8AlIOf/gQt4v4Ba9aMxvcPWNtCAta2tHXL5wHkHuRbTMARASnvOgH92jjSzfdjnAAAAABJRU5ErkJggg=="
+  },
+  "cover": {
     "template": "box",
     "brand": "Kodak",
     "name": "GOLD",

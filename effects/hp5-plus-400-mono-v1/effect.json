@@ -15,6 +15,9 @@
     2688
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAq0lEQVR42u2W2w6AIAxD+f+fxicTQtYyQLl2CSFzOI8dQ0OQXWBx8bE5YGqvz+L5GiuW5+hWED2c+d55CKAVT2cWP19Baw+yPYleCCl6fhdPH3Fx2w8QdZq1uc2ExnqW37qnGhAlRoBsfXU+pMBoBbtKzJQqXfcA0nwtJSop6KkIqtD+XSzAKwFb/469cQH2+vcAlkooQHfrC/AnwGnHzHaA+hYL8EtA2en2AEX2TIcYWB6fAAAAAElFTkSuQmCC"
+  },
+  "cover": {
     "template": "box",
     "brand": "ILFORD",
     "name": "HP5 PLUS",

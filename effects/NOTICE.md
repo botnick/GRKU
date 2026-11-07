@@ -27,16 +27,26 @@ the library's Kodak Wratten 25 data to Tri-X 400.
 
 ## t3mujinpack
 
-HP5 Plus 400 derives from a HaldCLUT of the darktable styles of
+HP5 Plus 400 and Vista 400 derive from HaldCLUTs of the darktable styles of
 [t3mujinpack](https://github.com/t3mujin/t3mujinpack) by João Almeida, licensed under the MIT
-License. `sources/T3MUJINPACK_LICENSE.txt` contains its notice. This effect definition is also
+License. `sources/T3MUJINPACK_LICENSE.txt` contains its notice. These effect definitions are also
 licensed under the MIT License.
+
+## Pat David
+
+APX 25, APX 100, Neopan 1600, Acros 100, Delta 100, Delta 400, Delta 3200, FP4 Plus 125, HPS 800, Pan F Plus 50, XP2 Super 400, BW400CN, HIE Infrared, T-Max 100, T-Max 400, T-Max 3200, Polaroid 664, Polaroid 667, Polaroid 672, Ortho 25, Retro 80S, Retro 100 Tonal, Precisa 100, Astia 100F, Provia 400F, Provia 400X, Sensia 100, Superia 200 XPro, Velvia 50, Ektachrome 100GX, Ektachrome 100VS, Elite Chrome 200, Elite Chrome 400, Elite Extra 100, Kodachrome 25, Kodachrome 200, X-Pro Slide 200, Polachrome, Ultra Color 100, Vista 200, Superia 200, Superia HG 1600, Reala 100, X-Tra 800, Elite 100 XPro, Elite Color 200, Elite Color 400, Portra 160 NC, Portra 160 VC, Redscale 100, Pro 160C, Pro 800Z, Portra 160, Portra 800, Superia 100, Superia 800, Superia 1600, Portra 400 NC, Portra 400 UC, Portra 400 VC, PX-70, PX-70 Cold, PX-70 Warm, PX100UV Cold, PX100UV Warm, PX-680, PX-680 Cold, PX-680 Warm, Time Zero, FP-100C, FP-100C Cool, FP-100C Neg, FP-3000B, FP-3000B HC, FP-3000B Neg, Polaroid 665, Polaroid 665 Neg, Polaroid 669, Type 669 Cold, Polaroid 690, Type 690 Cold, and Type 690 Warm derive from HaldCLUTs of the film emulation presets of
+[Pat David](https://patdavid.net) for G'MIC and RawTherapee, as the
+[NatronGitHub/clut](https://github.com/NatronGitHub/clut) collection distributes them, licensed under
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). These effect definitions are also
+licensed under CC BY-SA 4.0. `sources/PATDAVID_LICENSE.txt` contains the upstream notice. The presets
+are hand-made approximations of the films, not measured data, and the Polaroid, Fuji instant, and
+Lomography looks keep the names of the collection.
 
 ## Names and limits
 
 Effect names and film, paper, and filter names identify the simulated materials. Some of these
 names are trademarks of their owners. GRKit is not affiliated with or endorsed by Eastman Kodak Company,
-Kodak Alaris, Fujifilm, or HARMAN technology Limited (Ilford Photo). The simulations are models
+Kodak Alaris, Fujifilm, HARMAN technology Limited (Ilford Photo), Agfa, Polaroid, Lomography, or Rollei. The simulations are models
 of published data or hand-made styles, not measured equivalents of the products.
 
 The effects operate in the camera's native image-processing domain. They are not display-sRGB

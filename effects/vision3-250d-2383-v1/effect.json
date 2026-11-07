@@ -15,6 +15,9 @@
     7917
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAp0lEQVR42u2YYQ6AIAiFPY7H9HCdqAtU65c50dQQpMfGiML27UW46RzMuoUQDs1+A16cKr0JcN+eMXcd51RtWsMGOBpZAEuK5GK8Jqfw/xRs6cHpgOr/YlFA771KtwkYW08+BbB0P421dSIKpkA9cMM9WFNKDLCn50QUxJgBICcgZVzP7QFSwFTeWv/2fesCfvUJAdi6/QEQc5BrDmIvXh5Q9QEmzLqd99tDpNrYnaUAAAAASUVORK5CYII="
+  },
+  "cover": {
     "template": "cine",
     "brand": "Kodak",
     "name": "5207",

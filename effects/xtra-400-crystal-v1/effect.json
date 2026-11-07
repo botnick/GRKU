@@ -15,6 +15,9 @@
     10028
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAw0lEQVR42u2ViwnAIAxEnalzdIJu1mktFIQgiTlrf+oFxATT8DyjDYE2vO1r/PXoDlBaiuUs86x8L7bqwIBIARlbPrKebwBWsAUQzb0MWFJQA25VsPmILVXRHkN6EgbkM1M74s+tb8CwLedIfj4nX8bouqx1CTD/uASK5Fu+B+kqWALUFLJirZ6WU92DtYq9piDSY1q+17PeRse6xQScBhB9UvKBrhOwNZ4H0DtCAsJXn4APAX72zHQHyH8xAe8EpI1uB04564zqfLDwAAAAAElFTkSuQmCC"
+  },
+  "cover": {
     "template": "box",
     "brand": "FUJIFILM",
     "name": "SUPERIA",

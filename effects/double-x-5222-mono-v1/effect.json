@@ -15,6 +15,9 @@
     4851
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAtUlEQVR42u2YDQ6AIAhGPY7H9HCdqAtUa2szBqLmDxhsDFNyrw+sLefMVrcQwiHZb8CLU6QXAe7bO2Lj+JrKhTndAL/GLoApRbAY34Mp/D8FS3pwOKD4UzwV0Hsv0nUCPgbn4DiO2DrcD85T+2UBtogU8BTAHAVTilIPoVdBrgfjHE6h5j1orxkDlABI2aj1dQBzS8Hl167rB7QerAXkStCrpOsAWg+27kH7FqsHFP0D02x1OwEoi4erwrgQTQAAAABJRU5ErkJggg=="
+  },
+  "cover": {
     "template": "cine",
     "brand": "Kodak",
     "name": "DOUBLE-X",

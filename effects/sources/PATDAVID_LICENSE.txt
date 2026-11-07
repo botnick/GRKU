@@ -1,0 +1,17 @@
+Film emulation presets by Pat David (https://patdavid.net), as the HaldCLUT collection of
+https://github.com/NatronGitHub/clut (revision af7b50d4caf6244fb6895a647f5b6a84efe7931a) distributes them.
+
+From the README of that collection:
+
+This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International
+License (http://creativecommons.org/licenses/by-sa/4.0/).
+
+The trademarked names which may appear in the filenames of the HaldCLUT images are there
+for informational purposes only. They serve only to inform the user which film stock the
+given HaldCLUT image is designed to approximate. As there is no way to convey this
+information other than by using the trademarked name, we believe this constitutes fair use.
+Neither the publisher nor the authors are affiliated with or endorsed by the companies
+that own the trademarks.
+
+Pat David's site states: Unless otherwise noted, this work by Pat David is licensed under a
+Creative Commons Attribution-ShareAlike 4.0 International License.

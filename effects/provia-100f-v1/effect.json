@@ -15,6 +15,9 @@
     7793
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAxElEQVR42u2VAQrAIAhFO9POsRPsZjttg0EgkfVL1zIUpFwuXt/mQnDb3u4zLu3mAKmlmI40j8tvxdw+MCCyAY25ObKeHwBWUAKI5g4D1hQsAUsVFJeYUxW9Y8idhAG9zfR6XNzsA4breJ2L07N8TsfSHqqAkrF1gM8VHAEsVUGs4KiiUxSsAdZySoqpA3qbccA/Abl2QC8+14gl6/YBWy8izbsn7i7x8oBoiaUxAuqApkus9pFot5H9Af1f7IAzAd12twevesILxHwM4AAAAABJRU5ErkJggg=="
+  },
+  "cover": {
     "template": "box",
     "brand": "FUJIFILM",
     "name": "PROVIA",

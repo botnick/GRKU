@@ -23,6 +23,12 @@ For whoever continues this fork (a person, or Codex / another coding agent). It 
 
 The web site (`web/`) and the modules are unchanged. A package built from this branch has the same files as a 1.5.1 package (`SCAN.SH`, `INSTALL.SH`, `LOADER.TTL`, `CORE.BIN`, modules, effects), so the site's "write to SD card" flow still applies once the site data is rebuilt from this branch.
 
+## Film library and icons (branch `feat/film-library`, merged 2026-11-08)
+
+- `effects/` has 104 looks. The 83 new ones were fitted with `grkit effects import` from HaldCLUTs of Pat David's film emulation presets (NatronGitHub/clut mirror, CC BY-SA 4.0) and t3mujinpack (MIT); the scripts that made them are in the session scratchpad only, the result is the effect folders, `effects/sources/manifest.json`, `effects/sources/PATDAVID_LICENSE.txt`, and the notices. Grades: every kept fit is A or B. The spektrafilm and Spectral Film LUT generators are set up in a venv under the scratchpad (`uv venv -p 3.13`, spektrafilm needs the `exiv2` module that did not install); their missing stocks are the next step of `docs/lut-sources.md`.
+- Every effect has an own-image icon (`icon: {"png": ...}`), a film box end flap in brand colors that `scripts/flap-icons.py embed` draws from the `cover` fields (the former box icon fields, kept for the site). `scripts/golden.py BUILD_DIR` pins `effects/golden.json` after a change.
+- A package carries 40 effects (`MAX_COUNT` of the runtime; the camera lists 64 files). `build/effects-default` holds the 40 of the release packages (the 21 of upstream and 19 new ones, chosen in the packaging command of this session); `dist/GRKit-film-library.zip` has every GRF with `INDEX.txt`. A better way to pick is the site (`docs/roadmap.md`, section 5).
+
 ## What was NOT done
 
 - **Nothing on this branch has run on a camera.** The host tests pass (Rust, the host C contracts, the script shape tests), but the handshake between the loader script and the start (the mailbox, the fork, the `lcmd` request returning while the child runs) is reasoned from the 1.3.1 loader, which used the same mailbox in the field, and from `FINISH.SH` of 1.3.1, which ran a detached process the same way. The fallbacks (the card files, `INSTALL.SH`) exist so that a mailbox the loader cannot see still loads GRKit, but only a camera can confirm that.

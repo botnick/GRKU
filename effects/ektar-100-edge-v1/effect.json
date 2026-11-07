@@ -15,6 +15,9 @@
     10736
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAArElEQVR42u2V0Q2AIAxEWcM/95/DHdzDBcAfTSVtgZhiU68JqU1RXw44UkJEj2NL2fOIA7gv6yNzz7SW5tZzzADfZhNATREu03c4hf+n4MgenA4Im5EAs/OIA3jeive46jrTPu3RvikgV2tAWjZTUFOE69cKQ0Hth58CwmYA6AFQsgp6gCTD1vrxAVsfbpl4j8nHBuxdYgACcNYhGbWR6TbjDhB3MQAtARHRowDuMzXVsnwQ7QAAAABJRU5ErkJggg=="
+  },
+  "cover": {
     "template": "box",
     "brand": "Kodak",
     "name": "EKTAR",

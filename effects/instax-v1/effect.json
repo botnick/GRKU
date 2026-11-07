@@ -15,6 +15,9 @@
     7107
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAp0lEQVR42u2UYQ6AIAiFPVPn6ATdrNPWLxtjQK+YTt1jY0oy+HoyS6Etb+d+De3TAUqrsVxlnpf/Fnt1YECkgIy9PXKufwBWMAOI5v4GjBS0gLMKpq/YUxWdMWQmYUA+M1/9GtzmByzH9riMrRwrv37Te10jpWDUwGqE5HcDtJrps0jRLoARcHMFrRnUKwLb9Ir5zBCQgAQkIAEJSEACEpCAHiBtdbsBZwJNq8Zk1pAAAAAASUVORK5CYII="
+  },
+  "cover": {
     "template": "box",
     "brand": "FUJIFILM",
     "name": "INSTAX",

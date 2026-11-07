@@ -15,6 +15,9 @@
     7286
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAvElEQVR42u2V0Q2AIAxEmck5nMDNnBa/TBrk5AQk0FwTApXaPI9SQ5C5t3OPU4/lAK3dvp1tHIov+SgPDcgksD5aM/vpB9AKtgCysdWAbwrmgFsVbD5ipCpbY0xN0oBqM19HnNzWBwzH9pjvYZ+z8bl3ugPm9lE8WrOQ1Qq2AKY5fCtYUqBUY6hmuwKqzQhwFkDUHuxFQJfmbd8/YCkxAmJ9/4DsEQtQgKMuydc2MrzNTAeof7EA/wSUebcLLp4QOr5qL9kAAAAASUVORK5CYII="
+  },
+  "cover": {
     "template": "box",
     "brand": "FUJIFILM",
     "name": "VELVIA",

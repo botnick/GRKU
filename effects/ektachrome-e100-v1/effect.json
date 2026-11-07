@@ -15,6 +15,9 @@
     7441
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAyUlEQVR42u2X2w2AIAxFWcM/95/DHdzDBdAPTSq0tA1BEW8TAtiHh9qUGAJkdNmWEHse4wCu03ybuTXdS7apTTPA2rkJYCkj3Ex9uAz/L4OeGnwcEG1GAoydS/+Ah8RrnA+ymeqpju41/9Q+XUvvC5KzBCSBaHprAph4eXa0EysBM70zY6n9+xlU4pVrUAO01KD3wLd4aDMA7BGQFirXqEstyeJvjf99wML96AL37scBtIIC0PuJAVjbZlrrvw+IuxiAD/92QoaWHREZLs7VuuP3AAAAAElFTkSuQmCC"
+  },
+  "cover": {
     "template": "box",
     "brand": "Kodak",
     "name": "EKTACHROME",

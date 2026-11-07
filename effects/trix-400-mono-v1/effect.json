@@ -15,6 +15,9 @@
     4204
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAApUlEQVR42u2W3Q2AIAyEWcM395/DHdzDBcAnU5sWQqCC5ZqQWn7il4MchIDwHtcR4szND+C57a8sfdNam8vnmAG2ZhPAnCJSpmskhddTsOYMfg4Im9EA4+ThB/C+FZ9Ga21cWk+ziYIcSOubBpD/rKRoLZx/BXkefgZhMwAcBaiZsmQpmr3kxgHYWq8DWNpCANY+vQDYG3CYzfwOEHcxAHsCIrxHAscMRMbFQ5cMAAAAAElFTkSuQmCC"
+  },
+  "cover": {
     "template": "box",
     "brand": "Kodak",
     "name": "TRI-X",

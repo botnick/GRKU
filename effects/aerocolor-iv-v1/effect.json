@@ -15,6 +15,9 @@
     6147
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAArklEQVR42u2V3Q2AIAyEWcM395/DHdzDBdQXk2J6BWIx/FwT0pIU+Lg0bQi00e3YwtnyGgdwX9bIa7Hco9x3TjXAr74KoKWI5uUZTeH5FCypwd8B2WYQ4Nm49QV4T74ofpbco3wtB8XWexBQgqDHc7zXfSqgpRhSxxOwfwW1H1kXlNZgTo1CQLYZAvYEKAseFX9OE54XMDmeCEhAAjYOmGozHmBjA3IWE9ATkDa6Xd2ogIpbueetAAAAAElFTkSuQmCC"
+  },
+  "cover": {
     "template": "box",
     "brand": "Kodak",
     "name": "AEROCOLOR",

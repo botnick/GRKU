@@ -15,6 +15,9 @@
     12280
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAxklEQVR42u2VYQ6AIAiFPVPn6ATdrNPWLxtzIM8op+6xOSOf9AnMUqItb+d+DT2mA5SWfTlLnaX3fCsODIgEkL71jKyXB4AzGAFEta8BaxnUgKMZDJfYyiraY0hPwoC8ZlrHNbjNA5iO7RnZl7PUaXr5rtRqcbR1VWMF8AA9gJaDVnXe6XsChjKofah7BssAXk+19iDSoyYgrxkCjggoG9tq+D/W5wesbUD0UX99QLSEBERL+nXJ5wfkPfgVIP/FBOwBSFvdbrUifa8BdE/9AAAAAElFTkSuQmCC"
+  },
+  "cover": {
     "template": "box",
     "brand": "FUJIFILM",
     "name": "FUJICOLOR",

@@ -22,7 +22,7 @@ Everything in GRLife runs inside a patched firmware. Each row says how the same 
 
 | GRLife feature | GRKit today | Plan | How | Effort |
 | --- | --- | --- | --- | --- |
-| 64 films on 13 shelves (Kodak, Fuji, CineStill, Ilford, Agfa, Polaroid, Hasselblad, Pentax, Leica, Ricoh, Creative) | 21 looks, flat list | Import every redistributable open-source film LUT (section 4), group the site by shelf, keep the 40-effect limit per card and let the site pick | `effects/`, `grkit effects import`, `web/src/catalog.ts` | medium, mostly curation |
+| 64 films on 13 shelves (Kodak, Fuji, CineStill, Ilford, Agfa, Polaroid, Hasselblad, Pentax, Leica, Ricoh, Creative) | **104 looks** since 2026-11-08 (83 from Pat David and t3mujinpack, see `docs/lut-sources.md`); a package carries 40, `GRKit-film-library.zip` the rest | Next: the spektrafilm and Spectral Film LUT stocks that are still missing (Vision3 50D/200T, Portra 160/800 from measured data, Superia Reala, Velvia 50, cine stocks), Fotufilm's 47 profiles, and shelves on the site | `effects/`, `grkit effects import`, `web/src/catalog.ts` | medium, mostly curation |
 | Hue-sector colour per film, custom `.cube` LUT | have (GRF hue feature, site import) | keep | | |
 | Film for video and in-camera RAW development | RAW development: have (1.4/1.5). Video: no | video needs the video pipeline hook | core hook | hard |
 | Grain fine / coarse / classic, Low / Med / High | 4 strengths, 4 sizes (camera's own grain) | add Pattern (moment-derived seed vs fixed seed) and Boost from the jakeds fork, as options of `modules/grain` | module | small |
@@ -52,7 +52,7 @@ From the survey of all 26 forks and 23 issues on 2026-11-08 (details in [docs/co
 | --- | --- | --- |
 | Recipes / native Image Control presets with WB shift | #27, kkasemsa and iceboerg00 forks, upstream `feat/recipes` | section 2, recipes row |
 | Remember GRKit settings per U1 / U2 / U3 | #19, four people | a core hook on the mode dial change plus three state files; medium |
-| Custom icons and film box end-flap icon set | #38 | site: 40x40 PNG upload into the GRF icon; small |
+| Custom icons and film box end-flap icon set | #38 | **Done in the compiler** (`icon: {"png": ...}`, `scripts/flap-icons.py` draws the flaps in color for every look); the site's upload control is still to do |
 | Border on JPEGs (3 % and 6 %) | #18 | module `border`: a plane filter that paints the edge; small |
 | Crop Zoom 35 / 40 / 50 mm | MustafaCisse `feat/crop-zoom-module` (camera-tested on GR III) | port as an official module; small |
 | Onion Skin (ghost of the last shot), Palette Card | kkasemsa `feature/film-packs-recipes` | port after a camera check of live-view smoothness; medium |

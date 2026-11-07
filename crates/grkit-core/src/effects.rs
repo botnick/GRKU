@@ -79,12 +79,15 @@ const _: () = assert!(SIZE + hue::LEVEL_SIZE <= FN_DEFAULTS && FN_DEFAULTS_END <
 pub const HUE_OFFSET: usize = GRF_HUE;
 /// Optional keys of both a definition and a decoded effect. A definition writes
 /// `selective_color` in degrees; a decoded effect holds its GRF integers.
-const EXTENSION_KEYS: [&str; 5] = [
+const EXTENSION_KEYS: [&str; 6] = [
     "post_matrix",
     "selective_color",
     "hue_sectors",
     "native_look",
     "fn_defaults",
+    // The film box fields of an effect whose icon is an own image (`png`),
+    // which the site draws with web fonts. The compiler does not read it.
+    "cover",
 ];
 
 struct UniqueValue(Value);
@@ -162,10 +165,65 @@ fn has_keys(value: &Value, keys: &[&str]) -> bool {
     })
 }
 
+/// The pixels of a 40 x 40 PNG icon in `png`, standard base64 with padding: the
+/// image of a person's own icon (`png` in an effect definition). Each pixel
+/// is opaque or transparent, as the camera's icons are.
+pub fn png_icon_pixels(png: &str) -> Result<Vec<u8>> {
+    let bytes = base64_decode(png).context("Expected standard base64 in the icon png")?;
+    let (width, height, rgba) = crate::png::decode_rgba8(&bytes)?;
+    ensure!(width == 40 && height == 40, "Expected a 40 x 40 icon png");
+    ensure!(
+        rgba.chunks_exact(4)
+            .all(|pixel| pixel[3] == 0 || pixel[3] == 255),
+        "Expected an icon png whose alpha is 0 or 255 at each pixel"
+    );
+    Ok(rgba)
+}
+
+/// Standard base64 with padding to bytes.
+fn base64_decode(text: &str) -> Result<Vec<u8>> {
+    const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let text: Vec<u8> = text.bytes().filter(|b| !b.is_ascii_whitespace()).collect();
+    ensure!(
+        text.len() % 4 == 0,
+        "Expected base64 in groups of four characters"
+    );
+    let mut out = Vec::with_capacity(text.len() / 4 * 3);
+    for group in text.chunks_exact(4) {
+        let mut value = 0u32;
+        let mut padding = 0;
+        for (i, &c) in group.iter().enumerate() {
+            let digit =
+                if c == b'=' {
+                    ensure!(i >= 2, "Expected base64 padding at the end of a group");
+                    padding += 1;
+                    0
+                } else {
+                    ensure!(
+                        padding == 0,
+                        "Expected base64 padding at the end of a group"
+                    );
+                    ALPHABET.iter().position(|&a| a == c).with_context(|| {
+                        format!("Expected a base64 character, not {:?}", c as char)
+                    })? as u32
+                };
+            value = value << 6 | digit;
+        }
+        let bytes = value.to_be_bytes();
+        out.extend_from_slice(&bytes[1..4 - padding]);
+    }
+    Ok(out)
+}
+
 /// Renders the `icon` of an effect definition: a label tile (`label`, `shape`),
-/// a film box (`template` "box"), or a motion picture film label (`template` "cine").
+/// a film box (`template` "box"), a motion picture film label (`template` "cine"),
+/// or a person's own 40 x 40 image (`png`, standard base64).
 /// A cover can leave out `number`, and then shows a large name.
 pub fn icon_pixels(icon: &Value) -> Result<Vec<u8>> {
+    if let Some(png) = icon.get("png") {
+        ensure!(has_keys(icon, &["png"]), "Expected an icon with png only");
+        return png_icon_pixels(png.as_str().context("Expected the icon png as a string")?);
+    }
     let text = |key: &str| {
         icon[key]
             .as_str()

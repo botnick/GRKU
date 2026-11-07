@@ -15,6 +15,9 @@
     333
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAtklEQVR42u2V0RGAIAiGXaO39p+jHdqjBaynzowfKbPUfu48IhG/CNE5Su+yTM7XPPoBnIfxoKXn0Ea+sU8xwFxdBFDLiKTDNVKG/5fBKzX4OiDbDAL0lUs7gNutt4/QRvOnQME6NK/FQ7GdtAnaEG1uBdT84HsNEAVBGU19gBb/FmD1GYx1bg1q8Uw1yDZDwFoBLS1CGtZ5Auba/wFM/UICmo8+AQsBftZmmgPkXUzAJwEpvcsK8jDrEbdI42AAAAAASUVORK5CYII="
+  },
+  "cover": {
     "template": "box",
     "brand": "Kodak",
     "name": "TRI-X RED",

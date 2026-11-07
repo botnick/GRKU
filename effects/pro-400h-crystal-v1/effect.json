@@ -15,6 +15,9 @@
     7963
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAq0lEQVR42u2VAQrAIAhFO9POsRPsZjttg0EgI9svCc38IM0l8fYTl1LIve4zm47lAKlKTldax9X/5dw5MCByAM25Z2T/+wGwgxJAtHYYsOVgDVjqoPiKOVfRHkN6EgaMMdMb2bj8AqbreIPLyztVwJ7VnIMmAHscNQeo3oMxZgJwJiAyQmrRu98a8nsAzsr9AI5ekbRF1gfUvvJ9ANXGzHKA8S8OwJmAIe96AJIJ31f3MjP5AAAAAElFTkSuQmCC"
+  },
+  "cover": {
     "template": "box",
     "brand": "FUJIFILM",
     "name": "PRO",

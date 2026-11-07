@@ -15,6 +15,9 @@
     7735
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAtklEQVR42u2V0Q2AIAxEWcM/95/DHdzDBdQfk4q0RbEI9ZqQQlrJy9kcISC8xzKFteXlB3AexlNO7emZ6417zABLswmgpEgq029SCv9PwTszWB0QNsMBro1Hv4D7K3jJx6I9Wj3Vy/UXAUp7qc5l6Z5XALWzBmiuoKaquYLcDMUKSDOlARcpCJsB4JeAdIAlg7aq+wGU7CfnGdPue2wz3QBqvwiAuTYDwNZ80D8g3mIA1gREeI8NTwKObkZVaNwAAAAASUVORK5CYII="
+  },
+  "cover": {
     "template": "box",
     "brand": "Kodak",
     "name": "VISION3",

@@ -369,8 +369,10 @@ fn covers_without_a_number_show_a_large_name() {
 
 #[test]
 fn compiler_rejects_cover_icons_that_do_not_fit() {
-    let definition = read_json(root().join("portra-400-endura-v1/effect.json"));
-    let box_icon = definition["icon"].clone();
+    let mut definition = read_json(root().join("portra-400-endura-v1/effect.json"));
+    // The catalog effect has an own image; its box fields are in `cover`.
+    let box_icon = definition["cover"].clone();
+    definition["icon"] = box_icon.clone();
     for (key, value) in [
         ("name", json!("")),
         ("number", json!("123456789")),
@@ -496,9 +498,16 @@ fn published_cover_icons_show_the_words_of_the_effect_name() {
             continue;
         }
         let definition = read_json(path);
-        let icon = &definition["icon"];
+        // An effect with an own image keeps its box fields in `cover`.
+        let icon = definition.get("cover").unwrap_or(&definition["icon"]);
         let name = definition["name"].as_str().unwrap();
         assert!(icon.get("template").is_some(), "{name} has no cover icon");
+        if definition["icon"].get("png").is_some() {
+            let pixels = effects::icon_pixels(&definition["icon"]).unwrap();
+            assert_eq!(pixels.len(), effects::ICON_SIZE, "{name}");
+            // The own image is the camera's icon, not the rendered cover.
+            assert_ne!(pixels, effects::icon_pixels(icon).unwrap(), "{name}");
+        }
         // A cover without a number shows the name large, as Instax does.
         let (series, number) = (
             icon["name"].as_str().unwrap(),
@@ -515,10 +524,67 @@ fn published_cover_icons_show_the_words_of_the_effect_name() {
             assert_eq!(words(&format!("{series} {number}")), words(name), "{name}");
         }
         assert!(
-            ["Kodak", "FUJIFILM", "ILFORD"].contains(&icon["brand"].as_str().unwrap()),
+            ["Kodak", "FUJIFILM", "ILFORD", "AGFA", "POLAROID", "LOMO", "ROLLEI"]
+                .contains(&icon["brand"].as_str().unwrap()),
             "{name}"
         );
     }
+}
+
+/// An own image icon is a 40 x 40 PNG in base64 with binary alpha, and nothing else.
+#[test]
+fn own_image_icons_are_40_by_40_png_with_binary_alpha() {
+    let definition = read_json(root().join("portra-400-endura-v1/effect.json"));
+    let png = definition["icon"]["png"].as_str().unwrap();
+    let pixels = effects::icon_pixels(&definition["icon"]).unwrap();
+    assert_eq!(pixels.len(), effects::ICON_SIZE);
+    assert!(pixels.chunks_exact(4).all(|p| p[3] == 0 || p[3] == 255));
+    assert!(
+        pixels.chunks_exact(4).any(|p| p[0] != p[1] || p[1] != p[2]),
+        "the icon has color"
+    );
+    let bytes = effects::compile_definition(&definition).unwrap();
+    let (_, icon) = effects::decode(&bytes).unwrap();
+    assert_eq!(icon, pixels);
+    for icon in [
+        json!({"png": png, "label": "P4"}),
+        json!({"png": "not base64!"}),
+        json!({"png": ""}),
+        json!({"png": 1}),
+    ] {
+        assert!(effects::icon_pixels(&icon).is_err(), "{icon}");
+    }
+    // A PNG of another size, or with a half-transparent pixel, is refused.
+    let small = grkit_core::png::encode_rgba8(2, 2, &[255; 16]).unwrap();
+    let encode = |bytes: &[u8]| {
+        const ALPHABET: &[u8; 64] =
+            b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        let mut out = String::new();
+        for chunk in bytes.chunks(3) {
+            let mut word = [0u8; 3];
+            word[..chunk.len()].copy_from_slice(chunk);
+            let v = u32::from_be_bytes([0, word[0], word[1], word[2]]);
+            for i in 0..4 {
+                out.push(if i <= chunk.len() {
+                    ALPHABET[((v >> (18 - 6 * i)) & 63) as usize] as char
+                } else {
+                    '='
+                });
+            }
+        }
+        out
+    };
+    assert!(effects::icon_pixels(&json!({"png": encode(&small)})).is_err());
+    let mut half = vec![255u8; effects::ICON_SIZE];
+    half[3] = 128;
+    let half = grkit_core::png::encode_rgba8(40, 40, &half).unwrap();
+    assert!(effects::icon_pixels(&json!({"png": encode(&half)})).is_err());
+    let gray: Vec<u8> = [200, 200, 200, 255].repeat(effects::ICON_SIZE / 4);
+    let opaque = grkit_core::png::encode_rgba8(40, 40, &gray).unwrap();
+    assert_eq!(
+        effects::icon_pixels(&json!({"png": encode(&opaque)})).unwrap(),
+        gray
+    );
 }
 
 /// The status row holds every built-in status indicator at once, with the

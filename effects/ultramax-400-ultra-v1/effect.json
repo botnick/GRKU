@@ -15,6 +15,9 @@
     9124
   ],
   "icon": {
+    "png": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAsklEQVR42u2V1w2AMAxEswZ/7D8HO7AHCwA/SCY6p5BCylmKDivtxcGOMbTR7djM2XIbB3Bf1peib+lrY+0xxQBTtQigKyJI5RwU4fkiGPMPVgdkmdEAz8atP8D79YMq+58mfbSGto6vPwnQtwFS+0Ch+2QDRL4LEM3JdsVfIhijQYAxJ64OyDJDwBYBtVKCEktLKlc/AVP9eQB9V0jA4NQnYCHA38pMd4B8iwmYE5A2ul3P0tMpe0fbNwAAAABJRU5ErkJggg=="
+  },
+  "cover": {
     "template": "box",
     "brand": "Kodak",
     "name": "ULTRAMAX",

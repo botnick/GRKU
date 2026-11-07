@@ -32,11 +32,13 @@ A monochrome effect cannot have `post_matrix`, `selective_color`, `hue_sectors`,
 | Label tile | `label` (1 to 4 capitals or digits) and `shape` (`film`, `filter`, or `plain`) |
 | Film box | `template: "box"`, `brand`, `name`, an optional `number`, and `band` |
 | Motion picture film label | `template: "cine"`, `brand`, `name`, and an optional `number` |
+| Own image | `png`: a 40 x 40 PNG, standard base64 with padding, with each pixel opaque or transparent |
 
 - The icon shows the words of the effect name and the brand, in capitals. A cover without `number` shows the name large.
 - A motion picture film label shows the film number in place of the series name: Vision3 500T shows `5219` above `500T`. The target description must give that number.
 - Stock codes, papers, and process details go in the target description.
 - If a text does not fit, the compiler stops with an error.
+- An own image can use color: the camera draws the icon as it is. This fork ships film box end-flap icons in the brand colors (`scripts/flap-icons.py` makes them) for each effect, as [ahonn/GRKit#38](https://github.com/ahonn/GRKit/issues/38) proposed.
 
 ## Sources
 
