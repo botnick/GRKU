@@ -60,6 +60,11 @@ fn source() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../effects")
 }
 
+/// The number of effects that `fixture` packages: at most 40 of the catalog.
+fn fixture_count() -> usize {
+    source_count().min(40)
+}
+
 /// The number of effect definitions in `effects/`.
 fn source_count() -> usize {
     fs::read_dir(source())
@@ -96,11 +101,25 @@ fn compile(input: &Path, output: &Path) -> Output {
 fn fixture(root: &Path) -> (PathBuf, PathBuf) {
     let build = root.join("runtime");
     let effects = root.join("effects");
+    // A package holds at most 40 effects, and the catalog has more: the
+    // fixture packages the first 40 of the catalog, by ID.
+    let subset = root.join("effects-source");
+    let mut ids: Vec<PathBuf> = fs::read_dir(source())
+        .unwrap()
+        .map(|entry| entry.unwrap().path())
+        .filter(|path| path.join("effect.json").is_file())
+        .collect();
+    ids.sort();
+    for path in ids.iter().take(40) {
+        let directory = subset.join(path.file_name().unwrap());
+        fs::create_dir_all(&directory).unwrap();
+        fs::copy(path.join("effect.json"), directory.join("effect.json")).unwrap();
+    }
     success(&[
         "effects",
         "build",
         "--source",
-        text(&source()),
+        text(&subset),
         "--out",
         text(&effects),
     ]);
@@ -296,8 +315,8 @@ fn package_roundtrip_and_output_ownership() {
     let packaged = success(&args);
     // Eleven runtime, package list, and document entries, the six official
     // modules, then one per effect.
-    assert_eq!(packaged["entries"], 17 + source_count());
-    assert_eq!(success(&["verify", text(&zip)])["effects"], source_count());
+    assert_eq!(packaged["entries"], 17 + fixture_count());
+    assert_eq!(success(&["verify", text(&zip)])["effects"], fixture_count());
     let before = fs::read(&zip).unwrap();
     assert!(!run(&args).status.success());
     assert_eq!(fs::read(&zip).unwrap(), before);
@@ -414,7 +433,7 @@ fn package_installs_the_given_modules() {
         "--out",
         text(&zip),
     ]);
-    assert_eq!(packaged["entries"], 13 + source_count());
+    assert_eq!(packaged["entries"], 13 + fixture_count());
     assert_eq!(packaged["modules"], json!(["DATE", "FILMLOOK"]));
     let verified = success(&["verify", text(&zip)]);
     assert_eq!(verified["modules"], json!(["DATE", "FILMLOOK"]));
