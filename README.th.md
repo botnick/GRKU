@@ -1,85 +1,101 @@
-# GRKit (fork ของเรา)
+# GRKit
 
-[English](README.md) · ไทย
+[English](README.md) | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | ไทย
 
-GRKit เป็นตัวเสริมสำหรับกล้อง RICOH GR III, GR IIIx และ GR IV ที่ช่วยยัดฟีเจอร์อย่าง Film Look (โทนสีฟิล์ม), การครอปภาพสัดส่วน XPan หรือสัดส่วนอื่น ๆ, การพิมพ์วันที่ลงบนรูป, เอฟเฟกต์ Glow และ Grain เข้าไปในตัวกล้องโดยตรง ทั้งหมดนี้รันจาก SD card ล้วน ๆ ไม่ไปเขียนทับ firmware กล้องแม้แต่ไบต์เดียว ถอดการ์ดออกปุ๊บ กล้องก็กลับเป็นสภาพเดิมจากโรงงานทันที
+[![Tests](https://github.com/ahonn/grkit/actions/workflows/tests.yml/badge.svg)](https://github.com/ahonn/grkit/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-เรา fork โปรเจกต์นี้มาจาก [ahonn/GRKit](https://github.com/ahonn/GRKit) เพื่อเอามาปรับแต่งต่อในแนวทางของเราเอง:
+GRKit เพิ่ม Film Look, การครอปแบบ XPan และอัตราส่วนอื่น ๆ, ตราประทับวันที่, Glow และ Grain ให้กับ RICOH GR III, GR IIIx และ GR IV ทำงานจาก SD card และไม่เขียนทับ firmware ของกล้องเลย ถอดการ์ดออก กล้องก็กลับเป็นของเดิม
 
-- **บูตไวขึ้น** โดยไม่แตะต้อง firmware ("one-shot start" อ่านรายละเอียดได้ที่ [docs/one-shot-start.md](docs/one-shot-start.md))
-- **ฟีเจอร์ครบเครื่อง** เทียบเท่า GRLife แต่ยังคงรันผ่าน SD script เหมือนเดิม ([docs/roadmap.md](docs/roadmap.md))
-- **โทนฟิล์มให้เลือกเยอะขึ้น** คัดมาจาก LUT โอเพนซอร์สที่ไลเซนส์เปิดให้นำไปแจกจ่ายต่อได้จริง ([docs/lut-sources.md](docs/lut-sources.md))
-- **รวบรวมของดีจากคนอื่น ๆ** ดึงฟีเจอร์น่าสนใจมาจากทั้ง fork อื่นและใน issue ของตัวต้นฉบับ ([docs/community-survey.md](docs/community-survey.md))
-- เมนูภาษาไทย (อยู่ในแผน)
+<p>
+  <img src="https://github.com/ahonn/grkit/raw/main/resources/images/grkit-root.jpg" alt="หน้า GRKit ในเมนู ADJ" width="49%">
+  <img src="https://github.com/ahonn/grkit/raw/main/resources/images/grkit-menu.jpg" alt="หมวด GRKit ในแท็บ Customize ของ MENU" width="49%">
+</p>
 
-## จุดยืนของเรา
+ภาพถ่าย: [MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/), [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
 
-1. ไม่แฟลช firmware ทับเด็ดขาด ตัว firmware เสริมที่ช่วยให้บูตไวของต้นฉบับจะไม่อยู่ในแผนพัฒนาของเรา
-2. ใช้ระบบ SD script ที่มีอยู่ในกล้องตามเดิม: แค่สั่งเปิดใช้งานครั้งแรกครั้งเดียว (กดปุ่ม MENU ค้างตอนเปิดเครื่องพร้อมใส่ไฟล์ปลดล็อก) ค่านี้ก็จะจำไปตลอดจนกว่าเราจะรัน package สำหรับปิดมันเอง
-3. โค้ดทุกส่วนที่แก้ ต้องผ่านการเทสต์บนกล้องจริงก่อนปล่อยเสมอ
+## คุณสมบัติ
 
-## สถานะตอนนี้
+กดคันโยก ADJ ขณะถ่ายภาพ แล้วเลือกรายการที่ 6 ชื่อ GRK
 
-| ส่วน | สถานะ |
-| --- | --- |
-| โค้ด one-shot start (โหลดรอบเดียวต่อการเปิดกล้อง) | เขียนเสร็จ ผ่าน test บนคอม **ยังไม่ได้ลองบนกล้องจริง** |
-| เครื่องมือวัดเวลาโหลด (`GRKIT/BOOT.TXT`, `GRKIT/DIAG`) | พร้อมใช้ |
-| ฟีเจอร์ใหม่ตาม roadmap | ยังไม่เริ่ม มีแผนและลำดับงานแล้ว |
-| คลังฟิล์มชุดใหม่ | สำรวจแหล่งและไลเซนส์เสร็จแล้ว รอนำเข้า |
+- **Film Look**: Portra 400, Velvia 100, Tri-X 400 และอีกหลายตัว พร้อมพรีวิวสด คุณยังนำเข้า LUT `.cube` หรือ preset ของ Lightroom ของคุณเองได้ที่ [grkit.app](https://grkit.app) แต่ละลุคฟิตมาจาก LUT ฟิล์มโอเพนซอร์ส จึงใกล้เคียงของจริงแต่ไม่เหมือนทุกประการ ([แหล่งที่มา](effects/NOTICE.md))
+- **Framing**: XPan, 2.35:1, 16:9, 4:3, 5:4, 7:6 และ 1:1 จะครอปภาพ JPEG จริง หรือแค่ทำเครื่องหมายช่วยจัดองค์ประกอบด้วยมาสก์หรือเส้นกรอบก็ได้ การเลือกอัตราส่วนจะตั้งกล้องเป็น 3:2 ในทั้งสองโหมด ส่วน Off จะคงอัตราส่วนปัจจุบันของกล้องไว้
 
-ถ้าใครถือ GR III หรือ GR IIIx อยู่แล้วอยากช่วยเทสต์ สิ่งที่เราอยากได้ที่สุดตอนนี้คือไฟล์ `GRKIT/BOOT.TXT` กับ `GRKIT/DIAG.TXT` หลังจากลองเปิดเครื่องใช้งานสัก 3 รอบ
+  ไฟล์ RAW คงการครอปเริ่มต้นแบบ 3:2 และค่า digital crop ของกล้องไว้ ส่วนพรีวิวที่ฝังในไฟล์ยังแสดงองค์ประกอบที่เลือกไว้ได้
 
-## ฟีเจอร์ที่มีให้ใช้แล้ว
+- **Guides**: จุดตัดเก้าช่อง กึ่งกลาง อัตราส่วนทอง หรือเส้นทแยง
+- **Date Imprint**: วันที่บนภาพในสไตล์ Classic, จุดแบบ GR1s หรือ GR II
+- **Glow**: Bloom กระจายแสงนุ่ม ๆ รอบแหล่งแสงและส่วนสว่าง Halation เพิ่มวงแสงสีแดงส้มรอบแสงจ้าเพื่อเลียนแบบฟิล์มภาพยนตร์ แต่ละเอฟเฟกต์มีค่า Enable และ Strength ของตัวเอง จึงเปิดพร้อมกันได้
+- **Grain**: เกรนฟิล์ม 4 ระดับ และ 4 ขนาด (Auto, Small, Medium, Large)
 
-เวลาจะใช้ ตอนอยู่ในหน้าถ่ายภาพให้กดปุ่ม ADJ แล้วเลื่อนไปช่องที่ 6 ที่ชื่อว่า GRK
+GRKit ใช้เวลาโหลดราว 8 ถึง 10 วินาทีหลังเปิดกล้อง และนานกว่านั้นบน GR IV หรือในการเปิดครั้งแรกหลังติดตั้งหรืออัปเดต ก่อนหน้านั้นกล้องจะใช้ค่าของตัวเอง การตั้งค่าทั้งหมดอยู่ในหมวด GRKit ท้ายแท็บ Customize ของ MENU หากต้องการเขียนโมดูลของคุณเอง ดู [Writing a module](docs/modules.md)
 
-- **Film Look** มีโทนอย่าง Portra 400, Velvia 100, Tri-X 400 ดูพรีวิวสีจริงบนจอได้เลย แถมยังโยนไฟล์ LUT `.cube` ของตัวเองเพิ่มเข้าไปผ่านหน้าเว็บได้ด้วย
-- **Framing** ครอปสัดส่วน XPan, 2.35:1, 16:9, 4:3, 5:4, 7:6 และ 1:1 เลือกได้ว่าจะให้ตัดภาพ JPEG จริงไปเลย หรือตีกรอบเป็นแค่เส้นเล็งองค์ประกอบ ส่วนไฟล์ RAW ยังได้ขนาดเต็ม 3:2 เหมือนเดิม
-- **Guides** เส้นช่วยจัดองค์ประกอบ มีทั้งจุดตัดเก้าช่อง, กึ่งกลางภาพ, อัตราส่วนทองคำ และเส้นทแยงมุม
-- **Date Imprint** ปั๊มวันที่ลงบนรูป เลือกฟอนต์ได้ทั้งแบบ Classic, GR1s (ตัวเลขจุดไข่ปลาสไตล์กล้องฟิล์ม) และ GR II
-- **Glow** เอฟเฟกต์ฟุ้ง ๆ มีทั้ง Bloom และ Halation แยกปรับความแรงได้อิสระ จะเปิดใช้พร้อมกันเลยก็ได้
-- **Grain** เกรนฟิล์ม ปรับความเข้มได้ 4 ระดับ กับอีก 4 ขนาดเม็ดเกรน
+**Fast start:** ด้วย [fast-boot firmware](resources/FASTBOOT.md) ที่เป็นตัวเลือกเสริม package GRKit ชุดเดิมจะโหลดได้ทันทีหลังเปิดกล้อง คุณสร้างมันได้ที่หน้า [Fast start](https://grkit.app/fastboot/) ของ grkit.app จาก firmware ทางการของ Ricoh แล้วติดตั้งแบบเดียวกับการอัปเดต firmware ตัว GRKit เองไม่เขียนทับ firmware
 
-## รุ่นกล้องที่รองรับ
+## กล้องที่รองรับ
 
-| กล้อง | firmware |
-| --- | --- |
-| GR III, GR III HDF | 2.10, 2.20 |
-| GR IIIx, GR IIIx HDF | 1.60, 1.70 |
-| GR IV, GR IV HDF | 1.11, 1.20 |
-| GR IV Monochrome | 1.00, 1.10 (ไม่มี Film Look) |
+| กล้อง | ทดสอบบนกล้องแล้ว | รองรับ |
+| --- | --- | --- |
+| GR III, GR III HDF | 2.10, 2.20 | — |
+| GR IIIx, GR IIIx HDF | 1.60, 1.70 | — |
+| GR IV, GR IV HDF | 1.11, 1.20 | — |
+| GR IV Monochrome | 1.00 | 1.10 |
 
-รุ่นอื่นหรือ firmware เวอร์ชันนอกเหนือจากในตารางนี้ ยังใช้ด้วยกันไม่ได้นะ
+GR IV Monochrome ไม่มี Film Look รุ่นและเวอร์ชัน firmware อื่นไม่รองรับ หาก GRKit ไม่โหลดบนกล้องที่รองรับ ดู[คู่มือ firmware dump](resources/DUMP.md)
 
-> **คำเตือน** GRKit ยังเป็นโปรเจกต์ทดลอง ถ้าจะลองต้องรับความเสี่ยงเองนะ ถ้าระบบโหลดพลาดขึ้นมา กล้องอาจจะค้างตั้งแต่ตอนเปิดเครื่อง แนะนำให้อ่าน [วิธีกู้คืน](resources/RECOVERY.md) เตรียมไว้ก่อน และอย่าลืมว่าการสั่งฟอร์แมตการ์ดในกล้องจะล้างทั้งตัว GRKit และค่าทุกอย่างที่คุณตั้งไว้หายไปทั้งหมด
+> [!WARNING]
+> GRKit เป็นซอฟต์แวร์ทดลอง ใช้บนความเสี่ยงของคุณเอง
+> การติดตั้งจะเปิดค่า SD script ของกล้อง ซึ่งจะค้างอยู่จนกว่าคุณจะปิดมัน หาก GRKit ล้มเหลว กล้องอาจค้างตอนเปิดเครื่อง ดังนั้นอ่าน[คู่มือกู้คืน](resources/RECOVERY.md)ก่อน
 
-## วิธีติดตั้ง
+## ติดตั้ง
 
-1. เตรียมไฟล์ package ให้ตรงกับรุ่นกล้องของคุณ (กดสร้างจากเว็บต้นฉบับที่ [grkit.app](https://grkit.app) หรือจะ build เองตามวิธีข้างล่างก็ได้) พอเสร็จแล้วจะได้โฟลเดอร์ชื่อ `SD_ROOT` มา
-2. ปิดกล้อง ถอดการ์ดมาเสียบคอม แล้วก๊อปปี้ *เฉพาะไฟล์และโฟลเดอร์ข้างใน* `SD_ROOT` ไปวางไว้ที่หน้าแรกสุด (root) ของ SD card
-3. ขั้นตอนนี้ทำแค่ครั้งแรกครั้งเดียว: เอาการ์ดใส่กล้อง กดปุ่ม MENU ค้างไว้แล้วกดปุ่มเปิดเครื่อง รอแป๊บนึงจนกล้องดับไปเอง (เป็นการสั่งเปิดโหมด SD script ของกล้อง ซึ่งทำครั้งเดียวแล้วมันจะจำค่านี้ไว้ตลอด)
-4. เปิดกล้องใช้งานตามปกติ รอให้ระบบโหลดสักพัก แล้วลองกดปุ่ม ADJ มองหาเมนู GRK ได้เลย
+เลือกกล้อง โมดูล และเอฟเฟกต์ที่ [grkit.app](https://grkit.app) แล้วเลือกอย่างใดอย่างหนึ่ง:
 
-เวลาจะอัปเดตเวอร์ชันใหม่: แค่ลบโฟลเดอร์ `SCRIPT` ตัวเก่าในการ์ดทิ้ง แล้วก๊อปปี้โฟลเดอร์ `SCRIPT` ของเวอร์ชันใหม่ลงไปแทน พวกค่าต่าง ๆ ที่เคยตั้งไว้จะอยู่ในโฟลเดอร์ `GRKIT` ไม่หายไปไหน
+- **เขียนลง SD card** จาก Chrome หรือ Edge บนคอมพิวเตอร์ เว็บยังอัปเดตหรือถอนการติดตั้ง GRKit และเพิ่มหรือลบโมดูลกับเอฟเฟกต์ได้ด้วย
+- **ดาวน์โหลด GRKit.zip** แล้วทำตามคู่มือ PDF ที่อยู่ข้างใน ([GR III และ GR IIIx](resources/INSTALLATION.md), [GR IV](resources/INSTALLATION-GR4.md))
 
-ถ้าอยากเอาออก: ลบโฟลเดอร์ `SCRIPT` กับ `GRKIT` ทิ้งก็จบ แต่ถ้าอยากปิดโหมด SD script ของกล้องให้กลับเป็นเหมือนเดิมเป๊ะ ๆ ให้ไปสร้าง package สำหรับปิดจากหน้าเว็บ เอาลงการ์ด แล้วทำท่ากด MENU ค้างตอนเปิดเครื่องซ้ำอีกรอบ
+เฉพาะครั้งแรก ให้กด MENU ค้างไว้ขณะเปิดกล้อง การอัปเดตจาก ZIP ให้แทนที่โฟลเดอร์ `SCRIPT` บนการ์ด การตั้งค่าของคุณอยู่ใน `GRKIT` การฟอร์แมตการ์ดจะลบ GRKit ดังนั้นคัดลอก `GRKIT` ไปไว้ในคอมพิวเตอร์ก่อน
 
-## การวัดเวลาโหลด
+หาก GRK ไม่ปรากฏ ดู FAQ ที่ [grkit.app](https://grkit.app) ถ้ายังไม่ได้ผล ส่ง `GRKIT/REPORT.TXT`, `GRKIT/BOOT.TXT` และ `SCRIPT/GRKIT/INSTALL.ERR` (ถ้ามี) ใน [device report](https://github.com/ahonn/grkit/issues/new?template=device-report.yml)
 
-ทุกครั้งที่คุณเปิดเครื่อง ระบบจะแอบจดเวลาทำงานของแต่ละขั้นตอนเก็บไว้ในไฟล์ `GRKIT/BOOT.TXT` (หน่วยเป็นวินาที นับตั้งแต่ระบบ Linux ข้างในกล้องเริ่มรัน) ให้ดูที่บรรทัด `install 0` ตัวเลขนั้นแหละคือเวลาตั้งแต่เปิดเครื่องจนเมนู GRK โผล่ขึ้นมาให้กดใน ADJ
+## Build จากซอร์ส
 
-ถ้าอยากเช็กข้อมูลลึกกว่านั้น ให้สร้างไฟล์เปล่า ๆ ชื่อ `DIAG` (ไม่ต้องมีนามสกุล) ไปวางไว้ในโฟลเดอร์ `GRKIT` แล้วเปิดกล้อง ทิ้งไว้ประมาณ 15 วินาที ระบบจะสร้างไฟล์ `GRKIT/DIAG.TXT` ออกมา ข้างในจะมีข้อมูลสเปก Linux ของกล้อง ความเร็วในการอ่านการ์ด และรายละเอียดอื่น ๆ พอเช็กเสร็จแล้วอย่าลืมลบไฟล์ `DIAG` ทิ้งด้วยล่ะ
+ต้องมี Rust 1.92 ขึ้นไป, Clang และ LLD ที่รองรับ ARM และไฟล์ firmware ทางการของ Ricoh ซึ่งรีโปนี้ไม่ได้รวมไว้
 
-## สำหรับคนอยาก Build เอง
+```sh
+cargo install --path crates/grkit-cli --locked
+grkit effects build --source effects --out build/effects
+grkit build --target gr3-2.10 --firmware firmware/fwdc239b.bin --out build/runtime
+for module in modules/*/; do grkit module build --dir "$module" --out "build/modules/$(basename "$module").GRM"; done
+sh .github/scripts/install-guide-tools.sh build/guide-tools
+sh .github/scripts/build-guides.sh grkit build/guide-tools build/guides
+grkit package --build build/runtime --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
+  --guide build/guides/gr3/en.pdf --out dist/GRKit.zip
+grkit verify dist/GRKit.zip
+```
 
-เครื่องที่ใช้ต้องลง Rust 1.92 ขึ้นไป, มี Clang กับ LLD ที่รองรับสถาปัตยกรรม ARM และต้องไปหาไฟล์ firmware ของ Ricoh มาเอง (ไม่ได้ใส่ไว้ให้ในรีโปนี้) คำสั่งแบบละเอียดไปดูได้ที่ [README.md](README.md#build-from-source) ส่วนใครที่จะมารับช่วงพัฒนาต่อ อ่านวิธีเซ็ตอัปสภาพแวดล้อมได้ใน [HANDOFF.md](HANDOFF.md)
+สำหรับกล้องรุ่นอื่น โมดูลที่น้อยลง หรือคู่มือภาษาอื่น ดู [Build packages](CONTRIBUTING.md#build-packages)
 
-## เครดิตและคำขอบคุณ
+## การมีส่วนร่วม
 
-โค้ดหลักเกือบทั้งหมดมาจากคุณ [ahonn](https://github.com/ahonn) และคนอื่น ๆ ที่ช่วยกันทำ GRKit ตัวต้นฉบับ ส่วนโทนสีฟิล์มได้มาจากชุด LUT โอเพนซอร์สหลาย ๆ ที่ รายชื่อแหล่งที่มาทั้งหมดอยู่ในไฟล์ [effects/NOTICE.md](effects/NOTICE.md)
+ดู [CONTRIBUTING.md](CONTRIBUTING.md) ยินดีรับ device report ไม่ว่า GRKit จะทำงานได้หรือไม่ โดยเฉพาะกับ firmware ที่ยังไม่เคยทดสอบบนกล้อง ส่งปัญหา ไอเดียฟีเจอร์ และคำถามผ่าน[ฟอร์ม feedback](https://tally.so/r/Z9jRgB) และสนับสนุนโปรเจกต์ได้ด้วยการ[เลี้ยงกาแฟ](https://buymeacoffee.com/yuexunjiang)
 
-## ไลเซนส์
+## เอกสาร
 
-ตัวโค้ดปล่อยภายใต้ [MIT License](LICENSE) ส่วนไฟล์เอฟเฟกต์โทนสีอยู่ภายใต้ CC BY-SA 4.0 หรือไม่ก็ MIT ขึ้นอยู่กับต้นทางของแต่ละตัว
+- [Architecture](docs/architecture.md)
+- [Writing a module](docs/modules.md) และ [module reference](docs/module-reference.md)
+- [Fast-boot firmware](docs/fastboot.md): อินเทอร์เฟซสคริปต์สำหรับ SD script
+- [Release process](docs/releasing.md)
+- [Effects](effects/README.md)
+- [Web site](web/README.md)
+- [One-shot start](docs/one-shot-start.md), [Roadmap](docs/roadmap.md) และ [Handoff](HANDOFF.md) ของ fork นี้
 
-คำว่า RICOH และ GR เป็นเครื่องหมายการค้าของบริษัท Ricoh Company, Ltd. ส่วนชื่อรุ่นฟิล์มต่าง ๆ ก็เป็นเครื่องหมายการค้าของบริษัทผู้ผลิตฟิล์มเจ้านั้น ๆ โปรเจกต์นี้ทำกันเองโดยกลุ่มผู้ใช้ทั่วไป ไม่ได้มีส่วนเกี่ยวข้องกับทาง Ricoh หรือค่ายฟิล์มไหนทั้งสิ้น
+## สัญญาอนุญาต
+
+โค้ดอยู่ภายใต้ [MIT License](LICENSE) แต่ละ package มี `LICENSES.md` ที่ระบุสัญญาอนุญาตของไฟล์ในนั้น
+
+- เอฟเฟกต์อยู่ภายใต้ CC BY-SA 4.0 หรือ MIT ดู [effects/NOTICE.md](effects/NOTICE.md)
+- ข้อความในเมนูและไลฟ์วิวใช้ฟอนต์ [Roboto Condensed](https://github.com/googlefonts/roboto-classic) ภายใต้ [SIL Open Font License 1.1](crates/grkit-core/assets/RobotoCondensed-LICENSE.txt)
+- การฟิตเอฟเฟกต์พอร์ตมาจาก [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods) ภายใต้ [MIT License](crates/grkit-core/GR3_FILM_MODS_LICENSE.txt)
+
+RICOH และ GR เป็นเครื่องหมายการค้าของ Ricoh Company, Ltd. ชื่อฟิล์มเป็นเครื่องหมายการค้าของเจ้าของแต่ละราย GRKit เป็นโปรเจกต์อิสระ ไม่เกี่ยวข้องกับ Ricoh หรือผู้ผลิตฟิล์มรายใด

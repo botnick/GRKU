@@ -1,6 +1,6 @@
 # GRKit
 
-English | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+English | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [ไทย](README.th.md)
 
 [![Tests](https://github.com/ahonn/grkit/actions/workflows/tests.yml/badge.svg)](https://github.com/ahonn/grkit/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -88,6 +88,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Device reports are welcome whether GRKit
 - [Release process](docs/releasing.md)
 - [Effects](effects/README.md)
 - [Web site](web/README.md)
+- [One-shot start](docs/one-shot-start.md), [Roadmap](docs/roadmap.md), and [Handoff](HANDOFF.md) of this fork
 
 ## License
 
