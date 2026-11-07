@@ -135,8 +135,14 @@ static u32 chunk_count(u32 chunk)
     return left < ICONS_PER_CHUNK ? left : ICONS_PER_CHUNK;
 }
 #include "install_plan.h"
+#ifndef RTOS_NATIVE
+static void log_step(const char *step, int status);
+#else
+#define log_step(step, status) ((void)0)
+#endif
 /* The plan of this start into `plan` and into RAM (RAM_PLAN_PATH), as SCAN
-   makes it: 0, or a status. The card gets only the header (publish_plan). */
+   makes it: 0, or a status. The card gets only the header (publish_plan).
+   A one-shot start logs each phase of the scan. */
 static int make_plan(void)
 {
     /* The marker files of the safe mode and of the profile. */
@@ -145,8 +151,11 @@ static int make_plan(void)
     /* The modules first: the effects install only for a module that uses
        CORE.TONE. */
     plan_modules();
+    if (ram_cache) log_step("modules", (int)module_count);
     collect();
+    if (ram_cache) log_step("library", (int)pending_count);
     int status = discover();
+    if (ram_cache) log_step("effects", status ? status : (int)listed_count);
     if (status) return status;
     plan_array();
     layout();
@@ -1063,8 +1072,10 @@ static void run_start(void)
     mapping = (volatile u8 *)mapped;
     ram_cache = 1;
     log_step("scan-start", -1);
-    /* The addresses of this build first: the mailbox is at one of them. */
+    /* The addresses of this build first: the mailbox is at one of them. The
+       log says whether the build moved and the search ran. */
     status = relocate();
+    log_step("relocated", status ? status : (int)relocation.searched);
     if (!status && (box = mailbox()) != 0) {
         store(box + GRKIT_MAILBOX_STARTED, 1);
         sync_alias(box, GRKIT_MAILBOX_WORDS * 4);
@@ -1087,6 +1098,7 @@ static void run_start(void)
         finish_start(box, status);
         return;
     }
+    log_step("plan", box ? 1 : 0);
     if (!wait_arrays(box)) {
         log_step("install", STATUS_ARRAYS);
         finish_start(box, STATUS_ARRAYS);
@@ -1113,13 +1125,27 @@ static int start_once(enum install_mode mode)
     long lock = syscall6(5, (u32)START_LOCK_PATH, 0xc1, 0600, 0, 0, 0);
     if (lock < 0) return STATUS_BUSY;
     syscall6(6, lock, 0, 0, 0, 0, 0);
+    /* A pipe tells the parent when the child is on its own, so that the
+       request of the loader ends only then: a shell that ends a request may
+       end the processes of the request with it. */
+    u32 pipe_fds[2] = {0, 0};
+    long piped = syscall6(42, (u32)pipe_fds, 0, 0, 0, 0, 0);
     long pid = syscall6(2, 0, 0, 0, 0, 0, 0);
     if (pid < 0) {
         syscall6(10, (u32)START_LOCK_PATH, 0, 0, 0, 0, 0);
+        create(failed_path, STATUS_NO_PROCESS);
         return STATUS_NO_PROCESS;
     }
     if (pid > 0) {
-        /* The parent: the process ID for INSTALL.SH, then back to SCAN.SH. */
+        /* The parent: the word of the child, then the process ID for
+           INSTALL.SH, then back to SCAN.SH. A child that ends first closes
+           the pipe. */
+        u8 word = 0;
+        if (piped >= 0) {
+            syscall6(6, pipe_fds[1], 0, 0, 0, 0, 0);
+            syscall6(3, pipe_fds[0], (u32)&word, 1, 0, 0, 0);
+            syscall6(6, pipe_fds[0], 0, 0, 0, 0, 0);
+        }
         char text[12]; u32 n = sizeof(text) - 1, v = (u32)pid;
         text[n] = '\n';
         do { text[--n] = (char)('0' + v % 10); v /= 10; } while (v);
@@ -1127,14 +1153,21 @@ static int start_once(enum install_mode mode)
         return 0;
     }
     /* The child: a session of its own, and no descriptor of the request,
-       which returns when the last one closes. */
+       which returns when the last one closes: the standard ones go to
+       /dev/null, and any other that the shell left open closes. */
     syscall6(66, 0, 0, 0, 0, 0, 0);
     long null = syscall6(5, (u32)"/dev/null", 2, 0, 0, 0, 0);
     for (u32 i = 0; i < 3; ++i) {
         if (null >= 0) syscall6(63, (u32)null, i, 0, 0, 0, 0);
         else syscall6(6, i, 0, 0, 0, 0, 0);
     }
-    if (null > 2) syscall6(6, (u32)null, 0, 0, 0, 0, 0);
+    for (u32 fd = 3; fd < 256; ++fd)
+        if (piped < 0 || fd != pipe_fds[1]) syscall6(6, fd, 0, 0, 0, 0, 0);
+    if (piped >= 0) {
+        u8 word = 1;
+        syscall6(4, pipe_fds[1], (u32)&word, 1, 0, 0, 0);
+        syscall6(6, pipe_fds[1], 0, 0, 0, 0, 0);
+    }
     run_start();
     syscall6(1, 0, 0, 0, 0, 0, 0);
     for (;;) {}

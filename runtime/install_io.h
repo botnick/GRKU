@@ -71,43 +71,44 @@ static int write_file(const char *path, const u8 *data, u32 size)
     }
     return syscall6(6,fd,0,0,0,0,0)>=0 && done==size;
 }
-/* The RAM cache of a one-shot start (installer.c, --start): a copy under
-   /tmp of each card file that the start reads, so that the second read of
+/* The RAM cache of a one-shot start (installer.c, --start): a copy in
+   memory of each card file that the start reads, so that the second read of
    a module or an effect in the same start costs no request to the RTOS. On
    the camera's Linux, the card is a remote file system served by the RTOS,
    so each read of a file costs as much as the first one. The cache is off
    (0) in the other modes, in the host tests, and in the RTOS-side loader,
-   which read each file as before. RAM is empty at each power-on, so a copy
-   never reaches another start. */
+   which read each file as before. A file that does not fit is read again. */
 static int ram_cache;
-#define CACHE_DIRECTORY "/tmp/grkit-cache"
 #define CACHE_PATH_MAX 192U
-/* The cache path of the card file `path`: the cache folder, then the path
-   with each '/' as '_'. Return 0 if it does not fit in `size` bytes. */
-static int cache_path(const char *path, char *out, u32 size)
-{
-    u32 n=length(CACHE_DIRECTORY), k=length(path);
-    if(n+1+k+1>size) return 0;
-    copy((u8 *)out,(const u8 *)CACHE_DIRECTORY,n); out[n++]='/';
-    for(u32 i=0;i<k;++i) out[n++]=path[i]=='/' ? '_' : path[i];
-    out[n]=0;
-    return 1;
-}
+#ifdef RTOS_NATIVE
+#define CACHE_BYTES 16U
+#define CACHE_ENTRIES 1U
+#else
+#define CACHE_BYTES (2U * 1024U * 1024U)
+#define CACHE_ENTRIES 128U
+#endif
+static u8 cache_data[CACHE_BYTES];
+static struct cache_entry { char path[CACHE_PATH_MAX]; u32 offset, size; } cache_entries[CACHE_ENTRIES];
+static u32 cache_count, cache_used;
 /* Read the whole file `path` into `buffer`, as read_text does, through the
-   RAM cache when it is on: a copy under /tmp serves the read, and a read of
-   the card leaves a copy. */
+   RAM cache when it is on. */
 static long read_whole(const char *path, u8 *buffer, u32 max)
 {
-    char cached[CACHE_PATH_MAX];
-    int use=ram_cache && cache_path(path,cached,sizeof(cached));
-    if(use) {
-        long n=read_text(cached,buffer,max);
-        if(n>=0) return n;
+    if(ram_cache) {
+        for(u32 i=0;i<cache_count;++i) {
+            if(!text_equal(cache_entries[i].path,path)) continue;
+            if(cache_entries[i].size>max) return -1;
+            copy(buffer,cache_data+cache_entries[i].offset,cache_entries[i].size);
+            return (long)cache_entries[i].size;
+        }
     }
     long n=read_text(path,buffer,max);
-    if(use && n>=0) {
-        long made=syscall6(39,(u32)CACHE_DIRECTORY,0700,0,0,0,0);
-        if(made>=0 || made==-17) write_file(cached,buffer,(u32)n);
+    if(ram_cache && n>=0 && cache_count<CACHE_ENTRIES && length(path)<CACHE_PATH_MAX && (u32)n<=CACHE_BYTES-cache_used) {
+        struct cache_entry *entry=&cache_entries[cache_count++];
+        copy((u8 *)entry->path,(const u8 *)path,length(path)+1);
+        entry->offset=cache_used; entry->size=(u32)n;
+        copy(cache_data+cache_used,buffer,(u32)n);
+        cache_used+=(u32)n;
     }
     return n;
 }

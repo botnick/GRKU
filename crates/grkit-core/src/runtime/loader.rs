@@ -150,8 +150,7 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
         "mpause 2000".into(),
         "sendln 'lcmd_resp on'".into(),
         // Early requests fail before Linux mounts the card. The start says
-        // that it runs, and then the loader only polls. Give up after 200
-        // attempts, about 30 s.
+        // that it runs, and then the loader only polls.
         "started = 0".into(),
         ":scan".into(),
         "if started <> 0 goto scan_posted".into(),
@@ -166,7 +165,14 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
         format!("if posted = {MAILBOX_FAILED} goto start_failed"),
         "mpause 150".into(),
         "attempts = attempts + 1".into(),
-        "if attempts < 200 goto scan".into(),
+        // Before the start says that it runs: about 30 s, for Linux and the
+        // mount of the card, as before. After: the scan of the first start
+        // after an install copies the effects into the library and can
+        // search the relocation, which takes a minute on GR IV, so about
+        // two minutes more.
+        "limit = 200".into(),
+        "if started <> 0 limit = 1000".into(),
+        "if attempts < limit goto scan".into(),
         "goto reject".into(),
         // The plan header from the mailbox: the words of `abi::PLAN_FIELDS`
         // after the magic word.
