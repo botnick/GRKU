@@ -1,5 +1,9 @@
 #ifndef GRKIT_INSTALL_EFFECTS_H
 #define GRKIT_INSTALL_EFFECTS_H
+/* A line of the boot log of a one-shot start (installer.c), or nothing. */
+#ifndef GRKIT_PHASE_LOG
+#define GRKIT_PHASE_LOG(step, status) ((void)0)
+#endif
 /* A part of the installer: the listed effects, their choices, and their
    records. installer.c includes it once, in its order, after the helpers and
    the state that this part uses. */
@@ -94,9 +98,12 @@ static int discover(void)
     if(fd<0 && fd!=-2) return STATUS_LIBRARY_UNREADABLE;
     if(fd>=0) {
         static const struct directory_calls calls={directory_read,directory_seek};
+        /* The listing reads each file as it lists it (offer_effect); the boot
+           log of a start times the listing with the reads. */
         int status=directory_list(fd,directory_entries,sizeof(directory_entries),&calls,offer_effect,(void *)library_path);
         syscall6(6,fd,0,0,0,0,0);
         if(status) return status;
+        GRKIT_PHASE_LOG("listed",(int)listed_count);
     }
     for(u32 i=0;i<pending_count;++i) {
         char path[EFFECT_PATH_SIZE];

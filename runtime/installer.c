@@ -120,6 +120,14 @@ static u32 listed_record[EFFECTS_LISTED];
 #define PATH_MAX_OF(a, b) (sizeof(a) > sizeof(b) ? sizeof(a) : sizeof(b))
 #define EFFECT_PATH_SIZE (PATH_MAX_OF(legacy_effects_path, PATH_MAX_OF(library_path, inbox_path)) + CATALOG_NAME_SIZE)
 #include "install_library.h"
+/* The boot log of a one-shot start, which the parts of the scan time
+   (install_effects.h: GRKIT_PHASE_LOG). */
+#ifndef RTOS_NATIVE
+static void log_step(const char *step, int status);
+#define GRKIT_PHASE_LOG(step, status) do { if (ram_cache) log_step(step, status); } while (0)
+#else
+#define log_step(step, status) ((void)0)
+#endif
 #include "install_effects.h"
 /* The artwork tiles of the usable modules (plan_modules). Their icon slots
    follow the effect icons. */
@@ -135,11 +143,6 @@ static u32 chunk_count(u32 chunk)
     return left < ICONS_PER_CHUNK ? left : ICONS_PER_CHUNK;
 }
 #include "install_plan.h"
-#ifndef RTOS_NATIVE
-static void log_step(const char *step, int status);
-#else
-#define log_step(step, status) ((void)0)
-#endif
 /* The whole plan into RAM (RAM_PLAN_PATH), for INSTALL. */
 static int write_ram_plan(void)
 {
@@ -160,7 +163,7 @@ static int make_plan(void)
     collect();
     if (ram_cache) log_step("library", (int)pending_count);
     int status = discover();
-    if (ram_cache) log_step("effects", status ? status : (int)listed_count);
+    if (ram_cache) log_step("effects", status ? status : (int)count);
     if (status) return status;
     plan_array();
     layout();
