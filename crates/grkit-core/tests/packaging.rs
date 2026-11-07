@@ -941,6 +941,111 @@ fn install_tries_the_core_of_the_last_start_first() {
     assert_eq!(record, "CORE1.BIN\n");
 }
 
+/// SCAN.SH of a package with several builds starts the core of the last
+/// start first, as INSTALL.SH selects it, with the start modes, and runs
+/// nothing while the lock of a start exists.
+#[cfg(unix)]
+#[test]
+fn scan_starts_the_core_of_the_build_once() {
+    let files = unpack(
+        &assemble(
+            &gr4_runtimes(),
+            &EffectSet::default(),
+            &testing::official_modules(),
+            &camera::GR4,
+            &english(),
+        )
+        .unwrap()
+        .bytes,
+    );
+    let card = tempfile::tempdir().unwrap();
+    let root = card.path().to_str().unwrap();
+    let script = String::from_utf8(files["SD_ROOT/SCRIPT/GRKIT/SCAN.SH"].clone())
+        .unwrap()
+        .replace("/media/storage1", root)
+        .replace("</proc/uptime", "</dev/null")
+        .replace("/tmp/grkit-", &format!("{root}/tmp-grkit-"));
+    let package = card.path().join("SCRIPT/GRKIT");
+    std::fs::create_dir_all(&package).unwrap();
+    std::fs::create_dir_all(card.path().join("GRKIT")).unwrap();
+    std::fs::write(package.join("SCAN.SH"), script).unwrap();
+    // A stand-in core: it logs its run, and starts only on its build, where
+    // it takes the lock of the start as the core does.
+    for (index, build) in ["1.11", "1.20", "0528"].iter().enumerate() {
+        let core = package.join(format!("CORE{}.BIN", index + 1));
+        std::fs::write(
+            &core,
+            format!(
+                "#!/bin/sh\necho CORE{} $1 >>{root}/RUNS\n\
+                 [ \"$BUILD\" = {build} ] && {{ : >{root}/tmp-grkit-start.lck; exit 0; }}\n\
+                 case $1 in --start-try) exit 47 ;; --start) exit 0 ;; esac\nexit 48\n",
+                index + 1
+            ),
+        )
+        .unwrap();
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&core, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+    let start = |build: &str| {
+        let _ = std::fs::remove_file(card.path().join("RUNS"));
+        let output = std::process::Command::new("sh")
+            .arg(package.join("SCAN.SH"))
+            .env("BUILD", build)
+            .output()
+            .unwrap();
+        assert!(output.status.success(), "{output:?}");
+        let runs = std::fs::read_to_string(card.path().join("RUNS")).unwrap_or_default();
+        let record =
+            std::fs::read_to_string(card.path().join("GRKIT/CORE.TXT")).unwrap_or_default();
+        (runs, record)
+    };
+    let power_on = || {
+        for name in [
+            "tmp-grkit-boot",
+            "tmp-grkit-start.lck",
+            "tmp-grkit-boot.log",
+        ] {
+            let _ = std::fs::remove_file(card.path().join(name));
+        }
+    };
+    // The first start tries each core in order and keeps the one that started.
+    power_on();
+    assert_eq!(
+        start("0528"),
+        (
+            "CORE1 --start-known\nCORE2 --start-known\nCORE3 --start-known\n".into(),
+            "CORE3.BIN\n".into()
+        )
+    );
+    // The loader repeats SCAN.SH until the start answers: the lock of the
+    // start keeps the repeat from running any core.
+    assert_eq!(start("0528"), ("".into(), "CORE3.BIN\n".into()));
+    assert!(card.path().join("tmp-grkit-boot").exists());
+    // The next power-on runs only the kept core.
+    power_on();
+    assert_eq!(
+        start("0528"),
+        ("CORE3 --start-known\n".into(), "CORE3.BIN\n".into())
+    );
+    // A build that no core names goes on to --start-try, then --start.
+    power_on();
+    let (runs, record) = start("2.00");
+    assert_eq!(
+        runs,
+        "CORE3 --start-known\nCORE1 --start-known\nCORE2 --start-known\n\
+         CORE1 --start-try\nCORE2 --start-try\nCORE3 --start\n"
+    );
+    assert_eq!(record, "CORE3.BIN\n");
+    // The boot log of the start is in RAM, after the load line on the card.
+    let log = std::fs::read_to_string(card.path().join("GRKIT/BOOT.TXT")).unwrap();
+    assert_eq!(log.lines().filter(|l| l.ends_with(" load")).count(), 3);
+    let ram = std::fs::read_to_string(card.path().join("tmp-grkit-boot.log")).unwrap();
+    assert!(
+        ram.contains(" start\n") && ram.contains(" started 0\n"),
+        "{ram}"
+    );
+}
+
 #[test]
 fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
     let gr4 = |runtimes: &[VerifiedRuntime]| {
