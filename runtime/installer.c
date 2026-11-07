@@ -43,10 +43,13 @@ static long syscall6(u32 number, u32 a, u32 b, u32 c, u32 d, u32 e, u32 f)
     return (long)r0;
 }
 #endif
-/* The loader script allocates one array before the planned ones: the array
-   of the firmware probe and the fast-boot head (runtime::fast). */
-#define ARRAY_LEAD 1U
-#define ARRAYS (ARRAY_TABLE + ARRAY_LEAD * 8U)
+/* The loader script allocates two arrays before the planned ones: the array
+   of the firmware probe and the fast-boot head (runtime::fast), then the
+   mailbox of a one-shot start (GRKIT_MAILBOX_*, runtime::loader). Entry i
+   of the array table holds the words of array i, then its address. */
+#define ARRAY_LEAD 2U
+#define ARRAY_ENTRY(i) (ARRAY_TABLE + (i) * 8U)
+#define ARRAYS ARRAY_ENTRY(ARRAY_LEAD)
 static volatile u8 *mapping;
 /* One profile more than MAX_COUNT shows that the effects do not all fit. */
 static u8 profiles[MAX_COUNT + 1][GRKIT_GRF_MAX_SIZE];
@@ -132,19 +135,10 @@ static u32 chunk_count(u32 chunk)
     return left < ICONS_PER_CHUNK ? left : ICONS_PER_CHUNK;
 }
 #include "install_plan.h"
-static int scan(void)
+/* The plan of this start into `plan` and into RAM (RAM_PLAN_PATH), as SCAN
+   makes it: 0, or a status. The card gets only the header (publish_plan). */
+static int make_plan(void)
 {
-    /* An earlier attempt of this power-on wrote the plan: the loader deletes
-       it at power-on. A second plan would replace it in a rename, which the
-       camera's Linux does not do. */
-    long fd = syscall6(5, (u32)plan_path, 0x8800, 0, 0, 0, 0);
-    if (fd >= 0) { syscall6(6, fd, 0, 0, 0, 0, 0); return 0; }
-    /* O_EXCL: the loader resends SCAN until a plan appears, so attempts can
-       overlap. Only the attempt that creates the temporary plan moves the
-       inbox and lists the effects. */
-    fd = syscall6(5, (u32)plan_tmp, 0xc1, 0600, 0, 0, 0);
-    if (fd == -17) return STATUS_BUSY;
-    if (fd < 0) return STATUS_PLAN_WRITE;
     /* The marker files of the safe mode and of the profile. */
     safe_mode = present(safe_path) || present(safe_text_path);
     profile_mode = present(profile_path) || present(profile_text_path);
@@ -153,11 +147,7 @@ static int scan(void)
     plan_modules();
     collect();
     int status = discover();
-    if (status) {
-        syscall6(6, fd, 0, 0, 0, 0, 0);
-        syscall6(10, (u32)plan_tmp, 0, 0, 0, 0, 0);
-        return status;
-    }
+    if (status) return status;
     plan_array();
     layout();
     u32 effects_at = GRKIT_PLAN_HEADER_SIZE + count * GRKIT_GRF_MAX_SIZE;
@@ -184,12 +174,26 @@ static int scan(void)
        loader starts INSTALL when the header appears on the card, so INSTALL
        always finds the whole plan. A card write of the plan takes about
        0.35 s on a camera. */
-    u32 done = 0, total = effects_at + listed_count * GRKIT_PLANNED_EFFECT_SIZE;
-    if (!write_file(ram_plan_path, plan, total)) {
-        syscall6(6, fd, 0, 0, 0, 0, 0);
-        syscall6(10, (u32)plan_tmp, 0, 0, 0, 0, 0);
-        return STATUS_PLAN_WRITE;
-    }
+    u32 total = effects_at + listed_count * GRKIT_PLANNED_EFFECT_SIZE;
+    if (!write_file(ram_plan_path, plan, total)) return STATUS_PLAN_WRITE;
+    return 0;
+}
+/* The temporary plan on the card, with O_EXCL: the loader resends SCAN until
+   a plan appears, so attempts can overlap. Only the attempt that creates the
+   temporary plan moves the inbox and lists the effects. Returns its
+   descriptor, or the negative of STATUS_BUSY or STATUS_PLAN_WRITE. */
+static long open_plan_tmp(void)
+{
+    long fd = syscall6(5, (u32)plan_tmp, 0xc1, 0600, 0, 0, 0);
+    if (fd == -17) return -STATUS_BUSY;
+    return fd < 0 ? -STATUS_PLAN_WRITE : fd;
+}
+/* The plan header into the open temporary plan `fd`, then under the name
+   of the plan. Return 0, or STATUS_PLAN_WRITE after removing the temporary
+   plan. */
+static int publish_plan(long fd)
+{
+    u32 done = 0;
     while (done < GRKIT_PLAN_HEADER_SIZE) {
         long n = syscall6(4, fd, (u32)(plan + done), GRKIT_PLAN_HEADER_SIZE - done, 0, 0, 0);
         if (n <= 0) break;
@@ -200,12 +204,31 @@ static int scan(void)
         syscall6(10, (u32)plan_tmp, 0, 0, 0, 0, 0);
         return STATUS_PLAN_WRITE;
     }
+    return 0;
+}
+static int scan(void)
+{
+    /* An earlier attempt of this power-on wrote the plan: the loader deletes
+       it at power-on. A second plan would replace it in a rename, which the
+       camera's Linux does not do. */
+    long fd = syscall6(5, (u32)plan_path, 0x8800, 0, 0, 0, 0);
+    if (fd >= 0) { syscall6(6, fd, 0, 0, 0, 0, 0); return 0; }
+    fd = open_plan_tmp();
+    if (fd < 0) return (int)-fd;
+    int status = make_plan();
+    if (status) {
+        syscall6(6, fd, 0, 0, 0, 0, 0);
+        syscall6(10, (u32)plan_tmp, 0, 0, 0, 0, 0);
+        return status;
+    }
+    if ((status = publish_plan(fd))) return status;
     print("GR_MODULE_SCANNED "); number(count); print("\n");
     return 0;
 }
+static void barrier(void) { __asm__ volatile("dsb sy" ::: "memory"); }
 static int sync_alias(u32 address, u32 n)
 {
-    __asm__ volatile("dsb sy" ::: "memory");
+    barrier();
     return syscall6(0xf0002, (u32)at(address), (u32)at(address + n), 0, 0, 0, 0) == 0;
 }
 /* A native icon: its descriptor, then the 40 x 40 pixels. The descriptor
@@ -232,6 +255,15 @@ static void icon_header(u32 icon, u32 pixels)
 static int heap(u32 p, u32 n)
 {
     return !(p & 3) && p >= HEAP_MIN && n <= HEAP_END - HEAP_MIN && p <= HEAP_END - n;
+}
+/* The mailbox (GRKIT_MAILBOX_*): the second array of the loader, or 0 when
+   the loader has not allocated it. The array table is a firmware address,
+   so the relocation must have run. */
+static u32 mailbox(void)
+{
+    if (*(volatile u16 *)at(ARRAY_COUNT) < ARRAY_LEAD || word(ARRAY_ENTRY(1)) != GRKIT_MAILBOX_WORDS) return 0;
+    u32 box = word(ARRAY_ENTRY(1) + 4);
+    return heap(box, GRKIT_MAILBOX_WORDS * 4) ? box : 0;
 }
 /* The extension points of the usable modules. Only their patches change
    the firmware. */
@@ -729,22 +761,17 @@ static int publish_patches(void)
     return 0;
 }
 
-static int install(void)
+/* INSTALL after the plan and the relocation: the code area, the arrays, the
+   firmware checks, the records, the icons, the modules, the saved values,
+   then the hooks. A not-ready status leaves the camera as it was, so a
+   one-shot start calls it again. */
+static int install_planned(void)
 {
     struct arrays arrays;
     u32 module_start;
-    int status = read_plan();
-    if (status) return status;
+    int status;
     /* The loaded modules add the points that they need (install_modules). */
     needed_points = 0;
-    /* The modules of SCAN, which the loader reserved memory for. */
-    plan_modules();
-    plan_array();
-    layout();
-    if (get32(plan + GRKIT_PLAN_HEADER_WORDS) != size / 4 || get32(plan + GRKIT_PLAN_ICON_CHUNKS) != icon_chunks ||
-        get32(plan + GRKIT_PLAN_MODULE_WORDS) != module_words || get32(plan + GRKIT_PLAN_MODULE_TILES) != module_tiles)
-        return STATUS_PLAN;
-    if ((status = relocate())) return status;
     if ((status = plan_code(relocated[TAIL_SYMBOL], TAIL_BYTES, CODE_END, &module_start))) return status;
     if ((status = check_arrays(&arrays))) return status;
     if ((status = check_firmware())) return status;
@@ -774,6 +801,20 @@ static int install(void)
     if ((status = publish_patches())) return status;
     print("GR_MODULE_INSTALLED "); number(count); print("\n");
     return 0;
+}
+static int install(void)
+{
+    int status = read_plan();
+    if (status) return status;
+    /* The modules of SCAN, which the loader reserved memory for. */
+    plan_modules();
+    plan_array();
+    layout();
+    if (get32(plan + GRKIT_PLAN_HEADER_WORDS) != size / 4 || get32(plan + GRKIT_PLAN_ICON_CHUNKS) != icon_chunks ||
+        get32(plan + GRKIT_PLAN_MODULE_WORDS) != module_words || get32(plan + GRKIT_PLAN_MODULE_TILES) != module_tiles)
+        return STATUS_PLAN;
+    if ((status = relocate())) return status;
+    return install_planned();
 }
 #ifdef MODULE_DIAGNOSTICS
 /* Diagnostic builds can select profiles independently of the menu. */
@@ -882,6 +923,221 @@ static int other_build(enum install_mode mode)
     syscall6(6, fd, 0, 0, 0, 0, 0);
     return other;
 }
+#ifndef RTOS_NATIVE
+/* ---- One-shot start --------------------------------------------------------
+   SCAN.SH runs the core once at each power-on with --start, --start-known,
+   or --start-try, which check the build as --install, --known, and --try
+   do. The core then goes on in a process of its own, so the request of the
+   loader returns at once, and the loader polls the mailbox (abi.h,
+   GRKIT_MAILBOX_*) and the result files. In that process, the start maps
+   the camera memory once, reads each module and each effect file once
+   (read_whole), scans, posts the plan header into the mailbox and writes it
+   to the card, waits until the loader allocated the arrays of the plan,
+   installs, with the retries of a native state that the camera still
+   initializes, and posts the result. The camera's Linux reads the card
+   through the RTOS, so each request, each read of the core file, and each
+   card write costs about as much, and a start makes as few as it can. The
+   loader sends INSTALL.SH when no result comes, which runs --install from
+   the plan in RAM, as before. */
+#define START_LOCK_PATH "/tmp/grkit-start.lck"
+#define START_PID_PATH "/tmp/grkit-core.pid"
+/* The boot log of this start in RAM, which SCAN.SH starts, and the boot
+   log on the card (grkit_core::runtime::files::BOOT_LOG). */
+#define BOOT_RAM_LOG "/tmp/grkit-boot.log"
+#define BOOT_LOG_PATH DATA_PATH "/BOOT.TXT"
+/* The most lines of the boot log, about 20 starts, and the lines that a
+   longer log keeps. */
+#define BOOT_LOG_LINES 400U
+#define BOOT_LOG_KEEP 300U
+#define BOOT_LOG_MAX 65536U
+static u8 boot_log[BOOT_LOG_MAX];
+static void sleep_ms(u32 ms)
+{
+    u32 time[2] = {ms / 1000U, (ms % 1000U) * 1000000U};
+    syscall6(162, (u32)time, 0, 0, 0, 0, 0);
+}
+/* A line of the boot log in RAM: the Linux uptime in seconds, the step,
+   then its status unless `status` is negative. SCAN.SH and INSTALL.SH write
+   the same lines. */
+static void log_step(const char *step, int status)
+{
+    char line[80]; u8 up[32];
+    u32 n = 0;
+    long got = read_text("/proc/uptime", up, sizeof(up) - 1);
+    for (long i = 0; i < got && up[i] != ' ' && n < 24; ++i) line[n++] = (char)up[i];
+    if (!n) line[n++] = '?';
+    line[n++] = ' ';
+    for (const char *p = step; *p && n < 60; ++p) line[n++] = *p;
+    if (status >= 0) {
+        char digits[12]; u32 d = sizeof(digits), v = (u32)status;
+        line[n++] = ' ';
+        do { digits[--d] = (char)('0' + v % 10); v /= 10; } while (v);
+        while (d < sizeof(digits)) line[n++] = digits[d++];
+    }
+    line[n++] = '\n';
+    long fd = syscall6(5, (u32)BOOT_RAM_LOG, 0x441, 0644, 0, 0, 0);
+    if (fd < 0) return;
+    syscall6(4, fd, (u32)line, n, 0, 0, 0);
+    syscall6(6, fd, 0, 0, 0, 0, 0);
+}
+/* The boot log of this start to the card, after the result: the card log,
+   then the lines in RAM, in one write. A log past BOOT_LOG_LINES lines keeps
+   its last BOOT_LOG_KEEP lines. The RAM log then starts again, so a later
+   INSTALL.SH of the same power-on appends its own lines to the card. */
+static void flush_log(void)
+{
+    static u8 ram[8192];
+    long have = read_text(BOOT_LOG_PATH, boot_log, BOOT_LOG_MAX), fresh = read_text(BOOT_RAM_LOG, ram, sizeof(ram));
+    if (fresh <= 0) return;
+    if (have < 0) have = 0;
+    u32 lines = 0;
+    for (long i = 0; i < have; ++i) lines += boot_log[i] == '\n';
+    if (lines > BOOT_LOG_LINES) {
+        u32 skip = lines - BOOT_LOG_KEEP;
+        long i = 0;
+        while (skip && i < have) if (boot_log[i++] == '\n') --skip;
+        copy(boot_log, boot_log + i, (u32)(have - i));
+        have -= i;
+    }
+    if (have + fresh > (long)BOOT_LOG_MAX) fresh = (long)BOOT_LOG_MAX - have;
+    copy(boot_log + have, ram, (u32)fresh);
+    long made = syscall6(39, (u32)data_path, 0755, 0, 0, 0, 0);
+    if (made < 0 && made != -17) return;
+    if (write_file(BOOT_LOG_PATH, boot_log, (u32)(have + fresh))) syscall6(10, (u32)BOOT_RAM_LOG, 0, 0, 0, 0, 0);
+}
+/* The plan header into the mailbox, its magic word last: the loader reads
+   the other words after it. */
+static void post_plan(u32 box)
+{
+    copy(at(box + GRKIT_MAILBOX_PLAN + 4), plan + 4, GRKIT_PLAN_HEADER_SIZE - 4);
+    barrier();
+    store(box + GRKIT_MAILBOX_PLAN, GRKIT_PLAN_MAGIC_VALUE);
+    sync_alias(box, GRKIT_MAILBOX_WORDS * 4);
+}
+/* The result of the start into the mailbox: the status, then the result
+   word, which the loader polls. */
+static void post_result(u32 box, int status)
+{
+    store(box + GRKIT_MAILBOX_STATUS, (u32)status);
+    barrier();
+    store(box + GRKIT_MAILBOX_RESULT, status ? GRKIT_MAILBOX_FAILED : GRKIT_MAILBOX_INSTALLED);
+    sync_alias(box, GRKIT_MAILBOX_WORDS * 4);
+}
+/* Wait until the loader allocated the arrays of the plan: the mailbox says
+   so, or the array table lists them in three polls in a row, so that the
+   loader is past its last allocation. Return 1, or 0 after a minute. */
+static int wait_arrays(u32 box)
+{
+    struct arrays arrays;
+    u32 stable = 0;
+    for (u32 poll = 0; poll < 3000; ++poll) {
+        int listed = check_arrays(&arrays) == 0;
+        if (listed && box && word(box + GRKIT_MAILBOX_ARRAYS) == 1) return 1;
+        stable = listed ? stable + 1 : 0;
+        if (stable >= 3) return 1;
+        sleep_ms(20);
+    }
+    return 0;
+}
+/* The result of a start: the mailbox, the report, the result file that the
+   loader polls, and the boot log. */
+static void finish_start(u32 box, int status)
+{
+    if (box) post_result(box, status);
+    write_report(status);
+    create(status ? failed_path : done_path, status);
+    flush_log();
+}
+static void run_start(void)
+{
+    int status = STATUS_NO_MEMORY;
+    u32 box = 0;
+    long fd = syscall6(5, (u32)"/dev/mem", 0x101002, 0, 0, 0, 0);
+    long mapped = fd < 0 ? -1 : syscall6(192, 0, MAP_SIZE, 3, 1, fd, MAP_BASE >> 12);
+    if (fd >= 0 && (u32)mapped >= 0xfffff001U) status = STATUS_NO_MAPPING;
+    if (fd < 0 || (u32)mapped >= 0xfffff001U) {
+        log_step("scan", status);
+        finish_start(0, status);
+        return;
+    }
+    mapping = (volatile u8 *)mapped;
+    ram_cache = 1;
+    log_step("scan-start", -1);
+    /* The addresses of this build first: the mailbox is at one of them. */
+    status = relocate();
+    if (!status && (box = mailbox()) != 0) {
+        store(box + GRKIT_MAILBOX_STARTED, 1);
+        sync_alias(box, GRKIT_MAILBOX_WORDS * 4);
+    }
+    if (!status) status = make_plan();
+    log_step("scan", status);
+    if (status) {
+        finish_start(box, status);
+        return;
+    }
+    /* The plan header: the mailbox first, then the card, for a loader that
+       reads the file, and for INSTALL.SH. */
+    if (box) post_plan(box);
+    long tmp = open_plan_tmp();
+    if (tmp >= 0) status = publish_plan(tmp);
+    else if (!box) status = (int)-tmp;
+    if (status) {
+        finish_start(box, status);
+        return;
+    }
+    if (!wait_arrays(box)) {
+        log_step("install", STATUS_ARRAYS);
+        finish_start(box, STATUS_ARRAYS);
+        return;
+    }
+    log_step("install-start", -1);
+    for (u32 attempt = 0;; ++attempt) {
+        status = install_planned();
+        if (!not_ready(status)) break;
+        /* As the loader retried INSTALL.SH: every 0.1 s for 30 s, then
+           every 10 s, so a later shooting-mode start can still install. */
+        sleep_ms(attempt < 300 ? 100 : 10000);
+    }
+    log_step("install", status);
+    finish_start(box, status);
+}
+/* --start: check the build as `mode` does, then go on in a process of its
+   own. Returns 0 to SCAN.SH once that process runs, STATUS_OTHER_BUILD or
+   STATUS_RELOCATION on another build, STATUS_BUSY after a start of this
+   power-on, or STATUS_NO_PROCESS. */
+static int start_once(enum install_mode mode)
+{
+    if (mode != INSTALL_LAST && other_build(mode)) return mode == INSTALL_KNOWN ? STATUS_OTHER_BUILD : STATUS_RELOCATION;
+    long lock = syscall6(5, (u32)START_LOCK_PATH, 0xc1, 0600, 0, 0, 0);
+    if (lock < 0) return STATUS_BUSY;
+    syscall6(6, lock, 0, 0, 0, 0, 0);
+    long pid = syscall6(2, 0, 0, 0, 0, 0, 0);
+    if (pid < 0) {
+        syscall6(10, (u32)START_LOCK_PATH, 0, 0, 0, 0, 0);
+        return STATUS_NO_PROCESS;
+    }
+    if (pid > 0) {
+        /* The parent: the process ID for INSTALL.SH, then back to SCAN.SH. */
+        char text[12]; u32 n = sizeof(text) - 1, v = (u32)pid;
+        text[n] = '\n';
+        do { text[--n] = (char)('0' + v % 10); v /= 10; } while (v);
+        write_file(START_PID_PATH, (const u8 *)(text + n), sizeof(text) - n);
+        return 0;
+    }
+    /* The child: a session of its own, and no descriptor of the request,
+       which returns when the last one closes. */
+    syscall6(66, 0, 0, 0, 0, 0, 0);
+    long null = syscall6(5, (u32)"/dev/null", 2, 0, 0, 0, 0);
+    for (u32 i = 0; i < 3; ++i) {
+        if (null >= 0) syscall6(63, (u32)null, i, 0, 0, 0, 0);
+        else syscall6(6, i, 0, 0, 0, 0, 0);
+    }
+    if (null > 2) syscall6(6, (u32)null, 0, 0, 0, 0, 0);
+    run_start();
+    syscall6(1, 0, 0, 0, 0, 0, 0);
+    for (;;) {}
+}
+#endif
 #ifdef RTOS_NATIVE
 __attribute__((used)) int grkit_install_entry(u32 argc, char **argv)
 {
@@ -892,10 +1148,19 @@ __attribute__((used)) void start(u32 *stack)
     u32 argc = stack[0]; char **argv = (char **)(stack + 1); int status = STATUS_USAGE;
 #endif
     enum install_mode mode = INSTALL_LAST;
+    int starting = 0;
     if (argc == 2 && text_equal(argv[1], "--known")) mode = INSTALL_KNOWN;
     else if (argc == 2 && text_equal(argv[1], "--try")) mode = INSTALL_TRY;
-    int installing = argc == 2 && (mode != INSTALL_LAST || text_equal(argv[1], "--install"));
+#ifndef RTOS_NATIVE
+    else if (argc == 2 && text_equal(argv[1], "--start-known")) { mode = INSTALL_KNOWN; starting = 1; }
+    else if (argc == 2 && text_equal(argv[1], "--start-try")) { mode = INSTALL_TRY; starting = 1; }
+    else if (argc == 2 && text_equal(argv[1], "--start")) starting = 1;
+#endif
+    int installing = argc == 2 && !starting && (mode != INSTALL_LAST || text_equal(argv[1], "--install"));
     if (argc == 2 && text_equal(argv[1], "--scan")) status = scan();
+#ifndef RTOS_NATIVE
+    else if (starting) status = start_once(mode);
+#endif
     else if (installing
 #ifdef MODULE_DIAGNOSTICS
              || (argc == 3 && text_equal(argv[1], "--select") && length(argv[2]) <= 31)

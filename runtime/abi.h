@@ -479,6 +479,23 @@
 #define GRKIT_PLAN_OVERFLOW 32
 /* Number of listed effects. */
 #define GRKIT_PLAN_LISTED 36
+/* The mailbox: the second script array of the loader. A one-shot start posts
+   the plan header and its result into it, and the loader posts that the arrays
+   of the plan exist. */
+#define GRKIT_MAILBOX_WORDS 16
+#define GRKIT_MAILBOX_INSTALLED 1U
+#define GRKIT_MAILBOX_FAILED 2U
+/* The plan header (`PLAN_FIELDS`), with its magic word written last. */
+#define GRKIT_MAILBOX_PLAN 0
+#define GRKIT_MAILBOX_PLAN_WORDS 10
+/* GRKIT_MAILBOX_INSTALLED or GRKIT_MAILBOX_FAILED, else 0. */
+#define GRKIT_MAILBOX_RESULT 40
+/* The status of a failure (runtime/install_status.h). */
+#define GRKIT_MAILBOX_STATUS 44
+/* 1 once a start of this power-on runs: the loader sends no other. */
+#define GRKIT_MAILBOX_STARTED 48
+/* 1 once the loader allocated the arrays of the plan. */
+#define GRKIT_MAILBOX_ARRAYS 52
 #define GRKIT_PLANNED_EFFECT_SIZE 92
 /* The head of its GRF file, which holds its ID and name. */
 #define GRKIT_PLANNED_HEAD 0

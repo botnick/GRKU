@@ -484,6 +484,33 @@ fields!(PLAN_FIELDS {
     PLAN_LISTED = 36, 4;
 });
 
+/// The mailbox: the second script array of the loader, after the probe
+/// array (`runtime::loader`, `ARRAY_LEAD` in runtime/installer.c). A
+/// one-shot start (`--start`) posts the plan header and its result into it,
+/// so the loader polls RAM instead of card files, and the loader tells the
+/// start that the arrays of the plan exist. Each word is 0 at power-on: the
+/// loader clears the ones it reads before it sends the start.
+pub const MAILBOX_WORDS: usize = 16;
+/// `MAILBOX_RESULT` after INSTALL installed the hooks, or after the start
+/// stopped with a status.
+pub const MAILBOX_INSTALLED: u32 = 1;
+pub const MAILBOX_FAILED: u32 = 2;
+
+fields!(MAILBOX_FIELDS {
+    /// The plan header (`PLAN_FIELDS`), with its magic word written last.
+    MAILBOX_PLAN = 0, 40;
+    /// GRKIT_MAILBOX_INSTALLED or GRKIT_MAILBOX_FAILED, else 0.
+    MAILBOX_RESULT = 40, 4;
+    /// The status of a failure (runtime/install_status.h).
+    MAILBOX_STATUS = 44, 4;
+    /// 1 once a start of this power-on runs: the loader sends no other.
+    MAILBOX_STARTED = 48, 4;
+    /// 1 once the loader allocated the arrays of the plan.
+    MAILBOX_ARRAYS = 52, 4;
+});
+const _: () = assert!(MAILBOX_PLAN + PLAN_HEADER_SIZE == MAILBOX_RESULT);
+const _: () = assert!(MAILBOX_ARRAYS + 4 <= MAILBOX_WORDS * 4);
+
 /// A listed effect in the plan.
 pub const PLANNED_EFFECT_SIZE: usize = 92;
 
@@ -954,6 +981,17 @@ pub fn header() -> String {
     writeln!(out, "#define GRKIT_PLAN_SAFE {PLAN_SAFE}U").unwrap();
     writeln!(out, "#define GRKIT_PLAN_PROFILE {PLAN_PROFILE}U").unwrap();
     table(&mut out, PLAN_FIELDS, false);
+    define(
+        &mut out,
+        "The mailbox: the second script array of the loader. A one-shot start \
+         posts the plan header and its result into it, and the loader posts \
+         that the arrays of the plan exist.",
+        "MAILBOX_WORDS",
+        MAILBOX_WORDS,
+    );
+    writeln!(out, "#define GRKIT_MAILBOX_INSTALLED {MAILBOX_INSTALLED}U").unwrap();
+    writeln!(out, "#define GRKIT_MAILBOX_FAILED {MAILBOX_FAILED}U").unwrap();
+    table(&mut out, MAILBOX_FIELDS, false);
     writeln!(
         out,
         "#define GRKIT_PLANNED_EFFECT_SIZE {PLANNED_EFFECT_SIZE}"
@@ -1203,6 +1241,18 @@ mod tests {
     fn the_plan_fields_cover_the_plan_header_and_entry() {
         check(PLAN_FIELDS, PLAN_HEADER_SIZE, true);
         check(PLANNED_FIELDS, PLANNED_EFFECT_SIZE, true);
+        // The mailbox holds the plan header, then the result of the start,
+        // then the words of the handshake with the loader.
+        check(MAILBOX_FIELDS, MAILBOX_WORDS * 4, false);
+        assert_eq!(
+            [
+                MAILBOX_RESULT,
+                MAILBOX_STATUS,
+                MAILBOX_STARTED,
+                MAILBOX_ARRAYS
+            ],
+            [40, 44, 48, 52]
+        );
         // The loader reads the words up to PLAN_MODULE_TILES in this order.
         assert_eq!(
             [

@@ -966,79 +966,76 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
     ] {
         assert_eq!(files[path], testing::marked_installer(target), "{path}");
     }
-    // Each script runs its body between two lines of the boot log, and the
-    // first SCAN.SH of a power-on also starts the log of the start.
-    let wrapped = |script: &[u8], mode: &str, body: &str| {
-        let script = String::from_utf8(script.to_vec()).unwrap();
-        let log = "/media/storage1/GRKIT/BOOT.TXT";
-        let expected = format!(
-            "read t _ </proc/uptime; echo \"$t {mode}-start\" >>{log}\n{body}\
-             read t _ </proc/uptime; echo \"$t {mode} $status\" >>{log}\n\
-             echo GR_MODULE_{}_EXIT_$status\nexit 0\n",
-            mode.to_uppercase()
-        );
-        assert!(script.ends_with(&expected), "{script}");
-        let start = &script[..script.len() - expected.len()];
-        if mode == "scan" {
-            assert!(
-                start.starts_with(
-                    "mkdir -p /media/storage1/GRKIT\nif [ ! -e /tmp/grkit-boot ]; then\n"
-                ),
-                "{script}"
-            );
-            assert!(
-                start.contains("echo \"$t load\" >>/media/storage1/GRKIT/BOOT.TXT\n"),
-                "{script}"
-            );
-        } else {
-            assert_eq!(start, "", "{script}");
-        }
-    };
-    wrapped(
-        &files["SD_ROOT/SCRIPT/GRKIT/INSTALL.SH"],
-        "install",
-        "k=/media/storage1/GRKIT/CORE.TXT\n\
-         last=; [ -e $k ] && read last _ <$k\n\
-         status=48; used=\n\
-         case \" CORE1.BIN CORE2.BIN CORE3.BIN \" in *\" $last \"*) /media/storage1/SCRIPT/GRKIT/$last --known; status=$?; used=$last ;; esac\n\
-         if [ $status = 48 ]; then\n\
-         \x20 for core in CORE1.BIN CORE2.BIN CORE3.BIN; do\n\
-         \x20   [ \"$core\" = \"$last\" ] && continue\n\
-         \x20   /media/storage1/SCRIPT/GRKIT/$core --known\n\
-         \x20   status=$?; used=$core\n\
-         \x20   case $status in 48) ;; *) break ;; esac\n\
-         \x20 done\n\
-         fi\n\
-         [ $status = 0 ] && [ \"$used\" != \"$last\" ] && echo $used >$k\n\
-         case $status in 48)\n\
-         \x20 for core in CORE1.BIN CORE2.BIN; do\n\
-         \x20   /media/storage1/SCRIPT/GRKIT/$core --try\n\
-         \x20   status=$?\n\
-         \x20   case $status in 47) ;; *) break ;; esac\n\
-         \x20 done\n\
-         \x20 case $status in 47) /media/storage1/SCRIPT/GRKIT/CORE3.BIN --install; status=$? ;; esac\n\
-         \x20 ;;\n\
-         esac\n",
+    // SCAN.SH starts the core once with --start, after the lookup of the
+    // other core files and the selection of the core of the build, and leaves
+    // when a start of this power-on runs. INSTALL.SH, the fallback, selects
+    // as before with --known, --try, and --install, unless the process of the
+    // start runs. SCAN.SH logs to the card once, then to RAM; INSTALL.SH to
+    // the card.
+    let text = |script: &[u8]| String::from_utf8(script.to_vec()).unwrap();
+    let scan = text(&files["SD_ROOT/SCRIPT/GRKIT/SCAN.SH"]);
+    assert!(
+        scan.starts_with(
+            "mkdir -p /media/storage1/GRKIT\n\
+             if [ ! -e /tmp/grkit-boot ]; then\n\
+             \x20 : >/tmp/grkit-boot\n\
+             \x20 read t _ </proc/uptime; echo \"$t load\" >>/media/storage1/GRKIT/BOOT.TXT\n\
+             fi\n\
+             [ -e /tmp/grkit-start.lck ] && exit 0\n\
+             read t _ </proc/uptime; echo \"$t start\" >>/tmp/grkit-boot.log\n\
+             for core in CORE2.BIN CORE3.BIN; do [ -e /media/storage1/SCRIPT/GRKIT/$core ]; done\n\
+             k=/media/storage1/GRKIT/CORE.TXT\n"
+        ),
+        "{scan}"
     );
-    // The first core file scans: the plan is the same for each build. First
-    // the script looks up the other core files.
-    wrapped(
-        &files["SD_ROOT/SCRIPT/GRKIT/SCAN.SH"],
-        "scan",
-        "for core in CORE2.BIN CORE3.BIN; do [ -e /media/storage1/SCRIPT/GRKIT/$core ]; done\n\
-         /media/storage1/SCRIPT/GRKIT/CORE1.BIN --scan\n\
-         status=$?\n",
+    for part in [
+        "/media/storage1/SCRIPT/GRKIT/$last --start-known; status=$?; used=$last ;; esac\n",
+        "    /media/storage1/SCRIPT/GRKIT/$core --start-known\n",
+        "    /media/storage1/SCRIPT/GRKIT/$core --start-try\n",
+        "  case $status in 47) /media/storage1/SCRIPT/GRKIT/CORE3.BIN --start; status=$? ;; esac\n",
+        "read t _ </proc/uptime; echo \"$t started $status\" >>/tmp/grkit-boot.log\n\
+         echo GR_MODULE_START_EXIT_$status\n\
+         if [ -e /media/storage1/GRKIT/DIAG ]; then\n",
+    ] {
+        assert!(scan.contains(part), "{part}\n{scan}");
+    }
+    assert!(scan.ends_with("fi\nexit 0\n"), "{scan}");
+    let install = text(&files["SD_ROOT/SCRIPT/GRKIT/INSTALL.SH"]);
+    assert!(
+        install.starts_with(
+            "p=; [ -e /tmp/grkit-core.pid ] && read p _ </tmp/grkit-core.pid\n\
+             if [ -n \"$p\" ] && [ -d /proc/$p ]; then echo GR_MODULE_INSTALL_EXIT_3; exit 0; fi\n\
+             read t _ </proc/uptime; echo \"$t install-start\" >>/media/storage1/GRKIT/BOOT.TXT\n\
+             k=/media/storage1/GRKIT/CORE.TXT\n"
+        ),
+        "{install}"
+    );
+    for part in [
+        "/media/storage1/SCRIPT/GRKIT/$last --known; status=$?; used=$last ;; esac\n",
+        "    /media/storage1/SCRIPT/GRKIT/$core --try\n",
+        "  case $status in 47) /media/storage1/SCRIPT/GRKIT/CORE3.BIN --install; status=$? ;; esac\n",
+    ] {
+        assert!(install.contains(part), "{part}\n{install}");
+    }
+    assert!(
+        install.ends_with(
+            "read t _ </proc/uptime; echo \"$t install $status\" >>/media/storage1/GRKIT/BOOT.TXT\n\
+             echo GR_MODULE_INSTALL_EXIT_$status\n\
+             exit 0\n"
+        ),
+        "{install}"
     );
     let gr3 = unpack(&package());
-    wrapped(
-        &gr3["SD_ROOT/SCRIPT/GRKIT/SCAN.SH"],
-        "scan",
-        "/media/storage1/SCRIPT/GRKIT/CORE.BIN --scan\nstatus=$?\n",
+    let scan = text(&gr3["SD_ROOT/SCRIPT/GRKIT/SCAN.SH"]);
+    assert!(
+        scan.contains("\n/media/storage1/SCRIPT/GRKIT/CORE.BIN --start\nstatus=$?\n"),
+        "{scan}"
     );
-    wrapped(
-        &gr3["SD_ROOT/SCRIPT/GRKIT/INSTALL.SH"],
-        "install",
-        "/media/storage1/SCRIPT/GRKIT/CORE.BIN --install\nstatus=$?\n",
+    assert!(!scan.contains("for core in"));
+    let install = text(&gr3["SD_ROOT/SCRIPT/GRKIT/INSTALL.SH"]);
+    assert!(
+        install.contains("\n/media/storage1/SCRIPT/GRKIT/CORE.BIN --install\nstatus=$?\n"),
+        "{install}"
     );
     assert!(gr3.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE.BIN"));
     assert!(!gr3.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE1.BIN"));

@@ -12,6 +12,8 @@ enum install_status {
     STATUS_NO_MAPPING = 2,
     /* Another SCAN or INSTALL attempt of this power-on runs or ran. */
     STATUS_BUSY = 3,
+    /* A one-shot start (--start) could not make the process that installs. */
+    STATUS_NO_PROCESS = 4,
     /* The script arrays are not the ones that the plan asked for, or their
        memory is not valid. */
     STATUS_ARRAYS = 10,

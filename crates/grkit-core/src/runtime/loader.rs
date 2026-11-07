@@ -3,8 +3,11 @@
 
 use super::*;
 use crate::abi::{
-    HOST_PROCESSING_CALLS, HOST_PROFILE, PROFILE, PROFILE_KINDS, PROFILE_MODULES,
-    PROFILE_MODULE_SIZE, PROFILE_POINTS, PROFILE_SLOTS, PROFILE_SLOT_SIZE,
+    HOST_PROCESSING_CALLS, HOST_PROFILE, MAILBOX_ARRAYS, MAILBOX_FAILED, MAILBOX_INSTALLED,
+    MAILBOX_PLAN, MAILBOX_RESULT, MAILBOX_STARTED, MAILBOX_STATUS, MAILBOX_WORDS, PLAN_COUNT,
+    PLAN_HEADER_WORDS, PLAN_ICON_CHUNKS, PLAN_MODULE_TILES, PLAN_MODULE_WORDS, PROFILE,
+    PROFILE_KINDS, PROFILE_MODULES, PROFILE_MODULE_SIZE, PROFILE_POINTS, PROFILE_SLOTS,
+    PROFILE_SLOT_SIZE,
 };
 use crate::capabilities::{self, StateFile};
 use crate::card::{DATA_FOLDER, LINUX_DIRECTORY, RTOS_PACKAGE_FOLDER};
@@ -20,8 +23,10 @@ pub const PROFILE_POLLS: u32 = 5;
 
 /// Polls for Linux and camera readiness instead of waiting a fixed time.
 /// `lcmd` requests are synchronous: each returns after the Linux command ends,
-/// or with NG when Linux is not ready. The loader checks the result file after
-/// each request and repeats it after a short pause.
+/// or with NG when Linux is not ready. The loader repeats `SCAN.SH` after a
+/// short pause until the one-shot start of the core answers
+/// (runtime/installer.c): in the mailbox, its second script array, or in the
+/// card files of earlier loaders, which the start writes after each post.
 ///
 /// The only fixed wait comes before `lcmd_resp on`. The RTOS builds its host
 /// command tables on a worker task after the script starts, and the
@@ -54,13 +59,23 @@ pub fn loader_for(icon_stride: usize) -> Vec<u8> {
 /// The loader for a target with `icon_stride`-byte icon slots and the
 /// fast-boot files of `fast` (`runtime::fastboot`).
 ///
-/// The first script array (`ba`) comes before the planned arrays, as the
-/// installer expects (`ARRAY_LEAD`). With fast-boot files, the loader first
-/// asks the firmware for the probe words in `ba`. On a firmware build with the
-/// fast-boot loader and a fast-boot file for its release, the loader runs
-/// SCAN and INSTALL through that file, with no Linux command and no wait. If
-/// that SCAN writes no plan, the loader runs SCAN.SH and INSTALL.SH as on the
-/// official firmware.
+/// The first two script arrays come before the planned arrays, as the
+/// installer expects (`ARRAY_LEAD`): `ba`, the probe array, then `mb`, the
+/// mailbox of the one-shot start (`abi::MAILBOX_FIELDS`). With fast-boot
+/// files, the loader first asks the firmware for the probe words in `ba`. On
+/// a firmware build with the fast-boot loader and a fast-boot file for its
+/// release, the loader runs SCAN and INSTALL through that file, with no Linux
+/// command and no wait. If that SCAN writes no plan, the loader runs SCAN.SH
+/// as on the official firmware.
+///
+/// On the official firmware, SCAN.SH starts the core once, and the core
+/// posts into the mailbox: that it started, the plan header, and the result
+/// of INSTALL. The loader allocates the arrays of the plan and posts that
+/// they exist. It also looks for the card files of each step, `PLAN.BIN`,
+/// `INSTALL.OK`, and `INSTALL.ERR`, which the start writes after each post,
+/// so a mailbox that the loader does not see costs only the time of those
+/// writes. After each 10 s without a result, the loader sends INSTALL.SH,
+/// which installs from the plan in RAM unless the start still runs.
 pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
     let path = core_path;
     let (plan, done, failed) = (path("PLAN.BIN"), path("INSTALL.OK"), path("INSTALL.ERR"));
@@ -69,7 +84,20 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
     for name in ["PLAN.BIN", "PLAN.TMP", "INSTALL.OK", "INSTALL.LCK"] {
         lines.push(format!("filedelete '{}'", path(name)));
     }
-    lines.extend(["intdim ba 256".into(), "fast = 0".into()]);
+    let mb = |offset: usize| format!("mb[{}]", offset / 4);
+    lines.extend(["intdim ba 256".into(), format!("intdim mb {MAILBOX_WORDS}")]);
+    // The words of the mailbox that the loader reads, 0 before the start
+    // writes them, whatever the memory of the array held.
+    for offset in [
+        MAILBOX_PLAN,
+        MAILBOX_RESULT,
+        MAILBOX_STATUS,
+        MAILBOX_STARTED,
+        MAILBOX_ARRAYS,
+    ] {
+        lines.push(format!("{} = 0", mb(offset)));
+    }
+    lines.push("fast = 0".into());
     if !fast.is_empty() {
         lines.extend([
             // The probe words stay 0 on the official firmware, whatever the
@@ -112,7 +140,7 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
         }
         lines.extend([
             format!("filesearch '{plan}'"),
-            "if result != 0 goto plan_ready".into(),
+            "if result != 0 goto plan_file".into(),
             "fast = 0".into(),
             ":linux".into(),
         ]);
@@ -121,16 +149,38 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
         // Wait for the host command tables of the RTOS before lcmd_resp.
         "mpause 2000".into(),
         "sendln 'lcmd_resp on'".into(),
-        // Early requests fail before Linux mounts the card. Give up after 150 attempts.
+        // Early requests fail before Linux mounts the card. The start says
+        // that it runs, and then the loader only polls. Give up after 200
+        // attempts, about 30 s.
+        "started = 0".into(),
         ":scan".into(),
+        "if started <> 0 goto scan_posted".into(),
         format!("sendln 'lcmd sh {LINUX_DIRECTORY}/SCAN.SH'"),
+        format!("started = {}", mb(MAILBOX_STARTED)),
+        ":scan_posted".into(),
+        format!("posted = {}", mb(MAILBOX_PLAN)),
+        format!("if posted = {} goto plan_box", crate::abi::PLAN_MAGIC_VALUE),
         format!("filesearch '{plan}'"),
-        "if result != 0 goto plan_ready".into(),
-        "mpause 200".into(),
+        "if result != 0 goto plan_file".into(),
+        format!("posted = {}", mb(MAILBOX_RESULT)),
+        format!("if posted = {MAILBOX_FAILED} goto start_failed"),
+        "mpause 150".into(),
         "attempts = attempts + 1".into(),
-        "if attempts < 150 goto scan".into(),
+        "if attempts < 200 goto scan".into(),
         "goto reject".into(),
-        ":plan_ready".into(),
+        // The plan header from the mailbox: the words of `abi::PLAN_FIELDS`
+        // after the magic word.
+        ":plan_box".into(),
+        format!("failure = {STATUS_LOADER_BAD_PLAN}"),
+        format!("count = {}", mb(MAILBOX_PLAN + PLAN_COUNT)),
+        format!("words = {}", mb(MAILBOX_PLAN + PLAN_HEADER_WORDS)),
+        format!("chunks = {}", mb(MAILBOX_PLAN + PLAN_ICON_CHUNKS)),
+        format!("modulewords = {}", mb(MAILBOX_PLAN + PLAN_MODULE_WORDS)),
+        format!("moduletiles = {}", mb(MAILBOX_PLAN + PLAN_MODULE_TILES)),
+        "goto plan_check".into(),
+        // The plan header from the card, as the loaders before the one-shot
+        // start read it, and after a fast-boot SCAN.
+        ":plan_file".into(),
         format!("failure = {STATUS_LOADER_BAD_PLAN}"),
         format!("fileopen fh '{plan}' 0"),
         "if fh < 0 goto reject".into(),
@@ -142,8 +192,6 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
         ),
         "call readword".into(),
         "count = value".into(),
-        "if count < 0 goto reject_close".into(),
-        format!("if count > {MAX_COUNT} goto reject_close"),
         "call readword".into(),
         "words = value".into(),
         "call readword".into(),
@@ -152,13 +200,16 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
         "call readword".into(),
         "call readword".into(),
         "modulewords = value".into(),
-        "if modulewords < 0 goto reject_close".into(),
-        format!("if modulewords > {MODULE_ARRAY_WORDS} goto reject_close"),
         "call readword".into(),
         "moduletiles = value".into(),
-        "if moduletiles < 0 goto reject_close".into(),
-        format!("if moduletiles > {MODULE_TILES_MAX} goto reject_close"),
         "fileclose fh".into(),
+        ":plan_check".into(),
+        "if count < 0 goto reject".into(),
+        format!("if count > {MAX_COUNT} goto reject"),
+        "if modulewords < 0 goto reject".into(),
+        format!("if modulewords > {MODULE_ARRAY_WORDS} goto reject"),
+        "if moduletiles < 0 goto reject".into(),
+        format!("if moduletiles > {MODULE_TILES_MAX} goto reject"),
         format!(
             "expected = {} + count * {}",
             HEADER_SIZE / 4,
@@ -192,21 +243,25 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
         ":modules_ready".into(),
         // The tail: the picture scratch, the menu text, and the labels.
         format!("intdim tailarea {TAIL_WORDS}"),
-        // Not-ready attempts release the install lock. Retry for about 30 s,
-        // every 0.5 s through Linux and every 0.1 s through the fast-boot
-        // file, then every 10 s, so a later shooting-mode start can still
-        // install.
-        "attempts = 0".into(),
-        "waits = 60".into(),
-        "if fast <> 0 waits = 300".into(),
+        // The status of the step before the arrays are posted, so a failure
+        // of the start replaces it. The start installs once the arrays
+        // exist, and retries a native state that the camera still
+        // initializes by itself. The fast-boot file installs at each
+        // request, every 0.1 s for 30 s, then every 10 s, so a later
+        // shooting-mode start can still install.
         format!("failure = {STATUS_LOADER_NO_INSTALL}"),
         "call write_error".into(),
+        format!("{} = 1", mb(MAILBOX_ARRAYS)),
+        "attempts = 0".into(),
+        "waits = 300".into(),
         ":install".into(),
         format!(
             "if fast <> 0 sendln 'SYS_memovr {} 0 call'",
             path(FAST_RUN_NAME)
         ),
-        format!("if fast = 0 sendln 'lcmd sh {LINUX_DIRECTORY}/INSTALL.SH'"),
+        format!("posted = {}", mb(MAILBOX_RESULT)),
+        format!("if posted = {MAILBOX_INSTALLED} goto installed"),
+        format!("if posted = {MAILBOX_FAILED} goto start_failed"),
         format!("filesearch '{done}'"),
         "if result != 0 goto installed".into(),
         // INSTALL replaces the status of the loader with its own when it fails.
@@ -215,13 +270,26 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
         "if errorstatus != 0 goto reject".into(),
         ":install_wait".into(),
         "mpause 100".into(),
-        "if fast = 0 mpause 400".into(),
         "attempts = attempts + 1".into(),
+        "if fast <> 0 goto install_next".into(),
+        // After each 10 s without a result, INSTALL.SH installs from the
+        // plan in RAM, unless the start still runs.
+        "watchdog = attempts % 100".into(),
+        format!("if watchdog = 0 sendln 'lcmd sh {LINUX_DIRECTORY}/INSTALL.SH'"),
+        ":install_next".into(),
         "if attempts > waits mpause 9500".into(),
         "goto install".into(),
         ":installed".into(),
         format!("filedelete '{failed}'"),
         "goto resident".into(),
+        // The start stopped: its status, from the mailbox, replaces the
+        // status of the step in INSTALL.ERR.
+        ":start_failed".into(),
+        format!("failure = {}", mb(MAILBOX_STATUS)),
+        "if failure <= 0 goto reject".into(),
+        "if failure > 99 goto reject".into(),
+        "call write_error".into(),
+        "goto reject".into(),
     ]);
     lines.extend(state_script());
     lines.extend(profile_script());
@@ -831,9 +899,10 @@ mod tests {
         assert_eq!(lines[first - 1], "failure = 60");
         assert!(first < at(":scan"));
         let install = at(":install");
-        assert_eq!(lines[install - 2], "failure = 62");
-        assert_eq!(lines[install - 1], "call write_error");
-        assert!(at("failure = 61") > at(":plan_ready"));
+        assert_eq!(lines[install - 5], "failure = 62");
+        assert_eq!(lines[install - 4], "call write_error");
+        assert_eq!(lines[install - 3], "mb[13] = 1");
+        assert!(at("failure = 61") > at(":plan_box"));
         // A status of INSTALL stops the loader; its own status waits.
         let read = after(install, "call read_error");
         assert_eq!(lines[read + 1], "if errorstatus = 62 goto install_wait");
@@ -862,6 +931,83 @@ mod tests {
         // The status file is read byte by byte: a filereadln of a last line
         // without a newline blocks the interpreter.
         assert!(!script.contains("filereadln"));
+    }
+
+    /// The loader and the one-shot start of the core meet in the mailbox,
+    /// the second script array (`abi::MAILBOX_FIELDS`): the loader clears the
+    /// words that it reads, sends SCAN.SH until the start says that it runs,
+    /// takes the plan header from the mailbox or from the card, posts that
+    /// the arrays exist after its last allocation, and waits for the result
+    /// in the mailbox or on the card. INSTALL.SH is sent only as the watchdog.
+    #[test]
+    fn the_loader_meets_the_start_in_the_mailbox() {
+        let script = loader();
+        let script = String::from_utf8_lossy(&script);
+        let lines: Vec<_> = script.lines().collect();
+        let at = |line: &str| {
+            lines
+                .iter()
+                .position(|l| *l == line)
+                .unwrap_or_else(|| panic!("{line}"))
+        };
+        assert_eq!(lines[at("intdim ba 256") + 1], "intdim mb 16");
+        for word in [0, 10, 11, 12, 13] {
+            assert!(at(&format!("mb[{word}] = 0")) < at("mpause 2000"));
+        }
+        let scan = at(":scan");
+        assert_eq!(lines[scan + 1], "if started <> 0 goto scan_posted");
+        assert_eq!(
+            lines[scan + 2],
+            "sendln 'lcmd sh /media/storage1/SCRIPT/GRKIT/SCAN.SH'"
+        );
+        assert_eq!(lines[scan + 3], "started = mb[12]");
+        assert_eq!(lines[at(":scan_posted") + 1], "posted = mb[0]");
+        assert_eq!(
+            lines[at(":scan_posted") + 2],
+            format!("if posted = {} goto plan_box", crate::abi::PLAN_MAGIC_VALUE)
+        );
+        assert!(at("if posted = 2 goto start_failed") < at(":plan_box"));
+        // The plan header from the mailbox, in the order of the plan fields.
+        let plan_box = at(":plan_box");
+        assert_eq!(
+            &lines[plan_box + 2..plan_box + 8],
+            [
+                "count = mb[1]",
+                "words = mb[2]",
+                "chunks = mb[3]",
+                "modulewords = mb[5]",
+                "moduletiles = mb[6]",
+                "goto plan_check",
+            ]
+        );
+        assert!(at(":plan_file") < at(":plan_check"));
+        assert!(at("intdim tailarea 48815") < at("mb[13] = 1"));
+        assert!(at("mb[13] = 1") < at(":install"));
+        // The result: the mailbox first, then the file.
+        let install = at(":install");
+        assert_eq!(lines[install + 2], "posted = mb[10]");
+        assert_eq!(lines[install + 3], "if posted = 1 goto installed");
+        assert_eq!(lines[install + 4], "if posted = 2 goto start_failed");
+        assert_eq!(
+            lines[install + 5],
+            "filesearch 'C:\\SCRIPT\\GRKIT\\INSTALL.OK'"
+        );
+        // INSTALL.SH only after each 10 s without a result.
+        let watchdog = at("watchdog = attempts % 100");
+        assert_eq!(
+            lines[watchdog + 1],
+            "if watchdog = 0 sendln 'lcmd sh /media/storage1/SCRIPT/GRKIT/INSTALL.SH'"
+        );
+        assert_eq!(
+            script
+                .matches("lcmd sh /media/storage1/SCRIPT/GRKIT/INSTALL.SH")
+                .count(),
+            1
+        );
+        // A failure of the start leaves its status in INSTALL.ERR.
+        let failed = at(":start_failed");
+        assert_eq!(lines[failed + 1], "failure = mb[11]");
+        assert_eq!(lines[failed + 4], "call write_error");
     }
 
     /// INSTALL restores the state before the hooks start (runtime/state.h),
@@ -981,24 +1127,31 @@ mod tests {
         // A fast-boot SCAN without a plan falls back to Linux.
         let linux = at(":linux");
         assert_eq!(
-            &lines[linux - 2..linux + 4],
+            &lines[linux - 2..linux + 5],
             [
-                "if result != 0 goto plan_ready",
+                "if result != 0 goto plan_file",
                 "fast = 0",
                 ":linux",
                 "mpause 2000",
                 "sendln 'lcmd_resp on'",
+                "started = 0",
                 ":scan",
             ]
         );
         assert!(at("if fast = 0 goto linux") < linux);
         at("if fast <> 0 sendln 'SYS_memovr C:\\SCRIPT\\GRKIT\\FRUN.BIN 0 call'");
-        at("if fast = 0 sendln 'lcmd sh /media/storage1/SCRIPT/GRKIT/INSTALL.SH'");
+        // On the fast-boot firmware, the fast-boot file installs at each
+        // request, and the loader sends no INSTALL.SH.
+        assert_eq!(
+            lines[at("watchdog = attempts % 100") - 1],
+            "if fast <> 0 goto install_next"
+        );
 
         // Without fast-boot files, the loader asks for no probe.
         let plain = String::from_utf8(loader()).unwrap();
         assert!(!plain.contains("SYS_buildinfo"));
-        assert!(plain.contains("\r\nintdim ba 256\r\nfast = 0\r\n"));
+        assert!(plain.contains("\r\nintdim ba 256\r\nintdim mb 16\r\n"));
+        assert!(plain.contains("\r\nmb[13] = 0\r\nfast = 0\r\n"));
         assert!(!plain
             .lines()
             .any(|l| l.contains("SYS_memovr") && !l.starts_with("if fast <> 0")));

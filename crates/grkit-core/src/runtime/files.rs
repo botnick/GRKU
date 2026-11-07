@@ -58,9 +58,8 @@ pub const STATUS_OTHER_BUILD: u32 = 48;
 /// that failed. The scripts count lines with `grep -c`, because the camera's
 /// Linux has no `wc`.
 pub const BOOT_LOG: &str = "BOOT.TXT";
-/// The most lines of the boot log, about 20 starts. A start that finds more
-/// keeps the last three quarters.
-const BOOT_LOG_LINES: u32 = 400;
+/// A start keeps at most about 20 starts of the boot log
+/// (runtime/installer.c, `BOOT_LOG_LINES`).
 /// The core file that installed at the last start, in the data folder.
 const CORE_CHOICE: &str = "CORE.TXT";
 /// The marker in RAM of the first SCAN.SH of a power-on.
@@ -84,29 +83,55 @@ pub fn core_path_of(index: usize, count: usize) -> String {
     }
 }
 
+/// The lock of a one-shot start in RAM (runtime/installer.c): `SCAN.SH`
+/// sends no second start while it exists, and RAM is empty at each power-on.
+pub const START_LOCK: &str = "/tmp/grkit-start.lck";
+/// The process ID of the start, which `INSTALL.SH` reads: while that process
+/// runs, the fallback installs nothing.
+pub const START_PID: &str = "/tmp/grkit-core.pid";
+/// The boot log of a start in RAM, which the start appends to the card log
+/// after its result, so a start writes the card once for its log.
+pub const BOOT_RAM_LOG: &str = "/tmp/grkit-boot.log";
+/// The marker file of the diagnostics in the data folder: while it exists,
+/// `SCAN.SH` writes `DIAG.TXT` next to it, with the Linux side of the camera
+/// and the time of a read of the core file, about 15 s after the start.
+pub const DIAG_MARKER: &str = "DIAG";
+pub const DIAG_FILE: &str = "DIAG.TXT";
+
 /// The runtime files of a package with the core file of each runtime build of
 /// a camera, in release order, for `icon_stride`-byte icon slots. The builds of
-/// a camera have the same scripts and plan, so the first core file scans.
+/// a camera have the same scripts and plan.
 ///
-/// With one core file, `INSTALL.SH` runs it with `--install`. With more, it
-/// runs each with `--known` first, which reads one word to find the build. If
-/// no core file names the build, it tries each one with `--try`, which runs
-/// the relocation, and the last one with `--install`, which writes
-/// `INSTALL.ERR` if it also fails. A known build thus installs without a relocation of
-/// another build, and an unknown build still gets each runtime.
+/// `SCAN.SH` starts the core once at each power-on (`--start`,
+/// runtime/installer.c): the core checks the build, then scans, installs,
+/// and posts its results in a process of its own, so the request returns at
+/// once. With one core file, the script runs it with `--start`. With more,
+/// it runs each with `--start-known` first, which reads one word to find the
+/// build. If no core file names the build, it tries each one with
+/// `--start-try`, which runs the relocation, and the last one with
+/// `--start`, which writes `INSTALL.ERR` if it also fails. A known build thus
+/// starts without a relocation of another build, and an unknown build still
+/// gets each runtime.
+///
+/// `INSTALL.SH` is the fallback of the loader, which sends it when the start
+/// posts no result: it installs from the plan in RAM with `--install`, after
+/// the same selection with `--known` and `--try`, unless the process of the
+/// start still runs.
 ///
 /// After Linux deletes a file in the folder, the camera does not find the next
 /// new name that it looks up there, and it keeps that miss. So `SCAN.SH`, the
-/// first script of a power-on, looks up each core file before it scans.
+/// first script of a power-on, looks up each core file before it starts.
 ///
-/// A core that installed with `--known` goes into `CORE_CHOICE`, and the next
-/// start tries it first. A core of another build takes seconds to rule out on
-/// GR IV, and the camera keeps its build until a firmware update. The record
-/// names only a core of the package, and `--known` checks the build again, so
-/// a stale record costs only that check.
+/// A core that started with `--start-known` goes into `CORE_CHOICE`, and the
+/// next start tries it first. A core of another build takes seconds to rule
+/// out on GR IV, and the camera keeps its build until a firmware update. The
+/// record names only a core of the package, and `--start-known` checks the
+/// build again, so a stale record costs only that check.
 ///
-/// Both scripts add their start and the status of the installer to the boot
-/// log (`BOOT_LOG`).
+/// Both scripts add their steps to the boot log (`BOOT_LOG`): `SCAN.SH` the
+/// `load` line of the power-on on the card, and its own lines in RAM, which
+/// the start writes to the card with its result; `INSTALL.SH` its lines on
+/// the card.
 pub fn package_runtime_files(binaries: &[&[u8]], icon_stride: usize) -> Files {
     package_runtime_files_with(binaries, &Files::new(), icon_stride)
 }
@@ -131,77 +156,100 @@ pub fn package_runtime_files_with(binaries: &[&[u8]], fast: &Files, icon_stride:
             .unwrap()
             .to_owned()
     };
-    // Each script body sets `status` to the exit status of the installer.
     let log = format!("{LINUX_DATA_DIRECTORY}/{BOOT_LOG}");
-    let wrapper = |body: String, mode: &str, first: &str| {
+    // A line of the boot log: the Linux uptime in seconds, then the step.
+    let stamp =
+        |step: &str, to: &str| format!("read t _ </proc/uptime; echo \"$t {step}\" >>{to}\n");
+    let names = |range: std::ops::Range<usize>| range.map(name).collect::<Vec<_>>().join(" ");
+    // The selection of the core of the running build, with the modes of
+    // `modes`: known, try, and last. Each body sets `status`.
+    let select = |modes: [&str; 3]| -> String {
+        let [known, tried, last_mode] = modes;
+        if count == 1 {
+            return format!("{LINUX_DIRECTORY}/{} {last_mode}\nstatus=$?\n", name(0));
+        }
         format!(
-            "{first}read t _ </proc/uptime; echo \"$t {mode}-start\" >>{log}\n\
-             {body}read t _ </proc/uptime; echo \"$t {mode} $status\" >>{log}\n\
-             echo GR_MODULE_{}_EXIT_$status\nexit 0\n",
-            mode.to_uppercase()
+            "k={LINUX_DATA_DIRECTORY}/{CORE_CHOICE}\n\
+             last=; [ -e $k ] && read last _ <$k\n\
+             status={other}; used=\n\
+             case \" {all} \" in *\" $last \"*) {LINUX_DIRECTORY}/$last {known}; status=$?; used=$last ;; esac\n\
+             if [ $status = {other} ]; then\n\
+             \x20 for core in {all}; do\n\
+             \x20   [ \"$core\" = \"$last\" ] && continue\n\
+             \x20   {LINUX_DIRECTORY}/$core {known}\n\
+             \x20   status=$?; used=$core\n\
+             \x20   case $status in {other}) ;; *) break ;; esac\n\
+             \x20 done\n\
+             fi\n\
+             [ $status = 0 ] && [ \"$used\" != \"$last\" ] && echo $used >$k\n\
+             case $status in {other})\n\
+             \x20 for core in {tried_names}; do\n\
+             \x20   {LINUX_DIRECTORY}/$core {tried}\n\
+             \x20   status=$?\n\
+             \x20   case $status in {relocation}) ;; *) break ;; esac\n\
+             \x20 done\n\
+             \x20 case $status in {relocation}) {LINUX_DIRECTORY}/{last} {last_mode}; status=$? ;; esac\n\
+             \x20 ;;\n\
+             esac\n",
+            all = names(0..count),
+            tried_names = names(0..count - 1),
+            last = name(count - 1),
+            other = STATUS_OTHER_BUILD,
+            relocation = STATUS_RELOCATION,
         )
-        .into_bytes()
     };
-    // The first SCAN.SH of a power-on starts the boot log of the start, with
-    // only the last lines of the earlier starts. A marker in RAM tells the
-    // first run, because the loader repeats SCAN.SH until it finds a plan.
-    let start = format!(
+    // SCAN.SH: the first script of a power-on starts the boot log of the
+    // start on the card, with the one line that reaches the card before the
+    // result. A marker in RAM tells the first run, because the loader
+    // repeats SCAN.SH until the start answers. The lock of the start keeps a
+    // repeat from running the core again.
+    let lookups = if count > 1 {
+        format!(
+            "for core in {}; do [ -e {LINUX_DIRECTORY}/$core ]; done\n",
+            names(1..count)
+        )
+    } else {
+        String::new()
+    };
+    let scan = format!(
         "mkdir -p {LINUX_DATA_DIRECTORY}\n\
          if [ ! -e {BOOT_MARK} ]; then\n\
          \x20 : >{BOOT_MARK}\n\
-         \x20 n=$(grep -c '' {log} 2>/dev/null)\n\
-         \x20 [ \"${{n:-0}}\" -gt {lines} ] && tail -n {keep} {log} >{BOOT_MARK} && cat {BOOT_MARK} >{log}\n\
-         \x20 read t _ </proc/uptime; echo \"$t load\" >>{log}\n\
-         fi\n",
-        lines = BOOT_LOG_LINES,
-        keep = BOOT_LOG_LINES * 3 / 4,
+         \x20 {load}\
+         fi\n\
+         [ -e {START_LOCK} ] && exit 0\n\
+         {start}\
+         {lookups}\
+         {select}\
+         {started}\
+         echo GR_MODULE_START_EXIT_$status\n\
+         {diag}\
+         exit 0\n",
+        load = stamp("load", &log),
+        start = stamp("start", BOOT_RAM_LOG),
+        select = select(["--start-known", "--start-try", "--start"]),
+        started = stamp("started $status", BOOT_RAM_LOG),
+        diag = diagnostics(),
     );
-    let single = |mode: &str| format!("{LINUX_DIRECTORY}/{} --{mode}\nstatus=$?\n", name(0));
-    let names = |range: std::ops::Range<usize>| range.map(name).collect::<Vec<_>>().join(" ");
-    let (scan, install) = match count {
-        1 => (single("scan"), single("install")),
-        count => (
-            format!(
-                "for core in {}; do [ -e {LINUX_DIRECTORY}/$core ]; done\n{}",
-                names(1..count),
-                single("scan")
-            ),
-            format!(
-                "k={LINUX_DATA_DIRECTORY}/{CORE_CHOICE}\n\
-                 last=; [ -e $k ] && read last _ <$k\n\
-                 status={other}; used=\n\
-                 case \" {all} \" in *\" $last \"*) {LINUX_DIRECTORY}/$last --known; status=$?; used=$last ;; esac\n\
-                 if [ $status = {other} ]; then\n\
-                 \x20 for core in {all}; do\n\
-                 \x20   [ \"$core\" = \"$last\" ] && continue\n\
-                 \x20   {LINUX_DIRECTORY}/$core --known\n\
-                 \x20   status=$?; used=$core\n\
-                 \x20   case $status in {other}) ;; *) break ;; esac\n\
-                 \x20 done\n\
-                 fi\n\
-                 [ $status = 0 ] && [ \"$used\" != \"$last\" ] && echo $used >$k\n\
-                 case $status in {other})\n\
-                 \x20 for core in {tried}; do\n\
-                 \x20   {LINUX_DIRECTORY}/$core --try\n\
-                 \x20   status=$?\n\
-                 \x20   case $status in {relocation}) ;; *) break ;; esac\n\
-                 \x20 done\n\
-                 \x20 case $status in {relocation}) {LINUX_DIRECTORY}/{last} --install; status=$? ;; esac\n\
-                 \x20 ;;\n\
-                 esac\n",
-                all = names(0..count),
-                tried = names(0..count - 1),
-                last = name(count - 1),
-                other = STATUS_OTHER_BUILD,
-                relocation = STATUS_RELOCATION,
-            ),
-        ),
-    };
+    // INSTALL.SH: the fallback, after the same selection as before the
+    // one-shot start. While the process of the start runs, it does nothing.
+    let install = format!(
+        "p=; [ -e {START_PID} ] && read p _ <{START_PID}\n\
+         if [ -n \"$p\" ] && [ -d /proc/$p ]; then echo GR_MODULE_INSTALL_EXIT_3; exit 0; fi\n\
+         {}\
+         {}\
+         {}\
+         echo GR_MODULE_INSTALL_EXIT_$status\n\
+         exit 0\n",
+        stamp("install-start", &log),
+        select(["--known", "--try", "--install"]),
+        stamp("install $status", &log),
+    );
     let mut files = Files::from([
         ("SCRIPT/STARTUP.TTL".into(), startup.into_bytes()),
         (LOADER_FILE.into(), loader_with(icon_stride, &releases)),
-        (SCAN_FILE.into(), wrapper(scan, "scan", &start)),
-        (INSTALL_FILE.into(), wrapper(install, "install", "")),
+        (SCAN_FILE.into(), scan.into_bytes()),
+        (INSTALL_FILE.into(), install.into_bytes()),
     ]);
     for (index, binary) in binaries.iter().enumerate() {
         files.insert(core_path_of(index, count), binary.to_vec());
@@ -211,4 +259,43 @@ pub fn package_runtime_files_with(binaries: &[&[u8]], fast: &Files, icon_stride:
         files.insert(fast_run_path(), FAST_RUN.to_vec());
     }
     files
+}
+
+/// The diagnostics of `SCAN.SH`: while `GRKIT/DIAG` exists, a process of its
+/// own writes `GRKIT/DIAG.TXT` about 15 s after the start: the Linux side of
+/// the camera, its mounts and log, the boot log in RAM, and the time of two
+/// reads of the core file, which gives the speed of the card file system and
+/// whether Linux keeps a read file. The camera's Linux has no `wc` and may
+/// lack other tools, so each command may fail on its own.
+fn diagnostics() -> String {
+    let core = format!(
+        "{LINUX_DIRECTORY}/{}",
+        core_path_of(0, 1).rsplit('/').next().unwrap()
+    );
+    format!(
+        "if [ -e {LINUX_DATA_DIRECTORY}/{DIAG_MARKER} ]; then\n\
+         \x20 (\n\
+         \x20   usleep 15000000\n\
+         \x20   {{\n\
+         \x20     echo \"== uptime\"; cat /proc/uptime\n\
+         \x20     echo \"== mounts\"; cat /proc/mounts\n\
+         \x20     echo \"== filesystems\"; cat /proc/filesystems\n\
+         \x20     echo \"== version\"; cat /proc/version\n\
+         \x20     echo \"== cmdline\"; cat /proc/cmdline\n\
+         \x20     echo \"== cpuinfo\"; cat /proc/cpuinfo\n\
+         \x20     echo \"== meminfo\"; cat /proc/meminfo\n\
+         \x20     echo \"== busybox\"; busybox\n\
+         \x20     echo \"== ps\"; ps\n\
+         \x20     echo \"== tmp\"; ls -la /tmp\n\
+         \x20     echo \"== dev\"; ls -l /dev\n\
+         \x20     echo \"== messages\"; tail -n 300 /var/log/messages\n\
+         \x20     echo \"== dmesg\"; dmesg\n\
+         \x20     echo \"== boot-ram\"; cat {BOOT_RAM_LOG}\n\
+         \x20     echo \"== read-core\"; cat /proc/uptime; cat {core} >/dev/null; cat /proc/uptime; cat {core} >/dev/null; cat /proc/uptime\n\
+         \x20     echo \"== read-effects\"; cat /proc/uptime; cat {LINUX_DATA_DIRECTORY}/EFFECTS/* >/dev/null; cat /proc/uptime\n\
+         \x20     echo \"== write\"; cat /proc/uptime; echo test >{LINUX_DATA_DIRECTORY}/DIAG.TMP; cat /proc/uptime; echo test >>{LINUX_DATA_DIRECTORY}/DIAG.TMP; cat /proc/uptime\n\
+         \x20   }} >{LINUX_DATA_DIRECTORY}/{DIAG_FILE} 2>&1\n\
+         \x20 ) </dev/null >/dev/null 2>&1 &\n\
+         fi\n"
+    )
 }

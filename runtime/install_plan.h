@@ -198,23 +198,15 @@ static void module_id(u32 i, char id[9])
         id[n++] = *p >= 'a' && *p <= 'z' ? (char)(*p - 32) : *p;
     id[n] = 0;
 }
-/* Read and check module i into `module`. Return 0 or a status. */
+/* Read and check module i into `module`. Return 0 or a status. A one-shot
+   start reads each module file from the card once (read_whole). */
 static int read_module(u32 i)
 {
     char path[sizeof(package_modules_path) + CATALOG_NAME_SIZE];
     if (!join(path, sizeof(path), module_source[i] ? modules_path : package_modules_path, module_names[i])) return GRM_BAD_FILE;
-    long fd = syscall6(5, (u32)path, 0x8800, 0, 0, 0, 0);
-    if (fd < 0) return GRM_BAD_FILE;
-    u32 have = 0; long got = 0; u8 extra;
-    while (have < sizeof(module_file)) {
-        got = syscall6(3, fd, (u32)(module_file + have), sizeof(module_file) - have, 0, 0, 0);
-        if (got <= 0) break;
-        have += (u32)got;
-    }
-    if (got >= 0 && have == sizeof(module_file)) got = syscall6(3, fd, (u32)&extra, 1, 0, 0, 0) ? -1 : 0;
-    syscall6(6, fd, 0, 0, 0, 0, 0);
-    if (got < 0) return GRM_BAD_FILE;
-    int status = grm_parse(module_file, have, &module);
+    long have = read_whole(path, module_file, sizeof(module_file));
+    if (have < 0) return GRM_BAD_FILE;
+    int status = grm_parse(module_file, (u32)have, &module);
     if (status) return status;
     /* The file name before the dot is the module ID. */
     char id[9];

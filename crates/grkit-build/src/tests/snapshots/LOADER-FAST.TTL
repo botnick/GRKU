@@ -3,6 +3,12 @@ filedelete 'C:\SCRIPT\GRKIT\PLAN.TMP'
 filedelete 'C:\SCRIPT\GRKIT\INSTALL.OK'
 filedelete 'C:\SCRIPT\GRKIT\INSTALL.LCK'
 intdim ba 256
+intdim mb 16
+mb[0] = 0
+mb[10] = 0
+mb[11] = 0
+mb[12] = 0
+mb[13] = 0
 fast = 0
 ba[0] = 0
 ba[1] = 0
@@ -30,20 +36,36 @@ if fast = 0 goto linux
 if fast = 588210 sendln 'SYS_memovr C:\SCRIPT\GRKIT\F588210.BIN 0 call'
 if fast = 588220 sendln 'SYS_memovr C:\SCRIPT\GRKIT\F588220.BIN 0 call'
 filesearch 'C:\SCRIPT\GRKIT\PLAN.BIN'
-if result != 0 goto plan_ready
+if result != 0 goto plan_file
 fast = 0
 :linux
 mpause 2000
 sendln 'lcmd_resp on'
+started = 0
 :scan
+if started <> 0 goto scan_posted
 sendln 'lcmd sh /media/storage1/SCRIPT/GRKIT/SCAN.SH'
+started = mb[12]
+:scan_posted
+posted = mb[0]
+if posted = 827150919 goto plan_box
 filesearch 'C:\SCRIPT\GRKIT\PLAN.BIN'
-if result != 0 goto plan_ready
-mpause 200
+if result != 0 goto plan_file
+posted = mb[10]
+if posted = 2 goto start_failed
+mpause 150
 attempts = attempts + 1
-if attempts < 150 goto scan
+if attempts < 200 goto scan
 goto reject
-:plan_ready
+:plan_box
+failure = 61
+count = mb[1]
+words = mb[2]
+chunks = mb[3]
+modulewords = mb[5]
+moduletiles = mb[6]
+goto plan_check
+:plan_file
 failure = 61
 fileopen fh 'C:\SCRIPT\GRKIT\PLAN.BIN' 0
 if fh < 0 goto reject
@@ -51,8 +73,6 @@ call readword
 if value != 827150919 goto reject_close
 call readword
 count = value
-if count < 0 goto reject_close
-if count > 40 goto reject_close
 call readword
 words = value
 call readword
@@ -60,13 +80,16 @@ chunks = value
 call readword
 call readword
 modulewords = value
-if modulewords < 0 goto reject_close
-if modulewords > 65536 goto reject_close
 call readword
 moduletiles = value
-if moduletiles < 0 goto reject_close
-if moduletiles > 128 goto reject_close
 fileclose fh
+:plan_check
+if count < 0 goto reject
+if count > 40 goto reject
+if modulewords < 0 goto reject
+if modulewords > 65536 goto reject
+if moduletiles < 0 goto reject
+if moduletiles > 128 goto reject
 expected = 242 + count * 1088
 if words != expected goto reject
 expectedchunks = (count + moduletiles + 44) / 40
@@ -102,14 +125,16 @@ if modulewords <= 0 goto modules_ready
 intdim modulecode modulewords
 :modules_ready
 intdim tailarea 48815
-attempts = 0
-waits = 60
-if fast <> 0 waits = 300
 failure = 62
 call write_error
+mb[13] = 1
+attempts = 0
+waits = 300
 :install
 if fast <> 0 sendln 'SYS_memovr C:\SCRIPT\GRKIT\FRUN.BIN 0 call'
-if fast = 0 sendln 'lcmd sh /media/storage1/SCRIPT/GRKIT/INSTALL.SH'
+posted = mb[10]
+if posted = 1 goto installed
+if posted = 2 goto start_failed
 filesearch 'C:\SCRIPT\GRKIT\INSTALL.OK'
 if result != 0 goto installed
 call read_error
@@ -117,13 +142,22 @@ if errorstatus = 62 goto install_wait
 if errorstatus != 0 goto reject
 :install_wait
 mpause 100
-if fast = 0 mpause 400
 attempts = attempts + 1
+if fast <> 0 goto install_next
+watchdog = attempts % 100
+if watchdog = 0 sendln 'lcmd sh /media/storage1/SCRIPT/GRKIT/INSTALL.SH'
+:install_next
 if attempts > waits mpause 9500
 goto install
 :installed
 filedelete 'C:\SCRIPT\GRKIT\INSTALL.ERR'
 goto resident
+:start_failed
+failure = mb[11]
+if failure <= 0 goto reject
+if failure > 99 goto reject
+call write_error
+goto reject
 :resident
 stateok = 1
 foldersearch 'C:\GRKIT'
