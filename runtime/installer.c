@@ -1076,11 +1076,13 @@ static void run_start(void)
         return;
     }
     /* The plan header: the mailbox first, then the card, for a loader that
-       reads the file, and for INSTALL.SH. */
+       reads the file, and for INSTALL.SH. After a post into the mailbox, a
+       card that refuses the file costs only the fallback. */
     if (box) post_plan(box);
     long tmp = open_plan_tmp();
-    if (tmp >= 0) status = publish_plan(tmp);
-    else if (!box) status = (int)-tmp;
+    int published = tmp >= 0 ? publish_plan(tmp) : (int)-tmp;
+    if (published) log_step("plan-file", published);
+    if (!box) status = published;
     if (status) {
         finish_start(box, status);
         return;
