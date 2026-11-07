@@ -31,6 +31,19 @@ RECIPES = {
     "eterna-500t-3523xd-v1": ("Fuji Eterna 500", "Fuji Eterna-CP 3523XD", 0, None),
     "instax-v1": ("Fuji Instax color", None, 1, None),
     "double-x-5222-mono-v1": ("Kodak 5222 Dev 12", "Kodak Polymax Fine-Art Paper Grade 3", 0, None),
+    "sfl-natura-1600-v1": ("Fuji Natura 1600", "Fuji Crystal Archive Super Type C", 0, None),
+    "sfl-pro-160s-v1": ("Fuji Pro 160S", "Fuji Crystal Archive Super Type C", 0, None),
+    "sfl-superia-reala-v1": ("Fuji Superia Reala", "Fuji Crystal Archive Super Type C", 0, None),
+    "sfl-velvia-50-v1": ("Fuji Velvia 50", None, 1, None),
+    "sfl-vista-100-v1": ("Agfa Vista 100", "Fuji Crystal Archive Super Type C", 0, None),
+    "sfl-vericolor-iii-v1": ("Kodak Vericolor III", "Kodak Portra Endura Paper", 0, None),
+    "sfl-5247-5383-v1": ("Kodak 5247 II", "Kodak 5383", 0, None),
+    "sfl-exr-100t-5248-v1": ("Kodak EXR 100T 5248", "Kodak 5383", 0, None),
+    "sfl-exr-200t-5293-v1": ("Kodak EXR 200T 5293", "Kodak Vision 2383", 0, None),
+    "sfl-vision-320t-5277-v1": ("Kodak Vision 320T 5277", "Kodak Vision 2383", 0, None),
+    "sfl-eterna-500-vivid-v1": ("Fuji Eterna 500 Vivid", "Fuji Eterna-CP Type 3513DI", 0, None),
+    "sfl-ektachrome-100d-v1": ("Kodak Ektachrome 100D", None, 1, None),
+    "sfl-aerochrome-iii-v1": ("Kodak Aerochrome III Infrared Film 1443", None, 1, None),
 }
 
 

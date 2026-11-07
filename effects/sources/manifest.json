@@ -56,11 +56,11 @@
    "license": "upstream-changes"
   },
   "bake_spektrafilm.py": {
-   "sha256": "ead802e197c19af63f2049427f6f241571f1c4cb2799dd933d2d0abcb743f712",
+   "sha256": "6237ca251e9b9362e108ee366b9ab6e74c48f305da0fb0bb0f92a1c0c53170b3",
    "license": "project"
   },
   "bake_spectral_film_lut.py": {
-   "sha256": "979a529bfdcf4d8681385a0ff2d698374d8003c9580a6d4d4a9b4123d104f69c",
+   "sha256": "619fb336a7ff5595a2c354f24ecd45ebc753038be37801be1f9f54c24a602a39",
    "license": "project"
   },
   "PATDAVID_LICENSE.txt": {
@@ -326,11 +326,6 @@
    "sha256": "a5a570026f810706bdfe7273070b604f3b9a735691d20d48b9e976d9271806a2",
    "upstream": "negative_color/kodak_portra_160_nc.png"
   },
-  "pd-portra-160-v1.png": {
-   "generator": "patdavid",
-   "sha256": "aa1e2343d81aa711a736b086007423b948c64406fc3c73f25f888f5e3c08e0eb",
-   "upstream": "negative_new/kodak_portra_160.png"
-  },
   "pd-portra-160-vc-v1.png": {
    "generator": "patdavid",
    "sha256": "10fc17c11b7077a71e468d64f36fc8b813e3e5c7852b2a1efc9b346fc94683bd",
@@ -350,11 +345,6 @@
    "generator": "patdavid",
    "sha256": "94c9561df90d72cb49ee25cf0a153eaaa5564e8d2e608a0e09f7537447d96b7e",
    "upstream": "negative_old/kodak_portra_400_vc.png"
-  },
-  "pd-portra-800-v1.png": {
-   "generator": "patdavid",
-   "sha256": "62573754ec195d05a3ae4e1efbad9a70541871efe6e9c9787503bd37c7f8e742",
-   "upstream": "negative_new/kodak_portra_800.png"
   },
   "pd-precisa-100-v1.png": {
    "generator": "patdavid",
@@ -471,11 +461,6 @@
    "sha256": "7871ed809e3786575cee635a50ad19500f7633aa76fbac46e3a53a59990c6894",
    "upstream": "negative_color/fuji_superia_hg_1600.png"
   },
-  "pd-superia-reala-100-v1.png": {
-   "generator": "patdavid",
-   "sha256": "19050e927641288b6d0de753c68e6c1283a531b74d20edb51d3a3fb0786f8981",
-   "upstream": "negative_color/fuji_superia_reala_100.png"
-  },
   "pd-superia-xtra-800-v1.png": {
    "generator": "patdavid",
    "sha256": "7c3f8422890b7396cb1cc6f60dad271bd6c78c9f160b9ed952d2577df4128123",
@@ -506,11 +491,6 @@
    "sha256": "e028bd17e9119bdb6eaf202b566a01b7456f0d7756a56187fa875b36f546a311",
    "upstream": "negative_color/agfa_ultra_color_100.png"
   },
-  "pd-velvia-50-v1.png": {
-   "generator": "patdavid",
-   "sha256": "bbd29985ab7adf11bc134a15c3664460fcef2a0cf6ae4fc1bff6f18504bcec20",
-   "upstream": "colorslide/fuji_velvia_50.png"
-  },
   "pd-vista-200-v1.png": {
    "generator": "patdavid",
    "sha256": "a572463e9a6f1380918ce3a866f2064402401ad983f790d9b03f1abbf80079e8",
@@ -540,6 +520,78 @@
   "red-filter-mono-v1.cube": {
    "generator": "spectral_film_lut",
    "sha256": "fb92f310bd4695e53f4c615bf37da594b6f47fdea54db7bee638b945981733af"
+  },
+  "sfl-5247-5383-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "06e274831f6553f3a09b57fa9934fccf90fae008f8706b226a9a3795a9b3acdb"
+  },
+  "sfl-aerochrome-iii-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "220474579571712a8a34e3542133c486381d809eed33a8bc6896dcc8354399f2"
+  },
+  "sfl-ektachrome-100d-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "b465849502b3664a468f6de22730fd021e6e01bc390f24dbdb349ce1e66ea347"
+  },
+  "sfl-eterna-500-vivid-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "95bf2fe17629fc194c20c948c9ea873b10766bfdb2cc6dd7391b16ada468be53"
+  },
+  "sfl-exr-100t-5248-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "25fabe519506704eb8f09938ff8a9d06af347d4f1674929288186e142b098879"
+  },
+  "sfl-exr-200t-5293-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "d84964390ccc547757d6e4a9dd02ae5961617da5f6ac91c3b5571073f7275308"
+  },
+  "sfl-natura-1600-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "fe7da0cee575c82bd5a59ed451ec55b8067d95a177f4b0af7d7161330fdf47c5"
+  },
+  "sfl-pro-160s-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "2993bad235fa6ba510157c5433fc7d4998204ba06542f4712fb32db4435baf1b"
+  },
+  "sfl-superia-reala-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "0cf72a39ec52e1bcc3d8b48d3033bc74a3622cf1c4e42a5feeb35107ead2aab7"
+  },
+  "sfl-velvia-50-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "4245a064dd305436be7a00bf62a7d1d55435c17609cf139eb59afb2081e93dc3"
+  },
+  "sfl-vericolor-iii-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "9edcddf1e457c971ea020a1aafe72db879b15fa512e16a93712e895524889a29"
+  },
+  "sfl-vision-320t-5277-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "e8ecc245edd9bab4bf049a10c38333db289257542fc97d3ae8d890a2a4200254"
+  },
+  "sfl-vista-100-v1.cube": {
+   "generator": "spectral_film_lut",
+   "sha256": "ab682831dd933e6d1c04ecac3b96fe949e6bd9f8ef0abb4d22377ad4b54cdbc0"
+  },
+  "spk-portra-160-endura-v1.cube": {
+   "generator": "spektrafilm",
+   "sha256": "14c8a283eb999197b06be430b93965c94a9bdb7aa085d8df94ba92c8aaa921f8"
+  },
+  "spk-portra-800-endura-v1.cube": {
+   "generator": "spektrafilm",
+   "sha256": "94a58a76e1851f17badbeb996de9b82d919d91f17e7f93a53b769466c30fb3e9"
+  },
+  "spk-verita-200d-v1.cube": {
+   "generator": "spektrafilm",
+   "sha256": "964db269084255697b5005b37c9cbf0fecfd849c11a4f9c2f003e905b074dc7b"
+  },
+  "spk-vision3-200t-2383-v1.cube": {
+   "generator": "spektrafilm",
+   "sha256": "5d8f3fe7371324badc7362473a44db443094806b4613faceeed7d008ced5d87a"
+  },
+  "spk-vision3-50d-2383-v1.cube": {
+   "generator": "spektrafilm",
+   "sha256": "0d91e00471b8fb60731cc6c7836ff919bfd5038b8465fd8266289b91a8becdd0"
   },
   "t3-vista-400-v1.png": {
    "generator": "t3mujinpack",

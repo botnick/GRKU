@@ -43,6 +43,11 @@ RECIPES = {
     "c200-premier-v1": ("fujifilm_c200", "kodak_endura_premier"),
     "ultramax-400-ultra-v1": ("kodak_ultramax_400", "kodak_ultra_endura"),
     "provia-100f-v1": ("fujifilm_provia_100f", "kodak_portra_endura"),
+    "spk-portra-160-endura-v1": ("kodak_portra_160", "kodak_portra_endura"),
+    "spk-portra-800-endura-v1": ("kodak_portra_800", "kodak_portra_endura"),
+    "spk-vision3-50d-2383-v1": ("kodak_vision3_50d", "kodak_2383"),
+    "spk-vision3-200t-2383-v1": ("kodak_vision3_200t", "kodak_2383"),
+    "spk-verita-200d-v1": ("kodak_verita_200d", "kodak_portra_endura"),
 }
 
 # Effects whose print is scanned with fixed black and white levels.

@@ -22,13 +22,13 @@ If an effect is not in the GRKit catalog, its author gives its license.
 
 ### spektrafilm
 
-Portra 400, Gold 200, Ektar 100, Pro 400H, Superia 400, Vision3 250D, Vision3 500T, Portra 800 +2, Kodachrome 64, Velvia 100, Ektachrome E100, Fujicolor C200, UltraMax 400, and Provia 100F derive from LUTs of [spektrafilm](https://github.com/andreavolpato/spektrafilm) 0.3.4 by Andrea Volpato.
+Portra 400, Gold 200, Ektar 100, Pro 400H, Superia 400, Vision3 250D, Vision3 500T, Portra 800 +2, Kodachrome 64, Velvia 100, Ektachrome E100, Fujicolor C200, UltraMax 400, Provia 100F, Portra 160, Portra 800, Vision3 50D, Vision3 200T, and Verita 200D derive from LUTs of [spektrafilm](https://github.com/andreavolpato/spektrafilm) 0.3.4 by Andrea Volpato.
 
 These effects are licensed under the [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/) (CC BY-SA 4.0). The upstream notice is at <https://github.com/andreavolpato/spektrafilm/blob/main/SPEKTRAFILM_LICENSE.txt>. The effects are provided as is, without warranty. Section 5 of the license gives the disclaimer.
 
 ### Spectral Film LUT
 
-Tri-X 400, Tri-X 400 Red, Aerocolor IV, Eterna 500T, Instax, and Double-X 5222 derive from LUTs of [Spectral Film LUT](https://github.com/JanLohse/spectral_film_lut) by Jan Lohse.
+Tri-X 400, Tri-X 400 Red, Aerocolor IV, Eterna 500T, Instax, Double-X 5222, Natura 1600, Pro 160S, Reala 100, Velvia 50, Vista 100, Vericolor III, Eastman 100T, EXR 100T, EXR 200T, Vision 320T, Vivid 500T, Ektachrome 100D, and Aerochrome 1443 derive from LUTs of [Spectral Film LUT](https://github.com/JanLohse/spectral_film_lut) by Jan Lohse.
 
 These effects are licensed under the MIT License. The copyright and permission notice is in "Spectral Film LUT license" below.
 
@@ -40,7 +40,7 @@ These effects are licensed under the MIT License. The copyright and permission n
 
 ### Pat David
 
-APX 25, APX 100, Neopan 1600, Acros 100, Delta 100, Delta 400, Delta 3200, FP4 Plus 125, HPS 800, Pan F Plus 50, XP2 Super 400, BW400CN, HIE Infrared, T-Max 100, T-Max 400, T-Max 3200, Polaroid 664, Polaroid 667, Polaroid 672, Ortho 25, Retro 80S, Retro 100 Tonal, Precisa 100, Astia 100F, Provia 400F, Provia 400X, Sensia 100, Superia 200 XPro, Velvia 50, Ektachrome 100GX, Ektachrome 100VS, Elite Chrome 200, Elite Chrome 400, Elite Extra 100, Kodachrome 25, Kodachrome 200, X-Pro Slide 200, Polachrome, Ultra Color 100, Vista 200, Superia 200, Superia HG 1600, Reala 100, X-Tra 800, Elite 100 XPro, Elite Color 200, Elite Color 400, Portra 160 NC, Portra 160 VC, Redscale 100, Pro 160C, Pro 800Z, Portra 160, Portra 800, Superia 100, Superia 800, Superia 1600, Portra 400 NC, Portra 400 UC, Portra 400 VC, PX-70, PX-70 Cold, PX-70 Warm, PX100UV Cold, PX100UV Warm, PX-680, PX-680 Cold, PX-680 Warm, Time Zero, FP-100C, FP-100C Cool, FP-100C Neg, FP-3000B, FP-3000B HC, FP-3000B Neg, Polaroid 665, Polaroid 665 Neg, Polaroid 669, Type 669 Cold, Polaroid 690, Type 690 Cold, and Type 690 Warm derive from HaldCLUTs of the film emulation presets of [Pat David](https://patdavid.net) for G'MIC and RawTherapee, as the [NatronGitHub/clut](https://github.com/NatronGitHub/clut) collection distributes them.
+APX 25, APX 100, Neopan 1600, Acros 100, Delta 100, Delta 400, Delta 3200, FP4 Plus 125, HPS 800, Pan F Plus 50, XP2 Super 400, BW400CN, HIE Infrared, T-Max 100, T-Max 400, T-Max 3200, Polaroid 664, Polaroid 667, Polaroid 672, Ortho 25, Retro 80S, Retro 100 Tonal, Precisa 100, Astia 100F, Provia 400F, Provia 400X, Sensia 100, Superia 200 XPro, Ektachrome 100GX, Ektachrome 100VS, Elite Chrome 200, Elite Chrome 400, Elite Extra 100, Kodachrome 25, Kodachrome 200, X-Pro Slide 200, Polachrome, Ultra Color 100, Vista 200, Superia 200, Superia HG 1600, X-Tra 800, Elite 100 XPro, Elite Color 200, Elite Color 400, Portra 160 NC, Portra 160 VC, Redscale 100, Pro 160C, Pro 800Z, Superia 100, Superia 800, Superia 1600, Portra 400 NC, Portra 400 UC, Portra 400 VC, PX-70, PX-70 Cold, PX-70 Warm, PX100UV Cold, PX100UV Warm, PX-680, PX-680 Cold, PX-680 Warm, Time Zero, FP-100C, FP-100C Cool, FP-100C Neg, FP-3000B, FP-3000B HC, FP-3000B Neg, Polaroid 665, Polaroid 665 Neg, Polaroid 669, Type 669 Cold, Polaroid 690, Type 690 Cold, and Type 690 Warm derive from HaldCLUTs of the film emulation presets of [Pat David](https://patdavid.net) for G'MIC and RawTherapee, as the [NatronGitHub/clut](https://github.com/NatronGitHub/clut) collection distributes them.
 
 These effects are licensed under the [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/) (CC BY-SA 4.0). The upstream notice is at <https://github.com/NatronGitHub/clut/blob/af7b50d4caf6244fb6895a647f5b6a84efe7931a/README.md>. The presets are hand-made approximations of the films, not measured data. The effects are provided as is, without warranty. Section 5 of the license gives the disclaimer.
 
