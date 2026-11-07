@@ -171,39 +171,79 @@ fn runtime_target(runtime: &Files, camera: &Camera) -> Result<&'static str> {
     }
 }
 
+/// Checks that `targets` are builds of `camera` in release order, at least
+/// one, each once. A package may leave out a build whose firmware the
+/// builder does not have, such as a factory build that only a dump of a
+/// camera gives: a camera on that build then stops with the relocation
+/// status (`runtime::STATUS_RELOCATION`) in `INSTALL.ERR` instead of loading
+/// GRKit, and the other builds of the camera load as usual.
+fn check_build_subset(targets: &[&str], camera: &Camera) -> Result<()> {
+    let all = camera.targets();
+    ensure!(
+        !targets.is_empty(),
+        "A package for {} needs at least one of its runtimes: {}",
+        camera.name,
+        all.join(", ")
+    );
+    let mut last = None;
+    for target in targets {
+        let index = all
+            .iter()
+            .position(|known| known == target)
+            .with_context(|| format!("{} does not run the {target} runtime", camera.name))?;
+        ensure!(
+            last.is_none_or(|previous| index > previous),
+            "A package for {} needs its runtimes in release order, each once: {}",
+            camera.name,
+            all.join(", ")
+        );
+        last = Some(index);
+    }
+    Ok(())
+}
+
+/// The number of core files among the package paths that `has` names:
+/// `CORE.BIN` alone, or `CORE1.BIN` and on without a gap
+/// (`runtime::core_path_of`).
+fn core_file_count(has: impl Fn(&str) -> bool) -> Result<usize> {
+    let numbered = (1..=runtime::MAX_CORE_FILES)
+        .take_while(|index| has(&runtime::core_path_of(index - 1, 2)))
+        .count();
+    let single = has(card::CORE_FILE);
+    ensure!(
+        single != (numbered > 0),
+        "A package has CORE.BIN, or CORE1.BIN and on"
+    );
+    Ok(if single { 1 } else { numbered })
+}
+
 /// The runtime builds of a package for `camera`, from its core files
-/// (`runtime::package_runtime_files`): one for each build of the camera, in
-/// release order, each named by its marker. A camera with one build has one
-/// core file.
+/// (`runtime::package_runtime_files`): one for each build that the package
+/// has, in release order, each named by its marker. A camera with one build,
+/// or a package with one runtime, has one core file.
 fn package_targets(runtime: &Files, camera: &Camera) -> Result<Vec<&'static str>> {
     let fast = camera_fast_files(runtime, camera)?;
-    let targets = camera.targets();
-    if targets.len() == 1 {
+    let all = camera.targets();
+    if all.len() == 1 {
         return Ok(vec![runtime_target(runtime, camera)?]);
     }
-    let binaries: Vec<&[u8]> = (0..targets.len())
-        .map(|index| {
-            runtime
-                .get(&runtime::core_path_of(index, targets.len()))
-                .map(Vec::as_slice)
-                .with_context(|| {
-                    format!(
-                        "{} needs an installer for each of {}",
-                        camera.name,
-                        targets.join(", ")
-                    )
-                })
-        })
-        .collect::<Result<_>>()?;
-    for (binary, target) in binaries.iter().zip(&targets) {
+    let count = core_file_count(|path| runtime.contains_key(path))?;
+    let binaries: Vec<&[u8]> = (0..count)
+        .map(|index| runtime[&runtime::core_path_of(index, count)].as_slice())
+        .collect();
+    let mut targets = Vec::new();
+    for binary in &binaries {
         let name =
             marked_target(binary).context("Expected an installer that names its runtime build")?;
-        ensure!(
-            name == *target,
-            "The installer is the {name} runtime, not {target}"
-        );
+        let target = all
+            .iter()
+            .copied()
+            .find(|target| *target == name)
+            .with_context(|| format!("{} does not run the {name} runtime", camera.name))?;
         check_installer(binary)?;
+        targets.push(target);
     }
+    check_build_subset(&targets, camera)?;
     ensure!(
         *runtime
             == runtime::package_runtime_files_with(
@@ -228,16 +268,11 @@ fn check_installer(binary: &[u8]) -> Result<()> {
     Ok(())
 }
 
-/// The runtime files of a package with each runtime of `camera`, in release
-/// order (`runtime::package_runtime_files`).
+/// The runtime files of a package with the given runtimes of `camera`, in
+/// release order (`runtime::package_runtime_files`, `check_build_subset`).
 fn package_runtime(runtimes: &[VerifiedRuntime], camera: &Camera) -> Result<Files> {
     let targets: Vec<&str> = runtimes.iter().map(VerifiedRuntime::target).collect();
-    ensure!(
-        targets == camera.targets(),
-        "A package for {} needs the runtime of each of its builds in release order: {}",
-        camera.name,
-        camera.targets().join(", ")
-    );
+    check_build_subset(&targets, camera)?;
     let binaries: Vec<&[u8]> = runtimes
         .iter()
         .map(|runtime| runtime.files()[card::CORE_FILE].as_slice())
@@ -487,8 +522,9 @@ fn is_effect_path(name: &str) -> bool {
 pub struct Contents {
     /// The camera whose ModeSet file the package has.
     pub camera: &'static Camera,
-    /// The runtime builds of the camera that the package has, in release order:
-    /// one for each build.
+    /// The runtime builds of the camera that the package has, in release
+    /// order: each build of the camera, or the builds whose firmware the
+    /// builder had (`check_build_subset`).
     pub targets: Vec<&'static str>,
     pub effect_ids: Vec<String>,
     /// The IDs of the module files (`grkit_core::grm`) in the package.
@@ -530,7 +566,11 @@ pub fn validate_contents(contents: &Files) -> Result<Contents> {
         bail!("Package must have the ModeSet file of exactly one camera");
     };
     let activation = runtime::activation_files(camera);
-    let cores = camera.targets().len();
+    let cores = if camera.targets().len() == 1 {
+        1
+    } else {
+        core_file_count(|path| contents.contains_key(&format!("SD_ROOT/{path}")))?
+    };
     // The fast-boot files and FRUN.BIN, which package_targets checks.
     let fast_paths: Vec<String> = contents
         .keys()

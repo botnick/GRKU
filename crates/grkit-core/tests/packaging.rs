@@ -1149,7 +1149,28 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
     let mut runtimes = gr4_runtimes();
     runtimes.swap(1, 2);
     assert!(format!("{:#}", gr4(&runtimes).unwrap_err()).contains("in release order"));
-    assert!(gr4(&gr4_runtimes()[..1]).is_err());
+    // A package may leave out a build whose firmware the builder does not
+    // have. It names the builds it has; one runtime gives one CORE.BIN, and
+    // the scripts select among the core files it has.
+    let partial = gr4(&gr4_runtimes()[..2]).unwrap();
+    assert_eq!(
+        verify_package(&partial).unwrap().targets,
+        ["gr4-1.11", "gr4-1.20"]
+    );
+    let partial = unpack(&partial);
+    assert!(partial.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE2.BIN"));
+    assert!(!partial.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE3.BIN"));
+    assert!(text(&partial["SD_ROOT/SCRIPT/GRKIT/SCAN.SH"]).contains(
+        "  case $status in 47) /media/storage1/SCRIPT/GRKIT/CORE2.BIN --start; status=$? ;; esac\n"
+    ));
+    let single = gr4(&gr4_runtimes()[1..2]).unwrap();
+    assert_eq!(verify_package(&single).unwrap().targets, ["gr4-1.20"]);
+    let single = unpack(&single);
+    assert!(single.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE.BIN"));
+    assert!(!single.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE1.BIN"));
+    let mut twice = gr4_runtimes();
+    twice[1] = twice[0].clone();
+    assert!(format!("{:#}", gr4(&twice[..2]).unwrap_err()).contains("each once"));
     // A GR III runtime does not run on GR IV.
     assert!(gr4(&[runtime()]).is_err());
     // The installer and the build manifest must name the same build.
