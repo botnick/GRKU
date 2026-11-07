@@ -140,6 +140,11 @@ static void log_step(const char *step, int status);
 #else
 #define log_step(step, status) ((void)0)
 #endif
+/* The whole plan into RAM (RAM_PLAN_PATH), for INSTALL. */
+static int write_ram_plan(void)
+{
+    return write_file(ram_plan_path, plan, get32(plan + GRKIT_PLAN_SIZE));
+}
 /* The plan of this start into `plan` and into RAM (RAM_PLAN_PATH), as SCAN
    makes it: 0, or a status. The card gets only the header (publish_plan).
    A one-shot start logs each phase of the scan. */
@@ -182,9 +187,9 @@ static int make_plan(void)
     /* The whole plan goes to RAM, then only its header to the card. The
        loader starts INSTALL when the header appears on the card, so INSTALL
        always finds the whole plan. A card write of the plan takes about
-       0.35 s on a camera. */
-    u32 total = effects_at + listed_count * GRKIT_PLANNED_EFFECT_SIZE;
-    if (!write_file(ram_plan_path, plan, total)) return STATUS_PLAN_WRITE;
+       0.35 s on a camera. A one-shot start writes the RAM plan after its
+       posts (run_start): only INSTALL.SH, its fallback, reads it. */
+    if (!ram_cache && !write_ram_plan()) return STATUS_PLAN_WRITE;
     return 0;
 }
 /* The temporary plan on the card, with O_EXCL: the loader resends SCAN until
@@ -1099,6 +1104,9 @@ static void run_start(void)
         return;
     }
     log_step("plan", box ? 1 : 0);
+    /* The RAM plan for INSTALL.SH, after the posts: the loader allocates
+       the arrays meanwhile. */
+    log_step("ramplan", write_ram_plan() ? 0 : STATUS_PLAN_WRITE);
     if (!wait_arrays(box)) {
         log_step("install", STATUS_ARRAYS);
         finish_start(box, STATUS_ARRAYS);

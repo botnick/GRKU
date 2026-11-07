@@ -55,9 +55,7 @@ posted = mb[10]
 if posted = 2 goto start_failed
 mpause 150
 attempts = attempts + 1
-limit = 200
-if started <> 0 limit = 1000
-if attempts < limit goto scan
+if attempts < 1000 goto scan
 goto reject
 :plan_box
 failure = 61

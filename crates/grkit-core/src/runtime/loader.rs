@@ -165,14 +165,12 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
         format!("if posted = {MAILBOX_FAILED} goto start_failed"),
         "mpause 150".into(),
         "attempts = attempts + 1".into(),
-        // Before the start says that it runs: about 30 s, for Linux and the
-        // mount of the card, as before. After: the scan of the first start
-        // after an install copies the effects into the library and can
-        // search the relocation, which takes a minute on GR IV, so about
-        // two minutes more.
-        "limit = 200".into(),
-        "if started <> 0 limit = 1000".into(),
-        "if attempts < limit goto scan".into(),
+        // About 150 s: Linux and the mount of the card take about 7 s, and
+        // the scan of the first start after an install copies the effects
+        // into the library and can search the relocation, which takes a
+        // minute on GR IV. The loader does not shorten the wait on the word
+        // of the start, which it may not see.
+        "if attempts < 1000 goto scan".into(),
         "goto reject".into(),
         // The plan header from the mailbox: the words of `abi::PLAN_FIELDS`
         // after the magic word.
