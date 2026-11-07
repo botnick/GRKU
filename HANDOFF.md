@@ -26,7 +26,7 @@ The web site (`web/`) and the modules are unchanged. A package built from this b
 ## What was NOT done
 
 - **Nothing on this branch has run on a camera.** The host tests pass (Rust, the host C contracts, the script shape tests), but the handshake between the loader script and the start (the mailbox, the fork, the `lcmd` request returning while the child runs) is reasoned from the 1.3.1 loader, which used the same mailbox in the field, and from `FINISH.SH` of 1.3.1, which ran a detached process the same way. The fallbacks (the card files, `INSTALL.SH`) exist so that a mailbox the loader cannot see still loads GRKit, but only a camera can confirm that.
-- The ARM runtime (`CORE.BIN`) has not been built on this Mac yet: see "Build the package" below. The C changes compile only in the host contract tests so far (parts of the installer, not `installer.c` as a whole). **Build it first; fix any ARM-only compile error** (likely candidates: the `syscall6` of `fork`, `setsid`, `dup2`, `nanosleep`, which are new numbers for this file).
+- The ARM runtime (`CORE.BIN`) builds (see "Next tasks"), so the C compiles and links; whether `fork` (ARM EABI syscall 2), `setsid` (66), `dup2` (63), and `nanosleep` (162) behave as expected on the camera's kernel is what the camera test shows. The fallbacks cover a start that dies: `INSTALL.SH` after 10 s installs from the plan in RAM if the plan was posted, else the loader stops with a status in `INSTALL.ERR`.
 - Phase 2 of the load time (start before the camera mounts the card) is designed, not written.
 - No new module, no new effect, no Thai menu text yet.
 
@@ -41,8 +41,18 @@ Everything below was installed on 2026-11-08 under the `botnick` account.
 | LLD 21.1.8 | `~/Tools/llvm-dl/LLVM-21.1.8-macOS-ARM64/bin/ld.lld` | the reference linker version of upstream (prebuilt LLVM release; Homebrew was building LLVM from source, which takes hours) |
 | Official GR III 2.10 firmware | `/private/tmp/claude-501/-Users-botnick-Desktop/7d107312-c5d7-476e-a394-ec91b22f56f4/scratchpad/firmware/v210/fwdc239b.bin` (SHA-256 `d6a3c9c2…bfd4`, the pinned image of target `gr3-2.10`) | **copy it to `~/firmware/gr3-2.10/fwdc239b.bin` now**; the scratch folder is temporary. It came from `https://www.ricoh-imaging.co.jp/resources/japan/support/download/digital/FIRMWARE/gr3_v210.zip`, which Ricoh no longer links but still serves. Keep firmware out of Git. |
 | REA (Reverse Engineer Anything) 6.7.0 | `rea` on PATH (npm global); registered as MCP server `rea` for Claude Code (`~/.claude.json`) and Codex (`~/.codex/config.toml`); skill `reverse-engineer-anything` | for the RTOS reverse engineering of the roadmap |
-| Ghidra 12.2 | `~/Tools/ghidra-dl/ghidra_12.2_PUBLIC/ghidraRun` | Java 21 (Temurin) is installed; run `rea doctor` and point REA at this Ghidra |
+| Ghidra 12.1.4 (the version REA verifies against; 12.2 wants JDK 25) | `~/Tools/ghidra-dl/ghidra_12.1.4_PUBLIC` | the release zip has no macOS arm64 decompiler: `support/buildNatives` builds it with Gradle (started on 2026-11-08; check `Ghidra/Features/Decompiler/build/os/mac_arm_64/decompile`). Until then `rea doctor` reports `native_decompiler` as missing and REA's native analysis is off. Ghidra 12.2 is also at `~/Tools/ghidra-dl/ghidra_12.2_PUBLIC` |
+| JDK 21 (Temurin 21.0.14) | `~/Tools/jdk-dl/jdk-21.0.14+1/Contents/Home` | not on PATH; export `JAVA_HOME` |
 | Node 24, pnpm | nvm | for `web/` |
+
+```sh
+export GHIDRA_INSTALL_DIR="$HOME/Tools/ghidra-dl/ghidra_12.1.4_PUBLIC"
+export JAVA_HOME="$HOME/Tools/jdk-dl/jdk-21.0.14+1/Contents/Home"
+rea doctor --json | head -c 2000      # the Ghidra provider checks
+rea setup --client claude_code --client codex --yes   # saves the provider paths into the MCP registrations
+```
+
+The RTOS image to analyze is the decoded body of `fwdc239b.bin`: `grkit` decodes it (`crates/grkit-firmware`, `grkit_core::firmware::decode`), the RTOS loads at `0x53000000` (`target::RTOS_BASE`), and `crates/grkit-build/src/target/gr3_210.rs` names the known functions and hook sites. `runtime/dump/` is the tool that copies the running RTOS from a camera for builds that differ.
 
 ```sh
 export PATH="$HOME/.rustup/toolchains/stable-aarch64-apple-darwin/bin:$HOME/homebrew/bin:$PATH"
@@ -79,6 +89,8 @@ GRKIT_UPDATE_GENERATED=1 cargo test -p grkit-core --test generated   # after a c
 GRKIT_UPDATE_GENERATED=1 cargo test -p grkit-build                    # after a change to the scripts (snapshots)
 ```
 
+State on 2026-11-08: `cargo fmt` clean; the workspace tests pass with the host C tests required; `cargo clippy` with Rust 1.99.1 fails on **upstream** code only (the new `chunks_exact_to_as_chunks` lint in `grkit-firmware/src/update.rs`, `grkit-core/src/fit/sectors.rs`, `gr4_looks.rs`, `grm.rs`, `hue.rs`), not on the changes of this branch. Upstream CI runs an older stable. Either pin the toolchain with a `rust-toolchain.toml` or fix those sites when touching them.
+
 ## Test on a camera
 
 1. Build the package (above) or take `dist/GRKit.zip`, copy the contents of `SD_ROOT` to the card root. If the card already has GRKit, replace only `SCRIPT`.
@@ -89,7 +101,7 @@ GRKIT_UPDATE_GENERATED=1 cargo test -p grkit-build                    # after a 
 
 ## Next tasks, in order
 
-1. Build `CORE.BIN` from this branch and fix ARM compile errors. Commit.
+1. ~~Build `CORE.BIN` from this branch~~ Done on 2026-11-08: `grkit build --target gr3-2.10` links with Apple clang 21 and LLD 21.1.8 (`build/runtime`, core span 56,320 bytes). A full GR III package (`dist/GRKit-gr3.zip`, with effects, modules, and guides) was being built when this file was written; rebuild it with the commands above if it is missing.
 2. Camera test on GR III / IIIx as above. Fix what it says. Commit the `BOOT.TXT` numbers into one-shot-start.md.
 3. Rebuild the site data (`grkit site`, `grkit effects publish`) if the site should serve this fork's packages.
 4. Then follow docs/roadmap.md, section 5.
