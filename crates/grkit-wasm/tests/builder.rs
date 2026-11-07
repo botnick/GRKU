@@ -87,7 +87,7 @@ fn the_camera_selects_the_modeset_file() {
     assert!(error(builder.set_camera("gr2")).contains("Unknown camera"));
     // GR IV needs its own runtimes.
     builder.set_camera("gr4").unwrap();
-    assert!(error(builder.build()).contains("needs the runtime of each of its builds"));
+    assert!(error(builder.build()).contains("does not run the gr3-2.10 runtime"));
     builder.set_camera("gr3x").unwrap();
     let package = builder.build().unwrap();
     let verified = packaging::verify_package(&package).unwrap();
