@@ -14,7 +14,7 @@ The goal is a GRKit that loads sooner, has every feature that [GRLife Pro](https
 
 Phase 2 is what gets the 4 to 5 s the user asked for. It is also the step that upstream withdrew in 1.3.3 for reliability, so it must be built with the measurements and the safety rules in one-shot-start.md, and tested on each camera model.
 
-Measurement protocol, each time: three cold power-ons, `GRKIT/BOOT.TXT` lines `load`, `scan`, `install`, the time GRK shows in ADJ by stopwatch, then once with `GRKIT/DIAG` for `DIAG.TXT`.
+Measurement protocol, each time: three cold power-ons, `GRKIT/BOOT.TXT` lines `load`, `scan`, `install`, the time GRK shows in ADJ by stopwatch, then once with `GRKIT/DIAG` for `DIAG.TXT`. The first camera is a GR IV on firmware 1.11; ahonn's numbers above are from a GR III, and GR IV loads later still, so expect larger values there.
 
 ## 2. Feature gap against GRLife Pro 2.0
 

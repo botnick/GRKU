@@ -39,7 +39,7 @@ Everything below was installed on 2026-11-08 under the `botnick` account.
 | Rust 1.99.1 stable | `~/.rustup/toolchains/stable-aarch64-apple-darwin/bin` (`rustup` from Homebrew at `~/homebrew/bin/rustup`) | put the toolchain `bin` on `PATH`; there is no `~/.cargo/bin` |
 | Apple Clang 21.0.0 | `/usr/bin/clang` | the reference compiler of upstream |
 | LLD 21.1.8 | `~/Tools/llvm-dl/LLVM-21.1.8-macOS-ARM64/bin/ld.lld` | the reference linker version of upstream (prebuilt LLVM release; Homebrew was building LLVM from source, which takes hours) |
-| Official GR III 2.10 firmware | `/private/tmp/claude-501/-Users-botnick-Desktop/7d107312-c5d7-476e-a394-ec91b22f56f4/scratchpad/firmware/v210/fwdc239b.bin` (SHA-256 `d6a3c9c2…bfd4`, the pinned image of target `gr3-2.10`) | **copy it to `~/firmware/gr3-2.10/fwdc239b.bin` now**; the scratch folder is temporary. It came from `https://www.ricoh-imaging.co.jp/resources/japan/support/download/digital/FIRMWARE/gr3_v210.zip`, which Ricoh no longer links but still serves. Keep firmware out of Git. |
+| Official firmware files | `~/firmware/gr3-2.10/fwdc239b.bin` (target `gr3-2.10`), `~/firmware/gr4-1.11/fwdc248b.bin` (`gr4-1.11`), `~/firmware/gr4-1.20/fwdc248b.bin` (`gr4-1.20`), each with the SHA-256 that its target pins; the zips are next to them | From `https://www.ricoh-imaging.co.jp/resources/japan/support/download/digital/FIRMWARE/gr3_v210.zip`, `gr4_v111.zip`, `gr4_v120.zip`: Ricoh links only the latest version but still serves the older files. The factory build of the GR IV 30th Anniversary camera (`gr4-1.20-0528`) comes only from a camera dump (`runtime/dump/`), which we do not have. Keep firmware out of Git. |
 | REA (Reverse Engineer Anything) 6.7.0 | `rea` on PATH (npm global); registered as MCP server `rea` for Claude Code (`~/.claude.json`) and Codex (`~/.codex/config.toml`); skill `reverse-engineer-anything` | for the RTOS reverse engineering of the roadmap |
 | Ghidra 12.1.4 (the version REA verifies against; 12.2 wants JDK 25) | `~/Tools/ghidra-dl/ghidra_12.1.4_PUBLIC` | the release zip has no macOS arm64 decompiler: `support/buildNatives` builds it with Gradle (started on 2026-11-08; check `Ghidra/Features/Decompiler/build/os/mac_arm_64/decompile`). Until then `rea doctor` reports `native_decompiler` as missing and REA's native analysis is off. Ghidra 12.2 is also at `~/Tools/ghidra-dl/ghidra_12.2_PUBLIC` |
 | JDK 21 (Temurin 21.0.14) | `~/Tools/jdk-dl/jdk-21.0.14+1/Contents/Home` | not on PATH; export `JAVA_HOME` |
@@ -62,6 +62,8 @@ export GRKIT_LLD="$HOME/Tools/llvm-dl/LLVM-21.1.8-macOS-ARM64/bin/ld.lld"
 
 ## Build the package
 
+`grkit` embeds `runtime/` and `resources/` at `cargo install` time: **after any change under `runtime/`, run `cargo install --path crates/grkit-cli --locked` again before `grkit build`**, or the build silently uses the old installer. `grkit build` refuses an existing `--out` directory; remove it first.
+
 ```sh
 cd ~/Desktop/GRKit
 cargo install --path crates/grkit-cli --locked
@@ -77,7 +79,16 @@ grkit package --build build/runtime --effects build/effects $(for m in build/mod
 grkit verify dist/GRKit.zip
 ```
 
-For GR IIIx, package with `--camera gr3x`. GR IV needs the GR IV firmware files (not downloaded). `build/runtime/build.json` reports the code sizes; the fastboot files are optional and not our path.
+For GR IIIx, package with `--camera gr3x` and `--guide build/guides/gr3x/en.pdf`. For GR IV, build `gr4-1.11` and `gr4-1.20` from their firmware files into two directories and package both:
+
+```sh
+grkit build --target gr4-1.11 --firmware ~/firmware/gr4-1.11/fwdc248b.bin --out build/runtime-gr4-1.11 --clang "$GRKIT_CLANG" --lld "$GRKIT_LLD"
+grkit build --target gr4-1.20 --firmware ~/firmware/gr4-1.20/fwdc248b.bin --out build/runtime-gr4-1.20 --clang "$GRKIT_CLANG" --lld "$GRKIT_LLD"
+grkit package --build build/runtime-gr4-1.11 --build build/runtime-gr4-1.20 --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
+  --camera gr4 --guide build/guides/gr4/en.pdf --out dist/GRKit-gr4.zip
+```
+
+This fork's packaging accepts a package with the builds the builder has (in release order), so the GR IV package ships without the `gr4-1.20-0528` factory build: a 30th Anniversary camera on that build gets `INSTALL.ERR` 47 instead of GRKit. `build/runtime*/build.json` reports the code sizes; the fast-boot files that `grkit build` also writes are optional and not our path.
 
 ## Test
 
@@ -101,8 +112,8 @@ State on 2026-11-08: `cargo fmt` clean; the workspace tests pass with the host C
 
 ## Next tasks, in order
 
-1. ~~Build `CORE.BIN` from this branch~~ Done on 2026-11-08: `grkit build --target gr3-2.10` links with Apple clang 21 and LLD 21.1.8 (`build/runtime`, core span 56,320 bytes). A full GR III package (`dist/GRKit-gr3.zip`, with effects, modules, and guides) was being built when this file was written; rebuild it with the commands above if it is missing.
-2. Camera test on GR III / IIIx as above. Fix what it says. Commit the `BOOT.TXT` numbers into one-shot-start.md.
+1. ~~Build `CORE.BIN` from this branch~~ Done on 2026-11-08 for `gr3-2.10`, `gr4-1.11`, and `gr4-1.20`; `dist/GRKit-gr3.zip`, `GRKit-gr3x.zip`, and `GRKit-gr4.zip` verify. The GR IV package was written to the user's card (a GR IV on firmware 1.11) for the first camera test.
+2. Camera test as above (the user's camera is a GR IV 1.11; GR III / IIIx still need a tester). Fix what it says. Commit the `BOOT.TXT` numbers into one-shot-start.md.
 3. Rebuild the site data (`grkit site`, `grkit effects publish`) if the site should serve this fork's packages.
 4. Then follow docs/roadmap.md, section 5.
 
