@@ -1,7 +1,9 @@
 """Film box icons for the Film Look effects: 40 x 40 RGBA with binary alpha, rows 2 to 37
 opaque like the native list frames, drawn after the real boxes: the brand band in the brand
 colors, the body in the colors of the box of that film, the name in Roboto Condensed Bold and
-the speed in Roboto Condensed Black (the fonts of crates/grkit-core/assets, SIL OFL 1.1).
+the speed in Roboto Condensed Black (the fonts of crates/grkit-core/assets, SIL OFL 1.1), and a
+film type stripe at the bottom: orange negative, sky blue slide, gray black-and-white, teal
+motion picture, rose instant.
 
     python3 scripts/flap-icons.py embed           # write the icon of each effect into its effect.json
     python3 scripts/flap-icons.py sheet OUT.png   # a sheet of every icon at 3x, for review
@@ -36,6 +38,14 @@ BANDS = {
 }
 BAND_TEXT = {'Kodak': 'Kodak', 'FUJIFILM': 'FUJIFILM', 'ILFORD': 'ILFORD', 'AGFA': 'AGFA', 'POLAROID': 'Polaroid',
              'LOMO': 'LOMO', 'ROLLEI': 'ROLLEI', 'CINESTILL': 'CINESTILL', 'HARMAN': 'HARMAN', 'RICOH': 'RICOH'}
+# The film type stripe at the bottom of each box, so the kind of film shows at a glance:
+# orange for a color negative (the orange mask of C-41 film), sky blue for a slide film,
+# gray for black-and-white, teal for a motion picture film, rose for an instant film.
+KINDS = {'negative': (235, 120, 30), 'slide': (90, 170, 235), 'mono': (150, 150, 150),
+         'cine': (0, 150, 140), 'instant': (240, 150, 180)}
+SLIDE_NAMES = ('VELVIA', 'PROVIA', 'ASTIA', 'SENSIA', 'EKTACHROME', 'KODACHROME', 'ELITE', 'PRECISA',
+               'AGFACHROME', 'AEROCHROME', 'X-PRO', 'POLACHROME', 'FORTIA')
+INSTANT_NAMES = ('INSTAX', 'FP-', 'PX', 'TIME ZERO', 'POLAROID', 'TYPE')
 # The label colors of the Kodak motion picture cans.
 VISION_CODES = {'500T': (230, 60, 50), '250D': (60, 120, 220), '200T': (150, 80, 200), '50D': (80, 180, 90),
                 '320T': (240, 150, 50), '100T': (240, 200, 60), '200D': (90, 170, 200)}
@@ -159,7 +169,7 @@ def wrap(draw, name, path, size, width):
     return lines[:2]
 
 
-def render(brand, name, number, cine=False):
+def render(brand, name, number, cine=False, kind=None):
     """The icon as a Pillow RGBA image with binary alpha."""
     img = Image.new('RGBA', (WIDTH, WIDTH), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -174,28 +184,55 @@ def render(brand, name, number, cine=False):
         for i, color in enumerate(RAINBOW):
             d.rectangle([1, TOP + 2 + i, 6, TOP + 2 + i], fill=color + (255,))
         centered(d, BAND_TEXT[brand], TOP + 2, fit(d, BAND_TEXT[brand], BOLD, 8, 30), band_fg, 8, WIDTH)
+    elif brand == 'Kodak' and not cine:
+        # The red Kodak mark with its yellow K, then the name
+        d.rounded_rectangle([2, TOP + 1, 9, TOP + 7], radius=1, fill=RED + (255,))
+        d.text((4, TOP), 'K', font=font(BLACK_FONT, 8), fill=YELLOW + (255,))
+        centered(d, BAND_TEXT[brand], TOP + 2, fit(d, BAND_TEXT[brand], BOLD, 8, 26), band_fg, 11, WIDTH)
     else:
         centered(d, BAND_TEXT[brand], TOP + 2, fit(d, BAND_TEXT[brand], BOLD, 8, 36), band_fg)
-    # The name: one or two lines
+    # The name: one or two lines, or large when there is no number
     y = BAND_BOTTOM + 2
+    floor = BOTTOM - (3 if kind else 1)   # the rows above the film type stripe
     # A name that only repeats the brand, as CineStill 800T, leaves the room to the number.
     lines = [] if name.upper() == BAND_TEXT[brand].upper() else wrap(d, name, BOLD, 8, 36)
-    for line in lines:
-        centered(d, line, y, fit(d, line, BOLD, 8, 38), name_fg)
-        y += 7
+    if not number and lines:
+        size = 12 if len(lines) == 1 else 10
+        pitch = size - 1
+        total = pitch * len(lines)
+        y += max(0, (floor - y - total) // 2)
+        for line in lines:
+            centered(d, line, y, fit(d, line, BLACK_FONT, size, 38), name_fg)
+            y += pitch
+    else:
+        for line in lines:
+            centered(d, line, y, fit(d, line, BOLD, 8, 38), name_fg)
+            y += 7
     # The number, as large as the room below the name allows
     if number:
-        size = 17 if len(lines) <= 1 else 12
+        size = 19 if len(lines) <= 1 else 12
         f = fit(d, number.upper(), BLACK_FONT, size, 38)
         w, left, t, bottom = measure(d, number.upper(), f)
         h = bottom - t
-        room = BOTTOM - 1 - y
+        room = floor - y
         centered(d, number.upper(), y + max(0, (room - h) // 2), f, number_fg)
-    # A stripe in the accent color at the bottom, as Ilford and the cine cans have
+    # A stripe in the accent color under the band, as Ilford and the cine cans have
     if accent:
-        d.rectangle([0, BOTTOM - 1, WIDTH - 1, BOTTOM], fill=accent + (255,))
-    # The edges of a box: light at the top and left, dark at the right and bottom
+        d.rectangle([0, BAND_BOTTOM + 1, WIDTH - 1, BAND_BOTTOM + 1], fill=accent + (255,))
+    # The film type stripe at the bottom
+    if kind:
+        d.rectangle([0, BOTTOM - 1, WIDTH - 1, BOTTOM], fill=KINDS[kind] + (255,))
+    # The light on the box: a little brighter under the band, darker toward the bottom
     px = img.load()
+    body_rows = range(BAND_BOTTOM + 1, BOTTOM - (2 if kind else 0))
+    for yy in body_rows:
+        t = (yy - (BAND_BOTTOM + 1)) / max(1, len(body_rows) - 1)
+        factor = 1.06 - 0.12 * t
+        for x in range(WIDTH):
+            r, g, b, a = px[x, yy]
+            if (r, g, b) == body:
+                px[x, yy] = shade(body, factor) + (255,)
+    # The edges of a box: light at the top and left, dark at the right and bottom
     for x in range(WIDTH):
         r, g, b, a = px[x, TOP]; px[x, TOP] = shade((r, g, b), 1.3) + (255,)
         r, g, b, a = px[x, BOTTOM]; px[x, BOTTOM] = shade((r, g, b), 0.5) + (255,)
@@ -222,13 +259,32 @@ def png_bytes(img):
     return out.getvalue()
 
 
+def film_kind(definition):
+    """The kind of film of an effect: mono, cine, instant, slide, or negative."""
+    cover = definition.get('cover') or definition['icon']
+    name = cover['name'].upper()
+    target = definition.get('attribution', {}).get('target', '').lower()
+    if definition.get('flags', 0) & 1:
+        return 'mono'
+    if cover.get('template') == 'cine':
+        return 'cine'
+    if cover.get('brand') == 'POLAROID' or name.startswith(INSTANT_NAMES) or 'instax' in target:
+        return 'instant'
+    if name.startswith(SLIDE_NAMES) or 'projected' in target or 'slide' in target:
+        return 'slide'
+    if cover.get('brand') == 'RICOH':
+        return None
+    return 'negative'
+
+
 def effect_icon(definition):
     """The icon of an effect definition from its `cover` fields."""
     cover = definition.get('cover') or definition['icon']
     brand = cover.get('brand', 'Kodak')
     if brand not in BANDS:
         brand = 'Kodak'
-    return render(brand, cover['name'], cover.get('number', ''), cine=cover.get('template') == 'cine')
+    return render(brand, cover['name'], cover.get('number', ''), cine=cover.get('template') == 'cine',
+                  kind=film_kind(definition))
 
 
 def sheet(images, cols=13, scale=3):

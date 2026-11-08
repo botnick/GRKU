@@ -38,7 +38,7 @@ ff-lomochromemetropolis-v1
 double-x-5222-mono-v1
 kodachrome-64-v1
 pro-400h-crystal-v1
-pd-vista-200-v1
+im-gr2-positive-v1
 sfl-natura-1600-v1
 sfl-superia-reala-v1
 positive-film-grii-v1

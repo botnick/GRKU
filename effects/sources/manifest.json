@@ -46,6 +46,13 @@
    "author": "GRKit contributors",
    "license": "MIT",
    "script": "make_positive_grii.py"
+  },
+  "imprint": {
+   "repository": "https://github.com/luqie0106/Imprint",
+   "revision": "3916a114bc32b487de611135cf66514447c541a6",
+   "author": "luqie0106 and the Imprint collaborators",
+   "license": "Apache-2.0",
+   "license_notice": "IMPRINT_LICENSE.txt"
   }
  },
  "upstream_changes": "CHANGELOG.txt",
@@ -90,6 +97,9 @@
   },
   "make_positive_grii.py": {
    "sha256": "b0037354d6e7ee13a23809b34fa92ca587de290a09e5e9173743b739c8f87bfb"
+  },
+  "IMPRINT_LICENSE.txt": {
+   "sha256": "3015b07fbb93baccb92dac4fb8a3efc34b0a7f82750e67922692d3ac5df84285"
   }
  },
  "luts": {
@@ -215,6 +225,11 @@
    "generator": "t3mujinpack",
    "sha256": "753f05a4e373d4cd196624daf472ad370894ca5659090c5c02606fd8805ec1d1",
    "upstream": "haldcluts/t3mujinpack - Black and White - Ilford HP5 Plus 400.png"
+  },
+  "im-gr2-positive-v1.cube": {
+   "generator": "imprint",
+   "sha256": "b58c59faa374eaf93f9cc3100f5a0193dbba5855c0e20152e9387af09e9bd4e9",
+   "upstream": "assets/ricoh/Ricoh_GR2_PS_Filter/LUT/GR2_Positive_Film.cube"
   },
   "instax-v1.cube": {
    "generator": "spectral_film_lut",

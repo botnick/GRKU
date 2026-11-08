@@ -52,6 +52,10 @@ CineStill 800T, CineStill 400D, Phoenix 200, Purple 400, Turquoise 400, Metropol
 
 Positive GRII is a look of this repository, in the spirit of the Positive Film image setting of the RICOH GR II: deep blacks, a hard curve, a warm cast that fades toward white, more saturation, blues toward teal, greens toward yellow-olive. `sources/make_positive_grii.py` writes its LUT (a HaldCLUT on the Standard JPEG) from parameters set by eye against GR II photographs, not from camera data; `grkit effects import --input standard` fits it. It is licensed under the MIT License of GRKit. RICOH and GR are trademarks of RICOH IMAGING COMPANY, LTD.; the name says which camera setting the look follows.
 
+### Imprint
+
+GR2 Positive derives from the GR2 Positive Film LUT of the Ricoh GR2 Film Look for Photoshop in the [Imprint](https://github.com/luqie0106/Imprint) repository of luqie0106 (revision 3916a11), a stylized imitation of the Positive Film setting of the RICOH GR II from a few parameters (contrast, saturation, cool shadows, warm highlights), not camera data, licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). `sources/IMPRINT_LICENSE.txt` contains the upstream notice and the license. GRKit fits the LUT to the effect model; the change is the fit.
+
 ### Names
 
 Effect names and film, paper, and filter names identify the simulated materials. Some of these names are trademarks of their owners. GRKit is not affiliated with or endorsed by RICOH IMAGING COMPANY, LTD., Eastman Kodak Company, Kodak Alaris, Fujifilm, HARMAN technology Limited (Ilford Photo), Agfa, Polaroid, Lomography, Rollei, or CineStill. The simulations are models of published data or hand-made styles, not measured equivalents of the products.
