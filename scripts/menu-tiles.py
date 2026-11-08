@@ -293,6 +293,45 @@ def guide_lines(img, kind, x0, y0, x1, y1, color=WHITE):
         d = ImageDraw.Draw(img)
         d.line([(x0, y0), (x1, y1)], fill=color + (255,), width=1)
         d.line([(x1, y0), (x0, y1)], fill=color + (255,), width=1)
+    if kind == 'symmetry':
+        # Dynamic symmetry: the two diagonals and their reciprocals, which meet them at right angles.
+        d = ImageDraw.Draw(img)
+        d.line([(x0, y0), (x1, y1)], fill=color + (255,), width=1)
+        d.line([(x1, y0), (x0, y1)], fill=color + (255,), width=1)
+        # A reciprocal from each corner: perpendicular to the diagonal, so it reaches the far edge
+        # at w * (h / w)^2 ... approximated with the standard point w * h^2 / (w^2 + h^2) scaled.
+        k = h * h / (w * w + h * h)
+        rx = round(w * k)
+        d.line([(x0, y0), (x0 + rx, y1)], fill=color + (255,), width=1)
+        d.line([(x1, y0), (x1 - rx, y1)], fill=color + (255,), width=1)
+        d.line([(x0, y1), (x0 + rx, y0)], fill=color + (255,), width=1)
+        d.line([(x1, y1), (x1 - rx, y0)], fill=color + (255,), width=1)
+    if kind == 'spiral':
+        # The golden spiral: a quarter arc in each square of the golden subdivision, winding
+        # inward clockwise, with the division lines, as the camera draws it.
+        d = ImageDraw.Draw(img)
+        l, t, r, b = x0, y0, x1, y1
+        for step in range(6):
+            W, H = r - l, b - t
+            if min(W, H) < 3:
+                break
+            k = step % 4
+            if k == 0:      # the square on the left: arc around its bottom-right corner
+                s_ = H; cx, cy = l + s_, b
+                d.arc([cx - s_, cy - s_, cx + s_, cy + s_], 180, 270, fill=color + (255,), width=1)
+                vline(img, l + s_, t, b, color); l += s_
+            elif k == 1:    # on top: arc around its top-right corner
+                s_ = W; cx, cy = r, t
+                d.arc([cx - s_, cy - s_, cx + s_, cy + s_], 90, 180, fill=color + (255,), width=1)
+                hline(img, l, r, t + s_, color); t += s_
+            elif k == 2:    # on the right: arc around its top-left corner
+                s_ = H; cx, cy = r - s_, t
+                d.arc([cx - s_, cy - s_, cx + s_, cy + s_], 0, 90, fill=color + (255,), width=1)
+                vline(img, r - s_, t, b, color); r -= s_
+            else:           # at the bottom: arc around its bottom-left corner
+                s_ = W; cx, cy = l, b
+                d.arc([cx - s_, cy - s_, cx + s_, cy + s_], 270, 360, fill=color + (255,), width=1)
+                hline(img, l, r, b - s_, color); b -= s_
 
 
 def guides_module():
@@ -305,7 +344,8 @@ def guides_module():
 
 
 GUIDES = [('1-thirds', '3x3', 'thirds'), ('2-center', 'Ctr', 'center'), ('3-golden', 'Phi', 'golden'),
-          ('4-diagonals', 'Diag', 'diagonals'), ('5-thirds-center', '3x3+', 'thirds-center')]
+          ('4-diagonals', 'Diag', 'diagonals'), ('5-thirds-center', '3x3+', 'thirds-center'),
+          ('6-spiral', 'Spiral', 'spiral'), ('7-symmetry', 'DynSym', 'symmetry')]
 
 
 def guides_option(label, kind):

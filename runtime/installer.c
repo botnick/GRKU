@@ -71,7 +71,14 @@ static const char imported_path[] = IMPORTED_PATH;
 static const char data_path[] = DATA_PATH;
 static const char plan_path[] = PLAN_PATH;
 static const char plan_tmp[] = PLAN_TMP_PATH;
-static const char ram_plan_path[] = RAM_PLAN_PATH;
+/* The whole plan, which INSTALL reads: in RAM on Linux. On the RTOS side
+   (runtime/fastboot/) it is on the card, because the head loads the fast-boot
+   file again for INSTALL and no memory lasts from SCAN to INSTALL. */
+#ifdef RTOS_NATIVE
+static const char full_plan_path[] = CARD_PLAN_PATH;
+#else
+static const char full_plan_path[] = RAM_PLAN_PATH;
+#endif
 static const char lock_path[] = LOCK_PATH;
 static const char done_path[] = DONE_PATH;
 static const char failed_path[] = FAILED_PATH;
@@ -146,7 +153,7 @@ static u32 chunk_count(u32 chunk)
 /* The whole plan into RAM (RAM_PLAN_PATH), for INSTALL. */
 static int write_ram_plan(void)
 {
-    return write_file(ram_plan_path, plan, get32(plan + GRKIT_PLAN_SIZE));
+    return write_file(full_plan_path, plan, get32(plan + GRKIT_PLAN_SIZE));
 }
 /* The plan of this start into `plan` and into RAM (RAM_PLAN_PATH), as SCAN
    makes it: 0, or a status. The card gets only the header (publish_plan).
@@ -368,12 +375,12 @@ static int relocate(void)
 /* SCAN wrote the plan at this power-on, and the loader allocated the arrays
    for it. INSTALL takes the effects from the plan, so that both steps install
    the same effects. */
-/* The plan of this start from RAM. Its header must be the header on the card,
-   which the loader allocated the arrays from. */
+/* The whole plan of this start (full_plan_path). Its header must be the
+   header on the card, which the loader allocated the arrays from. */
 static int read_plan(void)
 {
     u32 have = 0; long got = 0; u8 extra, header[GRKIT_PLAN_HEADER_SIZE];
-    long fd = syscall6(5, (u32)ram_plan_path, 0x8800, 0, 0, 0, 0);
+    long fd = syscall6(5, (u32)full_plan_path, 0x8800, 0, 0, 0, 0);
     if (fd < 0) return STATUS_PLAN;
     while (have < sizeof(plan)) {
         got = syscall6(3, fd, (u32)(plan + have), sizeof(plan) - have, 0, 0, 0);
@@ -701,16 +708,17 @@ static void write_host_icons(const struct arrays *a, u32 pixels)
     u32 base = a->base;
     /* Host artwork does not consume an effect record or a native settings ID.
        It comes first in chunk 0: Off, the GRKit tile, the Version tile, the
-       Modules tile, then the Modules tile of Enable GRKit Off. */
-    _Static_assert(HOST_ICON_COUNT == 5, "The host icons are Off, GRKit, Version, Modules, and Modules Off");
+       Modules tile, the Modules tile of Enable GRKit Off, then the Fn hint
+       of a row where Fn turns a setting. */
+    _Static_assert(HOST_ICON_COUNT == 6, "The host icons are Off, GRKit, Version, Modules, Modules Off, and Rotate");
     for (u32 i = 0; i < HOST_ICON_COUNT; ++i) {
         u32 icon = a->icon_bases[0] + i * ICON_STRIDE;
         static const u8 *const artwork[HOST_ICON_COUNT] = {off_pixels, grkit_pixels, version_pixels, modules_pixels,
-                                                                 modules_off_pixels};
+                                                                 modules_off_pixels, rotate_pixels};
         icon_header(icon, pixels);
         copy(at(icon + ICON_PIXELS), artwork[i], 6400);
-        /* The menu derives the Version and the two Modules icons from the
-           GRKit icon. */
+        /* The menu derives the icons after the GRKit icon from its
+           address. */
         if (i < 2) store(base + (i ? GRKIT_HOST_GRKIT_ICON : GRKIT_HOST_OFF_ICON), icon);
     }
 }

@@ -3,7 +3,7 @@ static const char target_marker[] __attribute__((used)) = "GRKIT_TARGET=gr3-2.10
 #define MAX_CHUNKS 0x5U
 #define ICONS_PER_CHUNK 0x28U
 #define ICON_STRIDE 0x1908U
-#define HOST_ICON_COUNT 0x5U
+#define HOST_ICON_COUNT 0x6U
 #define MAP_BASE 0x51000000U
 #define MAP_SIZE 0xf000000U
 #define HEAP_END 0x60000000U
@@ -73,6 +73,7 @@ static const u32 guard_symbols[] = {};
 #define RTOS_IDENTITY_COUNT 0U
 #define PLAN_PATH "/media/storage1/SCRIPT/GRKIT/PLAN.BIN"
 #define RAM_PLAN_PATH "/tmp/grkit-plan.bin"
+#define CARD_PLAN_PATH "/media/storage1/SCRIPT/GRKIT/PLANFULL.BIN"
 #define PLAN_TMP_PATH "/media/storage1/SCRIPT/GRKIT/PLAN.TMP"
 #define LOCK_PATH "/media/storage1/SCRIPT/GRKIT/INSTALL.LCK"
 #define DONE_PATH "/media/storage1/SCRIPT/GRKIT/INSTALL.OK"
@@ -118,6 +119,7 @@ static const u8 grkit_pixels[] __attribute__((aligned(4))) = { /* 6400 values, S
 static const u8 version_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 b27cf56b60f97bdf35324e226cb73e137e649b1a62346f5042d0d21d028dc61f */ };
 static const u8 modules_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 2dcb0313557894fdd7af596286049f6e47db08fdcce8ea48b5d8016f3f0b70ad */ };
 static const u8 modules_off_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 0e841ef3290ee388e88e4988b7faa52f63e25e7f5ed11650801a01b52593e777 */ };
+static const u8 rotate_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 8a5f3688e3432fc4c20d670e4b092cf937baf93ebd9db2e934d4e3ce63ae2d56 */ };
 #define MENU_TEXT_BYTES 2068U
 static const u8 menu_text[] __attribute__((aligned(4))) = { /* 2068 values, SHA-256 423c20f1522aeb5d231cd8542f28e589a958d8c3c071b91d05625a86c76346ce */ };
 #define LABELS_BYTES 20276U
