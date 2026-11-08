@@ -21,7 +21,7 @@ pub struct Official {
 }
 
 /// The official modules, in the order that the site shows them.
-pub const OFFICIAL: [Official; 8] = [
+pub const OFFICIAL: [Official; 9] = [
     Official {
         id: "FILMLOOK",
         folder: "film-look",
@@ -59,15 +59,21 @@ pub const OFFICIAL: [Official; 8] = [
         needs_effects: false,
     },
     Official {
-        id: "GRAIN",
-        folder: "grain",
-        key: "grain",
+        id: "DIFFUSE",
+        folder: "diffusion",
+        key: "diffusion",
         needs_effects: false,
     },
     Official {
         id: "BORDER",
         folder: "border",
         key: "border",
+        needs_effects: false,
+    },
+    Official {
+        id: "GRAIN",
+        folder: "grain",
+        key: "grain",
         needs_effects: false,
     },
 ];

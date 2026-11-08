@@ -21,6 +21,7 @@ describe('downloadProps', () => {
       dateStamp: 'off',
       glow: 'off',
       lightLeak: 'off',
+      diffusion: 'off',
       grain: 'off',
       border: 'off',
     });

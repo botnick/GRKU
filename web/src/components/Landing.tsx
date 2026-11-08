@@ -16,6 +16,29 @@ import {
   type LandingGuide,
 } from '../landing';
 import { EffectIcon } from './EffectIcon';
+import { OFFICIAL_MODULES, type ModuleKey } from '../generated/modules';
+import tileFilmLook from '../../../modules/film-look/tiles/0-module.png';
+import tileFraming from '../../../modules/framing/tiles/0-module.png';
+import tileGuides from '../../../modules/guides/tiles/0-module.png';
+import tileDate from '../../../modules/date/tiles/0-module.png';
+import tileGlow from '../../../modules/glow/tiles/0-module.png';
+import tileGrain from '../../../modules/grain/tiles/0-module.png';
+import tileBorder from '../../../modules/border/tiles/0-module.png';
+import tileLightLeak from '../../../modules/lightleak/tiles/0-module.png';
+import tileDiffusion from '../../../modules/diffusion/tiles/0-module.png';
+
+/** The menu tile of each module, as the camera shows it. */
+const MODULE_TILES: Record<ModuleKey, string> = {
+  filmLook: tileFilmLook,
+  framing: tileFraming,
+  guides: tileGuides,
+  dateStamp: tileDate,
+  glow: tileGlow,
+  grain: tileGrain,
+  border: tileBorder,
+  lightLeak: tileLightLeak,
+  diffusion: tileDiffusion,
+};
 
 type Photo = keyof typeof LANDING_PHOTOS;
 type Look = (typeof LANDING_LOOKS)[number];
@@ -47,6 +70,16 @@ export function Landing({ strings, language, canWrite }: Props) {
         <Looks strings={strings} />
       </section>
 
+      <section className="section" aria-labelledby="landing-shelf">
+        <h2 id="landing-shelf">{t.shelf}</h2>
+        <div className="section-body">
+          <p className="landing-text">{t.shelfText}</p>
+          <div className="landing-shelf">
+            <img src={landingImage('shelf.png')} alt={t.shelfAlt} width="1368" height="1674" loading="lazy" />
+          </div>
+        </div>
+      </section>
+
       <section className="section" aria-labelledby="landing-framing">
         <h2 id="landing-framing">{strings.moduleNames.framing}</h2>
         <div className="section-body">
@@ -63,6 +96,24 @@ export function Landing({ strings, language, canWrite }: Props) {
             <GlowDetail strings={strings} />
             <GrainDetail strings={strings} />
           </div>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="landing-modules">
+        <h2 id="landing-modules">{strings.modules}</h2>
+        <div className="section-body">
+          <p className="landing-text">{t.moduleListText}</p>
+          <ul className="landing-menu" aria-label={strings.modules}>
+            {OFFICIAL_MODULES.map((module) => (
+              <li key={module.key}>
+                <img src={MODULE_TILES[module.key]} alt="" width="40" height="40" />
+                <div>
+                  <b>{strings.moduleNames[module.key]}</b>
+                  <p>{strings.modulesText[module.key]}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

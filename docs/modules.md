@@ -12,6 +12,7 @@ The official modules in `modules/` are complete examples:
 | `modules/date` | three settings, a page, a status icon, and a plane filter |
 | `modules/glow` | independent Enable and Strength settings, strength icons shared by ADJ and the viewfinder, and a frame filter |
 | `modules/lightleak` | a choice page with presets and four strength rows on one native settings page, and a frame filter that follows the upright picture and is seeded from it |
+| `modules/diffusion` | a choice page with native settings rows, constant tables that a script generates, and a frame filter ported from a community module |
 | `modules/grain` | a module with only data: a page and status icon of `CORE.GRAIN` |
 | `modules/film-look` | a page of `CORE.TONE` and an indicator in the native Image Control position |
 

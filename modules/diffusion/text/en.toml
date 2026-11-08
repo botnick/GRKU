@@ -1,0 +1,13 @@
+title = "Diffusion"
+rows = ["Off", "1/8", "1/4", "1/2"]
+
+[settings.STRENGTH]
+label = "Strength"
+
+[settings.MIST]
+label = "Black Mist"
+values = ["Off", "Light", "Heavy"]
+
+[settings.STREAK]
+label = "Streak"
+values = ["Off", "Blue", "Amber"]

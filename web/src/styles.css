@@ -2438,3 +2438,66 @@ button.row-body {
     line-height: 1.5;
   }
 }
+
+/* The film shelf: the box icons of the library at twice their size, as the camera draws them. */
+.landing-shelf {
+  margin-top: 20px;
+  padding: 16px 16px 8px;
+  background: #ecebe7;
+  border: 1px solid var(--line);
+}
+
+.landing-shelf img {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+/* The module list, as the GRKit section of the camera menu: a dark panel, a tile and a name
+   on each row. */
+.landing-menu {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 6px 0;
+  background: #1a1a1a;
+  color: #f2f2f2;
+  border-radius: 4px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 0 24px;
+}
+
+.landing-menu li {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  padding: 12px 18px;
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.landing-menu img {
+  width: 60px;
+  height: 60px;
+  image-rendering: pixelated;
+}
+
+.landing-menu b {
+  display: block;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 8px 0 4px;
+}
+
+.landing-menu p {
+  margin: 0;
+  color: #bdbdbd;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.footer-credit {
+  margin: 8px 0;
+}

@@ -29,6 +29,7 @@ Press the ADJ lever while shooting and pick the sixth item, GRK.
 - **Date Imprint**: the date on the photo in classic, GR1s dot-matrix, or GR II style.
 - **Glow**: Bloom softly spreads light around lights and highlights. Halation adds a red-orange halo around bright lights to simulate motion-picture film. Each effect has its own Enable and Strength settings, so both can run together.
 - **Light Leak**: film artefacts on photos: a vignette, dust and hairs, a light leak, and scratches, each Off, Light, Medium, or Strong, or the Faded, Dusty, Leaky, and Expired presets. They fall differently on every shot.
+- **Diffusion**: the glow of a Black Pro-Mist diffusion filter at 1/8, 1/4, or 1/2. Black Mist adds the veil of the filter over the shadows, and Streak adds the blue or amber horizontal flare of an anamorphic lens from point lights. JPEG photos only.
 - **Grain**: film grain in four strengths and four sizes (Auto, Small, Medium, Large).
 - **Border**: a white or black print border over the photo, 3% or 6% of its width.
 

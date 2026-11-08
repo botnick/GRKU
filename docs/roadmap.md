@@ -26,7 +26,7 @@ Everything in GRLife runs inside a patched firmware. Each row says how the same 
 | Hue-sector colour per film, custom `.cube` LUT | have (GRF hue feature, site import) | keep | | |
 | Film for video and in-camera RAW development | RAW development: have (1.4/1.5). Video: no | video needs the video pipeline hook | core hook | hard |
 | Grain fine / coarse / classic, Low / Med / High | 4 strengths, 4 sizes (camera's own grain) | add Pattern (moment-derived seed vs fixed seed) and Boost from the jakeds fork, as options of `modules/grain` | module | small |
-| Soft glow (HDF diffusion) 4 levels | Bloom (have) | add a "Black Mist" veil and "Streak" (anamorphic flare) from the MustafaCisse fork into `modules/glow` | module (port) | small |
+| Soft glow (HDF diffusion) 4 levels | have: Bloom in Glow, and Diffusion (`modules/diffusion`, ported 2026-11-09 from the MustafaCisse fork): Black Pro-Mist 1/8, 1/4, 1/2 with the Black Mist veil and the anamorphic Streak | keep | | |
 | Film softness Low / Med / High | no | a plane filter that low-passes luma slightly at the JPEG encode stage, like Glow's filter but a blur | module `softness` | small |
 | CineStill halation | have, with colour choice | keep | | |
 | Light leak Off / Glow / First roll | have: `modules/lightleak` (Light Leak, `LEAK.GRM`), ported from the kkasemsa overlay: vignette, dust and hairs, a leak as an edge wash, a band, or a corner flare, and scratches, each Off / Light / Medium / Strong, with the presets Faded, Dusty, Leaky, and Expired, seeded per shot | keep; the camera timing is unverified | module | |

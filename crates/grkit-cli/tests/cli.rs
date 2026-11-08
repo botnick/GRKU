@@ -313,9 +313,9 @@ fn package_roundtrip_and_output_ownership() {
         text(&zip),
     ];
     let packaged = success(&args);
-    // Eleven runtime, package list, and document entries, the 8 official
+    // Eleven runtime, package list, and document entries, the nine official
     // modules, then one per effect.
-    assert_eq!(packaged["entries"], 19 + fixture_count());
+    assert_eq!(packaged["entries"], 20 + fixture_count());
     assert_eq!(success(&["verify", text(&zip)])["effects"], fixture_count());
     let before = fs::read(&zip).unwrap();
     assert!(!run(&args).status.success());
