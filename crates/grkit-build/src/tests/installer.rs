@@ -9,7 +9,7 @@ const TEST_VERSION: &str = "0.0.0";
 fn generated_header_matches_fixed_synthetic_contract() -> Result<()> {
     let plan = PatchPlan {
         exports: vec![],
-        ready: 0,
+        viewfinder: 0,
         patches: vec![
             Patch {
                 address: 0x53002080,
@@ -81,7 +81,7 @@ fn generated_header_keeps_module_start_and_relocation_span_in_sync() -> Result<(
             relocations: vec![],
             references: vec![],
             exports: vec![],
-            ready: 0,
+            viewfinder: 0,
         };
         validate_plan(&plan)?;
         let header = loader::header(&plan, &body, TEST_VERSION)?;
@@ -104,7 +104,7 @@ fn generated_header_keeps_module_start_and_relocation_span_in_sync() -> Result<(
 fn generated_header_marks_only_rtos_tail_patches_as_unchecked() -> Result<()> {
     let plan = PatchPlan {
         exports: vec![],
-        ready: 0,
+        viewfinder: 0,
         patches: vec![
             Patch {
                 address: 0x53002080,
@@ -134,7 +134,7 @@ fn generated_header_marks_only_rtos_tail_patches_as_unchecked() -> Result<()> {
 fn generated_header_gives_the_points_of_each_patch() -> Result<()> {
     let plan = PatchPlan {
         exports: vec![],
-        ready: 0,
+        viewfinder: 0,
         patches: vec![
             Patch {
                 address: target::GR3_210.layout.tail,
@@ -163,12 +163,13 @@ fn generated_header_gives_the_points_of_each_patch() -> Result<()> {
     // CORE.ASPECT the overlay and capture aspect points (bits 2 and 3),
     // CORE.GRAIN the grain point (bit 5), CORE.GRAIN_SIZE the grain size
     // point (bit 6), CORE.ASPECT_MODE the aspect points, and CORE.RECIPE
-    // none.
+    // the mode dial point (bit 7) and the overlay point, for the start in a
+    // user mode and the label of the dial.
     assert!(header.contains(
         "static const char *const core_setting_names[] = {\"CORE.TONE\",\"CORE.ASPECT\",\"CORE.GRAIN\",\"CORE.GRAIN_SIZE\",\"CORE.ASPECT_MODE\",\"CORE.RECIPE\"};"
     ));
     assert!(
-        header.contains("static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc,0x80};")
+        header.contains("static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc,0x84};")
     );
     Ok(())
 }
