@@ -475,23 +475,38 @@ def grain_vf(level):
 
 # ---- Host tiles ----------------------------------------------------------------------------
 
+def ring_gradient(d, cx, cy, r_out, r_in, colors):
+    """A ring whose color turns around the circle, as the coating of a lens does."""
+    steps = 72
+    for i in range(steps):
+        a0 = i * 360 / steps - 90
+        k = i / steps * (len(colors) - 1)
+        c = lerp(colors[int(k)], colors[min(int(k) + 1, len(colors) - 1)], k - int(k))
+        d.pieslice([(cx - r_out) * SS, (cy - r_out) * SS, (cx + r_out) * SS, (cy + r_out) * SS],
+                   a0, a0 + 360 / steps + 1, fill=c + (255,))
+    d.ellipse([(cx - r_in) * SS, (cy - r_in) * SS, (cx + r_in) * SS, (cy + r_in) * SS], fill=(14, 16, 22, 255))
+
+
 def grk_tile():
-    """The GRKit entry of the ADJ toolbar: a strip of color film with GRK on it."""
+    """The GRKit entry of the ADJ toolbar: a lens with a coating-colored ring, GRK below."""
     img = frame(1, 38)
-    px = img.load()
-    for y in range(8, 32):
-        for x in range(2, 38):
-            px[x, y] = (24, 24, 24, 255)
-    for x in range(4, 38, 6):
-        for y in (10, 11, 28, 29):
-            for xx in range(x, x + 3):
-                px[xx, y] = (190, 190, 190, 255)
-    for i, color in enumerate([(205, 80, 60), (70, 150, 100), (60, 110, 200)]):
-        x0 = 3 + i * 12
-        for y in range(14, 26):
-            for x in range(x0, x0 + 11):
-                px[x, y] = color + (255,)
-    outlined_text(img, 'GRK', 14, 13)
+    c = canvas(); d = ImageDraw.Draw(c)
+    cx, cy, r_out, r_in = 20, 13, 10.5, 7.5
+    d.ellipse(box(cx - r_out - 1, cy - r_out - 1, cx + r_out, cy + r_out), fill=(16, 16, 18, 255))
+    ring_gradient(d, cx, cy, r_out, r_in, [(150, 70, 210), (40, 170, 200), (250, 170, 50), (230, 50, 90), (150, 70, 210)])
+    # The glass: a dark blue depth, lighter at the rim, with two reflections
+    for k in range(6):
+        rr = r_in - 0.4 * k
+        col = lerp((40, 56, 92), (10, 14, 28), k / 5)
+        d.ellipse([(cx - rr) * SS, (cy - rr) * SS, (cx + rr) * SS, (cy + rr) * SS], fill=col + (255,))
+    d.ellipse([(cx - 5) * SS, (cy - 6) * SS, (cx - 1) * SS, (cy - 2) * SS], fill=(170, 205, 240, 255))
+    d.ellipse([(cx - 4.2) * SS, (cy - 5.2) * SS, (cx - 2.2) * SS, (cy - 3.2) * SS], fill=(235, 245, 255, 255))
+    d.ellipse([(cx + 1.5) * SS, (cy + 1.5) * SS, (cx + 4) * SS, (cy + 4) * SS], fill=(70, 100, 160, 255))
+    paste(img, c, clip=(2, 2, 37, 37))
+    d2 = ImageDraw.Draw(img)
+    f = ImageFont.truetype(str(REPO / 'crates' / 'grkit-core' / 'assets' / 'RobotoCondensed-Black.ttf'), 13)
+    left, t, right, bottom = d2.textbbox((0, 0), 'GRK', font=f)
+    d2.text((round((40 - (right - left)) / 2 - left), 25 - t), 'GRK', font=f, fill=(255, 255, 255, 255))
     return binarize(img)
 
 
