@@ -14,14 +14,14 @@ static const char target_marker[] __attribute__((used)) = "GRKIT_TARGET=gr3-2.10
 #define CODE_RELOCATION_COUNT 0x1U
 #define TAIL_SYMBOL 0U
 #define TAIL_BYTES 0x0U
-static const u32 relocation_words[] = { /* 2968 values, SHA-256 2ecc236f17dce00df0a9f883eee583916e0559781c94b56c7a148f248a1d2b92 */ };
+static const u32 relocation_words[] = { /* 2968 values, SHA-256 47a7c8f4521e0644c89eaf36728e99d250456816c668f5bfad216d1eab63b053 */ };
 static const struct relocation_window relocation_windows[] = {
-{0x53010100,0,768,1,0,1},
-{0x53010200,768,768,1,0,1},
+{0x53010200,0,768,1,0,1},
+{0x53010300,768,768,1,0,1},
 {0x530003f0,1536,24,0,0,0},
 {0x55002b6c,1560,64,0,1,1},
 {0x55018fcc,1624,64,0,1,1},
-{0x5300ff00,1688,768,0,0,1},
+{0x53010000,1688,768,1,0,1},
 {0x550186f4,2456,64,0,1,1},
 {0x55018d54,2520,64,1,1,1},
 {0x55018cb0,2584,64,0,1,1},
@@ -113,8 +113,9 @@ static const u32 guard_symbols[] = {};
 #define POINT_MENU_PAGE 0x1U
 #define POINT_PICTURE_ENCODE 0x10U
 static const char *const core_setting_names[] = {"CORE.TONE","CORE.ASPECT","CORE.GRAIN","CORE.GRAIN_SIZE","CORE.ASPECT_MODE","CORE.RECIPE"};
-static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc,0x0};
+static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc,0x80};
 #define RTOS_EXECUTABLE_END 0x55000000U
+#define CORE_READY 0x0U
 #define CORE_EXPORT_COUNT 0U
 static const u32 core_exports[] = {};
 static const u8 stock_record[] __attribute__((aligned(4))) = { /* 84 values, SHA-256 d1c1719f675e9a47d0e29a12b89645cbca01118d5b0fd6199887c85748f5e795 */ };

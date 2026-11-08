@@ -30,10 +30,14 @@ pub enum Point {
     /// The grain size: the native size on GR IV, and the noise fill of the
     /// grain stage on GR III.
     PipelineGrainSize,
+    /// The mode dial: the firmware's apply of a dial position, after which
+    /// the core applies what a user mode of the dial does
+    /// (`runtime/mode_dial.h`).
+    ModeDial,
 }
 
 impl Point {
-    pub const ALL: [Point; 7] = [
+    pub const ALL: [Point; 8] = [
         Point::MenuPage,
         Point::Tuning,
         Point::ViewfinderOverlay,
@@ -41,6 +45,7 @@ impl Point {
         Point::PictureEncode,
         Point::PipelineGrain,
         Point::PipelineGrainSize,
+        Point::ModeDial,
     ];
 
     pub fn name(self) -> &'static str {
@@ -52,6 +57,7 @@ impl Point {
             Point::PictureEncode => "picture.encode",
             Point::PipelineGrain => "pipeline.grain",
             Point::PipelineGrainSize => "pipeline.grain-size",
+            Point::ModeDial => "mode.dial",
         }
     }
 
@@ -151,11 +157,13 @@ pub const CAPABILITIES: [Capability; 6] = [
     Capability {
         // The camera recipes (runtime/recipes.h). The core gives the rows of
         // its page: undo, the recipes, and save. A recipe sets the other
-        // capabilities only while a module uses them, so it needs no point.
+        // capabilities only while a module uses them, so applying one needs
+        // no point. The user modes of the mode dial apply recipes
+        // (runtime/mode_dial.h), which needs the hook of the dial.
         key: "RECIPE",
         values: 0,
         state: State::Recipes,
-        points: &[],
+        points: &[Point::ModeDial],
     },
 ];
 

@@ -7,7 +7,7 @@ use super::Family;
 use crate::components::{
     b, bl, bl_shared, HookSpec,
     Part::{Framing, Menu, Processing},
-    Point::{CaptureAspect, MenuPage, PipelineGrain, PipelineGrainSize, Tuning},
+    Point::{CaptureAspect, MenuPage, ModeDial, PipelineGrain, PipelineGrainSize, Tuning},
 };
 
 pub const FAMILY: Family = Family {
@@ -31,6 +31,7 @@ const GROUPS: &[&[HookSpec]] = &[
     common::DEVELOP_ASPECT,
     GRAIN,
     TONING,
+    DIAL,
 ];
 
 /// Image Control processing (`runtime/processing.S`): the BL to the parameter
@@ -73,3 +74,7 @@ const TONING: &[HookSpec] = &[
     b("menu_parameter_set_9", Menu, Tuning),
     bl("menu_parameter_row_9", Menu, Tuning),
 ];
+
+/// The mode dial (`runtime/mode_dial.h`): the entry of the apply of a dial
+/// position, which both App events of the dial reach.
+const DIAL: &[HookSpec] = &[b("menu_dial", Menu, ModeDial)];
