@@ -41,11 +41,15 @@ licensed under CC BY-SA 4.0. `sources/PATDAVID_LICENSE.txt` contains the upstrea
 are hand-made approximations of the films, not measured data, and the Polaroid, Fuji instant, and
 Lomography looks keep the names of the collection.
 
+## Fotufilm
+
+CineStill 800T, CineStill 400D, Phoenix 200, Purple 400, Turquoise 400, Metropolis 400, Lomo Color 100, Instax Mini, Instax Wide, Agfachrome 50, Agfachrome 100, Agfachrome 200, Kodacolor 100, Pro 160NS, and Fujicolor F-64D derive from renders of the film profiles of [Fotufilm](https://fotufilm.com) (MUAStudio Inc.) by the [fotufilm-engine](https://github.com/DhaliwalX/fotufilm-engine) at revision 042e605 on a HaldCLUT identity image, with grain, halation, flare, and local tone off, licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). These effect definitions are also licensed under CC BY-SA 4.0. `sources/FOTUFILM_LICENSE.txt` contains the upstream notice, and `sources/bake_fotufilm.sh` the render recipe of each effect.
+
 ## Names and limits
 
 Effect names and film, paper, and filter names identify the simulated materials. Some of these
 names are trademarks of their owners. GRKit is not affiliated with or endorsed by Eastman Kodak Company,
-Kodak Alaris, Fujifilm, HARMAN technology Limited (Ilford Photo), Agfa, Polaroid, Lomography, or Rollei. The simulations are models
+Kodak Alaris, Fujifilm, HARMAN technology Limited (Ilford Photo), Agfa, Polaroid, Lomography, Rollei, or CineStill. The simulations are models
 of published data or hand-made styles, not measured equivalents of the products.
 
 The effects operate in the camera's native image-processing domain. They are not display-sRGB

@@ -114,10 +114,10 @@ static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc};
 static const u32 core_exports[] = {};
 static const u8 stock_record[] __attribute__((aligned(4))) = { /* 84 values, SHA-256 d1c1719f675e9a47d0e29a12b89645cbca01118d5b0fd6199887c85748f5e795 */ };
 static const u8 off_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 66b76a084babf84ee76db752198797fffeac6a0cfb491d883043499031e02b33 */ };
-static const u8 grkit_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 8daa7522039e76004d273927f937c4a419594664c8c32f7b02bd7c515ffe272d */ };
-static const u8 version_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 e239340476014064a1d36a3dddfb164bfbe4731b325a6ffb08a64397a39e44a6 */ };
-static const u8 modules_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 c63d6fe4548456b6724e152bfa63bdadcf44163e6bb2b9e13a1842e9a9a4acea */ };
-static const u8 modules_off_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 b9fbdee6ffee02a4e4663ecd9b3ef74a8216ce39f2bb8495dab46a7fb7e942c2 */ };
+static const u8 grkit_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 440e39adab9510796d0bd947ada590877f2b5b39c11f5e1ddd077b67734d064f */ };
+static const u8 version_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 b27cf56b60f97bdf35324e226cb73e137e649b1a62346f5042d0d21d028dc61f */ };
+static const u8 modules_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 2dcb0313557894fdd7af596286049f6e47db08fdcce8ea48b5d8016f3f0b70ad */ };
+static const u8 modules_off_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 0e841ef3290ee388e88e4988b7faa52f63e25e7f5ed11650801a01b52593e777 */ };
 #define MENU_TEXT_BYTES 2068U
 static const u8 menu_text[] __attribute__((aligned(4))) = { /* 2068 values, SHA-256 423c20f1522aeb5d231cd8542f28e589a958d8c3c071b91d05625a86c76346ce */ };
 #define LABELS_BYTES 20276U

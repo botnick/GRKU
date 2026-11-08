@@ -32,6 +32,14 @@
    "author": "Pat David",
    "license": "CC-BY-SA-4.0",
    "license_notice": "PATDAVID_LICENSE.txt"
+  },
+  "fotufilm": {
+   "repository": "https://github.com/DhaliwalX/fotufilm-engine",
+   "revision": "042e6055ac5a8db8ed690f99490fc9a409be573b",
+   "author": "MUAStudio Inc. (Fotufilm)",
+   "license": "CC-BY-SA-4.0",
+   "license_notice": "FOTUFILM_LICENSE.txt",
+   "script": "bake_fotufilm.sh"
   }
  },
  "upstream_changes": "CHANGELOG.txt",
@@ -67,6 +75,12 @@
    "sha256": "b047496d2c84b9e80ede4f6fa4ab6dc8b0e6da4d78f4a26277643b67293668b4",
    "license": "upstream-notice",
    "upstream": "https://github.com/NatronGitHub/clut/blob/af7b50d4caf6244fb6895a647f5b6a84efe7931a/README.md"
+  },
+  "FOTUFILM_LICENSE.txt": {
+   "sha256": "18ff77c7210e8eeb714f92d157b8abb3d948b42b6c20e7cd2198ead7ed822ecf"
+  },
+  "bake_fotufilm.sh": {
+   "sha256": "02fd2bba6525306cefac7fa91deace9959fa6ffb95d0eba6c774394173f3473b"
   }
  },
  "luts": {
@@ -93,6 +107,96 @@
   "eterna-500t-3523xd-v1.cube": {
    "generator": "spectral_film_lut",
    "sha256": "43fdc9c2b9815fa9717c80e8f0292e789e2d4be88a4a3cc567d1290d0f158a7b"
+  },
+  "ff-agfachrome100-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "8acebb7a93900b856b7f7ca6440545add894a39162ab09b31547b3ad1a111908",
+   "stock": "agfachrome100",
+   "paper": "screen"
+  },
+  "ff-agfachrome200-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "2194e6784f826033d6b676f1dc1c49853a9411b1751897c8b24b9ed948e71a72",
+   "stock": "agfachrome200",
+   "paper": "screen"
+  },
+  "ff-agfachrome50-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "6f430133ad9329471f6605386707d5bf6a0ebfcbe2b2cc6b6407cdd3f799de49",
+   "stock": "agfachrome50",
+   "paper": "screen"
+  },
+  "ff-cinestill400d-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "c1985fbf76c822440373ca2f969834053fd9a5f6f7bd7678feaa3b297ef1a714",
+   "stock": "cinestill400d",
+   "paper": "ektacolor-edge"
+  },
+  "ff-cinestill800t-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "691d67bc028a2f49c8d20d4946ee457bd95d4689ed76773336ab7add27c5273d",
+   "stock": "cinestill800t",
+   "paper": "ektacolor-edge"
+  },
+  "ff-f64d-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "5940347132e67be3aeec4a0aa707266370dc57de541956996acb4162882b6dd3",
+   "stock": "f64d",
+   "paper": "eterna-cp"
+  },
+  "ff-instaxmini-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "69d1369ec967486af57bf46e26155d5af03f79a21093c0ca0b9b468d476a3286",
+   "stock": "instaxmini",
+   "paper": "screen"
+  },
+  "ff-instaxwide-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "c294256ca98999250fd2a05b4eba9b83092e4048a7cbadbbb39615fe9d3ab5d0",
+   "stock": "instaxwide",
+   "paper": "screen"
+  },
+  "ff-kodacolor100-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "a783426f8cca77aecd485c6d420867d2524296132486fbafc9e058573c0419a1",
+   "stock": "kodacolor100",
+   "paper": "ektacolor-edge"
+  },
+  "ff-lomochromemetropolis-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "b3e8c6e7dc375746204bb7f95a8daf27873548caeff7f25ba7c99a7e04cc3759",
+   "stock": "lomochromemetropolis",
+   "paper": "crystal-archive"
+  },
+  "ff-lomochromepurple-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "13e28f8327f4a58a6f5a018d77038d2ac0a464d0fcf490abcca7f4d14fa8b9e9",
+   "stock": "lomochromepurple",
+   "paper": "crystal-archive"
+  },
+  "ff-lomochrometurquoise-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "ebb06b69f8c6b91c1ef671290d279e70db6bbba9d66eff9c78d89d3eb2403178",
+   "stock": "lomochrometurquoise",
+   "paper": "crystal-archive"
+  },
+  "ff-lomocolor100-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "3d3c089d58e757d59ed43d128f78587269179dbe773d55a235676c921fb0808b",
+   "stock": "lomocolor100",
+   "paper": "crystal-archive"
+  },
+  "ff-phoenix200-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "617e952d64a6c0fb0f4943ffe00a75cc2ec760d43aca71437680d7458aa5af2b",
+   "stock": "phoenix200",
+   "paper": "crystal-archive"
+  },
+  "ff-pro160ns-v1.png": {
+   "generator": "fotufilm",
+   "sha256": "795dbd774daa3ae5a0ded0fe5e524fd83501ec3aceb41e8c8b6be936d67e650e",
+   "stock": "pro160ns",
+   "paper": "crystal-archive"
   },
   "gold-200-premier-v1.cube": {
    "generator": "spektrafilm",

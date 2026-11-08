@@ -112,6 +112,8 @@ fn each_catalog_effect_has_the_attribution_of_its_source() {
             ("t3mujinpack", "MIT")
         } else if generator.starts_with("Pat David film emulation ") {
             ("Pat David", "CC-BY-SA-4.0")
+        } else if generator.starts_with("Fotufilm ") {
+            ("Fotufilm", "CC-BY-SA-4.0")
         } else {
             panic!("{name}: no attribution for {generator}");
         };

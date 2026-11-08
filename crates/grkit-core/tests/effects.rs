@@ -52,11 +52,11 @@ fn starter_definitions_match_existing_golden_bytes() {
 fn host_artwork_matches_golden_pixels_and_preserves_binary_transparency() {
     assert_eq!(
         hex::encode(Sha256::digest(artwork::grkit_pixels())),
-        "5d9423843d61423d1a3b7d8cbbe84a7885b729ab29aa5b92333d3b7d43b25e46"
+        "f5ac39442308023c3cc621cfc2959244631b9262aa9219f7cc25477966ca89da"
     );
     assert_eq!(
         hex::encode(Sha256::digest(artwork::version_pixels())),
-        "4119d11482f7f7a0636d481beae529aa4d87a4ec8d4afc62c2d8d4c8b295b0c6"
+        "c4b33a18f6b0a32f6a88d7bbea2f98828b6f45c720255d03731599ef993d9c5c"
     );
     // The tiles of the module folders keep the rules of the host artwork.
     let mut modules: Vec<Vec<u8>> = Vec::new();
@@ -524,7 +524,7 @@ fn published_cover_icons_show_the_words_of_the_effect_name() {
             assert_eq!(words(&format!("{series} {number}")), words(name), "{name}");
         }
         assert!(
-            ["Kodak", "FUJIFILM", "ILFORD", "AGFA", "POLAROID", "LOMO", "ROLLEI"]
+            ["Kodak", "FUJIFILM", "ILFORD", "AGFA", "POLAROID", "LOMO", "ROLLEI", "CINESTILL", "HARMAN"]
                 .contains(&icon["brand"].as_str().unwrap()),
             "{name}"
         );

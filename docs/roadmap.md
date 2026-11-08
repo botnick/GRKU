@@ -64,6 +64,8 @@ From the survey of all 26 forks and 23 issues on 2026-11-08 (details in [docs/co
 
 The rule stays the upstream rule: an effect ships only if its source license permits redistribution of derived data (CC BY-SA 4.0 and MIT so far). The survey of open-source film LUT sources is in [docs/lut-sources.md](lut-sources.md) with each license. Import with `grkit effects import` (see `effects/README.md`), keep the attribution in `effects/NOTICE.md`, and group the site by shelf.
 
+State on 2026-11-08: 133 effects (upstream 21, Pat David and t3mujinpack 83, spektrafilm and Spectral Film LUT 18, Fotufilm 15), every one with a film box icon in the colors of the real box. The 40 of the release packages are `effects/defaults.txt`, chosen from the popularity research in [docs/popular-films-2026.md](popular-films-2026.md); the other 93 ship in `GRKit-film-library.zip`.
+
 ## 5. Order of work
 
 1. **Measure.** Run the one-shot start on a GR III or GR IIIx: `BOOT.TXT` and `DIAG.TXT`. Fix what the camera says. Then decide Phase 2 from the numbers.

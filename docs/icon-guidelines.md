@@ -1,21 +1,32 @@
 # Built-in icon guidelines
 
 These guidelines apply to the GRKit built-in icons. They state the design
-intent. The exact geometry, sizes, and colors are in the
-[generator](../crates/grkit-core/examples/module-icons.rs) and in the
-[core artwork](../crates/grkit-core/src/artwork.rs). If this page and the code
-disagree, the code is correct and this page needs an update.
+intent. The exact geometry, sizes, and colors are in the tile generator
+[scripts/menu-tiles.py](../scripts/menu-tiles.py) (the module tiles of
+`modules/*/tiles` and the host tiles of `crates/grkit-core/assets/tiles`), in
+the film box generator [scripts/flap-icons.py](../scripts/flap-icons.py), and
+in the [core artwork](../crates/grkit-core/src/artwork.rs) for the text tiles.
+The former monochrome tiles are what the
+[example generator](../crates/grkit-core/examples/module-icons.rs) draws. If
+this page and the code disagree, the code is correct and this page needs an
+update.
 
 ## Principles
 
-- Look like the camera. Use the grayscale, high-contrast style of the native
-  GR interface, and put GRKit icons next to native icons when you review them.
+- Sit well next to the camera. Keep the frame, size, and placement of the
+  native GR icons, and put GRKit icons next to native icons when you review
+  them. Inside the frame, a tile shows a small color picture of what the row
+  does: a film box in the colors of the real box, a landscape cropped to the
+  ratio, a date stamp in the orange of a date back, a lamp at night for Glow.
+  Color carries meaning, not decoration: the accent of an Ilford film, the
+  label color of a Vision3 can, the red of halation.
 - Give each element one job. The symbol identifies the module or the effect.
   A caption, a strength wedge, or a label gives the value.
 - Keep the structure stable across variants. Change only the part that
   carries the value, so the user can compare variants at a glance.
-- Do not show example values, such as a date or a time, that can look like
-  live camera data. Show what the setting means.
+- An example value is fine when it shows what the setting means, as the
+  date stamp `'26 11 8` of a Date Imprint style does, but it must not look like
+  live camera data in the viewfinder.
 - Judge the icon at its original size. Use an enlargement only to find raster
   defects.
 - Balance by eye. Equal bounding boxes do not make equal visual weight. A

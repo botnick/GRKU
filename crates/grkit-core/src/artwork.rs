@@ -509,34 +509,34 @@ pub fn off_pixels() -> Vec<u8> {
     render_tile("OFF", "plain").expect("constant tile is valid")
 }
 
-/// The GRKit entry of the ADJ toolbar.
-pub fn grkit_pixels() -> Vec<u8> {
-    let mut rgba = toolbar_background();
-    text(&mut rgba, "GRK", LABEL_SIZE, LABEL_WIDTH, 20.0, 255);
+/// A host tile that `scripts/menu-tiles.py` draws: 40 x 40 RGBA with binary
+/// alpha, in `assets/tiles`.
+fn asset_tile(png: &[u8]) -> Vec<u8> {
+    let (width, height, rgba) = crate::png::decode_rgba8(png).expect("embedded tile is valid");
+    assert_eq!((width, height), (40, 40), "a host tile is 40 x 40");
     rgba
+}
+
+/// The GRKit entry of the ADJ toolbar: a strip of color film with GRK on it.
+pub fn grkit_pixels() -> Vec<u8> {
+    asset_tile(include_bytes!("../assets/tiles/grk.png"))
 }
 
 /// The About row, which gives the version. Its own tile keeps a second GRK
 /// tile out of the GRKit root.
 pub fn version_pixels() -> Vec<u8> {
-    let mut rgba = background();
-    text(&mut rgba, "VER", LABEL_SIZE, LABEL_WIDTH, 20.0, 255);
-    rgba
+    asset_tile(include_bytes!("../assets/tiles/ver.png"))
 }
 
-/// The Modules row, which lists the modules.
+/// The Modules row, which lists the modules: four module blocks in color.
 pub fn modules_pixels() -> Vec<u8> {
-    let mut rgba = background();
-    text(&mut rgba, "MOD", LABEL_SIZE, LABEL_WIDTH, 20.0, 255);
-    rgba
+    asset_tile(include_bytes!("../assets/tiles/mod.png"))
 }
 
 /// The Modules tile with a line through it: the root row of Enable GRKit
 /// while it is Off.
 pub fn modules_off_pixels() -> Vec<u8> {
-    let mut rgba = modules_pixels();
-    strike(&mut rgba);
-    rgba
+    asset_tile(include_bytes!("../assets/tiles/mod-off.png"))
 }
 
 /// Mark a list tile as Off, as the native Off icons do: dim the drawing
