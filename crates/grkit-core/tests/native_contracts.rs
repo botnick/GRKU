@@ -1110,6 +1110,7 @@ fn library_recipes() -> Vec<grkit_core::recipes::Recipe> {
             enabled: true,
             hidden: false,
             number: 0,
+            id: 0,
         },
         Recipe {
             name: "Nega 2".into(),
@@ -1132,6 +1133,7 @@ fn library_recipes() -> Vec<grkit_core::recipes::Recipe> {
             enabled: true,
             hidden: false,
             number: 0,
+            id: 0,
         },
         Recipe {
             name: "Mono Glow".into(),
@@ -1149,6 +1151,7 @@ fn library_recipes() -> Vec<grkit_core::recipes::Recipe> {
             enabled: true,
             hidden: false,
             number: 0,
+            id: 0,
         },
     ]
 }
