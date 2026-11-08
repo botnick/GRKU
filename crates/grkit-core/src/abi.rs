@@ -341,6 +341,11 @@ packed_fields!(HEADER_FIELDS, HOST_HEADER_SIZE {
     HOST_DEVELOP_CHANGED: 4;
     /// Those adjustments, as GRKIT_HOST_DEVELOP_NATIVE.
     HOST_DEVELOP_CHANGES: 12;
+    /// CORE.CROP: 0 Off, then a focal-length crop step (runtime/crop.h).
+    HOST_CROP: 4;
+    /// CORE.CROP_MODE: 0 crops photos where the camera can, 1 draws the
+    /// frame only.
+    HOST_CROP_MODE: 4;
 });
 
 pub const RECORD_SIZE: usize = 0x1100;

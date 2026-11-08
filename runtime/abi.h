@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKIT_HEADER_REFERENCE, which the installer relocates. */
 #define GRKIT_HEADER_REFERENCE 0x58012340
-#define GRKIT_HOST_HEADER_SIZE 968
+#define GRKIT_HOST_HEADER_SIZE 976
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKIT_MODULE_PAGES_MAX 10
 #define GRKIT_MODULE_LAYERS_MAX 16
@@ -284,13 +284,17 @@
 /* Those adjustments, as GRKIT_HOST_DEVELOP_NATIVE. */
 #define GRKIT_HOST_DEVELOP_CHANGES 956
 #define GRKIT_HOST_DEVELOP_CHANGES_WORDS 3
+/* CORE.CROP: 0 Off, then a focal-length crop step (runtime/crop.h). */
+#define GRKIT_HOST_CROP 968
+/* CORE.CROP_MODE: 0 crops photos where the camera can, 1 draws the frame only. */
+#define GRKIT_HOST_CROP_MODE 972
 
 /* The capabilities of the core (grkit_core::capabilities): the handle of each
    CORE setting, and for each handle in order, its header word and its number
    of values. CORE.TONE has neither: its value is the active record, and the
    effects give its number of values (runtime/tone.h). */
 #define GRKIT_CORE_SETTING_BASE 0x100U
-#define GRKIT_CORE_SETTING_COUNT 5U
+#define GRKIT_CORE_SETTING_COUNT 7U
 #define GRKIT_CORE_TONE 0x100U
 #define GRKIT_CORE_TONE_VALUES 0U
 #define GRKIT_CORE_TONE_BIT 0x1
@@ -306,8 +310,14 @@
 #define GRKIT_CORE_ASPECT_MODE 0x104U
 #define GRKIT_CORE_ASPECT_MODE_VALUES 2U
 #define GRKIT_CORE_ASPECT_MODE_BIT 0x10
-#define GRKIT_CORE_SETTING_WORDS 0,208,48,240,904
-#define GRKIT_CORE_SETTING_VALUES 0,8,5,4,2
+#define GRKIT_CORE_CROP 0x105U
+#define GRKIT_CORE_CROP_VALUES 6U
+#define GRKIT_CORE_CROP_BIT 0x20
+#define GRKIT_CORE_CROP_MODE 0x106U
+#define GRKIT_CORE_CROP_MODE_VALUES 2U
+#define GRKIT_CORE_CROP_MODE_BIT 0x40
+#define GRKIT_CORE_SETTING_WORDS 0,208,48,240,904,968,972
+#define GRKIT_CORE_SETTING_VALUES 0,8,5,4,2,6,2
 
 /* An Image Control record. The records follow the header. */
 #define GRKIT_RECORD_SIZE 0x1100
