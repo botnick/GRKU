@@ -61,7 +61,7 @@ Pick your camera, modules, and effects on [grkit.app](https://grkit.app), then e
 
 The first time only, hold MENU while you turn the camera on. To update from a ZIP, replace the `SCRIPT` folder on the card. Your settings stay in `GRKIT`. Formatting the card removes GRKU, so copy `GRKIT` to a computer first.
 
-If GRK doesn't show up, check the FAQ on [grkit.app](https://grkit.app). If that doesn't help, send `GRKIT/REPORT.TXT`, `GRKIT/BOOT.TXT`, and `SCRIPT/GRKIT/INSTALL.ERR` (if it exists) in a [device report](https://github.com/ahonn/grkit/issues/new?template=device-report.yml).
+If GRK doesn't show up, check the FAQ on [grkit.app](https://grkit.app). If that doesn't help, send `GRKIT/REPORT.TXT`, `GRKIT/BOOT.TXT`, and `SCRIPT/GRKIT/INSTALL.ERR` (if it exists) in a [device report](https://github.com/botnick/GRKit/issues/new). [What each line of those files means](docs/diagnostics.md).
 
 ## Build from source
 

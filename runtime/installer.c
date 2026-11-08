@@ -98,10 +98,21 @@ static const char report_path[] = REPORT_PATH;
    rewrites the snap focus distance labels of the firmware in feet. */
 static const char feet_path[] = DATA_PATH "/FEET.TXT";
 static const char relocation_path[] = RELOCATION_PATH;
+/* The boot log of this start in RAM, which SCAN.SH starts, and the boot
+   log on the card (grkit_core::runtime::files::BOOT_LOG). */
+#define BOOT_RAM_LOG "/tmp/grkit-boot.log"
+#define BOOT_LOG_PATH DATA_PATH "/BOOT.TXT"
+/* What the details of a report say about this start (install_diag.h): the
+   step that stopped it, how it ran, the retries of a native state that the
+   camera still initialized, the build word of the firmware, whether the
+   relocation resolved, the mailbox, and the feet labels. */
+static const char *failed_step = "start", *run_mode = "INSTALL.SH";
+static u32 install_retries, rtos_identity_value, relocation_done, mailbox_address, units_requested, units_changed, units_searched;
 static volatile u8 *at(u32 physical) { return mapping + physical - MAP_BASE; }
 static u32 word(u32 p) { return *(volatile u32 *)at(p); }
 static void store(u32 p, u32 v) { *(volatile u32 *)at(p) = v; }
 #include "install_io.h"
+#include "install_text.h"
 #define GRKIT_GRF_EMBEDDED
 #include "grf.c"
 #include "catalog.h"
@@ -134,9 +145,11 @@ static u32 listed_record[EFFECTS_LISTED];
    (install_effects.h: GRKIT_PHASE_LOG). */
 #ifndef RTOS_NATIVE
 static void log_step(const char *step, int status);
+static void log_text(const char *text);
 #define GRKIT_PHASE_LOG(step, status) do { if (ram_cache) log_step(step, status); } while (0)
 #else
 #define log_step(step, status) ((void)0)
+#define log_text(text) ((void)0)
 #endif
 #include "install_effects.h"
 /* The artwork tiles of the usable modules (plan_modules). Their icon slots
@@ -344,8 +357,10 @@ static u32 pair_value(u32 address)
 }
 static int relocate(void)
 {
+    rtos_identity_value = word(RTOS_IDENTITY);
     prepare_relocation();
     if (!relocation_resolve(&relocation_tables, &relocation)) return STATUS_RELOCATION;
+    relocation_done = 1;
     keep_relocation();
     /* Patched firmware can keep data after the image end that the startup
        literals give, where the private code goes. */
@@ -504,6 +519,9 @@ static void apply_state(u32 base, u32 table)
 /* The script arrays that the loader allocated (grkit_core::runtime::loader):
    the registry, the icon chunks, the module array, then the tail. */
 struct arrays { u32 base, tail, module_array, icon_bases[MAX_CHUNKS]; };
+/* The arrays of this start, for the report (install_diag.h). */
+static struct arrays installed_arrays;
+static u32 arrays_known;
 /* Check that each array has its planned size and that no two overlap. */
 static int check_arrays(struct arrays *a)
 {
@@ -789,25 +807,39 @@ static int publish_patches(void)
     return 0;
 }
 
-/* The snap focus distance labels of the firmware, in feet instead of meters,
-   while GRKIT/FEET.TXT is on the card (ahonn/GRKit#71). The labels are
-   NUL-terminated UTF-16 strings in the .data section, one set for each menu
-   language, each followed by a NUL and a 2-byte pad. INSTALL finds each whole
-   string and writes the feet label over it: 0.3 m is 1', 1 m 3', 1.5 m 5',
-   2 m 7', 2.5 m 8', and 5 m 16', which takes the pad. The MF distance scale
-   is drawn, not text, and stays in meters. A power cycle restores the
-   firmware. */
+/* The snap focus distance labels in feet while GRKIT/FEET.TXT is on the card
+   (ahonn/GRKit#71). The firmware keeps the labels as NUL-terminated UTF-16
+   strings in the read-only part of the RTOS image, one set for each menu
+   language: 0.3m, 1m, 1.5m, 2m, 2.5m, and 5m. INSTALL writes the feet label
+   over each whole string: 1', 3', 5', 7', 8', and 16', which fit in the
+   string, its terminator, and its pad. The MF distance scale is drawn, not
+   text, so it stays in meters. The camera loads the image again at each
+   power-on, so a start without the marker shows meters.
+
+   A search of the image reads about 20 MB uncached, so the start that
+   searches keeps the addresses in GRKIT/FEET.BIN with the identity of the
+   build, as RELOC.BIN keeps the relocation windows. A later start checks the
+   labels at those addresses and searches again only when one is not there.
+   The count of the labels changed goes to the boot log and the report
+   (units_changed, install_diag.h). */
 #ifndef RTOS_NATIVE
 struct unit_label { const char *meters, *feet; };
 static const struct unit_label unit_labels[] = {
     {"0.3m", "1'"}, {"1m", "3'"}, {"1.5m", "5'"}, {"2m", "7'"}, {"2.5m", "8'"}, {"5m", "16'"},
 };
-static u32 ascii_len(const char *s) { u32 n = 0; while (s[n]) ++n; return n; }
+#define UNIT_LABELS (sizeof(unit_labels) / sizeof(unit_labels[0]))
+#define UNITS_MAX 128U
+#define UNITS_MAGIC 0x54464b47U
+static const char feet_hint_path[] = DATA_PATH "/FEET.BIN";
+/* FEET.BIN: the magic word, the identity of the build, the count, then the
+   address of each label. */
+static u32 unit_words[3 + UNITS_MAX];
 /* Whether the UTF-16 string at `a` is exactly the ASCII `s`, preceded by a
    NUL unit and followed by its terminator; `pad` gets the number of NUL units
    after the terminator, up to 2. */
-static int utf16_whole_at(u32 a, const char *s, u32 n, u32 *pad)
+static int utf16_whole_at(u32 a, const char *s, u32 *pad)
 {
+    u32 n = length(s);
     if (*(volatile u16 *)at(a - 2) != 0) return 0;
     for (u32 i = 0; i < n; ++i)
         if (*(volatile u16 *)at(a + i * 2) != (u16)(u8)s[i]) return 0;
@@ -816,26 +848,65 @@ static int utf16_whole_at(u32 a, const char *s, u32 n, u32 *pad)
     while (*pad < 2 && *(volatile u16 *)at(a + (n + 1 + *pad) * 2) == 0) ++*pad;
     return 1;
 }
+/* The label whose meters string is whole at `a` and whose feet string fits
+   in its place, or UNIT_LABELS. */
+static u32 unit_label_at(u32 a, u32 *pad)
+{
+    for (u32 k = 0; k < UNIT_LABELS; ++k)
+        if (utf16_whole_at(a, unit_labels[k].meters, pad))
+            return length(unit_labels[k].feet) <= length(unit_labels[k].meters) + *pad ? k : UNIT_LABELS;
+    return UNIT_LABELS;
+}
+static int unit_address_valid(u32 a)
+{
+    return a >= RELOCATION_RTOS_BASE + 4 && a + 16 < relocation.image_end && !(a & 1);
+}
+/* The addresses of the labels into unit_words: from FEET.BIN while each
+   still holds its label, else from a search of the image, which FEET.BIN then
+   keeps. Returns the count. */
+static u32 find_units(void)
+{
+    u32 count = 0, pad;
+    long have = read_text(feet_hint_path, (u8 *)unit_words, sizeof(unit_words));
+    if (have >= 12 && unit_words[0] == UNITS_MAGIC && unit_words[1] == word(RTOS_IDENTITY) &&
+        unit_words[2] <= UNITS_MAX && (u32)have == (3 + unit_words[2]) * 4) {
+        for (count = 0; count < unit_words[2]; ++count) {
+            u32 a = unit_words[3 + count];
+            if (!unit_address_valid(a) || unit_label_at(a, &pad) == UNIT_LABELS) break;
+        }
+        if (count == unit_words[2]) return count;
+    }
+    /* A label starts after a NUL unit with a digit, at a word or at its
+       upper half. */
+    units_searched = 1;
+    count = 0;
+    for (u32 w = RELOCATION_RTOS_BASE + 4; w + 16 < relocation.image_end && count < UNITS_MAX; w += 4) {
+        u32 v = word(w), low = v & 0xffffU, high = v >> 16, a;
+        if (low >= '0' && low <= '9' && word(w - 4) >> 16 == 0) a = w;
+        else if (high >= '0' && high <= '9' && low == 0) a = w + 2;
+        else continue;
+        if (unit_label_at(a, &pad) != UNIT_LABELS) unit_words[3 + count++] = a;
+    }
+    unit_words[0] = UNITS_MAGIC; unit_words[1] = word(RTOS_IDENTITY); unit_words[2] = count;
+    write_file(feet_hint_path, (const u8 *)unit_words, (3 + count) * 4);
+    return count;
+}
 static void apply_units(void)
 {
-    long fd = syscall6(5, (u32)feet_path, 0, 0, 0, 0, 0);
     u32 changed = 0;
-    if (fd < 0) return;
-    syscall6(6, fd, 0, 0, 0, 0, 0);
-    for (u32 a = RELOCATION_DATA_START + 2; a + 16 < relocation.image_end; a += 2) {
-        for (u32 k = 0; k < sizeof(unit_labels) / sizeof(unit_labels[0]); ++k) {
-            u32 n = ascii_len(unit_labels[k].meters), m = ascii_len(unit_labels[k].feet), pad;
-            if (!utf16_whole_at(a, unit_labels[k].meters, n, &pad)) continue;
-            if (m > n + pad) break;  /* the feet label does not fit */
-            for (u32 i = 0; i <= n + pad; ++i)
-                *(volatile u16 *)at(a + i * 2) = i < m ? (u16)(u8)unit_labels[k].feet[i] : 0;
-            sync_alias(a, (n + pad + 1) * 2);
-            ++changed;
-            a += n * 2;
-            break;
-        }
+    if (!present(feet_path)) return;
+    units_requested = 1;
+    u32 count = find_units();
+    for (u32 i = 0; i < count; ++i) {
+        u32 a = unit_words[3 + i], pad, k = unit_label_at(a, &pad);
+        if (k == UNIT_LABELS) continue;
+        u32 n = length(unit_labels[k].meters), m = length(unit_labels[k].feet);
+        for (u32 j = 0; j <= n + pad; ++j)
+            *(volatile u16 *)at(a + j * 2) = j < m ? (u16)(u8)unit_labels[k].feet[j] : 0;
+        sync_alias(a, (n + pad + 1) * 2);
+        ++changed;
     }
-    print("GR_UNITS_FEET "); number(changed); print("\n");
+    units_changed = changed;
 }
 #else
 static void apply_units(void) {}
@@ -854,6 +925,8 @@ static int install_planned(void)
     needed_points = 0;
     if ((status = plan_code(relocated[TAIL_SYMBOL], TAIL_BYTES, CODE_END, &module_start))) return status;
     if ((status = check_arrays(&arrays))) return status;
+    installed_arrays = arrays;
+    arrays_known = 1;
     if ((status = check_firmware())) return status;
     u32 pixels = icon_pixels();
     if (!pixels) return STATUS_ICONS_NOT_READY;
@@ -885,6 +958,7 @@ static int install_planned(void)
 }
 static int install(void)
 {
+    failed_step = "plan";
     int status = read_plan();
     if (status) return status;
     /* The modules of SCAN, which the loader reserved memory for. */
@@ -894,7 +968,9 @@ static int install(void)
     if (get32(plan + GRKIT_PLAN_HEADER_WORDS) != size / 4 || get32(plan + GRKIT_PLAN_ICON_CHUNKS) != icon_chunks ||
         get32(plan + GRKIT_PLAN_MODULE_WORDS) != module_words || get32(plan + GRKIT_PLAN_MODULE_TILES) != module_tiles)
         return STATUS_PLAN;
+    failed_step = "relocate";
     if ((status = relocate())) return status;
+    failed_step = "install";
     return install_planned();
 }
 #ifdef MODULE_DIAGNOSTICS
@@ -927,6 +1003,7 @@ static int select_profile(const char *id)
    card from a camera shows why INSTALL failed. It replaces the status that
    the loader wrote before the step. A file without a status is created only
    when it is absent, so the lock admits one attempt. */
+static void failure_details(long fd, int status);
 static int create(const char *path, u32 status)
 {
     long fd = syscall6(5, (u32)path, status ? 0x241 : 0xc1, 0600, 0, 0, 0);
@@ -953,11 +1030,15 @@ static int create(const char *path, u32 status)
                 syscall6(4, fd, (u32)line, m, 0, 0, 0);
             }
         }
+        /* Then the name and the meaning of the status, the step, and the
+           state of the start (install_diag.h). */
+        failure_details(fd, (int)code);
     }
     syscall6(6, fd, 0, 0, 0, 0, 0);
     return 1;
 }
 #include "install_report.h"
+#include "install_diag.h"
 /* Native state that the camera is still initializing. Other failures are final. */
 static int not_ready(int status)
 {
@@ -1022,10 +1103,6 @@ static int other_build(enum install_mode mode)
    the plan in RAM, as before. */
 #define START_LOCK_PATH "/tmp/grkit-start.lck"
 #define START_PID_PATH "/tmp/grkit-core.pid"
-/* The boot log of this start in RAM, which SCAN.SH starts, and the boot
-   log on the card (grkit_core::runtime::files::BOOT_LOG). */
-#define BOOT_RAM_LOG "/tmp/grkit-boot.log"
-#define BOOT_LOG_PATH DATA_PATH "/BOOT.TXT"
 /* The most lines of the boot log, about 20 starts, and the lines that a
    longer log keeps. */
 #define BOOT_LOG_LINES 400U
@@ -1037,29 +1114,30 @@ static void sleep_ms(u32 ms)
     u32 time[2] = {ms / 1000U, (ms % 1000U) * 1000000U};
     syscall6(162, (u32)time, 0, 0, 0, 0, 0);
 }
-/* A line of the boot log in RAM: the Linux uptime in seconds, the step,
-   then its status unless `status` is negative. SCAN.SH and INSTALL.SH write
-   the same lines. */
-static void log_step(const char *step, int status)
+/* A line of the boot log in RAM: the Linux uptime in seconds, then `text`.
+   SCAN.SH and INSTALL.SH write lines of the same form. */
+static void log_text(const char *text)
 {
-    char line[80]; u8 up[32];
+    char line[256]; u8 up[32];
     u32 n = 0;
     long got = read_text("/proc/uptime", up, sizeof(up) - 1);
     for (long i = 0; i < got && up[i] != ' ' && n < 24; ++i) line[n++] = (char)up[i];
     if (!n) line[n++] = '?';
     line[n++] = ' ';
-    for (const char *p = step; *p && n < 60; ++p) line[n++] = *p;
-    if (status >= 0) {
-        char digits[12]; u32 d = sizeof(digits), v = (u32)status;
-        line[n++] = ' ';
-        do { digits[--d] = (char)('0' + v % 10); v /= 10; } while (v);
-        while (d < sizeof(digits)) line[n++] = digits[d++];
-    }
+    for (const char *p = text; *p && n < sizeof(line) - 1; ++p) line[n++] = *p;
     line[n++] = '\n';
     long fd = syscall6(5, (u32)BOOT_RAM_LOG, 0x441, 0644, 0, 0, 0);
     if (fd < 0) return;
     syscall6(4, fd, (u32)line, n, 0, 0, 0);
     syscall6(6, fd, 0, 0, 0, 0, 0);
+}
+/* A step of the start, then its status unless `status` is negative. */
+static void log_step(const char *step, int status)
+{
+    char text[80]; u32 n = 0;
+    text_add(text, &n, sizeof(text), step);
+    if (status >= 0) { text_add(text, &n, sizeof(text), " "); text_dec(text, &n, sizeof(text), (u32)status); }
+    log_text(text);
 }
 /* The boot log of this start to the card, after the result: the card log,
    then the lines in RAM, in one write. A log past BOOT_LOG_LINES lines keeps
@@ -1143,24 +1221,32 @@ static void run_start(void)
     }
     mapping = (volatile u8 *)mapped;
     ram_cache = 1;
+    run_mode = "one-shot start";
     log_step("scan-start", -1);
+    log_environment();
     /* The addresses of this build first: the mailbox is at one of them. The
        log says whether the build moved and the search ran. */
+    failed_step = "relocate";
     status = relocate();
     log_step("relocated", status ? status : (int)relocation.searched);
+    log_build();
     if (!status && (box = mailbox()) != 0) {
+        mailbox_address = box;
         store(box + GRKIT_MAILBOX_STARTED, 1);
         sync_alias(box, GRKIT_MAILBOX_WORDS * 4);
     }
+    failed_step = "scan";
     if (!status) status = make_plan();
     log_step("scan", status);
     if (status) {
         finish_start(box, status);
         return;
     }
+    log_plan();
     /* The plan header: the mailbox first, then the card, for a loader that
        reads the file, and for INSTALL.SH. After a post into the mailbox, a
        card that refuses the file costs only the fallback. */
+    failed_step = "plan";
     if (box) post_plan(box);
     long tmp = open_plan_tmp();
     int published = tmp >= 0 ? publish_plan(tmp) : (int)-tmp;
@@ -1174,20 +1260,25 @@ static void run_start(void)
     /* The RAM plan for INSTALL.SH, after the posts: the loader allocates
        the arrays meanwhile. */
     log_step("ramplan", write_ram_plan() ? 0 : STATUS_PLAN_WRITE);
+    failed_step = "arrays";
     if (!wait_arrays(box)) {
         log_step("install", STATUS_ARRAYS);
         finish_start(box, STATUS_ARRAYS);
         return;
     }
     log_step("install-start", -1);
-    for (u32 attempt = 0;; ++attempt) {
+    failed_step = "install";
+    u32 attempt = 0;
+    for (;; ++attempt) {
         status = install_planned();
         if (!not_ready(status)) break;
         /* As the loader retried INSTALL.SH: every 0.1 s for 30 s, then
            every 10 s, so a later shooting-mode start can still install. */
         sleep_ms(attempt < 300 ? 100 : 10000);
     }
+    install_retries = attempt;
     log_step("install", status);
+    log_install();
     finish_start(box, status);
 }
 /* --start: check the build as `mode` does, then go on in a process of its
@@ -1302,6 +1393,15 @@ __attribute__((used)) void start(u32 *stack)
             else {
                 write_report(status);
                 create(status ? failed_path : done_path, status);
+#ifndef RTOS_NATIVE
+                /* The numbers of this INSTALL to the boot log, as the
+                   one-shot start writes them. */
+                log_environment();
+                log_build();
+                if (relocation_done) log_plan();
+                log_install();
+                flush_log();
+#endif
             }
         }
     }

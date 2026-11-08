@@ -115,7 +115,7 @@ fn each_catalog_effect_has_the_attribution_of_its_source() {
         } else if generator.starts_with("Fotufilm ") {
             ("Fotufilm", "CC-BY-SA-4.0")
         } else if generator.starts_with("GRKit look ") {
-            ("GRKit looks", "MIT")
+            ("GRKU looks", "MIT")
         } else if generator.starts_with("Imprint ") {
             ("Imprint", "Apache-2.0")
         } else {

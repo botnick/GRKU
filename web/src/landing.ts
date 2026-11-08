@@ -42,6 +42,7 @@ export const CAMERA_SCREENS: Record<Language, { adj: string; menu: string }> = {
   'zh-Hant': { adj: rootZhHant, menu: menuZhHant },
   ja: { adj: rootJa, menu: menuJa },
   ko: { adj: rootKo, menu: menuKo },
+  th: { adj: rootEn, menu: menuEn },
 };
 
 /** The guide lines inside a frame, in percent of its width and height. */

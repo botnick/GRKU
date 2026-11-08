@@ -425,6 +425,28 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
         "filewriteln efh line".into(),
         "int2str line attempts".into(),
         "filewriteln efh line".into(),
+    ]);
+    // The third line: what the loader saw in the mailbox when it stopped,
+    // for a device report. The start writes STARTED when it runs, PLAN
+    // (the magic word GRM1) with the plan header, RESULT with the status,
+    // and the loader ARRAYS when the arrays exist (abi::MAILBOX_FIELDS).
+    lines.push("filewrite efh 'mailbox'".into());
+    for (name, offset) in [
+        ("started", MAILBOX_STARTED),
+        ("plan", MAILBOX_PLAN),
+        ("result", MAILBOX_RESULT),
+        ("status", MAILBOX_STATUS),
+        ("arrays", MAILBOX_ARRAYS),
+    ] {
+        lines.extend([
+            format!("filewrite efh ' {name} '"),
+            format!("mailword = {}", mb(offset)),
+            "int2str line mailword".into(),
+            "filewrite efh line".into(),
+        ]);
+    }
+    lines.extend([
+        "filewriteln efh ''".into(),
         "fileclose efh".into(),
         ":write_error_end".into(),
         "return".into(),

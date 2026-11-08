@@ -5,11 +5,19 @@ use anyhow::{Context, Result};
 
 fn main() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();
-    anyhow::ensure!(args.len() == 3, "Usage: decode-firmware FIRMWARE.bin OUT.bin");
+    anyhow::ensure!(
+        args.len() == 3,
+        "Usage: decode-firmware FIRMWARE.bin OUT.bin"
+    );
     let data = std::fs::read(&args[1]).with_context(|| format!("Read {}", args[1]))?;
     let decoded = grkit_build::firmware::decode(&data)?;
     let rtos = grkit_build::firmware::rtos_section(&decoded)?;
     std::fs::write(&args[2], rtos).with_context(|| format!("Write {}", args[2]))?;
-    println!("decoded {} bytes, RTOS section {} bytes -> {}", decoded.len(), rtos.len(), args[2]);
+    println!(
+        "decoded {} bytes, RTOS section {} bytes -> {}",
+        decoded.len(),
+        rtos.len(),
+        args[2]
+    );
     Ok(())
 }

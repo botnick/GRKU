@@ -1304,6 +1304,28 @@ int2str line failure
 filewriteln efh line
 int2str line attempts
 filewriteln efh line
+filewrite efh 'mailbox'
+filewrite efh ' started '
+mailword = mb[12]
+int2str line mailword
+filewrite efh line
+filewrite efh ' plan '
+mailword = mb[0]
+int2str line mailword
+filewrite efh line
+filewrite efh ' result '
+mailword = mb[10]
+int2str line mailword
+filewrite efh line
+filewrite efh ' status '
+mailword = mb[11]
+int2str line mailword
+filewrite efh line
+filewrite efh ' arrays '
+mailword = mb[13]
+int2str line mailword
+filewrite efh line
+filewriteln efh ''
 fileclose efh
 :write_error_end
 return

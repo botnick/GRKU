@@ -2807,7 +2807,8 @@ static void about_grkit_shows_the_version_and_address(void)
     menu[MENU_ROWS_ABOUT / 4] = 1;
     assert(menu_text_override(view, INFO_TITLE_TEXT) ==
            ((u32)services_word(h, SERVICES_MENU + MENU_ROWS_ABOUT_TEXTS) | 1U));
-    assert(services_word(h, SERVICES_MENU + MENU_ROWS_ABOUT_TEXTS)[0] == ((11 + 1) | 0x100));
+    /* The title "About GRKU": 10 characters and the terminator. */
+    assert(services_word(h, SERVICES_MENU + MENU_ROWS_ABOUT_TEXTS)[0] == ((10 + 1) | 0x100));
     menu_info_fill(TEST_OBJECTS + 0xc00);
     assert(!strcmp((const char *)services_word(h, SERVICES_MENU + MENU_ROWS_ABOUT_LINES) + MENU_ABOUT_LINE,
                    "github.com/botnick/GRKit"));
@@ -2990,8 +2991,8 @@ static void the_section_starts_with_the_switch(void)
        as the Enable of a module. */
     assert(menu_rows_controller(h, MENU_ROW_TARGET) == settings_pages[0]);
     assert(h[GRKIT_HOST_SETTINGS / 4] == SWITCH_MODULE + 1 && settings_page(h) == switch_settings);
-    assert(same(switch_menu_label(h), "Enable GRKit"));
-    assert(settings_rows(h) == 1 && same(switch_settings[0].label(h), "Enable GRKit"));
+    assert(same(switch_menu_label(h), "Enable GRKU"));
+    assert(settings_rows(h) == 1 && same(switch_settings[0].label(h), "Enable GRKU"));
     assert(switch_settings[0].values(h) == 2 && same(switch_settings[0].value_text(h, 0), "On") &&
            same(switch_settings[0].value_text(h, 1), "Off"));
     switch_settings[0].set(h, 1);

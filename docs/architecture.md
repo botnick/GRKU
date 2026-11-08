@@ -62,7 +62,7 @@ INSTALL changes nothing on a firmware that it does not expect. Each address must
 
 On the optional [fast-boot firmware](fastboot.md), the loader runs SCAN and INSTALL on the RTOS side right after power-on, through the fast-boot files of the package. It falls back to Linux if that SCAN writes no plan.
 
-The loader writes `INSTALL.ERR` from the RTOS before each step and removes it after the install. So a start that stops leaves its step on the card. The scripts also write a boot log, `GRKIT/BOOT.TXT`, with the time of each step.
+The loader writes `INSTALL.ERR` from the RTOS before each step and removes it after the install. So a start that stops leaves its step on the card. The scripts also write a boot log, `GRKIT/BOOT.TXT`, with the time of each step. A start that stops in the core replaces `INSTALL.ERR` with its status, the name and meaning of the status, the step, and the state of the start. [The three files of a device report](diagnostics.md) explains each line of the three files.
 
 ### Card layout
 
@@ -81,7 +81,7 @@ A package module loads only if the package list names it, and a module in `GRKIT
 
 ### Report and safe mode
 
-`GRKIT/REPORT.TXT` gives the GRKit version and target, the result of each module, and the installed effects.
+`GRKIT/REPORT.TXT` gives the GRKU version and target, the result of each module, and the installed effects, then the details for a device report: the firmware build, the relocation, each patch, each module with the value of each setting, each effect, and the saved state ([diagnostics](diagnostics.md)).
 
 While `GRKIT/SAFE` exists, no module loads, and only module management stays in MENU, so a person can turn off the module that stopped the camera. The safe mode does not start by itself, because a count of unfinished starts also counts each quick power-off.
 

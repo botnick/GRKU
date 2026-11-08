@@ -14,23 +14,24 @@ const visitor = (fields: Partial<Visitor>): Visitor => ({ cookie: null, acceptLa
 
 describe('pathLanguage', () => {
   it('reads the language page of an address', () => {
-    expect(pathLanguage('/')).toBe('en');
+    expect(pathLanguage('/')).toBe('th');
     expect(pathLanguage('/zh-hant/')).toBe('zh-Hant');
     expect(pathLanguage('/zh-Hans')).toBe('zh-Hans');
     expect(pathLanguage('/ja/')).toBe('ja');
     expect(pathLanguage('/ko')).toBe('ko');
-    expect(pathLanguage('/faq')).toBe('en');
+    expect(pathLanguage('/faq')).toBe('th');
   });
 
   it('reads the language of a fast-boot firmware page', () => {
-    expect(pathLanguage('/fastboot/')).toBe('en');
+    expect(pathLanguage('/fastboot/')).toBe('th');
     expect(pathLanguage('/zh-hans/fastboot')).toBe('zh-Hans');
     expect(pathLanguage('/ko/fastboot/')).toBe('ko');
     expect(isFastbootPath('/ja/fastboot')).toBe(true);
     expect(isFastbootPath('/ja/')).toBe(false);
     expect(isFastbootPath('/faq/fastboot/')).toBe(false);
     expect(fastbootPath('zh-Hant')).toBe('/zh-hant/fastboot/');
-    expect(fastbootPath('en')).toBe('/fastboot/');
+    expect(fastbootPath('en')).toBe('/en/fastboot/');
+    expect(fastbootPath('th')).toBe('/fastboot/');
   });
 });
 

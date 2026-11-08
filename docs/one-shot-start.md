@@ -65,19 +65,25 @@ RAM is empty at each power-on, so none of the `/tmp` files reaches another start
 
 ## Boot log
 
-`GRKIT/BOOT.TXT` keeps the lines of 1.5, so earlier reports still read, plus the lines of the start. Each line is the Linux uptime in seconds, the step, and a status:
+`GRKIT/BOOT.TXT` keeps the lines of 1.5, so earlier reports still read, plus the lines of the start. Each line is the Linux uptime in seconds, the step, and a status, or the numbers of the start. [The three files of a device report](diagnostics.md) explains every line; the steps are:
 
 ```text
 6.91 load            SCAN.SH ran for the first time: the camera mounted the card
 6.93 start           SCAN.SH starts the core
 6.95 scan-start      the start maps the memory and relocates
+6.95 linux ...       the kernel and the process ID, then a `memory` line
+7.20 relocated 0     the private code is at the known addresses (1: a search ran)
+7.20 build ...       the firmware build word, the image, the data, the core address
 7.40 scan 0          the plan is made and posted
+7.40 plan ...        the counts of the plan
 7.41 started 0       SCAN.SH returned (the loader request ended)
 7.52 install-start   the loader allocated the arrays
 7.95 install 0       the hooks are live
+7.95 arrays ...      the addresses of the arrays and the mailbox
+7.95 patches ...     the patches applied, the modules loaded, the capabilities, the feet labels, the retries
 ```
 
-`install 0` is the time at which GRK appears in ADJ. Send `GRKIT/BOOT.TXT` and `GRKIT/REPORT.TXT` with a device report, as before.
+`install 0` is the time at which GRK appears in ADJ. Send `GRKIT/BOOT.TXT` and `GRKIT/REPORT.TXT` with a device report, as before; a start that stopped also leaves `SCRIPT/GRKIT/INSTALL.ERR`, with the status, its name and meaning, the step, and the state of the start.
 
 ## Diagnostics
 
