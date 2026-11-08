@@ -56,7 +56,7 @@ fn host_artwork_matches_golden_pixels_and_preserves_binary_transparency() {
     );
     assert_eq!(
         hex::encode(Sha256::digest(artwork::version_pixels())),
-        "c4b33a18f6b0a32f6a88d7bbea2f98828b6f45c720255d03731599ef993d9c5c"
+        "f9c21b3aaf58524090280a02478b5b5f8424ba58b5a35165462a89d644805490"
     );
     // The tiles of the module folders keep the rules of the host artwork.
     let mut modules: Vec<Vec<u8>> = Vec::new();

@@ -29,7 +29,7 @@ pub const SUMMARY_UNITS: usize = 32;
 /// The number of strings in each language (`GRKIT_TEXT_STRINGS`).
 pub const STRINGS: usize = 25;
 /// The project address that About GRKit shows.
-const PROJECT: &str = "github.com/ahonn/grkit";
+const PROJECT: &str = "github.com/botnick/GRKit";
 /// The longest effect name in a record.
 const NAME_UNITS: usize = 16;
 

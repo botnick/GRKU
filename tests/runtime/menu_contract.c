@@ -2810,7 +2810,7 @@ static void about_grkit_shows_the_version_and_address(void)
     assert(services_word(h, SERVICES_MENU + MENU_ROWS_ABOUT_TEXTS)[0] == ((11 + 1) | 0x100));
     menu_info_fill(TEST_OBJECTS + 0xc00);
     assert(!strcmp((const char *)services_word(h, SERVICES_MENU + MENU_ROWS_ABOUT_LINES) + MENU_ABOUT_LINE,
-                   "github.com/ahonn/grkit"));
+                   "github.com/botnick/GRKit"));
     menu[MENU_ROWS_ABOUT / 4] = 0;
 }
 

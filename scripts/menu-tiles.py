@@ -550,21 +550,64 @@ def grk_tile():
     return binarize(img)
 
 
+def rounded_gradient(d, x0, y0, x1, y1, top, bottom, radius, outline=None):
+    """A rounded box of the pixels x0..x1, y0..y1 with a vertical gradient on the supersampled canvas."""
+    mask = Image.new('L', (40 * SS, 40 * SS), 0)
+    ImageDraw.Draw(mask).rounded_rectangle(box(x0, y0, x1, y1), radius=radius * SS, fill=255)
+    grad = Image.new('RGBA', (40 * SS, 40 * SS), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(grad)
+    for yy in range(y0 * SS, (y1 + 1) * SS):
+        t = (yy - y0 * SS) / max(1, (y1 - y0 + 1) * SS - 1)
+        gd.line([(x0 * SS, yy), ((x1 + 1) * SS, yy)], fill=lerp(top, bottom, t) + (255,))
+    d._image.paste(grad, (0, 0), mask)
+    if outline:
+        d.rounded_rectangle(box(x0, y0, x1, y1), radius=radius * SS, outline=outline + (255,), width=SS)
+
+
 def version_tile():
+    """The About row: an information mark on a blue badge, VER below."""
     img = frame()
-    d = ImageDraw.Draw(img)
-    d.rounded_rectangle([5, 12, 34, 27], radius=3, fill=(30, 90, 180, 255))
-    text(img, 'VER', 14, 11)
+    c = canvas(); d = ImageDraw.Draw(c)
+    rounded_gradient(d, 9, 4, 30, 23, (70, 130, 220), (25, 60, 140), 4, outline=(120, 170, 240))
+    # The i: a dot and a stem, white
+    d.ellipse(box(18.5, 7, 21.5, 10), fill=(255, 255, 255, 255))
+    d.rounded_rectangle(box(18.5, 12, 21.5, 20), radius=SS, fill=(255, 255, 255, 255))
+    paste(img, c)
+    text(img, 'VER', 26, 10)
     return binarize(img)
 
 
 def modules_tile():
+    """The Modules row: four module blocks in color, MOD below."""
     img = frame()
-    d = ImageDraw.Draw(img)
-    for (x, y), color in zip([(10, 5), (21, 5), (10, 16), (21, 16)],
-                             [(215, 60, 50), (250, 190, 0), (50, 160, 90), (50, 110, 210)]):
-        d.rectangle([x, y, x + 8, y + 8], fill=color + (255,))
-    text(img, 'MOD', 27, 9)
+    c = canvas(); d = ImageDraw.Draw(c)
+    blocks = [((9, 4), (235, 95, 80), (170, 40, 40)), ((21, 4), (250, 205, 60), (210, 140, 0)),
+              ((9, 14), (90, 200, 120), (30, 130, 70)), ((21, 14), (90, 150, 240), (30, 80, 190))]
+    for (x, y), top, bottom in blocks:
+        d.rounded_rectangle(box(x + 1, y + 1, x + 10, y + 10), radius=2 * SS, fill=(20, 20, 22, 255))  # shadow
+        rounded_gradient(d, x, y, x + 9, y + 9, top, bottom, 2)
+        d.rounded_rectangle(box(x + 1, y + 1, x + 8, y + 3), radius=SS, fill=lerp(top, (255, 255, 255), 0.35) + (255,))
+    paste(img, c)
+    text(img, 'MOD', 26, 10)
+    return binarize(img)
+
+
+# ---- Border ----------------------------------------------------------------------------------
+
+def border_tile(style):
+    """A landscape with a white or black print border, thin or wide; 0 is the module tile."""
+    img = frame()
+    c = canvas(); d = ImageDraw.Draw(c)
+    x0, y0, x1, y1 = 4, 5, 35, 34
+    landscape(c, x0, y0, x1, y1)
+    paste(img, c)
+    white = style in (0, 1, 2)
+    t = 2 if style in (0, 1, 3) else 4
+    color = (245, 245, 245) if white else (10, 10, 10)
+    for k in range(t):
+        rect_outline(img, x0 + k, y0 + k, x1 - k, y1 - k, color)
+    if not white:
+        rect_outline(img, x0 - 1, y0 - 1, x1 + 1, y1 + 1, (90, 90, 90))
     return binarize(img)
 
 
@@ -593,6 +636,8 @@ def all_tiles():
         tiles[f'modules/grain/tiles/{name}.png'] = grain_option(level)
         tiles[f'modules/grain/tiles/vf-{name}.png'] = grain_vf(level)
     tiles['modules/grain/tiles/off.png'] = strike(dim(grain_option(2)))
+    for style, name in enumerate(['0-module', '1-white-thin', '2-white-wide', '3-black-thin', '4-black-wide']):
+        tiles[f'modules/border/tiles/{name}.png'] = border_tile(style)
     tiles['crates/grkit-core/assets/tiles/grk.png'] = grk_tile()
     tiles['crates/grkit-core/assets/tiles/ver.png'] = version_tile()
     tiles['crates/grkit-core/assets/tiles/mod.png'] = modules_tile()

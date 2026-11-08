@@ -116,12 +116,12 @@ static const u32 core_exports[] = {};
 static const u8 stock_record[] __attribute__((aligned(4))) = { /* 84 values, SHA-256 d1c1719f675e9a47d0e29a12b89645cbca01118d5b0fd6199887c85748f5e795 */ };
 static const u8 off_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 66b76a084babf84ee76db752198797fffeac6a0cfb491d883043499031e02b33 */ };
 static const u8 grkit_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 526cc68ab37cf5adf3f0d36ffac9719142ea450615fba8a37695c1aebd181d9c */ };
-static const u8 version_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 b27cf56b60f97bdf35324e226cb73e137e649b1a62346f5042d0d21d028dc61f */ };
-static const u8 modules_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 2dcb0313557894fdd7af596286049f6e47db08fdcce8ea48b5d8016f3f0b70ad */ };
-static const u8 modules_off_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 0e841ef3290ee388e88e4988b7faa52f63e25e7f5ed11650801a01b52593e777 */ };
+static const u8 version_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 d33a17800db34047652874e7a432ab67049e04a6e697929e9239f551858881ac */ };
+static const u8 modules_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 95c17fc3ce323159be775f156f3284755c64e64ab4db7196e917b180300b9ddc */ };
+static const u8 modules_off_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 1ac0be9b51ab5a4620d2516093c0feb545bf88f93ee0b482968f65b076f1eaf6 */ };
 static const u8 rotate_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 8a5f3688e3432fc4c20d670e4b092cf937baf93ebd9db2e934d4e3ce63ae2d56 */ };
-#define MENU_TEXT_BYTES 2068U
-static const u8 menu_text[] __attribute__((aligned(4))) = { /* 2068 values, SHA-256 423c20f1522aeb5d231cd8542f28e589a958d8c3c071b91d05625a86c76346ce */ };
+#define MENU_TEXT_BYTES 2088U
+static const u8 menu_text[] __attribute__((aligned(4))) = { /* 2088 values, SHA-256 cd3074fa507a83a9ff916ac7d3865e508777ac20d6e9fbde602d2c7e29a6d8a4 */ };
 #define LABELS_BYTES 20276U
 static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 20276 values, SHA-256 c553bdaa471f713bed227b8d7c6afd8edb857304d6e0c3a05bb7e444b918dcb6 */ };
 static const u8 stock_tables[] __attribute__((aligned(4))) = { /* 312 values, SHA-256 43c6a333770e97d39d0749933c4cc8fd3d39ab51233e06eaefe7dda15bae5cb6 */ };

@@ -8,6 +8,7 @@ dependencies.
                                                                     # put these effects (one id per line,
                                                                     # at most 40) into SCRIPT/GRKIT/EFFECTS
     python3 -I scripts/card.py status                               # what the card holds
+    python3 -I scripts/card.py feet on|off                          # snap focus distances in feet
 
 The card is the mounted volume that has a DCIM folder (or the one given with --card PATH).
 GRKit keeps its settings in the GRKIT folder of the card; `write` never touches it. After
@@ -116,6 +117,20 @@ def status(args):
         print('  REPORT.TXT:', report.read_text(errors='replace').strip().splitlines()[0][:100])
 
 
+def feet(args):
+    """GRKIT/FEET.TXT on the card makes INSTALL label the snap focus distances in feet."""
+    card = find_card(args.card)
+    marker = card / 'GRKIT' / 'FEET.TXT'
+    if args.state == 'on':
+        marker.parent.mkdir(exist_ok=True)
+        marker.write_text('The snap focus distance labels show feet while this file is on the card.\n')
+        print('feet on:', marker, '(takes effect at the next power-on)')
+    else:
+        marker.unlink(missing_ok=True)
+        print('feet off: the labels show meters again at the next power-on')
+    flush()
+
+
 def flush():
     if sys.platform == 'darwin':
         subprocess.run(['sync'], check=False)
@@ -130,5 +145,7 @@ if __name__ == '__main__':
     e = sub.add_parser('effects', help='replace SCRIPT/GRKIT/EFFECTS with the listed effects from the library ZIP')
     e.add_argument('library'); e.add_argument('list')
     sub.add_parser('status', help='what the card holds')
+    f = sub.add_parser('feet', help='label the snap focus distances in feet (on) or meters (off)')
+    f.add_argument('state', choices=['on', 'off'])
     args = parser.parse_args()
-    {'write': write, 'effects': effects, 'status': status}[args.command](args)
+    {'write': write, 'effects': effects, 'status': status, 'feet': feet}[args.command](args)

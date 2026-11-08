@@ -55,11 +55,9 @@ import { ChangeBadge, EffectsSection } from './components/EffectsSection';
 import { PackageOpen, type PackageStatus } from './components/PackageOpen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Landing } from './components/Landing';
-import { FastbootHint } from './components/FastbootHint';
 import { RichText } from './components/RichText';
 import { TermsNote } from './components/TermsNote';
 import { guideUrl, REPOSITORY } from './links';
-import { fastbootPath } from './languagePage';
 import { loadFonts } from './fonts';
 import { encodeLibrary, IMPORTS_FILE, nativeTone, readLibrary, withDetails, type LibraryDetails } from './import/library';
 import { restoreImports } from './import/lut';
@@ -635,9 +633,6 @@ export function App({
     }
   }
 
-  // The camera steps end with the wait after power-on: a camera with fast-boot releases points to
-  // the fast-boot firmware there.
-  const fastbootHint = camera.fastboot ? <FastbootHint text={t.fastbootHint} href={fastbootPath(language)} /> : null;
 
   const packageLinks = (
     <ul className="package-links">
@@ -678,7 +673,6 @@ export function App({
               <a href="#effects-label">{t.effects}</a>
               <a href="#modules-label">{t.modules}</a>
               <a href="#faq-label">{t.faqTitle}</a>
-              <a href={fastbootPath(language)}>{t.fastbootLink}</a>
             </nav>
             <a className="github" href={REPOSITORY} aria-label="GitHub" title="GitHub">
               <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true" focusable="false">
@@ -902,7 +896,6 @@ export function App({
                     message={applyMessage}
                     onApply={applyCard}
                     links={packageLinks}
-                    hint={fastbootHint}
                     termsUrl={guideUrl('TERMS', language)}
                     camera={camera.name}
                     firmware={support?.firmware ?? '—'}
@@ -986,7 +979,6 @@ export function App({
                       part === MODESET_TOKEN ? `\`${support?.modeset ?? ''}` : part,
                     )}
                   />
-                  {index === 3 && fastbootHint}
                 </li>
               ))}
             </ol>
@@ -1061,7 +1053,7 @@ export function App({
               <details key={item.q}>
                 <summary>{item.q}</summary>
                 <p>
-                  <RichText parts={item.a} link={fastbootPath(language)} />
+                  <RichText parts={item.a} link="" />
                 </p>
               </details>
             ))}
@@ -1079,7 +1071,6 @@ export function App({
               <a href={guideUrl('DUMP', language)}>{t.firmwareDump}</a>
             </li>
             <li>
-              <a href={fastbootPath(language)}>{t.fastbootLink}</a>
             </li>
           </ul>
           <ul>

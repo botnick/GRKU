@@ -1,4 +1,6 @@
-# GRKit
+# GRKit · BOTNICK edition
+
+ฟอร์กของ [ahonn/GRKit](https://github.com/ahonn/grkit) โดย **BOTNICK**: คลังฟิล์ม 135 ลุคพร้อมไอคอนกล่องฟิล์มสมจริง, ลุค Positive GRII, ไอคอนเมนูสี, โมดูล Border, การโหลดแบบ one-shot ที่เร็วขึ้น และไม่มีเฟิร์มแวร์ fast-boot GRKit ยังเป็นแค่สคริปต์บนการ์ด SD ฟอร์แมตการ์ดแล้วกล้องกลับเป็นของเดิม
 
 [English](README.md) | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | ไทย
 

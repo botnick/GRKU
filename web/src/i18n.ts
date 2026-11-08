@@ -71,6 +71,7 @@ const en = {
     dateStamp: 'Date Imprint',
     glow: 'Glow',
     grain: 'Grain',
+    border: 'Border',
   },
   package: 'Download',
   install: 'Install',
@@ -246,6 +247,7 @@ const en = {
     dateStamp: 'A date at the bottom right of photos, with classic, GR1s dot-matrix, or GR II digits: orange on color photos, white on black-and-white photos.',
     glow: 'Bloom and film halation with independent strengths, used alone or together. No live-view preview.',
     grain: "Film grain from the camera's grain stage, in four strengths. Photos only.",
+    border: 'A white or black print border over the photo, 3% or 6% of its width. Photos only.',
   },
   steps: [
     ['Turn the camera off.'],
@@ -282,24 +284,13 @@ const en = {
       q: 'GRK does not show up in ADJ.',
       a: [
         'GRKit loads about 8 to 10 seconds after power-on. It takes longer on GR IV and on the first start after an install or update. Wait, then press ADJ while you shoot and select the sixth entry, GRK. The first time, SD scripts must be on: hold MENU while you turn the camera on.',
-        ' To load it sooner, try ',
-        '[Fast start',
-        '.',
       ],
-    },
-    {
-      q: 'Why do my first photos after power-on have no film look?',
-      a: ['Until GRKit has loaded, the camera uses its own settings. Wait a few seconds after power-on, or try ', '[Fast start', '.'],
     },
     {
       q: 'Does GRKit change the camera firmware?',
       a: [
         'No. GRKit loads from the SD card while the camera is on. Without the card, or after you uninstall GRKit, the camera works as before. The SD script setting, which lets the camera run GRKit from the card, stays on until you turn it off. Only the optional fast-boot firmware changes the firmware, and only if you install it.',
       ],
-    },
-    {
-      q: 'Can GRKit load faster?',
-      a: ['Yes, with the optional ', '[fast-boot firmware', '. It needs a firmware update.'],
     },
     {
       q: 'Does a film look change my Image Control settings?',
@@ -581,6 +572,7 @@ const zhHans: Strings = {
     dateStamp: '加印日期',
     glow: '光晕',
     grain: '颗粒感',
+    border: '边框',
   },
   package: '下载',
   install: '安装',
@@ -737,6 +729,7 @@ const zhHans: Strings = {
     dateStamp: '在照片右下角加印日期，字体可选经典、GR1s 点阵或 GR II：彩色照片为橙色，黑白照片为白色。',
     glow: '柔光与胶片光晕，可独立调节或叠加使用，无法实时预览。',
     grain: '相机内置的颗粒感，分弱、中、强、特强四档。仅用于照片。',
+    border: '照片上的白色或黑色边框，宽度为照片宽度的 3% 或 6%。仅用于照片。',
   },
   steps: [
     ['关闭相机。'],
@@ -757,19 +750,13 @@ const zhHans: Strings = {
   faq: [
     {
       q: 'ADJ 里没有 GRK？',
-      a: ['GRKit 在开机后约 8 到 10 秒加载，GR IV 以及安装或更新后的第一次开机会更久。稍等片刻，然后在拍摄时按 ADJ，选择第 6 项 GRK。首次使用前，需要按住 MENU 开机，打开 SD 脚本。', '想更快加载，可以试试', '[快速启动', '。'],
-    },
-    {
-      q: '为什么开机后头几张照片没有胶片风格？',
-      a: ['GRKit 加载完成前，相机使用自身的设置。开机后稍等几秒再拍，或者试试', '[快速启动', '。'],
+      a: [
+        'GRKit 在开机后约 8 到 10 秒加载，GR IV 以及安装或更新后的第一次开机会更久。稍等片刻，然后在拍摄时按 ADJ，选择第 6 项 GRK。首次使用前，需要按住 MENU 开机，打开 SD 脚本。',
+      ],
     },
     {
       q: 'GRKit 会修改相机固件吗？',
       a: ['不会。GRKit 在开机时从存储卡加载。取出存储卡或卸载 GRKit 后，相机和原来一样。SD 脚本设置（让相机从存储卡运行 GRKit）会一直开启，直到手动关闭。只有可选的快速启动固件会修改固件，而且只在你安装它之后。'],
-    },
-    {
-      q: '能让 GRKit 加载得更快吗？',
-      a: ['可以，使用可选的', '[快速启动固件', '。它需要更新一次固件。'],
     },
     {
       q: '胶片风格会改掉我的影像控制设置吗？',
@@ -1020,6 +1007,7 @@ const zhHant: Strings = {
     dateStamp: '加印日期',
     glow: '光暈',
     grain: '粒紋感',
+    border: '邊框',
   },
   package: '下載',
   install: '安裝',
@@ -1176,6 +1164,7 @@ const zhHant: Strings = {
     dateStamp: '在照片右下角加印日期，字體可選經典、GR1s 點陣或 GR II：彩色照片為橘色，黑白照片為白色。',
     glow: '柔光與底片光暈，可獨立調整或疊加使用，實時顯示中無法預覽。',
     grain: '相機內建的粒紋感，分弱、中、強、特強四段。僅用於照片。',
+    border: '照片上的白色或黑色邊框，寬度為照片寬度的 3% 或 6%。僅用於照片。',
   },
   steps: [
     ['關閉相機。'],
@@ -1196,19 +1185,13 @@ const zhHant: Strings = {
   faq: [
     {
       q: 'ADJ 裡沒有 GRK？',
-      a: ['GRKit 在開機後約 8 到 10 秒載入，GR IV 以及安裝或更新後的第一次開機會更久。稍等片刻，然後在拍攝時按 ADJ，選擇第 6 項 GRK。首次使用前，需要按住 MENU 開機，開啟 SD 腳本。', '想更快載入，可以試試', '[快速啟動', '。'],
-    },
-    {
-      q: '為什麼開機後頭幾張照片沒有底片風格？',
-      a: ['GRKit 載入完成前，相機使用原本的設定。開機後稍等幾秒再拍，或者試試', '[快速啟動', '。'],
+      a: [
+        'GRKit 在開機後約 8 到 10 秒載入，GR IV 以及安裝或更新後的第一次開機會更久。稍等片刻，然後在拍攝時按 ADJ，選擇第 6 項 GRK。首次使用前，需要按住 MENU 開機，開啟 SD 腳本。',
+      ],
     },
     {
       q: 'GRKit 會修改相機韌體嗎？',
       a: ['不會。GRKit 在開機時從記憶卡載入。取出記憶卡或解除安裝 GRKit 後，相機和原來一樣。SD 腳本設定（讓相機從記憶卡執行 GRKit）會一直開啟，直到你關閉它。只有選用的快速啟動韌體會修改韌體，而且只在你安裝它之後。'],
-    },
-    {
-      q: '能讓 GRKit 載入得更快嗎？',
-      a: ['可以，使用選用的', '[快速啟動韌體', '。它需要更新一次韌體。'],
     },
     {
       q: '底片風格會改掉我的 影像控制 設定嗎？',
@@ -1459,6 +1442,7 @@ const ja: Strings = {
     dateStamp: '日付入れ撮影',
     glow: 'グロー',
     grain: '粒状感',
+    border: 'ボーダー',
   },
   package: 'ダウンロード',
   install: 'インストール',
@@ -1619,6 +1603,7 @@ const ja: Strings = {
     dateStamp: '写真の右下に日付を入れます。書体はクラシック、GR1s のドットマトリクス、GR II から選べます。カラー写真ではオレンジ色、白黒写真では白になります。',
     glow: 'ブルームとハレーションを個別に調整・併用できます。ライブビューには反映されません。',
     grain: 'カメラ内蔵の粒状感を、弱・中・強・特強の 4 段階で加えます。静止画のみ。',
+    border: '写真の縁に白または黒の枠を重ねます。幅は写真の 3% または 6%。静止画のみ。',
   },
   steps: [
     ['カメラの電源を切ります。'],
@@ -1639,19 +1624,13 @@ const ja: Strings = {
   faq: [
     {
       q: 'ADJ に GRK が表示されない',
-      a: ['GRKit は電源を入れてから約 8〜10 秒で読み込まれます。GR IV や、インストール・アップデート後の最初の起動ではもう少しかかります。少し待ってから、撮影画面で ADJ を押し、6 番目の項目「GRK」を選びます。初回は SD スクリプトをオンにする必要があります。MENU ボタンを押したまま電源を入れてください。', 'もっと早く読み込むには、', '[高速起動', 'をお試しください。'],
-    },
-    {
-      q: '電源を入れた直後の写真にフィルムルックがかからない',
-      a: ['GRKit が読み込まれるまでは、カメラ本来の設定で撮影されます。電源を入れてから数秒待つか、', '[高速起動', 'をお試しください。'],
+      a: [
+        'GRKit は電源を入れてから約 8〜10 秒で読み込まれます。GR IV や、インストール・アップデート後の最初の起動ではもう少しかかります。少し待ってから、撮影画面で ADJ を押し、6 番目の項目「GRK」を選びます。初回は SD スクリプトをオンにする必要があります。MENU ボタンを押したまま電源を入れてください。',
+      ],
     },
     {
       q: 'GRKit はカメラのファームウェアを変更しますか？',
       a: ['いいえ。GRKit は電源を入れるたびに SD カードから読み込まれます。カードを抜くか GRKit をアンインストールすると、カメラは元どおりに動きます。SD スクリプトの設定（カメラがカードの GRKit を実行するための設定）は、オフにするまでオンのままです。ファームウェアを変更するのは、オプションの高速起動ファームウェアをインストールした場合だけです。'],
-    },
-    {
-      q: 'GRKit をもっと早く読み込めますか？',
-      a: ['はい。オプションの', '[高速起動ファームウェア', 'を使います。ファームウェアの更新が一度必要です。'],
     },
     {
       q: 'フィルムルックでイメージコントロールの設定は変わりますか？',
@@ -1902,6 +1881,7 @@ const ko: Strings = {
     dateStamp: '날짜 각인',
     glow: '글로우',
     grain: '입자감',
+    border: '테두리',
   },
   package: '다운로드',
   install: '설치',
@@ -2059,6 +2039,7 @@ const ko: Strings = {
     dateStamp: '사진 오른쪽 아래에 날짜를 넣습니다. 글꼴은 클래식, GR1s 도트 매트릭스, GR II 중에서 고릅니다. 컬러 사진에는 주황색, 흑백 사진에는 흰색으로 들어갑니다.',
     glow: '블룸과 필름 헐레이션의 강도를 따로 정하고, 하나만 쓰거나 함께 쓸 수 있습니다. 라이브 뷰에서는 미리 볼 수 없습니다.',
     grain: '카메라 자체의 입자감을 약, 중, 강, 매우 강 4단계로 더합니다. 사진에만 적용됩니다.',
+    border: '사진 가장자리에 흰색 또는 검은색 테두리를 넣습니다. 너비는 사진의 3% 또는 6%. 사진만.',
   },
   steps: [
     ['카메라 전원을 끕니다.'],
@@ -2093,24 +2074,13 @@ const ko: Strings = {
       q: 'ADJ 모드에 GRK가 보이지 않습니다.',
       a: [
         'GRKit은 전원을 켜고 8~10초쯤 뒤에 실행됩니다. GR IV나 설치·업데이트 후 처음 켤 때는 더 걸립니다. 잠시 기다린 뒤 촬영 중에 ADJ를 누르고 여섯 번째 항목인 GRK를 선택하세요. 처음에는 SD 스크립트를 켜야 합니다. MENU 버튼을 누른 채 전원을 켜세요.',
-        ' 더 빨리 불러오려면 ',
-        '[빠른 시작',
-        '을 써 보세요.',
       ],
-    },
-    {
-      q: '전원을 켠 직후 찍은 사진에 필름 룩이 적용되지 않습니다.',
-      a: ['GRKit을 불러오기 전에는 카메라 본래 설정으로 찍힙니다. 전원을 켜고 몇 초 기다리거나 ', '[빠른 시작', '을 써 보세요.'],
     },
     {
       q: 'GRKit이 카메라 펌웨어를 바꾸나요?',
       a: [
         '아니요. GRKit은 카메라가 켜져 있는 동안 SD 카드에서 실행됩니다. 카드를 빼거나 GRKit을 제거하면 카메라는 원래대로 동작합니다. SD 스크립트 설정(카메라가 카드의 GRKit을 실행하게 하는 설정)은 끌 때까지 켜진 상태로 남습니다. 펌웨어를 바꾸는 것은 선택 사항인 빠른 시작 펌웨어를 설치했을 때뿐입니다.',
       ],
-    },
-    {
-      q: 'GRKit을 더 빨리 불러올 수 있나요?',
-      a: ['네. 선택 사항인 ', '[빠른 시작 펌웨어', '를 쓰면 됩니다. 펌웨어를 한 번 업데이트해야 합니다.'],
     },
     {
       q: '필름 룩을 쓰면 화상 컨트롤 설정이 바뀌나요?',

@@ -94,6 +94,9 @@ static const char legacy_state_path[] = LEGACY_STATE_PATH;
 static const char legacy_state_tmp_path[] = LEGACY_STATE_TMP_PATH;
 static const char legacy_effects_path[] = LEGACY_EFFECTS_PATH;
 static const char report_path[] = REPORT_PATH;
+/* The distance unit marker: while GRKIT/FEET.TXT is on the card, INSTALL
+   rewrites the snap focus distance labels of the firmware in feet. */
+static const char feet_path[] = DATA_PATH "/FEET.TXT";
 static const char relocation_path[] = RELOCATION_PATH;
 static volatile u8 *at(u32 physical) { return mapping + physical - MAP_BASE; }
 static u32 word(u32 p) { return *(volatile u32 *)at(p); }
@@ -786,6 +789,58 @@ static int publish_patches(void)
     return 0;
 }
 
+/* The snap focus distance labels of the firmware, in feet instead of meters,
+   while GRKIT/FEET.TXT is on the card (ahonn/GRKit#71). The labels are
+   NUL-terminated UTF-16 strings in the .data section, one set for each menu
+   language, each followed by a NUL and a 2-byte pad. INSTALL finds each whole
+   string and writes the feet label over it: 0.3 m is 1', 1 m 3', 1.5 m 5',
+   2 m 7', 2.5 m 8', and 5 m 16', which takes the pad. The MF distance scale
+   is drawn, not text, and stays in meters. A power cycle restores the
+   firmware. */
+#ifndef RTOS_NATIVE
+struct unit_label { const char *meters, *feet; };
+static const struct unit_label unit_labels[] = {
+    {"0.3m", "1'"}, {"1m", "3'"}, {"1.5m", "5'"}, {"2m", "7'"}, {"2.5m", "8'"}, {"5m", "16'"},
+};
+static u32 ascii_len(const char *s) { u32 n = 0; while (s[n]) ++n; return n; }
+/* Whether the UTF-16 string at `a` is exactly the ASCII `s`, preceded by a
+   NUL unit and followed by its terminator; `pad` gets the number of NUL units
+   after the terminator, up to 2. */
+static int utf16_whole_at(u32 a, const char *s, u32 n, u32 *pad)
+{
+    if (*(volatile u16 *)at(a - 2) != 0) return 0;
+    for (u32 i = 0; i < n; ++i)
+        if (*(volatile u16 *)at(a + i * 2) != (u16)(u8)s[i]) return 0;
+    if (*(volatile u16 *)at(a + n * 2) != 0) return 0;
+    *pad = 0;
+    while (*pad < 2 && *(volatile u16 *)at(a + (n + 1 + *pad) * 2) == 0) ++*pad;
+    return 1;
+}
+static void apply_units(void)
+{
+    long fd = syscall6(5, (u32)feet_path, 0, 0, 0, 0, 0);
+    u32 changed = 0;
+    if (fd < 0) return;
+    syscall6(6, fd, 0, 0, 0, 0, 0);
+    for (u32 a = RELOCATION_DATA_START + 2; a + 16 < relocation.image_end; a += 2) {
+        for (u32 k = 0; k < sizeof(unit_labels) / sizeof(unit_labels[0]); ++k) {
+            u32 n = ascii_len(unit_labels[k].meters), m = ascii_len(unit_labels[k].feet), pad;
+            if (!utf16_whole_at(a, unit_labels[k].meters, n, &pad)) continue;
+            if (m > n + pad) break;  /* the feet label does not fit */
+            for (u32 i = 0; i <= n + pad; ++i)
+                *(volatile u16 *)at(a + i * 2) = i < m ? (u16)(u8)unit_labels[k].feet[i] : 0;
+            sync_alias(a, (n + pad + 1) * 2);
+            ++changed;
+            a += n * 2;
+            break;
+        }
+    }
+    print("GR_UNITS_FEET "); number(changed); print("\n");
+}
+#else
+static void apply_units(void) {}
+#endif
+
 /* INSTALL after the plan and the relocation: the code area, the arrays, the
    firmware checks, the records, the icons, the modules, the saved values,
    then the hooks. A not-ready status leaves the camera as it was, so a
@@ -824,6 +879,7 @@ static int install_planned(void)
     for (u32 i = 0; i < icon_chunks; ++i)
         if (!sync_alias(arrays.icon_bases[i], chunk_count(i) * ICON_STRIDE)) return STATUS_SYNC;
     if ((status = publish_patches())) return status;
+    apply_units();
     print("GR_MODULE_INSTALLED "); number(count); print("\n");
     return 0;
 }

@@ -24,7 +24,7 @@ pub const LUT_SIZE: usize = 33;
 pub const CATALOG_SCHEMA: &str = "grkit-site-effects-v1";
 const STANDARD_PREVIEW: &str = "preview/standard.lut";
 /// A bound on the catalog. A package still holds at most `runtime::MAX_COUNT` effects.
-pub const MAX_EFFECTS: usize = 100;
+pub const MAX_EFFECTS: usize = 200;
 
 fn unit(m: &[i16; 9]) -> [f64; 9] {
     m.map(|v| v as f64 / 8192.0)

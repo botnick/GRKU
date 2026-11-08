@@ -1,4 +1,6 @@
-# GRKit
+# GRKit · BOTNICK edition
+
+A fork of [ahonn/GRKit](https://github.com/ahonn/grkit) by **BOTNICK**: a 135-film library with realistic film-box icons, the Positive GRII look, color menu tiles, a Border module, the one-shot start that loads sooner, and no fast-boot firmware. GRKit stays a script on the SD card: format the card and the camera is back to stock.
 
 English | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [ไทย](README.th.md)
 
@@ -27,6 +29,7 @@ Press the ADJ lever while shooting and pick the sixth item, GRK.
 - **Date Imprint**: the date on the photo in classic, GR1s dot-matrix, or GR II style.
 - **Glow**: Bloom softly spreads light around lights and highlights. Halation adds a red-orange halo around bright lights to simulate motion-picture film. Each effect has its own Enable and Strength settings, so both can run together.
 - **Grain**: film grain in four strengths and four sizes (Auto, Small, Medium, Large).
+- **Border**: a white or black print border over the photo, 3% or 6% of its width.
 
 GRKit takes about 8 to 10 seconds to load after power-on, and longer on GR IV or on the first start after an install or update. Until then, the camera uses its own settings. All the settings are in the GRKit section at the end of the Customize tab in MENU. To write your own module, see [Writing a module](docs/modules.md).
 
