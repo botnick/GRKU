@@ -11,6 +11,7 @@ The official modules in `modules/` are complete examples:
 | `modules/framing` | a page, mask layer, and status icon of the capability `CORE.ASPECT` |
 | `modules/date` | three settings, a page, a status icon, and a plane filter |
 | `modules/glow` | independent Enable and Strength settings, strength icons shared by ADJ and the viewfinder, and a frame filter |
+| `modules/diffusion` | a choice page with native settings rows, constant tables that a script generates, and a frame filter ported from a community module |
 | `modules/grain` | a module with only data: a page and status icon of `CORE.GRAIN` |
 | `modules/film-look` | a page of `CORE.TONE` and an indicator in the native Image Control position |
 

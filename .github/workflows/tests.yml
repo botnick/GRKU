@@ -77,6 +77,7 @@ jobs:
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
         run: |
           cargo run --locked -p grkit-cli -- module test --dir modules/glow --cc "$GRKIT_HOST_CC"
+          cargo run --locked -p grkit-cli -- module test --dir modules/diffusion --cc "$GRKIT_HOST_CC"
           cargo run --locked -p grkit-cli -- module test --dir modules/date --cc "$GRKIT_HOST_CC"
           cargo test --locked -p grkit-core --test native_contracts
       - run: cargo build --release --locked -p grkit-cli

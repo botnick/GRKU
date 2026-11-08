@@ -1,0 +1,13 @@
+title = "柔光镜"
+rows = ["关闭", "1/8", "1/4", "1/2"]
+
+[settings.STRENGTH]
+label = "强度"
+
+[settings.MIST]
+label = "黑柔"
+values = ["关闭", "轻", "重"]
+
+[settings.STREAK]
+label = "拉丝光"
+values = ["关闭", "蓝色", "琥珀色"]

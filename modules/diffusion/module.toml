@@ -1,0 +1,53 @@
+# Diffusion: the glow of a highlight diffusion filter (Black Pro-Mist 1/8,
+# 1/4, 1/2) on each recorded JPEG, with the Black Mist veil of the filter over
+# the shadows and the horizontal Streak of an anamorphic lens. The live view
+# and DNG files stay as they are. Ported from the HDF Glow module of
+# MustafaCisse/GRKit (MIT), without its halation ring: Glow has Halation.
+id = "DIFFUSE"
+version = 1
+# The default place in ADJ and in MENU: after Glow (45), before Grain (50).
+order = 47
+sources = ["diffusion.c"]
+# Tile n shows strength n. Tile 0 is the module tile, for Off at the root.
+tiles = [
+    "tiles/0-module.png",
+    "tiles/1-eighth.png",
+    "tiles/2-quarter.png",
+    "tiles/3-half.png",
+]
+
+# 0 Off, 1 1/8, 2 1/4, 3 1/2.
+[[settings]]
+key = "STRENGTH"
+values = 4
+saved = true
+public = true
+
+# The veil of a Black Pro-Mist over the shadows: 0 Off, 1 Light, 2 Heavy. It
+# scales with the strength, and the core calls the filter only while the
+# strength is on, so Black Mist acts only with a diffusion strength.
+[[settings]]
+key = "MIST"
+values = 3
+saved = true
+public = true
+
+# The horizontal flare of an anamorphic lens from point lights: 0 Off,
+# 1 Blue, 2 Amber. As Black Mist, it acts only with a diffusion strength.
+[[settings]]
+key = "STREAK"
+values = 3
+saved = true
+public = true
+
+# Fn opens the native settings page with the strength, Black Mist, and Streak.
+[page]
+setting = "STRENGTH"
+off_row = true
+settings = ["STRENGTH", "MIST", "STREAK"]
+
+# Stage frame, before the date (mark), so the date does not glow.
+[[filters]]
+apply = "diffusion_apply"
+setting = "STRENGTH"
+stage = "frame"
