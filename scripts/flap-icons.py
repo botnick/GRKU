@@ -112,6 +112,9 @@ def palette(brand, name, number, cine):
         return (BLACK, WHITE, accent, accent)
     if brand == 'HARMAN':
         return ((214, 79, 30), BLACK, BLACK, None)
+    if brand == 'RICOH':
+        # A GR body: black, the name white, the model in the red of the GR badge.
+        return ((28, 28, 28), WHITE, (210, 30, 45), None)
     return (WHITE, BLACK, BLACK, None)
 
 

@@ -45,6 +45,10 @@ Lomography looks keep the names of the collection.
 
 CineStill 800T, CineStill 400D, Phoenix 200, Purple 400, Turquoise 400, Metropolis 400, Lomo Color 100, Instax Mini, Instax Wide, Agfachrome 50, Agfachrome 100, Agfachrome 200, Kodacolor 100, Pro 160NS, and Fujicolor F-64D derive from renders of the film profiles of [Fotufilm](https://fotufilm.com) (MUAStudio Inc.) by the [fotufilm-engine](https://github.com/DhaliwalX/fotufilm-engine) at revision 042e605 on a HaldCLUT identity image, with grain, halation, flare, and local tone off, licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). These effect definitions are also licensed under CC BY-SA 4.0. `sources/FOTUFILM_LICENSE.txt` contains the upstream notice, and `sources/bake_fotufilm.sh` the render recipe of each effect.
 
+## GRKit looks
+
+Positive GRII is a look of this repository, in the spirit of the Positive Film image setting of the RICOH GR II: deep blacks, a hard curve, a warm cast that fades toward white, more saturation, blues toward teal, greens toward yellow-olive. `sources/make_positive_grii.py` writes its LUT (a HaldCLUT on the Standard JPEG) from parameters set by eye against GR II photographs, not from camera data; `grkit effects import --input standard` fits it. It is licensed under the MIT License of GRKit. RICOH and GR are trademarks of RICOH IMAGING COMPANY, LTD.; the name says which camera setting the look follows.
+
 ## Names and limits
 
 Effect names and film, paper, and filter names identify the simulated materials. Some of these

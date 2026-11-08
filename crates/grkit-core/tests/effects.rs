@@ -524,7 +524,7 @@ fn published_cover_icons_show_the_words_of_the_effect_name() {
             assert_eq!(words(&format!("{series} {number}")), words(name), "{name}");
         }
         assert!(
-            ["Kodak", "FUJIFILM", "ILFORD", "AGFA", "POLAROID", "LOMO", "ROLLEI", "CINESTILL", "HARMAN"]
+            ["Kodak", "FUJIFILM", "ILFORD", "AGFA", "POLAROID", "LOMO", "ROLLEI", "CINESTILL", "HARMAN", "RICOH"]
                 .contains(&icon["brand"].as_str().unwrap()),
             "{name}"
         );
