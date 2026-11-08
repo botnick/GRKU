@@ -84,7 +84,7 @@ import {
 } from './package';
 import { packageCard } from './packageCard';
 import { useRecipeLibrary } from './recipeLibrary';
-import { writeRecipeFile, familyOf, effectCode, withPreset, type Family, type Recipe } from './recipes';
+import { DIAL_SAVED, writeRecipeFile, familyOf, effectCode, withPreset, type Family, type Recipe } from './recipes';
 import { loadSelection, resolveSelection, saveSelection, type Selection } from './selection';
 import { TransferError } from './transfer';
 
@@ -963,6 +963,9 @@ export function App({
                           ? {
                               shown: recipeLibrary.shownDial(active),
                               canKeep: false,
+                              // The settings that the camera saved in a user mode stay
+                              // a choice while the person tries another value.
+                              saved: active.dial.map((value) => value === DIAL_SAVED),
                               onChange: (u, value) => {
                                 if (value !== null) recipeLibrary.changeDial(active, u, value);
                               },
