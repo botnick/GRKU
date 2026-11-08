@@ -45,7 +45,7 @@ moduletiles = value
 if moduletiles < 0 goto reject_close
 if moduletiles > 128 goto reject_close
 fileclose fh
-expected = 913 + count * 1088
+expected = 1499 + count * 1088
 if words != expected goto reject
 expectedchunks = (count + moduletiles + 44) / 40
 if chunks != expectedchunks goto reject
@@ -112,7 +112,9 @@ changes = registry[64]
 saved = changes
 rchanges = registry[886]
 rsaved = 0
-last = changes + rchanges
+dchanges = registry[913]
+dsaved = dchanges
+last = changes + rchanges + dchanges
 filesearch 'C:\GRKIT\STATE.TXT'
 if result = 0 saved = changes - 1
 profile = registry[66]
@@ -121,7 +123,8 @@ if profile <> 0 goto profile_watch
 mpause 2000
 changes = registry[64]
 rchanges = registry[886]
-total = changes + rchanges
+dchanges = registry[913]
+total = changes + rchanges + dchanges
 if total <> last goto watch_moved
 if changes = saved goto watch_state_saved
 hold = registry[912]
@@ -133,6 +136,10 @@ if rchanges = rsaved goto watch_recipes_saved
 rstamp = rchanges
 call save_recipes
 :watch_recipes_saved
+if dchanges = dsaved goto watch_usermode_saved
+dstamp = dchanges
+call save_usermode
+:watch_usermode_saved
 goto watch
 :watch_moved
 last = total
@@ -174,9 +181,9 @@ if pcount > 40 pcount = 0
 pindex = 0
 :save_parameters
 if pindex >= pcount goto save_parameters_end
-pw0 = registry[913 + pindex * 1088 + 459]
-pw1 = registry[913 + pindex * 1088 + 460]
-pw2 = registry[913 + pindex * 1088 + 461]
+pw0 = registry[1499 + pindex * 1088 + 459]
+pw1 = registry[1499 + pindex * 1088 + 460]
+pw2 = registry[1499 + pindex * 1088 + 461]
 pvalue = 0
 pdigit = (pw2 >> 0) and 255
 if pdigit > 8 pdigit = 0
@@ -206,16 +213,16 @@ pdigit = (pw0 >> 0) and 255
 if pdigit > 8 pdigit = 0
 pvalue = pvalue * 9 + pdigit
 if pvalue = 0 goto save_toning
-pkey = 990000000 + (registry[913 + pindex * 1088 + 446] and 32767)
+pkey = 990000000 + (registry[1499 + pindex * 1088 + 446] and 32767)
 int2str line pkey
 filewriteln sfh line
 int2str line pvalue
 filewriteln sfh line
 :save_toning
-ptone = (registry[913 + pindex * 1088 + 463] >> 16) and 255
+ptone = (registry[1499 + pindex * 1088 + 463] >> 16) and 255
 if ptone < 1 goto save_parameters_next
 if ptone > 8 goto save_parameters_next
-pkey = 990032768 + (registry[913 + pindex * 1088 + 446] and 32767)
+pkey = 990032768 + (registry[1499 + pindex * 1088 + 446] and 32767)
 int2str line pkey
 filewriteln sfh line
 int2str line ptone
@@ -307,6 +314,43 @@ if result = 0 goto save_recipes_end
 rsaved = rstamp
 :save_recipes_end
 return
+:save_usermode
+if stateok = 0 goto save_usermode_end
+:save_usermode_start
+filedelete 'C:\GRKIT\USERMODE.TMP'
+filecreate sfh 'C:\GRKIT\USERMODE.TMP'
+if sfh < 0 goto save_usermode_end
+rindex = 0
+:set_word
+if rindex >= 585 goto set_word_end
+rvalue = registry[914 + rindex]
+if rvalue <= 0 goto set_word_next
+if rvalue > 999999999 goto set_word_next
+rkey = rindex / 195
+rkey = rkey * 1000
+rkey = rkey + 992000000
+rslot = rindex % 195
+rkey = rkey + rslot
+int2str line rkey
+filewriteln sfh line
+int2str line rvalue
+filewriteln sfh line
+:set_word_next
+rindex = rindex + 1
+goto set_word
+:set_word_end
+fileclose sfh
+filesearch 'C:\GRKIT\USERMODE.TMP'
+if result = 0 goto save_usermode_end
+filedelete 'C:\GRKIT\USERMODE.TXT'
+filesearch 'C:\GRKIT\USERMODE.TXT'
+if result != 0 goto save_usermode_end
+filerename 'C:\GRKIT\USERMODE.TMP' 'C:\GRKIT\USERMODE.TXT'
+filesearch 'C:\GRKIT\USERMODE.TXT'
+if result = 0 goto save_usermode_end
+dsaved = dstamp
+:save_usermode_end
+return
 :snapshot
 value0 = 0
 count = registry[0]
@@ -318,7 +362,7 @@ rest = offset % 4352
 if rest != 0 goto snapshot_values
 index = offset / 4352
 if index >= count goto snapshot_values
-value0 = registry[913 + index * 1088 + 446] and 65535
+value0 = registry[1499 + index * 1088 + 446] and 65535
 :snapshot_values
 value1 = registry[52]
 value2 = registry[12]
@@ -617,7 +661,8 @@ ppolls = ppolls + 1
 if ppolls >= 5 call profile_write
 changes = registry[64]
 rchanges = registry[886]
-total = changes + rchanges
+dchanges = registry[913]
+total = changes + rchanges + dchanges
 if total <> last goto profile_poll_moved
 if changes = saved goto profile_poll_state_saved
 hold = registry[912]
@@ -629,6 +674,10 @@ if rchanges = rsaved goto profile_poll_recipes_saved
 rstamp = rchanges
 call save_recipes
 :profile_poll_recipes_saved
+if dchanges = dsaved goto profile_poll_usermode_saved
+dstamp = dchanges
+call save_usermode
+:profile_poll_usermode_saved
 goto profile_poll
 :profile_poll_moved
 last = total
