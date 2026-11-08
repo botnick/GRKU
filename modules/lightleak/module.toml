@@ -1,0 +1,59 @@
+# Light Leak: film artefacts drawn into each recorded picture: a vignette,
+# dust and hairs, a light leak, and scratches, each Off, Light, Medium, or
+# Strong. The dust, the leak, and the scratches fall differently on every
+# shot. The LOOK row chooses a preset or Custom, which uses the four rows.
+# Off by default. Ported from the Overlay module of kkasemsa/GRKit (MIT).
+id = "LEAK"
+version = 1
+# The default place in ADJ and in MENU: after Glow (45), before Grain (50).
+order = 46
+sources = ["lightleak.c"]
+# Tile n shows LOOK n. Tile 0 is the module tile, for Off at the root.
+tiles = [
+    "tiles/0-module.png",
+    "tiles/1-custom.png",
+    "tiles/2-faded.png",
+    "tiles/3-dusty.png",
+    "tiles/4-leaky.png",
+    "tiles/5-expired.png",
+]
+
+# 0 Off, 1 Custom, 2 Faded, 3 Dusty, 4 Leaky, 5 Expired.
+[[settings]]
+key = "LOOK"
+values = 6
+saved = true
+public = true
+
+# Each: 0 Off, 1 Light, 2 Medium, 3 Strong. Custom uses them.
+[[settings]]
+key = "VIGNETTE"
+values = 4
+saved = true
+
+[[settings]]
+key = "DUST"
+values = 4
+saved = true
+
+[[settings]]
+key = "LEAK"
+values = 4
+saved = true
+
+[[settings]]
+key = "SCRATCH"
+values = 4
+saved = true
+
+# The look, then the strength of each artefact on the native settings page.
+[page]
+setting = "LOOK"
+off_row = true
+settings = ["LOOK", "VIGNETTE", "DUST", "LEAK", "SCRATCH"]
+
+# After the color of the Film Look, before the marks such as the date.
+[[filters]]
+apply = "leak_apply"
+setting = "LOOK"
+stage = "frame"

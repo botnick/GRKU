@@ -1,0 +1,21 @@
+title = "漏光"
+rows = ["关闭", "自定义", "褪色", "灰尘", "漏光", "过期"]
+
+[settings.LOOK]
+label = "风格"
+
+[settings.VIGNETTE]
+label = "暗角"
+values = ["关闭", "弱", "中", "强"]
+
+[settings.DUST]
+label = "灰尘"
+values = ["关闭", "弱", "中", "强"]
+
+[settings.LEAK]
+label = "漏光"
+values = ["关闭", "弱", "中", "强"]
+
+[settings.SCRATCH]
+label = "划痕"
+values = ["关闭", "弱", "中", "强"]

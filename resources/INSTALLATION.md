@@ -32,6 +32,7 @@ Photo: [MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/), [CC
 - **Guides:** lines on the screen only, not in the photo.
 - **Date Imprint:** the date at the bottom right of photos. Press Fn to select the date style and the font.
 - **Glow:** Bloom and Halation, on JPEG photos only, with no preview in the live view.
+- **Light Leak:** a vignette, dust, a light leak, and scratches, on JPEG photos only, with no preview in the live view. Press Fn to set the strength of each one.
 - **Grain:** film grain on photos. Press Fn to select the grain size.
 
 All the settings are also in the **GRKit** section at the end of the Customize tab (C) of MENU. Each module has a row. Turn the module on or off there, check the effects, ratios, or styles that ADJ shows in **Options**, and set the order in **ADJ Order**. GRKit keeps your settings after power-off.

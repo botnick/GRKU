@@ -1,0 +1,227 @@
+/* The host test of Light Leak (grkit module test): the presets, each
+   artefact on a flat grey picture in both postures, and the vignette on a
+   picture as wide as a full-size shot. */
+#include <assert.h>
+#include <string.h>
+#include "grkit_module.h"
+
+typedef struct { u32 vignette, dust, leak, scratch; } Strengths;
+void leak_strengths(u32 look, Strengths *s);
+u32 leak_seed(const Plane *p);
+void leak_plane(const Plane *p, u32 turns, u32 mono, u32 seed, const Strengths *s, u8 *scratch);
+void leak_apply(PictureSet *set, u32 look);
+
+#define MAIN_W 1200U
+#define MAIN_H 800U
+#define THUMB_W 160U
+#define THUMB_H 120U
+/* As wide as a GR III picture, and low, so that it fits the plane memory of
+   the harness: it checks the arithmetic of a full-size picture. */
+#define WIDE_W 6000U
+#define WIDE_H 64U
+#define GREY 120U
+
+static u32 luma(const Plane *p, u32 x, u32 y) { return GRKIT_BYTES(p->y + y * p->pitch + x)[0]; }
+static u32 cr_at(const Plane *p, u32 x, u32 y) { return GRKIT_BYTES(chroma_row(p, y) + (x & ~1U) + 1)[0]; }
+
+static void flat(const Plane *p, u32 grey)
+{
+    for (u32 y = 0; y < p->height; ++y)
+        for (u32 x = 0; x < p->width; ++x) {
+            GRKIT_BYTES(p->y + y * p->pitch + x)[0] = (u8)grey;
+            GRKIT_BYTES(chroma_row(p, y) + x)[0] = 128;
+        }
+}
+
+/* The main picture and its thumbnail, flat grey. */
+static PictureSet pictures(void)
+{
+    PictureSet set;
+    u32 main_y = GRKIT_TEST_PLANES, main_c = main_y + MAIN_W * MAIN_H;
+    u32 thumb_y = main_c + MAIN_W * MAIN_H, thumb_c = thumb_y + THUMB_W * THUMB_H;
+    memset(&set, 0, sizeof(set));
+    set.planes[0] = (Plane){main_y, main_c, MAIN_W, MAIN_H, MAIN_W, 0, 0, 0, MAIN_W, MAIN_H};
+    set.planes[1] = (Plane){thumb_y, thumb_c, THUMB_W, THUMB_H, THUMB_W, 0, 0, 0, THUMB_W, THUMB_H};
+    set.count = 2;
+    set.scratch = grkit_test_scratch;
+    flat(&set.planes[0], GREY);
+    flat(&set.planes[1], GREY);
+    return set;
+}
+
+/* One wide picture, flat grey, after the planes of pictures(). */
+static PictureSet wide_picture(void)
+{
+    PictureSet set;
+    u32 wide_y = GRKIT_TEST_PLANES + 2 * MAIN_W * MAIN_H + 2 * THUMB_W * THUMB_H, wide_c = wide_y + WIDE_W * WIDE_H;
+    memset(&set, 0, sizeof(set));
+    set.planes[0] = (Plane){wide_y, wide_c, WIDE_W, WIDE_H, WIDE_W, 0, 0, 0, WIDE_W, WIDE_H};
+    set.count = 1;
+    set.scratch = grkit_test_scratch;
+    flat(&set.planes[0], GREY);
+    return set;
+}
+
+/* How many pixels of the main picture differ from the flat grey, and how
+   many are brighter. */
+static void changed(const Plane *p, u32 *diff, u32 *brighter)
+{
+    *diff = *brighter = 0;
+    for (u32 y = 0; y < p->height; ++y)
+        for (u32 x = 0; x < p->width; ++x) {
+            u32 v = luma(p, x, y);
+            *diff += v != GREY;
+            *brighter += v > GREY;
+        }
+}
+
+int main(void)
+{
+    PictureSet set;
+    Strengths s;
+    u32 diff, brighter;
+
+    /* The descriptor: LOOK and four strengths; a page and a plane filter. */
+    assert(grkit_module.setting_count == 5 && grkit_module.registration_count == 2);
+    assert(grkit_module.settings[0].values == 6 && grkit_module.settings[1].values == 4 &&
+           grkit_module.settings[2].values == 4 && grkit_module.settings[3].values == 4 &&
+           grkit_module.settings[4].values == 4);
+    assert(SETTING_LOOK == GRKIT_SETTING(0) && SETTING_VIGNETTE == GRKIT_SETTING(1) &&
+           SETTING_DUST == GRKIT_SETTING(2) && SETTING_LEAK == GRKIT_SETTING(3) &&
+           SETTING_SCRATCH == GRKIT_SETTING(4));
+    assert(grkit_module.tile_count == 6);
+    memset(grkit_test_settings, 0, sizeof(grkit_test_settings));
+
+    /* Presets, and Custom from the rows. */
+    leak_strengths(2, &s);
+    assert(s.vignette == 2 && !s.dust && !s.leak && !s.scratch);
+    leak_strengths(5, &s);
+    assert(s.vignette == 2 && s.dust == 2 && s.leak == 1 && s.scratch == 2);
+    grkit_test_settings[SETTING_LEAK] = 3;
+    leak_strengths(1, &s);
+    assert(!s.vignette && !s.dust && s.leak == 3 && !s.scratch);
+    grkit_test_settings[SETTING_LEAK] = 0;
+
+    /* Off, and Custom with every row Off, draw nothing. */
+    set = pictures();
+    leak_apply(&set, 0);
+    leak_apply(&set, 1);
+    changed(&set.planes[0], &diff, &brighter);
+    assert(diff == 0);
+
+    /* Faded: the centre keeps its grey, the corners darken, nothing brightens,
+       and the thumbnail darkens too. */
+    set = pictures();
+    leak_apply(&set, 2);
+    assert(luma(&set.planes[0], MAIN_W / 2, MAIN_H / 2) == GREY);
+    assert(luma(&set.planes[0], 2, 2) < GREY - 30 && luma(&set.planes[0], MAIN_W - 3, MAIN_H - 3) < GREY - 30);
+    changed(&set.planes[0], &diff, &brighter);
+    assert(brighter == 0 && diff > MAIN_W * MAIN_H / 4);
+    assert(luma(&set.planes[1], 1, 1) < GREY - 20 && luma(&set.planes[1], THUMB_W / 2, THUMB_H / 2) == GREY);
+    /* Strong darkens the corner more than Light. */
+    {
+        u32 light, strong;
+        set = pictures(); grkit_test_settings[SETTING_VIGNETTE] = 1; leak_apply(&set, 1); light = luma(&set.planes[0], 2, 2);
+        set = pictures(); grkit_test_settings[SETTING_VIGNETTE] = 3; leak_apply(&set, 1); strong = luma(&set.planes[0], 2, 2);
+        assert(strong < light && light < GREY);
+        grkit_test_settings[SETTING_VIGNETTE] = 0;
+    }
+
+    /* The vignette of a picture as wide as a full-size shot: the centre keeps
+       its grey, and the luma falls from the centre to each edge of the middle
+       row, without the wrap of d^2 * 4096 in 32 bits. */
+    set = wide_picture();
+    leak_apply(&set, 2);
+    {
+        u32 previous = luma(&set.planes[0], WIDE_W / 2, WIDE_H / 2), x;
+        assert(previous == GREY);
+        for (x = WIDE_W / 2; x > 0; x -= 100) {
+            u32 v = luma(&set.planes[0], x - 100 < 1 ? 1 : x - 100, WIDE_H / 2);
+            assert(v <= previous);
+            previous = v;
+        }
+        assert(luma(&set.planes[0], 1, WIDE_H / 2) < GREY - 30);
+        assert(luma(&set.planes[0], WIDE_W - 2, WIDE_H / 2) < GREY - 30);
+        changed(&set.planes[0], &diff, &brighter);
+        assert(brighter == 0);
+    }
+    /* Everything at once on the wide picture, in a portrait posture too. */
+    set = wide_picture();
+    leak_apply(&set, 5);
+    set = wide_picture();
+    set.turns = 1;
+    leak_apply(&set, 5);
+    assert(luma(&set.planes[0], 1, 1) < GREY);
+
+    /* Dust: a few specks, mostly dark, some pale; a small part of the picture. */
+    set = pictures();
+    grkit_test_settings[SETTING_DUST] = 2;
+    leak_apply(&set, 1);
+    changed(&set.planes[0], &diff, &brighter);
+    assert(diff > 100 && diff < MAIN_W * MAIN_H / 40 && brighter > 0 && brighter < diff);
+    grkit_test_settings[SETTING_DUST] = 0;
+
+    /* Leak: brighter and warmer (Cr up) somewhere, over a wide area. */
+    set = pictures();
+    grkit_test_settings[SETTING_LEAK] = 2;
+    leak_apply(&set, 1);
+    changed(&set.planes[0], &diff, &brighter);
+    assert(brighter > MAIN_W * MAIN_H / 20 && brighter == diff);
+    {
+        u32 warm = 0;
+        for (u32 y = 0; y < MAIN_H; y += 4)
+            for (u32 x = 0; x < MAIN_W; x += 4) warm += cr_at(&set.planes[0], x, y) > 128;
+        assert(warm > 100);
+    }
+    /* The same seed falls the same way on the thumbnail: the leak is on the
+       same side. */
+    {
+        u32 lm = 0, rm = 0, lt = 0, rt = 0;
+        for (u32 y = 0; y < MAIN_H; y += 8) { lm += luma(&set.planes[0], 4, y); rm += luma(&set.planes[0], MAIN_W - 5, y); }
+        for (u32 y = 0; y < THUMB_H; ++y) { lt += luma(&set.planes[1], 1, y); rt += luma(&set.planes[1], THUMB_W - 2, y); }
+        assert((lm > rm) == (lt > rt) || lm == rm);
+    }
+    grkit_test_settings[SETTING_LEAK] = 0;
+
+    /* Monochrome: a leak brightens but leaves the chroma grey. */
+    set = pictures();
+    set.mono = 1;
+    grkit_test_settings[SETTING_LEAK] = 3;
+    leak_apply(&set, 1);
+    changed(&set.planes[0], &diff, &brighter);
+    assert(brighter > 0);
+    for (u32 y = 0; y < MAIN_H; y += 16)
+        for (u32 x = 0; x < MAIN_W; x += 16) assert(cr_at(&set.planes[0], x, y) == 128);
+    grkit_test_settings[SETTING_LEAK] = 0;
+
+    /* Scratches: thin lines along the sensor rows, mostly pale, in a
+       portrait shot too; a small part of the picture. */
+    set = pictures();
+    grkit_test_settings[SETTING_SCRATCH] = 3;
+    leak_apply(&set, 1);
+    changed(&set.planes[0], &diff, &brighter);
+    assert(diff > MAIN_W / 5 && diff < MAIN_W * MAIN_H / 40 && brighter > diff / 3);
+    set = pictures();
+    set.turns = 1;
+    leak_apply(&set, 1);
+    changed(&set.planes[0], &diff, &brighter);
+    assert(diff > MAIN_W / 5 && brighter > diff / 3);
+    grkit_test_settings[SETTING_SCRATCH] = 0;
+
+    /* Expired in a portrait shot: everything at once, no crash, corners dark. */
+    set = pictures();
+    set.turns = 3;
+    leak_apply(&set, 5);
+    assert(luma(&set.planes[0], 2, MAIN_H - 3) < GREY);
+
+    /* Different pictures give different seeds: the seed samples the top left
+       pixel among others. */
+    {
+        PictureSet a = pictures(), b;
+        u32 sa = leak_seed(&a.planes[0]);
+        b = pictures();
+        GRKIT_BYTES(b.planes[0].y)[0] = 200;
+        assert(sa != leak_seed(&b.planes[0]));
+    }
+    return 0;
+}
