@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKIT_HEADER_REFERENCE, which the installer relocates. */
 #define GRKIT_HEADER_REFERENCE 0x58012340
-#define GRKIT_HOST_HEADER_SIZE 976
+#define GRKIT_HOST_HEADER_SIZE 984
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKIT_MODULE_PAGES_MAX 10
 #define GRKIT_MODULE_LAYERS_MAX 16
@@ -288,6 +288,12 @@
 #define GRKIT_HOST_CROP 968
 /* CORE.CROP_MODE: 0 crops photos where the camera can, 1 draws the frame only. */
 #define GRKIT_HOST_CROP_MODE 972
+/* The native crop factor that the core set for CORE.CROP, as float bits, or 0
+   while the camera keeps its own (runtime/crop.h). */
+#define GRKIT_HOST_CROP_NATIVE 976
+/* The crop factor of the next shot, as float bits, where it is longer than the
+   native factor of the live view (70 and 90 mm), or 0. */
+#define GRKIT_HOST_CROP_SHOT 980
 
 /* The capabilities of the core (grkit_core::capabilities): the handle of each
    CORE setting, and for each handle in order, its header word and its number
