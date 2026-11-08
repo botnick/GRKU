@@ -57,7 +57,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { Landing } from './components/Landing';
 import { RichText } from './components/RichText';
 import { TermsNote } from './components/TermsNote';
-import { guideUrl, REPOSITORY } from './links';
+import { guideUrl, REPOSITORY, UPSTREAM } from './links';
 import { loadFonts } from './fonts';
 import { encodeLibrary, IMPORTS_FILE, nativeTone, readLibrary, withDetails, type LibraryDetails } from './import/library';
 import { restoreImports } from './import/lut';
@@ -81,8 +81,7 @@ import { loadSelection, resolveSelection, saveSelection, type Selection } from '
 import { TransferError } from './transfer';
 
 /** The Tally form for problems, feature ideas, and questions. A plain link, so the page loads nothing from Tally. */
-const FEEDBACK_FORM = 'https://tally.so/r/Z9jRgB';
-const DONATE = 'https://buymeacoffee.com/yuexunjiang';
+const FEEDBACK_FORM = `${REPOSITORY}/issues`;
 /** The release notes of the GRKit version that the site packages, on the releases page. */
 const RELEASE_URL = `${REPOSITORY}/releases#release-v${__GRKIT_VERSION__}`;
 
@@ -1070,15 +1069,10 @@ export function App({
             <li>
               <a href={guideUrl('DUMP', language)}>{t.firmwareDump}</a>
             </li>
-            <li>
-            </li>
           </ul>
           <ul>
             <li>
               <a href={FEEDBACK_FORM}>{t.feedback}</a>
-            </li>
-            <li>
-              <a href={DONATE}>{t.donate}</a>
             </li>
           </ul>
           <ul>
@@ -1095,6 +1089,11 @@ export function App({
         </div>
         <div className="footer-meta">
           <p>{t.trademarks}</p>
+          <p className="footer-credit">
+            <b>GRKit {t.landing.edition}</b> — {t.landing.fork[0]}
+            <a href={UPSTREAM}>{t.landing.fork[1]}</a>
+            {t.landing.fork[2]}
+          </p>
           <a href={RELEASE_URL}>GRKit {__GRKIT_VERSION__}</a>
         </div>
       </footer>

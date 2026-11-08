@@ -23,9 +23,15 @@ const en = {
   description:
     'Film looks, XPan crops, date stamps, glow, and grain for RICOH GR III, IIIx, and IV. Use film simulation recipes or your own LUT. No firmware flashing.',
   /** The hero lines under the GRKit heading, one line each. */
-  lead: ['Film looks and XPan for your RICOH GR.', 'No firmware flashing.'] as readonly string[],
+  lead: ['135 film looks for your RICOH GR.', 'From the SD card, with the firmware untouched.'] as readonly string[],
   /** The landing page above the installer. */
   landing: {
+    shelf: 'The film shelf',
+    shelfText: 'Every look in the library as its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and the Positive GRII of this fork. A package carries 40 of them to the camera. Swap them any time from this page.',
+    shelfAlt: '135 film boxes on shelves',
+    moduleListText: 'Each module is one row of the GRKit menu on the camera. Install the ones you want.',
+    edition: 'BOTNICK edition',
+    fork: ['A fork of ', 'ahonn/GRKit', ' with more films, color icons, a quicker start, and no fast-boot firmware.'] as readonly [string, string, string],
     install: 'Install',
     installNote: 'Write GRKit straight to your SD card, or download GRKit.zip.',
     /** The install note where the browser cannot write to a card: a phone, a tablet, Safari, Firefox. */
@@ -528,8 +534,14 @@ const zhHans: Strings = {
   title: 'GRKit：理光 GR III / IIIx / IV 胶片滤镜与 XPan 宽幅，无需刷机',
   description:
     '为理光 GR III、GR IIIx、GR IV 加上胶片滤镜（胶片模拟）、XPan 宽幅等画幅、日期水印、光晕和颗粒，也能导入自己的 LUT。从 SD 卡加载，无需刷机。',
-  lead: ['给理光 GR 加上胶片滤镜和 XPan 宽幅。', '无需刷机。'],
+  lead: ['给理光 GR 的 135 种胶片风格。', '只放在 SD 卡上，不动固件。'],
   landing: {
+    shelf: '胶片架',
+    shelfText: '库中的每一种风格都是一个胶片盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及本分支自制的 Positive GRII。一个安装包带 40 种进相机，随时可以在本页换。',
+    shelfAlt: '架子上的 135 个胶片盒',
+    moduleListText: '每个模块是相机 GRKit 菜单里的一行。只装你想要的。',
+    edition: 'BOTNICK 版',
+    fork: ['基于 ', 'ahonn/GRKit', ' 的分支：更多胶片、彩色图标、更快启动，不含快速启动固件。'],
     install: '开始安装',
     installNote: '可直接写入 SD 卡，或下载 GRKit.zip。',
     installNoteZip: '下载 GRKit.zip，复制到 SD 卡。',
@@ -963,8 +975,14 @@ const zhHant: Strings = {
   title: 'GRKit：理光 GR III / IIIx / IV 底片濾鏡與 XPan 比例，不改韌體',
   description:
     '為理光 GR III、GR IIIx、GR IV 加上底片濾鏡（底片模擬）、XPan 等畫面比例、日期浮水印、光暈與顆粒，也能匯入自己的 LUT。從 SD 卡執行，不改韌體。',
-  lead: ['為理光 GR 加上底片濾鏡與 XPan 比例。', '不改韌體。'],
+  lead: ['給理光 GR 的 135 種底片風格。', '只放在 SD 卡上，不動韌體。'],
   landing: {
+    shelf: '底片架',
+    shelfText: '庫中的每一種風格都是一個底片盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及本分支自製的 Positive GRII。一個安裝包帶 40 種進相機，隨時可在本頁更換。',
+    shelfAlt: '架上的 135 個底片盒',
+    moduleListText: '每個模組是相機 GRKit 選單裡的一列。只裝你想要的。',
+    edition: 'BOTNICK 版',
+    fork: ['基於 ', 'ahonn/GRKit', ' 的分支：更多底片、彩色圖示、更快啟動，不含快速啟動韌體。'],
     install: '開始安裝',
     installNote: '可直接寫入 SD 卡，或下載 GRKit.zip。',
     installNoteZip: '下載 GRKit.zip，複製到 SD 卡。',
@@ -1398,8 +1416,14 @@ const ja: Strings = {
   title: 'GRKit：RICOH GR III / IIIx / IV にフィルム風の色味と XPan を',
   description:
     'RICOH GR III・GR IIIx・GR IV に、フィルム風の色味、XPan などのアスペクト比、日付写し込み、グロー、粒状感を追加します。フィルムシミュレーションのレシピも、自分の LUT も使えます。ファームウェアの書き換えは不要です。',
-  lead: ['RICOH GR にフィルム風の色味と XPan を。', 'ファームウェアの書き換えは不要です。'],
+  lead: ['RICOH GR に 135 のフィルムルック。', 'SD カードから動き、ファームウェアには触れません。'],
   landing: {
+    shelf: 'フィルム棚',
+    shelfText: 'ライブラリの全ルックを箱の姿で。Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid、そしてこのフォーク独自の Positive GRII。パッケージには 40 本をカメラへ。入れ替えはいつでもこのページから。',
+    shelfAlt: '棚に並ぶ 135 個のフィルム箱',
+    moduleListText: '各モジュールはカメラの GRKit メニューの 1 行です。使いたいものだけ入れます。',
+    edition: 'BOTNICK 版',
+    fork: ['', 'ahonn/GRKit', ' のフォーク。フィルムを増やし、アイコンをカラーにし、起動を速くし、高速起動ファームウェアは含みません。'],
     install: 'インストール',
     installNote: 'SD カードに直接書き込むか、GRKit.zip をダウンロードします。',
     installNoteZip: 'GRKit.zip をダウンロードして SD カードにコピーします。',
@@ -1837,8 +1861,14 @@ const ko: Strings = {
   title: 'GRKit: RICOH GR III, IIIx, IV용 필름 룩과 XPan, 펌웨어 수정 없이',
   description:
     'RICOH GR III, GR IIIx, GR IV에 필름 룩, XPan 등 여러 비율, 날짜 각인, 글로우, 입자감을 더합니다. 필름 레시피를 쓰거나 가지고 있는 LUT를 가져올 수 있습니다. 펌웨어는 수정하지 않습니다.',
-  lead: ['RICOH GR에 필름 룩과 XPan을.', '펌웨어는 건드리지 않습니다.'],
+  lead: ['RICOH GR을 위한 135가지 필름 룩.', 'SD 카드에서 실행되고 펌웨어는 그대로입니다.'],
   landing: {
+    shelf: '필름 선반',
+    shelfText: '라이브러리의 모든 룩을 필름 상자 모습으로: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, 그리고 이 포크의 Positive GRII. 패키지 하나에 40개를 카메라로 가져갑니다. 이 페이지에서 언제든 바꿀 수 있습니다.',
+    shelfAlt: '선반 위의 필름 상자 135개',
+    moduleListText: '각 모듈은 카메라 GRKit 메뉴의 한 줄입니다. 원하는 것만 설치하세요.',
+    edition: 'BOTNICK 에디션',
+    fork: ['', 'ahonn/GRKit', '의 포크: 더 많은 필름, 컬러 아이콘, 더 빠른 시작, 패스트부트 펌웨어 없음.'],
     install: '설치하기',
     installNote: 'SD 카드에 바로 기록하거나 GRKit.zip을 다운로드합니다.',
     installNoteZip: 'GRKit.zip을 다운로드해 SD 카드에 복사합니다.',
