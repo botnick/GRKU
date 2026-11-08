@@ -611,6 +611,110 @@ def border_tile(style):
     return binarize(img)
 
 
+# ---- Light Leak ------------------------------------------------------------------------------
+
+def leak_wash(img, x0, y0, x1, y1, strength, side='right'):
+    """A warm light leak: an orange-red wash that fades in from one side."""
+    px = img.load()
+    w = x1 - x0 + 1
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            t = (x - x0) / max(1, w - 1)
+            if side == 'left':
+                t = 1 - t
+            a = max(0.0, (t - (1 - 0.55 * strength)) / (0.55 * strength)) ** 1.5 if strength else 0
+            if a <= 0:
+                continue
+            r, g, b, _ = px[x, y]
+            leak = (255, 120 + 40 * (1 - a), 40)
+            px[x, y] = (round(r + (leak[0] - r) * a * 0.9), round(g + (leak[1] - g) * a * 0.75), round(b + (leak[2] - b) * a * 0.75), 255)
+
+
+def vignette_dim(img, x0, y0, x1, y1, strength):
+    px = img.load()
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    rmax = ((x1 - cx) ** 2 + (y1 - cy) ** 2) ** 0.5
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            d = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5 / rmax
+            k = 1 - strength * d * d
+            r, g, b, _ = px[x, y]
+            px[x, y] = (round(r * k), round(g * k), round(b * k), 255)
+
+
+def dust(img, x0, y0, x1, y1, count, seed, hairs=True):
+    rng = random.Random(seed)
+    px = img.load()
+    for _ in range(count):
+        x, y = rng.randint(x0, x1), rng.randint(y0, y1)
+        v = rng.choice([250, 240, 30, 50])
+        px[x, y] = (v, v, v, 255)
+    if hairs:
+        for _ in range(2):
+            x, y = rng.randint(x0 + 3, x1 - 6), rng.randint(y0 + 2, y1 - 6)
+            for k in range(6):
+                xx, yy = x + k, y + (k // 2 if _ else -k // 3)
+                if x0 <= xx <= x1 and y0 <= yy <= y1:
+                    px[xx, yy] = (235, 235, 235, 255)
+
+
+def scratches(img, x0, y0, x1, y1, seed):
+    rng = random.Random(seed)
+    for _ in range(2):
+        x = rng.randint(x0 + 4, x1 - 4)
+        vline(img, x, y0 + rng.randint(0, 4), y1 - rng.randint(0, 4), (240, 240, 235))
+
+
+def lightleak_tile(look):
+    """0 module, 1 custom, 2 faded, 3 dusty, 4 leaky, 5 expired."""
+    img = frame()
+    c = canvas()
+    x0, y0, x1, y1 = 4, 5, 35, 34
+    landscape(c, x0, y0, x1, y1)
+    paste(img, c)
+    if look in (0, 4, 5):
+        leak_wash(img, x0, y0, x1, y1, 1.0 if look == 4 else 0.8)
+    if look in (2, 5):
+        vignette_dim(img, x0, y0, x1, y1, 0.75 if look == 2 else 0.55)
+    if look in (0, 3, 5):
+        dust(img, x0, y0, x1, y1, 14 if look == 3 else 8, seed=look + 3)
+    if look in (3, 5):
+        scratches(img, x0, y0, x1, y1, seed=look)
+    if look == 1:
+        # Custom: the four artefacts as four small level bars, over a plain picture
+        bars(img, 4, 2, x0=8, bottom=32, step=5, width=5, lit_color=(255, 200, 80), dim_color=(80, 80, 80), outline=(0, 0, 0))
+    if look == 2:
+        px = img.load()  # faded: lower contrast
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                r, g, b, _ = px[x, y]
+                px[x, y] = (round(r * 0.8 + 40), round(g * 0.8 + 40), round(b * 0.8 + 40), 255)
+    return binarize(img)
+
+
+# ---- Diffusion -------------------------------------------------------------------------------
+
+def diffusion_tile(level):
+    """A lamp at night through a diffusion filter: the glow widens and the shadows lift with the
+    level (0 module, 1 1/8, 2 1/4, 3 1/2)."""
+    img = frame()
+    c = canvas(); d = ImageDraw.Draw(c)
+    night(d)
+    bloom = [9, 6, 9, 13][level]
+    lamp(d, 20, 15, bloom=bloom, core=2.6)
+    # the veil: the whole frame lifts a little with the level
+    paste(img, c)
+    px = img.load()
+    lift = [18, 8, 16, 28][level]
+    for y in range(3, 37):
+        for x in range(2, 38):
+            r, g, b, _ = px[x, y]
+            px[x, y] = (min(255, r + lift), min(255, g + lift), min(255, b + lift + 4), 255)
+    if level:
+        bars(img, 3, level, x0=22, bottom=34)
+    return binarize(img)
+
+
 def all_tiles():
     tiles = {}
     tiles['modules/film-look/tiles/0-module.png'] = film_look_module()
@@ -638,6 +742,12 @@ def all_tiles():
     tiles['modules/grain/tiles/off.png'] = strike(dim(grain_option(2)))
     for style, name in enumerate(['0-module', '1-white-thin', '2-white-wide', '3-black-thin', '4-black-wide']):
         tiles[f'modules/border/tiles/{name}.png'] = border_tile(style)
+    if (REPO / 'modules/lightleak').is_dir():
+        for look, name in enumerate(['0-module', '1-custom', '2-faded', '3-dusty', '4-leaky', '5-expired']):
+            tiles[f'modules/lightleak/tiles/{name}.png'] = lightleak_tile(look)
+    if (REPO / 'modules/diffusion').is_dir():
+        for level, name in enumerate(['0-module', '1-eighth', '2-quarter', '3-half']):
+            tiles[f'modules/diffusion/tiles/{name}.png'] = diffusion_tile(level)
     tiles['crates/grkit-core/assets/tiles/grk.png'] = grk_tile()
     tiles['crates/grkit-core/assets/tiles/ver.png'] = version_tile()
     tiles['crates/grkit-core/assets/tiles/mod.png'] = modules_tile()

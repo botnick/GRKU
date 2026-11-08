@@ -641,9 +641,6 @@ export function App({
         </a>
       </li>
       <li>
-        <a className="button" href={DONATE}>
-          {t.donate}
-        </a>
       </li>
     </ul>
   );

@@ -1,0 +1,21 @@
+title = "라이트 리크"
+rows = ["꺼짐", "커스텀", "빛바램", "먼지", "빛샘", "만료"]
+
+[settings.LOOK]
+label = "룩"
+
+[settings.VIGNETTE]
+label = "비네팅"
+values = ["꺼짐", "약", "중", "강"]
+
+[settings.DUST]
+label = "먼지"
+values = ["꺼짐", "약", "중", "강"]
+
+[settings.LEAK]
+label = "빛샘"
+values = ["꺼짐", "약", "중", "강"]
+
+[settings.SCRATCH]
+label = "스크래치"
+values = ["꺼짐", "약", "중", "강"]

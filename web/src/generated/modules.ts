@@ -9,6 +9,7 @@ export const OFFICIAL_MODULES = [
   { key: 'guides', id: 'GUIDES', needsEffects: false },
   { key: 'dateStamp', id: 'DATE', needsEffects: false },
   { key: 'glow', id: 'GLOW', needsEffects: false },
+  { key: 'lightLeak', id: 'LEAK', needsEffects: false },
   { key: 'grain', id: 'GRAIN', needsEffects: false },
   { key: 'border', id: 'BORDER', needsEffects: false },
 ] as const;
@@ -17,7 +18,7 @@ export type ModuleKey = (typeof OFFICIAL_MODULES)[number]['key'];
 
 /** The official modules that each camera can install, in menu order. */
 export const CAMERA_MODULES = {
-  gr3: ['filmLook', 'framing', 'guides', 'dateStamp', 'glow', 'grain', 'border'],
-  gr3x: ['filmLook', 'framing', 'guides', 'dateStamp', 'glow', 'grain', 'border'],
-  gr4: ['filmLook', 'framing', 'guides', 'dateStamp', 'glow', 'grain', 'border'],
+  gr3: ['filmLook', 'framing', 'guides', 'dateStamp', 'glow', 'lightLeak', 'grain', 'border'],
+  gr3x: ['filmLook', 'framing', 'guides', 'dateStamp', 'glow', 'lightLeak', 'grain', 'border'],
+  gr4: ['filmLook', 'framing', 'guides', 'dateStamp', 'glow', 'lightLeak', 'grain', 'border'],
 } as const satisfies Readonly<Record<string, readonly ModuleKey[]>>;
