@@ -1,6 +1,6 @@
 # Fast start
 
-On the official firmware, GRKit loads 8 to 10 seconds after power-on, because it waits until the camera has read the SD card. The fast-boot firmware lets GRKit load soon after power-on. It is optional. GRKit works the same without it, and the same GRKit package works on both firmwares.
+On the official firmware, GRKU loads 8 to 10 seconds after power-on, because it waits until the camera has read the SD card. The fast-boot firmware lets GRKU load soon after power-on. It is optional. GRKU works the same without it, and the same GRKU package works on both firmwares.
 
 The fast-boot firmware is the official Ricoh firmware of your camera with three small changes, which let SD scripts start earlier. The page makes it from the official file on your device. Nothing is uploaded.
 
@@ -27,8 +27,8 @@ If the page says that the file is not an official firmware file, download it fro
 2. Copy your photos from the SD card. Copy the fast-boot firmware file to the root of the card. Remove other `.bin` files from the card root.
 3. Turn the camera off. Hold MENU and press the power button. Follow the instructions on the screen.
 4. Do not turn the camera off or open the battery cover until the update is complete.
-5. Turn the camera on without GRKit. Make sure that it takes photos and plays them back.
-6. Delete the firmware file from the card. Then install the latest GRKit as usual.
+5. Turn the camera on without GRKU. Make sure that it takes photos and plays them back.
+6. Delete the firmware file from the card. Then install the latest GRKU as usual.
 
 Expected result: after power-on, GRK shows in ADJ much sooner than before.
 

@@ -528,7 +528,7 @@ def ring_gradient(d, cx, cy, r_out, r_in, colors):
 
 
 def grk_tile():
-    """The GRKit entry of the ADJ toolbar: a lens with a coating-colored ring, GRK below."""
+    """The GRKU entry of the ADJ toolbar: a lens with a coating-colored ring, GRKU below."""
     img = frame(1, 38)
     c = canvas(); d = ImageDraw.Draw(c)
     cx, cy, r_out, r_in = 20, 13, 10.5, 7.5
@@ -544,9 +544,9 @@ def grk_tile():
     d.ellipse([(cx + 1.5) * SS, (cy + 1.5) * SS, (cx + 4) * SS, (cy + 4) * SS], fill=(70, 100, 160, 255))
     paste(img, c, clip=(2, 2, 37, 37))
     d2 = ImageDraw.Draw(img)
-    f = ImageFont.truetype(str(REPO / 'crates' / 'grkit-core' / 'assets' / 'RobotoCondensed-Black.ttf'), 13)
-    left, t, right, bottom = d2.textbbox((0, 0), 'GRK', font=f)
-    d2.text((round((40 - (right - left)) / 2 - left), 25 - t), 'GRK', font=f, fill=(255, 255, 255, 255))
+    f = ImageFont.truetype(str(REPO / 'crates' / 'grkit-core' / 'assets' / 'RobotoCondensed-Black.ttf'), 12)
+    left, t, right, bottom = d2.textbbox((0, 0), 'GRKU', font=f)
+    d2.text((round((40 - (right - left)) / 2 - left), 25 - t), 'GRKU', font=f, fill=(255, 255, 255, 255))
     return binarize(img)
 
 

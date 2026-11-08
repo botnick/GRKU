@@ -684,7 +684,7 @@ pub fn strike(rgba: &mut [u8]) {
 /// (label LABEL_DATE + STYLE): the order of year, month, and day, and HM
 /// when the time prints.
 pub const OVERLAY_LABELS: [&str; 14] = [
-    "GRKit Loaded",
+    "GRKU Loaded",
     "XPan",
     "16:9",
     "4:3",
@@ -707,7 +707,7 @@ pub const OVERLAY_OUTLINE: usize = 1;
 /// distance "2.5m".
 pub const OVERLAY_CAPITAL: usize = 24;
 /// Rows above the capitals for ascenders and round overshoot, such as the d
-/// and the G of "GRKit Loaded", and rows below the baseline for overshoot.
+/// and the G of "GRKU Loaded", and rows below the baseline for overshoot.
 const OVERLAY_ABOVE: usize = 2;
 const OVERLAY_BELOW: usize = 1;
 /// The height of each label: the capitals, the rows above and below them,

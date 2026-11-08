@@ -37,7 +37,7 @@ static const char *module_reason(u32 status)
 static void write_report(int status)
 {
     report_length = 0;
-    say("GRKit "); say(GRKIT_VERSION); say(" ("); say(target_marker + sizeof("GRKIT_TARGET=") - 1); say(")\r\n");
+    say("GRKU "); say(GRKIT_VERSION); say(" ("); say(target_marker + sizeof("GRKIT_TARGET=") - 1); say(")\r\n");
     if (status) { say("\r\nGRKit did not install: error "); say_number((u32)status); say(".\r\n"); }
     if (safe_mode) say("\r\nSafe mode: GRKIT\\SAFE exists, so no module loads. Delete it to load the modules.\r\n");
     if (profile_mode) say("\r\nProfile: GRKIT\\PROFILE exists, so GRKit writes its CPU use to GRKIT\\PROFILE.LOG. Delete it to stop.\r\n");

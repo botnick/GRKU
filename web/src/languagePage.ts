@@ -4,7 +4,8 @@ import type { Language } from './i18n';
 
 /** The address of each language page. English is the root page, which other visitors also get. */
 export const LANGUAGE_PATHS: Readonly<Record<Language, string>> = {
-  en: '/',
+  th: '/',
+  en: '/en/',
   'zh-Hans': '/zh-hans/',
   'zh-Hant': '/zh-hant/',
   ja: '/ja/',
@@ -40,7 +41,7 @@ export function fastbootPath(language: Language): string {
 /** The language of the page at `pathname`, a language page or its fast-boot page. Any other path is English. */
 export function pathLanguage(pathname: string): Language {
   const path = normalized(pathname);
-  return CODES.find((code) => LANGUAGE_PATHS[code] === path || fastbootPath(code) === path) ?? 'en';
+  return CODES.find((code) => LANGUAGE_PATHS[code] === path || fastbootPath(code) === path) ?? 'th';
 }
 
 /** Countries where Traditional Chinese is the usual script. */
@@ -60,6 +61,7 @@ export function matchLanguage(tags: readonly string[], country?: string | null):
     }
     if (lower === 'ja' || lower.startsWith('ja-')) return 'ja';
     if (lower === 'ko' || lower.startsWith('ko-')) return 'ko';
+    if (lower === 'th' || lower.startsWith('th-')) return 'th';
     if (lower === 'en' || lower.startsWith('en-')) return 'en';
   }
   return 'en';
@@ -97,6 +99,7 @@ const COUNTRY_LANGUAGES: Readonly<Record<string, Language>> = {
   MO: 'zh-Hant',
   JP: 'ja',
   KR: 'ko',
+  TH: 'th',
 };
 
 export interface Visitor {

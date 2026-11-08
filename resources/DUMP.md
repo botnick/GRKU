@@ -1,6 +1,6 @@
 # Firmware dump tool
 
-The firmware dump tool copies the firmware image that the camera runs from memory to the SD card. The developer uses this image to support a firmware build that GRKit does not know yet.
+The firmware dump tool copies the firmware image that the camera runs from memory to the SD card. The developer uses this image to support a firmware build that GRKU does not know yet.
 
 The tool only reads memory. It does not change the camera, the firmware, or the camera settings. The files contain Ricoh firmware only. They do not contain photos or personal data.
 
@@ -8,13 +8,13 @@ For RICOH GR III, GR IIIx, GR IV, and their HDF models. One ZIP serves each came
 
 ## Before you start
 
-- SD scripts must be on. The GRKit installation turns them on. If you did not install GRKit, do step 3 of the installation guide for your camera first.
-- While the tool is on the card, GRKit does not load.
+- SD scripts must be on. The GRKU installation turns them on. If you did not install GRKU, do step 3 of the installation guide for your camera first.
+- While the tool is on the card, GRKU does not load.
 - Use a charged battery.
 
 ## Get the tool
 
-Download `GRKit-<version>-dump.zip` from the [latest release](https://github.com/ahonn/grkit/releases/latest). The Firmware dump tool link at the bottom of https://grkit.app gives the same file.
+Download `GRKU-<version>-dump.zip` from the [latest release](https://github.com/ahonn/grkit/releases/latest). The Firmware dump tool link at the bottom of https://grkit.app gives the same file.
 
 ## Dump the firmware
 
@@ -43,4 +43,4 @@ If the developer asked for the dump in an issue, attach the ZIP to that issue.
 1. Delete the `SCRIPT` folder from the card.
 2. Copy the `SCRIPT` folder from your backup to the card.
 
-GRKit loads again at the next startup.
+GRKU loads again at the next startup.

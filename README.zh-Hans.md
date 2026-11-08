@@ -1,15 +1,15 @@
-# GRKit
+# GRKU
 
 [English](README.md) | 简体中文 | [繁體中文](README.zh-Hant.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [ไทย](README.th.md)
 
 [![Tests](https://github.com/ahonn/grkit/actions/workflows/tests.yml/badge.svg)](https://github.com/ahonn/grkit/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-GRKit 给理光 GR III、GR IIIx 和 GR IV 加上胶片滤镜、XPan 等画幅、日期水印、光晕和颗粒，从存储卡运行，无需刷机。拔掉存储卡，相机就恢复原样。
+GRKU 给理光 GR III、GR IIIx 和 GR IV 加上胶片滤镜、XPan 等画幅、日期水印、光晕和颗粒，从存储卡运行，无需刷机。拔掉存储卡，相机就恢复原样。
 
 <p>
-  <img src="https://github.com/ahonn/grkit/raw/main/resources/images/grkit-root.zh-Hans.jpg" alt="ADJ 模式中的 GRKit 页面" width="49%">
-  <img src="https://github.com/ahonn/grkit/raw/main/resources/images/grkit-menu.zh-Hans.jpg" alt="MENU 自定义页中的 GRKit 小节" width="49%">
+  <img src="https://github.com/ahonn/grkit/raw/main/resources/images/grkit-root.zh-Hans.jpg" alt="ADJ 模式中的 GRKU 页面" width="49%">
+  <img src="https://github.com/ahonn/grkit/raw/main/resources/images/grkit-menu.zh-Hans.jpg" alt="MENU 自定义页中的 GRKU 小节" width="49%">
 </p>
 
 照片：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)，[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)。
@@ -28,9 +28,9 @@ GRKit 给理光 GR III、GR IIIx 和 GR IV 加上胶片滤镜、XPan 等画幅�
 - **光晕**：柔光让灯光和高光向周围柔和扩散。胶片光晕在明亮光源周围形成橙红色光晕，模拟电影胶片效果。两项各有“启用”和“强度”设置，可同时开启。
 - **颗粒感**：弱、中、强、特强四档，颗粒大小可选自动、小、中、大。
 
-开机后 GRKit 需要约 8 到 10 秒加载，GR IV 以及安装或更新后的第一次开机会更久。在此之前相机使用原本的设置。完整设置在 MENU 自定义页最后的 GRKit 小节。想自己写模块，见 [Writing a module](docs/modules.md)（英文）。
+开机后 GRKU 需要约 8 到 10 秒加载，GR IV 以及安装或更新后的第一次开机会更久。在此之前相机使用原本的设置。完整设置在 MENU 自定义页最后的 GRKU 小节。想自己写模块，见 [Writing a module](docs/modules.md)（英文）。
 
-**快速启动**：使用可选的[快速启动固件](resources/FASTBOOT.zh-Hans.md)，同一个 GRKit 安装包在开机后很快就能加载。它在 grkit.app 的[快速启动页面](https://grkit.app/zh-hans/fastboot/)上用 Ricoh 官方固件制作，以固件更新的方式安装。GRKit 本身从不写入固件。
+**快速启动**：使用可选的[快速启动固件](resources/FASTBOOT.zh-Hans.md)，同一个 GRKU 安装包在开机后很快就能加载。它在 grkit.app 的[快速启动页面](https://grkit.app/zh-hans/fastboot/)上用 Ricoh 官方固件制作，以固件更新的方式安装。GRKU 本身从不写入固件。
 
 ## 支持的机型
 
@@ -41,20 +41,20 @@ GRKit 给理光 GR III、GR IIIx 和 GR IV 加上胶片滤镜、XPan 等画幅�
 | GR IV、GR IV HDF | 1.11、1.20 | — |
 | GR IV Monochrome | 1.00 | 1.10 |
 
-GR IV Monochrome 不含胶片风格。其他机型和固件版本暂不支持。如果 GRKit 在受支持的相机上无法加载，请看[固件导出指南](resources/DUMP.zh-Hans.md)。
+GR IV Monochrome 不含胶片风格。其他机型和固件版本暂不支持。如果 GRKU 在受支持的相机上无法加载，请看[固件导出指南](resources/DUMP.zh-Hans.md)。
 
 > [!WARNING]
-> GRKit 仍是实验性项目，使用风险自负。
-> 安装时会打开相机的 SD 脚本设置，之后需要手动关闭。如果 GRKit 出错，相机可能卡在开机阶段，安装前请先读[恢复指南](resources/RECOVERY.zh-Hans.md)。
+> GRKU 仍是实验性项目，使用风险自负。
+> 安装时会打开相机的 SD 脚本设置，之后需要手动关闭。如果 GRKU 出错，相机可能卡在开机阶段，安装前请先读[恢复指南](resources/RECOVERY.zh-Hans.md)。
 
 ## 安装
 
 在 [grkit.app](https://grkit.app) 选好相机、模块和效果，然后任选一种方式：
 
 - **直接写入 SD 卡**：在电脑上用 Chrome 或 Edge 操作。以后更新、卸载或增删模块和效果，也都在网站上完成。
-- **下载 GRKit.zip**：按包里的 PDF 指南操作（[GR III 和 GR IIIx](resources/INSTALLATION.zh-Hans.md)、[GR IV](resources/INSTALLATION-GR4.zh-Hans.md)）。
+- **下载 GRKU.zip**：按包里的 PDF 指南操作（[GR III 和 GR IIIx](resources/INSTALLATION.zh-Hans.md)、[GR IV](resources/INSTALLATION-GR4.zh-Hans.md)）。
 
-只有第一次需要按住 MENU 开机。用 ZIP 更新时，替换卡里的 `SCRIPT` 文件夹即可，设置保存在 `GRKIT` 里。格式化存储卡会删掉 GRKit，格式化前先把 `GRKIT` 备份到电脑。
+只有第一次需要按住 MENU 开机。用 ZIP 更新时，替换卡里的 `SCRIPT` 文件夹即可，设置保存在 `GRKIT` 里。格式化存储卡会删掉 GRKU，格式化前先把 `GRKIT` 备份到电脑。
 
 GRK 没有出现时，先看 [grkit.app](https://grkit.app) 上的常见问题。还是不行的话，提交[设备报告](https://github.com/ahonn/grkit/issues/new?template=device-report.yml)，附上 `GRKIT/REPORT.TXT`、`GRKIT/BOOT.TXT` 和 `SCRIPT/GRKIT/INSTALL.ERR`（如果有）。
 
@@ -97,4 +97,4 @@ grkit verify dist/GRKit.zip
 - 菜单和取景画面的文字使用 [Roboto Condensed](https://github.com/googlefonts/roboto-classic) 字体，采用 [SIL Open Font License 1.1](crates/grkit-core/assets/RobotoCondensed-LICENSE.txt)。
 - 效果拟合方法移植自 [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods)，采用 [MIT 许可证](crates/grkit-core/GR3_FILM_MODS_LICENSE.txt)。
 
-RICOH 和 GR 是 Ricoh Company, Ltd. 的商标，胶片名称是各自所有者的商标。GRKit 是独立项目，与理光及任何胶片厂商均无关联。
+RICOH 和 GR 是 Ricoh Company, Ltd. 的商标，胶片名称是各自所有者的商标。GRKU 是独立项目，与理光及任何胶片厂商均无关联。

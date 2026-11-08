@@ -1,6 +1,6 @@
 # Recovery
 
-GRKit changes the camera only until the camera turns off. It does not write the firmware.
+GRKU changes the camera only until the camera turns off. It does not write the firmware.
 
 ## The camera stops during startup
 
@@ -17,4 +17,4 @@ Do not push or pull the lens barrel. Do not remove the power during an official 
 2. If the menu opens, reset the camera settings. The reset deletes your personal settings.
 3. Turn the camera on again without the card.
 
-If the camera still does not start, stop using GRKit and contact camera service.
+If the camera still does not start, stop using GRKU and contact camera service.

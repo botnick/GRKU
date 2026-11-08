@@ -1,15 +1,15 @@
-# GRKit
+# GRKU
 
 [English](README.md) | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md) | 日本語 | [한국어](README.ko.md) | [ไทย](README.th.md)
 
 [![Tests](https://github.com/ahonn/grkit/actions/workflows/tests.yml/badge.svg)](https://github.com/ahonn/grkit/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-GRKit は、RICOH GR III・GR IIIx・GR IV に、フィルム風の色、XPan などの比率、日付写し込み、グロー、粒状感を追加するツールです。SD カードから動作し、ファームウェアは書き換えません。カードを抜けば、カメラは元の状態に戻ります。
+GRKU は、RICOH GR III・GR IIIx・GR IV に、フィルム風の色、XPan などの比率、日付写し込み、グロー、粒状感を追加するツールです。SD カードから動作し、ファームウェアは書き換えません。カードを抜けば、カメラは元の状態に戻ります。
 
 <p>
-  <img src="https://github.com/ahonn/grkit/raw/main/resources/images/grkit-root.ja.jpg" alt="ADJ モードの GRKit ページ" width="49%">
-  <img src="https://github.com/ahonn/grkit/raw/main/resources/images/grkit-menu.ja.jpg" alt="MENU のカスタマイズタブにある GRKit" width="49%">
+  <img src="https://github.com/ahonn/grkit/raw/main/resources/images/grkit-root.ja.jpg" alt="ADJ モードの GRKU ページ" width="49%">
+  <img src="https://github.com/ahonn/grkit/raw/main/resources/images/grkit-menu.ja.jpg" alt="MENU のカスタマイズタブにある GRKU" width="49%">
 </p>
 
 写真：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)、[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
@@ -28,9 +28,9 @@ GRKit は、RICOH GR III・GR IIIx・GR IV に、フィルム風の色、XPan �
 - **グロー**：ブルームはライトやハイライトの周囲に柔らかな光を広げます。ハレーションは明るい光源の周囲に赤橙色のにじみを加え、映画用フィルムのような効果を再現します。それぞれ有効・無効と強度を個別に設定でき、同時に使用できます。
 - **粒状感**：強度は弱・中・強・特強、粒の大きさは自動・小・中・大から選べます。
 
-GRKit の読み込みには、電源を入れてから約 8〜10 秒かかります。GR IV や、インストール・アップデート後の最初の起動ではもう少しかかります。それまではカメラ本来の設定で撮影されます。すべての設定は MENU のカスタマイズタブの最後にある GRKit にあります。モジュールを自作する場合は [Writing a module](docs/modules.md)（英語）をご覧ください。
+GRKU の読み込みには、電源を入れてから約 8〜10 秒かかります。GR IV や、インストール・アップデート後の最初の起動ではもう少しかかります。それまではカメラ本来の設定で撮影されます。すべての設定は MENU のカスタマイズタブの最後にある GRKU にあります。モジュールを自作する場合は [Writing a module](docs/modules.md)（英語）をご覧ください。
 
-**高速起動**：オプションの[高速起動ファームウェア](resources/FASTBOOT.ja.md)を使うと、同じ GRKit パッケージが電源を入れてすぐに読み込まれます。grkit.app の[高速起動のページ](https://grkit.app/ja/fastboot/)で Ricoh の公式ファームウェアから作成し、ファームウェアの更新としてインストールします。GRKit 自体はファームウェアに書き込みません。
+**高速起動**：オプションの[高速起動ファームウェア](resources/FASTBOOT.ja.md)を使うと、同じ GRKU パッケージが電源を入れてすぐに読み込まれます。grkit.app の[高速起動のページ](https://grkit.app/ja/fastboot/)で Ricoh の公式ファームウェアから作成し、ファームウェアの更新としてインストールします。GRKU 自体はファームウェアに書き込みません。
 
 ## 対応カメラ
 
@@ -41,20 +41,20 @@ GRKit の読み込みには、電源を入れてから約 8〜10 秒かかりま
 | GR IV、GR IV HDF | 1.11、1.20 | — |
 | GR IV Monochrome | 1.00 | 1.10 |
 
-GR IV Monochrome ではフィルムルックは使えません。ほかの機種やファームウェアには対応していません。対応カメラで GRKit が読み込まれない場合は、[ファームウェア書き出しガイド](resources/DUMP.ja.md)をご覧ください。
+GR IV Monochrome ではフィルムルックは使えません。ほかの機種やファームウェアには対応していません。対応カメラで GRKU が読み込まれない場合は、[ファームウェア書き出しガイド](resources/DUMP.ja.md)をご覧ください。
 
 > [!WARNING]
-> GRKit は試験的なプロジェクトです。ご利用は自己責任でお願いします。
-> インストールするとカメラの SD スクリプト設定がオンになり、オフにするまでそのままです。GRKit に問題があるとカメラが起動中に止まることがあるため、インストール前に[復旧ガイド](resources/RECOVERY.ja.md)をお読みください。
+> GRKU は試験的なプロジェクトです。ご利用は自己責任でお願いします。
+> インストールするとカメラの SD スクリプト設定がオンになり、オフにするまでそのままです。GRKU に問題があるとカメラが起動中に止まることがあるため、インストール前に[復旧ガイド](resources/RECOVERY.ja.md)をお読みください。
 
 ## インストール
 
 [grkit.app](https://grkit.app) でカメラ、モジュール、エフェクトを選び、次のどちらかでインストールします。
 
 - **SD カードに直接書き込む**：パソコンの Chrome か Edge で行います。アップデートやアンインストール、モジュールやエフェクトの追加・削除もサイトからできます。
-- **GRKit.zip をダウンロード**：中の PDF ガイドの手順に従います（[GR III・GR IIIx](resources/INSTALLATION.ja.md)、[GR IV](resources/INSTALLATION-GR4.ja.md)）。
+- **GRKU.zip をダウンロード**：中の PDF ガイドの手順に従います（[GR III・GR IIIx](resources/INSTALLATION.ja.md)、[GR IV](resources/INSTALLATION-GR4.ja.md)）。
 
-MENU ボタンを押しながら電源を入れるのは初回だけです。ZIP でアップデートするときは、カードの `SCRIPT` フォルダーを入れ替えてください。設定は `GRKIT` に残ります。カードをフォーマットすると GRKit も消えるので、先に `GRKIT` をパソコンにコピーしておいてください。
+MENU ボタンを押しながら電源を入れるのは初回だけです。ZIP でアップデートするときは、カードの `SCRIPT` フォルダーを入れ替えてください。設定は `GRKIT` に残ります。カードをフォーマットすると GRKU も消えるので、先に `GRKIT` をパソコンにコピーしておいてください。
 
 GRK が表示されないときは、まず [grkit.app](https://grkit.app) の FAQ をご覧ください。それでも解決しない場合は、`GRKIT/REPORT.TXT`、`GRKIT/BOOT.TXT`、`SCRIPT/GRKIT/INSTALL.ERR`（ある場合）を添えて[デバイスレポート](https://github.com/ahonn/grkit/issues/new?template=device-report.yml)を送ってください。
 
@@ -97,4 +97,4 @@ grkit verify dist/GRKit.zip
 - メニューと撮影画面の文字には [Roboto Condensed](https://github.com/googlefonts/roboto-classic) を [SIL Open Font License 1.1](crates/grkit-core/assets/RobotoCondensed-LICENSE.txt) のもとで使用しています。
 - エフェクトのフィッティング手法は [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods) から [MIT ライセンス](crates/grkit-core/GR3_FILM_MODS_LICENSE.txt)のもとで移植しました。
 
-RICOH および GR は Ricoh Company, Ltd. の商標です。フィルム名はそれぞれの所有者の商標です。GRKit は独立したプロジェクトであり、リコーやフィルムメーカーとは関係ありません。
+RICOH および GR は Ricoh Company, Ltd. の商標です。フィルム名はそれぞれの所有者の商標です。GRKU は独立したプロジェクトであり、リコーやフィルムメーカーとは関係ありません。

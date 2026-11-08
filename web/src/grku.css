@@ -1,0 +1,246 @@
+/* GRKU: the brand layer over the component styles, loaded after styles.css. Matte white paper,
+   near-black ink, gray for what matters less, and one red for the one action that matters on a
+   screen. Inter for Latin text, IBM Plex Sans Thai for Thai, JetBrains Mono for file names and
+   values. Japanese minimal, Thai friendly: few lines, wide margins, plain words. */
+:root {
+  --paper: #f7f7f2;
+  --ink: #171717;
+  --ink-2: #2c2c2c;
+  --muted: #6e6e6e;
+  --faint: #a3a3a3;
+  --line: #dededa;
+  --accent: #d94135;
+  --accent-deep: #b8352b;
+  --selected: #fbecea;
+  --warning: #b8352b;
+  --code: #efefea;
+  --body: 'Inter', var(--cjk), sans-serif;
+  --display: 'Inter', var(--cjk), sans-serif;
+  --mono: 'JetBrains Mono', var(--cjk), monospace;
+}
+
+:root[lang='th'] {
+  --cjk: 'IBM Plex Sans Thai';
+  --body: 'IBM Plex Sans Thai', 'Inter', sans-serif;
+  --display: 'IBM Plex Sans Thai', 'Inter', sans-serif;
+  line-height: 1.7;
+}
+
+body {
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline-color: var(--accent);
+}
+
+/* Header: the wordmark GRKU with its red period. */
+.masthead {
+  padding: 10px 0 36px;
+}
+
+.masthead h1 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 30px;
+  letter-spacing: -0.03em;
+}
+
+.masthead h1 .dot {
+  color: var(--accent);
+  background: none;
+  -webkit-text-fill-color: var(--accent);
+}
+
+.masthead-version {
+  border-color: var(--line);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-weight: 500;
+}
+
+.masthead-version:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.masthead-nav {
+  font-size: 15px;
+}
+
+/* Hero: one statement, then the action. */
+.landing-hero {
+  display: block;
+  padding: 44px 0 36px;
+}
+
+.landing-copy .lead {
+  max-width: none;
+  margin: 0;
+}
+
+.landing-copy .lead-line {
+  display: block;
+}
+
+.landing-copy .lead-line:first-child {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(40px, 6.4vw, 80px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  max-width: 13em;
+  margin-bottom: 24px;
+}
+
+.landing-copy .lead-line:last-child {
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: clamp(18px, 1.9vw, 22px);
+  line-height: 1.5;
+  color: var(--ink-2);
+  max-width: 32em;
+}
+
+.landing-action {
+  margin-top: 32px;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  max-width: none;
+}
+
+.landing-action .note {
+  max-width: 34em;
+}
+
+.download,
+.landing-install {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 4px;
+}
+
+.download:hover,
+.landing-install:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.button {
+  border-radius: 4px;
+  border-color: var(--line);
+}
+
+.button[aria-pressed='true'] {
+  border-color: var(--ink);
+}
+
+.landing-fact {
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  max-width: 44em;
+}
+
+/* The shelf: every box of the library in one row that scrolls sideways, edge to edge. */
+.landing-shelf-scroll {
+  margin: 8px calc(50% - 50vw) 0;
+  padding: 18px 0 10px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+.landing-shelf-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.landing-shelf-scroll img {
+  display: block;
+  height: 96px;
+  width: auto;
+  max-width: none;
+  padding: 0 calc(50vw - 600px);
+  image-rendering: pixelated;
+}
+
+.landing-shelf-caption {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  max-width: 62ch;
+}
+
+.landing-looks {
+  padding-top: 8px;
+}
+
+.landing-look-name {
+  font-weight: 700;
+}
+
+/* Sections: a hairline, and the heading in the same face as everything else. */
+.section {
+  border-top: 1px solid var(--line);
+  padding: 32px 0 44px;
+}
+
+.section > h2,
+.landing-start {
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.landing-start {
+  border-top: 1px solid var(--line);
+  padding-top: 40px;
+}
+
+/* The module menu panel, as the camera draws its GRKU section. */
+.landing-menu {
+  border-radius: 6px;
+  background: var(--ink);
+}
+
+.landing-menu li {
+  border-bottom-color: #2e2e2e;
+}
+
+.landing-menu b {
+  font-weight: 600;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--line);
+}
+
+.footer-meta p {
+  color: var(--faint);
+}
+
+.footer-credit {
+  color: var(--muted) !important;
+}
+
+.footer-credit b {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .landing-shelf-scroll img {
+    height: 80px;
+    padding: 0 16px;
+  }
+}

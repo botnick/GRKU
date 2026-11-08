@@ -27,7 +27,7 @@ const APP_BROWSER = new RegExp(
 
 /**
  * Whether the page runs in the browser of another app, such as WeChat. Such a browser often
- * saves no file that the page makes, so GRKit.zip does not arrive. Besides the apps by name, an
+ * saves no file that the page makes, so GRKU.zip does not arrive. Besides the apps by name, an
  * Android WebView marks itself with `wv`, and an iPhone or iPad app browser leaves out `Safari/`,
  * which Safari and the other iOS browsers give.
  */

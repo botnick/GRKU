@@ -115,15 +115,15 @@ static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc};
 static const u32 core_exports[] = {};
 static const u8 stock_record[] __attribute__((aligned(4))) = { /* 84 values, SHA-256 d1c1719f675e9a47d0e29a12b89645cbca01118d5b0fd6199887c85748f5e795 */ };
 static const u8 off_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 66b76a084babf84ee76db752198797fffeac6a0cfb491d883043499031e02b33 */ };
-static const u8 grkit_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 526cc68ab37cf5adf3f0d36ffac9719142ea450615fba8a37695c1aebd181d9c */ };
+static const u8 grkit_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 3d61eaaafdd80f54b03c6ba4038e4e89e84e8345458b252cbfcc83741a9328a6 */ };
 static const u8 version_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 d33a17800db34047652874e7a432ab67049e04a6e697929e9239f551858881ac */ };
 static const u8 modules_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 95c17fc3ce323159be775f156f3284755c64e64ab4db7196e917b180300b9ddc */ };
 static const u8 modules_off_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 1ac0be9b51ab5a4620d2516093c0feb545bf88f93ee0b482968f65b076f1eaf6 */ };
 static const u8 rotate_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 8a5f3688e3432fc4c20d670e4b092cf937baf93ebd9db2e934d4e3ce63ae2d56 */ };
-#define MENU_TEXT_BYTES 2088U
-static const u8 menu_text[] __attribute__((aligned(4))) = { /* 2088 values, SHA-256 cd3074fa507a83a9ff916ac7d3865e508777ac20d6e9fbde602d2c7e29a6d8a4 */ };
-#define LABELS_BYTES 20276U
-static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 20276 values, SHA-256 c553bdaa471f713bed227b8d7c6afd8edb857304d6e0c3a05bb7e444b918dcb6 */ };
+#define MENU_TEXT_BYTES 2068U
+static const u8 menu_text[] __attribute__((aligned(4))) = { /* 2068 values, SHA-256 f9543b08d487d89e9f815db7f8890803462d9b0705bcae043e13651bc1532145 */ };
+#define LABELS_BYTES 20248U
+static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 20248 values, SHA-256 90546229f2d4fb819a89c52112c197a1099738564816f90f51477ddc24ada293 */ };
 static const u8 stock_tables[] __attribute__((aligned(4))) = { /* 312 values, SHA-256 43c6a333770e97d39d0749933c4cc8fd3d39ab51233e06eaefe7dda15bae5cb6 */ };
 static const u32 code_relocations[] = {0x0,0x0};
 static const u8 before_0[] __attribute__((aligned(4))) = {0,0,0,0,0,0,0,0};

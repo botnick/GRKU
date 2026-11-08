@@ -71,7 +71,7 @@ export interface CardReport {
 }
 
 export function parseReport(text: string): CardReport | null {
-  const match = /^GRKit (\S+) \(([^)\s]+)\)/.exec(text);
+  const match = /^GR(?:Kit|KU|ku) (\S+) \(([^)\s]+)\)/.exec(text);
   return match ? { version: match[1]!, target: match[2]! } : null;
 }
 
@@ -230,7 +230,7 @@ export function buildMarkers(bytes: Uint8Array): string[] {
 /** The GRKit version in an installer of GRKit 1.3, which its report and About show. */
 export function versionMarker(bytes: Uint8Array): string | null {
   const text = new TextDecoder('latin1').decode(bytes);
-  return /GRKit (\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?)/.exec(text)?.[1] ?? null;
+  return /GR(?:Kit|KU|ku) (\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?)/.exec(text)?.[1] ?? null;
 }
 
 async function readInstallers(root: CardDirectory): Promise<{ builds: string[]; version: string | null }> {

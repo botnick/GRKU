@@ -10,7 +10,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from 'vite';
 
-const SITE = 'https://grkit.app';
+const SITE = 'https://grku.app';
 const web = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(web, 'dist');
 // Inside web/, so the Node build resolves react and the other packages from web/node_modules.
@@ -93,10 +93,10 @@ function structuredData(code) {
   const data = {
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'GRKit', url: `${SITE}/`, inLanguage: codes },
+      { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'GRKU', url: `${SITE}/`, inLanguage: codes },
       {
         '@type': 'SoftwareApplication',
-        name: 'GRKit',
+        name: 'GRKU',
         url: pageUrl(code),
         description: strings.description,
         inLanguage: code,
@@ -174,14 +174,14 @@ allowStyleAttributes(join(dist, '_headers'), pages);
 // Pages serves 404.html with status 404 for a path without a file. Without it, Pages serves the
 // root page for every path, and search engines see each wrong address as a copy of the site.
 let notFound = template;
-notFound = replaceOne(notFound, /<title>[^<]*<\/title>/, '<title>Page not found · GRKit</title>');
+notFound = replaceOne(notFound, /<title>[^<]*<\/title>/, '<title>Page not found · GRKU</title>');
 notFound = replaceOne(notFound, /<meta\s+name="description"[^>]*>/, '<meta name="robots" content="noindex" />');
 notFound = notFound.replace(/\s*<script\b[^>]*\bsrc="[^"]*"[^>]*><\/script>/g, '');
 notFound = notFound.replace(/\s*<link rel="modulepreload"[^>]*>/g, '');
 notFound = replaceOne(
   notFound,
   /<div id="root"><\/div>/,
-  `<main class="not-found"><h1>GRKit</h1><p>Page not found.</p><p>${codes
+  `<main class="not-found"><h1>GRKU</h1><p>Page not found.</p><p>${codes
     .map((code) => `<a href="${LANGUAGE_PATHS[code]}" lang="${code}">${escape(LANGUAGES.find((item) => item.code === code).label)}</a>`)
     .join(' · ')}</p></main>`,
 );

@@ -2,23 +2,23 @@
 
 This file gives the licenses of the files in this package.
 
-## GRKit
+## GRKU
 
-The files in `SD_ROOT/` are GRKit software, except the effect files. GRKit is licensed under the MIT License. The license text is in "GRKit license" below.
+The files in `SD_ROOT/` are GRKU software, except the effect files. GRKU is licensed under the MIT License. The license text is in "GRKU license" below.
 
-Each `CORE.BIN` file (`CORE1.BIN` and on, in a package for several firmware builds) also contains some bytes of the official RICOH firmware. GRKit uses them to identify the firmware before it changes the camera memory. These bytes are not GRKit software, and the MIT License does not apply to them.
+Each `CORE.BIN` file (`CORE1.BIN` and on, in a package for several firmware builds) also contains some bytes of the official RICOH firmware. GRKU uses them to identify the firmware before it changes the camera memory. These bytes are not GRKU software, and the MIT License does not apply to them.
 
-The text in the menu icons and in the live view uses the [Roboto Condensed](https://github.com/googlefonts/roboto-classic) typeface, which is licensed under the SIL Open Font License 1.1. GRKit uses its Light, Bold, and Black weights, with only the ASCII characters.
+The text in the menu icons and in the live view uses the [Roboto Condensed](https://github.com/googlefonts/roboto-classic) typeface, which is licensed under the SIL Open Font License 1.1. GRKU uses its Light, Bold, and Black weights, with only the ASCII characters.
 
 The installation guide uses the [Noto Sans CJK](https://github.com/notofonts/noto-cjk) typefaces, which are licensed under the SIL Open Font License 1.1. Its code text uses DejaVu Sans Mono, which is licensed under the DejaVu Fonts License.
 
-The screenshots in the README and the installation guide show the photo [Sakiko buys a delicious soup at Kitchen Grizzly](https://www.flickr.com/photos/mujitra/53311001084/) by MIKI Yoshihito, which is licensed under [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). The photo is cropped and scaled, and the screenshot shows the GRKit menu and the Portra 400 effect over it.
+The screenshots in the README and the installation guide show the photo [Sakiko buys a delicious soup at Kitchen Grizzly](https://www.flickr.com/photos/mujitra/53311001084/) by MIKI Yoshihito, which is licensed under [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). The photo is cropped and scaled, and the screenshot shows the GRKU menu and the Portra 400 effect over it.
 
 ## Effects
 
-Each file in `SD_ROOT/GRKIT/EFFECTS/` is one Film Look effect. Each effect of the GRKit catalog is a fit of one film simulation LUT. GRKit contributors made the fits. The files contain the fitted parameters, not the LUTs. "Changes to the LUTs" below describes the changes.
+Each file in `SD_ROOT/GRKIT/EFFECTS/` is one Film Look effect. Each effect of the GRKU catalog is a fit of one film simulation LUT. GRKU contributors made the fits. The files contain the fitted parameters, not the LUTs. "Changes to the LUTs" below describes the changes.
 
-If an effect is not in the GRKit catalog, its author gives its license.
+If an effect is not in the GRKU catalog, its author gives its license.
 
 ### spektrafilm
 
@@ -48,14 +48,14 @@ These effects are licensed under the [Creative Commons Attribution-ShareAlike 4.
 
 CineStill 800T, CineStill 400D, Phoenix 200, Purple 400, Turquoise 400, Metropolis 400, Lomo Color 100, Instax Mini, Instax Wide, Agfachrome 50, Agfachrome 100, Agfachrome 200, Kodacolor 100, Pro 160NS, and Fujicolor F-64D derive from renders of the film profiles of [Fotufilm](https://fotufilm.com) (MUAStudio Inc.) by the [fotufilm-engine](https://github.com/DhaliwalX/fotufilm-engine) at revision 042e605 on a HaldCLUT identity image, with grain, halation, flare, and local tone off, licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). These effect definitions are also licensed under CC BY-SA 4.0. `sources/FOTUFILM_LICENSE.txt` contains the upstream notice, and `sources/bake_fotufilm.sh` the render recipe of each effect.
 
-### GRKit looks
+### GRKU looks
 
-Positive GRII is a look of this repository, in the spirit of the Positive Film image setting of the RICOH GR II: deep blacks, a hard curve, a warm cast that fades toward white, more saturation, blues toward teal, greens toward yellow-olive. `sources/make_positive_grii.py` writes its LUT (a HaldCLUT on the Standard JPEG) from parameters set by eye against GR II photographs, not from camera data; `grkit effects import --input standard` fits it. It is licensed under the MIT License of GRKit. RICOH and GR are trademarks of RICOH IMAGING COMPANY, LTD.; the name says which camera setting the look follows.
+Positive GRII is a look of this repository, in the spirit of the Positive Film image setting of the RICOH GR II: deep blacks, a hard curve, a warm cast that fades toward white, more saturation, blues toward teal, greens toward yellow-olive. `sources/make_positive_grii.py` writes its LUT (a HaldCLUT on the Standard JPEG) from parameters set by eye against GR II photographs, not from camera data; `grkit effects import --input standard` fits it. It is licensed under the MIT License of GRKU. RICOH and GR are trademarks of RICOH IMAGING COMPANY, LTD.; the name says which camera setting the look follows.
 
 ### Imprint
 
-GR2 Positive derives from the GR2 Positive Film LUT of the Ricoh GR2 Film Look for Photoshop in the [Imprint](https://github.com/luqie0106/Imprint) repository of luqie0106 (revision 3916a11), a stylized imitation of the Positive Film setting of the RICOH GR II from a few parameters (contrast, saturation, cool shadows, warm highlights), not camera data, licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). `sources/IMPRINT_LICENSE.txt` contains the upstream notice and the license. GRKit fits the LUT to the effect model; the change is the fit.
+GR2 Positive derives from the GR2 Positive Film LUT of the Ricoh GR2 Film Look for Photoshop in the [Imprint](https://github.com/luqie0106/Imprint) repository of luqie0106 (revision 3916a11), a stylized imitation of the Positive Film setting of the RICOH GR II from a few parameters (contrast, saturation, cool shadows, warm highlights), not camera data, licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). `sources/IMPRINT_LICENSE.txt` contains the upstream notice and the license. GRKU fits the LUT to the effect model; the change is the fit.
 
 ### Names
 
-Effect names and film, paper, and filter names identify the simulated materials. Some of these names are trademarks of their owners. GRKit is not affiliated with or endorsed by RICOH IMAGING COMPANY, LTD., Eastman Kodak Company, Kodak Alaris, Fujifilm, HARMAN technology Limited (Ilford Photo), Agfa, Polaroid, Lomography, Rollei, or CineStill. The simulations are models of published data or hand-made styles, not measured equivalents of the products.
+Effect names and film, paper, and filter names identify the simulated materials. Some of these names are trademarks of their owners. GRKU is not affiliated with or endorsed by RICOH IMAGING COMPANY, LTD., Eastman Kodak Company, Kodak Alaris, Fujifilm, HARMAN technology Limited (Ilford Photo), Agfa, Polaroid, Lomography, Rollei, or CineStill. The simulations are models of published data or hand-made styles, not measured equivalents of the products.

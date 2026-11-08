@@ -205,7 +205,7 @@ export function EffectsSection({
   }
 
   /**
-   * Adds the imports of a GRKit.zip. The ones that the ZIP installs are checked again while the
+   * Adds the imports of a GRKU.zip. The ones that the ZIP installs are checked again while the
    * package has room, and the others wait for the user.
    */
   function openUnlock() {

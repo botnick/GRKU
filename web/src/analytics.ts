@@ -21,7 +21,7 @@ function track(event: string, props: Props): void {
 }
 
 /**
- * The properties of a GRKit download: the camera, the effect count, the page language, and
+ * The properties of a GRKU download: the camera, the effect count, the page language, and
  * `on` or `off` for each module that the site offers for the camera. A module is `on` only
  * when the package installs it, so Image Control without effects is `off`.
  */
@@ -38,7 +38,7 @@ export function downloadProps(
   return props;
 }
 
-/** Records a GRKit package that the page saved. */
+/** Records a GRKU package that the page saved. */
 export function trackDownload(
   camera: Camera,
   plan: ModulePlan,

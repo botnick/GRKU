@@ -47,11 +47,11 @@ interface Props {
   strings: Strings;
   language: Language;
   /** Whether this browser writes to a card. Without it (a phone, a tablet, Safari, Firefox), the
-      installer only downloads GRKit.zip. */
+      installer only downloads GRKU.zip. */
   canWrite: boolean;
 }
 
-/** The landing page above the installer: what GRKit does, then a way into the installer. */
+/** The landing page above the installer: what GRKU does, then a way into the installer. */
 export function Landing({ strings, language, canWrite }: Props) {
   const t = strings.landing;
   return (
@@ -66,17 +66,37 @@ export function Landing({ strings, language, canWrite }: Props) {
             ))}
           </p>
           <InstallAction strings={strings} canWrite={canWrite} />
+          <p className="landing-fact">{t.fact}</p>
         </div>
-        <Looks strings={strings} />
       </section>
 
-      <section className="section" aria-labelledby="landing-shelf">
-        <h2 id="landing-shelf">{t.shelf}</h2>
+      <div className="landing-shelf-scroll" role="img" aria-label={t.shelfAlt}>
+        <img src={landingImage('shelf-strip.png')} alt="" width="12160" height="96" />
+      </div>
+      <p className="landing-shelf-caption">{t.shelfText}</p>
+
+      <section className="section" aria-labelledby="landing-looks">
+        <h2 id="landing-looks">{t.looks}</h2>
         <div className="section-body">
-          <p className="landing-text">{t.shelfText}</p>
-          <div className="landing-shelf">
-            <img src={landingImage('shelf.png')} alt={t.shelfAlt} width="1368" height="1674" loading="lazy" />
-          </div>
+          <Looks strings={strings} />
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="landing-modules">
+        <h2 id="landing-modules">{strings.modules}</h2>
+        <div className="section-body">
+          <p className="landing-text">{t.moduleListText}</p>
+          <ul className="landing-menu" aria-label={strings.modules}>
+            {OFFICIAL_MODULES.map((module) => (
+              <li key={module.key}>
+                <img src={MODULE_TILES[module.key]} alt="" width="40" height="40" />
+                <div>
+                  <b>{strings.moduleNames[module.key]}</b>
+                  <p>{strings.modulesText[module.key]}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -96,24 +116,6 @@ export function Landing({ strings, language, canWrite }: Props) {
             <GlowDetail strings={strings} />
             <GrainDetail strings={strings} />
           </div>
-        </div>
-      </section>
-
-      <section className="section" aria-labelledby="landing-modules">
-        <h2 id="landing-modules">{strings.modules}</h2>
-        <div className="section-body">
-          <p className="landing-text">{t.moduleListText}</p>
-          <ul className="landing-menu" aria-label={strings.modules}>
-            {OFFICIAL_MODULES.map((module) => (
-              <li key={module.key}>
-                <img src={MODULE_TILES[module.key]} alt="" width="40" height="40" />
-                <div>
-                  <b>{strings.moduleNames[module.key]}</b>
-                  <p>{strings.modulesText[module.key]}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
 
@@ -166,13 +168,13 @@ function Credit({ photo, camera = false }: { photo: Photo; camera?: boolean }) {
   );
 }
 
-/** The cameras that GRKit supports, by the names of the installer. */
+/** The cameras that GRKU supports, by the names of the installer. */
 const SUPPORTED_CAMERAS = CAMERAS.filter((camera) => camera.support)
   .map((camera) => camera.name)
   .join(' · ');
 
 /**
- * The main action: the installer below, which writes the card or downloads GRKit.zip, the
+ * The main action: the installer below, which writes the card or downloads GRKU.zip, the
  * cameras it supports, and what it does on this device.
  */
 function InstallAction({ strings, canWrite }: { strings: Strings; canWrite: boolean }) {

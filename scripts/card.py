@@ -1,17 +1,17 @@
-"""Write GRKit to the SD card from a package ZIP, whether the card is in a card reader or in
+"""Write GRKU to the SD card from a package ZIP, whether the card is in a card reader or in
 the camera over its USB-C cable (USB Connection: MSC, so the card shows as a drive). No
 dependencies.
 
-    python3 -I scripts/card.py write dist/GRKit-gr4.zip            # update: replace SCRIPT, keep GRKIT
-    python3 -I scripts/card.py write dist/GRKit-gr4.zip --first    # first install: also the ModeSet files
-    python3 -I scripts/card.py effects dist/GRKit-film-library.zip effects/defaults.txt
+    python3 -I scripts/card.py write dist/GRKU-gr4.zip            # update: replace SCRIPT, keep GRKIT
+    python3 -I scripts/card.py write dist/GRKU-gr4.zip --first    # first install: also the ModeSet files
+    python3 -I scripts/card.py effects dist/GRKU-film-library.zip effects/defaults.txt
                                                                     # put these effects (one id per line,
                                                                     # at most 40) into SCRIPT/GRKIT/EFFECTS
     python3 -I scripts/card.py status                               # what the card holds
     python3 -I scripts/card.py feet on|off                          # snap focus distances in feet
 
 The card is the mounted volume that has a DCIM folder (or the one given with --card PATH).
-GRKit keeps its settings in the GRKIT folder of the card; `write` never touches it. After
+GRKU keeps its settings in the GRKIT folder of the card; `write` never touches it. After
 `write` or `effects`, eject the card (or the camera), then turn the camera on normally.
 """
 import argparse, hashlib, io, json, os, pathlib, shutil, subprocess, sys, zipfile
@@ -38,7 +38,7 @@ def sd_root(zf):
     names = zf.namelist()
     roots = {n.split('/')[0] for n in names if '/' in n}
     if 'SD_ROOT' not in roots:
-        sys.exit('The ZIP has no SD_ROOT folder; is it a GRKit package?')
+        sys.exit('The ZIP has no SD_ROOT folder; is it a GRKU package?')
     return [n for n in names if n.startswith('SD_ROOT/') and not n.endswith('/')]
 
 

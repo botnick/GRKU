@@ -47,7 +47,7 @@ function Status({ task, message, strings: t }: { task: CardTask; message: CardMe
   );
 }
 
-/** How the user installs GRKit: write to a connected card, or download GRKit.zip. */
+/** How the user installs GRKU: write to a connected card, or download GRKU.zip. */
 export type InstallMode = 'card' | 'zip';
 
 interface StartProps {
@@ -55,10 +55,10 @@ interface StartProps {
   mode: InstallMode;
   onMode: (mode: InstallMode) => void;
   session: CardSession | null;
-  /** The card's GRKit is for another camera than the selected one. */
+  /** The card's GRKU is for another camera than the selected one. */
   otherCamera: boolean;
   /**
-   * The camera of the card's GRKit, which the page then shows here instead of the camera section.
+   * The camera of the card's GRKU, which the page then shows here instead of the camera section.
    * `options` has two entries when one build runs on both, such as GR IV and GR IV Monochrome.
    */
   cardCamera: { options: readonly Camera[]; selected: Camera; firmware: string } | null;
@@ -72,7 +72,7 @@ interface StartProps {
   onConnect: () => void;
   onReconnect: () => void;
   onDisconnect: () => void;
-  /** What the ZIP mode shows under the modes, such as the open of an earlier GRKit.zip. */
+  /** What the ZIP mode shows under the modes, such as the open of an earlier GRKU.zip. */
   zip?: ReactNode;
   /** The next step with a connected card: what a write would do. */
   next?: ReactNode;
@@ -405,7 +405,7 @@ interface RemoveProps {
   task: CardTask;
   message: CardMessage;
   /**
-   * Uninstalls GRKit: with `data` also the settings and the effects, and with `scriptsOff` it then
+   * Uninstalls GRKU: with `data` also the settings and the effects, and with `scriptsOff` it then
    * writes the files that turn SD scripts off.
    */
   onUninstall: (data: boolean, scriptsOff: boolean) => void;
@@ -424,7 +424,7 @@ export function UninstallSection({ title, children }: { title: string; children:
 }
 
 /**
- * The card actions of Uninstall GRKit: uninstall GRKit, and turn SD scripts off. Without GRKit on
+ * The card actions of Uninstall GRKU: uninstall GRKU, and turn SD scripts off. Without GRKU on
  * the card, only the cleanup of the files that turned SD scripts off stays.
  */
 export function CardUninstall({

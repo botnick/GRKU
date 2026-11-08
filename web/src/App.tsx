@@ -82,7 +82,7 @@ import { TransferError } from './transfer';
 
 /** The Tally form for problems, feature ideas, and questions. A plain link, so the page loads nothing from Tally. */
 const FEEDBACK_FORM = `${REPOSITORY}/issues`;
-/** The release notes of the GRKit version that the site packages, on the releases page. */
+/** The release notes of the GRKU version that the site packages, on the releases page. */
 const RELEASE_URL = `${REPOSITORY}/releases#release-v${__GRKIT_VERSION__}`;
 
 
@@ -136,7 +136,7 @@ export function App({
 
   const t = STRINGS[language];
   const packageOpen = <PackageOpen strings={t} status={packageStatus} onOpen={openPackage} />;
-  // An app browser, such as WeChat's, often saves no GRKit.zip, so the page asks for a browser.
+  // An app browser, such as WeChat's, often saves no GRKU.zip, so the page asks for a browser.
   const appBrowser = suggestOwnBrowser();
   // Without an app browser, the page tells how to write to the card: on a computer from a phone,
   // or in Chrome or Edge from another computer browser.
@@ -149,11 +149,11 @@ export function App({
   // list, the selection count, the package, and the card leave them out.
   const imported = importsForCamera(allImported, camera.key);
   const cardExtra = extraCardEffects(card?.extra ?? [], imported);
-  // A card with GRKit fixes the camera: an update or a change keeps the camera of the card. One
+  // A card with GRKU fixes the camera: an update or a change keeps the camera of the card. One
   // build runs on two entries, such as GR III and GR IIIx, so the user can still pick between them.
   // Only the card mode uses the card.
   const active = mode === 'card' ? card : null;
-  // Uninstall shows for a card with GRKit, for the files that turned SD scripts off, and for the
+  // Uninstall shows for a card with GRKU, for the files that turned SD scripts off, and for the
   // result of the last uninstall.
   const showUninstall =
     !!active &&
@@ -163,7 +163,7 @@ export function App({
       ? camerasForCard(cardBuilds(active.state), active.state.rootNames)
       : null;
   const lockedCameras = cardCameras && cardCameras.length > 0 ? cardCameras : null;
-  // With a card whose GRKit tells its camera, the card facts show the camera instead of the
+  // With a card whose GRKU tells its camera, the card facts show the camera instead of the
   // camera section.
   const cardCamera =
     active && lockedCameras
@@ -269,7 +269,7 @@ export function App({
   async function downloadScriptsOff() {
     setScriptsOff('building');
     try {
-      save(await buildScriptsOff(camera.id), 'GRKit-scripts-off.zip');
+      save(await buildScriptsOff(camera.id), 'GRKU-scripts-off.zip');
       trackScriptsOff(camera);
       setScriptsOff('idle');
     } catch (error) {
@@ -384,12 +384,12 @@ export function App({
     return added;
   }
 
-  /** Reads a GRKit.zip of an earlier download as the card that it makes, or fails for another file. */
+  /** Reads a GRKU.zip of an earlier download as the card that it makes, or fails for another file. */
   async function readPackage(file: File) {
     const root = await packageCard(file);
     const catalog = await loadCatalog(PREVIEW_TARGET);
     const session = await openSession(root, [...catalog.effects, ...imported]);
-    if (session.state.install !== 'current') throw new Error('The ZIP is not a GRKit package');
+    if (session.state.install !== 'current') throw new Error('The ZIP is not a GRKU package');
     return { root, session, catalog };
   }
 
@@ -405,7 +405,7 @@ export function App({
         !added.some((effect) => effect.id === look.id),
     );
 
-  /** Reads a GRKit.zip of an earlier download and shows what it holds, as a card does. */
+  /** Reads a GRKU.zip of an earlier download and shows what it holds, as a card does. */
   async function openPackage(file: File) {
     setPackageStatus({ state: 'reading' });
     try {
@@ -447,7 +447,7 @@ export function App({
     }
   }
 
-  /** Runs one action of Remove GRKit on the connected card, then reads the card again. */
+  /** Runs one action of Remove GRKU on the connected card, then reads the card again. */
   async function removeAction(
     task: CardTask,
     action: (session: CardSession) => Promise<void>,
@@ -658,14 +658,14 @@ export function App({
         <div className="masthead-top">
           <div className="masthead-title">
             <h1>
-              GRK<span className="dot">i</span>t
+              GRKU<span className="dot">.</span>
             </h1>
             <a className="masthead-version" href={RELEASE_URL}>
               v{__GRKIT_VERSION__}
             </a>
           </div>
           <div className="languages">
-            <nav className="masthead-nav" aria-label="GRKit">
+            <nav className="masthead-nav" aria-label="GRKU">
               <a href="#effects-label">{t.effects}</a>
               <a href="#modules-label">{t.modules}</a>
               <a href="#faq-label">{t.faqTitle}</a>
@@ -760,7 +760,7 @@ export function App({
                           {t.firmware} {item.support.firmware}
                         </span>
                       )}
-                      {/* A badge marks only a camera that GRKit does not support yet. */}
+                      {/* A badge marks only a camera that GRKU does not support yet. */}
                       {!item.support && (
                         <span className="camera-status">
                           <span className="badge">{t.planned}</span>
@@ -1087,11 +1087,11 @@ export function App({
         <div className="footer-meta">
           <p>{t.trademarks}</p>
           <p className="footer-credit">
-            <b>GRKit {t.landing.edition}</b> — {t.landing.fork[0]}
+            <b>GRKU {t.landing.edition}</b> — {t.landing.fork[0]}
             <a href={UPSTREAM}>{t.landing.fork[1]}</a>
             {t.landing.fork[2]}
           </p>
-          <a href={RELEASE_URL}>GRKit {__GRKIT_VERSION__}</a>
+          <a href={RELEASE_URL}>GRKU {__GRKIT_VERSION__}</a>
         </div>
       </footer>
     </div>
@@ -1103,7 +1103,7 @@ export function App({
 const errorName = (error: unknown) => (error as { name?: string } | null)?.name;
 
 /**
- * The lines of a failed card task. `partial` tells that the task wrote GRKit files, so the card may
+ * The lines of a failed card task. `partial` tells that the task wrote GRKU files, so the card may
  * hold a part of them and should not go into the camera yet.
  */
 function cardErrorLines(error: unknown, t: Strings, partial: boolean): string[] {

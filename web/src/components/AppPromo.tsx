@@ -3,7 +3,7 @@ import { isAppleMobileDevice, type DeviceNavigator } from '../card';
 import type { Strings } from '../i18n';
 import { LANDING_HERO } from '../landing';
 
-/** GR Snap on the App Store. GR Snap is an iOS app by the same author as GRKit. */
+/** GR Snap on the App Store. GR Snap is an iOS app by the same author as GRKU. */
 const APP_URL = 'https://apps.apple.com/app/gr-snap-ricoh-gr-wireless/id6768040383';
 const CLOSED_KEY = 'grkit.appPromo';
 

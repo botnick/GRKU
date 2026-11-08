@@ -1,14 +1,14 @@
 import { useRef } from 'react';
 import { sentences, type Strings } from '../i18n';
 
-/** The read of a GRKit.zip of an earlier download. */
+/** The read of a GRKU.zip of an earlier download. */
 export type PackageStatus =
   | { state: 'idle' | 'reading' | 'error' }
   /** `added` imports came back, and `locked` is true when native looks need an unlock again. */
   | { state: 'done'; added: number; locked: boolean };
 
 /**
- * Opens a GRKit.zip of an earlier download, so the page shows what it holds: its camera, its
+ * Opens a GRKU.zip of an earlier download, so the page shows what it holds: its camera, its
  * modules, its film looks, and the imports of the browser that made it.
  */
 export function PackageOpen({

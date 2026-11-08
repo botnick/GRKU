@@ -20,7 +20,13 @@ importers:
       '@fontsource/ibm-plex-sans-condensed':
         specifier: 5.3.0
         version: 5.3.0
-      '@fontsource/noto-sans':
+      '@fontsource/ibm-plex-sans-thai':
+        specifier: 5.2.8
+        version: 5.2.8
+      '@fontsource/inter':
+        specifier: 5.2.8
+        version: 5.2.8
+      '@fontsource/jetbrains-mono':
         specifier: 5.2.8
         version: 5.2.8
       '@fontsource/noto-sans-jp':
@@ -35,12 +41,6 @@ importers:
       '@fontsource/noto-sans-tc':
         specifier: 5.3.1
         version: 5.3.1
-      '@fontsource/noto-sans-thai':
-        specifier: 5.2.8
-        version: 5.2.8
-      '@fontsource/roboto-condensed':
-        specifier: 5.2.8
-        version: 5.2.8
       react:
         specifier: 19.3.1
         version: 19.3.1
@@ -87,8 +87,17 @@ packages:
   '@fontsource/ibm-plex-sans-condensed@5.3.0':
     resolution: {integrity: sha512-fQyBpwbkguP4azjq7Cw8h/J3C/d8MFAzXOiSoFxyKCUK4x0XKrWEh3tGdTxhDM0HctVRQilQo1zGoyxDHLm5jQ==}
 
+  '@fontsource/ibm-plex-sans-thai@5.2.8':
+    resolution: {integrity: sha512-pddJU1HCjtqbXRcyCnbEJ8UV8pQQuUo23Hxjvdwr0DBibtUra66MVsFMDP/Et/Su5P2VeQAgalACZOCEkWaReA==}
+
   '@fontsource/ibm-plex-sans@5.3.0':
     resolution: {integrity: sha512-CbE4CbbEEZJX860XyUiRpsksXIQR8Rp2XDva2VO53NJox9tVNtusrysd2x5YkUEY3ErQ66W1IiiQL8/wihhw5w==}
+
+  '@fontsource/inter@5.2.8':
+    resolution: {integrity: sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg==}
+
+  '@fontsource/jetbrains-mono@5.2.8':
+    resolution: {integrity: sha512-6w8/SG4kqvIMu7xd7wt6x3idn1Qux3p9N62s6G3rfldOUYHpWcc2FKrqf+Vo44jRvqWj2oAtTHrZXEP23oSKwQ==}
 
   '@fontsource/noto-sans-jp@5.3.1':
     resolution: {integrity: sha512-9NNBB/M9PextLYVXGSfIaLZsPnrt5UDw8g2B6T0M775H2yb/oekApSjuS1XKOP7FPcMMEnTavR5rJGDM66qKtA==}
@@ -101,15 +110,6 @@ packages:
 
   '@fontsource/noto-sans-tc@5.3.1':
     resolution: {integrity: sha512-kiOTKRnkEV4dsMqfmIuH3TnkYp5Rqq2f4LgAArx0Y5eVzCebU2TgWup5TWCWWSk28nBf4mgunLTyQP+xQ74gcQ==}
-
-  '@fontsource/noto-sans-thai@5.2.8':
-    resolution: {integrity: sha512-HUQAxOzclod9PXQx4uMoGRAsor+64snW91QuBg39jT9lbsp7jJx1i3jAtHPJ7mQxHEHnhRjNp54fb8GqPPC6zg==}
-
-  '@fontsource/noto-sans@5.2.8':
-    resolution: {integrity: sha512-Gqsp0q7sL4G+KL7PRFy4eteeJad9Q3Ef8qlBVabT406e57vdbDH7fAQeiVn0ILGMQ/UDyj6j/SVK+VYzVzxE9w==}
-
-  '@fontsource/roboto-condensed@5.2.8':
-    resolution: {integrity: sha512-M2OxXXGJQeif+LhxHjWiCEX3BHIYeZf64CcUTeh9AQFGp7DXo2UAXZiZUUOalVdOiuUtQSIi2CDHLDWFiyoECQ==}
 
   '@jridgewell/resolve-uri@3.1.2':
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
@@ -685,7 +685,13 @@ snapshots:
 
   '@fontsource/ibm-plex-sans-condensed@5.3.0': {}
 
+  '@fontsource/ibm-plex-sans-thai@5.2.8': {}
+
   '@fontsource/ibm-plex-sans@5.3.0': {}
+
+  '@fontsource/inter@5.2.8': {}
+
+  '@fontsource/jetbrains-mono@5.2.8': {}
 
   '@fontsource/noto-sans-jp@5.3.1': {}
 
@@ -694,12 +700,6 @@ snapshots:
   '@fontsource/noto-sans-sc@5.3.1': {}
 
   '@fontsource/noto-sans-tc@5.3.1': {}
-
-  '@fontsource/noto-sans-thai@5.2.8': {}
-
-  '@fontsource/noto-sans@5.2.8': {}
-
-  '@fontsource/roboto-condensed@5.2.8': {}
 
   '@jridgewell/resolve-uri@3.1.2': {}
 

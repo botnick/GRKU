@@ -52,7 +52,7 @@ fn starter_definitions_match_existing_golden_bytes() {
 fn host_artwork_matches_golden_pixels_and_preserves_binary_transparency() {
     assert_eq!(
         hex::encode(Sha256::digest(artwork::grkit_pixels())),
-        "73d9eb1b08ee8b43964ec17713109f4cff9b7c9559c9e052c6b7f00093c778aa"
+        "6e35368e58af455f2e2e5ce79e8a3aa96183cf8c1fc2ad807521835a7a475d01"
     );
     assert_eq!(
         hex::encode(Sha256::digest(artwork::version_pixels())),

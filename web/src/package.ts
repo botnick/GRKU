@@ -1,3 +1,5 @@
+import { guideLanguage } from './links';
+import type { Language } from './i18n';
 import type { CardFile } from './card';
 import { effectUrl, siteUrl, type Effect, type PackageEffect } from './catalog';
 import { effectFilename } from './import/names';
@@ -55,7 +57,7 @@ export function loadWasm(): Promise<Wasm> {
 }
 
 const buildUrl = (target: string) => siteUrl(`runtime/${target}/build.json`);
-const guideUrl = (camera: string, language: string) => siteUrl(`guides/${camera}/${language}.pdf`);
+const guideUrl = (camera: string, language: string) => siteUrl(`guides/${camera}/${guideLanguage(language as Language)}.pdf`);
 const runtimeUrl = (target: string, path: string) => siteUrl(`runtime/${target}/sd/${path}`);
 /** The site file of an official module. The release publishes each one once, for every camera. */
 const moduleUrl = (id: string) => siteUrl(`modules/${id}.GRM`);
@@ -208,7 +210,7 @@ async function assemble<T>(
   }
 }
 
-/** Builds GRKit.zip in the browser. See `assemble` for the arguments. */
+/** Builds GRKU.zip in the browser. See `assemble` for the arguments. */
 export function buildPackage(
   targets: readonly string[],
   camera: string,
@@ -226,7 +228,7 @@ export function buildPackage(
 
 /**
  * The files that the same package puts on the card, at their paths from the card root: the
- * `SD_ROOT` of the verified GRKit.zip. See `assemble` for the arguments.
+ * `SD_ROOT` of the verified GRKU.zip. See `assemble` for the arguments.
  */
 export function buildCardFiles(
   targets: readonly string[],
@@ -288,8 +290,8 @@ export async function buildScriptsOff(camera: string): Promise<Blob> {
 }
 
 /**
- * The file name of a downloaded package: the GRKit version, the camera, and the local time of the
- * download, such as `GRKit-1.4.2-GR-III-20261105-1830.zip`, so the user can tell downloads apart.
+ * The file name of a downloaded package: the GRKU version, the camera, and the local time of the
+ * download, such as `GRKU-1.4.2-GR-III-20261105-1830.zip`, so the user can tell downloads apart.
  * `camera` is the name of a camera entry: its first model, such as `GR III` of
  * `GR III / GR III HDF`, names the file.
  */
@@ -297,7 +299,7 @@ export function packageFilename(version: string, camera: string, time: Date): st
   const two = (value: number) => String(value).padStart(2, '0');
   const date = `${time.getFullYear()}${two(time.getMonth() + 1)}${two(time.getDate())}`;
   const model = (camera.split(' / ')[0] ?? camera).trim().replace(/\s+/g, '-');
-  return `GRKit-${version}-${model}-${date}-${two(time.getHours())}${two(time.getMinutes())}.zip`;
+  return `GRKU-${version}-${model}-${date}-${two(time.getHours())}${two(time.getMinutes())}.zip`;
 }
 
 /** Starts the download of a blob as a file. */
