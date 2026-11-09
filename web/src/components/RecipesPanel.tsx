@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Copy, ExternalLink, Plus, Trash2 } from 'lucide-react';
-import { recipeChips, recipeSwatch } from '../recipeSwatch';
+import { RecipePhoto } from './RecipePhoto';
+import { RecipeSheet, lookName as sheetLookName, recipeChips } from './RecipeSheet';
+import { SAMPLES } from '../preview/samples';
 import { RecipeEditor } from './RecipeEditor';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
@@ -13,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { siteUrl } from '../catalog';
-import { CORRECTION_VALUES, LEVEL_KEYS, PRESETS, TYPE_NAMES, WHITE_BALANCE_MODES } from '../generated/recipes';
+import { PRESETS } from '../generated/recipes';
 import type { Language, Strings } from '../i18n';
 import { LANDING_PHOTOS } from '../landing-data';
 import { RECIPE_STRINGS, type RecipeStrings } from '../recipeStrings';
@@ -83,73 +85,7 @@ const PRESET_PICTURES: Readonly<Record<string, { recipe: string; original: strin
 /** The count of recipes that are on shows from this many below `ON_MAX`. */
 const COUNT_NEAR = 5;
 
-/** The name of the look of a recipe: its effect, its native type, Film Look Off, or the camera's. */
-function lookName(recipe: Recipe, r: RecipeStrings, language: Language, effects: RecipesPanelProps['effectNames']): string {
-  const look = recipe.look;
-  if (look.kind === 'effect') return effects.get(look.code) ?? r.lookEffect;
-  if (look.kind === 'native') return TYPE_NAMES[language]?.[look.imageType] ?? r.lookNative;
-  return look.kind === 'off' ? r.lookOff : r.lookKept;
-}
 
-/** A level as the camera shows it: stored 0 to 8 is -4 to +4. */
-const level = (stored: number) => (stored === 4 ? '0' : stored > 4 ? `+${stored - 4}` : `${stored - 4}`);
-
-/** A white balance shift as the camera shows it, such as A14 or G2, or nothing for none. */
-const shift = (stored: number, minus: string, plus: string) =>
-  stored === 14 ? '' : stored < 14 ? `${minus}${14 - stored}` : `${plus}${stored - 14}`;
-
-/** An exposure compensation in thirds of a stop, such as +1 1/3 EV. */
-function compensation(thirds: number): string {
-  const sign = thirds > 0 ? '+' : thirds < 0 ? '-' : '±';
-  const whole = Math.floor(Math.abs(thirds) / 3);
-  const rest = Math.abs(thirds) % 3;
-  const value = [whole || (rest ? '' : '0'), rest ? `${rest}/3` : ''].filter(Boolean).join(' ');
-  return `${sign}${value} EV`;
-}
-
-const ND_INDEX = { off: 0, on: 1, auto: 2 } as const;
-const METERING_INDEX = { multi: 0, center: 1, spot: 2, highlight: 3 } as const;
-
-/**
- * The settings that a recipe holds, as a name and a value each, in the order of the camera
- * menus: the look and the levels of a native look that are not 0, Grain, Glow, the white balance
- * with its shifts, each correction, and the exposure settings.
- */
-function details(recipe: Recipe, r: RecipeStrings, language: Language, effects: RecipesPanelProps['effectNames']): [string, string][] {
-  const rows: [string, string][] = [[r.look, lookName(recipe, r, language, effects)]];
-  const look = recipe.look;
-  if (look.kind === 'native') {
-    look.levels.forEach((stored, index) => {
-      const key = LEVEL_KEYS[index];
-      if (key && stored !== 4) rows.push([r.levels[key] ?? key, level(stored)]);
-    });
-  }
-  if (recipe.grain) rows.push([r.grain, r.grainLevels[recipe.grain.level] ?? '']);
-  const glow = recipe.glow;
-  if (glow?.bloom) rows.push([r.bloom, r.glowLevels[glow.bloom] ?? '']);
-  if (glow?.halation) {
-    const color = glow.halationColor === null ? '' : ` ${r.halationColors[glow.halationColor] ?? ''}`;
-    rows.push([r.halation, `${r.glowLevels[glow.halation] ?? ''}${color}`]);
-  }
-  const balance = recipe.whiteBalance;
-  if (balance) {
-    const label = WHITE_BALANCE_MODES[balance.mode]?.[recipe.family === 'gr3' ? 0 : 1] ?? '';
-    const shifts = [shift(balance.shiftBa, 'B', 'A'), shift(balance.shiftGm, 'G', 'M')].filter(Boolean).join(' ');
-    const kelvin = label === 'ColorTemp1' ? `${balance.kelvin} K` : '';
-    rows.push([r.whiteBalance, [r.modes[label] ?? label, kelvin, shifts].filter(Boolean).join(' · ')]);
-  }
-  recipe.corrections.forEach((stored, index) => {
-    if (stored === null) return;
-    const value = CORRECTION_VALUES[index]?.[stored] ?? '';
-    rows.push([r.correctionNames[index] ?? '', r.values[value] ?? value]);
-  });
-  const exposure = recipe.exposure;
-  if (exposure.compensation !== null) rows.push([r.compensation, compensation(exposure.compensation)]);
-  if (exposure.isoLimit !== null) rows.push([r.isoLimit, `ISO ${exposure.isoLimit}`]);
-  if (exposure.metering !== null) rows.push([r.metering, r.meterings[METERING_INDEX[exposure.metering]] ?? '']);
-  if (exposure.nd !== null) rows.push([r.nd, r.nds[ND_INDEX[exposure.nd]] ?? '']);
-  return rows;
-}
 
 
 /** The value of the option that keeps the camera's value of a user mode. */
@@ -183,6 +119,8 @@ export function RecipesPanel({
   const presets = presetRows(PRESETS, family, library);
   const [shown, setShown] = useState<Recipe | null>(null);
   const [editing, setEditing] = useState(false);
+  /** The sample photo that the example pictures use. */
+  const [sample, setSample] = useState(SAMPLES[0]!);
   /** The recipe that the editor starts from, or null for a new one. */
   const [draft, setDraft] = useState<Recipe | null>(null);
   // Only the recipes that are on apply on the camera.
@@ -191,7 +129,7 @@ export function RecipesPanel({
     { grain: grainModule, glow: glowModule },
     packageEffects,
   );
-  const nameOf = (recipe: Recipe) => recipe.name || automaticName(lookName(recipe, r, language, effectNames), recipe.number);
+  const nameOf = (recipe: Recipe) => recipe.name || automaticName(sheetLookName(recipe, r, language, effectNames), recipe.number);
   /** Turns a recipe on or off. It moves to the end of the recipes that are on, or to the start of the others. */
   function toggle(index: number) {
     onChange(cameraOrder(library.map((recipe, other) => (other === index ? { ...recipe, enabled: !recipe.enabled } : recipe))));
@@ -235,6 +173,24 @@ export function RecipesPanel({
           <li key={text}>{text}</li>
         ))}
       </ul>
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="text-sm text-muted-foreground">{t.samplePhotos}</span>
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t.samplePhotos}>
+          {SAMPLES.map((item) => (
+            <button
+              key={item.source.key}
+              type="button"
+              className={cn('relative aspect-[3/2] w-14 shrink-0 overflow-hidden rounded-md ring-1 ring-black/20 transition-opacity hover:opacity-100', sample === item ? 'opacity-100 ring-2 ring-brand' : 'opacity-60')}
+              aria-label={`${item.credit.title} · ${item.credit.camera}`}
+              aria-pressed={sample === item}
+              onClick={() => setSample(item)}
+            >
+              <img src={item.thumbnail} alt="" width="360" height="240" loading="lazy" className="size-full object-cover" />
+            </button>
+          ))}
+        </div>
+        <span className="text-xs text-muted-foreground">{t.previewNote}</span>
+      </div>
       {library.length + presets.length === 0 ? (
         <p className="text-sm text-muted-foreground">{r.empty}</p>
       ) : (
@@ -248,8 +204,9 @@ export function RecipesPanel({
                 key={inLibrary ? `${index}-${recipe.name}` : `preset-${preset?.id}`}
                 className={cn('flex gap-3 rounded-xl border bg-card p-3 transition-colors', inLibrary && !recipe.enabled && 'opacity-70')}
               >
-                {/* The mood of the recipe: a gradient from its look, saturation, key and white balance, not a rendering. */}
-                <button type="button" className="relative size-16 shrink-0 overflow-hidden rounded-lg ring-1 ring-black/20 ring-inset" style={{ background: recipeSwatch(recipe) }} aria-label={name} onClick={() => setShown(recipe)} />
+                <button type="button" className="w-28 shrink-0 self-start overflow-hidden rounded-lg ring-1 ring-black/20" aria-label={name} onClick={() => setShown(recipe)}>
+                  <RecipePhoto recipe={recipe} src={sample.thumbnail} />
+                </button>
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <div className="flex items-start justify-between gap-2">
                     <button type="button" className="min-w-0 text-left transition-colors hover:text-brand" onClick={() => setShown(recipe)}>
@@ -333,6 +290,7 @@ export function RecipesPanel({
         language={language}
         family={family}
         effectNames={effectNames}
+        sample={sample.thumbnail}
         open={editing}
         initial={draft}
         onClose={() => setEditing(false)}
@@ -349,6 +307,7 @@ export function RecipesPanel({
               name={nameOf(shown)}
               preset={presetOf(PRESETS, shown)}
               effectNames={effectNames}
+              sample={sample}
             />
           )}
         </DialogContent>
@@ -366,6 +325,7 @@ function RecipeDetails({
   name,
   preset,
   effectNames,
+  sample,
 }: {
   t: Strings;
   r: RecipeStrings;
@@ -374,6 +334,7 @@ function RecipeDetails({
   name: string;
   preset: Preset | undefined;
   effectNames: RecipesPanelProps['effectNames'];
+  sample: (typeof SAMPLES)[number];
 }) {
   const comparison = useReactCompareSlider({ clip: 'itemTwo' });
   const picture = preset ? PRESET_PICTURES[preset.id] : undefined;
@@ -423,14 +384,15 @@ function RecipeDetails({
           </a>
         </p>
       )}
-      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
-        {details(recipe, r, language, effectNames).map(([label, value]) => (
-          <div key={label} className="contents">
-            <dt className="text-muted-foreground">{label}</dt>
-            <dd className="m-0 font-medium">{value}</dd>
+      {!(picture && photo) && (
+        <figure className="m-0">
+          <div className="overflow-hidden rounded-lg">
+            <RecipePhoto recipe={recipe} src={sample.thumbnail} />
           </div>
-        ))}
-      </dl>
+          <figcaption className="mt-2 text-xs text-muted-foreground">{t.previewNote}</figcaption>
+        </figure>
+      )}
+      <RecipeSheet recipe={recipe} r={r} language={language} effectNames={effectNames} />
     </>
   );
 }

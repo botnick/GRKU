@@ -792,6 +792,20 @@ const th: RecipeStrings = {
   wizNoColor: 'โทนสีนี้ไม่มีการปรับค่าสี',
 };
 
+/**
+ * The strings of a language with the camera's own terms (setting values, white balance modes, metering
+ * and ND names) in English when the camera has no menu in that language, such as Thai: Thai users read
+ * the English camera menu, and the recipe sites write the English names.
+ */
+export function cameraTerms(r: RecipeStrings, language: Language): RecipeStrings {
+  if (language !== 'th') return r;
+  // GRKU's own menu on the camera is English too: Grain, Bloom, Halation and their levels.
+  return {
+    ...r, values: en.values, modes: en.modes, levels: en.levels, parameters: en.parameters, correctionNames: en.correctionNames, meterings: en.meterings, nds: en.nds,
+    grain: en.grain, grainLevels: en.grainLevels, grainSizes: en.grainSizes, bloom: en.bloom, halation: en.halation, glowLevels: en.glowLevels, halationColors: en.halationColors,
+  };
+}
+
 export const RECIPE_STRINGS: Readonly<Record<Language, RecipeStrings>> = {
   en,
   'zh-Hans': zhHans,

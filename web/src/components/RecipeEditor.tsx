@@ -1,3 +1,4 @@
+import { Brush, Film, Thermometer } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +24,9 @@ import {
 } from '../generated/recipes';
 import type { Language, Strings } from '../i18n';
 import type { RecipeStrings } from '../recipeStrings';
-import { recipeChips, recipeSwatch } from '../recipeSwatch';
+import { cameraTerms } from '../recipeStrings';
+import { RecipePhoto } from './RecipePhoto';
+import { CORRECTION_NAMES, LEVELS, PARAMETER_NAMES, RecipeSheet, WB_NAMES, recipeChips } from './RecipeSheet';
 import { encodeLibrary, type Family, type Metering, type Nd, type Recipe } from '../recipes';
 
 /** The value of the option that leaves a setting to the camera. */
@@ -143,10 +146,11 @@ function draftOf(recipe: Recipe, column: 0 | 1): Draft {
  */
 export function RecipeEditor({
   strings: t,
-  r,
+  r: strings,
   language,
   family,
   effectNames,
+  sample,
   open,
   initial = null,
   onClose,
@@ -158,12 +162,16 @@ export function RecipeEditor({
   family: Family;
   /** The names of the effects of the catalog and of the imports, by their recipe code. */
   effectNames: ReadonlyMap<number, string>;
+  /** The sample photo of the example pictures. */
+  sample: string;
   open: boolean;
   /** A recipe to start from, or null for an empty form. */
   initial?: Recipe | null;
   onClose: () => void;
   onAdd: (recipe: Recipe) => void;
 }) {
+  // The camera's own terms: English in a language the camera has no menu in.
+  const r = cameraTerms(strings, language);
   const monochrome = family === 'gr4Monochrome';
   const column: 0 | 1 = family === 'gr3' ? 0 : 1;
   const [step, setStep] = useState(1);
@@ -294,10 +302,10 @@ export function RecipeEditor({
   );
   const levelItems = (labels: readonly string[]) => labels.map((label, index) => ({ value: String(index), label }));
   /** A slider with the camera's steps and its value shown as the camera shows it. */
-  const Slider = ({ id, label, value, min, max, onChange, text, disabled = false, ends }: { id: string; label: string; value: number; min: number; max: number; onChange: (next: number) => void; text: string; disabled?: boolean; ends?: [string, string] }) => (
+  const Slider = ({ id, label, icon: Icon, value, min, max, onChange, text, disabled = false, ends }: { id: string; label: string; icon?: typeof Brush; value: number; min: number; max: number; onChange: (next: number) => void; text: string; disabled?: boolean; ends?: [string, string] }) => (
     <div className={cn('flex flex-col gap-1.5', disabled && 'opacity-50')}>
       <div className="flex items-center justify-between text-sm">
-        <label htmlFor={id} className="font-medium">{label}</label>
+        <label htmlFor={id} className="flex items-center gap-1.5 font-medium">{Icon && <Icon className="size-4 text-muted-foreground" aria-hidden="true" />}{label}</label>
         <span className="font-mono text-muted-foreground">{text}</span>
       </div>
       <input id={id} type="range" min={min} max={max} step={1} value={value} disabled={disabled} onChange={(event) => onChange(Number(event.target.value))} className="h-2 w-full cursor-pointer accent-brand" />
@@ -344,8 +352,8 @@ export function RecipeEditor({
 
         {step === 2 && (
           <div className="flex flex-col gap-5">
-            <div className="flex items-center gap-3 rounded-xl border bg-card p-3">
-              <span className="size-14 shrink-0 rounded-lg ring-1 ring-black/20 ring-inset" style={{ background: recipeSwatch(preview) }} aria-hidden="true" />
+            <div className="flex items-start gap-3 rounded-xl border bg-card p-3">
+              <span className="w-28 shrink-0 self-start overflow-hidden rounded-lg ring-1 ring-black/20"><RecipePhoto recipe={preview} src={sample} /></span>
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 {start === 'preset' && (
                   <Pick id="recipe-preset" unset={false} value={presetChoices.findIndex(({ recipe: item }) => JSON.stringify({ ...draftOf(item, column), name: '' }) === JSON.stringify({ ...draft, name: '' })) >= 0 ? String(presetChoices.findIndex(({ recipe: item }) => JSON.stringify({ ...draftOf(item, column), name: '' }) === JSON.stringify({ ...draft, name: '' }))) : 'custom'} onChange={(next) => { const chosen = presetChoices[Number(next)]; if (chosen) setDraft({ ...draftOf(chosen.recipe, column), name: '' }); }} items={presetChoices.map(({ recipe: item }, index) => ({ value: String(index), label: item.name }))} />
@@ -366,15 +374,15 @@ export function RecipeEditor({
             <div className="grid gap-5 sm:grid-cols-2">
               {draft.lookKind === 'native' ? (
                 <>
-                  <Slider id="s-color" label={r.wizColor} value={levelOf('Saturation')} min={-4} max={4} disabled={!hasParameter('Saturation')} onChange={(v) => setLevel('Saturation', v)} text={hasParameter('Saturation') ? signed(levelOf('Saturation')) : r.wizNoColor} />
-                  <Slider id="s-contrast" label={r.wizContrast} value={levelOf('Contrast')} min={-4} max={4} disabled={!hasParameter('Contrast')} onChange={(v) => setLevel('Contrast', v)} text={signed(levelOf('Contrast'))} />
-                  <Slider id="s-key" label={r.wizBrightness} value={levelOf('ImageKey')} min={-4} max={4} disabled={!hasParameter('ImageKey')} onChange={(v) => setLevel('ImageKey', v)} text={signed(levelOf('ImageKey'))} />
+                  <Slider id="s-color" label={LEVELS[0]!.name} icon={LEVELS[0]!.icon} value={levelOf('Saturation')} min={-4} max={4} disabled={!hasParameter('Saturation')} onChange={(v) => setLevel('Saturation', v)} text={hasParameter('Saturation') ? signed(levelOf('Saturation')) : r.wizNoColor} />
+                  <Slider id="s-contrast" label={LEVELS[3]!.name} icon={LEVELS[3]!.icon} value={levelOf('Contrast')} min={-4} max={4} disabled={!hasParameter('Contrast')} onChange={(v) => setLevel('Contrast', v)} text={signed(levelOf('Contrast'))} />
+                  <Slider id="s-key" label={LEVELS[2]!.name} icon={LEVELS[2]!.icon} value={levelOf('ImageKey')} min={-4} max={4} disabled={!hasParameter('ImageKey')} onChange={(v) => setLevel('ImageKey', v)} text={signed(levelOf('ImageKey'))} />
                 </>
               ) : (
                 <p className="text-sm text-muted-foreground sm:col-span-2">{draft.lookKind === 'effect' ? r.wizStartEffectText : r.wizStartKeptText}</p>
               )}
-              <Slider id="s-grain" label={r.grain} value={draft.grain === UNSET ? 0 : Number(draft.grain)} min={0} max={4} onChange={(v) => set('grain', v === 0 ? UNSET : String(v))} text={r.grainLevels[draft.grain === UNSET ? 0 : Number(draft.grain)] ?? ''} />
-              <Slider id="s-warmth" label={r.wizWarmth} value={warmth} min={-7} max={7} disabled={!colorControls || monochrome} onChange={setWarmth} text={shiftText(warmth + MIDDLE, 'B', 'A')} ends={[r.wizCool, r.wizWarm]} />
+              <Slider id="s-grain" label={r.grain} icon={Film} value={draft.grain === UNSET ? 0 : Number(draft.grain)} min={0} max={4} onChange={(v) => set('grain', v === 0 ? UNSET : String(v))} text={r.grainLevels[draft.grain === UNSET ? 0 : Number(draft.grain)] ?? ''} />
+              <Slider id="s-warmth" label="WB Compensation" icon={Thermometer} value={warmth} min={-7} max={7} disabled={!colorControls || monochrome} onChange={setWarmth} text={shiftText(warmth + MIDDLE, 'B', 'A')} ends={[`B ${r.wizCool}`, `A ${r.wizWarm}`]} />
             </div>
 
             <Accordion type="single" collapsible>
@@ -390,7 +398,7 @@ export function RecipeEditor({
                       <>
                         <Row label={r.editNative}><Pick id="recipe-type-2" unset={false} value={draft.imageType} onChange={(next) => setDraft((d) => ({ ...d, imageType: next, parameters: {} }))} items={typeChoices.map(({ label, index }) => ({ value: String(index), label }))} /></Row>
                         {typeParameters.map((p) => (
-                          <Row key={p.key} label={r.levels[p.key] ?? r.parameters[p.key] ?? p.key} indent>
+                          <Row key={p.key} label={LEVELS.find((level) => level.key === p.key)?.name ?? PARAMETER_NAMES[p.key] ?? p.key} indent>
                             <Pick id={`recipe-${p.key}`} unset={false} value={String(parameterValue(p.key, p.first, p.labels))} onChange={(next) => set('parameters', { ...draft.parameters, [p.key]: Number(next) })} items={p.labels.map((label, i) => ({ value: String(p.first + i), label: labelText(label, r) }))} />
                           </Row>
                         ))}
@@ -398,7 +406,7 @@ export function RecipeEditor({
                     )}
                   </Group>
                   <Group title={r.whiteBalance}>
-                    <Row label={r.whiteBalance}><Pick id="recipe-wb" value={draft.balance} onChange={(next) => set('balance', next)} items={modeChoices.map(({ label, index }) => ({ value: String(index), label: r.modes[label] ?? label }))} /></Row>
+                    <Row label={r.whiteBalance}><Pick id="recipe-wb" value={draft.balance} onChange={(next) => set('balance', next)} items={modeChoices.map(({ label, index }) => ({ value: String(index), label: WB_NAMES[label] ?? label }))} /></Row>
                     {draft.balance !== UNSET && (
                       <>
                         {modeLabel === 'ColorTemp1' && (
@@ -420,7 +428,7 @@ export function RecipeEditor({
                   </Group>
                   <Group title={r.corrections}>
                     {CORRECTION_VALUES.map((values, index) => (
-                      <Row key={index} label={r.correctionNames[index] ?? ''}>
+                      <Row key={index} label={CORRECTION_NAMES[index] ?? ''}>
                         <Pick id={`recipe-correction-${index}`} value={draft.corrections[index] ?? UNSET} onChange={(next) => set('corrections', draft.corrections.map((value, other) => (other === index ? next : value)))} items={values.map((value, stored) => ({ value: String(stored), label: r.values[value] ?? value }))} />
                       </Row>
                     ))}
@@ -439,8 +447,8 @@ export function RecipeEditor({
 
         {step === 3 && (
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3 rounded-xl border bg-card p-3">
-              <span className="size-14 shrink-0 rounded-lg ring-1 ring-black/20 ring-inset" style={{ background: recipeSwatch(preview) }} aria-hidden="true" />
+            <div className="flex items-start gap-3 rounded-xl border bg-card p-3">
+              <span className="w-28 shrink-0 self-start overflow-hidden rounded-lg ring-1 ring-black/20"><RecipePhoto recipe={preview} src={sample} /></span>
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <label htmlFor="recipe-name" className="text-sm font-medium">{r.editName}</label>
                 <Input id="recipe-name" value={draft.name} maxLength={16} placeholder={r.editNamePlaceholder} onChange={(event) => set('name', event.target.value)} autoFocus />
@@ -448,11 +456,7 @@ export function RecipeEditor({
             </div>
             <div>
               <h4 className="mb-2 text-sm font-medium text-muted-foreground">{r.wizSummary}</h4>
-              <div className="flex flex-wrap gap-1">
-                {recipeChips(preview, r, language, effectNames).map((chip) => (
-                  <Badge key={chip} variant="secondary" className="rounded-md px-1.5 py-0 font-mono text-[11px] font-medium text-muted-foreground">{chip}</Badge>
-                ))}
-              </div>
+              <RecipeSheet recipe={preview} r={r} language={language} effectNames={effectNames} compact />
             </div>
           </div>
         )}
