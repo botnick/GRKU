@@ -20,6 +20,10 @@ PROMPTPAY_ID = "004999119724275"
 RECEIVER_NAME = "ธนวัฒน์"
 # The receiver's name as the page shows it next to the QR.
 RECEIVER_DISPLAY = "นาย ธนวัฒน์ ช่างไม้"
+# TrueMoney gift links (อั่งเปา) on the page: "on" or "off". The redeem endpoint of TrueMoney answered
+# this Worker with a 403 bot-protection page on 2026-11-10 (/angpao/probe shows the current answer),
+# so the links stay off until it does not.
+TRUEMONEY_LINKS = "off"
 # slipok | easyslip | mock. `mock` accepts any slip for the amount of the order (development only).
 SLIP_PROVIDER = "easyslip"
 SLIPOK_BRANCH = ""

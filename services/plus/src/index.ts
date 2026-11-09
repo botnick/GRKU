@@ -19,6 +19,8 @@ export interface Env {
   RECEIVER_DISPLAY: string;
   /** The TrueMoney Wallet phone that receives gift links (อั่งเปา); a secret. Unset: no TrueMoney. */
   TRUEMONEY_PHONE?: string;
+  /** "on" offers gift links on the page. Off while TrueMoney's edge answers this Worker with a 403 page. */
+  TRUEMONEY_LINKS: string;
   /** The Turnstile secret: with it, an order needs a Turnstile token from the page. */
   TURNSTILE_SECRET?: string;
   SLIP_PROVIDER: 'slipok' | 'easyslip' | 'mock';
@@ -145,7 +147,7 @@ async function order(request: Request, env: Env): Promise<Response> {
   await env.DB.prepare('INSERT INTO orders (id, owner, tier, amount, status, created) VALUES (?, ?, ?, ?, ?, ?)')
     .bind(id, owner, tier, amount, 'open', now)
     .run();
-  return json({ order: id, tier, amount, promptpay: promptPayPayload(env.PROMPTPAY_ID, amount), expires: now + ORDER_TTL, receiver: receiverOf(env), angpao: !!env.TRUEMONEY_PHONE });
+  return json({ order: id, tier, amount, promptpay: promptPayPayload(env.PROMPTPAY_ID, amount), expires: now + ORDER_TTL, receiver: receiverOf(env), angpao: !!env.TRUEMONEY_PHONE && env.TRUEMONEY_LINKS === 'on' });
 }
 
 /** Whether a Turnstile token from the page stands: Cloudflare's siteverify with our secret. */
