@@ -64,14 +64,14 @@ A later interface has another version in word 1. A script that does not know the
 
 ## How GRKit uses it
 
-A GRKit package has two files for each release of its camera: the fast-boot file `SCRIPT/GRKIT/F<project><version>.BIN` and its install file `SCRIPT/GRKIT/I<project><version>.BIN`. The same package works on the official firmware.
+A GRKit package has two files for each release of its camera: the fast-boot file `SCRIPT/GRKU/F<project><version>.BIN` and its install file `SCRIPT/GRKU/I<project><version>.BIN`. The same package works on the official firmware.
 
 1. The loader script probes the firmware.
 2. On the fast-boot firmware, it reads the first 1 KB of the fast-boot file of the release and calls it. That head loads the whole file to the top of the RTOS code region and runs SCAN. SCAN writes the whole plan to the card.
 3. The loader allocates the arrays of the plan and calls the install file. The install file is the same head with another entry vector: it loads the fast-boot file again and runs INSTALL, which reads the plan from the card. So INSTALL uses no memory that SCAN left.
 4. If SCAN writes no plan, or INSTALL fails, the loader runs SCAN and INSTALL on Linux, as on the official firmware. After a failed INSTALL, the new plan must have the sizes of the arrays that the loader already allocated. A failed rollback (status 24) stops the loader instead.
 
-When a start does not use the fast-boot files, or stops using them, the loader adds one line to `GRKIT/BOOT.TXT`. A start that installs through them adds no line.
+When a start does not use the fast-boot files, or stops using them, the loader adds one line to `GRKU/BOOT.TXT`. A start that installs through them adds no line.
 
 | Line | Meaning |
 |---|---|

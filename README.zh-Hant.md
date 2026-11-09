@@ -32,7 +32,7 @@ GRKU 為 RICOH GR III、GR IIIx 與 GR IV 加上底片風格、XPan 等裁切比
 - **柔焦**：Black Pro-Mist 柔焦濾鏡的光暈效果，強度有 1/8、1/4 或 1/2。Black Mist 在陰影上加上濾鏡的薄紗感，Streak 則讓點光源產生變形鏡頭般的藍色或琥珀色水平光條。僅適用於 JPEG 照片。
 - **粒紋感**：四段強度與四種粒紋大小（自動、小、中、大）。
 - **邊框**：在照片上加上白色或黑色的沖印邊框，寬度為照片寬度的 3% 或 6%。
-- **英呎**：在記憶卡中放入 `GRKIT/FEET.TXT` 檔案後，Snap 對焦距離設定會以 1'、3'、5'、7'、8' 與 16' 顯示，取代公尺。
+- **英呎**：在記憶卡中放入 `GRKU/FEET.TXT` 檔案後，Snap 對焦距離設定會以 1'、3'、5'、7'、8' 與 16' 顯示，取代公尺。
 
 開機後 GRKU 需要約 9 秒載入，安裝或更新後的第一次開機會更久。在這之前相機使用原本的設定。完整設定在 MENU 自訂頁最後的 GRKU 小節。想自己寫模組，請見 [Writing a module](docs/modules.md)。
 
@@ -62,9 +62,9 @@ GRKU 沒有快速啟動韌體，未來也不會有：相機本身的韌體維持
 
 也可以從這個儲存庫建置安裝包（見下文），再用讀卡機以 `python3 -I scripts/card.py write dist/GRKU-gr4.zip` 寫入記憶卡；同一個腳本可以開關 feet 標籤（`feet on`、`feet off`），並顯示記憶卡的狀態（`status`）。
 
-只有第一次需要按住 MENU 開機。用 ZIP 更新時，替換卡中的 `SCRIPT` 資料夾即可，設定會保留在 `GRKIT` 裡。格式化記憶卡會刪除 GRKU，格式化前請先把 `GRKIT` 複製到電腦。
+只有第一次需要按住 MENU 開機。用 ZIP 更新時，替換卡中的 `SCRIPT` 資料夾即可，設定會保留在 `GRKU` 裡。格式化記憶卡會刪除 GRKU，格式化前請先把 `GRKU` 複製到電腦。
 
-GRKU 沒有出現時，請在 [issue](https://github.com/botnick/GRKit/issues/new) 中附上 `GRKIT/REPORT.TXT`、`GRKIT/BOOT.TXT` 和 `SCRIPT/GRKIT/INSTALL.ERR`（如果有）。[這些檔案每一行的意義](docs/diagnostics.md)。
+GRKU 沒有出現時，請在 [issue](https://github.com/botnick/GRKit/issues/new) 中附上 `GRKU/REPORT.TXT`、`GRKU/BOOT.TXT` 和 `SCRIPT/GRKU/INSTALL.ERR`（如果有）。[這些檔案每一行的意義](docs/diagnostics.md)。
 
 ## 從原始碼建置
 

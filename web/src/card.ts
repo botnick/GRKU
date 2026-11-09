@@ -2,8 +2,8 @@
  * Reads and writes GRKit on an SD card through the File System Access API.
  *
  * The card layout is the one of `docs/architecture.md` (Card layout): the package in
- * `SCRIPT/GRKIT`, the data folder `GRKIT` at the card root. The page writes a package as a merge
- * copy of its `SD_ROOT` does, so the card keeps `GRKIT` and the `SCRIPT/PLUGINS` folder of
+ * `SCRIPT/GRKU`, the data folder `GRKU` at the card root. The page writes a package as a merge
+ * copy of its `SD_ROOT` does, so the card keeps `GRKU` and the `SCRIPT/PLUGINS` folder of
  * GRKit 1.2, which the first power-on of 1.3 migrates.
  *
  * Chrome on macOS writes a `._` file next to each file and folder that it writes on a FAT or
@@ -35,8 +35,8 @@ export interface CardFile {
   bytes: Uint8Array;
 }
 
-export const PACKAGE_LIST = 'SCRIPT/GRKIT/PACKAGE.TXT';
-const LOADER = 'SCRIPT/GRKIT/LOADER.TTL';
+export const PACKAGE_LIST = 'SCRIPT/GRKU/PACKAGE.TXT';
+const LOADER = 'SCRIPT/GRKU/LOADER.TTL';
 const STARTUP = 'SCRIPT/STARTUP.TTL';
 const LEGACY = 'SCRIPT/PLUGINS';
 export const LEGACY_EFFECTS = 'SCRIPT/PLUGINS/EFFECTS';
@@ -49,11 +49,16 @@ const LEGACY_MODULES: Readonly<Record<string, string>> = {
   'date-stamp': 'DATE',
   grain: 'GRAIN',
 };
-export const INBOX = 'SCRIPT/GRKIT/EFFECTS';
-export const PACKAGE_MODULES = 'SCRIPT/GRKIT/MODULES';
-export const LIBRARY = 'GRKIT/EFFECTS';
-const USER_MODULES = 'GRKIT/MODULES';
-const REPORT = 'GRKIT/REPORT.TXT';
+export const INBOX = 'SCRIPT/GRKU/EFFECTS';
+export const PACKAGE_MODULES = 'SCRIPT/GRKU/MODULES';
+/**
+ * The folders of GRKit 1.3 to 1.5 and of GRKU before 2026-11-09. The camera renames the data
+ * folder to `GRKU` at its first start, settings and effects included, so the page reads and
+ * writes the data folder that the card has; the page removes the old package folder when it writes.
+ */
+const OLD_PACKAGE = 'SCRIPT/GRKIT';
+const OLD_DATA = 'GRKIT';
+const DATA = 'GRKU';
 
 /**
  * The files that a write puts on the card last, in this order. Until `STARTUP.TTL` changes, an
@@ -64,7 +69,7 @@ const LAST = [PACKAGE_LIST, STARTUP];
 /** The number of files that a write sends at the same time. Chrome checks each file at its close. */
 const PARALLEL = 6;
 
-/** The first line of `GRKIT/REPORT.TXT`: `GRKit <version> (<target>)`. */
+/** The first line of `GRKU/REPORT.TXT`: `GRKit <version> (<target>)`. */
 export interface CardReport {
   version: string;
   target: string;
@@ -75,13 +80,13 @@ export function parseReport(text: string): CardReport | null {
   return match ? { version: match[1]!, target: match[2]! } : null;
 }
 
-/** `none`: no GRKit. `legacy`: GRKit 1.2 or earlier in `SCRIPT/PLUGINS`. `current`: `SCRIPT/GRKIT`. */
+/** `none`: no GRKit. `legacy`: GRKit 1.2 or earlier in `SCRIPT/PLUGINS`. `current`: `SCRIPT/GRKU`. */
 export type CardInstall = 'none' | 'legacy' | 'current';
 
 export interface CardState {
   name: string;
   /**
-   * The root has `DCIM`, `SCRIPT`, or `GRKIT`, or nothing but system files, so it is the root of a
+   * The root has `DCIM`, `SCRIPT`, or `GRKU`, or nothing but system files, so it is the root of a
    * camera card. A card that a computer formatted has no `DCIM` yet.
    */
   isCardRoot: boolean;
@@ -111,8 +116,12 @@ export interface CardState {
    * file, when GRKit 1.2 installs each plugin.
    */
   legacyPlugins: readonly string[] | null;
-  /** The module files that a person added in `GRKIT/MODULES`. */
+  /** The module files that a person added in `GRKU/MODULES`. */
   userModules: readonly string[];
+  /** The data folder that the card has: `GRKU`, or `GRKIT` on a card of an earlier version. */
+  dataFolder: string;
+  /** The card has the package folder of an earlier version, `SCRIPT/GRKIT`, which a write removes. */
+  oldPackage: boolean;
   /** The names at the card root, to find a ModeSet file. */
   rootNames: readonly string[];
   /**
@@ -188,16 +197,18 @@ export async function readCard(root: CardDirectory): Promise<CardState> {
   const rootNames = await names(root);
   const upper = new Set(rootNames.map((name) => name.toUpperCase()));
   const hasLoader = (await readFile(root, LOADER)) !== null;
+  const oldPackage = (await folder(root, OLD_PACKAGE)) !== null;
   const legacy = (await folder(root, LEGACY)) !== null;
-  const library = await folder(root, LIBRARY);
-  const report = await readText(root, REPORT);
-  const list = await readText(root, PACKAGE_LIST);
+  const dataFolder = (await folder(root, DATA)) ? DATA : (await folder(root, OLD_DATA)) ? OLD_DATA : DATA;
+  const library = await folder(root, `${dataFolder}/EFFECTS`);
+  const report = await readText(root, `${dataFolder}/REPORT.TXT`);
+  const list = (await readText(root, PACKAGE_LIST)) ?? (hasLoader ? null : await readText(root, `${OLD_PACKAGE}/PACKAGE.TXT`));
   return {
     name: root.name,
     isCardRoot:
-      ['DCIM', 'SCRIPT', 'GRKIT'].some((name) => upper.has(name)) ||
+      ['DCIM', 'SCRIPT', 'GRKU', 'GRKIT'].some((name) => upper.has(name)) ||
       rootNames.every((name) => !visible(name) || SYSTEM_FOLDERS.has(name.toUpperCase())),
-    install: hasLoader ? 'current' : legacy ? 'legacy' : 'none',
+    install: hasLoader || oldPackage ? 'current' : legacy ? 'legacy' : 'none',
     report: report === null ? null : parseReport(report),
     ...(await readInstallers(root)),
     hasLegacy: legacy,
@@ -207,9 +218,11 @@ export async function readCard(root: CardDirectory): Promise<CardState> {
       (name) => visible(name) && isEffectFile(name),
     ),
     legacyPlugins: await readText(root, LEGACY_PLUGINS).then((text) => (text === null ? null : parseList(text))),
-    userModules: (await names(await folder(root, USER_MODULES))).filter(
+    userModules: (await names(await folder(root, `${dataFolder}/MODULES`))).filter(
       (name) => visible(name) && isModuleFile(name),
     ),
+    dataFolder,
+    oldPackage,
     rootNames: rootNames.filter(visible),
     modeset: await readModeset(root, rootNames.filter((name) => visible(name) && isModeset(name))),
   };
@@ -217,6 +230,7 @@ export async function readCard(root: CardDirectory): Promise<CardState> {
 
 /** The installers of GRKit 1.3 (`CORE.BIN`, `CORE1.BIN`, ...) and of GRKit 1.2 (`INSTALL.BIN`, ...). */
 const INSTALLERS: readonly [string, RegExp][] = [
+  ['SCRIPT/GRKU', /^CORE\d?\.BIN$/i],
   ['SCRIPT/GRKIT', /^CORE\d?\.BIN$/i],
   ['SCRIPT/PLUGINS', /^INSTALL\d?\.BIN$/i],
 ];
@@ -380,7 +394,7 @@ const minus = (a: readonly string[], b: readonly string[]) => {
  * first power-on moves into the library.
  */
 export function cardEffects(state: CardState): string[] {
-  if (state.library) return state.library.map((name) => `${LIBRARY}/${name}`);
+  if (state.library) return state.library.map((name) => `${state.dataFolder}/EFFECTS/${name}`);
   const listed = state.install === 'current' ? state.listed.filter(isEffectFile) : [];
   return [
     ...listed.map((name) => `${INBOX}/${name}`),
@@ -506,7 +520,7 @@ export async function applyChanges(
     (file) => file.path.includes('/') || state.install === 'none' || turnsScriptsOn(state),
   );
   if (state.library) {
-    wanted.push(...library.add.map((file) => ({ path: `${LIBRARY}/${file.path}`, bytes: file.bytes })));
+    wanted.push(...library.add.map((file) => ({ path: `${state.dataFolder}/EFFECTS/${file.path}`, bytes: file.bytes })));
   }
   const differ: CardFile[] = [];
   for (const file of wanted) {
@@ -534,6 +548,12 @@ export async function applyChanges(
     const scripts = await folder(root, 'SCRIPT');
     if (scripts) await removeTree(scripts, 'PLUGINS');
     await removeCompanions(root, [LEGACY]);
+  }
+  // The package folder of an earlier version: the new STARTUP.TTL never runs it.
+  if (state.oldPackage) {
+    const scripts = await folder(root, 'SCRIPT');
+    if (scripts) await removeTree(scripts, 'GRKIT');
+    await removeCompanions(root, [OLD_PACKAGE]);
   }
 }
 
@@ -565,25 +585,29 @@ function skipMissing(error: unknown) {
 }
 
 /** GRKit's own `STARTUP.TTL` runs the loader of GRKit 1.3 or the one of GRKit 1.2. */
-const isOwnStartup = (text: string) => /SCRIPT\\(GRKIT|PLUGINS)\\/i.test(text);
+const isOwnStartup = (text: string) => /SCRIPT\\(GRKU|GRKIT|PLUGINS)\\/i.test(text);
 
 /**
  * Removes GRKit from the card: the package of GRKit 1.3, the folder of GRKit 1.2, and GRKit's own
  * `STARTUP.TTL`. Other files in `SCRIPT` stay, and the folder goes only when it is empty. With
- * `data`, it also deletes the data folder `GRKIT`, which holds the settings and the effects.
+ * `data`, it also deletes the data folder `GRKU`, which holds the settings and the effects.
  */
 export async function removeGrkit(root: CardDirectory, data: boolean): Promise<void> {
   const scripts = await folder(root, 'SCRIPT');
   if (scripts) {
+    await removeTree(scripts, 'GRKU');
     await removeTree(scripts, 'GRKIT');
     await removeTree(scripts, 'PLUGINS');
     const startup = await readText(root, STARTUP);
     if (startup !== null && isOwnStartup(startup)) await removeFile(root, STARTUP);
-    await removeCompanions(root, ['SCRIPT/GRKIT', 'SCRIPT/PLUGINS']);
+    await removeCompanions(root, ['SCRIPT/GRKU', OLD_PACKAGE, 'SCRIPT/PLUGINS']);
     if ((await names(scripts)).every((name) => name.startsWith('._'))) await removeTree(root, 'SCRIPT');
   }
-  if (data) await removeTree(root, 'GRKIT');
-  await removeCompanions(root, ['SCRIPT', ...(data ? ['GRKIT'] : [])]);
+  if (data) {
+    await removeTree(root, DATA);
+    await removeTree(root, OLD_DATA);
+  }
+  await removeCompanions(root, ['SCRIPT', ...(data ? [DATA, OLD_DATA] : [])]);
 }
 
 /** Deletes the ModeSet file and `DEVELOP.MOD` at the card root. */

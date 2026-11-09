@@ -23,7 +23,7 @@ The sources of each contract:
 | `test.c` | with C sources | the host test of `grkit module test` |
 | tiles | with a choice page | the 40 x 40 PNG files that `tiles` names |
 
-The installer loads the modules of the package from `SCRIPT/GRKIT/MODULES` and the modules that a person adds from `GRKIT/MODULES`. A file in `GRKIT/MODULES` replaces the package module with the same name.
+The installer loads the modules of the package from `SCRIPT/GRKU/MODULES` and the modules that a person adds from `GRKU/MODULES`. A file in `GRKU/MODULES` replaces the package module with the same name.
 
 ## module.toml
 
@@ -472,7 +472,7 @@ ABI 2.6 adds the capabilities `CORE.CROP` and `CORE.CROP_MODE`. `Surface` keeps 
 
 | Limit | Value | Error when exceeded |
 | --- | --- | --- |
-| Module files that GRKU lists in both module folders | 10 | GRKU keeps the package modules, then the first other files in the default order. A module of `GRKIT/MODULES` never takes the place of a package module. The report gives the number of the other files. |
+| Module files that GRKU lists in both module folders | 10 | GRKU keeps the package modules, then the first other files in the default order. A module of `GRKU/MODULES` never takes the place of a package module. The report gives the number of the other files. |
 | Module ID | 1 to 8 characters `A`-`Z`, `0`-`9`, `_` | build error |
 | Code, data, or BSS of one module | 65536 bytes each | build error, or 50 |
 | Code of all modules | 1 MiB | 54 |
@@ -500,7 +500,7 @@ ABI 2.6 adds the capabilities `CORE.CROP` and `CORE.CROP_MODE`. `Surface` keeps 
 
 ## Report errors
 
-`GRKIT/REPORT.TXT` gives one line for each listed module, such as `HELLO.GRM  not loaded: error 51, it needs another version of GRKU`. The GRKU section of MENU shows the same number after the module name, such as `HELLO (51)`.
+`GRKU/REPORT.TXT` gives one line for each listed module, such as `HELLO.GRM  not loaded: error 51, it needs another version of GRKU`. The GRKU section of MENU shows the same number after the module name, such as `HELLO (51)`.
 
 | Error | Report text | Cause |
 | --- | --- | --- |

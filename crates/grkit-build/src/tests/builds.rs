@@ -66,7 +66,7 @@ fn synthetic_arm_build_is_reproducible() -> Result<()> {
             first.manifest["generated_header_sha256"],
             sha256(&generated)
         );
-        let installer = &first.files["SCRIPT/GRKIT/CORE.BIN"];
+        let installer = &first.files["SCRIPT/GRKU/CORE.BIN"];
         assert_eq!(&installer[..6], b"\x7fELF\x01\x01");
         assert_eq!(&installer[16..20], &[2, 0, 40, 0]);
         for item in first.manifest["files"].as_array().unwrap() {

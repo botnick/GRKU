@@ -263,14 +263,14 @@ pub fn package_runtime_files_with(binaries: &[&[u8]], fast: &Files, icon_stride:
     files
 }
 
-/// The diagnostics of `SCAN.SH`: while `GRKIT/DIAG` exists, a process of its
-/// own writes `GRKIT/DIAG.TXT` about 15 s after the start: the Linux side of
+/// The diagnostics of `SCAN.SH`: while `GRKU/DIAG` exists, a process of its
+/// own writes `GRKU/DIAG.TXT` about 15 s after the start: the Linux side of
 /// the camera, its mounts and log, the boot log in RAM, and the time of two
 /// reads of the core file, which gives the speed of the card file system and
 /// whether Linux keeps a read file. The camera's Linux has no `wc` and may
 /// lack other tools, so each command may fail on its own.
 fn diagnostics() -> String {
-    // The core in use: GRKIT/CORE.TXT names it in a package of several builds
+    // The core in use: GRKU/CORE.TXT names it in a package of several builds
     // (CORE1.BIN, CORE2.BIN), else it is the one core file.
     let core = format!(
         "{LINUX_DIRECTORY}/$(cat {LINUX_DATA_DIRECTORY}/{CORE_CHOICE} 2>/dev/null || echo {})",

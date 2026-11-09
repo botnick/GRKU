@@ -4,11 +4,11 @@ GRKU writes three files on the card about each start. A person who asks for help
 
 | File | Written by | When | For |
 | --- | --- | --- | --- |
-| `GRKIT/BOOT.TXT` | `SCAN.SH`, `INSTALL.SH`, and the core (`CORE.BIN`) | at every start, one block of lines, in one write at the end of the start | the time of each step and the numbers of this start |
-| `GRKIT/REPORT.TXT` | the core | after an install, only when its text changed | the result for a person, then the facts of this card on this firmware |
-| `SCRIPT/GRKIT/INSTALL.ERR` | the loader (`LOADER.TTL`), then the core | before each step of the loader, and when a start stops | the status of a failure, its name and meaning, and the state at that point |
+| `GRKU/BOOT.TXT` | `SCAN.SH`, `INSTALL.SH`, and the core (`CORE.BIN`) | at every start, one block of lines, in one write at the end of the start | the time of each step and the numbers of this start |
+| `GRKU/REPORT.TXT` | the core | after an install, only when its text changed | the result for a person, then the facts of this card on this firmware |
+| `SCRIPT/GRKU/INSTALL.ERR` | the loader (`LOADER.TTL`), then the core | before each step of the loader, and when a start stops | the status of a failure, its name and meaning, and the state at that point |
 
-`INSTALL.ERR` disappears after a start that installed: the loader deletes it. `SCRIPT/GRKIT/INSTALL.OK` exists instead. `GRKIT/DIAG.TXT` is a fourth file, written only while `GRKIT/DIAG` exists ([one-shot start](one-shot-start.md), section Diagnostics): the Linux side of the camera in full.
+`INSTALL.ERR` disappears after a start that installed: the loader deletes it. `SCRIPT/GRKU/INSTALL.OK` exists instead. `GRKU/DIAG.TXT` is a fourth file, written only while `GRKU/DIAG` exists ([one-shot start](one-shot-start.md), section Diagnostics): the Linux side of the camera in full.
 
 ## BOOT.TXT
 
@@ -47,9 +47,9 @@ The lines of one start on the official firmware, in order:
 | `linux` | core | the kernel version of the camera's Linux, and the process ID of the core |
 | `memory` | core | `MemTotal` and `MemFree` of `/proc/meminfo` at the start |
 | `relocated N` | core | `0`: the private code relocated to the running build at the known addresses; `1`: a search of the image found them (the first start on a new firmware build); another number is a status (below) and the start stopped |
-| `build` | core | `id`: the firmware build word at `RTOS_IDENTITY`; `image`: the end of the RTOS image; `data`: where the `.data` section is copied from, and its size; `core`: where the private code goes; `windows`, `searched`, `hint`: the relocation windows, whether the search ran, and whether `GRKIT/RELOC.BIN` had addresses |
-| `modules N` | core | `N` module files listed (the package and `GRKIT/MODULES`) |
-| `library N` | core | `N` effects of a new package moved into `GRKIT/EFFECTS` |
+| `build` | core | `id`: the firmware build word at `RTOS_IDENTITY`; `image`: the end of the RTOS image; `data`: where the `.data` section is copied from, and its size; `core`: where the private code goes; `windows`, `searched`, `hint`: the relocation windows, whether the search ran, and whether `GRKU/RELOC.BIN` had addresses |
+| `modules N` | core | `N` module files listed (the package and `GRKU/MODULES`) |
+| `library N` | core | `N` effects of a new package moved into `GRKU/EFFECTS` |
 | `listed N` | core | `N` effect files listed, with their reads |
 | `effects N` | core | `N` effects chosen for the records, or a status |
 | `scan N` | core | the plan is made: `0`, or a status |
@@ -61,7 +61,7 @@ The lines of one start on the official firmware, in order:
 | `install-start` | core or `INSTALL.SH` | the loader allocated the arrays; INSTALL begins |
 | `install N` | core or `INSTALL.SH` | the result: `0`, the hooks are live and GRKU appears in ADJ; or a status |
 | `arrays` | core | the addresses that the loader allocated: the registry (the header and the effect records), the tail (the working memory of the hooks), the module array, the mailbox, and each icon chunk |
-| `patches` | core | the firmware patches applied of the total, and the extension points that needed them as a bit mask; the modules loaded of the listed; the capabilities that the modules use and those running; `units`: the snap focus distance labels changed to feet (only with `GRKIT/FEET.TXT`); `retries`: how often INSTALL waited for a native state that the camera still initialized |
+| `patches` | core | the firmware patches applied of the total, and the extension points that needed them as a bit mask; the modules loaded of the listed; the capabilities that the modules use and those running; `units`: the snap focus distance labels changed to feet (only with `GRKU/FEET.TXT`); `retries`: how often INSTALL waited for a native state that the camera still initialized |
 | `fast-boot ...` | loader | only with the optional fast-boot files: why the start did not use them |
 
 `install 0` is the time at which GRKU appears in ADJ. A `linux`, `memory`, `build`, `plan`, `arrays`, and `patches` block from `INSTALL.SH` (the fallback of the loader) looks the same.
@@ -73,30 +73,30 @@ The report for a person first, then the details. The first part:
 ```text
 GRKU 1.5.2 (gr4-1.11)
 
-Modules (the package, and GRKIT\MODULES):
+Modules (the package, and GRKU\MODULES):
 FILMLOOK.GRM  loaded
 FRAMING.GRM  loaded
 LEAK.GRM  loaded, stopped: Enable is Off in the GRKU section of MENU
-HELLO.GRM (GRKIT\MODULES)  not loaded: error 51, it needs another version of GRKU
+HELLO.GRM (GRKU\MODULES)  not loaded: error 51, it needs another version of GRKU
 
-Effects (GRKIT\EFFECTS):
+Effects (GRKU\EFFECTS):
 Portra 400 (PORTRA40.GRF)  loaded
 Tri-X 400 (TRIX400.GRF)  loaded, hidden: Off in the GRKU section of MENU
 ```
 
-A start that stopped says so after the first line: `GRKU did not install: error 47 (STATUS_RELOCATION): the core does not relocate to the running firmware build.` Safe mode (`GRKIT/SAFE`) and the profile (`GRKIT/PROFILE`) each have a line when they are on.
+A start that stopped says so after the first line: `GRKU did not install: error 47 (STATUS_RELOCATION): the core does not relocate to the running firmware build.` Safe mode (`GRKU/SAFE`) and the profile (`GRKU/PROFILE`) each have a line when they are on.
 
 Then `Details for a device report:`
 
 | Line | Meaning |
 | --- | --- |
 | `Build:` | the target of this installer; the firmware build word; the RTOS image, its `.data` source and size, its `.bss`; where the private code of GRKU goes and how many bytes it has; the end of the area for module code |
-| `Relocation:` | the windows of the relocation, how they were found (at their known addresses, or by a search of the image), whether `GRKIT/RELOC.BIN` had addresses, the symbols, and the address of each window |
+| `Relocation:` | the windows of the relocation, how they were found (at their known addresses, or by a search of the image), whether `GRKU/RELOC.BIN` had addresses, the symbols, and the address of each window |
 | `Patches:` | the firmware patches applied of the total, and the extension points that need them; then one line for each patch: its address in the running build, its size, its kind (a hook over stock bytes, or code in the reserved area after the image), the points that need it, and whether this start applied it (`not needed`: no loaded module uses that point) |
-| `Modules:` | the modules listed, the usable ones, the limit; the module code bytes, the words of the module array, the settings, the tiles; the capabilities used and running. Then each module: its ID and file, its folder, its order (its place in ADJ and MENU), its status (`0`, or a number with its name and detail), its code area, its capabilities, the number of its settings, the settings it uses from other modules, its first tile, its position when a person moved it, `Off` when a person turned it off. Under a usable module, each setting: `ID.KEY = value of values (saved or default), state ID n`, the value at this start and the key of `GRKIT/STATE.TXT` that keeps it |
+| `Modules:` | the modules listed, the usable ones, the limit; the module code bytes, the words of the module array, the settings, the tiles; the capabilities used and running. Then each module: its ID and file, its folder, its order (its place in ADJ and MENU), its status (`0`, or a number with its name and detail), its code area, its capabilities, the number of its settings, the settings it uses from other modules, its first tile, its position when a person moved it, `Off` when a person turned it off. Under a usable module, each setting: `ID.KEY = value of values (saved or default), state ID n`, the value at this start and the key of `GRKU/STATE.TXT` that keeps it |
 | `Effects:` | the effects listed, installed, the limit, and those past the list of 64; then each effect: its file, its ID, its status (`loaded`, `off`, `over the limit`, `unreadable`), its choice (`Off`, and its position when a person moved it), and its record (its index among the installed effects, or `none`) |
 | `Core settings:` | the five core settings, `CORE.TONE` (the effect), `CORE.ASPECT`, `CORE.GRAIN`, `CORE.GRAIN_SIZE`, `CORE.ASPECT_MODE`, with the saved value or `default` |
-| `State (GRKIT\STATE.TXT):` | every pair of the state file as the installer read it, `state ID=value`, eight to a line, the first 128 |
+| `State (GRKU\STATE.TXT):` | every pair of the state file as the installer read it, `state ID=value`, eight to a line, the first 128 |
 | `Modes:` | safe mode, profile, and the feet labels (`on, 13 labels changed`, or `off`) |
 
 The details are the same at each start while the card and the firmware are, so the report is rewritten only when something changed: a module, an effect, a setting, a firmware update.
@@ -179,4 +179,4 @@ The number never changes meaning between versions (`runtime/install_status.h`). 
 
 ## Sending a report
 
-Copy the three files from the card (and `GRKIT/DIAG.TXT` when a maintainer asked for it) and attach them to the issue, with the camera model and the firmware version. The files hold no personal data: no serial number, no photo, no setting beyond the GRKU ones.
+Copy the three files from the card (and `GRKU/DIAG.TXT` when a maintainer asked for it) and attach them to the issue, with the camera model and the firmware version. The files hold no personal data: no serial number, no photo, no setting beyond the GRKU ones.

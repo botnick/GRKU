@@ -131,11 +131,11 @@ async function current(): Promise<Folder> {
   const card = new Folder('NO NAME');
   await card.put('DCIM/100RICOH/R0000001.JPG', 'jpeg');
   await card.put('SCRIPT/STARTUP.TTL', 'startup');
-  await card.put('SCRIPT/GRKIT/LOADER.TTL', 'loader');
-  await card.put('SCRIPT/GRKIT/PACKAGE.TXT', 'AAAAAAAA.GRF\nGUIDES.GRM\n');
-  await card.put('SCRIPT/GRKIT/MODULES/GUIDES.GRM', 'guides');
-  await card.put('GRKIT/EFFECTS/AAAAAAAA.GRF', 'a');
-  await card.put('GRKIT/REPORT.TXT', 'GRKit 1.3.0 (gr3-2.10)\r\n\r\nModules\r\n');
+  await card.put('SCRIPT/GRKU/LOADER.TTL', 'loader');
+  await card.put('SCRIPT/GRKU/PACKAGE.TXT', 'AAAAAAAA.GRF\nGUIDES.GRM\n');
+  await card.put('SCRIPT/GRKU/MODULES/GUIDES.GRM', 'guides');
+  await card.put('GRKU/EFFECTS/AAAAAAAA.GRF', 'a');
+  await card.put('GRKU/REPORT.TXT', 'GRKit 1.3.0 (gr3-2.10)\r\n\r\nModules\r\n');
   card.log.length = 0;
   return card;
 }
@@ -195,15 +195,15 @@ describe('writeFiles', () => {
     card.log.length = 0;
     const files = [
       { path: 'SCRIPT/STARTUP.TTL', bytes: bytes('new') },
-      { path: 'SCRIPT/GRKIT/PACKAGE.TXT', bytes: bytes('GUIDES.GRM\n') },
-      { path: 'SCRIPT/GRKIT/CORE.BIN', bytes: bytes('core') },
-      { path: 'SCRIPT/GRKIT/MODULES/GUIDES.GRM', bytes: bytes('guides') },
+      { path: 'SCRIPT/GRKU/PACKAGE.TXT', bytes: bytes('GUIDES.GRM\n') },
+      { path: 'SCRIPT/GRKU/CORE.BIN', bytes: bytes('core') },
+      { path: 'SCRIPT/GRKU/MODULES/GUIDES.GRM', bytes: bytes('guides') },
       { path: '00078350.588', bytes: bytes('[SCRIPT_EN_MODE EN]\r\n') },
     ];
     const progress: number[] = [];
     await writeFiles(card, files, (written) => progress.push(written));
 
-    expect(card.log.slice(-2)).toEqual(['SCRIPT/GRKIT/PACKAGE.TXT', 'SCRIPT/STARTUP.TTL']);
+    expect(card.log.slice(-2)).toEqual(['SCRIPT/GRKU/PACKAGE.TXT', 'SCRIPT/STARTUP.TTL']);
     expect(progress).toEqual([1, 2, 3, 4, 5]);
     expect(card.text('SCRIPT/STARTUP.TTL')).toBe('new');
     // The merge keeps GRKit 1.2, which the first power-on migrates.
@@ -217,9 +217,9 @@ describe('writeFiles', () => {
   });
 
   it('fails when the card returns other bytes', async () => {
-    const card = new Folder('NO NAME', [], '', (path) => path === 'SCRIPT/GRKIT/CORE.BIN');
+    const card = new Folder('NO NAME', [], '', (path) => path === 'SCRIPT/GRKU/CORE.BIN');
     await expect(
-      writeFiles(card, [{ path: 'SCRIPT/GRKIT/CORE.BIN', bytes: bytes('core') }]),
+      writeFiles(card, [{ path: 'SCRIPT/GRKU/CORE.BIN', bytes: bytes('core') }]),
     ).rejects.toBeInstanceOf(CardCheckError);
   });
 });
@@ -237,11 +237,11 @@ function packageFiles(modules: string[], effects: string[], core = 'core'): { pa
     { path: '00078350.588', bytes: bytes('[SCRIPT_EN_MODE EN]\r\n') },
     { path: 'DEVELOP.MOD', bytes: bytes('develop') },
     { path: 'SCRIPT/STARTUP.TTL', bytes: bytes('startup') },
-    { path: 'SCRIPT/GRKIT/LOADER.TTL', bytes: bytes('loader') },
-    { path: 'SCRIPT/GRKIT/CORE.BIN', bytes: bytes(core) },
-    { path: 'SCRIPT/GRKIT/PACKAGE.TXT', bytes: bytes(list.map((name) => `${name}\n`).join('')) },
-    ...modules.map((id) => ({ path: `SCRIPT/GRKIT/MODULES/${id}.GRM`, bytes: bytes(id.toLowerCase()) })),
-    ...effects.map((name) => ({ path: `SCRIPT/GRKIT/EFFECTS/${name}`, bytes: bytes(name[0]!.toLowerCase()) })),
+    { path: 'SCRIPT/GRKU/LOADER.TTL', bytes: bytes('loader') },
+    { path: 'SCRIPT/GRKU/CORE.BIN', bytes: bytes(core) },
+    { path: 'SCRIPT/GRKU/PACKAGE.TXT', bytes: bytes(list.map((name) => `${name}\n`).join('')) },
+    ...modules.map((id) => ({ path: `SCRIPT/GRKU/MODULES/${id}.GRM`, bytes: bytes(id.toLowerCase()) })),
+    ...effects.map((name) => ({ path: `SCRIPT/GRKU/EFFECTS/${name}`, bytes: bytes(name[0]!.toLowerCase()) })),
   ];
 }
 
@@ -323,7 +323,7 @@ describe('planChanges', () => {
     expect(versionMarker(bytes('\0GRKit 1.3.0-test\0GRKit did not\0'))).toBe('1.3.0-test');
     const card = await current();
     // A newer package, copied after the last power-on.
-    await card.put('SCRIPT/GRKIT/CORE.BIN', '\0GRKit 1.3.1\0');
+    await card.put('SCRIPT/GRKU/CORE.BIN', '\0GRKit 1.3.1\0');
     const state = await readCard(card);
     expect(state.version).toBe('1.3.1');
     expect(cardStarted(state)).toBe(false);
@@ -369,25 +369,25 @@ describe('applyChanges', () => {
     const progress: number[] = [];
     const library = {
       add: changes.addEffects.map((path) => ({ path, bytes: bytes(path[0]!.toLowerCase()) })),
-      remove: changes.removeEffects.map((name) => `GRKIT/EFFECTS/${name}`),
+      remove: changes.removeEffects.map((name) => `GRKU/EFFECTS/${name}`),
     };
     await applyChanges(card, state, files, library, ({ written, total }) => progress.push(written, total));
 
     // The runtime and the ModeSet files are the same, so the page does not write them again.
     expect(card.log.sort()).toEqual([
-      'GRKIT/EFFECTS/CCCCCCCC.GRF',
-      'SCRIPT/GRKIT/EFFECTS/CCCCCCCC.GRF',
-      'SCRIPT/GRKIT/MODULES/DATE.GRM',
-      'SCRIPT/GRKIT/PACKAGE.TXT',
+      'GRKU/EFFECTS/CCCCCCCC.GRF',
+      'SCRIPT/GRKU/EFFECTS/CCCCCCCC.GRF',
+      'SCRIPT/GRKU/MODULES/DATE.GRM',
+      'SCRIPT/GRKU/PACKAGE.TXT',
     ]);
     expect(progress.slice(-2)).toEqual([4, 4]);
     const tree = card.tree();
-    expect(tree).not.toContain('SCRIPT/GRKIT/MODULES/GUIDES.GRM');
-    expect(tree).not.toContain('SCRIPT/GRKIT/EFFECTS/AAAAAAAA.GRF');
-    expect(tree).not.toContain('GRKIT/EFFECTS/AAAAAAAA.GRF');
+    expect(tree).not.toContain('SCRIPT/GRKU/MODULES/GUIDES.GRM');
+    expect(tree).not.toContain('SCRIPT/GRKU/EFFECTS/AAAAAAAA.GRF');
+    expect(tree).not.toContain('GRKU/EFFECTS/AAAAAAAA.GRF');
     expect(tree).toContain('DCIM/100RICOH/R0000001.JPG');
     // The ._ files of what the page wrote or deleted are gone.
-    for (const path of [...card.log, 'SCRIPT/GRKIT/MODULES/GUIDES.GRM', 'GRKIT/EFFECTS/AAAAAAAA.GRF']) {
+    for (const path of [...card.log, 'SCRIPT/GRKU/MODULES/GUIDES.GRM', 'GRKU/EFFECTS/AAAAAAAA.GRF']) {
       const parts = path.split('/');
       expect(tree).not.toContain([...parts.slice(0, -1), `._${parts.at(-1)}`].join('/'));
     }
@@ -405,7 +405,7 @@ describe('applyChanges', () => {
     await applyChanges(card, state, files, { add: [], remove: [] });
 
     expect(card.log).not.toContain('00078350.588');
-    expect(card.log.slice(-2)).toEqual(['SCRIPT/GRKIT/PACKAGE.TXT', 'SCRIPT/STARTUP.TTL']);
+    expect(card.log.slice(-2)).toEqual(['SCRIPT/GRKU/PACKAGE.TXT', 'SCRIPT/STARTUP.TTL']);
     expect(card.text('SCRIPT/STARTUP.TTL')).toBe('startup');
     expect(card.text('SCRIPT/PLUGINS/EFFECTS/AAAAAAAA.GRF')).toBe('a');
     expect((await readCard(card)).library).toBeNull();
@@ -436,7 +436,7 @@ describe('applyChanges', () => {
     const state = await readCard(card);
     await applyChanges(card, state, packageFiles(['GUIDES'], ['AAAAAAAA.GRF']), { add: [], remove: [] });
     expect(card.tree().filter((path) => path.startsWith('SCRIPT/PLUGINS'))).toEqual([]);
-    expect(card.text('GRKIT/EFFECTS/AAAAAAAA.GRF')).toBe('a');
+    expect(card.text('GRKU/EFFECTS/AAAAAAAA.GRF')).toBe('a');
   });
 
   it('writes the ModeSet files on a card without GRKit', async () => {
@@ -455,7 +455,7 @@ describe('removeGrkit', () => {
   it('removes GRKit and keeps the photos, the other scripts, and the settings', async () => {
     const card = await current();
     await card.put('SCRIPT/PLUGINS/PLUGINS.TTL', 'old');
-    await card.put('SCRIPT/STARTUP.TTL', "include 'C:\\SCRIPT\\GRKIT\\LOADER.TTL'\r\n");
+    await card.put('SCRIPT/STARTUP.TTL', "include 'C:\\SCRIPT\\GRKU\\LOADER.TTL'\r\n");
     await card.put('SCRIPT/MINE.TTL', 'mine');
     await removeGrkit(card, false);
     const tree = card.tree();
@@ -464,11 +464,11 @@ describe('removeGrkit', () => {
       'SCRIPT/MINE.TTL',
     ]);
     expect(tree).toContain('DCIM/100RICOH/R0000001.JPG');
-    expect(tree).toContain('GRKIT/EFFECTS/AAAAAAAA.GRF');
+    expect(tree).toContain('GRKU/EFFECTS/AAAAAAAA.GRF');
     expect(await readCard(card)).toMatchObject({ install: 'none' });
   });
 
-  it('removes an empty SCRIPT folder and, with the settings, the GRKIT folder', async () => {
+  it('removes an empty SCRIPT folder and, with the settings, the GRKU folder', async () => {
     const card = await current();
     await card.put('SCRIPT/STARTUP.TTL', "include 'C:\\SCRIPT\\PLUGINS\\PLUGINS.TTL'\r\n");
     await removeGrkit(card, true);
@@ -514,7 +514,7 @@ describe('the builds of the installers', () => {
     expect((await readCard(legacy)).builds).toEqual(['gr4-1.11', 'gr4-1.20']);
 
     const card = await current();
-    await card.put('SCRIPT/GRKIT/CORE.BIN', '\0GRKIT_TARGET=gr3-2.10\0');
+    await card.put('SCRIPT/GRKU/CORE.BIN', '\0GRKIT_TARGET=gr3-2.10\0');
     expect((await readCard(card)).builds).toEqual(['gr3-2.10']);
   });
 });
@@ -523,14 +523,14 @@ describe('cardEffects', () => {
   it('counts the effects of GRKit 1.2 until the library exists', async () => {
     const card = new Folder('NO NAME');
     await card.put('SCRIPT/PLUGINS/EFFECTS/AAAAAAAA.GRF', 'a');
-    await card.put('SCRIPT/GRKIT/LOADER.TTL', 'l');
-    await card.put('SCRIPT/GRKIT/PACKAGE.TXT', 'BBBBBBBB.GRF\nGUIDES.GRM\n');
+    await card.put('SCRIPT/GRKU/LOADER.TTL', 'l');
+    await card.put('SCRIPT/GRKU/PACKAGE.TXT', 'BBBBBBBB.GRF\nGUIDES.GRM\n');
     expect(cardEffects(await readCard(card))).toEqual([
-      'SCRIPT/GRKIT/EFFECTS/BBBBBBBB.GRF',
+      'SCRIPT/GRKU/EFFECTS/BBBBBBBB.GRF',
       'SCRIPT/PLUGINS/EFFECTS/AAAAAAAA.GRF',
     ]);
-    await card.put('GRKIT/EFFECTS/AAAAAAAA.GRF', 'a');
-    expect(cardEffects(await readCard(card))).toEqual(['GRKIT/EFFECTS/AAAAAAAA.GRF']);
+    await card.put('GRKU/EFFECTS/AAAAAAAA.GRF', 'a');
+    expect(cardEffects(await readCard(card))).toEqual(['GRKU/EFFECTS/AAAAAAAA.GRF']);
   });
 });
 
@@ -572,5 +572,61 @@ describe('isMobileDevice', () => {
     expect(cardHint(device(SAFARI, 'MacIntel'), false)).toBe('browser');
     expect(cardHint(device(FIREFOX, 'Win32'), false)).toBe('browser');
     expect(cardHint(device(LINUX, 'Linux x86_64', 0, false), true)).toBeNull();
+  });
+});
+
+describe('a card of an earlier version, with SCRIPT/GRKIT and GRKIT', () => {
+  /** A card after the first power-on with GRKit 1.5 or with GRKU before 2026-11-09. */
+  async function old(): Promise<Folder> {
+    const card = new Folder('NO NAME');
+    await card.put('DCIM/100RICOH/R0000001.JPG', 'jpeg');
+    await card.put('SCRIPT/STARTUP.TTL', "include 'C:\\SCRIPT\\GRKIT\\LOADER.TTL'");
+    await card.put('SCRIPT/GRKIT/LOADER.TTL', 'loader');
+    await card.put('SCRIPT/GRKIT/CORE.BIN', 'GRKIT_TARGET=gr4-1.11 GRKit 1.5.1');
+    await card.put('SCRIPT/GRKIT/PACKAGE.TXT', 'AAAAAAAA.GRF\nGUIDES.GRM\n');
+    await card.put('SCRIPT/GRKIT/MODULES/GUIDES.GRM', 'guides');
+    await card.put('GRKIT/EFFECTS/AAAAAAAA.GRF', 'a');
+    await card.put('GRKIT/REPORT.TXT', 'GRKit 1.5.1 (gr4-1.11)\r\n');
+    card.log.length = 0;
+    return card;
+  }
+
+  it('reads it as installed, with the data folder that it has', async () => {
+    const state = await readCard(await old());
+    expect(state).toMatchObject({
+      install: 'current',
+      oldPackage: true,
+      dataFolder: 'GRKIT',
+      library: ['AAAAAAAA.GRF'],
+      listed: ['AAAAAAAA.GRF', 'GUIDES.GRM'],
+      builds: ['gr4-1.11'],
+      version: '1.5.1',
+    });
+    expect(state.report).toEqual({ version: '1.5.1', target: 'gr4-1.11' });
+    expect(cardEffects(state)).toEqual(['GRKIT/EFFECTS/AAAAAAAA.GRF']);
+    expect(planChanges(state, '1.5.2', ['GUIDES'], null).grkit).toBe('update');
+  });
+
+  it('a write puts the package in SCRIPT/GRKU, removes SCRIPT/GRKIT, and adds effects to that data folder', async () => {
+    const card = await old();
+    const state = await readCard(card);
+    await applyChanges(card, state, packageFiles(['GUIDES'], ['AAAAAAAA.GRF']), {
+      add: [{ path: 'BBBBBBBB.GRF', bytes: bytes('b') }],
+      remove: [],
+    });
+    const tree = card.tree();
+    expect(tree).toContain('SCRIPT/GRKU/LOADER.TTL');
+    expect(tree).toContain('SCRIPT/GRKU/MODULES/GUIDES.GRM');
+    expect(tree.filter((path) => path.toUpperCase().startsWith('SCRIPT/GRKIT'))).toEqual([]);
+    expect(tree).toContain('GRKIT/EFFECTS/BBBBBBBB.GRF');
+    expect(tree).toContain('GRKIT/REPORT.TXT');
+  });
+
+  it('removeGrkit takes the old folders too', async () => {
+    const card = await old();
+    await removeGrkit(card, true);
+    const tree = card.tree();
+    expect(tree.filter((path) => /GRK/i.test(path) || path.startsWith('SCRIPT'))).toEqual([]);
+    expect(tree).toContain('DCIM/100RICOH/R0000001.JPG');
   });
 });

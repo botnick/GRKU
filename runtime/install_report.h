@@ -1,6 +1,6 @@
 #ifndef GRKIT_INSTALL_REPORT_H
 #define GRKIT_INSTALL_REPORT_H
-/* A part of the installer: GRKIT/REPORT.TXT. installer.c includes it once, in
+/* A part of the installer: GRKU/REPORT.TXT. installer.c includes it once, in
    its order, after the helpers and the state that this part uses.
 
    The result of each boot for a person: the modules and why one did not
@@ -86,7 +86,7 @@ static const char *status_meaning(u32 status)
     case STATUS_ROLLED_BACK: return "a patch did not publish; the earlier patches were rolled back";
     case STATUS_ROLLBACK_FAILED: return "a patch did not publish, and the rollback failed too: power the camera off and on";
     case STATUS_ICONS_NOT_READY: return "the icon drawer does not exist yet; INSTALL tries again";
-    case STATUS_LIBRARY_UNREADABLE: return "the effects library GRKIT\\EFFECTS does not list";
+    case STATUS_LIBRARY_UNREADABLE: return "the effects library GRKU\\EFFECTS does not list";
     case STATUS_LIBRARY_BAD_RECORD: return "a directory record of the effects library is not valid";
     case STATUS_PLAN_WRITE: return "SCAN could not write the plan to the card";
     case STATUS_PLAN: return "INSTALL found no valid plan, or one that does not match the modules and effects on the card";
@@ -133,13 +133,13 @@ static void write_report(int status)
         say("\r\nGRKU did not install: error "); say_number((u32)status); say(" ("); say(status_name((u32)status));
         say("): "); say(status_meaning((u32)status)); say(".\r\n");
     }
-    if (safe_mode) say("\r\nSafe mode: GRKIT\\SAFE exists, so no module loads. Delete it to load the modules.\r\n");
-    if (profile_mode) say("\r\nProfile: GRKIT\\PROFILE exists, so GRKU writes its CPU use to GRKIT\\PROFILE.LOG. Delete it to stop.\r\n");
-    say("\r\nModules (the package, and GRKIT\\MODULES):\r\n");
+    if (safe_mode) say("\r\nSafe mode: GRKU\\SAFE exists, so no module loads. Delete it to load the modules.\r\n");
+    if (profile_mode) say("\r\nProfile: GRKU\\PROFILE exists, so GRKU writes its CPU use to GRKU\\PROFILE.LOG. Delete it to stop.\r\n");
+    say("\r\nModules (the package, and GRKU\\MODULES):\r\n");
     if (!module_count) say("none\r\n");
     for (u32 i = 0; i < module_count; ++i) {
         say(module_names[i]);
-        if (module_source[i]) say(" (GRKIT\\MODULES)");
+        if (module_source[i]) say(" (GRKU\\MODULES)");
         u32 result = module_status[i];
         if (!result && (module_usable >> i & 1))
             say(module_off[i] ? "  loaded, stopped: Enable is Off in the GRKU section of MENU\r\n" :
@@ -155,7 +155,7 @@ static void write_report(int status)
         say_number(module_overflow);
         say(" more module files are not loaded. GRKU loads at most "); say_number(GRKIT_MODULES_MAX); say(" modules.\r\n");
     }
-    say("\r\nEffects (GRKIT\\EFFECTS):\r\n");
+    say("\r\nEffects (GRKU\\EFFECTS):\r\n");
     if (!listed_count) say(tone_used() ? "none\r\n" : "none: no module uses them\r\n");
     for (u32 i = 0; i < listed_count; ++i) {
         char name[CATALOG_EFFECT_NAME_MAX + 1]; u32 k = 0;
@@ -177,7 +177,7 @@ static void write_report(int status)
         say(" more effect files are not listed. GRKU lists at most "); say_number(EFFECTS_LISTED); say(" effects.\r\n");
     }
     say_details(status);
-    /* A new card has no GRKIT folder until this start. */
+    /* A new card has no GRKU folder until this start. */
     long made = syscall6(39, (u32)data_path, 0755, 0, 0, 0, 0);
     if (made < 0 && made != -17) return;
     long had = read_text(report_path, (u8 *)report_old, sizeof(report_old));

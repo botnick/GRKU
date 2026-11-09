@@ -48,7 +48,7 @@ GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可
 3. 把新安裝包 `SD_ROOT` 中的 `SCRIPT` 資料夾複製到記憶卡根目錄。
 4. 正常開機，不需要按住 MENU。
 
-GRKU 會把設定和效果保存在 `GRKIT` 資料夾中，因此更新後仍在。要從 GRKit 換成 GRKU，請用 grku.app 更新，以保留設定和效果：兩者都把它們存在同一個 `GRKIT` 資料夾裡。
+GRKU 會把設定和效果保存在 `GRKU` 資料夾中，因此更新後仍在。要從 GRKit 換成 GRKU，請用 grku.app 更新，以保留設定和效果：兩者都把它們存在同一個 `GRKU` 資料夾裡。
 
 ## 疑難排解
 
@@ -65,18 +65,18 @@ GRKU 會把設定和效果保存在 `GRKIT` 資料夾中，因此更新後仍在
 
 1. 開機後等待幾秒，直到拍攝畫面頂部顯示 **GRKU**。
 2. 確認記憶卡根目錄中有 `SCRIPT` 資料夾。
-3. 如果記憶卡中有 `SCRIPT/GRKIT/INSTALL.ERR`，在相機選單中確認韌體版本與安裝包對應。版本正確時，請提交[裝置報告](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)，並附上 `INSTALL.ERR`、`GRKIT/REPORT.TXT` 和 `GRKIT/BOOT.TXT`（如果有）。
+3. 如果記憶卡中有 `SCRIPT/GRKU/INSTALL.ERR`，在相機選單中確認韌體版本與安裝包對應。版本正確時，請提交[裝置報告](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)，並附上 `INSTALL.ERR`、`GRKU/REPORT.TXT` 和 `GRKU/BOOT.TXT`（如果有）。
 4. GRKU 只能在 Ricoh 官方韌體上運作。
 
 ### 格式化記憶卡後 GRKU 不運作
 
-格式化會刪除 GRKU 和它的設定。格式化之前，把 `GRKIT` 資料夾複製到電腦。格式化之後，重新複製 `SD_ROOT` 中的內容，再把 `GRKIT` 資料夾複製回記憶卡根目錄。
+格式化會刪除 GRKU 和它的設定。格式化之前，把 `GRKU` 資料夾複製到電腦。格式化之後，重新複製 `SD_ROOT` 中的內容，再把 `GRKU` 資料夾複製回記憶卡根目錄。
 
 ## 移除 GRKU
 
 在電腦上的 Chrome 或 Edge 中，[grku.app](https://grku.app/) 可以透過讀卡機直接從記憶卡移除 GRKU，也可以同時關閉 SD 腳本功能。
 
-關閉相機，從記憶卡刪除 `SCRIPT` 和 `GRKIT` 資料夾。
+關閉相機，從記憶卡刪除 `SCRIPT` 和 `GRKU` 資料夾。
 
 SD 腳本功能會保持開啟。要關閉它：
 

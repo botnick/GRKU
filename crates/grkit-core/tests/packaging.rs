@@ -287,8 +287,8 @@ fn selected_modules_are_packaged_and_verified() {
         .unwrap()
         .bytes;
     let files = unpack(&bytes);
-    assert!(files.contains_key("SD_ROOT/SCRIPT/GRKIT/MODULES/DATE.GRM"));
-    assert!(files.contains_key("SD_ROOT/SCRIPT/GRKIT/MODULES/FILMLOOK.GRM"));
+    assert!(files.contains_key("SD_ROOT/SCRIPT/GRKU/MODULES/DATE.GRM"));
+    assert!(files.contains_key("SD_ROOT/SCRIPT/GRKU/MODULES/FILMLOOK.GRM"));
     assert_eq!(
         verify_package(&bytes).unwrap().modules,
         ["DATE", "FILMLOOK"]
@@ -296,7 +296,7 @@ fn selected_modules_are_packaged_and_verified() {
     // The plugin list of GRKit 1.x is not part of a package.
     let mut files = unpack(&package());
     files.insert(
-        "SD_ROOT/SCRIPT/GRKIT/PLUGINS.TXT".into(),
+        "SD_ROOT/SCRIPT/GRKU/PLUGINS.TXT".into(),
         b"image-control\n".to_vec(),
     );
     assert!(validate_contents(&with_sums(files)).is_err());
@@ -870,13 +870,13 @@ fn install_tries_the_core_of_the_last_start_first() {
     );
     let card = tempfile::tempdir().unwrap();
     let root = card.path().to_str().unwrap();
-    let script = String::from_utf8(files["SD_ROOT/SCRIPT/GRKIT/INSTALL.SH"].clone())
+    let script = String::from_utf8(files["SD_ROOT/SCRIPT/GRKU/INSTALL.SH"].clone())
         .unwrap()
         .replace("/media/storage1", root)
         .replace("</proc/uptime", "</dev/null");
-    let package = card.path().join("SCRIPT/GRKIT");
+    let package = card.path().join("SCRIPT/GRKU");
     std::fs::create_dir_all(&package).unwrap();
-    std::fs::create_dir_all(card.path().join("GRKIT")).unwrap();
+    std::fs::create_dir_all(card.path().join("GRKU")).unwrap();
     std::fs::write(package.join("INSTALL.SH"), script).unwrap();
     // A stand-in core: it logs its run and installs only on its build.
     for (index, build) in ["1.11", "1.20", "0528"].iter().enumerate() {
@@ -901,8 +901,7 @@ fn install_tries_the_core_of_the_last_start_first() {
             .unwrap();
         assert!(output.status.success(), "{output:?}");
         let runs = std::fs::read_to_string(card.path().join("RUNS")).unwrap_or_default();
-        let record =
-            std::fs::read_to_string(card.path().join("GRKIT/CORE.TXT")).unwrap_or_default();
+        let record = std::fs::read_to_string(card.path().join("GRKU/CORE.TXT")).unwrap_or_default();
         (runs, record)
     };
     // The first start tries each core in order and keeps the one that installed.
@@ -927,7 +926,7 @@ fn install_tries_the_core_of_the_last_start_first() {
         )
     );
     // A record that names no core of the package runs nothing of it.
-    std::fs::write(card.path().join("GRKIT/CORE.TXT"), "../../bin/sh\n").unwrap();
+    std::fs::write(card.path().join("GRKU/CORE.TXT"), "../../bin/sh\n").unwrap();
     assert_eq!(
         start("1.11"),
         ("CORE1 --known\n".into(), "CORE1.BIN\n".into())
@@ -960,14 +959,14 @@ fn scan_starts_the_core_of_the_build_once() {
     );
     let card = tempfile::tempdir().unwrap();
     let root = card.path().to_str().unwrap();
-    let script = String::from_utf8(files["SD_ROOT/SCRIPT/GRKIT/SCAN.SH"].clone())
+    let script = String::from_utf8(files["SD_ROOT/SCRIPT/GRKU/SCAN.SH"].clone())
         .unwrap()
         .replace("/media/storage1", root)
         .replace("</proc/uptime", "</dev/null")
         .replace("/tmp/grkit-", &format!("{root}/tmp-grkit-"));
-    let package = card.path().join("SCRIPT/GRKIT");
+    let package = card.path().join("SCRIPT/GRKU");
     std::fs::create_dir_all(&package).unwrap();
-    std::fs::create_dir_all(card.path().join("GRKIT")).unwrap();
+    std::fs::create_dir_all(card.path().join("GRKU")).unwrap();
     std::fs::write(package.join("SCAN.SH"), script).unwrap();
     // A stand-in core: it logs its run, and starts only on its build, where
     // it takes the lock of the start as the core does.
@@ -995,8 +994,7 @@ fn scan_starts_the_core_of_the_build_once() {
             .unwrap();
         assert!(output.status.success(), "{output:?}");
         let runs = std::fs::read_to_string(card.path().join("RUNS")).unwrap_or_default();
-        let record =
-            std::fs::read_to_string(card.path().join("GRKIT/CORE.TXT")).unwrap_or_default();
+        let record = std::fs::read_to_string(card.path().join("GRKU/CORE.TXT")).unwrap_or_default();
         (runs, record)
     };
     let power_on = || {
@@ -1037,7 +1035,7 @@ fn scan_starts_the_core_of_the_build_once() {
     );
     assert_eq!(record, "CORE3.BIN\n");
     // The boot log of the start is in RAM, after the load line on the card.
-    let log = std::fs::read_to_string(card.path().join("GRKIT/BOOT.TXT")).unwrap();
+    let log = std::fs::read_to_string(card.path().join("GRKU/BOOT.TXT")).unwrap();
     assert_eq!(log.lines().filter(|l| l.ends_with(" load")).count(), 3);
     let ram = std::fs::read_to_string(card.path().join("tmp-grkit-boot.log")).unwrap();
     assert!(
@@ -1065,9 +1063,9 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
     );
     let files = unpack(&bytes);
     for (path, target) in [
-        ("SD_ROOT/SCRIPT/GRKIT/CORE1.BIN", "gr4-1.11"),
-        ("SD_ROOT/SCRIPT/GRKIT/CORE2.BIN", "gr4-1.20"),
-        ("SD_ROOT/SCRIPT/GRKIT/CORE3.BIN", "gr4-1.20-0528"),
+        ("SD_ROOT/SCRIPT/GRKU/CORE1.BIN", "gr4-1.11"),
+        ("SD_ROOT/SCRIPT/GRKU/CORE2.BIN", "gr4-1.20"),
+        ("SD_ROOT/SCRIPT/GRKU/CORE3.BIN", "gr4-1.20-0528"),
     ] {
         assert_eq!(files[path], testing::marked_installer(target), "{path}");
     }
@@ -1078,72 +1076,72 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
     // start runs. SCAN.SH logs to the card once, then to RAM; INSTALL.SH to
     // the card.
     let text = |script: &[u8]| String::from_utf8(script.to_vec()).unwrap();
-    let scan = text(&files["SD_ROOT/SCRIPT/GRKIT/SCAN.SH"]);
+    let scan = text(&files["SD_ROOT/SCRIPT/GRKU/SCAN.SH"]);
     assert!(
         scan.starts_with(
-            "mkdir -p /media/storage1/GRKIT\n\
+            "mkdir -p /media/storage1/GRKU\n\
              if [ ! -e /tmp/grkit-boot ]; then\n\
              \x20 : >/tmp/grkit-boot\n\
-             \x20 read t _ </proc/uptime; echo \"$t load\" >>/media/storage1/GRKIT/BOOT.TXT\n\
+             \x20 read t _ </proc/uptime; echo \"$t load\" >>/media/storage1/GRKU/BOOT.TXT\n\
              fi\n\
              [ -e /tmp/grkit-start.lck ] && exit 0\n\
              read t _ </proc/uptime; echo \"$t start\" >>/tmp/grkit-boot.log\n\
-             for core in CORE2.BIN CORE3.BIN; do [ -e /media/storage1/SCRIPT/GRKIT/$core ]; done\n\
-             k=/media/storage1/GRKIT/CORE.TXT\n"
+             for core in CORE2.BIN CORE3.BIN; do [ -e /media/storage1/SCRIPT/GRKU/$core ]; done\n\
+             k=/media/storage1/GRKU/CORE.TXT\n"
         ),
         "{scan}"
     );
     for part in [
-        "/media/storage1/SCRIPT/GRKIT/$last --start-known; status=$?; used=$last ;; esac\n",
-        "    /media/storage1/SCRIPT/GRKIT/$core --start-known\n",
-        "    /media/storage1/SCRIPT/GRKIT/$core --start-try\n",
-        "  case $status in 47) /media/storage1/SCRIPT/GRKIT/CORE3.BIN --start; status=$? ;; esac\n",
+        "/media/storage1/SCRIPT/GRKU/$last --start-known; status=$?; used=$last ;; esac\n",
+        "    /media/storage1/SCRIPT/GRKU/$core --start-known\n",
+        "    /media/storage1/SCRIPT/GRKU/$core --start-try\n",
+        "  case $status in 47) /media/storage1/SCRIPT/GRKU/CORE3.BIN --start; status=$? ;; esac\n",
         "read t _ </proc/uptime; echo \"$t started $status\" >>/tmp/grkit-boot.log\n\
          echo GR_MODULE_START_EXIT_$status\n\
-         if [ -e /media/storage1/GRKIT/DIAG ]; then\n",
+         if [ -e /media/storage1/GRKU/DIAG ]; then\n",
     ] {
         assert!(scan.contains(part), "{part}\n{scan}");
     }
     assert!(scan.ends_with("fi\nexit 0\n"), "{scan}");
-    let install = text(&files["SD_ROOT/SCRIPT/GRKIT/INSTALL.SH"]);
+    let install = text(&files["SD_ROOT/SCRIPT/GRKU/INSTALL.SH"]);
     assert!(
         install.starts_with(
             "p=; [ -e /tmp/grkit-core.pid ] && read p _ </tmp/grkit-core.pid\n\
              if [ -n \"$p\" ] && [ -d /proc/$p ]; then echo GR_MODULE_INSTALL_EXIT_3; exit 0; fi\n\
-             read t _ </proc/uptime; echo \"$t install-start\" >>/media/storage1/GRKIT/BOOT.TXT\n\
-             k=/media/storage1/GRKIT/CORE.TXT\n"
+             read t _ </proc/uptime; echo \"$t install-start\" >>/media/storage1/GRKU/BOOT.TXT\n\
+             k=/media/storage1/GRKU/CORE.TXT\n"
         ),
         "{install}"
     );
     for part in [
-        "/media/storage1/SCRIPT/GRKIT/$last --known; status=$?; used=$last ;; esac\n",
-        "    /media/storage1/SCRIPT/GRKIT/$core --try\n",
-        "  case $status in 47) /media/storage1/SCRIPT/GRKIT/CORE3.BIN --install; status=$? ;; esac\n",
+        "/media/storage1/SCRIPT/GRKU/$last --known; status=$?; used=$last ;; esac\n",
+        "    /media/storage1/SCRIPT/GRKU/$core --try\n",
+        "  case $status in 47) /media/storage1/SCRIPT/GRKU/CORE3.BIN --install; status=$? ;; esac\n",
     ] {
         assert!(install.contains(part), "{part}\n{install}");
     }
     assert!(
         install.ends_with(
-            "read t _ </proc/uptime; echo \"$t install $status\" >>/media/storage1/GRKIT/BOOT.TXT\n\
+            "read t _ </proc/uptime; echo \"$t install $status\" >>/media/storage1/GRKU/BOOT.TXT\n\
              echo GR_MODULE_INSTALL_EXIT_$status\n\
              exit 0\n"
         ),
         "{install}"
     );
     let gr3 = unpack(&package());
-    let scan = text(&gr3["SD_ROOT/SCRIPT/GRKIT/SCAN.SH"]);
+    let scan = text(&gr3["SD_ROOT/SCRIPT/GRKU/SCAN.SH"]);
     assert!(
-        scan.contains("\n/media/storage1/SCRIPT/GRKIT/CORE.BIN --start\nstatus=$?\n"),
+        scan.contains("\n/media/storage1/SCRIPT/GRKU/CORE.BIN --start\nstatus=$?\n"),
         "{scan}"
     );
     assert!(!scan.contains("for core in"));
-    let install = text(&gr3["SD_ROOT/SCRIPT/GRKIT/INSTALL.SH"]);
+    let install = text(&gr3["SD_ROOT/SCRIPT/GRKU/INSTALL.SH"]);
     assert!(
-        install.contains("\n/media/storage1/SCRIPT/GRKIT/CORE.BIN --install\nstatus=$?\n"),
+        install.contains("\n/media/storage1/SCRIPT/GRKU/CORE.BIN --install\nstatus=$?\n"),
         "{install}"
     );
-    assert!(gr3.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE.BIN"));
-    assert!(!gr3.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE1.BIN"));
+    assert!(gr3.contains_key("SD_ROOT/SCRIPT/GRKU/CORE.BIN"));
+    assert!(!gr3.contains_key("SD_ROOT/SCRIPT/GRKU/CORE1.BIN"));
 
     // Each build, in release order.
     let mut runtimes = gr4_runtimes();
@@ -1158,16 +1156,16 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
         ["gr4-1.11", "gr4-1.20"]
     );
     let partial = unpack(&partial);
-    assert!(partial.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE2.BIN"));
-    assert!(!partial.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE3.BIN"));
-    assert!(text(&partial["SD_ROOT/SCRIPT/GRKIT/SCAN.SH"]).contains(
-        "  case $status in 47) /media/storage1/SCRIPT/GRKIT/CORE2.BIN --start; status=$? ;; esac\n"
+    assert!(partial.contains_key("SD_ROOT/SCRIPT/GRKU/CORE2.BIN"));
+    assert!(!partial.contains_key("SD_ROOT/SCRIPT/GRKU/CORE3.BIN"));
+    assert!(text(&partial["SD_ROOT/SCRIPT/GRKU/SCAN.SH"]).contains(
+        "  case $status in 47) /media/storage1/SCRIPT/GRKU/CORE2.BIN --start; status=$? ;; esac\n"
     ));
     let single = gr4(&gr4_runtimes()[1..2]).unwrap();
     assert_eq!(verify_package(&single).unwrap().targets, ["gr4-1.20"]);
     let single = unpack(&single);
-    assert!(single.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE.BIN"));
-    assert!(!single.contains_key("SD_ROOT/SCRIPT/GRKIT/CORE1.BIN"));
+    assert!(single.contains_key("SD_ROOT/SCRIPT/GRKU/CORE.BIN"));
+    assert!(!single.contains_key("SD_ROOT/SCRIPT/GRKU/CORE1.BIN"));
     let mut twice = gr4_runtimes();
     twice[1] = twice[0].clone();
     assert!(format!("{:#}", gr4(&twice[..2]).unwrap_err()).contains("each once"));
@@ -1180,13 +1178,13 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
 
     // A package whose core files are swapped or missing is refused.
     let mut swapped = files_of(&bytes);
-    let first = swapped["SD_ROOT/SCRIPT/GRKIT/CORE1.BIN"].clone();
-    let second = swapped["SD_ROOT/SCRIPT/GRKIT/CORE2.BIN"].clone();
-    swapped.insert("SD_ROOT/SCRIPT/GRKIT/CORE1.BIN".into(), second);
-    swapped.insert("SD_ROOT/SCRIPT/GRKIT/CORE2.BIN".into(), first);
+    let first = swapped["SD_ROOT/SCRIPT/GRKU/CORE1.BIN"].clone();
+    let second = swapped["SD_ROOT/SCRIPT/GRKU/CORE2.BIN"].clone();
+    swapped.insert("SD_ROOT/SCRIPT/GRKU/CORE1.BIN".into(), second);
+    swapped.insert("SD_ROOT/SCRIPT/GRKU/CORE2.BIN".into(), first);
     assert!(validate_contents(&with_sums(swapped)).is_err());
     let mut missing = files_of(&bytes);
-    missing.remove("SD_ROOT/SCRIPT/GRKIT/CORE3.BIN");
+    missing.remove("SD_ROOT/SCRIPT/GRKU/CORE3.BIN");
     assert!(validate_contents(&with_sums(missing)).is_err());
 }
 
@@ -1197,23 +1195,23 @@ fn files_of(bytes: &[u8]) -> Files {
     files
 }
 
-/// A package puts its effects in the inbox of SCRIPT/GRKIT and lists its
-/// effect and module files in PACKAGE.TXT. No package file is in GRKIT, the
+/// A package puts its effects in the inbox of SCRIPT/GRKU and lists its
+/// effect and module files in PACKAGE.TXT. No package file is in GRKU, the
 /// data folder.
 #[test]
 fn packages_list_their_files_and_keep_out_of_the_data_folder() {
     let files = unpack(&package());
     let effects: Vec<_> = files
         .keys()
-        .filter_map(|name| name.strip_prefix("SD_ROOT/SCRIPT/GRKIT/EFFECTS/"))
+        .filter_map(|name| name.strip_prefix("SD_ROOT/SCRIPT/GRKU/EFFECTS/"))
         .collect();
     assert_eq!(effects.len(), 1);
-    assert!(files.keys().all(|name| !name.starts_with("SD_ROOT/GRKIT/")));
-    let list = String::from_utf8(files["SD_ROOT/SCRIPT/GRKIT/PACKAGE.TXT"].clone()).unwrap();
+    assert!(files.keys().all(|name| !name.starts_with("SD_ROOT/GRKU/")));
+    let list = String::from_utf8(files["SD_ROOT/SCRIPT/GRKU/PACKAGE.TXT"].clone()).unwrap();
     assert!(list.lines().any(|line| line == effects[0]));
     assert!(list.lines().any(|line| line.ends_with(".GRM")));
     let mut wrong = files.clone();
-    wrong.insert("SD_ROOT/SCRIPT/GRKIT/PACKAGE.TXT".into(), b"".to_vec());
+    wrong.insert("SD_ROOT/SCRIPT/GRKU/PACKAGE.TXT".into(), b"".to_vec());
     assert!(validate_contents(&with_sums(wrong)).is_err());
 }
 
@@ -1230,17 +1228,17 @@ fn module_files_install_from_the_modules_folder() {
     // A module shows a page, so a package with only a module is valid.
     assert_eq!(package.contents.modules, ["GUIDES"]);
     let files = unpack(&package.bytes);
-    assert!(files.contains_key("SD_ROOT/SCRIPT/GRKIT/MODULES/GUIDES.GRM"));
+    assert!(files.contains_key("SD_ROOT/SCRIPT/GRKU/MODULES/GUIDES.GRM"));
     // The file name is the module ID, and the file must decode.
     let mut renamed = files.clone();
     let module = renamed
-        .remove("SD_ROOT/SCRIPT/GRKIT/MODULES/GUIDES.GRM")
+        .remove("SD_ROOT/SCRIPT/GRKU/MODULES/GUIDES.GRM")
         .unwrap();
-    renamed.insert("SD_ROOT/SCRIPT/GRKIT/MODULES/OTHER.GRM".into(), module);
+    renamed.insert("SD_ROOT/SCRIPT/GRKU/MODULES/OTHER.GRM".into(), module);
     assert!(validate_contents(&with_sums(renamed)).is_err());
     let mut broken = files.clone();
     broken.insert(
-        "SD_ROOT/SCRIPT/GRKIT/MODULES/GUIDES.GRM".into(),
+        "SD_ROOT/SCRIPT/GRKU/MODULES/GUIDES.GRM".into(),
         b"GRKM".to_vec(),
     );
     assert!(validate_contents(&with_sums(broken)).is_err());
@@ -1334,7 +1332,7 @@ fn package_viewfinder_capacity_is_checked_across_modules() {
 
     // Imported ZIP verification uses the same preflight as assembly.
     let mut files = unpack(&valid.bytes);
-    files.insert("SD_ROOT/SCRIPT/GRKIT/MODULES/SECOND.GRM".into(), second);
+    files.insert("SD_ROOT/SCRIPT/GRKU/MODULES/SECOND.GRM".into(), second);
     let bytes = repack(&with_sums(files), CompressionMethod::Stored);
     assert!(verify_package(&bytes)
         .unwrap_err()
@@ -1404,7 +1402,7 @@ fn package_files_gives_the_card_files_of_a_package_from_any_release() {
     assert_eq!(card, card_files(&package()).unwrap());
     assert!(card
         .keys()
-        .any(|path| path.starts_with("SCRIPT/GRKIT/EFFECTS/") && path.ends_with(".GRF")));
+        .any(|path| path.starts_with("SCRIPT/GRKU/EFFECTS/") && path.ends_with(".GRF")));
 
     // A runtime that this version does not know, as in a ZIP of an older release, fails the
     // package checks but still gives the files.
@@ -1483,16 +1481,14 @@ fn a_package_holds_the_fast_boot_files_of_its_camera() {
     let names = |bytes: &[u8], prefix: &str| -> Vec<String> {
         files_of(bytes)
             .keys()
-            .filter_map(|path| path.strip_prefix(&format!("SD_ROOT/SCRIPT/GRKIT/{prefix}")))
+            .filter_map(|path| path.strip_prefix(&format!("SD_ROOT/SCRIPT/GRKU/{prefix}")))
             .filter(|name| name.starts_with(|c: char| c.is_ascii_digit()))
             .map(|name| format!("{prefix}{name}"))
             .collect()
     };
     let gr3 = testing::fast_runtime("gr3-2.10");
     for name in ["F588210", "F588220", "F609160", "F609170"] {
-        assert!(gr3
-            .files()
-            .contains_key(&format!("SCRIPT/GRKIT/{name}.BIN")));
+        assert!(gr3.files().contains_key(&format!("SCRIPT/GRKU/{name}.BIN")));
     }
     let package = |runtimes: &[VerifiedRuntime], camera: &camera::Camera| {
         assemble(
@@ -1536,17 +1532,17 @@ fn a_package_holds_the_fast_boot_files_of_its_camera() {
         assert_eq!(names(&bytes, "F"), expected, "{}", camera.name);
         assert_eq!(names(&bytes, "I"), installs, "{}", camera.name);
         let files = files_of(&bytes);
-        assert!(!files.contains_key("SD_ROOT/SCRIPT/GRKIT/FRUN.BIN"));
-        let loader = String::from_utf8(files["SD_ROOT/SCRIPT/GRKIT/LOADER.TTL"].clone()).unwrap();
+        assert!(!files.contains_key("SD_ROOT/SCRIPT/GRKU/FRUN.BIN"));
+        let loader = String::from_utf8(files["SD_ROOT/SCRIPT/GRKU/LOADER.TTL"].clone()).unwrap();
         for (name, install) in expected.iter().zip(&installs) {
-            let fast = &files[&format!("SD_ROOT/SCRIPT/GRKIT/{name}")];
+            let fast = &files[&format!("SD_ROOT/SCRIPT/GRKU/{name}")];
             assert_eq!(
-                files[&format!("SD_ROOT/SCRIPT/GRKIT/{install}")],
+                files[&format!("SD_ROOT/SCRIPT/GRKU/{install}")],
                 runtime::install_file(fast).unwrap()
             );
             for file in [name, install] {
                 assert!(
-                    loader.contains(&format!("SYS_memovr C:\\SCRIPT\\GRKIT\\{file} 0 call")),
+                    loader.contains(&format!("SYS_memovr C:\\SCRIPT\\GRKU\\{file} 0 call")),
                     "{file}"
                 );
             }
@@ -1588,13 +1584,13 @@ fn a_package_holds_the_fast_boot_files_of_its_camera() {
         } else {
             "F588210.BIN"
         };
-        let release = runtime::FastRelease::of_path(&format!("SCRIPT/GRKIT/{other}")).unwrap();
+        let release = runtime::FastRelease::of_path(&format!("SCRIPT/GRKU/{other}")).unwrap();
         foreign.insert(
-            format!("SD_ROOT/SCRIPT/GRKIT/{other}"),
+            format!("SD_ROOT/SCRIPT/GRKU/{other}"),
             testing::fast_file(&release),
         );
         assert!(validate_contents(&with_sums(foreign)).is_err());
-        let install = format!("SD_ROOT/SCRIPT/GRKIT/{}", installs[0]);
+        let install = format!("SD_ROOT/SCRIPT/GRKU/{}", installs[0]);
         let mut no_install = files.clone();
         no_install.remove(&install);
         assert!(validate_contents(&with_sums(no_install)).is_err());
@@ -1609,8 +1605,8 @@ fn a_package_holds_the_fast_boot_files_of_its_camera() {
     files.insert(release.path(), testing::fast_file(&release));
     assert!(load_runtime(&testing::manifest("gr3-2.10", &files), &files).is_err());
     let mut files = gr3.files().clone();
-    let path = "SCRIPT/GRKIT/F588220.BIN";
-    let moved = files["SCRIPT/GRKIT/F588210.BIN"].clone();
+    let path = "SCRIPT/GRKU/F588220.BIN";
+    let moved = files["SCRIPT/GRKU/F588210.BIN"].clone();
     files.insert(path.into(), moved);
     assert!(load_runtime(&testing::manifest("gr3-2.10", &files), &files).is_err());
 }

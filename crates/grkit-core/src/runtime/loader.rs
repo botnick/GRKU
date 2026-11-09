@@ -1038,7 +1038,7 @@ mod tests {
     fn the_loader_saves_in_the_data_folder() {
         let script = state_script();
         let check = at(&script, "if result = 0 stateok = 0");
-        assert_eq!(script[check - 1], "foldersearch 'C:\\GRKIT'");
+        assert_eq!(script[check - 1], "foldersearch 'C:\\GRKU'");
         assert!(check < at(&script, ":watch"));
         for file in StateFile::ALL {
             let save = at(&script, &format!(":save_{}", label(file)));
@@ -1053,7 +1053,7 @@ mod tests {
             .collect();
         assert_eq!(writes.len(), 2 * StateFile::ALL.len());
         assert!(
-            writes.iter().all(|l| l.contains("C:\\GRKIT\\")),
+            writes.iter().all(|l| l.contains("C:\\GRKU\\")),
             "{writes:?}"
         );
     }
@@ -1095,7 +1095,7 @@ mod tests {
         let installed = at(":installed");
         assert_eq!(
             lines[installed + 1],
-            "filedelete 'C:\\SCRIPT\\GRKIT\\INSTALL.ERR'"
+            "filedelete 'C:\\SCRIPT\\GRKU\\INSTALL.ERR'"
         );
         // A stop writes the status of the step only over a status of the
         // loader, or without a file.
@@ -1143,7 +1143,7 @@ mod tests {
         assert_eq!(lines[scan + 1], "if started <> 0 goto scan_posted");
         assert_eq!(
             lines[scan + 2],
-            "sendln 'lcmd sh /media/storage1/SCRIPT/GRKIT/SCAN.SH'"
+            "sendln 'lcmd sh /media/storage1/SCRIPT/GRKU/SCAN.SH'"
         );
         assert_eq!(lines[scan + 3], "started = mb[12]");
         assert_eq!(lines[at(":scan_posted") + 1], "posted = mb[0]");
@@ -1175,17 +1175,17 @@ mod tests {
         assert_eq!(lines[install + 3], "if posted = 2 goto start_failed");
         assert_eq!(
             lines[install + 4],
-            "filesearch 'C:\\SCRIPT\\GRKIT\\INSTALL.OK'"
+            "filesearch 'C:\\SCRIPT\\GRKU\\INSTALL.OK'"
         );
         // INSTALL.SH only after each 10 s without a result.
         let watchdog = at("watchdog = attempts % 100");
         assert_eq!(
             lines[watchdog + 1],
-            "if watchdog = 0 sendln 'lcmd sh /media/storage1/SCRIPT/GRKIT/INSTALL.SH'"
+            "if watchdog = 0 sendln 'lcmd sh /media/storage1/SCRIPT/GRKU/INSTALL.SH'"
         );
         assert_eq!(
             script
-                .matches("lcmd sh /media/storage1/SCRIPT/GRKIT/INSTALL.SH")
+                .matches("lcmd sh /media/storage1/SCRIPT/GRKU/INSTALL.SH")
                 .count(),
             1
         );
@@ -1225,7 +1225,7 @@ mod tests {
     fn the_loader_saves_at_once_without_a_state_file() {
         let state = state_script();
         let force = at(&state, "if result = 0 saved = changes - 1");
-        assert_eq!(state[force - 1], "filesearch 'C:\\GRKIT\\STATE.TXT'");
+        assert_eq!(state[force - 1], "filesearch 'C:\\GRKU\\STATE.TXT'");
         assert!(at(&state, "saved = changes") < force);
         assert!(force < at(&state, ":watch"));
     }
@@ -1460,9 +1460,9 @@ mod tests {
                 "fastreason = 6",
                 "call fast_log",
                 "fast = 0",
-                "filedelete 'C:\\SCRIPT\\GRKIT\\PLAN.BIN'",
-                "filedelete 'C:\\SCRIPT\\GRKIT\\PLAN.TMP'",
-                "filedelete 'C:\\SCRIPT\\GRKIT\\INSTALL.LCK'",
+                "filedelete 'C:\\SCRIPT\\GRKU\\PLAN.BIN'",
+                "filedelete 'C:\\SCRIPT\\GRKU\\PLAN.TMP'",
+                "filedelete 'C:\\SCRIPT\\GRKU\\INSTALL.LCK'",
                 "attempts = 0",
                 "failure = 60",
                 "call write_error",
@@ -1505,13 +1505,13 @@ mod tests {
             assert!(lines[call - 1].starts_with("fastreason = "));
             assert_eq!(lines[call + 1], "fast = 0");
         }
-        // The subroutine appends one line to GRKIT/BOOT.TXT.
+        // The subroutine appends one line to GRKU/BOOT.TXT.
         let log = at(":fast_log");
         assert!(log > at("end"));
         for line in [
-            "fileopen lfh 'C:\\GRKIT\\BOOT.TXT' 1",
-            "filecreate lfh 'C:\\GRKIT\\BOOT.TXT'",
-            "if result = 0 foldercreate 'C:\\GRKIT'",
+            "fileopen lfh 'C:\\GRKU\\BOOT.TXT' 1",
+            "filecreate lfh 'C:\\GRKU\\BOOT.TXT'",
+            "if result = 0 foldercreate 'C:\\GRKU'",
             "filewrite lfh 'fast-boot'",
             "if fastreason = 1 filewrite lfh ' off: official firmware'",
             "if fastreason = 4 filewrite lfh ' off: files missing'",

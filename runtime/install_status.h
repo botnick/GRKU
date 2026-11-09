@@ -1,7 +1,7 @@
 #ifndef GRKIT_INSTALL_STATUS_H
 #define GRKIT_INSTALL_STATUS_H
 /* The exit status of CORE.BIN. A person sees it in INSTALL.ERR, in
-   GRKIT/REPORT.TXT, and after a module name on the Modules page, and reports
+   GRKU/REPORT.TXT, and after a module name on the Modules page, and reports
    it, so a value never changes meaning. 0 is success. The scripts of a
    package test STATUS_RELOCATION and STATUS_OTHER_BUILD
    (grkit_core::runtime::package_runtime_files). */

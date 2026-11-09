@@ -81,7 +81,7 @@ static void choose_effects(void)
             listed_record[i] = count++;
         }
 }
-/* The effects of GRKIT/EFFECTS: GRKit lists at most EFFECTS_LISTED, those
+/* The effects of GRKU/EFFECTS: GRKit lists at most EFFECTS_LISTED, those
    with the smallest IDs, and installs at most MAX_COUNT of them. */
 static int tone_used(void);
 static int discover(void)

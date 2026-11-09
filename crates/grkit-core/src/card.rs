@@ -6,13 +6,13 @@
 /// The package folder, with `$separator` between its parts.
 macro_rules! package_folder {
     ($separator:literal) => {
-        concat!("SCRIPT", $separator, "GRKIT")
+        concat!("SCRIPT", $separator, "GRKU")
     };
 }
 /// The data folder.
 macro_rules! data_folder {
     () => {
-        "GRKIT"
+        "GRKU"
     };
 }
 /// The card on the camera's Linux.
@@ -45,6 +45,12 @@ pub const LINUX_DATA_DIRECTORY: &str = concat!(linux_card!(), data_folder!());
 /// effects. INSTALL reads them once, when `DATA_FOLDER` has no state file or
 /// no effects library.
 pub const LINUX_LEGACY_DIRECTORY: &str = concat!(linux_card!(), "SCRIPT/PLUGINS");
+/// The data folder of GRKit 1.3 to 1.5 and of GRKU before 2026-11-09, on
+/// Linux. Each start renames it to `LINUX_DATA_DIRECTORY` when that does not
+/// exist yet, so the settings and the effects library of such a card carry
+/// over. The old package folder, `SCRIPT/GRKIT`, is the site's and the
+/// card tool's to remove: a new `STARTUP.TTL` never runs it.
+pub const LINUX_OLD_DATA_DIRECTORY: &str = concat!(linux_card!(), "GRKIT");
 
 /// The whole plan of a start, in RAM on Linux. SCAN writes it and INSTALL
 /// reads it. The card gets only the plan header, which the loader reads, so a
@@ -66,7 +72,7 @@ pub const IMPORTS_FILE: &str = concat!(package_folder!("/"), "/IMPORTS.BIN");
 /// package files that the list does not name.
 pub const PACKAGE_LIST: &str = concat!(package_folder!("/"), "/PACKAGE.TXT");
 /// The inbox of the package effects on the card. SCAN copies a new package
-/// effect into the effects library, `GRKIT/EFFECTS`, where a person adds or
+/// effect into the effects library, `GRKU/EFFECTS`, where a person adds or
 /// deletes effect files.
 pub const EFFECTS_FOLDER: &str = concat!(package_folder!("/"), "/EFFECTS");
 /// The modules of a package (`grm`).

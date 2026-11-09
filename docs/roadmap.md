@@ -14,7 +14,7 @@ The goal is a GRKit that loads sooner, has every feature that [GRLife Pro](https
 
 Phase 2 is what gets the 4 to 5 s the user asked for. It is also the step that upstream withdrew in 1.3.3 for reliability, so it must be built with the measurements and the safety rules in one-shot-start.md, and tested on each camera model.
 
-Measurement protocol, each time: three cold power-ons, `GRKIT/BOOT.TXT` lines `load`, `scan`, `install`, the time GRK shows in ADJ by stopwatch, then once with `GRKIT/DIAG` for `DIAG.TXT`. The first camera is a GR IV on firmware 1.11; ahonn's numbers above are from a GR III, and GR IV loads later still, so expect larger values there.
+Measurement protocol, each time: three cold power-ons, `GRKU/BOOT.TXT` lines `load`, `scan`, `install`, the time GRK shows in ADJ by stopwatch, then once with `GRKU/DIAG` for `DIAG.TXT`. The first camera is a GR IV on firmware 1.11; ahonn's numbers above are from a GR III, and GR IV loads later still, so expect larger values there.
 
 ## 2. Feature gap against GRLife Pro 2.0
 
@@ -30,7 +30,7 @@ Everything in GRLife runs inside a patched firmware. Each row says how the same 
 | Film softness Low / Med / High | no | a plane filter that low-passes luma slightly at the JPEG encode stage, like Glow's filter but a blur | module `softness` | small |
 | CineStill halation | have, with colour choice | keep | | |
 | Light leak Off / Glow / First roll | have: `modules/lightleak` (Light Leak, `LEAK.GRM`), ported from the kkasemsa overlay: vignette, dust and hairs, a leak as an edge wash, a band, or a corner flare, and scratches, each Off / Light / Medium / Strong, with the presets Faded, Dusty, Leaky, and Expired, seeded per shot | keep; the camera timing is unverified | module | |
-| Imprint: 5 date formats, 12 caption presets + 3 custom (24 chars), film name line, 7-segment or 5x7 dot matrix, 4 colours, glow, 4 positions, 4 sizes | Classic / GR1s / GR II styles, Upright position, lit stamp | extend `modules/date`: formats, colours (orange, white, sepia, LED yellow), sizes, positions (BR, BL, TR, split), film name line (the effect name is in the core header), caption presets; custom captions come from `GRKIT/CAPTION.TXT` on the card (the camera has no text entry) | module | medium |
+| Imprint: 5 date formats, 12 caption presets + 3 custom (24 chars), film name line, 7-segment or 5x7 dot matrix, 4 colours, glow, 4 positions, 4 sizes | Classic / GR1s / GR II styles, Upright position, lit stamp | extend `modules/date`: formats, colours (orange, white, sepia, LED yellow), sizes, positions (BR, BL, TR, split), film name line (the effect name is in the core header), caption presets; custom captions come from `GRKU/CAPTION.TXT` on the card (the camera has no text entry) | module | medium |
 | Aspect ratios 7:6, 5:4, 4:3, 16:9, 65:24 | have, plus 2.35:1 | keep | | |
 | Half frame: two portrait frames in one 3:2 photo | no | first step: "Half Frame 3:4" live-view framing from the MustafaCisse Crop Zoom module (one upright frame, cropped); the real diptych needs the previous shot kept between two shots, which does not fit the script arrays, so it waits | module (port), then core | small, then hard |
 | Golden grid and four golden spirals | golden ratio grid | add the four spirals to `modules/guides` | module | small |
@@ -42,7 +42,7 @@ Everything in GRLife runs inside a patched firmware. Each row says how the same 
 | 48 community recipes, JSON import, estimate from `.cube` | upstream has an unmerged `feat/recipes` branch (5 commits, 116 files); the kkasemsa fork has a small Recipe module; the iceboerg00 fork has 80 ricohcookbook recipes as JSON and the UserData catalogue | rebase upstream `feat/recipes` first (it is the maintainer's own design: one ADJ list, Undo, MENU management); import the 80 recipes with attribution | core + site | medium (port) |
 | GRLife Pro shortcut (OK on the shooting screen) | ADJ sixth entry | keep; an OK hook is possible later | | |
 | Languages: English, Simplified and Traditional Chinese | English, zh-Hans, zh-Hant, ja, ko | **add Thai** to `menu_text.rs`, the guides, and the site | text | small |
-| Clear GRLife data | delete `GRKIT/` on the card | document | | |
+| Clear GRLife data | delete `GRKU/` on the card | document | | |
 
 ## 3. What the community asked for (issues and forks)
 

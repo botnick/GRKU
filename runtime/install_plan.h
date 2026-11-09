@@ -4,7 +4,7 @@
    includes it once, in its order, after the helpers and the state that this
    part uses.
 
-   Each GRKIT/MODULES/<ID>.GRM is one module. SCAN reserves script
+   Each GRKU/MODULES/<ID>.GRM is one module. SCAN reserves script
    memory for the modules, and INSTALL links them there and registers their
    layers. Both steps skip the same unusable modules.
 
@@ -85,10 +85,10 @@ static u32 module_contexts, module_data_words;
    a module that is Off. The settings table keeps them, so the next save of
    the loader keeps them too. */
 static u32 kept_ids[GRKIT_MODULE_SETTINGS_MAX], kept_values[GRKIT_MODULE_SETTINGS_MAX], kept_count;
-/* Safe mode: 1 while the file GRKIT/SAFE or SAFE.TXT exists. No module
+/* Safe mode: 1 while the file GRKU/SAFE or SAFE.TXT exists. No module
    loads then (scan). */
 static u32 safe_mode;
-/* The development profile: 1 while the file GRKIT/PROFILE or PROFILE.TXT
+/* The development profile: 1 while the file GRKU/PROFILE or PROFILE.TXT
    exists (runtime/profile.h). */
 static u32 profile_mode;
 /* The capabilities that the loaded modules use (GRKIT_HOST_CAPABILITIES). */
@@ -113,7 +113,7 @@ static int module_after(u32 order_a, const char *a, u32 order_b, const char *b)
     return order_a != order_b ? order_a > order_b : compare((const u8 *)a, (const u8 *)b) > 0;
 }
 /* The order in the header of module file `name` in the package folder or in
-   GRKIT/MODULES (`source`). */
+   GRKU/MODULES (`source`). */
 static u32 module_file_order(const char *name, u32 source)
 {
     char path[sizeof(package_modules_path) + CATALOG_NAME_SIZE];
@@ -137,7 +137,7 @@ static u32 module_file_order(const char *name, u32 source)
    result does not depend on the directory order. */
 static u32 module_overflow;
 /* The folder of each listed module: 0 for the package folder, 1 for
-   GRKIT/MODULES. A module file of GRKIT/MODULES replaces the package module
+   GRKU/MODULES. A module file of GRKU/MODULES replaces the package module
    with the same name. */
 static u32 module_source[GRKIT_MODULES_MAX];
 static void offer_module(const char *name, u32 n, void *context)
@@ -147,7 +147,7 @@ static void offer_module(const char *name, u32 n, void *context)
     char file[CATALOG_NAME_SIZE];
     name_copy(file, name, n);
     if (!source && !package_module(file)) return;
-    /* A file of GRKIT/MODULES replaces the package module of its name, with
+    /* A file of GRKU/MODULES replaces the package module of its name, with
        its own order. */
     for (u32 k = 0; k < module_count; ++k)
         if (same_name(module_names[k], file)) {

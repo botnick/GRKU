@@ -75,20 +75,20 @@ The page checks every catalog effect until the user changes the selection. A use
 
 The first section of the page selects how to install: write to an SD card in a card reader, through the File System Access API, or download `GRKU.zip`. The section shows only in a browser that can write to a card, Chrome and Edge on a computer, where the card mode is the default. In other browsers, the page has only the download. The page remembers the choice in `localStorage`.
 
-1. The page reads the card. The first line of `GRKIT/REPORT.TXT` gives the version and selects the camera. The modules of `PACKAGE.TXT` and the effects of the library become the selection. An effect file that the catalog does not have shows as an extra row.
+1. The page reads the card. The first line of `GRKU/REPORT.TXT` gives the version and selects the camera. The modules of `PACKAGE.TXT` and the effects of the library become the selection. An effect file that the catalog does not have shows as an extra row.
 2. The user changes the selection. Badges show what a write adds or removes.
 3. The last section lists the changes. Nothing on the card changes until the user confirms them.
 
 A write (`applyChanges` in `src/card.ts`):
 
-- It writes the `SD_ROOT` files of the verified package (`Package.cardFiles`), only the ones that differ, as a merge copy of `SD_ROOT` does. It keeps `GRKIT` and the `SCRIPT/PLUGINS` folder of GRKit 1.2, which the first power-on migrates. The ModeSet files go only on a card without GRKit.
+- It writes the `SD_ROOT` files of the verified package (`Package.cardFiles`), only the ones that differ, as a merge copy of `SD_ROOT` does. It keeps `GRKU` and the `SCRIPT/PLUGINS` folder of GRKit 1.2, which the first power-on migrates. The ModeSet files go only on a card without GRKit.
 - It writes `PACKAGE.TXT` and `SCRIPT/STARTUP.TTL` last, reads each file back, and deletes the `._` files that macOS adds for the files that it wrote.
-- It adds and removes effects in the library `GRKIT/EFFECTS` when the library exists. SCAN migrates the effects of GRKit 1.2 only when it creates the library, so the page does not create it, and the effects of GRKit 1.2 cannot be removed before that power-on.
-- It deletes the package files that the new `PACKAGE.TXT` does not name. It never writes to `GRKIT/MODULES`, because a file there replaces a newer package module.
+- It adds and removes effects in the library `GRKU/EFFECTS` when the library exists. SCAN migrates the effects of GRKit 1.2 only when it creates the library, so the page does not create it, and the effects of GRKit 1.2 cannot be removed before that power-on.
+- It deletes the package files that the new `PACKAGE.TXT` does not name. It never writes to `GRKU/MODULES`, because a file there replaces a newer package module.
 
 In card mode, Uninstall GRKU acts on the connected card. It shows only while the card has GRKU, or has the files that turn SD scripts off:
 
-- Uninstall (`removeGrkit`) deletes `SCRIPT/GRKIT`, `SCRIPT/PLUGINS`, and `SCRIPT/STARTUP.TTL` when it runs one of them. Other files in `SCRIPT` stay. The data folder `GRKIT` goes only when the user also selects the settings and effects. A dialog asks for a confirmation first, with the choices to delete the settings and effects too and to turn SD scripts off.
+- Uninstall (`removeGrkit`) deletes `SCRIPT/GRKU`, `SCRIPT/PLUGINS`, and `SCRIPT/STARTUP.TTL` when it runs one of them. Other files in `SCRIPT` stay. The data folder `GRKU` goes only when the user also selects the settings and effects. A dialog asks for a confirmation first, with the choices to delete the settings and effects too and to turn SD scripts off.
 - Turn off SD scripts writes the ModeSet file with the disable command and `DEVELOP.MOD`. When the card has that ModeSet file, the page offers to delete the two files after the camera step.
 
 `src/card.test.ts` checks this logic against an in-memory card that behaves like a FAT card on macOS.

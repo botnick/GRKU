@@ -27,14 +27,14 @@ typedef unsigned int u32;
 #define ICON_STRIDE 0x1908U
 #define HOST_ICON_COUNT 4U
 #define CARD "/card"
-#define INBOX_PATH CARD "/SCRIPT/GRKIT/EFFECTS"
-#define PACKAGE_PATH CARD "/SCRIPT/GRKIT/PACKAGE.TXT"
-#define PACKAGE_MODULES_PATH CARD "/SCRIPT/GRKIT/MODULES"
-#define DATA_PATH CARD "/GRKIT"
-#define IMPORTED_PATH CARD "/GRKIT/IMPORTED.TXT"
-#define LIBRARY_PATH CARD "/GRKIT/EFFECTS"
-#define STATE_PATH CARD "/GRKIT/STATE.TXT"
-#define MODULES_PATH CARD "/GRKIT/MODULES"
+#define INBOX_PATH CARD "/SCRIPT/GRKU/EFFECTS"
+#define PACKAGE_PATH CARD "/SCRIPT/GRKU/PACKAGE.TXT"
+#define PACKAGE_MODULES_PATH CARD "/SCRIPT/GRKU/MODULES"
+#define DATA_PATH CARD "/GRKU"
+#define IMPORTED_PATH CARD "/GRKU/IMPORTED.TXT"
+#define LIBRARY_PATH CARD "/GRKU/EFFECTS"
+#define STATE_PATH CARD "/GRKU/STATE.TXT"
+#define MODULES_PATH CARD "/GRKU/MODULES"
 #define LEGACY_EFFECTS_PATH CARD "/SCRIPT/PLUGINS/EFFECTS"
 #define CORE_STATE_IDS 861965461, 484706023, 790270076, 977751003, 826089556, 660632122, 618415657
 #define PARAMETER_KEY_BASE 990000000U
@@ -525,7 +525,7 @@ static void modules_come_from_both_folders_in_header_order(void)
     add_module(PACKAGE_MODULES_PATH, "A.GRM", &(struct spec){.id = "A", .order = 20});
     add_text(PACKAGE_MODULES_PATH "/NOTES.TXT", "not a module");
     add_module(PACKAGE_MODULES_PATH, "B.GRM", &(struct spec){.id = "B", .order = 10});
-    /* A of GRKIT/MODULES replaces the package A, with its own order. */
+    /* A of GRKU/MODULES replaces the package A, with its own order. */
     add_module(MODULES_PATH, "A.GRM", &(struct spec){.id = "A", .order = 5});
     add_module(MODULES_PATH, "D.GRM", &(struct spec){.id = "D", .order = 10});
     scan();
@@ -561,8 +561,8 @@ static void more_modules_than_the_list_holds_are_counted(void)
         assert(!strcmp(module_names[i], file) && module_status[i] == 0);
     }
 }
-/* A full list keeps the package modules: a module of GRKIT/MODULES takes
-   only the place of another one of GRKIT/MODULES that comes after it. */
+/* A full list keeps the package modules: a module of GRKU/MODULES takes
+   only the place of another one of GRKU/MODULES that comes after it. */
 static void a_full_list_keeps_the_package_modules(void)
 {
     reset();

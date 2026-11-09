@@ -239,14 +239,14 @@ mod tests {
             let release = FastRelease::new(camera, firmware).unwrap();
             assert_eq!(release.name(), name);
             assert_eq!(release.target(), target);
-            assert_eq!(release.path(), format!("SCRIPT/GRKIT/{name}"));
-            assert_eq!(release.rtos_path(), format!("C:\\SCRIPT\\GRKIT\\{name}"));
+            assert_eq!(release.path(), format!("SCRIPT/GRKU/{name}"));
+            assert_eq!(release.rtos_path(), format!("C:\\SCRIPT\\GRKU\\{name}"));
             assert_eq!(FastRelease::of_path(&release.path()), Some(release));
             let install = name.replacen('F', "I", 1);
-            assert_eq!(release.install_path(), format!("SCRIPT/GRKIT/{install}"));
+            assert_eq!(release.install_path(), format!("SCRIPT/GRKU/{install}"));
             assert_eq!(
                 release.install_rtos_path(),
-                format!("C:\\SCRIPT\\GRKIT\\{install}")
+                format!("C:\\SCRIPT\\GRKU\\{install}")
             );
             assert_eq!(
                 FastRelease::of_install_path(&release.install_path()),
@@ -256,7 +256,7 @@ mod tests {
             assert_eq!(FastRelease::of_install_path(&release.path()), None);
         }
         assert!(FastRelease::new(&GR3, "1.11").is_err());
-        assert_eq!(FastRelease::of_path("SCRIPT/GRKIT/F588230.BIN"), None);
+        assert_eq!(FastRelease::of_path("SCRIPT/GRKU/F588230.BIN"), None);
     }
 
     #[test]

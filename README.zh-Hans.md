@@ -32,7 +32,7 @@ GRKU 给 RICOH GR III、GR IIIx 和 GR IV 加上胶片风格、XPan 等裁切、
 - **柔焦**：黑柔滤镜（Black Pro-Mist）的柔光效果，强度可选 1/8、1/4 或 1/2。Black Mist 在阴影上叠加滤镜的薄纱感，Streak 让点光源产生变形宽银幕镜头式的蓝色或琥珀色水平眩光。仅限 JPEG。
 - **颗粒感**：胶片颗粒，四档强度、四种大小（自动、小、中、大）。
 - **边框**：在照片上叠加白色或黑色的打印边框，宽度为照片宽度的 3% 或 6%。
-- **英尺**：卡上若有 `GRKIT/FEET.TXT` 文件，Snap Focus Distance 设置将显示 1'、3'、5'、7'、8' 和 16'，而不是米。
+- **英尺**：卡上若有 `GRKU/FEET.TXT` 文件，Snap Focus Distance 设置将显示 1'、3'、5'、7'、8' 和 16'，而不是米。
 
 GRKU 开机后需要约 9 秒加载，安装或更新后的第一次开机会更久。在此之前相机使用原本的设置。完整设置在 MENU 自定义页最后的 GRKU 小节。想自己写模块，见 [Writing a module](docs/modules.md)。
 
@@ -62,9 +62,9 @@ GRKU 没有快速启动固件，以后也不会有：相机固件保持理光出
 
 也可以从本仓库构建安装包（见下文），然后用读卡器执行 `python3 -I scripts/card.py write dist/GRKU-gr4.zip` 写入存储卡；同一个脚本还能开关脚垫标签（`feet on`、`feet off`）并查看存储卡状态（`status`）。
 
-只有第一次需要按住 MENU 开机。用 ZIP 更新时，替换卡里的 `SCRIPT` 文件夹即可，设置保存在 `GRKIT` 里。格式化存储卡会删掉 GRKU，格式化前先把 `GRKIT` 复制到电脑。
+只有第一次需要按住 MENU 开机。用 ZIP 更新时，替换卡里的 `SCRIPT` 文件夹即可，设置保存在 `GRKU` 里。格式化存储卡会删掉 GRKU，格式化前先把 `GRKU` 复制到电脑。
 
-如果 GRKU 没有出现，请在 [issue](https://github.com/botnick/GRKit/issues/new) 中附上 `GRKIT/REPORT.TXT`、`GRKIT/BOOT.TXT` 和 `SCRIPT/GRKIT/INSTALL.ERR`（如果有）。[这些文件每一行的含义](docs/diagnostics.md)。
+如果 GRKU 没有出现，请在 [issue](https://github.com/botnick/GRKit/issues/new) 中附上 `GRKU/REPORT.TXT`、`GRKU/BOOT.TXT` 和 `SCRIPT/GRKU/INSTALL.ERR`（如果有）。[这些文件每一行的含义](docs/diagnostics.md)。
 
 ## 从源码构建
 

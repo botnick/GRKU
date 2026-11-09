@@ -505,7 +505,7 @@ fn package_list<'a>(names: impl IntoIterator<Item = &'a String>) -> Vec<u8> {
 
 fn is_effect_path(name: &str) -> bool {
     let Some(stem) = name
-        .strip_prefix("SD_ROOT/SCRIPT/GRKIT/EFFECTS/")
+        .strip_prefix("SD_ROOT/SCRIPT/GRKU/EFFECTS/")
         .and_then(|s| s.strip_suffix(".GRF"))
     else {
         return false;

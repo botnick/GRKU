@@ -47,7 +47,7 @@ describe('downloadProps', () => {
 
 describe('downloadErrorProps', () => {
   it('gives the reason and the kind of the file that did not arrive, without its URL', () => {
-    const error = new TransferError('stall', 'https://grku.app/runtime/gr4-1.20/sd/SCRIPT/GRKIT/CORE.BIN');
+    const error = new TransferError('stall', 'https://grku.app/runtime/gr4-1.20/sd/SCRIPT/GRKU/CORE.BIN');
     const props = downloadErrorProps(camera('gr4'), 'zip', true, error);
     expect(props).toEqual({ camera: 'gr4', mode: 'zip', app: 'yes', reason: 'stall', file: 'runtime' });
   });

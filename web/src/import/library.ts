@@ -7,7 +7,7 @@ import { INPUTS, isTone, type Input } from './names';
 // restores the imports from it, with the details that the page shows of each.
 
 /** The import library in a package and on a card (grkit-core `card::IMPORTS_FILE`). */
-export const IMPORTS_FILE = 'SCRIPT/GRKIT/IMPORTS.BIN';
+export const IMPORTS_FILE = 'SCRIPT/GRKU/IMPORTS.BIN';
 
 /** What the library keeps of an import besides its effect file, which holds its name and icon. */
 export interface LibraryDetails {

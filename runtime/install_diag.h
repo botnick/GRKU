@@ -4,17 +4,17 @@
    includes it once, after install_report.h.
 
    Three files say what a start did, each for a reader:
-   - GRKIT/REPORT.TXT (install_report.h) is the result for a person, and
+   - GRKU/REPORT.TXT (install_report.h) is the result for a person, and
      say_details adds the facts of this card on this firmware: the build,
      the relocation, each patch, each module with its settings, each
      effect, the saved state, and the modes. They are the same from start
      to start while the card and the firmware are, so a start rarely writes
      the report.
-   - GRKIT/BOOT.TXT is the log of each start: the time of each step, and
+   - GRKU/BOOT.TXT is the log of each start: the time of each step, and
      with log_environment, log_build, log_plan, and log_install, the numbers
      of the start that can differ from one start to the next: the kernel,
      the memory, the addresses of the arrays, the patches, the retries.
-   - SCRIPT/GRKIT/INSTALL.ERR is the file of a failure: its status, the
+   - SCRIPT/GRKU/INSTALL.ERR is the file of a failure: its status, the
      name and the meaning of the status, the step, and the state at that
      point (failure_details), then the boot log of the start, so that one
      file tells the story.
@@ -88,7 +88,7 @@ static void say_build(void)
     nl();
     say("Relocation: "); say_number(relocation_tables.window_count); say(" windows ");
     say(relocation.searched ? "found by a search of the image" : "at their known addresses");
-    say(relocation.hint ? " (GRKIT\\RELOC.BIN had addresses)" : " (no GRKIT\\RELOC.BIN)");
+    say(relocation.hint ? " (GRKU\\RELOC.BIN had addresses)" : " (no GRKU\\RELOC.BIN)");
     say(", "); say_number(relocation_tables.symbol_count); say(" symbols; windows at");
     for (u32 w = 0; w < relocation_tables.window_count && w < RELOCATION_WINDOW_COUNT; ++w) { say(" "); say_hex(window_at[w]); }
     nl();
@@ -123,7 +123,7 @@ static void say_modules_detail(void)
     for (u32 i = 0; i < module_count; ++i) {
         char id[9];
         module_id(i, id);
-        say("  "); say(id); say(" "); say(module_names[i]); say(module_source[i] ? " (GRKIT\\MODULES)" : " (package)");
+        say("  "); say(id); say(" "); say(module_names[i]); say(module_source[i] ? " (GRKU\\MODULES)" : " (package)");
         say(", order "); say_number(module_order[i]);
         say(", status "); say_number(module_status[i]);
         if (module_status[i]) {
@@ -167,7 +167,7 @@ static void say_effects_detail(void)
     }
 }
 /* The saved state: the core settings by name, then every pair of
-   GRKIT/STATE.TXT as the installer read it. */
+   GRKU/STATE.TXT as the installer read it. */
 static void say_state_detail(void)
 {
     static const u32 ids[] = {CORE_STATE_IDS};
@@ -178,7 +178,7 @@ static void say_state_detail(void)
         if (state_value(&saved_state, ids[k], &value)) say_number(value); else say("default");
     }
     nl();
-    say("State (GRKIT\\STATE.TXT): "); say_number(saved_state.pairs); say(" pairs of state ID=value");
+    say("State (GRKU\\STATE.TXT): "); say_number(saved_state.pairs); say(" pairs of state ID=value");
     for (u32 k = 0; k < saved_state.pairs && k < 128; ++k) {
         if (k % 8 == 0) { nl(); say("  "); } else say(" ");
         say_number(saved_state.ids[k]); say("="); say_number(saved_state.values[k]);
@@ -190,7 +190,7 @@ static void say_modes(void)
 {
     say("Modes: safe "); say(safe_mode ? "on" : "off"); say(", profile "); say(profile_mode ? "on" : "off");
     say(", feet labels "); say(units_requested ? "on, " : "off");
-    if (units_requested) { say_number(units_changed); say(" labels changed"); say(units_searched ? " (found by a search of the image, kept in GRKIT\\FEET.BIN)" : " (at the addresses of GRKIT\\FEET.BIN)"); }
+    if (units_requested) { say_number(units_changed); say(" labels changed"); say(units_searched ? " (found by a search of the image, kept in GRKU\\FEET.BIN)" : " (at the addresses of GRKU\\FEET.BIN)"); }
     nl();
 }
 static void say_details(int status)

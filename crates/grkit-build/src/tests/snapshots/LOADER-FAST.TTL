@@ -1,7 +1,7 @@
-filedelete 'C:\SCRIPT\GRKIT\PLAN.BIN'
-filedelete 'C:\SCRIPT\GRKIT\PLAN.TMP'
-filedelete 'C:\SCRIPT\GRKIT\INSTALL.OK'
-filedelete 'C:\SCRIPT\GRKIT\INSTALL.LCK'
+filedelete 'C:\SCRIPT\GRKU\PLAN.BIN'
+filedelete 'C:\SCRIPT\GRKU\PLAN.TMP'
+filedelete 'C:\SCRIPT\GRKU\INSTALL.OK'
+filedelete 'C:\SCRIPT\GRKU\INSTALL.LCK'
 intdim ba 256
 intdim mb 16
 mb[0] = 0
@@ -23,16 +23,16 @@ fastreason = 3
 release = ba[2] * 1000 + ba[3]
 if release <> 588210 goto probe1
 fastreason = 4
-filesearch 'C:\SCRIPT\GRKIT\F588210.BIN'
+filesearch 'C:\SCRIPT\GRKU\F588210.BIN'
 if result = 0 goto probe1
-filesearch 'C:\SCRIPT\GRKIT\I588210.BIN'
+filesearch 'C:\SCRIPT\GRKU\I588210.BIN'
 if result <> 0 fast = 588210
 :probe1
 if release <> 588220 goto probe2
 fastreason = 4
-filesearch 'C:\SCRIPT\GRKIT\F588220.BIN'
+filesearch 'C:\SCRIPT\GRKU\F588220.BIN'
 if result = 0 goto probe2
-filesearch 'C:\SCRIPT\GRKIT\I588220.BIN'
+filesearch 'C:\SCRIPT\GRKU\I588220.BIN'
 if result <> 0 fast = 588220
 :probe2
 :probed
@@ -40,16 +40,16 @@ if fast = 0 call fast_log
 attempts = 0
 failure = 60
 call write_error
-filesearch 'C:\SCRIPT\GRKIT\PLAN.BIN'
+filesearch 'C:\SCRIPT\GRKU\PLAN.BIN'
 if result != 0 goto reject
-filesearch 'C:\SCRIPT\GRKIT\INSTALL.OK'
+filesearch 'C:\SCRIPT\GRKU\INSTALL.OK'
 if result != 0 goto reject
 if fast = 0 goto linux
 ba[254] = 999
-if fast = 588210 sendln 'SYS_memovr C:\SCRIPT\GRKIT\F588210.BIN 0 call'
-if fast = 588220 sendln 'SYS_memovr C:\SCRIPT\GRKIT\F588220.BIN 0 call'
+if fast = 588210 sendln 'SYS_memovr C:\SCRIPT\GRKU\F588210.BIN 0 call'
+if fast = 588220 sendln 'SYS_memovr C:\SCRIPT\GRKU\F588220.BIN 0 call'
 faststatus = ba[254]
-filesearch 'C:\SCRIPT\GRKIT\PLAN.BIN'
+filesearch 'C:\SCRIPT\GRKU\PLAN.BIN'
 if result != 0 goto plan_file
 fastreason = 5
 call fast_log
@@ -60,12 +60,12 @@ sendln 'lcmd_resp on'
 started = 0
 :scan
 if started <> 0 goto scan_posted
-sendln 'lcmd sh /media/storage1/SCRIPT/GRKIT/SCAN.SH'
+sendln 'lcmd sh /media/storage1/SCRIPT/GRKU/SCAN.SH'
 started = mb[12]
 :scan_posted
 posted = mb[0]
 if posted = 827150919 goto plan_box
-filesearch 'C:\SCRIPT\GRKIT\PLAN.BIN'
+filesearch 'C:\SCRIPT\GRKU\PLAN.BIN'
 if result != 0 goto plan_file
 posted = mb[10]
 if posted = 2 goto start_failed
@@ -83,7 +83,7 @@ moduletiles = mb[6]
 goto plan_check
 :plan_file
 failure = 61
-fileopen fh 'C:\SCRIPT\GRKIT\PLAN.BIN' 0
+fileopen fh 'C:\SCRIPT\GRKU\PLAN.BIN' 0
 if fh < 0 goto reject
 call readword
 if value != 827150919 goto reject_close
@@ -163,15 +163,15 @@ attempts = 0
 waits = 300
 :install
 ba[254] = 999
-if fast = 588210 sendln 'SYS_memovr C:\SCRIPT\GRKIT\I588210.BIN 0 call'
-if fast = 588220 sendln 'SYS_memovr C:\SCRIPT\GRKIT\I588220.BIN 0 call'
+if fast = 588210 sendln 'SYS_memovr C:\SCRIPT\GRKU\I588210.BIN 0 call'
+if fast = 588220 sendln 'SYS_memovr C:\SCRIPT\GRKU\I588220.BIN 0 call'
 faststatus = ba[254]
 if fast = 0 faststatus = 0
 if faststatus >= 998 goto install_not_run
 posted = mb[10]
 if posted = 1 goto installed
 if posted = 2 goto start_failed
-filesearch 'C:\SCRIPT\GRKIT\INSTALL.OK'
+filesearch 'C:\SCRIPT\GRKU\INSTALL.OK'
 if result != 0 goto installed
 call read_error
 if errorstatus = 62 goto install_wait
@@ -181,12 +181,12 @@ mpause 100
 attempts = attempts + 1
 if fast <> 0 goto install_next
 watchdog = attempts % 100
-if watchdog = 0 sendln 'lcmd sh /media/storage1/SCRIPT/GRKIT/INSTALL.SH'
+if watchdog = 0 sendln 'lcmd sh /media/storage1/SCRIPT/GRKU/INSTALL.SH'
 :install_next
 if attempts > waits mpause 9500
 goto install
 :installed
-filedelete 'C:\SCRIPT\GRKIT\INSTALL.ERR'
+filedelete 'C:\SCRIPT\GRKU\INSTALL.ERR'
 goto resident
 :start_failed
 failure = mb[11]
@@ -203,23 +203,23 @@ faststatus = errorstatus
 fastreason = 6
 call fast_log
 fast = 0
-filedelete 'C:\SCRIPT\GRKIT\PLAN.BIN'
-filedelete 'C:\SCRIPT\GRKIT\PLAN.TMP'
-filedelete 'C:\SCRIPT\GRKIT\INSTALL.LCK'
+filedelete 'C:\SCRIPT\GRKU\PLAN.BIN'
+filedelete 'C:\SCRIPT\GRKU\PLAN.TMP'
+filedelete 'C:\SCRIPT\GRKU\INSTALL.LCK'
 attempts = 0
 failure = 60
 call write_error
 goto linux
 :resident
 stateok = 1
-foldersearch 'C:\GRKIT'
-if result = 0 foldercreate 'C:\GRKIT'
-foldersearch 'C:\GRKIT'
+foldersearch 'C:\GRKU'
+if result = 0 foldercreate 'C:\GRKU'
+foldersearch 'C:\GRKU'
 if result = 0 stateok = 0
 changes = registry[64]
 saved = changes
 last = changes
-filesearch 'C:\GRKIT\STATE.TXT'
+filesearch 'C:\GRKU\STATE.TXT'
 if result = 0 saved = changes - 1
 profile = registry[66]
 if profile <> 0 goto profile_watch
@@ -237,8 +237,8 @@ goto watch
 :save_state
 if stateok = 0 goto save_state_end
 call snapshot
-filedelete 'C:\GRKIT\STATE.TMP'
-filecreate sfh 'C:\GRKIT\STATE.TMP'
+filedelete 'C:\GRKU\STATE.TMP'
+filecreate sfh 'C:\GRKU\STATE.TMP'
 if sfh < 0 goto save_state_end
 if value0 = 0 goto save_key0
 filewriteln sfh '861965461'
@@ -355,13 +355,13 @@ mindex = mindex + 1
 goto save_modules
 :save_modules_end
 fileclose sfh
-filesearch 'C:\GRKIT\STATE.TMP'
+filesearch 'C:\GRKU\STATE.TMP'
 if result = 0 goto save_state_end
-filedelete 'C:\GRKIT\STATE.TXT'
-filesearch 'C:\GRKIT\STATE.TXT'
+filedelete 'C:\GRKU\STATE.TXT'
+filesearch 'C:\GRKU\STATE.TXT'
 if result != 0 goto save_state_end
-filerename 'C:\GRKIT\STATE.TMP' 'C:\GRKIT\STATE.TXT'
-filesearch 'C:\GRKIT\STATE.TXT'
+filerename 'C:\GRKU\STATE.TMP' 'C:\GRKU\STATE.TXT'
+filesearch 'C:\GRKU\STATE.TXT'
 if result = 0 goto save_state_end
 saved = stamp
 :save_state_end
@@ -662,12 +662,12 @@ if pc = 0 goto profile_name7_end
 code2str ps pc
 strconcat pname7 ps
 :profile_name7_end
-filesearch 'C:\GRKIT\PROFILE.LOG'
+filesearch 'C:\GRKU\PROFILE.LOG'
 if result != 0 goto profile_append
-filecreate pfh 'C:\GRKIT\PROFILE.LOG'
+filecreate pfh 'C:\GRKU\PROFILE.LOG'
 goto profile_opened
 :profile_append
-fileopen pfh 'C:\GRKIT\PROFILE.LOG' 1
+fileopen pfh 'C:\GRKU\PROFILE.LOG' 1
 :profile_opened
 if pfh < 0 goto profile_poll
 filewriteln pfh 'GRKit profile: for each period, the live-view frames; for each point, calls, CPU cycles, and the cycles of the largest call'
@@ -691,7 +691,7 @@ pperiod = pperiod + 1
 pf = registry[7]
 pframe = pf - pframes
 pframes = pf
-fileopen pfh 'C:\GRKIT\PROFILE.LOG' 1
+fileopen pfh 'C:\GRKU\PROFILE.LOG' 1
 if pfh < 0 goto profile_write_end
 filewrite pfh 'period '
 int2str ps pperiod
@@ -1309,8 +1309,8 @@ if byteindex < 3 weight = weight * 256
 next
 return
 :write_error
-filedelete 'C:\SCRIPT\GRKIT\INSTALL.ERR'
-filecreate efh 'C:\SCRIPT\GRKIT\INSTALL.ERR'
+filedelete 'C:\SCRIPT\GRKU\INSTALL.ERR'
+filecreate efh 'C:\SCRIPT\GRKU\INSTALL.ERR'
 if efh < 0 goto write_error_end
 int2str line failure
 filewriteln efh line
@@ -1343,7 +1343,7 @@ fileclose efh
 return
 :read_error
 errorstatus = 0
-fileopen efh 'C:\SCRIPT\GRKIT\INSTALL.ERR' 0
+fileopen efh 'C:\SCRIPT\GRKU\INSTALL.ERR' 0
 if efh < 0 goto read_error_end
 fileread efh 1 octet
 if result != 0 goto read_error_close
@@ -1358,14 +1358,14 @@ fileclose efh
 :read_error_end
 return
 :fast_log
-foldersearch 'C:\GRKIT'
-if result = 0 foldercreate 'C:\GRKIT'
-filesearch 'C:\GRKIT\BOOT.TXT'
+foldersearch 'C:\GRKU'
+if result = 0 foldercreate 'C:\GRKU'
+filesearch 'C:\GRKU\BOOT.TXT'
 if result != 0 goto fast_log_append
-filecreate lfh 'C:\GRKIT\BOOT.TXT'
+filecreate lfh 'C:\GRKU\BOOT.TXT'
 goto fast_log_opened
 :fast_log_append
-fileopen lfh 'C:\GRKIT\BOOT.TXT' 1
+fileopen lfh 'C:\GRKU\BOOT.TXT' 1
 :fast_log_opened
 if lfh < 0 goto fast_log_end
 filewrite lfh 'fast-boot'

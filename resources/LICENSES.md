@@ -16,7 +16,7 @@ The screenshots in the README and the installation guide show the photo [Sakiko 
 
 ## Effects
 
-Each file in `SD_ROOT/GRKIT/EFFECTS/` is one Film Look effect. Each effect of the GRKU catalog is a fit of one film simulation LUT. GRKU contributors made the fits. The files contain the fitted parameters, not the LUTs. "Changes to the LUTs" below describes the changes.
+Each file in `SD_ROOT/GRKU/EFFECTS/` is one Film Look effect. Each effect of the GRKU catalog is a fit of one film simulation LUT. GRKU contributors made the fits. The files contain the fitted parameters, not the LUTs. "Changes to the LUTs" below describes the changes.
 
 If an effect is not in the GRKU catalog, its author gives its license.
 

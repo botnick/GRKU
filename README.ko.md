@@ -32,7 +32,7 @@ GRKU은 RICOH GR III, GR IIIx, GR IV에 필름 느낌의 색감, XPan 등 다양
 - **디퓨전**: Black Pro-Mist 디퓨전 필터의 글로우를 1/8, 1/4, 1/2로 구현합니다. Black Mist는 섀도 위에 필터의 베일을 더하고, Streak는 점 광원에서 아나모픽 렌즈의 파란색 또는 호박색 수평 플레어를 추가합니다. JPEG 사진만 해당됩니다.
 - **그레인**: 네 가지 강도와 네 가지 크기(Auto, Small, Medium, Large)의 필름 그레인.
 - **테두리**: 사진 위에 흰색 또는 검은색 인화 테두리를 너비의 3% 또는 6%로 표시합니다.
-- **피트**: 카드에 `GRKIT/FEET.TXT` 파일이 있으면 Snap Focus Distance 설정이 미터 대신 1', 3', 5', 7', 8', 16'로 표시됩니다.
+- **피트**: 카드에 `GRKU/FEET.TXT` 파일이 있으면 Snap Focus Distance 설정이 미터 대신 1', 3', 5', 7', 8', 16'로 표시됩니다.
 
 GRKU는 전원을 켠 후 로드되는 데 약 9초가 걸리며, 설치 또는 업데이트 후 첫 시작 시에는 더 오래 걸립니다. 그 전까지 카메라는 자체 설정을 사용합니다. 모든 설정은 MENU의 Customize 탭 끝에 있는 GRKU 섹션에 있습니다. 직접 모듈을 작성하려면 [모듈 작성하기](docs/modules.md)를 참조하십시오.
 
@@ -62,9 +62,9 @@ GRKU에는 빠른 부팅 펌웨어가 없으며 앞으로도 없을 것입니다
 
 또는 이 저장소에서 패키지를 빌드하고(아래 참고) 카드 리더기에 꽂아 `python3 -I scripts/card.py write dist/GRKU-gr4.zip`으로 카드에 기록할 수 있습니다. 같은 스크립트로 피트 라벨을 켜고 끄거나(`feet on`, `feet off`) 카드 상태를 확인할 수 있습니다(`status`).
 
-MENU 버튼을 누른 채 전원을 켜는 것은 처음 한 번뿐입니다. ZIP으로 업데이트할 때는 카드의 `SCRIPT` 폴더를 바꿔 넣으세요. 설정은 `GRKIT`에 남습니다. 카드를 포맷하면 GRKU도 지워지므로 먼저 `GRKIT`을 컴퓨터에 복사해 두세요.
+MENU 버튼을 누른 채 전원을 켜는 것은 처음 한 번뿐입니다. ZIP으로 업데이트할 때는 카드의 `SCRIPT` 폴더를 바꿔 넣으세요. 설정은 `GRKU`에 남습니다. 카드를 포맷하면 GRKU도 지워지므로 먼저 `GRKU`을 컴퓨터에 복사해 두세요.
 
-GRKU가 보이지 않으면 `GRKIT/REPORT.TXT`, `GRKIT/BOOT.TXT`, `SCRIPT/GRKIT/INSTALL.ERR`(있는 경우)을 첨부해 [이슈](https://github.com/botnick/GRKit/issues/new)를 보내 주세요. [각 파일의 각 줄이 의미하는 바](docs/diagnostics.md)를 참고하세요.
+GRKU가 보이지 않으면 `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT`, `SCRIPT/GRKU/INSTALL.ERR`(있는 경우)을 첨부해 [이슈](https://github.com/botnick/GRKit/issues/new)를 보내 주세요. [각 파일의 각 줄이 의미하는 바](docs/diagnostics.md)를 참고하세요.
 
 ## 소스에서 빌드
 

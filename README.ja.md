@@ -32,7 +32,7 @@ GRKU は、RICOH GR III・GR IIIx・GR IV に、フィルム風の色、XPan な
 - **ディフュージョン**：Black Pro-Mist ディフュージョンフィルターの 1/8、1/4、1/2 の柔らかな光を再現します。Black Mist はフィルターのベールをシャドウ部にかけ、Streak はアナモルフィックレンズのような、点光源からの青または琥珀色の水平フレアを加えます。JPEG のみに対応します。
 - **粒状感**：強度は 4 段階、粒の大きさは 4 種類（自動・小・中・大）から選べます。
 - **ボーダー**：写真の周囲に白または黒のプリント枠を付けます。幅は写真の横幅の 3% または 6% です。
-- **フィート表示**：カードに `GRKIT/FEET.TXT` ファイルを置くと、Snap Focus Distance の設定がメートルではなく 1'、3'、5'、7'、8'、16' の表示になります。
+- **フィート表示**：カードに `GRKU/FEET.TXT` ファイルを置くと、Snap Focus Distance の設定がメートルではなく 1'、3'、5'、7'、8'、16' の表示になります。
 
 GRKU の読み込みには、電源を入れてから約 9 秒かかり、インストール・アップデート後の最初の起動ではもう少しかかります。それまではカメラ本来の設定で撮影されます。すべての設定は MENU のカスタマイズタブの最後にある GRKU にあります。モジュールを自作する場合は [Writing a module](docs/modules.md) をご覧ください。
 
@@ -62,9 +62,9 @@ GRKU には高速起動ファームウェアはなく、今後も作られませ
 
 または、このリポジトリからパッケージをビルドし（後述）、リーダーに入れたカードへ `python3 -I scripts/card.py write dist/GRKU-gr4.zip` で書き込みます。同じスクリプトでフィートのラベルのオン・オフ（`feet on`、`feet off`）の切り替えや、カードの状態の確認（`status`）ができます。
 
-MENU ボタンを押しながら電源を入れるのは初回だけです。ZIP からアップデートするときは、カードの `SCRIPT` フォルダーを入れ替えてください。設定は `GRKIT` に残ります。カードをフォーマットすると GRKU も消えるので、先に `GRKIT` をパソコンにコピーしておいてください。
+MENU ボタンを押しながら電源を入れるのは初回だけです。ZIP からアップデートするときは、カードの `SCRIPT` フォルダーを入れ替えてください。設定は `GRKU` に残ります。カードをフォーマットすると GRKU も消えるので、先に `GRKU` をパソコンにコピーしておいてください。
 
-GRKU が表示されない場合は、`GRKIT/REPORT.TXT`、`GRKIT/BOOT.TXT`、`SCRIPT/GRKIT/INSTALL.ERR`（ある場合）を添えて [issue](https://github.com/botnick/GRKit/issues/new) を送信してください。[これらのファイルの各行の意味](docs/diagnostics.md)。
+GRKU が表示されない場合は、`GRKU/REPORT.TXT`、`GRKU/BOOT.TXT`、`SCRIPT/GRKU/INSTALL.ERR`（ある場合）を添えて [issue](https://github.com/botnick/GRKit/issues/new) を送信してください。[これらのファイルの各行の意味](docs/diagnostics.md)。
 
 ## ソースからのビルド
 

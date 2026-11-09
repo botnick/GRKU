@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fetchFile, TransferError, type Progress } from './transfer';
 
-const URL_ = 'https://grkit.test/runtime/gr3-2.10/sd/SCRIPT/GRKIT/CORE.BIN';
+const URL_ = 'https://grkit.test/runtime/gr3-2.10/sd/SCRIPT/GRKU/CORE.BIN';
 
 function setup(...replies: (() => Promise<Response>)[]) {
   const fetch = vi.fn();

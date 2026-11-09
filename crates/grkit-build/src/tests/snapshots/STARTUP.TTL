@@ -1,5 +1,5 @@
-filesearch 'C:\SCRIPT\GRKIT\LOADER.TTL'
+filesearch 'C:\SCRIPT\GRKU\LOADER.TTL'
 if result = 0 goto done
-include 'C:\SCRIPT\GRKIT\LOADER.TTL'
+include 'C:\SCRIPT\GRKU\LOADER.TTL'
 :done
 end

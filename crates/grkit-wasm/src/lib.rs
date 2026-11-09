@@ -493,7 +493,7 @@ pub struct CardFile {
 
 #[wasm_bindgen]
 impl CardFile {
-    /// The path from the card root, such as `SCRIPT/GRKIT/CORE.BIN`.
+    /// The path from the card root, such as `SCRIPT/GRKU/CORE.BIN`.
     #[wasm_bindgen(getter)]
     pub fn path(&self) -> String {
         self.path.clone()

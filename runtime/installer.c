@@ -60,7 +60,7 @@ static u8 directory_entries[4096];
 static u8 plan[GRKIT_PLAN_HEADER_SIZE + MAX_COUNT * GRKIT_GRF_MAX_SIZE + EFFECTS_LISTED * GRKIT_PLANNED_EFFECT_SIZE];
 static u32 count, size, icon_chunks;
 /* The package folder holds the core, the package list, the package modules,
-   and the inbox of the package effects. GRKIT holds the data of the person:
+   and the inbox of the package effects. GRKU holds the data of the person:
    the state, the report, the effects library, and the modules that the
    person adds. A copy of a new package, by replace or by merge, therefore
    keeps the data. */
@@ -69,6 +69,13 @@ static const char inbox_path[] = INBOX_PATH;
 static const char package_path[] = PACKAGE_PATH;
 static const char imported_path[] = IMPORTED_PATH;
 static const char data_path[] = DATA_PATH;
+/* The data folder of GRKit 1.3 to 1.5 and of GRKU before 2026-11-09 (GRKIT). */
+static const char old_data_path[] = OLD_DATA_PATH;
+/* The old data folder becomes the data folder, settings and effects library
+   included: one rename, which fails harmlessly when the old folder is gone
+   or the new one already holds files. Every start does it first, so a card
+   written for an earlier version keeps what the person set. */
+static void adopt_old_data(void) { syscall6(38, (u32)old_data_path, (u32)data_path, 0, 0, 0, 0); }
 static const char plan_path[] = PLAN_PATH;
 static const char plan_tmp[] = PLAN_TMP_PATH;
 /* The whole plan, which INSTALL reads: in RAM on Linux. On the RTOS side
@@ -88,13 +95,13 @@ static const char safe_path[] = SAFE_PATH, safe_text_path[] = SAFE_TEXT_PATH;
 static const char profile_path[] = PROFILE_PATH, profile_text_path[] = PROFILE_TEXT_PATH;
 static const char state_path[] = STATE_PATH;
 static const char state_tmp_path[] = STATE_TMP_PATH;
-/* The folder of GRKit 1.2: INSTALL reads its state file when GRKIT has none,
-   and copies its effects when GRKIT has no effects library. */
+/* The folder of GRKit 1.2: INSTALL reads its state file when GRKU has none,
+   and copies its effects when GRKU has no effects library. */
 static const char legacy_state_path[] = LEGACY_STATE_PATH;
 static const char legacy_state_tmp_path[] = LEGACY_STATE_TMP_PATH;
 static const char legacy_effects_path[] = LEGACY_EFFECTS_PATH;
 static const char report_path[] = REPORT_PATH;
-/* The distance unit marker: while GRKIT/FEET.TXT is on the card, INSTALL
+/* The distance unit marker: while GRKU/FEET.TXT is on the card, INSTALL
    rewrites the snap focus distance labels of the firmware in feet. */
 static const char feet_path[] = DATA_PATH "/FEET.TXT";
 static const char relocation_path[] = RELOCATION_PATH;
@@ -465,7 +472,7 @@ static void read_state(void)
         return;
     }
     /* The first start after an update from GRKit 1.2: its values, under the
-       current keys. The loader saves them in GRKIT at once. */
+       current keys. The loader saves them in GRKU at once. */
     static const u32 from[] = {LEGACY_STATE_FROM}, to[] = {LEGACY_STATE_TO};
     n = read_text(legacy_state_path, text, sizeof(text));
     if (n < 0) n = read_text(legacy_state_tmp_path, text, sizeof(text));
@@ -807,7 +814,7 @@ static int publish_patches(void)
     return 0;
 }
 
-/* The snap focus distance labels in feet while GRKIT/FEET.TXT is on the card
+/* The snap focus distance labels in feet while GRKU/FEET.TXT is on the card
    (ahonn/GRKit#71). The firmware keeps the labels as NUL-terminated UTF-16
    strings in the read-only part of the RTOS image, one set for each menu
    language: 0.3m, 1m, 1.5m, 2m, 2.5m, and 5m. INSTALL writes the feet label
@@ -817,7 +824,7 @@ static int publish_patches(void)
    power-on, so a start without the marker shows meters.
 
    A search of the image reads about 20 MB uncached, so the start that
-   searches keeps the addresses in GRKIT/FEET.BIN with the identity of the
+   searches keeps the addresses in GRKU/FEET.BIN with the identity of the
    build, as RELOC.BIN keeps the relocation windows. A later start checks the
    labels at those addresses and searches again only when one is not there.
    The count of the labels changed goes to the boot log and the report
@@ -1358,6 +1365,9 @@ __attribute__((used)) void start(u32 *stack)
     else if (argc == 2 && text_equal(argv[1], "--start")) starting = 1;
 #endif
     int installing = argc == 2 && !starting && (mode != INSTALL_LAST || text_equal(argv[1], "--install"));
+#ifndef RTOS_NATIVE
+    adopt_old_data();
+#endif
     if (argc == 2 && text_equal(argv[1], "--scan")) status = scan();
 #ifndef RTOS_NATIVE
     else if (starting) status = start_once(mode);

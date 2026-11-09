@@ -1,4 +1,4 @@
-/* The head of a fast-boot file (SCRIPT/GRKIT/F<project><version>.BIN): its
+/* The head of a fast-boot file (SCRIPT/GRKU/F<project><version>.BIN): its
    first 1 KB, then the vector table and the blob (fast.ld).
 
    The loader script reads the first 1 KB of the file into its first script

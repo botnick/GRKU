@@ -57,7 +57,7 @@ pub const ICONS_PER_CHUNK: usize = 40;
 /// The largest script array in words, which holds the modules.
 pub const MODULE_ARRAY_WORDS: usize = 65536;
 /// The most modules that GRKit lists at a start, from the package and from
-/// `GRKIT/MODULES` together. The package modules come first, then the first
+/// `GRKU/MODULES` together. The package modules come first, then the first
 /// other ones in their default order. The GRKit section of MENU has a row
 /// for each listed module, and each build keeps room for them in the
 /// Customize tab (runtime/menu_section.h).
@@ -247,7 +247,7 @@ packed_fields!(HEADER_FIELDS, HOST_HEADER_SIZE {
     HOST_MODULE_FILTER_COUNT: 4;
     /// Address of the profile table (GRKIT_PROFILE in the tail) while the
     /// development profile runs, else 0. INSTALL writes it when the card has
-    /// GRKIT/PROFILE or PROFILE.TXT.
+    /// GRKU/PROFILE or PROFILE.TXT.
     HOST_PROFILE: 4;
     /// Two words for each module plane filter, in stage order: its apply
     /// function, and its setting handle in the low half with its stage in the

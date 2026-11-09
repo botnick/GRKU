@@ -1,7 +1,7 @@
 #ifndef GRKIT_MANAGE_H
 #define GRKIT_MANAGE_H
 /* Module management: the GRKit section of the native MENU lists each module
-   file of the package and of GRKIT/MODULES, also one that did not load. Its
+   file of the package and of GRKU/MODULES, also one that did not load. Its
    settings page turns the module on or off (Enable), and the ADJ Order row of
    the section orders the modules, and so their pages in the GRKit root of
    ADJ, at once. Off applies at once too, as a soft Off: the page of the

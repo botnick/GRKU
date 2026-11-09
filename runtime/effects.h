@@ -1,6 +1,6 @@
 #ifndef GRKIT_EFFECTS_H
 #define GRKIT_EFFECTS_H
-/* The effects of GRKIT/EFFECTS: the list of each effect file, also one that
+/* The effects of GRKU/EFFECTS: the list of each effect file, also one that
    did not install. The options rows of a page of CORE.TONE in the GRKit
    section of MENU turn each effect on or off (runtime/menu_listed.h). A change of
    an installed effect applies at once: the page of CORE.TONE shows the

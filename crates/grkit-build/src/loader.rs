@@ -8,7 +8,10 @@ use grkit_core::{
     artwork::{
         grkit_pixels, modules_off_pixels, modules_pixels, off_pixels, rotate_pixels, version_pixels,
     },
-    card::{LINUX_DATA_DIRECTORY, LINUX_DIRECTORY, LINUX_LEGACY_DIRECTORY, LINUX_RAM_PLAN},
+    card::{
+        LINUX_DATA_DIRECTORY, LINUX_DIRECTORY, LINUX_LEGACY_DIRECTORY, LINUX_OLD_DATA_DIRECTORY,
+        LINUX_RAM_PLAN,
+    },
     runtime::{icon_stride, HOST_ICON_COUNT, ICONS_PER_CHUNK, MAX_CHUNKS, MAX_COUNT},
 };
 use std::fmt::Write;
@@ -148,8 +151,8 @@ pub fn header(plan: &PatchPlan, body: &FirmwareImage, version: &str) -> Result<S
             target.identities.iter().copied(),
         );
     }
-    // The card layout (grkit_core::card): the package in SCRIPT/GRKIT, and
-    // the data of the person in GRKIT.
+    // The card layout (grkit_core::card): the package in SCRIPT/GRKU, and
+    // the data of the person in GRKU.
     let paths = [
         ("PLAN_PATH", LINUX_DIRECTORY, "/PLAN.BIN"),
         ("RAM_PLAN_PATH", LINUX_RAM_PLAN, ""),
@@ -163,6 +166,7 @@ pub fn header(plan: &PatchPlan, body: &FirmwareImage, version: &str) -> Result<S
         ("INBOX_PATH", LINUX_DIRECTORY, "/EFFECTS"),
         ("PACKAGE_PATH", LINUX_DIRECTORY, "/PACKAGE.TXT"),
         ("DATA_PATH", LINUX_DATA_DIRECTORY, ""),
+        ("OLD_DATA_PATH", LINUX_OLD_DATA_DIRECTORY, ""),
         ("IMPORTED_PATH", LINUX_DATA_DIRECTORY, "/IMPORTED.TXT"),
         ("LIBRARY_PATH", LINUX_DATA_DIRECTORY, "/EFFECTS"),
         ("STATE_PATH", LINUX_DATA_DIRECTORY, "/STATE.TXT"),

@@ -179,9 +179,9 @@ The installer loads a file only if its name is `<ID>.GRM`.
 
 The card must already hold a GRKU package for the camera.
 
-1. Copy `HELLO.GRM` into `GRKIT/MODULES` on the card.
+1. Copy `HELLO.GRM` into `GRKU/MODULES` on the card.
 2. Power on the camera, and wait until ADJ shows the GRKU entry.
-3. Power off the camera, and open `GRKIT/REPORT.TXT` on the computer.
+3. Power off the camera, and open `GRKU/REPORT.TXT` on the computer.
 
 The report gives one line for each module file:
 
@@ -193,13 +193,13 @@ HELLO.GRM  not loaded: error 55, it uses a setting that no module has: GUIDES.ST
 
 ## If the camera stops at power-on
 
-Turn the module off with its **Enable** row in the GRKU section of MENU. If the camera stops before MENU opens, put an empty file `GRKIT/SAFE` on the card: no module loads then. Remove the module, then delete `GRKIT/SAFE`. See [Report and safe mode](architecture.md#report-and-safe-mode).
+Turn the module off with its **Enable** row in the GRKU section of MENU. If the camera stops before MENU opens, put an empty file `GRKU/SAFE` on the card: no module loads then. Remove the module, then delete `GRKU/SAFE`. See [Report and safe mode](architecture.md#report-and-safe-mode).
 
 ## Measure the CPU use on the camera
 
-1. Put an empty file `GRKIT/PROFILE` on the card.
+1. Put an empty file `GRKU/PROFILE` on the card.
 2. Power on the camera, and do what you want to measure, such as keeping the live view open or taking photos.
-3. Power off the camera, and open `GRKIT/PROFILE.LOG`. Delete `GRKIT/PROFILE` to stop the profile.
+3. Power off the camera, and open `GRKU/PROFILE.LOG`. Delete `GRKU/PROFILE` to stop the profile.
 
 Every 10 seconds, the file gets a period with the number of live-view frames, then a line for each point that ran:
 

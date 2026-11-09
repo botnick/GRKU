@@ -56,16 +56,16 @@ The loader clears the words it reads before it sends the start. The start writes
 | --- | --- |
 | `/tmp/grkit-start.lck` | the lock of the start: `SCAN.SH` leaves at once while it exists |
 | `/tmp/grkit-core.pid` | the process of the start, which `INSTALL.SH` checks |
-| `/tmp/grkit-boot.log` | the boot log of the start, until the start writes it to `GRKIT/BOOT.TXT` |
+| `/tmp/grkit-boot.log` | the boot log of the start, until the start writes it to `GRKU/BOOT.TXT` |
 | `/tmp/grkit-cache/` | the copies of the card files that the start read |
 | `/tmp/grkit-plan.bin` | the whole plan, as before |
-| `GRKIT/DIAG` | while it exists, `SCAN.SH` writes `GRKIT/DIAG.TXT` about 15 s after the start |
+| `GRKU/DIAG` | while it exists, `SCAN.SH` writes `GRKU/DIAG.TXT` about 15 s after the start |
 
 RAM is empty at each power-on, so none of the `/tmp` files reaches another start.
 
 ## Boot log
 
-`GRKIT/BOOT.TXT` keeps the lines of 1.5, so earlier reports still read, plus the lines of the start. Each line is the Linux uptime in seconds, the step, and a status, or the numbers of the start. [The three files of a device report](diagnostics.md) explains every line; the steps are:
+`GRKU/BOOT.TXT` keeps the lines of 1.5, so earlier reports still read, plus the lines of the start. Each line is the Linux uptime in seconds, the step, and a status, or the numbers of the start. [The three files of a device report](diagnostics.md) explains every line; the steps are:
 
 ```text
 6.91 load            SCAN.SH ran for the first time: the camera mounted the card
@@ -83,15 +83,15 @@ RAM is empty at each power-on, so none of the `/tmp` files reaches another start
 7.95 patches ...     the patches applied, the modules loaded, the capabilities, the feet labels, the retries
 ```
 
-`install 0` is the time at which GRKU appears in ADJ. Send `GRKIT/BOOT.TXT` and `GRKIT/REPORT.TXT` with a device report, as before; a start that stopped also leaves `SCRIPT/GRKIT/INSTALL.ERR`, with the status, its name and meaning, the step, and the state of the start.
+`install 0` is the time at which GRKU appears in ADJ. Send `GRKU/BOOT.TXT` and `GRKU/REPORT.TXT` with a device report, as before; a start that stopped also leaves `SCRIPT/GRKU/INSTALL.ERR`, with the status, its name and meaning, the step, and the state of the start.
 
 ## Diagnostics
 
-Create an empty file `GRKIT/DIAG` on the card. At the next start, `SCAN.SH` writes `GRKIT/DIAG.TXT` about 15 s later: the mounts and their options, the file systems, the kernel, the busybox commands, the processes, the system log, the RAM boot log, and the uptime before and after two reads of `CORE.BIN`, one read of the effects, and two small writes. The reads give the speed of the card file system and whether a second read of the same file is cheaper (the page cache). Delete `GRKIT/DIAG` afterwards.
+Create an empty file `GRKU/DIAG` on the card. At the next start, `SCAN.SH` writes `GRKU/DIAG.TXT` about 15 s later: the mounts and their options, the file systems, the kernel, the busybox commands, the processes, the system log, the RAM boot log, and the uptime before and after two reads of `CORE.BIN`, one read of the effects, and two small writes. The reads give the speed of the card file system and whether a second read of the same file is cheaper (the page cache). Delete `GRKU/DIAG` afterwards.
 
 ## First camera results: GR IV, firmware 1.11, 2026-11-09
 
-GRKU 1.5.2 (`gr4-1.11`, the package of commit 1e683a4 with ten modules and 60 effects on the card) started on a GR IV three times. `GRKIT/BOOT.TXT`, seconds after power-on:
+GRKU 1.5.2 (`gr4-1.11`, the package of commit 1e683a4 with ten modules and 60 effects on the card) started on a GR IV three times. `GRKU/BOOT.TXT`, seconds after power-on:
 
 | Step | Start 1 (fresh files) | Start 2 | Start 3 |
 | --- | --- | --- | --- |
@@ -106,7 +106,7 @@ GRKU 1.5.2 (`gr4-1.11`, the package of commit 1e683a4 with ten modules and 60 ef
 - The first start after the card was written read the module and effect files slowly: 17 s for the ten modules, 34 s for the effects, and it listed only 21 effects before it went on. The second start still took 16 s to list the effects; the third was at 11 s all in, with every file. The camera's `ipcufs` reads fresh files slowly (the RTOS side of the file system, see above); the `._*` AppleDouble files that macOS leaves beside each file add directory entries. Expect a slow first power-on after a write from a Mac, then about 11 s on GR IV. `DIAG.TXT`: Linux up at 14 s, the card mounted (`/media/storage1 ipcufs`), 65 MB free.
 - Linux 5.15.196 on a Socionext Milbeaut (ARMv7, one core at 80 BogoMIPS), 151 MB. The RTOS image, data, and core addresses matched the `gr4-1.11` target; 171 of 175 patches applied (the four others are the fast-boot points, not needed on the official firmware).
 - `REPORT.TXT` showed the bug of the round: Border and Grain were `not loaded: error 54, the modules need more memory than GRKU has` (GRM_NO_ROOM). The limit was the module page count (`GRKIT_MODULE_PAGES_MAX`, one per module), which a group page (Glow) exceeds by its two children: eight modules took ten pages. The limit is 16 since this test. Eight modules ran: Film Look, Framing, Crop, Guides, Date, Glow, Light Leak, Diffusion; the photos of the test show a film look and the GR1s date stamp recorded.
-- The diagnostics read `CORE.BIN`, which a package of several builds does not have (`CORE1.BIN`, `CORE2.BIN`); `SCAN.SH` now reads the core that `GRKIT/CORE.TXT` names, and shows the tail of `BOOT.TXT` where the RAM log is already flushed.
+- The diagnostics read `CORE.BIN`, which a package of several builds does not have (`CORE1.BIN`, `CORE2.BIN`); `SCAN.SH` now reads the core that `GRKU/CORE.TXT` names, and shows the tail of `BOOT.TXT` where the RAM log is already flushed.
 
 ### Second test, same camera, the same day
 

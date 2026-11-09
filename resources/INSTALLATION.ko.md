@@ -50,7 +50,7 @@ GRKU는 실험적이며 보증이 없습니다. GRKU가 실패하면 카메라�
 3. 새 패키지의 `SD_ROOT`에 있는 `SCRIPT` 폴더를 SD 카드 최상위에 복사합니다.
 4. 평소처럼 전원을 켭니다. MENU 버튼을 누를 필요는 없습니다.
 
-설정과 효과는 `GRKIT` 폴더에 저장되므로 업데이트 후에도 남습니다. GRKit에서 GRKU으로 옮기려면 grku.app을 사용하세요. 설정과 효과가 유지됩니다. 둘 다 같은 `GRKIT` 폴더에 저장하기 때문입니다.
+설정과 효과는 `GRKU` 폴더에 저장되므로 업데이트 후에도 남습니다. GRKit에서 GRKU으로 옮기려면 grku.app을 사용하세요. 설정과 효과가 유지됩니다. 둘 다 같은 `GRKU` 폴더에 저장하기 때문입니다.
 
 ## 문제 해결
 
@@ -67,18 +67,18 @@ GRKU는 실험적이며 보증이 없습니다. GRKU가 실패하면 카메라�
 
 1. 전원을 켜고 촬영 화면 위쪽에 **GRKU**이 표시될 때까지 몇 초 기다립니다.
 2. 카드 최상위에 `SCRIPT` 폴더가 있는지 확인합니다.
-3. 카드에 `SCRIPT/GRKIT/INSTALL.ERR`가 있으면 카메라 메뉴에서 패키지가 카메라의 펌웨어 버전에 맞는지 확인합니다. 맞다면 `INSTALL.ERR`, `GRKIT/REPORT.TXT`, `GRKIT/BOOT.TXT`(있는 경우)를 첨부해 [기기 보고서](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)를 보내 주세요.
+3. 카드에 `SCRIPT/GRKU/INSTALL.ERR`가 있으면 카메라 메뉴에서 패키지가 카메라의 펌웨어 버전에 맞는지 확인합니다. 맞다면 `INSTALL.ERR`, `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT`(있는 경우)를 첨부해 [기기 보고서](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)를 보내 주세요.
 4. GRKU은 Ricoh 공식 펌웨어에서만 작동합니다.
 
 ### 카드를 포맷한 뒤 GRKU이 작동하지 않습니다
 
-포맷하면 GRKU과 그 설정이 삭제됩니다. 포맷하기 전에 `GRKIT` 폴더를 컴퓨터에 복사합니다. 포맷한 뒤 `SD_ROOT`의 내용을 다시 복사하고, `GRKIT` 폴더를 카드 최상위에 다시 복사합니다.
+포맷하면 GRKU과 그 설정이 삭제됩니다. 포맷하기 전에 `GRKU` 폴더를 컴퓨터에 복사합니다. 포맷한 뒤 `SD_ROOT`의 내용을 다시 복사하고, `GRKU` 폴더를 카드 최상위에 다시 복사합니다.
 
 ## GRKU 제거
 
 컴퓨터의 Chrome 또는 Edge에서 [grku.app](https://grku.app/)을 사용하면 카드 리더기에 있는 카드에서 GRKU를 제거할 수 있으며, SD 스크립트를 끌 수도 있습니다.
 
-카메라 전원을 끄고 카드에서 `SCRIPT` 및 `GRKIT` 폴더를 삭제합니다.
+카메라 전원을 끄고 카드에서 `SCRIPT` 및 `GRKU` 폴더를 삭제합니다.
 
 SD 스크립트 설정은 켜진 상태로 유지됩니다. 이를 끄려면 다음을 수행합니다:
 

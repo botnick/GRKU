@@ -32,7 +32,7 @@ Press the ADJ lever while shooting and pick the sixth item, GRKU.
 - **Diffusion**: the glow of a Black Pro-Mist diffusion filter at 1/8, 1/4, or 1/2. Black Mist adds the veil of the filter over the shadows, and Streak adds the blue or amber horizontal flare of an anamorphic lens from point lights. JPEG photos only.
 - **Grain**: film grain in four strengths and four sizes (Auto, Small, Medium, Large).
 - **Border**: a white or black print border over the photo, 3% or 6% of its width.
-- **Feet**: with a file `GRKIT/FEET.TXT` on the card, the Snap Focus Distance setting reads 1', 3', 5', 7', 8', and 16' instead of meters.
+- **Feet**: with a file `GRKU/FEET.TXT` on the card, the Snap Focus Distance setting reads 1', 3', 5', 7', 8', and 16' instead of meters.
 
 GRKU takes about 9 seconds to load after power-on, and longer on the first start after an install or update. Until then, the camera uses its own settings. All the settings are in the GRKU section at the end of the Customize tab in MENU. To write your own module, see [Writing a module](docs/modules.md).
 
@@ -62,9 +62,9 @@ Pick your camera, modules, and effects on [grku.app](https://grku.app), the site
 
 Or build the package from this repository (below) and write it to a card in a reader with `python3 -I scripts/card.py write dist/GRKU-gr4.zip`; the same script turns the feet labels on and off (`feet on`, `feet off`) and shows the state of a card (`status`).
 
-The first time only, hold MENU while you turn the camera on. To update from a ZIP, replace the `SCRIPT` folder on the card. Your settings stay in `GRKIT`. Formatting the card removes GRKU, so copy `GRKIT` to a computer first.
+The first time only, hold MENU while you turn the camera on. To update from a ZIP, replace the `SCRIPT` folder on the card. Your settings stay in `GRKU`. Formatting the card removes GRKU, so copy `GRKU` to a computer first.
 
-If GRKU doesn't show up, send `GRKIT/REPORT.TXT`, `GRKIT/BOOT.TXT`, and `SCRIPT/GRKIT/INSTALL.ERR` (if it exists) in an [issue](https://github.com/botnick/GRKit/issues/new). [What each line of those files means](docs/diagnostics.md).
+If GRKU doesn't show up, send `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT`, and `SCRIPT/GRKU/INSTALL.ERR` (if it exists) in an [issue](https://github.com/botnick/GRKit/issues/new). [What each line of those files means](docs/diagnostics.md).
 
 ## Build from source
 

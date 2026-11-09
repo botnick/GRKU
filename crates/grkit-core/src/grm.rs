@@ -88,7 +88,7 @@ pub fn importable(name: &str) -> bool {
 }
 
 /// The folder of the package modules in the SD tree. A person adds a module
-/// in `GRKIT/MODULES`, which the installer also reads.
+/// in `GRKU/MODULES`, which the installer also reads.
 pub const FOLDER: &str = crate::card::MODULES_FOLDER;
 
 /// The FNV-1a hash of a symbol name, which an import entry and the export

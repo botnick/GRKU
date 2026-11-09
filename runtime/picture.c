@@ -733,7 +733,7 @@ static void grain_random_row(GrainRandom *r,u8 *row,u32 pitch) {
 #endif
 }
 /* Medium and large grain add two tiles of blurred noise. A blur of the whole
-   plane took about half a second for each shot on a GR III (GRKIT/PROFILE),
+   plane took about half a second for each shot on a GR III (GRKU/PROFILE),
    and the camera waited for it before playback and power-off. Each shot
    blurs two new tiles of random bytes, 256 and 240 samples wide. Each tile
    repeats across the plane from its own random place, and the plane gets

@@ -180,7 +180,7 @@
 #define GRKIT_HOST_MODULE_FILTER_COUNT 260
 /* Address of the profile table (GRKIT_PROFILE in the tail) while the
    development profile runs, else 0. INSTALL writes it when the card has
-   GRKIT/PROFILE or PROFILE.TXT. */
+   GRKU/PROFILE or PROFILE.TXT. */
 #define GRKIT_HOST_PROFILE 264
 /* Two words for each module plane filter, in stage order: its apply function,
    and its setting handle in the low half with its stage in the high half. */

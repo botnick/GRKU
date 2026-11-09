@@ -2,16 +2,16 @@
 the camera over its USB-C cable (USB Connection: MSC, so the card shows as a drive). No
 dependencies.
 
-    python3 -I scripts/card.py write dist/GRKU-gr4.zip            # update: replace SCRIPT, keep GRKIT
+    python3 -I scripts/card.py write dist/GRKU-gr4.zip            # update: replace SCRIPT, keep GRKU
     python3 -I scripts/card.py write dist/GRKU-gr4.zip --first    # first install: also the ModeSet files
     python3 -I scripts/card.py effects dist/GRKU-film-library.zip effects/defaults.txt
                                                                     # put these effects (one id per line,
-                                                                    # at most 40) into SCRIPT/GRKIT/EFFECTS
+                                                                    # at most 40) into SCRIPT/GRKU/EFFECTS
     python3 -I scripts/card.py status                               # what the card holds
     python3 -I scripts/card.py feet on|off                          # snap focus distances in feet
 
 The card is the mounted volume that has a DCIM folder (or the one given with --card PATH).
-GRKU keeps its settings in the GRKIT folder of the card; `write` never touches it. After
+GRKU keeps its settings in the GRKU folder of the card; `write` never touches it. After
 `write` or `effects`, eject the card (or the camera), then turn the camera on normally.
 """
 import argparse, hashlib, io, json, os, pathlib, shutil, subprocess, sys, zipfile
@@ -49,6 +49,8 @@ def write(args):
         script = card / 'SCRIPT'
         if script.exists():
             shutil.rmtree(script)
+        # The package folder of GRKit 1.3 to 1.5 and of GRKU before 2026-11-09 went with SCRIPT. The
+        # old data folder GRKIT stays: the first start renames it to GRKU, settings and effects included.
         count = 0
         for name in files:
             rel = name[len('SD_ROOT/'):]
@@ -60,12 +62,12 @@ def write(args):
             with zf.open(name) as src, open(target, 'wb') as dst:
                 shutil.copyfileobj(src, dst)
             count += 1
-    for stale in ['SCRIPT/GRKIT/INSTALL.ERR']:
+    for stale in ['SCRIPT/GRKU/INSTALL.ERR']:
         (card / stale).unlink(missing_ok=True)
     flush()
-    effects = card / 'SCRIPT' / 'GRKIT' / 'EFFECTS'
+    effects = card / 'SCRIPT' / 'GRKU' / 'EFFECTS'
     print(f'wrote {count} files to {card}; effects: {len(list(effects.glob("*.GRF"))) if effects.is_dir() else 0}; '
-          f'settings folder GRKIT {"kept" if (card / "GRKIT").is_dir() else "absent (first start makes it)"}')
+          f'settings folder GRKU {"kept" if (card / "GRKU").is_dir() else "absent (first start makes it)"}')
     print('package sha256', hashlib.sha256(pathlib.Path(args.package).read_bytes()).hexdigest())
     print('Now eject the card or the camera, then turn the camera on' + (' holding MENU' if args.first else '') + '.')
 
@@ -76,9 +78,9 @@ def effects(args):
            if line.strip() and not line.startswith('#')]
     if not 1 <= len(ids) <= 40:
         sys.exit(f'{len(ids)} effects listed; the camera installs 1 to 40')
-    folder = card / 'SCRIPT' / 'GRKIT' / 'EFFECTS'
-    if not (card / 'SCRIPT' / 'GRKIT').is_dir():
-        sys.exit('The card has no SCRIPT/GRKIT: write a package first')
+    folder = card / 'SCRIPT' / 'GRKU' / 'EFFECTS'
+    if not (card / 'SCRIPT' / 'GRKU').is_dir():
+        sys.exit('The card has no SCRIPT/GRKU: write a package first')
     with zipfile.ZipFile(args.library) as zf:
         index = {}
         for line in zf.read('INDEX.txt').decode().splitlines():
@@ -93,7 +95,7 @@ def effects(args):
         folder.mkdir(parents=True)
         for eid in ids:
             (folder / index[eid]).write_bytes(zf.read(f'EFFECTS/{index[eid]}'))
-    # The installer compares the EFFECTS folder with GRKIT/IMPORTED.TXT at each start and
+    # The installer compares the EFFECTS folder with GRKU/IMPORTED.TXT at each start and
     # copies what differs (runtime/install_library.h), so nothing else needs to change.
     flush()
     print(f'{len(ids)} effects in {folder}. Eject, then turn the camera on; the first start installs them.')
@@ -101,9 +103,9 @@ def effects(args):
 
 def status(args):
     card = find_card(args.card)
-    script = card / 'SCRIPT' / 'GRKIT'
+    script = card / 'SCRIPT' / 'GRKU'
     print('card', card)
-    print('SCRIPT/GRKIT', 'present' if script.is_dir() else 'absent')
+    print('SCRIPT/GRKU', 'present' if script.is_dir() else 'absent')
     for name in ['PACKAGE.TXT', 'BOOT.TXT', 'INSTALL.ERR', 'DIAG.TXT']:
         p = script / name
         if p.is_file():
@@ -111,16 +113,18 @@ def status(args):
             print(f'  {name}: {text[0][:100] if text else ""}' + (f' (+{len(text) - 1} lines)' if len(text) > 1 else ''))
     effects = script / 'EFFECTS'
     print('  effects:', len(list(effects.glob('*.GRF'))) if effects.is_dir() else 0)
-    print('GRKIT (settings)', 'present' if (card / 'GRKIT').is_dir() else 'absent')
-    report = card / 'GRKIT' / 'REPORT.TXT'
+    print('GRKU (settings)', 'present' if (card / 'GRKU').is_dir() else 'absent')
+    if (card / 'GRKIT').is_dir():
+        print('GRKIT (old settings folder)', 'present: the next start renames it to GRKU')
+    report = card / 'GRKU' / 'REPORT.TXT'
     if report.is_file():
         print('  REPORT.TXT:', report.read_text(errors='replace').strip().splitlines()[0][:100])
 
 
 def feet(args):
-    """GRKIT/FEET.TXT on the card makes INSTALL label the snap focus distances in feet."""
+    """GRKU/FEET.TXT on the card makes INSTALL label the snap focus distances in feet."""
     card = find_card(args.card)
-    marker = card / 'GRKIT' / 'FEET.TXT'
+    marker = card / 'GRKU' / 'FEET.TXT'
     if args.state == 'on':
         marker.parent.mkdir(exist_ok=True)
         marker.write_text('The snap focus distance labels show feet while this file is on the card.\n')
@@ -140,9 +144,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--card', help='the mounted card (default: the volume with a DCIM folder)')
     sub = parser.add_subparsers(dest='command', required=True)
-    w = sub.add_parser('write', help='write a package: replace SCRIPT, keep the GRKIT settings folder')
+    w = sub.add_parser('write', help='write a package: replace SCRIPT, keep the GRKU settings folder')
     w.add_argument('package'); w.add_argument('--first', action='store_true', help='also write the ModeSet files that turn SD scripts on')
-    e = sub.add_parser('effects', help='replace SCRIPT/GRKIT/EFFECTS with the listed effects from the library ZIP')
+    e = sub.add_parser('effects', help='replace SCRIPT/GRKU/EFFECTS with the listed effects from the library ZIP')
     e.add_argument('library'); e.add_argument('list')
     sub.add_parser('status', help='what the card holds')
     f = sub.add_parser('feet', help='label the snap focus distances in feet (on) or meters (off)')

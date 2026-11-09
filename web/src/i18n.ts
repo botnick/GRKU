@@ -394,7 +394,7 @@ const en = {
     },
     {
       q: 'What happens when I format the card?',
-      a: ['A format deletes GRKU and its settings. Before a format, copy the ', '`GRKIT', ' folder to a computer. After the format, install GRKU again, then copy the ', '`GRKIT', ' folder back to the card root.'],
+      a: ['A format deletes GRKU and its settings. Before a format, copy the ', '`GRKU', ' folder to a computer. After the format, install GRKU again, then copy the ', '`GRKU', ' folder back to the card root.'],
     },
     {
       q: 'Do I hold MENU at power-on again after an update or with another card?',
@@ -474,7 +474,7 @@ const en = {
   fastbootHint: ['To load GRKU sooner, try ', 'Fast start', '.'] as readonly [string, string, string],
   remove: 'Uninstall',
   removeSteps: [
-    ['Turn the camera off. Delete the ', '`SCRIPT', ' and ', '`GRKIT', ' folders from the card. ', '`GRKIT', ' holds your GRKU settings.'],
+    ['Turn the camera off. Delete the ', '`SCRIPT', ' and ', '`GRKU', ' folders from the card. ', '`GRKU', ' holds your GRKU settings.'],
     [
       'To turn SD scripts off too, download the files below. Copy the contents of ',
       '`SD_ROOT',
@@ -955,7 +955,7 @@ const zhHans: Strings = {
     },
     {
       q: '格式化存储卡会怎样？',
-      a: ['格式化会删除 GRKU 及其设置。格式化前，请把 ', '`GRKIT', ' 文件夹复制到电脑。格式化后，重新安装 GRKU，再把 ', '`GRKIT', ' 文件夹复制回存储卡根目录。'],
+      a: ['格式化会删除 GRKU 及其设置。格式化前，请把 ', '`GRKU', ' 文件夹复制到电脑。格式化后，重新安装 GRKU，再把 ', '`GRKU', ' 文件夹复制回存储卡根目录。'],
     },
     {
       q: '更新或换卡后，还要按住 MENU 开机吗？',
@@ -1022,7 +1022,7 @@ const zhHans: Strings = {
   fastbootHint: ['想更快加载 GRKU？试试', '快速启动', '。'],
   remove: '卸载',
   removeSteps: [
-    ['关闭相机。从存储卡删除 ', '`SCRIPT', ' 和 ', '`GRKIT', ' 文件夹。', '`GRKIT', ' 保存 GRKU 的设置。'],
+    ['关闭相机。从存储卡删除 ', '`SCRIPT', ' 和 ', '`GRKU', ' 文件夹。', '`GRKU', ' 保存 GRKU 的设置。'],
     ['如需同时关闭 SD 脚本，下载下面的文件，把 ', '`SD_ROOT', ' 中的内容复制到存储卡根目录。'],
     ['插入存储卡。按住 MENU 按钮开机，等待相机自动关机。'],
     ['从存储卡根目录删除 ', '`{modeset}', ' 和 ', '`DEVELOP.MOD', '。'],
@@ -1485,7 +1485,7 @@ const zhHant: Strings = {
     },
     {
       q: '格式化記憶卡會怎樣？',
-      a: ['格式化會刪除 GRKU 及其設定。格式化前，請把 ', '`GRKIT', ' 資料夾複製到電腦。格式化後，重新安裝 GRKU，再把 ', '`GRKIT', ' 資料夾複製回記憶卡根目錄。'],
+      a: ['格式化會刪除 GRKU 及其設定。格式化前，請把 ', '`GRKU', ' 資料夾複製到電腦。格式化後，重新安裝 GRKU，再把 ', '`GRKU', ' 資料夾複製回記憶卡根目錄。'],
     },
     {
       q: '更新或換卡後，還要按住 MENU 開機嗎？',
@@ -1552,7 +1552,7 @@ const zhHant: Strings = {
   fastbootHint: ['想更快載入 GRKU？試試', '快速啟動', '。'],
   remove: '解除安裝',
   removeSteps: [
-    ['關閉相機。從記憶卡刪除 ', '`SCRIPT', ' 和 ', '`GRKIT', ' 資料夾。', '`GRKIT', ' 保存 GRKU 的設定。'],
+    ['關閉相機。從記憶卡刪除 ', '`SCRIPT', ' 和 ', '`GRKU', ' 資料夾。', '`GRKU', ' 保存 GRKU 的設定。'],
     ['如需同時關閉 SD 腳本，下載下方的檔案，把 ', '`SD_ROOT', ' 中的內容複製到記憶卡根目錄。'],
     ['插入記憶卡。按住 MENU 按鈕開機，等待相機自動關機。'],
     ['從記憶卡根目錄刪除 ', '`{modeset}', ' 和 ', '`DEVELOP.MOD', '。'],
@@ -2019,7 +2019,7 @@ const ja: Strings = {
     },
     {
       q: 'カードをフォーマットするとどうなりますか？',
-      a: ['フォーマットすると、GRKU とその設定が削除されます。フォーマットの前に ', '`GRKIT', ' フォルダーをパソコンにコピーし、フォーマットの後で GRKU をもう一度インストールしてから、', '`GRKIT', ' フォルダーをカードのルートに戻してください。'],
+      a: ['フォーマットすると、GRKU とその設定が削除されます。フォーマットの前に ', '`GRKU', ' フォルダーをパソコンにコピーし、フォーマットの後で GRKU をもう一度インストールしてから、', '`GRKU', ' フォルダーをカードのルートに戻してください。'],
     },
     {
       q: 'アップデートや別のカードでも、MENU を押して電源を入れる必要がありますか？',
@@ -2086,7 +2086,7 @@ const ja: Strings = {
   fastbootHint: ['GRKU をもっと早く読み込むには、', '高速起動', 'をお試しください。'],
   remove: 'アンインストール',
   removeSteps: [
-    ['カメラの電源を切ります。カードから ', '`SCRIPT', ' フォルダーと ', '`GRKIT', ' フォルダーを削除します。', '`GRKIT', ' には GRKU の設定が入っています。'],
+    ['カメラの電源を切ります。カードから ', '`SCRIPT', ' フォルダーと ', '`GRKU', ' フォルダーを削除します。', '`GRKU', ' には GRKU の設定が入っています。'],
     ['SD スクリプトもオフにする場合は、下のファイルをダウンロードし、', '`SD_ROOT', ' の中身をカードのルートにコピーします。'],
     ['カードを入れます。MENU ボタンを押したまま電源を入れ、電源が自動で切れるまで待ちます。'],
     ['カードのルートから ', '`{modeset}', ' と ', '`DEVELOP.MOD', ' を削除します。'],
@@ -2564,7 +2564,7 @@ const ko: Strings = {
     },
     {
       q: '카드를 포맷하면 어떻게 되나요?',
-      a: ['포맷하면 GRKU과 그 설정이 삭제됩니다. 포맷하기 전에 ', '`GRKIT', ' 폴더를 컴퓨터에 복사해 두세요. 포맷한 뒤에는 GRKU을 다시 설치하고, ', '`GRKIT', ' 폴더를 카드 최상위에 다시 복사하세요.'],
+      a: ['포맷하면 GRKU과 그 설정이 삭제됩니다. 포맷하기 전에 ', '`GRKU', ' 폴더를 컴퓨터에 복사해 두세요. 포맷한 뒤에는 GRKU을 다시 설치하고, ', '`GRKU', ' 폴더를 카드 최상위에 다시 복사하세요.'],
     },
     {
       q: '업데이트하거나 다른 카드를 쓸 때도 MENU를 누른 채 전원을 켜야 하나요?',
@@ -2633,7 +2633,7 @@ const ko: Strings = {
   fastbootHint: ['GRKU을 더 빨리 불러오려면 ', '빠른 시작', '을 써 보세요.'],
   remove: '제거',
   removeSteps: [
-    ['카메라 전원을 끕니다. 카드에서 ', '`SCRIPT', ' 폴더와 ', '`GRKIT', ' 폴더를 삭제합니다. ', '`GRKIT', '에는 GRKU 설정이 들어 있습니다.'],
+    ['카메라 전원을 끕니다. 카드에서 ', '`SCRIPT', ' 폴더와 ', '`GRKU', ' 폴더를 삭제합니다. ', '`GRKU', '에는 GRKU 설정이 들어 있습니다.'],
     ['SD 스크립트도 끄려면 아래 파일을 다운로드하고, ', '`SD_ROOT', ' 안의 내용을 카드 최상위에 복사합니다.'],
     ['카드를 넣습니다. MENU 버튼을 누른 채 전원을 켜고, 전원이 저절로 꺼질 때까지 기다립니다.'],
     ['카드 최상위에서 ', '`{modeset}', ' 파일과 ', '`DEVELOP.MOD', ' 파일을 삭제합니다.'],
@@ -3139,7 +3139,7 @@ const th: Strings = {
     },
     {
       q: 'จะเกิดอะไรขึ้นถ้าล้างการ์ด?',
-      a: ['การล้างการ์ดจะลบ GRKU และการตั้งค่าทั้งหมดออกไป ก่อนล้างการ์ด ให้คัดลอกโฟลเดอร์ ', '`GRKIT', ' เก็บไว้ในคอมพิวเตอร์ก่อน หลังจากล้างการ์ดเสร็จแล้ว ให้ติดตั้ง GRKU ใหม่อีกครั้ง แล้วคัดลอกโฟลเดอร์ ', '`GRKIT', ' กลับไปไว้ที่ชั้นแรกสุดของการ์ด'],
+      a: ['การล้างการ์ดจะลบ GRKU และการตั้งค่าทั้งหมดออกไป ก่อนล้างการ์ด ให้คัดลอกโฟลเดอร์ ', '`GRKU', ' เก็บไว้ในคอมพิวเตอร์ก่อน หลังจากล้างการ์ดเสร็จแล้ว ให้ติดตั้ง GRKU ใหม่อีกครั้ง แล้วคัดลอกโฟลเดอร์ ', '`GRKU', ' กลับไปไว้ที่ชั้นแรกสุดของการ์ด'],
     },
     {
       q: 'หลังอัปเดตหรือเมื่อเปลี่ยนการ์ดใบใหม่ ต้องกดปุ่ม MENU ค้างตอนเปิดกล้องอีกไหม?',
@@ -3219,7 +3219,7 @@ const th: Strings = {
   fastbootHint: ['หากต้องการโหลด GRKU ให้เร็วขึ้น ลองใช้ ', 'เริ่มทำงานเร็ว', '.'] as readonly [string, string, string],
   remove: 'ถอนการติดตั้ง',
   removeSteps: [
-    ['ปิดกล้อง ลบโฟลเดอร์ ', '`SCRIPT', ' และ ', '`GRKIT', ' ออกจากการ์ด ', '`GRKIT', ' เป็นที่เก็บการตั้งค่า GRKU ของคุณ'],
+    ['ปิดกล้อง ลบโฟลเดอร์ ', '`SCRIPT', ' และ ', '`GRKU', ' ออกจากการ์ด ', '`GRKU', ' เป็นที่เก็บการตั้งค่า GRKU ของคุณ'],
     [
       'หากต้องการปิดสคริปต์การ์ด SD ด้วย ให้ดาวน์โหลดไฟล์ด้านล่าง คัดลอกไฟล์ข้างใน ',
       '`SD_ROOT',

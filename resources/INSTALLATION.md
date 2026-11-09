@@ -48,7 +48,7 @@ In Chrome or Edge on a computer, [grku.app](https://grku.app/) can update the ca
 3. Copy the `SCRIPT` folder of `SD_ROOT` of the new package to the root of the SD card.
 4. Turn the camera on normally. You do not need to hold MENU.
 
-GRKU keeps your settings and effects in the `GRKIT` folder, so the update keeps them. To move from GRKit to GRKU, use grku.app, which keeps the settings and effects: both keep them in the same `GRKIT` folder.
+GRKU keeps your settings and effects in the `GRKU` folder, so the update keeps them. To move from GRKit to GRKU, use grku.app, which keeps the settings and effects: both keep them in the same `GRKU` folder.
 
 ## Troubleshooting
 
@@ -65,18 +65,18 @@ The card root has a firmware file. Turn the camera off, remove each `.bin` file 
 
 1. Wait a few seconds after power-on, until the shooting screen shows **GRKU** at the top.
 2. Make sure that the card root has the `SCRIPT` folder.
-3. If the card has `SCRIPT/GRKIT/INSTALL.ERR`, open the camera menu and make sure that the package is for the firmware version of your camera. If it is, send a [device report](https://github.com/botnick/GRKit/issues/new?template=device-report.yml) with `INSTALL.ERR`, `GRKIT/REPORT.TXT`, and `GRKIT/BOOT.TXT` if the card has it.
+3. If the card has `SCRIPT/GRKU/INSTALL.ERR`, open the camera menu and make sure that the package is for the firmware version of your camera. If it is, send a [device report](https://github.com/botnick/GRKit/issues/new?template=device-report.yml) with `INSTALL.ERR`, `GRKU/REPORT.TXT`, and `GRKU/BOOT.TXT` if the card has it.
 4. GRKU runs only on the official Ricoh firmware.
 
 ### GRKU stops working after you format the card
 
-A format deletes GRKU and its settings. Before you format the card, copy the `GRKIT` folder to a computer. After the format, copy the contents of `SD_ROOT` again, then copy the `GRKIT` folder back to the card root.
+A format deletes GRKU and its settings. Before you format the card, copy the `GRKU` folder to a computer. After the format, copy the contents of `SD_ROOT` again, then copy the `GRKU` folder back to the card root.
 
 ## Remove GRKU
 
 In Chrome or Edge on a computer, [grku.app](https://grku.app/) can remove GRKU from the card in a card reader, and can also turn SD scripts off.
 
-Turn the camera off, then delete the `SCRIPT` and `GRKIT` folders from the card.
+Turn the camera off, then delete the `SCRIPT` and `GRKU` folders from the card.
 
 The SD script setting stays on. To turn it off:
 

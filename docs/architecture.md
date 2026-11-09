@@ -62,28 +62,28 @@ INSTALL changes nothing on a firmware that it does not expect. Each address must
 
 On the optional [fast-boot firmware](fastboot.md), the loader runs SCAN and INSTALL on the RTOS side right after power-on, through the fast-boot files of the package. It falls back to Linux if that SCAN writes no plan.
 
-The loader writes `INSTALL.ERR` from the RTOS before each step and removes it after the install. So a start that stops leaves its step on the card. The scripts also write a boot log, `GRKIT/BOOT.TXT`, with the time of each step. A start that stops in the core replaces `INSTALL.ERR` with its status, the name and meaning of the status, the step, and the state of the start. [The three files of a device report](diagnostics.md) explains each line of the three files.
+The loader writes `INSTALL.ERR` from the RTOS before each step and removes it after the install. So a start that stops leaves its step on the card. The scripts also write a boot log, `GRKU/BOOT.TXT`, with the time of each step. A start that stops in the core replaces `INSTALL.ERR` with its status, the name and meaning of the status, the step, and the state of the start. [The three files of a device report](diagnostics.md) explains each line of the three files.
 
 ### Card layout
 
-A package holds only `SCRIPT`. `GRKIT` at the card root is the data folder: no package holds it, so a new package, copied by replace or by merge, keeps it.
+A package holds only `SCRIPT`. `GRKU` at the card root is the data folder: no package holds it, so a new package, copied by replace or by merge, keeps it.
 
 | Path | Contents |
 | --- | --- |
-| `SCRIPT/GRKIT` | the loader, the installers, the package list, and the modules and effects of the package |
-| `GRKIT/EFFECTS` | the effects library |
-| `GRKIT/MODULES` | the modules that a person adds |
-| `GRKIT/STATE.TXT` | the saved settings |
-| `GRKIT/REPORT.TXT`, `GRKIT/BOOT.TXT` | the result and the boot log of the last starts |
-| `GRKIT/SAFE` | starts the safe mode |
+| `SCRIPT/GRKU` | the loader, the installers, the package list, and the modules and effects of the package |
+| `GRKU/EFFECTS` | the effects library |
+| `GRKU/MODULES` | the modules that a person adds |
+| `GRKU/STATE.TXT` | the saved settings |
+| `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT` | the result and the boot log of the last starts |
+| `GRKU/SAFE` | starts the safe mode |
 
-A package module loads only if the package list names it, and a module in `GRKIT/MODULES` replaces the package module with the same name. A new package copies its effects into the library once, so an effect that a person deleted stays deleted. The installer never renames or deletes a file in the data folder, because the camera's file systems do not support it reliably.
+A package module loads only if the package list names it, and a module in `GRKU/MODULES` replaces the package module with the same name. A new package copies its effects into the library once, so an effect that a person deleted stays deleted. The installer never renames or deletes a file in the data folder, because the camera's file systems do not support it reliably.
 
 ### Report and safe mode
 
-`GRKIT/REPORT.TXT` gives the GRKU version and target, the result of each module, and the installed effects, then the details for a device report: the firmware build, the relocation, each patch, each module with the value of each setting, each effect, and the saved state ([diagnostics](diagnostics.md)).
+`GRKU/REPORT.TXT` gives the GRKU version and target, the result of each module, and the installed effects, then the details for a device report: the firmware build, the relocation, each patch, each module with the value of each setting, each effect, and the saved state ([diagnostics](diagnostics.md)).
 
-While `GRKIT/SAFE` exists, no module loads, and only module management stays in MENU, so a person can turn off the module that stopped the camera. The safe mode does not start by itself, because a count of unfinished starts also counts each quick power-off.
+While `GRKU/SAFE` exists, no module loads, and only module management stays in MENU, so a person can turn off the module that stopped the camera. The safe mode does not start by itself, because a count of unfinished starts also counts each quick power-off.
 
 ## Modules
 
@@ -130,7 +130,7 @@ The menu text follows the camera language.
 
 ## Relocation
 
-Some cameras show a supported version but run another build of it. For each firmware address, the runtime stores a window of the build it was made from. INSTALL finds each window in the running image and moves each reference. The search takes seconds on a camera, so INSTALL first checks the addresses that an earlier search found, kept in `GRKIT/RELOC.BIN`. A window that is not found, or found twice, stops INSTALL with status 47 before it changes the firmware.
+Some cameras show a supported version but run another build of it. For each firmware address, the runtime stores a window of the build it was made from. INSTALL finds each window in the running image and moves each reference. The search takes seconds on a camera, so INSTALL first checks the addresses that an earlier search found, kept in `GRKU/RELOC.BIN`. A window that is not found, or found twice, stops INSTALL with status 47 before it changes the firmware.
 
 ## Porting
 

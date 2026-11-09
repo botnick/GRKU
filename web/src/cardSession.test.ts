@@ -29,7 +29,7 @@ function cardEffect(id: string, folder: string): CardEffect {
   };
 }
 
-describe.each([INBOX, 'GRKIT/EFFECTS'])('imports after connecting a card with effects in %s', (folder) => {
+describe.each([INBOX, 'GRKU/EFFECTS'])('imports after connecting a card with effects in %s', (folder) => {
   it('uses the imported copy once in the list and both package modes', () => {
     const cinema = cardEffect(imported.id, folder);
     const other = cardEffect('lut-other', INBOX);

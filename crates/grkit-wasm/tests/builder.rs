@@ -240,13 +240,13 @@ fn the_card_files_are_the_sd_root_of_the_package() {
     for path in files.keys() {
         assert_eq!(card[path], files[path], "{path}");
     }
-    assert!(card.contains_key("SCRIPT/GRKIT/PACKAGE.TXT"));
+    assert!(card.contains_key("SCRIPT/GRKU/PACKAGE.TXT"));
     assert!(card
         .keys()
-        .any(|path| path.starts_with("SCRIPT/GRKIT/EFFECTS/")));
+        .any(|path| path.starts_with("SCRIPT/GRKU/EFFECTS/")));
     assert!(card
         .keys()
-        .any(|path| path.starts_with("SCRIPT/GRKIT/MODULES/")));
+        .any(|path| path.starts_with("SCRIPT/GRKU/MODULES/")));
     // The guide, the licenses, and the checksums stay out of the card.
     assert!(card.keys().all(|path| !path.ends_with(".pdf")));
     assert!(!card.contains_key("LICENSES.md") && !card.contains_key("SHA256SUMS"));
