@@ -94,7 +94,7 @@ export function Landing({ strings, canWrite }: Props) {
           <div className="hero-visual" ref={frame}>
             <HeroPreview catalog={catalog} look={look} strings={strings} />
             <p className="looks-note">
-              {look?.name ?? ''} · {t.lookNote} <Credit photo="kitchen" camera />
+              {look?.name ?? ''} · {t.lookNote} <Credit photo="fox" camera />
             </p>
           </div>
         </div>
@@ -137,10 +137,10 @@ export function Landing({ strings, canWrite }: Props) {
           <h2 id="landing-details">{t.details}</h2>
         </div>
         <div className="contact" role="group" aria-label={t.details}>
-          <Frame index="01" image="date-gr2.jpg" title={strings.moduleNames.dateStamp} detail={t.dateLooks[2] ?? ''} photo="tram" />
-          <Frame index="02" image="date-gr1s.jpg" title={strings.moduleNames.dateStamp} detail={t.dateLooks[1] ?? ''} photo="tram" />
-          <Frame index="03" image="bloom.jpg" title={strings.moduleNames.glow} detail={t.glowKinds[1] ?? ''} photo="street" />
-          <Frame index="04" image="halation.jpg" title={strings.moduleNames.glow} detail={t.glowKinds[2] ?? ''} photo="street" />
+          <Frame index="01" image="date-gr2.jpg" title={strings.moduleNames.dateStamp} detail={t.dateLooks[2] ?? ''} photo="wakkanai" />
+          <Frame index="02" image="date-gr1s.jpg" title={strings.moduleNames.dateStamp} detail={t.dateLooks[1] ?? ''} photo="wakkanai" />
+          <Frame index="03" image="bloom.jpg" title={strings.moduleNames.glow} detail={t.glowKinds[1] ?? ''} photo="hokkaido" />
+          <Frame index="04" image="halation.jpg" title={strings.moduleNames.glow} detail={t.glowKinds[2] ?? ''} photo="hokkaido" />
           <Frame index="05" image="grain-2.jpg" title={strings.moduleNames.grain} detail={t.grainLevels[1] ?? ''} photo="tram" />
           <Frame index="06" image="grain-4.jpg" title={strings.moduleNames.grain} detail={t.grainLevels[3] ?? ''} photo="tram" />
         </div>

@@ -6,7 +6,7 @@
 // the effects section does. Date Imprint and Glow run the module code on the full-size photo,
 // built for this computer like `grkit module test` (it needs cargo and a C compiler). Grain comes
 // from the camera's own grain stage, so GRAIN holds pictures that GR III firmware 2.10 recorded of
-// the tram photo at ISO 100, with Film Look Tri-X 400 and each Grain strength (GRAIN_FILES).
+// the tram photo (Tramway by MIKI Yoshihito) at ISO 100, with Film Look Tri-X 400 and each Grain strength (GRAIN_FILES).
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -24,18 +24,9 @@ const QUALITY = 80;
 
 /** The source photos. The page credits each one; src/landing-data.ts holds the credits. */
 const SOURCES = {
-  kitchen: {
-    file: 'Sakiko_buys_a_delicious_soup_at_Kitchen_Grizzly._(53311001084).jpg',
-    sha256: 'e8ae3af72569a1f89c327f6c90cb7bb846a5482592d72cf19e19f0c2ecfd81ae',
-  },
-  tram: {
-    file: 'Tramway_(53731862585).jpg',
-    sha256: 'dff8652af5e3210cc305401fa0b9e7eaf61137fafabcbdb4612d4fd75593743e',
-  },
-  street: {
-    file: 'People_dining_outside,_Rue_des_Marronniers,_Lyon,_France_julesvernex2.jpg',
-    sha256: '5da52ffc6910829caea7497cceaaf4dba90a9eabf588e8b25c52b736ccb722be',
-  },
+  fox: { file: 'fox.jpg', sha256: 'd96a3d0c44cd637d5af3aa4ecbef53d7a1dc799bf698db12274aeb0cac7fa413' },
+  wakkanai: { file: 'wakkanai.jpg', sha256: '38c22eec21cf023199e6efe076b7c3b8376e310e4a3398e0c08ca60827b2f65b' },
+  hokkaido: { file: 'hokkaido.jpg', sha256: 'c645e9b007fda23366487816c0ea966a008e116943379ec66b0411077a0825a7' },
 };
 /** The recorded Grain pictures in GRAIN, Weak to Extra Strong, 6000 x 4000. */
 const GRAIN_FILES = ['grain-1-weak.jpg', 'grain-2-medium.jpg', 'grain-3-strong.jpg', 'grain-4-extra.jpg'];
@@ -54,7 +45,7 @@ mkdirSync(join(OUTPUT, 'looks'), { recursive: true });
 
 // 1. The film looks: the Standard development and each look of the hero.
 const catalog = JSON.parse(readFileSync(join(effects, 'catalog.json'), 'utf8'));
-const { image, meanError } = linearSample(photo('kitchen'), readFileSync(join(effects, 'preview/standard.lut')));
+const { image, meanError } = linearSample(photo('fox'), readFileSync(join(effects, 'preview/standard.lut')));
 const tables = [['Standard', 'standard', 'preview/standard.lut']];
 // The looks of the hero (landing-data.ts), by their catalog names.
 for (const { name, image } of LANDING_LOOKS) {
@@ -131,24 +122,23 @@ try {
   }
   const save = (name, { width, height, rgba }) => writeFileSync(join(OUTPUT, name), encode(width, height, rgba));
 
-  // The date of the tram photo (EXIF 2024-05-06 16:30), 'YY M D in each digit look, then the
-  // bottom right quarter of the photo at half size.
+  // The date of the Wakkanai photo (EXIF 2023-03-15 07:47), 'YY M D in each digit look, then
+  // the bottom right quarter of the photo at half size.
   const date = renderer('date', ['-DRENDER_DATE']);
-  const tram = decoded('tram');
+  const wakkanai = decoded('wakkanai');
   ['classic', 'gr1s', 'gr2'].forEach((look, value) => {
-    const out = date(tram, [1, value], { RENDER_TIME: '2024 5 6 16 30' });
+    const out = date(wakkanai, [1, value], { RENDER_TIME: '2023 3 15 7 47' });
     save(`date-${look}.jpg`, crop(out, 4400, 2800, 1600, 1200, 2));
   });
-
-  // Glow on the street at night (EXIF 7.2 EV at ISO 100), cut to 3:2 as the camera records it:
-  // Off, then Bloom and Halation at the Medium strength, the lamps at one third.
+  // Glow on the lit trees of the Red Brick Office at night (EXIF 4.3 EV at ISO 100), 3:2 as the
+  // camera records it: Off, then Bloom and Halation at the Medium strength, the lights at one third.
   const glow = renderer('glow', []);
-  const full = decoded('street');
-  const street = part(full, (full.width - 5916) >> 1, (full.height - 3944) >> 1, 5916, 3944);
-  const lamps = (picture) => crop(picture, 1740, 720, 2160, 1620, 3);
-  save('glow-off.jpg', lamps(glow(street, [0, 0, 7.2])));
-  save('bloom.jpg', lamps(glow(street, [2, 0, 7.2])));
-  save('halation.jpg', lamps(glow(street, [0, 2, 7.2])));
+  const full = decoded('hokkaido');
+  const night = part(full, (full.width - 5262) >> 1, (full.height - 3508) >> 1, 5262, 3508);
+  const lights = (picture) => crop(picture, 1300, 1700, 2700, 2025, 3);
+  save('glow-off.jpg', lights(glow(night, [0, 0, 4.3])));
+  save('bloom.jpg', lights(glow(night, [2, 0, 4.3])));
+  save('halation.jpg', lights(glow(night, [0, 2, 4.3])));
   console.log('Date Imprint and Glow: done.');
 
   // Grain: the light grey footbridge girder, at full size. A smaller size averages the grain

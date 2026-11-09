@@ -3,13 +3,14 @@ import { decodeLinear, MAX_EDGE } from './linear';
 import type { Source } from './render';
 
 /**
- * Sakiko buys a delicious soup at Kitchen Grizzly, a GR IIIx JPEG by MIKI Yoshihito (CC BY 2.0). scripts/build-sample.mjs
- * estimates its linear pixels by inverting the Standard development of the preview.
+ * Strolling fox, a GR IIIx JPEG by Ryo FUKAsawa (CC BY 2.0): a fox crossing a snowy street at night.
+ * scripts/build-sample.mjs estimates its linear pixels by inverting the Standard development of the
+ * preview (web/samples/strolling-fox.json).
  */
 export const DEFAULT_SAMPLE: Source = {
-  key: 'gr-iiix-kitchen-grizzly-v1',
+  key: 'gr-iiix-strolling-fox-v1',
   load: async () => {
-    const response = await fetch(siteUrl('samples/kitchen-grizzly.grlinear'));
+    const response = await fetch(siteUrl('samples/strolling-fox.grlinear'));
     if (!response.ok || !response.body) throw new Error('Cannot load sample photo');
     const reader = response.body.pipeThrough(new DecompressionStream('gzip')).getReader();
     const chunks: Uint8Array[] = [];

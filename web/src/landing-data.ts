@@ -4,7 +4,7 @@ import type { Cover } from './catalog';
 
 /**
  * The film looks of the landing hero: the catalog name, the image that scripts/build-landing.mjs
- * renders on the Kitchen Grizzly photo, and the cover of the catalog effect, so the hero draws its
+ * renders on the sample photo, and the cover of the catalog effect, so the hero draws its
  * icons without the catalog.
  */
 export interface LandingLook {
@@ -25,22 +25,28 @@ export const LANDING_LOOKS = [
 
 /** The photos of the landing page, credited where they show, with a link to their source page. */
 export const LANDING_PHOTOS = {
-  kitchen: {
-    author: 'MIKI Yoshihito',
+  fox: {
+    author: 'Ryo FUKAsawa',
     license: 'CC BY 2.0',
     camera: 'RICOH GR IIIx',
-    source: 'https://www.flickr.com/photos/mujitra/53311001084/',
+    source: 'https://www.flickr.com/photos/fukapon/51847773171/',
+  },
+  wakkanai: {
+    author: 'Ryo FUKAsawa',
+    license: 'CC BY 2.0',
+    camera: 'RICOH GR IIIx',
+    source: 'https://www.flickr.com/photos/fukapon/52748403830/',
+  },
+  hokkaido: {
+    author: 'MIKI Yoshihito',
+    license: 'CC BY 4.0',
+    camera: 'RICOH GR IIIx',
+    source: 'https://www.flickr.com/photos/mujitra/55047855669/',
   },
   tram: {
     author: 'MIKI Yoshihito',
     license: 'CC BY 2.0',
     camera: 'RICOH GR IIIx',
     source: 'https://www.flickr.com/photos/mujitra/53731862585/',
-  },
-  street: {
-    author: 'Jules Verne Times Two',
-    license: 'CC BY-SA 4.0',
-    camera: 'RICOH GR III',
-    source: 'https://commons.wikimedia.org/wiki/File:People_dining_outside,_Rue_des_Marronniers,_Lyon,_France_julesvernex2.jpg',
   },
 } as const;
