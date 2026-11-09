@@ -6,7 +6,7 @@ compatibility_date = "2026-10-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "grku-plus"
-database_id = "REPLACE_AFTER_wrangler_d1_create"
+database_id = "e67fb824-cef1-4d18-bd37-21745eb1efd5"
 
 [vars]
 # The site that the magic links and the CORS allow.
