@@ -1,3 +1,15 @@
+## 1.7.0 (2026-11-09)
+
+### Features
+
+- Thai installation guide: every camera has its guide in Thai as a PDF, and the ZIP from the Thai site carries it. The camera menus stay in English, because the camera has no Thai font. The guides no longer mention GRKit.
+
+### Fixes
+
+- The site builds GRKU.zip and writes the card for GR IV and GR IV Monochrome again: it stopped when the release had no build for the 1.20 firmware of the 30th Anniversary cameras (gr4-1.20-0528), which Ricoh does not publish. The site now leaves that build out, as the release packages do.
+- The guides and the site show the card after copying `SD_ROOT` and the camera while MENU is held, and their screenshots say GRKU. The guides no longer print the repository address, and the terms name the feedback link of grku.app as the contact.
+- The Thai site builds GRKU.zip and writes the card again: it failed with "เตรียม GRKU.zip ไม่ได้" because the package did not know the Thai language.
+
 ## 1.6.0 (2026-11-09)
 
 ### Features
