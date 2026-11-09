@@ -14,10 +14,10 @@ SITE_URL = "https://grku.app"
 EXTRA_ORIGINS = "https://www.grku.app,http://localhost:8787,http://localhost:5173,http://localhost:4173"
 # The PromptPay that receives the money: a phone (0812345678), a national ID (13 digits), or an
 # e-wallet ID (15 digits). Set as a secret in production: `wrangler secret put PROMPTPAY_ID`.
-PROMPTPAY_ID = ""
+PROMPTPAY_ID = "004999119724275"
 # A part of the receiver's name as the bank shows it on a slip, to check that the money came to
 # us (optional; empty skips the check).
-RECEIVER_NAME = ""
+RECEIVER_NAME = "ธนวัฒน์"
 # slipok | easyslip | mock. `mock` accepts any slip for the amount of the order (development only).
 SLIP_PROVIDER = "easyslip"
 SLIPOK_BRANCH = ""
