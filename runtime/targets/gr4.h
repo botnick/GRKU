@@ -184,6 +184,29 @@
    setter (1.11: 0x5357f2b0) sets the text ID of this view. */
 #define SUBMENU_TITLE_STRING 0xf0
 #define SELECT_MENU_SIZE 0x1e4U
+/* The string view of the SelectMenuController title, whose text ID its
+   start sets from its kind. */
+#define SELECT_TITLE_STRING 0x160
+/* The text ID of a string view (a halfword), which FW_STRING_VIEW_RESET sets:
+   the view measures its text when the ID changes. */
+#define STRING_VIEW_TEXT 0xea
+/* A string view of its own: its type for FW_VIEW_FACTORY, and the bytes of
+   its font and of its horizontal and vertical alignment, which a new view
+   measures at its first layout. STRING_VIEW_LIVE_FONT is the font of the
+   live-view text, such as the focus distance, and STRING_VIEW_CENTER
+   centers the text in the view. */
+#define STRING_VIEW_TYPE 0x11U
+#define STRING_VIEW_FONT 0xf0
+#define STRING_VIEW_ALIGN 0xf1
+#define STRING_VIEW_VERTICAL 0xf2
+#define STRING_VIEW_LIVE_FONT 1U
+#define STRING_VIEW_CENTER 1U
+/* The methods of the SelectMenuController vtable. */
+#define SELECT_VTABLE_SLOTS 16U
+/* The events that a SelectMenu page gets after MENU (CANCEL), and after OK
+   and MENU (DONE): DONE returns the page. */
+#define SELECT_EV_CANCEL 0xe2U
+#define SELECT_EV_DONE 0xa9U
 /* The fewest row views of a SelectMenuController. Its constructor builds a
    view for each row of its longest kind (+0x1a5). The longest native kind has
    21 rows on each build, and no GRKit hook borrows it (1.11: kind table
@@ -263,6 +286,9 @@
    touch event is the one that the native handler tests like GR III 0x30. */
 #define EV_SWITCH 5
 #define EV_SWITCH_END 8
+/* A half-press of the shutter on a MENU value page, before the confirm that
+   OK also sends. */
+#define EV_HALF_PRESS 2
 #define EV_FN 0x1b
 /* An Fn press comes as EV_FN with argument 2, as on GR III, then EV_FN_ACTION,
    then EV_FN with argument 1 at the release. The native ADJ handler ignores
@@ -312,6 +338,15 @@
 #define GAMMA_UPLOAD 0x380a
 /* DigitalFilterProcess plan: the grain stage flag that the stage gate sets. */
 #define GRAIN_GATE_FLAG 0x25
+
+/* The keyboard of the camera (runtime/ui.h): SoftwareKeyboardController
+   copies its use from the model at its start (OnStart) to the byte
+   KEYBOARD_FUNCTION; the copyright use is KEYBOARD_COPYRIGHT. The model
+   (FW_KEYBOARD_MODEL) holds the use in its byte KEYBOARD_MODEL_FUNCTION, 0
+   for none, and the keyboard clears it when it stops. */
+#define KEYBOARD_FUNCTION 0x240
+#define KEYBOARD_COPYRIGHT 3U
+#define KEYBOARD_MODEL_FUNCTION 0
 
 /* Each native aspect has its own visible area in a preview picture. */
 #define PICTURE_NATIVE_ID(native) ((native)<=3 ? (native) : 0)
@@ -389,5 +424,25 @@
 #define SHOT_PROGRAM (SHOT_SETTINGS + 0x15a)
 #define SHOT_PROGRAM_CODES 2,4,3,0,1,1,1,2
 #define SHOT_METERING (SHOT_SETTINGS + 0x8f)
+
+/* The mode dial (runtime/mode_dial.h). The switch model of the App
+   (DIAL_SWITCHES, build header) keeps the state of each switch in a byte at
+   DIAL_SWITCH_STATES + 8 x its ID. The mode dial is switch DIAL_SWITCH: P 3,
+   Tv 5, Av 6, M 8, Sn 9, and U1 to U3 from DIAL_CODE_U1. The AE model
+   (DIAL_AE_MODEL) applies a position: it keeps the code of the applied
+   position at DIAL_AE_APPLIED and its user mode (1 to 3, 0 for another
+   position) at DIAL_AE_USER_MODE, then sets the user mode model, whose
+   holder (DIAL_USER_MODES) points to its state with the loaded user mode in
+   the first byte. The settings of a position are loaded when the AE model
+   applied it and the user mode model holds its user mode. */
+#define DIAL_SWITCH_STATES 0x114
+#define DIAL_SWITCH 39
+#define DIAL_CODE_U1 11U
+#define DIAL_AE_APPLIED 0x13
+#define DIAL_AE_USER_MODE 0x14
+#define DIAL_POSITION() BYTE(DIAL_SWITCHES,DIAL_SWITCH_STATES+DIAL_SWITCH*8)
+#define DIAL_NATIVE_SETTLED(position) \
+    (BYTE(DIAL_AE_MODEL,DIAL_AE_APPLIED)==(position) && \
+     BYTE(WORD(DIAL_USER_MODES,0),0)==BYTE(DIAL_AE_MODEL,DIAL_AE_USER_MODE))
 
 #endif

@@ -36,19 +36,27 @@ typedef unsigned int u32;
 #define STATE_PATH CARD "/GRKU/STATE.TXT"
 #define MODULES_PATH CARD "/GRKU/MODULES"
 #define LEGACY_EFFECTS_PATH CARD "/SCRIPT/PLUGINS/EFFECTS"
+#define RECIPES_STATE_PATH CARD "/GRKU/RECIPES.TXT"
+#define RECIPES_STATE_TMP_PATH CARD "/GRKU/RECIPES.TMP"
+#define DIAL_SETS_PATH CARD "/GRKU/USERMODE.TXT"
+#define DIAL_SETS_TMP_PATH CARD "/GRKU/USERMODE.TMP"
+#define RECIPES_INBOX_PATH CARD "/SCRIPT/GRKU/RECIPES.BIN"
+#define CORE_STATE_COUNT 7U
 #define CORE_STATE_IDS 861965461, 484706023, 790270076, 977751003, 826089556, 660632122, 618415657
 #define PARAMETER_KEY_BASE 990000000U
+#define RECIPE_VALUE_MAX 536870911U
 #define STATE_TEXT_MAX 16384U
 #define POINT_VIEWFINDER_OVERLAY 0x4U
 #define POINT_MENU_PAGE 0x1U
 #define POINT_PICTURE_ENCODE 0x10U
 static const char *const core_setting_names[] = {"CORE.TONE", "CORE.ASPECT", "CORE.GRAIN", "CORE.GRAIN_SIZE", "CORE.ASPECT_MODE",
-                                                 "CORE.CROP", "CORE.CROP_MODE"};
-static const u32 core_setting_points[] = {0x12, 0xc, 0x20, 0x40, 0xc, 0x84, 0x84};
+                                                 "CORE.CROP", "CORE.CROP_MODE", "CORE.RECIPE"};
+static const u32 core_setting_points[] = {0x12, 0xc, 0x20, 0x40, 0xc, 0x84, 0x84, 0x104};
 /* The tail of the core, and its one export, overlay_label. */
 #define TAIL 0x54000000U
 #define TAIL_SYMBOL 0U
 static u32 relocated[] = {TAIL};
+#define CORE_VIEWFINDER 0x80U
 #define CORE_EXPORT_COUNT 1U
 #define OVERLAY_LABEL (TAIL + 0x40U)
 static const u32 core_exports[] = {0xc0e27352U, 0x40U};
@@ -98,7 +106,7 @@ static struct card_file card[CARD_FILES];
 static u32 card_count;
 /* An open file or folder: the file index or the folder path, and the read
    position (the entry index of a folder). */
-struct open_file { int used, folder; u32 file; char path[PATH_SIZE]; long position; };
+struct open_file { int used, folder, write; u32 file; char path[PATH_SIZE]; long position; };
 #define OPEN_FILES 8U
 #define FIRST_FD 3U
 static struct open_file open_files[OPEN_FILES];
@@ -139,6 +147,12 @@ static long open_path(const char *path, u32 flags)
         if (!folder_exists(path)) return ENOENT_ERROR;
         o->folder = 1;
         strcpy(o->path, path);
+    } else if (flags == 0x241) {
+        /* A write creates or truncates the file. */
+        while (o->file < card_count && strcmp(card[o->file].path, path)) ++o->file;
+        if (o->file == card_count) add_file(path, "", 0);
+        card[o->file].size = 0;
+        o->write = 1;
     } else {
         assert(flags == 0x8800);
         while (o->file < card_count && strcmp(card[o->file].path, path)) ++o->file;
@@ -189,8 +203,18 @@ static long syscall6(u32 number, u32 a, u32 b, u32 c, u32 d, u32 e, u32 f)
         o->position += n;
         return (long)n;
     }
-    /* The parts print their progress to standard output. */
-    case 4: assert(a == 1); return (long)c;
+    /* The parts print their progress to standard output, and write files. */
+    case 4: {
+        if (a == 1) return (long)c;
+        if (!o || !o->write) return EBADF_ERROR;
+        struct card_file *file = &card[o->file];
+        file->bytes = realloc(file->bytes, file->size + c);
+        memcpy(file->bytes + file->size, host(b), c);
+        file->size += c;
+        return (long)c;
+    }
+    /* mkdir: each folder exists. */
+    case 39: return -17;
     case 5: return open_path(host(a), b);
     case 6: if (!o) return EBADF_ERROR; o->used = 0; return 0;
     case 19:
@@ -254,6 +278,11 @@ static void icon_header(u32 icon, u32 pixels) { store(icon, pixels); }
 static int test_monochrome;
 static int monochrome_camera(void) { return test_monochrome; }
 #include "install_modules.h"
+/* The value behind generated recipe IDs (runtime/recipe_id.h), which a test
+   sets so that it knows each candidate. */
+static u32 test_id_source;
+#define RECIPE_ID_SOURCE(high) (*(high) = 0U, test_id_source)
+#include "install_recipes.h"
 /* installer.c also reads STATE.TMP and the state of GRKit 1.2. */
 static void read_state(void)
 {
@@ -713,13 +742,14 @@ static void install_writes_the_settings_and_the_contexts(void)
         id_of("CORE.ROWS.DATE"), 5, 12345, 7, 23456, 0, id_of("CORE.ASPECT"), 3, id_of("CORE.GRAIN"), 1,
     };
     static const u32 core_ids[] = {CORE_STATE_IDS};
-    for (u32 k = 0; k < GRKIT_CORE_SETTING_COUNT; ++k) assert(core_ids[k] == id_of(core_setting_names[k]));
+    for (u32 k = 0; k < CORE_STATE_COUNT; ++k) assert(core_ids[k] == id_of(core_setting_names[k]));
     save_state(pairs, sizeof pairs / sizeof pairs[0] / 2);
     assert(install() == 0);
     /* The settings of the modules, the choices of the GRKit section, the
-       switch, then the saved values that no setting takes: CORE.GRAIN,
-       which no module uses, and unknown keys, including a value 0. */
-    assert(word(ARRAY_AT) == 14 && word(ARRAY_AT + 4) == 0);
+       switch and Enable at Start, then the saved values that no setting
+       takes: CORE.GRAIN, which no module uses, and unknown keys, including a
+       value 0. */
+    assert(word(ARRAY_AT) == 15 && word(ARRAY_AT + 4) == 0);
     expect_setting(0, id_of("GUIDES.STYLE"), 0, 6);
     expect_setting(1, id_of("GUIDES.COLOR"), 0, 3);
     expect_setting(2, 0, 0, 2);
@@ -731,12 +761,13 @@ static void install_writes_the_settings_and_the_contexts(void)
     expect_setting(8, id_of("CORE.POS.DATE"), 0, MANAGE_MODULES + 1);
     expect_setting(9, id_of("CORE.ROWS.DATE"), 5, 1U << MANAGE_OPTION_VALUES);
     expect_setting(10, id_of("CORE.OFF"), 0, 2);
-    expect_setting(11, 12345, 7, 8);
-    expect_setting(12, 23456, 0, 1);
-    expect_setting(13, id_of("CORE.GRAIN"), 1, 2);
+    expect_setting(11, id_of("CORE.START"), MANAGE_START_KEEP, MANAGE_START_VALUES);
+    expect_setting(12, 12345, 7, 8);
+    expect_setting(13, 23456, 0, 1);
+    expect_setting(14, id_of("CORE.GRAIN"), 1, 2);
     /* The contexts: the first setting, the count, reserved, then the handle
        of each used setting. */
-    u32 context = ARRAY_AT + 4 * SETTINGS_WORDS(14);
+    u32 context = ARRAY_AT + 4 * SETTINGS_WORDS(15);
     assert(word(context) == 0 && word(context + 4) == 3 && word(context + 8) == 0);
     assert(word(context + 12) == GRKIT_CORE_ASPECT && word(context + 16) == GRM_NO_SETTING);
     u32 date_context = context + 4 * CONTEXT_WORDS(2);
@@ -751,6 +782,7 @@ static void install_writes_the_settings_and_the_contexts(void)
     assert((needed_points & core_setting_points[1]) == core_setting_points[1]);
     assert(word(module_list + MANAGE_SETTINGS) == 4);
     assert(word(module_list + MANAGE_SWITCH) == 10 + 1);
+    assert(word(module_list + MANAGE_START) == 11 + 1);
 }
 /* Defaults initialize both saved and transient settings. Explicit saved zero
    survives a restart and a period without the module installed. */
@@ -945,6 +977,68 @@ static void the_switch_stops_each_module(void)
     assert(install() == 0);
     assert(!all_off && word(services_block + SERVICES_SUSPENDED) == 1);
     assert(capabilities_running == 1U << (GRKIT_CORE_ASPECT - GRKIT_CORE_SETTING_BASE));
+}
+/* The mode dial belongs to CORE.RECIPE: a module that uses it needs the
+   hook of the dial also when it loads stopped, by its own Enable or by the
+   switch, so the dial can turn GRKit on (runtime/mode_dial.h). INSTALL
+   writes the entry of the menu for SYSTEM_READY, which applies a user mode
+   of the dial at a start. */
+static void a_stopped_recipes_module_keeps_the_dial(void)
+{
+    reset();
+    add_module(PACKAGE_MODULES_PATH, "RECIPES.GRM", &(struct spec){.id = "RECIPES", .order = 1, .uses = {"CORE.RECIPE"}});
+    const u32 pairs[] = {id_of("CORE.OFF"), 1, id_of("CORE.OFF.RECIPES"), 1};
+    save_state(pairs, 2);
+    assert(install() == 0 && all_off && module_status[0] == 0);
+    assert(word(services_block + SERVICES_SUSPENDED) == 1);
+    assert((needed_points & core_setting_points[7]) == core_setting_points[7]);
+    assert(word(services_block + SERVICES_CORE_VIEWFINDER) == TAIL + CORE_VIEWFINDER);
+}
+/* Enable at Start decides the switch at each start. `pairs` is STATE.TXT,
+   or 0 for a card without it. The switch of the start, the modules that load
+   stopped, the switch that installer.c restores (apply_state), and the value
+   of Enable at Start. */
+static void start_with(const u32 *pairs, u32 n, u32 off, u32 start)
+{
+    reset();
+    add_module(PACKAGE_MODULES_PATH, "FIRST.GRM", &(struct spec){.id = "FIRST", .order = 1, .uses = {"CORE.ASPECT"}});
+    add_module(PACKAGE_MODULES_PATH, "SECOND.GRM", &(struct spec){.id = "SECOND", .order = 2, .uses = {"CORE.GRAIN"}});
+    if (pairs) save_state(pairs, n);
+    assert(install() == 0);
+    assert(all_off == off && module_status[0] == 0 && module_status[1] == 0);
+    assert(word(services_block + SERVICES_SUSPENDED) == (off ? 2U : 0U));
+    assert(capabilities_running == (off ? 0U : capabilities_used));
+    u32 handle = word(module_list + MANAGE_SWITCH) - 1, value;
+    expect_setting(handle, id_of("CORE.OFF"), off, 2);
+    assert(state_setting_value(&saved_state, id_of("CORE.OFF"), 0, 2) == off);
+    assert(word(module_list + MANAGE_START) == handle + 2);
+    expect_setting(handle + 1, id_of("CORE.START"), start, MANAGE_START_VALUES);
+    assert(state_setting_value(&saved_state, id_of("CORE.START"), start, MANAGE_START_VALUES) == start);
+    /* SCAN and INSTALL read the same file, so a second start agrees. */
+    assert(state_value(&saved_state, id_of("CORE.OFF"), &value) ? value == off : !off);
+}
+static void enable_at_start_decides_the_switch(void)
+{
+    const u32 off = id_of("CORE.OFF"), start = id_of("CORE.START"), other = id_of("CORE.OFF.FIRST");
+    /* A new camera, without a state file, starts On, and Enable at Start
+       is On. */
+    start_with(0, 0, 0, MANAGE_START_ON);
+    /* A camera of an earlier GRKit has saved pairs and no Enable at Start:
+       Keep Last, so its switch stays as it was. */
+    start_with((const u32[]){off, 1, other, 0}, 2, 1, MANAGE_START_KEEP);
+    start_with((const u32[]){off, 0, other, 0}, 2, 0, MANAGE_START_KEEP);
+    start_with((const u32[]){other, 0}, 1, 0, MANAGE_START_KEEP);
+    /* On starts with the switch On, also after the switch was Off. */
+    start_with((const u32[]){off, 1, start, MANAGE_START_ON}, 2, 0, MANAGE_START_ON);
+    /* Off starts with the switch Off: each module loads stopped, also
+       without a saved switch. */
+    start_with((const u32[]){off, 0, start, MANAGE_START_OFF}, 2, 1, MANAGE_START_OFF);
+    start_with((const u32[]){start, MANAGE_START_OFF}, 1, 1, MANAGE_START_OFF);
+    /* Keep Last keeps the saved switch. */
+    start_with((const u32[]){off, 1, start, MANAGE_START_KEEP}, 2, 1, MANAGE_START_KEEP);
+    start_with((const u32[]){off, 0, start, MANAGE_START_KEEP}, 2, 0, MANAGE_START_KEEP);
+    /* A value out of range is no value: the default of a saved file. */
+    start_with((const u32[]){off, 1, start, MANAGE_START_VALUES}, 2, 1, MANAGE_START_KEEP);
 }
 /* Conditions in two descriptors can share one array. Relocation must read
    original local handles each time, not relocate an already global handle. */
@@ -1230,6 +1324,433 @@ static void legacy_tone_icon_is_only_for_old_module_abi(void)
     assert(install() == 0 && module_status[0] == 0 && module_indicator_count == 1);
     assert(word(word(module_indicators[0] + GRM_INDICATOR_ICON_AT) + GRM_ICON_SETTING_AT) == GRKIT_CORE_TONE);
 }
+/* The recipes. INSTALL restores those of the recipe file, then adds the
+   recipes of a package library (the file of the Rust codec, at
+   $GRKIT_TEST_RECIPES) of this camera line that it does not have, once for
+   each library, and prints each added recipe for the Rust side. The library
+   has one recipe of each line: GR III, GR IV, and GR IV Monochrome. */
+static u32 recipe_word_at(u32 header, u32 slot, u32 w) { return word(header + GRKIT_HOST_RECIPES + 4 * (slot * GRKIT_RECIPE_WORDS + w)); }
+/* The recipe file that the loader saves from the header: each word of the
+   recipe run that is not 0 at its key (grkit_core::runtime::recipe_key). */
+static void recipe_file_of(u32 header, char *out, u32 size)
+{
+    u32 at = 0;
+    out[0] = 0;
+    for (u32 slot = 0; slot < GRKIT_RECIPE_SLOTS; ++slot) {
+        for (u32 w = 0; w < GRKIT_RECIPE_WORDS; ++w)
+            if (recipe_word_at(header, slot, w))
+                at += (u32)snprintf(out + at, size - at, "%u\r\n%u\r\n",
+                                    GRKIT_RECIPE_KEY_BASE + w * GRKIT_RECIPE_KEY_STRIDE + slot, recipe_word_at(header, slot, w));
+        for (u32 w = 0; w < GRKIT_RECIPE_NAME_WORDS; ++w) {
+            u32 value = word(header + GRKIT_HOST_RECIPE_NAMES + 4 * (slot * GRKIT_RECIPE_NAME_WORDS + w));
+            if (value)
+                at += (u32)snprintf(out + at, size - at, "%u\r\n%u\r\n",
+                                    GRKIT_RECIPE_NAME_KEY_BASE + w * GRKIT_RECIPE_KEY_STRIDE + slot, value);
+        }
+    }
+    /* The import hash, the IDs, and the user modes. */
+    for (u32 t = 0; GRKIT_HOST_RECIPE_IMPORTED + 4 * t < GRKIT_HOST_RECIPE_DIAL + 4 * GRKIT_RECIPE_DIAL_POSITIONS; ++t) {
+        u32 value = word(header + GRKIT_HOST_RECIPE_IMPORTED + 4 * t);
+        if (value) at += (u32)snprintf(out + at, size - at, "%u\r\n%u\r\n", GRKIT_RECIPE_IMPORTED_KEY + t, value);
+    }
+    assert(at < size);
+}
+/* Each recipe keeps its ID when INSTALL moves the recipes that are on
+   first. A recipe without an ID, or with the ID of an earlier recipe, gets
+   a generated one that no recipe has and no user mode names, and the user
+   modes of the mode dial stay as the file has them. */
+static void recipes_keep_their_ids_and_the_dial(void)
+{
+    const u32 header = MEMORY_BASE + 0xc0000U;
+    char text[1024];
+    u32 at = 0;
+    /* A, off, with ID 7; B with ID 3; C with ID 3 too. The words differ in
+       their number. U1 applies B, U2 turns GRKit off, U3 names a recipe
+       that is gone, whose ID is the first candidate. */
+    test_id_source = 0x5678U;
+    const u32 c0 = recipe_id_candidate(0), c1 = recipe_id_candidate(1);
+    assert(c0 && c1 && c0 != c1 && c1 <= GRKIT_RECIPE_ID_MAX && c1 != 3 && c1 != 7);
+    const u32 number[3] = {1, 2, 3}, id[3] = {7, 3, 3}, off[3] = {GRKIT_RECIPE_OFF, 0, 0};
+    const u32 dial[GRKIT_RECIPE_DIAL_POSITIONS] = {3, GRKIT_RECIPE_DIAL_OFF, c0};
+    for (u32 slot = 0; slot < 3; ++slot) {
+        at += (u32)snprintf(text + at, sizeof text - at, "%u\r\n%u\r\n%u\r\n%u\r\n", GRKIT_RECIPE_KEY_BASE + slot,
+                            0x08000001U | number[slot] << GRKIT_RECIPE_NUMBER_SHIFT, GRKIT_RECIPE_ID_KEY_BASE + slot, id[slot]);
+        if (off[slot])
+            at += (u32)snprintf(text + at, sizeof text - at, "%u\r\n%u\r\n",
+                                GRKIT_RECIPE_KEY_BASE + GRKIT_RECIPE_MODULE_WORD * GRKIT_RECIPE_KEY_STRIDE + slot, off[slot]);
+    }
+    for (u32 u = 0; u < GRKIT_RECIPE_DIAL_POSITIONS; ++u)
+        at += (u32)snprintf(text + at, sizeof text - at, "%u\r\n%u\r\n", GRKIT_RECIPE_DIAL_KEY_BASE + u, dial[u]);
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    add_text(RECIPES_STATE_PATH, text);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(recipes_count == 3 && word(header + GRKIT_HOST_RECIPE_CHANGES) == 1);
+    /* B, C, then A, each with its ID: C gets the second candidate, because
+       U3 names the first. */
+    const u32 order[3] = {2, 3, 1}, ids[3] = {3, c1, 7};
+    for (u32 slot = 0; slot < 3; ++slot) {
+        assert((recipe_word_at(header, slot, 0) >> GRKIT_RECIPE_NUMBER_SHIFT & GRKIT_RECIPE_NUMBER_MAX) == order[slot]);
+        assert(word(header + GRKIT_HOST_RECIPE_IDS + 4 * slot) == ids[slot]);
+    }
+    assert(!word(header + GRKIT_HOST_RECIPE_IDS + 4 * 3));
+    for (u32 u = 0; u < GRKIT_RECIPE_DIAL_POSITIONS; ++u) assert(word(header + GRKIT_HOST_RECIPE_DIAL + 4 * u) == dial[u]);
+    /* The next start reads the file that the loader saved: nothing changes. */
+    char saved[2048];
+    recipe_file_of(header, saved, sizeof saved);
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    add_text(RECIPES_STATE_PATH, saved);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(!word(header + GRKIT_HOST_RECIPE_CHANGES) && word(header + GRKIT_HOST_RECIPE_IDS + 4) == c1);
+}
+/* The library of the Rust codec at $GRKIT_TEST_RECIPES also sets the user
+   modes of the mode dial: U1 applies its GR III record 0, U2 its GR IV record
+   1, and U3 turns GRKit off. INSTALL sets them once with the import: a
+   record becomes the ID of its recipe on the camera, a record of another
+   camera line follows, and a step that keeps leaves the camera's value. */
+static u32 dial_at(u32 header, u32 u) { return word(header + GRKIT_HOST_RECIPE_DIAL + 4 * u); }
+static void install_with(u32 header, const char *text, const u8 *library, u32 size)
+{
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    add_text(RECIPES_STATE_PATH, text);
+    if (library) add_file(RECIPES_INBOX_PATH, library, size);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+}
+static void with_steps(u8 *library, u32 size, u32 u1, u32 u2, u32 u3)
+{
+    put32(library + GRKIT_RCP_DIAL, u1);
+    put32(library + GRKIT_RCP_DIAL + 4, u2);
+    put32(library + GRKIT_RCP_DIAL + 8, u3);
+    put32(library + GRKIT_RCP_CRC, recipes_crc(library, size));
+}
+static void a_library_sets_the_mode_dial_once(void)
+{
+    const char *path = getenv("GRKIT_TEST_RECIPES");
+    static u8 bytes[GRKIT_RCP_HEADER_SIZE + GRKIT_RCP_MAX * GRKIT_RCP_RECORD_SIZE], other[sizeof bytes];
+    const u32 header = MEMORY_BASE + 0xc0000U;
+    char text[512], saved[2048];
+    assert(path);
+    FILE *file = fopen(path, "rb");
+    assert(file);
+    u32 size = (u32)fread(bytes, 1, sizeof bytes, file);
+    fclose(file);
+    assert(get32(bytes + GRKIT_RCP_DIAL) == GRKIT_RCP_DIAL_RECORD &&
+           get32(bytes + GRKIT_RCP_DIAL + 4) == GRKIT_RCP_DIAL_RECORD + 1 &&
+           get32(bytes + GRKIT_RCP_DIAL + 8) == GRKIT_RCP_DIAL_OFF);
+    /* The recipe file has "Mine" with ID 9, and U1 to U3 apply it. */
+    snprintf(text, sizeof text, "%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n", GRKIT_RECIPE_KEY_BASE, 0x08000001U,
+             GRKIT_RECIPE_ID_KEY_BASE, 9U, GRKIT_RECIPE_DIAL_KEY_BASE, 9U, GRKIT_RECIPE_DIAL_KEY_BASE + 1, 9U,
+             GRKIT_RECIPE_DIAL_KEY_BASE + 2, 9U);
+    test_id_source = 0x4242U;
+    install_with(header, text, 0, 0);
+    assert(dial_at(header, 0) == 9 && dial_at(header, 1) == 9 && dial_at(header, 2) == 9);
+    /* The import: U1 gets the ID of the added recipe, U2 follows because
+       INSTALL skips a GR IV record, U3 turns GRKit off. */
+    install_with(header, text, bytes, size);
+    assert(recipes_import == RECIPES_IMPORT_READ && recipes_added == 1 && recipes_count == 2);
+    u32 added = word(header + GRKIT_HOST_RECIPE_IDS + 4);
+    assert(added && added != 9 && word(header + GRKIT_HOST_RECIPE_CHANGES) == 1);
+    assert(dial_at(header, 0) == added && dial_at(header, 1) == GRKIT_RECIPE_DIAL_FOLLOW &&
+           dial_at(header, 2) == GRKIT_RECIPE_DIAL_OFF);
+    /* A person sets the dial on the camera; the next start with the same
+       library keeps it: the library was imported. */
+    store(header + GRKIT_HOST_RECIPE_DIAL, 9);
+    store(header + GRKIT_HOST_RECIPE_DIAL + 8, 0);
+    recipe_file_of(header, saved, sizeof saved);
+    install_with(header, saved, bytes, size);
+    assert(recipes_import == RECIPES_IMPORT_NONE && !word(header + GRKIT_HOST_RECIPE_CHANGES));
+    assert(dial_at(header, 0) == 9 && dial_at(header, 1) == GRKIT_RECIPE_DIAL_FOLLOW && dial_at(header, 2) == 0);
+    /* Another library: U1 keeps the camera's value, U2 turns GRKit off, and
+       U3 applies record 0, which the camera already has: its ID. */
+    memcpy(other, bytes, size);
+    with_steps(other, size, GRKIT_RCP_DIAL_KEEP, GRKIT_RCP_DIAL_OFF, GRKIT_RCP_DIAL_RECORD);
+    install_with(header, saved, other, size);
+    assert(recipes_import == RECIPES_IMPORT_READ && recipes_same == 1 && recipes_added == 0);
+    assert(dial_at(header, 0) == 9 && dial_at(header, 1) == GRKIT_RECIPE_DIAL_OFF && dial_at(header, 2) == added);
+    /* Follow, and a record that the library has off: its user mode follows. */
+    memcpy(other, bytes, size);
+    u32 word4 = GRKIT_RCP_HEADER_SIZE + GRKIT_RCP_RECORD_WORDS + 4 * GRKIT_RECIPE_MODULE_WORD;
+    put32(other + word4, get32(other + word4) | GRKIT_RECIPE_OFF);
+    with_steps(other, size, GRKIT_RCP_DIAL_FOLLOW, GRKIT_RCP_DIAL_KEEP, GRKIT_RCP_DIAL_RECORD);
+    install_with(header, saved, other, size);
+    assert(recipes_import == RECIPES_IMPORT_READ && recipes_switched == 1);
+    assert(dial_at(header, 0) == GRKIT_RECIPE_DIAL_FOLLOW && dial_at(header, 1) == GRKIT_RECIPE_DIAL_FOLLOW &&
+           dial_at(header, 2) == GRKIT_RECIPE_DIAL_FOLLOW);
+    /* A step past the records is a damaged library: nothing changes. */
+    memcpy(other, bytes, size);
+    with_steps(other, size, GRKIT_RCP_DIAL_RECORD + get32(other + GRKIT_RCP_COUNT), GRKIT_RCP_DIAL_KEEP, GRKIT_RCP_DIAL_KEEP);
+    install_with(header, saved, other, size);
+    assert(recipes_import == RECIPES_IMPORT_DAMAGED && dial_at(header, 0) == 9 && recipes_count == 2);
+}
+static void the_recipes_restore_and_import_once(void)
+{
+    const char *path = getenv("GRKIT_TEST_RECIPES");
+    static u8 bytes[GRKIT_RCP_HEADER_SIZE + GRKIT_RCP_MAX * GRKIT_RCP_RECORD_SIZE];
+    const u32 header = MEMORY_BASE + 0xc0000U;
+    char text[512];
+    assert(path);
+    FILE *file = fopen(path, "rb");
+    assert(file);
+    u32 size = (u32)fread(bytes, 1, sizeof bytes, file);
+    fclose(file);
+    assert(size >= GRKIT_RCP_HEADER_SIZE + 2 * GRKIT_RCP_RECORD_SIZE);
+    /* The recipe file has recipe 0, "Mine", and no import. */
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    snprintf(text, sizeof text, "%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n", GRKIT_RECIPE_KEY_BASE, 0x08000001U,
+             GRKIT_RECIPE_KEY_BASE + 2 * GRKIT_RECIPE_KEY_STRIDE, 7U,
+             GRKIT_RECIPE_NAME_KEY_BASE, 'M' | 'i' << 7 | 'n' << 14 | 'e' << 21);
+    add_text(RECIPES_STATE_PATH, text);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(recipes_count == 1 && recipes_import == RECIPES_IMPORT_NONE);
+    assert(recipe_word_at(header, 0, 0) == 0x08000001U && recipe_word_at(header, 0, 2) == 7U);
+    assert(word(header + GRKIT_HOST_RECIPE_NAMES) == ('M' | 'i' << 7 | 'n' << 14 | 'e' << 21));
+    /* A file from before the IDs: "Mine" gets a generated ID, and the loader
+       saves the file with it. */
+    test_id_source = 0;
+    assert(word(header + GRKIT_HOST_RECIPE_IDS) == recipe_id_candidate(0));
+    assert(word(header + GRKIT_HOST_RECIPE_CHANGES) == 1);
+    /* A package library: its GR III recipe joins after "Mine", its GR IV
+       and GR IV Monochrome recipes do not, and the loader saves the file
+       with the hash. */
+    add_file(RECIPES_INBOX_PATH, bytes, size);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(recipes_import == RECIPES_IMPORT_READ && recipes_added == 1 && recipes_other == 2 && recipes_count == 2);
+    assert(word(header + GRKIT_HOST_RECIPE_CHANGES) == 1);
+    /* The added recipe gets another ID than "Mine". */
+    assert(word(header + GRKIT_HOST_RECIPE_IDS) == recipe_id_candidate(0) &&
+           word(header + GRKIT_HOST_RECIPE_IDS + 4) == recipe_id_candidate(1));
+    u32 hash = word(header + GRKIT_HOST_RECIPE_IMPORTED);
+    assert(hash && hash <= RECIPE_VALUE_MAX);
+    char name[GRKIT_RECIPE_NAME_CHARS + 1];
+    u32 n = 0;
+    for (; n < GRKIT_RECIPE_NAME_CHARS; ++n) {
+        u32 c = word(header + GRKIT_HOST_RECIPE_NAMES + 4 * (GRKIT_RECIPE_NAME_WORDS + n / 4)) >> (7 * (n % 4)) & 0x7f;
+        if (!c) break;
+        name[n] = (char)c;
+    }
+    name[n] = 0;
+    printf("recipe %s|1|%u %u %u %u %u\n", name, recipe_word_at(header, 1, 0), recipe_word_at(header, 1, 1),
+           recipe_word_at(header, 1, 2), recipe_word_at(header, 1, 3), recipe_word_at(header, 1, 4));
+    /* The next start: the recipe file has both recipes and the hash, so the
+       same library adds nothing, also after a person deleted the recipe. */
+    char saved[2048];
+    u32 at = 0;
+    recipe_file_of(header, saved, sizeof saved);
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    add_text(RECIPES_STATE_PATH, saved);
+    add_file(RECIPES_INBOX_PATH, bytes, size);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(recipes_count == 2 && recipes_import == RECIPES_IMPORT_NONE && !word(header + GRKIT_HOST_RECIPE_CHANGES));
+    /* Another library with the same recipes: nothing new to add. */
+    u8 changed[sizeof bytes];
+    memcpy(changed, bytes, size);
+    changed[GRKIT_RCP_RECORD_SIZE + GRKIT_RCP_HEADER_SIZE + GRKIT_RCP_RECORD_NAME + 2] = 'x';
+    put32(changed + GRKIT_RCP_CRC, recipes_crc(changed, size));
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    add_text(RECIPES_STATE_PATH, saved);
+    add_file(RECIPES_INBOX_PATH, changed, size);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(recipes_import == RECIPES_IMPORT_READ && recipes_same == 1 && recipes_added == 0 && recipes_count == 2);
+    /* A damaged library adds nothing. */
+    changed[GRKIT_RCP_HEADER_SIZE + GRKIT_RCP_RECORD_WORDS] ^= 1;
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    add_file(RECIPES_INBOX_PATH, changed, size);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(recipes_import == RECIPES_IMPORT_DAMAGED && recipes_count == 0);
+    /* The recipes fill at most GRKIT_RECIPE_SLOTS. */
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    at = 0;
+    for (u32 slot = 0; slot < GRKIT_RECIPE_SLOTS; ++slot)
+        at += (u32)snprintf(saved + at, sizeof saved - at, "%u\r\n%u\r\n", GRKIT_RECIPE_KEY_BASE + slot, 0x08000001U | slot << 23);
+    add_text(RECIPES_STATE_PATH, saved);
+    add_file(RECIPES_INBOX_PATH, bytes, size);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(recipes_count == GRKIT_RECIPE_SLOTS && recipes_full == 1 && recipes_added == 0);
+    /* At most GRKIT_RECIPE_ON_MAX are on: INSTALL turns the others off, and
+       the loader saves the file. */
+    assert(recipes_on == GRKIT_RECIPE_ON_MAX && recipes_turned_off == GRKIT_RECIPE_SLOTS - GRKIT_RECIPE_ON_MAX);
+    assert(!(recipe_word_at(header, GRKIT_RECIPE_ON_MAX - 1, 4) & GRKIT_RECIPE_OFF));
+    assert(recipe_word_at(header, GRKIT_RECIPE_ON_MAX, 4) & GRKIT_RECIPE_OFF);
+    assert(word(header + GRKIT_HOST_RECIPE_CHANGES) == 1);
+
+    /* The recipes that are on come first: a recipe file with "Mine" off,
+       then a recipe that is on, restores the second one first, with the
+       names. An added recipe that is on goes after it, before "Mine". */
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    snprintf(text, sizeof text, "%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n", GRKIT_RECIPE_KEY_BASE, 0x08000001U,
+             GRKIT_RECIPE_KEY_BASE + 4 * GRKIT_RECIPE_KEY_STRIDE, GRKIT_RECIPE_OFF, GRKIT_RECIPE_NAME_KEY_BASE,
+             'M' | 'i' << 7 | 'n' << 14 | 'e' << 21, GRKIT_RECIPE_KEY_BASE + 1, 0x08000001U | 1U << 23);
+    add_text(RECIPES_STATE_PATH, text);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(recipes_count == 2 && recipes_on == 1 && word(header + GRKIT_HOST_RECIPE_CHANGES) == 1);
+    assert(recipe_word_at(header, 0, 0) == (0x08000001U | 1U << 23) && !word(header + GRKIT_HOST_RECIPE_NAMES));
+    assert(recipe_word_at(header, 1, 4) == GRKIT_RECIPE_OFF);
+    assert(word(header + GRKIT_HOST_RECIPE_NAMES + 4 * GRKIT_RECIPE_NAME_WORDS) == ('M' | 'i' << 7 | 'n' << 14 | 'e' << 21));
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    add_text(RECIPES_STATE_PATH, text);
+    add_file(RECIPES_INBOX_PATH, bytes, size);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(recipes_added == 1 && recipes_count == 3 && recipes_on == 2);
+    assert(recipe_word_at(header, 0, 0) == (0x08000001U | 1U << 23) && recipe_word_at(header, 2, 4) == GRKIT_RECIPE_OFF);
+    assert(!(recipe_word_at(header, 1, 4) & GRKIT_RECIPE_OFF) && recipe_first_word(recipe_word_at(header, 1, 0)));
+    /* A recipe that differs only in its off bit is already there. */
+    u32 off_words[GRKIT_RECIPE_WORDS], off_name[GRKIT_RECIPE_NAME_WORDS];
+    for (u32 k = 0; k < GRKIT_RECIPE_WORDS; ++k) off_words[k] = recipe_word_at(header, 1, k);
+    for (u32 k = 0; k < GRKIT_RECIPE_NAME_WORDS; ++k)
+        off_name[k] = word(header + GRKIT_HOST_RECIPE_NAMES + 4 * (GRKIT_RECIPE_NAME_WORDS + k));
+    off_words[4] |= GRKIT_RECIPE_OFF;
+    assert(recipe_known(recipes_count, off_words, off_name) < recipes_count);
+
+    /* A new library that has the added recipe off turns it off on the
+       camera: the site turns recipes on and off. It moves after the recipes
+       that are on, and the loader saves the file. */
+    u8 turned[sizeof bytes];
+    memcpy(turned, bytes, size);
+    u32 word4 = GRKIT_RCP_HEADER_SIZE + GRKIT_RCP_RECORD_WORDS + 4 * 4;
+    put32(turned + word4, get32(turned + word4) | GRKIT_RECIPE_OFF);
+    put32(turned + GRKIT_RCP_CRC, recipes_crc(turned, size));
+    char kept[2048];
+    recipe_file_of(header, kept, sizeof kept);
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    add_text(RECIPES_STATE_PATH, kept);
+    add_file(RECIPES_INBOX_PATH, turned, size);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(recipes_import == RECIPES_IMPORT_READ && recipes_added == 0 && recipes_same == 1 && recipes_switched == 1);
+    assert(recipes_count == 3 && recipes_on == 1 && word(header + GRKIT_HOST_RECIPE_CHANGES) == 1);
+    assert(recipe_word_at(header, 0, 0) == (0x08000001U | 1U << 23));
+    assert((recipe_word_at(header, 1, 4) & GRKIT_RECIPE_OFF) && (recipe_word_at(header, 2, 4) & GRKIT_RECIPE_OFF));
+
+    /* A package record without a name has the automatic name: it is the
+       recipe of the camera with the same words and no name, not a new one. */
+    u8 unnamed[sizeof bytes];
+    memcpy(unnamed, bytes, size);
+    memset(unnamed + GRKIT_RCP_HEADER_SIZE + GRKIT_RCP_RECORD_NAME, 0, 2 * GRKIT_RCP_NAME_UNITS);
+    put32(unnamed + GRKIT_RCP_CRC, recipes_crc(unnamed, size));
+    at = 0;
+    for (u32 w = 0; w < GRKIT_RECIPE_WORDS; ++w) {
+        u32 value = get32(unnamed + GRKIT_RCP_HEADER_SIZE + GRKIT_RCP_RECORD_WORDS + 4 * w);
+        if (value)
+            at += (u32)snprintf(kept + at, sizeof kept - at, "%u\r\n%u\r\n", GRKIT_RECIPE_KEY_BASE + w * GRKIT_RECIPE_KEY_STRIDE,
+                                value);
+    }
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    add_text(RECIPES_STATE_PATH, kept);
+    add_file(RECIPES_INBOX_PATH, unnamed, size);
+    install_recipes(header, GRKIT_RCP_FAMILY_GR3);
+    assert(recipes_import == RECIPES_IMPORT_READ && recipes_bad == 0 && recipes_same == 1 && recipes_added == 0);
+    assert(recipes_count == 1 && !word(header + GRKIT_HOST_RECIPE_NAMES));
+
+    /* A GR IV imports only the GR IV recipe of the library, and a GR IV
+       Monochrome only the GR IV Monochrome one: the other two count as of
+       another camera. */
+    for (u32 family = GRKIT_RCP_FAMILY_GR4; family <= GRKIT_RCP_FAMILY_GR4_MONOCHROME; ++family) {
+        const u8 *own = 0;
+        for (u32 i = 0; i < get32(bytes + GRKIT_RCP_COUNT); ++i) {
+            const u8 *record = bytes + GRKIT_RCP_HEADER_SIZE + i * GRKIT_RCP_RECORD_SIZE;
+            if (record[GRKIT_RCP_RECORD_FAMILY] == family) own = record;
+        }
+        assert(own);
+        reset();
+        for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+        add_file(RECIPES_INBOX_PATH, bytes, size);
+        install_recipes(header, family);
+        assert(recipes_import == RECIPES_IMPORT_READ && recipes_added == 1 && recipes_other == 2 && recipes_count == 1);
+        for (u32 k = 0; k < GRKIT_RECIPE_WORDS; ++k)
+            assert(recipe_word_at(header, 0, k) == get32(own + GRKIT_RCP_RECORD_WORDS + 4 * k));
+    }
+
+    /* REPORT.TXT names the recipes that cannot apply in full. Recipe 1:
+       Film Look Off and Grain level 2; recipe 2, "Night": Halation 2;
+       recipe 3: Film Look Off only; recipe 4: an effect. */
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    store(header + GRKIT_HOST_RECIPES, 0x08000000U | 1U | 4U | 2U << 3);
+    store(header + GRKIT_HOST_RECIPES + 4 * GRKIT_RECIPE_WORDS, 0x08000000U | 1U);
+    store(header + GRKIT_HOST_RECIPES + 4 * (GRKIT_RECIPE_WORDS + 4), (1U | 2U << 1) << 3);
+    store(header + GRKIT_HOST_RECIPES + 4 * 2 * GRKIT_RECIPE_WORDS, 0x08000000U | 1U);
+    store(header + GRKIT_HOST_RECIPES + 4 * 3 * GRKIT_RECIPE_WORDS, 0x08000000U | 2U | 0x1234U << 8);
+    store(header + GRKIT_HOST_RECIPE_NAMES + 4 * GRKIT_RECIPE_NAME_WORDS, 'N' | 'i' << 7 | 'g' << 14 | 'h' << 21);
+    store(header + GRKIT_HOST_RECIPE_NAMES + 4 * GRKIT_RECIPE_NAME_WORDS + 4, 't');
+    check_recipes(header, 0, 0, GRKIT_CORE_TONE_BIT);
+    assert(recipe_problem_count == 3 && !recipe_problems_more);
+    assert(recipe_problems[0].recipe == 1 && !recipe_problems[0].name[0] && recipe_problems[0].problem == RECIPE_PROBLEM_GRAIN);
+    assert(recipe_problems[1].recipe == 2 && !strcmp(recipe_problems[1].name, "Night") &&
+           recipe_problems[1].problem == RECIPE_PROBLEM_GLOW);
+    assert(recipe_problems[2].recipe == 4 && recipe_problems[2].problem == RECIPE_PROBLEM_EFFECT);
+    /* With the Grain module, the Glow and the effect remain. */
+    check_recipes(header, 0, 0, GRKIT_CORE_TONE_BIT | GRKIT_CORE_GRAIN_BIT);
+    assert(recipe_problem_count == 2 && recipe_problems[0].problem == RECIPE_PROBLEM_GLOW);
+}
+
+/* The sets of the user modes (runtime/install_recipes.h: install_dial_sets):
+   INSTALL restores each word as the file of the loader has it. A set with
+   more pairs than the header holds stays out, and a word above
+   GRKIT_DIAL_SET_VALUE_MAX has more digits than a value of the file. */
+static u32 set_word_at(u32 header, u32 u, u32 w) { return word(header + GRKIT_HOST_DIAL_SETS + 4 * (u * GRKIT_DIAL_SET_WORDS + w)); }
+static void the_sets_of_the_user_modes_restore(void)
+{
+    const u32 header = MEMORY_BASE + 0xc0000U;
+    char text[4096];
+    u32 at = 0;
+    const u32 key = GRKIT_DIAL_SET_KEY_BASE;
+    /* U1: two pairs, the effect, and Fn; U2: a count that no set has; U3:
+       one pair, and a word out of range. */
+    const u32 pairs[][2] = {
+        {key + GRKIT_DIAL_SET_COUNT, 3},
+        {key + GRKIT_DIAL_SET_CORE, GRKIT_DIAL_SET_EFFECT | 0x1234},
+        {key + GRKIT_DIAL_SET_FN, 4711},
+        {key + GRKIT_DIAL_SET_PAIR, 123456789},
+        {key + GRKIT_DIAL_SET_PAIR + 1, 2},
+        {key + GRKIT_DIAL_SET_PAIR + 2, 987654321},
+        {key + GRKIT_DIAL_SET_WORDS - 1, 5},
+        {key + GRKIT_DIAL_SET_KEY_STRIDE + GRKIT_DIAL_SET_COUNT, GRKIT_DIAL_SET_PAIRS + 2},
+        {key + GRKIT_DIAL_SET_KEY_STRIDE + GRKIT_DIAL_SET_CORE + 2, 4},
+        {key + 2 * GRKIT_DIAL_SET_KEY_STRIDE + GRKIT_DIAL_SET_COUNT, 2},
+        {key + 2 * GRKIT_DIAL_SET_KEY_STRIDE + GRKIT_DIAL_SET_PAIR, 55},
+        {key + 2 * GRKIT_DIAL_SET_KEY_STRIDE + GRKIT_DIAL_SET_PAIR + 1, GRKIT_DIAL_SET_VALUE_MAX},
+        {key + 2 * GRKIT_DIAL_SET_KEY_STRIDE + GRKIT_DIAL_SET_CORE + 1, GRKIT_DIAL_SET_VALUE_MAX + 1},
+    };
+    for (u32 i = 0; i < sizeof pairs / sizeof pairs[0]; ++i)
+        at += (u32)snprintf(text + at, sizeof text - at, "%u\r\n%u\r\n", pairs[i][0], pairs[i][1]);
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0xa5a5a5a5U);
+    add_text(DIAL_SETS_PATH, text);
+    install_dial_sets(header);
+    assert(set_word_at(header, 0, GRKIT_DIAL_SET_COUNT) == 3 && set_word_at(header, 0, GRKIT_DIAL_SET_FN) == 4711);
+    assert(set_word_at(header, 0, GRKIT_DIAL_SET_CORE) == (GRKIT_DIAL_SET_EFFECT | 0x1234));
+    assert(set_word_at(header, 0, GRKIT_DIAL_SET_PAIR) == 123456789 && set_word_at(header, 0, GRKIT_DIAL_SET_PAIR + 1) == 2);
+    assert(set_word_at(header, 0, GRKIT_DIAL_SET_PAIR + 2) == 987654321 && !set_word_at(header, 0, GRKIT_DIAL_SET_PAIR + 3));
+    assert(set_word_at(header, 0, GRKIT_DIAL_SET_WORDS - 1) == 5 && !set_word_at(header, 0, GRKIT_DIAL_SET_TONING));
+    for (u32 w = 0; w < GRKIT_DIAL_SET_WORDS; ++w) assert(!set_word_at(header, 1, w));
+    assert(set_word_at(header, 2, GRKIT_DIAL_SET_COUNT) == 2 && set_word_at(header, 2, GRKIT_DIAL_SET_PAIR) == 55);
+    assert(set_word_at(header, 2, GRKIT_DIAL_SET_PAIR + 1) == GRKIT_DIAL_SET_VALUE_MAX);
+    assert(!set_word_at(header, 2, GRKIT_DIAL_SET_CORE + 1));
+    /* The words around the sets stay; the count of changes stays 0, so the
+       loader does not save. */
+    assert(word(header + GRKIT_HOST_DIAL_SETS - 4) == 0xa5a5a5a5U);
+    assert(word(header + GRKIT_HOST_DIAL_SETS + 4 * GRKIT_HOST_DIAL_SETS_WORDS - 4) == 0);
+    /* USERMODE.TMP, which a save cut by the power leaves, when the file is
+       missing; without both, no set. */
+    reset();
+    for (u32 k = 0; k < GRKIT_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    add_text(DIAL_SETS_TMP_PATH, text);
+    install_dial_sets(header);
+    assert(set_word_at(header, 0, GRKIT_DIAL_SET_COUNT) == 3 && set_word_at(header, 2, GRKIT_DIAL_SET_PAIR) == 55);
+    reset();
+    install_dial_sets(header);
+    for (u32 u = 0; u < GRKIT_RECIPE_DIAL_POSITIONS; ++u) assert(!set_word_at(header, u, GRKIT_DIAL_SET_COUNT));
+}
 
 static void *run(void *unused)
 {
@@ -1253,6 +1774,8 @@ static void *run(void *unused)
     a_color_only_module_needs_a_color_camera();
     install_group_page();
     the_switch_stops_each_module();
+    a_stopped_recipes_module_keeps_the_dial();
+    enable_at_start_decides_the_switch();
     layer_conditions_resolve_shared_and_optional_settings();
     layers_follow_their_order_and_filters_their_stage();
     the_module_list_shows_each_result();
@@ -1260,6 +1783,10 @@ static void *run(void *unused)
     settings_rows_of_used_settings();
     the_fn_setting_of_a_page_gets_its_handle();
     a_setting_of_a_module_that_did_not_link_is_missing();
+    the_recipes_restore_and_import_once();
+    a_library_sets_the_mode_dial_once();
+    recipes_keep_their_ids_and_the_dial();
+    the_sets_of_the_user_modes_restore();
     reset();
     return 0;
 }

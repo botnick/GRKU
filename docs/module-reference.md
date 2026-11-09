@@ -111,7 +111,7 @@ The text files give `title`, `children.<KEY>.title`, and the label and values of
 
 The generator registers the group first, then its child settings pages. Each child has `GRKIT_PAGE_MENU_ONLY`, so only the group appears in the ADJ root. A group and its children consume one page slot each from the shared limit of 10 loaded pages.
 
-A page of `CORE.TONE` has no `off_row` and no `settings`, and it needs no tiles. Its text has only `title`. If tile 0 exists, the root row shows that tile while the setting is Off. Otherwise, the root row shows the Off icon.
+A page of `CORE.TONE` or `CORE.RECIPE` has no `off_row` and no `settings`. Its text has only `title`. A page of `CORE.TONE` needs no tiles. If tile 0 exists, the root row shows that tile while the setting is Off. Otherwise, the root row shows the Off icon. With `options = true`, Options of a page of `CORE.RECIPE` lists each recipe that is on and chooses the ones that ADJ shows.
 
 ### layers
 
@@ -279,8 +279,10 @@ The capabilities are public settings of the core. A module uses one by its name 
 | `CORE.CROP_MODE` | 2: 0 Crop, 1 Frame Only | Whether the camera crops photos to the selected focal length or the live view only shows its frame. The default is Crop. |
 | `CORE.GRAIN` | 5: 0 Off, 1 weak, 2 medium, 3 strong, 4 extra strong | The grain of recorded pictures, in the native grain stage. The live view and DNG files have no grain. |
 | `CORE.GRAIN_SIZE` | 4: 0 Auto, 1 small, 2 medium, 3 large | The grain size of recorded pictures. Auto follows the ISO of the shot. |
+| `CORE.RECIPE` | none | The recipes: saved sets of the other capabilities that OK applies in one step. |
 
 - `CORE.TONE`: a page gives only its title, and the core gives the rows: the effects, their icons, the preview, and the Fn adjustments. The value of an effect is valid only during one start, because the effects and their order can change. Keep no value across a restart.
+- `CORE.RECIPE`: a page gives only its title and four tiles: the module, Undo, Save, and a recipe without an effect icon or a native Image Control icon. The core gives the rows: Undo, the recipes that ADJ shows, and Save Settings. In MENU, the core gives the page of the module: Enable, Options (with `options = true`), Recipes, which lists the recipes that are on and opens the page of one with Apply, Rename, and Delete, Mode Dial, which sets what U1, U2, and U3 of the mode dial do and saves the GRKit settings in one, and Save Settings. A recipe holds each setting of the picture, with Grain and Glow at Off when their modules were not loaded, and sets only the capabilities that loaded modules use. `setting_get` gives 0, and `setting_set` does nothing.
 - `CORE.ASPECT`: a page shows only the ratios that the camera offers. `setting_set` with an unsupported ratio does nothing. Selecting a nonzero ratio sets the native aspect to 3:2 in both modes. Crop mode crops JPEG photos to that ratio. Guides Only displays the composition frame without applying that crop. Off clears the selected ratio and preserves the current native aspect.
 - `CORE.ASPECT_MODE`: Crop changes JPEG dimensions. Guides Only shows the selected ratio in the native 3:2 live view without setting a recorded crop. A later change to another native aspect hides this composition frame. Changing only the mode preserves the native aspect and the Framing mask setting.
 
@@ -435,7 +437,7 @@ The UI services work only in an event handler, a timer callback, or a UI callbac
 
 ## ABI and compatibility
 
-**ABI version.** `GRKIT_ABI` is 2.6: the major version in the high 16 bits, the minor version in the low 16 bits. The build writes it into the file header and into the descriptor. The installer loads a module whose major version equals that of the core and whose minor version is not larger. A minor version adds capabilities without changing existing contracts. A major version can change an existing layout.
+**ABI version.** `GRKIT_ABI` is 2.7: the major version in the high 16 bits, the minor version in the low 16 bits. The build writes it into the file header and into the descriptor. The installer loads a module whose major version equals that of the core and whose minor version is not larger. A minor version adds capabilities without changing existing contracts. A major version can change an existing layout.
 
 In 2.0, each text list also has a Korean text. The installer rejects a module with ABI 1.0 (status 51). Build such a module again with a `text/ko.toml`.
 
@@ -461,6 +463,8 @@ ABI 2.4 also appends `flags` to `GrkitModule`, increasing its descriptor from 40
 ABI 2.5 appends the Fn value and setting of `fn_cycle` to `GrkitPage`, increasing its descriptor to 56 bytes.
 
 ABI 2.6 adds the capabilities `CORE.CROP` and `CORE.CROP_MODE`. `Surface` keeps its layout.
+
+ABI 2.7 adds the capability `CORE.RECIPE`, the recipes of the camera, and the `mode.dial` point.
 
 **File format.** A module file is GRM version 1 (`grkit_core::grm`): a header, the code, the data, the relocations, the imports, and the tiles. The build compiles each source as Thumb code for ARMv7-A with `-Os`. The installer only moves absolute 32-bit words and fills the imports by name hash. The build rejects other relocation types and each undefined symbol that is not a service or `grkit_self`.
 
@@ -518,6 +522,7 @@ Other lines:
 | `loaded` | The module loaded. |
 | `loaded, stopped: Enable is Off in the GRKU section of MENU` | The module loaded, but Enable is Off, so the core calls none of its code. On applies at once. |
 | `loaded, stopped: Enable GRKU is Off in the GRKU section of MENU` | The module loaded, but Enable GRKU is Off, so the core calls none of its code. On applies at once. |
+| `loaded, stopped: Enable at Start is Off in the GRKU section of MENU` | The module loaded, but Enable at Start turned Enable GRKU off at this start. Enable GRKU On applies at once. |
 | `not loaded: safe mode` | GRKU is in the safe mode, so no module loads. See [Report and safe mode](architecture.md#report-and-safe-mode). |
 | `not loaded: it needs a camera with a color sensor` | The module is `color_only`, and the camera is GR IV Monochrome. The GRKU section of MENU does not list it. |
 

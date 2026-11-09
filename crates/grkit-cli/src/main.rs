@@ -120,6 +120,17 @@ enum Command {
         #[arg(long)]
         out: PathBuf,
     },
+    /// Write a recipe library (RECIPES.BIN, which a package holds as
+    /// SCRIPT/GRKIT/RECIPES.BIN) from a JSON array of recipes or a JSON
+    /// library ({"recipes": [...], "dial": [...]}), or with --decode, print
+    /// the library of a RECIPES.BIN as JSON.
+    Recipes {
+        input: PathBuf,
+        #[arg(long, conflicts_with = "decode")]
+        out: Option<PathBuf>,
+        #[arg(long)]
+        decode: bool,
+    },
     /// Check package layout, profiles and checksums.
     Verify { archive: PathBuf },
     /// List the cameras, the firmware releases that each runs, and the runtime
@@ -657,6 +668,26 @@ fn run(command: Command) -> Result<Value> {
                 packages.push(json!({"camera": camera.id, "targets": targets, "name": camera.id}));
             }
             Ok(json!({"runtimes": runtimes, "packages": packages}))
+        }
+        Command::Recipes { input, out, decode } => {
+            let bytes = storage::read_bounded(&input, 1024 * 1024)?;
+            if decode {
+                return Ok(serde_json::to_value(grkit_core::recipes::decode(&bytes)?)?);
+            }
+            // A library, or a JSON array of recipes for a library that keeps
+            // the mode dial of the camera.
+            let library = match serde_json::from_slice::<grkit_core::recipes::Library>(&bytes) {
+                Ok(library) => library,
+                Err(_) => grkit_core::recipes::Library {
+                    recipes: serde_json::from_slice(&bytes)?,
+                    ..Default::default()
+                },
+            };
+            let file = grkit_core::recipes::encode(&library.recipes, &library.dial)?;
+            let out = out.context("Give --out for the RECIPES.BIN to write")?;
+            std::fs::write(&out, &file)
+                .with_context(|| format!("Could not write {}", out.display()))?;
+            Ok(json!({"output": out, "recipes": library.recipes.len(), "bytes": file.len()}))
         }
         Command::Verify { archive } => {
             // Include room for ZIP metadata while bounding the archive read itself.

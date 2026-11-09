@@ -14,14 +14,14 @@ static const char target_marker[] __attribute__((used)) = "GRKIT_TARGET=gr3-2.10
 #define CODE_RELOCATION_COUNT 0x1U
 #define TAIL_SYMBOL 0U
 #define TAIL_BYTES 0x0U
-static const u32 relocation_words[] = { /* 2968 values, SHA-256 2ecc236f17dce00df0a9f883eee583916e0559781c94b56c7a148f248a1d2b92 */ };
+static const u32 relocation_words[] = { /* 2968 values, SHA-256 47a7c8f4521e0644c89eaf36728e99d250456816c668f5bfad216d1eab63b053 */ };
 static const struct relocation_window relocation_windows[] = {
-{0x53010100,0,768,1,0,1},
-{0x53010200,768,768,1,0,1},
+{0x53010200,0,768,1,0,1},
+{0x53010300,768,768,1,0,1},
 {0x530003f0,1536,24,0,0,0},
 {0x55002b6c,1560,64,0,1,1},
 {0x55018fcc,1624,64,0,1,1},
-{0x5300ff00,1688,768,0,0,1},
+{0x53010000,1688,768,1,0,1},
 {0x550186f4,2456,64,0,1,1},
 {0x55018d54,2520,64,1,1,1},
 {0x55018cb0,2584,64,0,1,1},
@@ -80,12 +80,17 @@ static const u32 guard_symbols[] = {};
 #define FAILED_PATH "/media/storage1/SCRIPT/GRKU/INSTALL.ERR"
 #define INBOX_PATH "/media/storage1/SCRIPT/GRKU/EFFECTS"
 #define PACKAGE_PATH "/media/storage1/SCRIPT/GRKU/PACKAGE.TXT"
+#define RECIPES_INBOX_PATH "/media/storage1/SCRIPT/GRKU/RECIPES.BIN"
 #define DATA_PATH "/media/storage1/GRKU"
 #define OLD_DATA_PATH "/media/storage1/GRKIT"
 #define IMPORTED_PATH "/media/storage1/GRKU/IMPORTED.TXT"
 #define LIBRARY_PATH "/media/storage1/GRKU/EFFECTS"
 #define STATE_PATH "/media/storage1/GRKU/STATE.TXT"
+#define RECIPES_STATE_PATH "/media/storage1/GRKU/RECIPES.TXT"
+#define RECIPES_STATE_TMP_PATH "/media/storage1/GRKU/RECIPES.TMP"
 #define STATE_TMP_PATH "/media/storage1/GRKU/STATE.TMP"
+#define DIAL_SETS_PATH "/media/storage1/GRKU/USERMODE.TXT"
+#define DIAL_SETS_TMP_PATH "/media/storage1/GRKU/USERMODE.TMP"
 #define REPORT_PATH "/media/storage1/GRKU/REPORT.TXT"
 #define RELOCATION_PATH "/media/storage1/GRKU/RELOC.BIN"
 #define SAFE_PATH "/media/storage1/GRKU/SAFE"
@@ -95,6 +100,7 @@ static const u32 guard_symbols[] = {};
 #define LEGACY_STATE_PATH "/media/storage1/SCRIPT/PLUGINS/STATE.TXT"
 #define LEGACY_STATE_TMP_PATH "/media/storage1/SCRIPT/PLUGINS/STATE.TMP"
 #define LEGACY_EFFECTS_PATH "/media/storage1/SCRIPT/PLUGINS/EFFECTS"
+#define CORE_STATE_COUNT 7U
 #define CORE_STATE_IDS 861965461,484706023,790270076,977751003,826089556,660632122,618415657
 #define LEGACY_STATE_COUNT 6U
 #define LEGACY_STATE_FROM 495043802U,684634731U,161811731U,541741532U,957718554U,733922165U
@@ -102,6 +108,7 @@ static const u32 guard_symbols[] = {};
 #define PARAMETER_KEY_BASE 990000000U
 #define PARAMETER_VALUE_MAX 387420488U
 #define TONING_KEY_BASE 990032768U
+#define RECIPE_VALUE_MAX 536870911U
 #define STATE_TEXT_MAX 16384U
 #define GRKIT_VERSION "0.0.0"
 #define MODULES_PATH "/media/storage1/GRKU/MODULES"
@@ -109,9 +116,10 @@ static const u32 guard_symbols[] = {};
 #define POINT_VIEWFINDER_OVERLAY 0x4U
 #define POINT_MENU_PAGE 0x1U
 #define POINT_PICTURE_ENCODE 0x10U
-static const char *const core_setting_names[] = {"CORE.TONE","CORE.ASPECT","CORE.GRAIN","CORE.GRAIN_SIZE","CORE.ASPECT_MODE","CORE.CROP","CORE.CROP_MODE"};
-static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc,0x84,0x84};
+static const char *const core_setting_names[] = {"CORE.TONE","CORE.ASPECT","CORE.GRAIN","CORE.GRAIN_SIZE","CORE.ASPECT_MODE","CORE.CROP","CORE.CROP_MODE","CORE.RECIPE"};
+static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc,0x84,0x84,0x104};
 #define RTOS_EXECUTABLE_END 0x55000000U
+#define CORE_VIEWFINDER 0x0U
 #define CORE_EXPORT_COUNT 0U
 static const u32 core_exports[] = {};
 static const u8 stock_record[] __attribute__((aligned(4))) = { /* 84 values, SHA-256 d1c1719f675e9a47d0e29a12b89645cbca01118d5b0fd6199887c85748f5e795 */ };
@@ -121,8 +129,8 @@ static const u8 version_pixels[] __attribute__((aligned(4))) = { /* 6400 values,
 static const u8 modules_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 95c17fc3ce323159be775f156f3284755c64e64ab4db7196e917b180300b9ddc */ };
 static const u8 modules_off_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 1ac0be9b51ab5a4620d2516093c0feb545bf88f93ee0b482968f65b076f1eaf6 */ };
 static const u8 rotate_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 8a5f3688e3432fc4c20d670e4b092cf937baf93ebd9db2e934d4e3ce63ae2d56 */ };
-#define MENU_TEXT_BYTES 2068U
-static const u8 menu_text[] __attribute__((aligned(4))) = { /* 2068 values, SHA-256 f9543b08d487d89e9f815db7f8890803462d9b0705bcae043e13651bc1532145 */ };
+#define MENU_TEXT_BYTES 5668U
+static const u8 menu_text[] __attribute__((aligned(4))) = { /* 5668 values, SHA-256 dfdce39145493d5f94b64a126fb9f6bfe612e9998ad4244457d1c808718185bd */ };
 #define LABELS_BYTES 27616U
 static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 27616 values, SHA-256 f3e690930ea0308815f90fcf2b04ab74f58078706dfbf410b82154eec43bf681 */ };
 static const u8 stock_tables[] __attribute__((aligned(4))) = { /* 312 values, SHA-256 43c6a333770e97d39d0749933c4cc8fd3d39ab51233e06eaefe7dda15bae5cb6 */ };

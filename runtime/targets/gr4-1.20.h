@@ -11,6 +11,8 @@
 #define GRKIT_TARGET_H
 
 #include "gr4.h"
+/* The native settings of recipes (runtime/native.h), from the firmware. */
+#include "gr4-1.20-native.h"
 
 /* The icon draw compares the icon ID with this native limit as an immediate
    (1.11 loads 0x296 into r2). */
@@ -212,6 +214,21 @@
 #define FW_TIMER_SERVICE FIRMWARE(0x53240938)
 #define FW_TIMER_START FIRMWARE(0x532611fc)
 #define FW_TIMER_CANCEL FIRMWARE(0x53260f80)
+/* The mode dial (runtime/targets/gr4.h): the switch model of the App, the
+   AE model, and the holder of the user mode model. */
+#define DIAL_SWITCHES FIRMWARE(0x55088594)
+#define DIAL_AE_MODEL FIRMWARE(0x55083084)
+#define DIAL_USER_MODES FIRMWARE(0x55083104)
+/* The Set command of the RTOS shell command UserData (runtime/recipes.h):
+   set(argc, argv) with argv = {"UserData", "Set", name, value}. It finds the
+   setter of a native setting by its name and the stored value by its label. */
+#define FW_USERDATA_SET FIRMWARE(0x534bda3c)
+/* GR IV Monochrome in recipes (runtime/native_look.h): the setter of the
+   Image Control type of set No0, set(settings object, stored value), which
+   UserData and the native menu call; and the pointer to the current model
+   record. */
+#define FW_IMAGE_CONTROL_SET FIRMWARE(0x532bbe84)
+#define FW_MODEL_RECORD FIRMWARE(0x553a2550)
 #define FW_MESSAGE_BACKGROUND FIRMWARE(0x5359be98)
 #define FW_MESSAGE_SET FIRMWARE(0x5359bf40)
 #define FW_MESSAGE_BUTTONS FIRMWARE(0x5359c28c)
@@ -229,5 +246,12 @@
 #define FW_SLIDER_FLAG FIRMWARE(0x5359eb1c)
 #define FW_SLIDER_APPLY FIRMWARE(0x5359ec34)
 #define UI_SLIDER_ICONS {0x260,0x55,0xc4,0x272}
+/* The keyboard of the camera (runtime/ui.h): its controller ID, the getter
+   of SoftwareKeyboardModel, which holds the use of the keyboard (the getter
+   ignores its argument, the model factory), and the setter of the use,
+   which asserts that no use is set. */
+#define KEYBOARD_CONTROLLER 0x20000f7U
+#define FW_KEYBOARD_MODEL FIRMWARE(0x53241d54)
+#define FW_KEYBOARD_SET_FUNCTION FIRMWARE(0x533f71b0)
 
 #endif

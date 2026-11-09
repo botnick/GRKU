@@ -142,13 +142,18 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
         store(entry + 4, listed_choice[i]);
         store(entry + 8, EFFECT_CHOICE_VALUES);
     }
-    /* The GRKit switch follows the choices of the effects. */
-    u32 switch_handle = setting_total + choices - 1;
+    /* The GRKit switch and Enable at Start follow the choices of the
+       effects. */
+    u32 switch_handle = setting_total + choices - 2, start_handle = switch_handle + 1;
     {
         u32 entry = array + 4 * SETTINGS_ENTRY(switch_handle);
         store(entry, grm_state_id(MANAGE_SWITCH_KEY));
         store(entry + 4, all_off);
         store(entry + 8, 2);
+        entry = array + 4 * SETTINGS_ENTRY(start_handle);
+        store(entry, grm_state_id(MANAGE_START_KEY));
+        store(entry + 4, start_choice);
+        store(entry + 8, MANAGE_START_VALUES);
     }
     for (u32 k = 0; k < kept_count; ++k) {
         u32 entry = array + 4 * SETTINGS_ENTRY(setting_total + choices + k);
@@ -164,6 +169,8 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
     u32 data_at = services + 4 * SERVICES_WORDS;
     u32 subscribers = 0;
     for (u32 k = 0; k < SERVICES_WORDS; ++k) store(services + 4 * k, 0);
+    /* The entry of the menu component for SYSTEM_READY (runtime/services.h). */
+    store(services + SERVICES_CORE_VIEWFINDER, relocated[TAIL_SYMBOL] + CORE_VIEWFINDER);
     services_block = services;
     if (!sync_alias(array, list_at - array)) return STATUS_SYNC;
     module_page_count = module_layer_count = module_filter_count = capabilities_used = capabilities_running = 0;
@@ -256,11 +263,12 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
            page needs a row for each value of a used setting. */
         for (u32 k = 0; !status && k < page_count; ++k) {
             pages[k].setting = module_handle(i, use_handles, pages[k].setting);
-            /* The core gives the rows of a page of CORE.TONE. */
+            /* The core gives the rows of a page of CORE.TONE or CORE.RECIPE. */
             u32 core_rows = pages[k].flags & GRM_CHOICE_CORE_ROWS;
+            u32 core_page = pages[k].setting == GRKIT_CORE_TONE || pages[k].setting == GRKIT_CORE_RECIPE;
             /* The rows do not fit the setting: the page is not valid. */
             if (pages[k].setting != GRM_NO_SETTING &&
-                (core_rows ? pages[k].setting != GRKIT_CORE_TONE : handle_values(pages[k].setting) != pages[k].rows))
+                (core_rows ? !core_page : handle_values(pages[k].setting) != pages[k].rows))
                 status = GRM_BAD_DESCRIPTOR;
             /* A settings row of a used setting needs a value text for each
                value of that setting. */
@@ -435,6 +443,7 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
     store(list_at + MANAGE_FLAGS, safe_mode ? MANAGE_SAFE_MODE : 0);
     store(list_at + MANAGE_OPEN, 0);
     store(list_at + MANAGE_SWITCH, switch_handle + 1);
+    store(list_at + MANAGE_START, start_handle + 1);
     for (u32 i = 0; i < module_count; ++i) {
         u32 entry = list_at + MANAGE_HEADER + i * MANAGE_STRIDE, n = 0;
         volatile u16 *name = (volatile u16 *)at(entry + MANAGE_NAME);

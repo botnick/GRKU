@@ -52,7 +52,19 @@
 #define UI_VALUE 64U
 #define UI_START 68U
 #define UI_CHANGED 72U
-#define UI_SIZE 76U
+/* A choice box (ui_choice): the text descriptors of its two buttons. */
+#define UI_CHOICE_TEXTS 76U
+/* The keyboard of the camera (ui_keyboard_open): its state, whether OK gave
+   a text, the callback for the change from a keyboard that a page of MENU
+   opened (ui_keyboard_prepare) and its argument, and the text,
+   NUL-terminated ASCII of at most UI_KEYBOARD_CHARS. */
+#define UI_KEYBOARD 92U
+#define UI_KEYBOARD_RESULT 96U
+#define UI_KEYBOARD_DONE 100U
+#define UI_KEYBOARD_ARG 104U
+#define UI_KEYBOARD_TEXT 108U
+#define UI_KEYBOARD_CHARS 16U
+#define UI_SIZE (UI_KEYBOARD_TEXT + ((UI_KEYBOARD_CHARS + 4U) & ~3U))
 /* The GRKit section of the native MENU (runtime/menu_section.h): whether the Customize
    tab has been patched, the number of rows, the controller of the last
    controller change,
@@ -65,6 +77,11 @@
 #define SERVICES_MENU (SERVICES_UI + UI_SIZE)
 #define MENU_ROWS_DONE 0U
 #define MENU_ROWS_COUNT 4U
+/* The state of the open own value page, which its setting keeps
+   (Setting::select), such as the recipe whose actions the Recipes page
+   shows (runtime/menu_recipes.h). Each start of the settings page clears
+   it. */
+#define MENU_ROWS_PAGE_STATE 8U
 #define MENU_ROWS_CURRENT 12U
 #define MENU_ROWS_LISTED 16U
 #define MENU_ROWS_PAGE 20U
@@ -85,9 +102,9 @@
 #define MENU_VALUE_TEXT_AT 8U
 #define MENU_VALUE_TEXT 16U
 #define MENU_VALUE_SIZE (MENU_VALUE_TEXT + 2U * MENU_VALUE_UNITS)
-/* A row for the GRKit switch, each listed module, ADJ Order, and About
-   GRKit. */
-#define MENU_ROWS_SLOTS 13U
+/* A row for the GRKit switch, Enable at Start, each listed module, ADJ
+   Order, and About GRKit. */
+#define MENU_ROWS_SLOTS 14U
 #define MENU_ROW_MODULE 0U
 #define MENU_ROW_LABEL 4U
 #define MENU_ROW_VALUE 8U
@@ -137,7 +154,79 @@
 #define CHECK_LISTS 28U
 #define CHECK_PAGE_CHECKBOX 0U
 #define CHECK_PAGE_RADIO 1U
-#define SERVICES_SIZE (SERVICES_CHECK + CHECK_LISTS + 2U * 8U)
+/* For each own page, the native vtable and a copy whose event method is
+   menu_select_event (runtime/menu_settings.h): the word before the vtable,
+   then SELECT_VTABLE_SLOTS methods. */
+#define CHECK_VTABLES (CHECK_LISTS + 2U * 8U)
+/* Room for the methods of each family (SELECT_VTABLE_SLOTS of the target). */
+#define CHECK_VTABLE_SLOTS 16U
+#define CHECK_VTABLE_SIZE (4U * (2U + CHECK_VTABLE_SLOTS))
+/* Whether the page takes the events that follow a taken OK or MENU, or
+   EAT_HALF_PRESS after a half-press (runtime/menu_settings.h:
+   menu_select_event). */
+#define CHECK_EAT (CHECK_VTABLES + 2U * CHECK_VTABLE_SIZE)
+/* The texts of the page of CORE.RECIPE (runtime/recipe_page.h), which the
+   native list reads after the page gives them: the label of Undo and of
+   each recipe, the summary of the root row, and the text of a box with a
+   pointer to it for each language (GrkitText). Each text has RECIPE_UNITS
+   units. */
+#define SERVICES_RECIPES (SERVICES_CHECK + CHECK_EAT + 4U)
+#define RECIPE_UNITS 96U
+#define RECIPE_TEXT_SIZE (2U * RECIPE_UNITS)
+#define RECIPE_ROWS_MAX (GRKIT_RECIPE_ON_MAX + 2U)
+#define RECIPE_SUMMARY_AT (RECIPE_ROWS_MAX * RECIPE_TEXT_SIZE)
+#define RECIPE_BOX_AT (RECIPE_SUMMARY_AT + RECIPE_TEXT_SIZE)
+#define RECIPE_BOX_TABLE_AT (RECIPE_BOX_AT + RECIPE_TEXT_SIZE)
+#define RECIPE_SERVICES_SIZE (RECIPE_BOX_TABLE_AT + 4U * GRKIT_TEXT_LANGUAGES)
+/* The entry of the menu component for the shooting screen (runtime/menu.c:
+   menu_viewfinder), which INSTALL writes: the framing component calls it
+   in the App task with an event, as the components link apart. The first
+   shooting screen after INSTALL (services_ready), and the label of the mode
+   dial (runtime/viewfinder.h: viewfinder_dial_label): a still live view that
+   shows its text while the label waits, and a live view that hides its text
+   or ends while the label waits or shows. */
+#define SERVICES_CORE_VIEWFINDER (SERVICES_RECIPES + RECIPE_SERVICES_SIZE)
+#define VIEWFINDER_READY 0U
+#define VIEWFINDER_LABEL_SHOW 1U
+#define VIEWFINDER_LABEL_DROP 2U
+/* The mode dial (runtime/mode_dial.h): the firmware timer of the dial (0
+   when none runs), the number of tries while the firmware loads the native
+   settings, the user mode that the core acted on last (0 for another
+   position), the bound user mode that applies (0 in the base state), and
+   what it does (DIAL_OFF, DIAL_RECIPE, or DIAL_SAVED; 0 in the base state).
+   Then the label of the dial: its state (DIAL_LABEL_*), its firmware timer,
+   its number of lines, the string view of each line and their parent, the
+   text descriptor of each line, and the text of the first line.
+   Then the copy of the base state: the value of each capability; the number
+   of module settings and the value of each; and the number of effects, the
+   Fn adjustments of each (base-9 digits, as a recipe holds them), and its
+   Toning byte. */
+#define SERVICES_DIAL (SERVICES_CORE_VIEWFINDER + 4U)
+#define DIAL_TIMER 0U
+#define DIAL_TRY 4U
+#define DIAL_AT 8U
+#define DIAL_ACTIVE 12U
+#define DIAL_KIND 16U
+#define DIAL_LABEL 20U
+#define DIAL_LABEL_TIMER 24U
+#define DIAL_LABEL_LINES 28U
+#define DIAL_LABEL_LINES_MAX 3U
+#define DIAL_LABEL_VIEWS 32U
+#define DIAL_LABEL_PARENT (DIAL_LABEL_VIEWS + 4U * DIAL_LABEL_LINES_MAX)
+#define DIAL_LABEL_TEXTS (DIAL_LABEL_PARENT + 4U)
+#define DIAL_LABEL_NAME (DIAL_LABEL_TEXTS + 8U * DIAL_LABEL_LINES_MAX)
+#define DIAL_LABEL_UNITS GRKIT_SUMMARY_UNITS
+#define DIAL_LABEL_NONE 0U
+#define DIAL_LABEL_WAITS 1U
+#define DIAL_LABEL_SHOWN 2U
+#define DIAL_BASE_CORE (DIAL_LABEL_NAME + 2U * DIAL_LABEL_UNITS)
+#define DIAL_BASE_COUNT (DIAL_BASE_CORE + 4U * GRKIT_CORE_SETTING_COUNT)
+#define DIAL_BASE_SETTINGS (DIAL_BASE_COUNT + 4U)
+#define DIAL_BASE_RECORDS (DIAL_BASE_SETTINGS + 4U * GRKIT_MODULE_SETTINGS_MAX)
+#define DIAL_BASE_FN (DIAL_BASE_RECORDS + 4U)
+#define DIAL_BASE_TONING (DIAL_BASE_FN + 4U * GRKIT_TEXT_RECORDS)
+#define DIAL_SIZE (DIAL_BASE_TONING + ((GRKIT_TEXT_RECORDS + 3U) & ~3U))
+#define SERVICES_SIZE (SERVICES_DIAL + DIAL_SIZE)
 #define SERVICES_WORDS (SERVICES_SIZE / 4U)
 /* The events (GRKIT_EVENT_*). */
 #define SERVICE_EVENT_SYSTEM_READY 1U
@@ -212,11 +301,21 @@ static __attribute__((unused)) void services_emit(volatile u32 *h,u32 event,u32 
     }
     services_word(h,SERVICES_DEPTH)[0]=0;
 }
+/* Call the entry of the menu component for the shooting screen with
+   `event` (VIEWFINDER_*). A host test maps the call. */
+#ifndef SERVICES_CORE_CALL
+#define SERVICES_CORE_CALL(address,event) ((void (*)(u32))(address))(event)
+#endif
+static __attribute__((unused)) void services_viewfinder(volatile u32 *h,u32 event) {
+    u32 core=services_word(h,SERVICES_CORE_VIEWFINDER)[0];
+    if(core) SERVICES_CORE_CALL(core,event);
+}
 /* SYSTEM_READY, once after INSTALL: the core calls it when the shooting
    screen first shows (runtime/framing.c). */
 static __attribute__((unused)) void services_ready(volatile u32 *h) {
     if(!h[GRKIT_HOST_SERVICES/4] || services_word(h,SERVICES_READY)[0]) return;
     services_word(h,SERVICES_READY)[0]=1;
+    services_viewfinder(h,VIEWFINDER_READY);
     services_emit(h,SERVICE_EVENT_SYSTEM_READY,0,0);
 }
 #endif
