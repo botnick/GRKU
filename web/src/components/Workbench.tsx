@@ -42,11 +42,7 @@ import { StepHeading } from './Step';
 /** The look of this fork, which the page shows first. */
 const FIRST_LOOK = 'positive-film-grii-v1';
 
-/**
- * The headline with each brand name (RICOH GR…) as its own inline box. A box keeps its letters in
- * a text run of their own, so a Thai word after them never lends a mark to the R (IBM Plex Sans
- * Thai 700 does that), and the brand stays on one line.
- */
+/** The headline with each brand name (RICOH GR…) as its own inline box, so the brand stays on one line. */
 function Headline({ text }: { text: string }) {
   return text.split(/(RICOH GR[\w ]*?(?= |$))/).map((part, index) =>
     /^RICOH GR/.test(part) ? (
@@ -352,7 +348,7 @@ export function Workbench({
     >
       {/* The headline. */}
       <div id={LANDING_HERO} className="min-w-0 pt-[clamp(28px,6vh,72px)] lg:col-start-1 lg:row-start-1">
-        <h1 className="text-balance text-[clamp(38px,4.6vw,60px)] leading-[1.06] font-bold tracking-[-0.025em]">
+        <h1 className="text-balance text-[clamp(38px,4.6vw,60px)] leading-[1.06] font-bold tracking-[-0.025em] [:root[lang=th]_&]:leading-[1.22] [:root[lang=th]_&]:tracking-normal">
           <Headline text={t.lead[0] ?? ''} />
         </h1>
         <p className="mt-4 max-w-[30em] text-[clamp(16px,1.3vw,19px)] leading-relaxed text-muted-foreground">{t.lead[1]}</p>

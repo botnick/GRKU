@@ -100,17 +100,14 @@
     @apply bg-background font-sans text-foreground antialiased;
     font-feature-settings: 'cv11', 'ss01';
   }
-  /* Thai script is taller than Latin: more leading everywhere, most in the headings. */
+  /* Thai script is taller than Latin: more leading everywhere, most in the headings. Under
+     about 1.2, the ring of a sara am (สำ) of one line is painted on the line below it. */
   :root[lang='th'] body {
     line-height: 1.65;
   }
   :root[lang='th'] :is(h1, h2, h3) {
     line-height: 1.3;
     letter-spacing: 0;
-  }
-  /* The 700 file of IBM Plex Sans Thai draws a stray mark over an R that a Thai word follows. */
-  :root[lang='th'] h1 {
-    font-weight: 600;
   }
 }
 
