@@ -332,7 +332,9 @@ jobs:
           fi
           site="$RUNNER_TEMP/GRKU-${TAG#v}-site.tar.gz"
           tar -czf "$site" -C site .
-          gh release upload "$TAG" "$site" packages/GRKU-*.zip --clobber
+          # The dump tool also under a fixed name, so the guide links to releases/latest/download/GRKU-dump.zip.
+          cp packages/GRKU-*-dump.zip "$RUNNER_TEMP/GRKU-dump.zip"
+          gh release upload "$TAG" "$site" packages/GRKU-*.zip "$RUNNER_TEMP/GRKU-dump.zip" --clobber
       - name: Summary
         run: echo "The draft release $TAG holds the site, the camera packages, and the dump tool." >> "$GITHUB_STEP_SUMMARY"
 
