@@ -106,7 +106,7 @@ if modulewords < 0 goto reject
 if modulewords > 65536 goto reject
 if moduletiles < 0 goto reject
 if moduletiles > 128 goto reject
-expected = 242 + count * 1088
+expected = 248 + count * 1088
 if words != expected goto reject
 expectedchunks = (count + moduletiles + 45) / 40
 if chunks != expectedchunks goto reject
@@ -141,7 +141,7 @@ intdim artwork4 iconwords
 if modulewords <= 0 goto modules_ready
 intdim modulecode modulewords
 :modules_ready
-intdim tailarea 48815
+intdim tailarea 49839
 allocated = 1
 hadcount = count
 hadwords = words
@@ -265,15 +265,25 @@ filewriteln sfh '826089556'
 int2str line value4
 filewriteln sfh line
 :save_key4
+if value5 = 0 goto save_key5
+filewriteln sfh '660632122'
+int2str line value5
+filewriteln sfh line
+:save_key5
+if value6 = 0 goto save_key6
+filewriteln sfh '618415657'
+int2str line value6
+filewriteln sfh line
+:save_key6
 pcount = registry[0]
 if pcount < 0 pcount = 0
 if pcount > 40 pcount = 0
 pindex = 0
 :save_parameters
 if pindex >= pcount goto save_parameters_end
-pw0 = registry[242 + pindex * 1088 + 459]
-pw1 = registry[242 + pindex * 1088 + 460]
-pw2 = registry[242 + pindex * 1088 + 461]
+pw0 = registry[248 + pindex * 1088 + 459]
+pw1 = registry[248 + pindex * 1088 + 460]
+pw2 = registry[248 + pindex * 1088 + 461]
 pvalue = 0
 pdigit = (pw2 >> 0) and 255
 if pdigit > 8 pdigit = 0
@@ -303,16 +313,16 @@ pdigit = (pw0 >> 0) and 255
 if pdigit > 8 pdigit = 0
 pvalue = pvalue * 9 + pdigit
 if pvalue = 0 goto save_toning
-pkey = 990000000 + (registry[242 + pindex * 1088 + 446] and 32767)
+pkey = 990000000 + (registry[248 + pindex * 1088 + 446] and 32767)
 int2str line pkey
 filewriteln sfh line
 int2str line pvalue
 filewriteln sfh line
 :save_toning
-ptone = (registry[242 + pindex * 1088 + 463] >> 16) and 255
+ptone = (registry[248 + pindex * 1088 + 463] >> 16) and 255
 if ptone < 1 goto save_parameters_next
 if ptone > 8 goto save_parameters_next
-pkey = 990032768 + (registry[242 + pindex * 1088 + 446] and 32767)
+pkey = 990032768 + (registry[248 + pindex * 1088 + 446] and 32767)
 int2str line pkey
 filewriteln sfh line
 int2str line ptone
@@ -367,285 +377,287 @@ rest = offset % 4352
 if rest != 0 goto snapshot_values
 index = offset / 4352
 if index >= count goto snapshot_values
-value0 = registry[242 + index * 1088 + 446] and 65535
+value0 = registry[248 + index * 1088 + 446] and 65535
 :snapshot_values
 value1 = registry[52]
 value2 = registry[12]
 value3 = registry[60]
 value4 = registry[226]
+value5 = registry[242]
+value6 = registry[243]
 return
 :profile_watch
 ppolls = 0
 pperiod = 0
 pframes = registry[7]
 pname0 = ''
-pc = (tailarea[47668] >> 0) and 255
+pc = (tailarea[48692] >> 0) and 255
 if pc = 0 goto profile_name0_end
 code2str ps pc
 strconcat pname0 ps
-pc = (tailarea[47668] >> 8) and 255
+pc = (tailarea[48692] >> 8) and 255
 if pc = 0 goto profile_name0_end
 code2str ps pc
 strconcat pname0 ps
-pc = (tailarea[47668] >> 16) and 255
+pc = (tailarea[48692] >> 16) and 255
 if pc = 0 goto profile_name0_end
 code2str ps pc
 strconcat pname0 ps
-pc = (tailarea[47668] >> 24) and 255
+pc = (tailarea[48692] >> 24) and 255
 if pc = 0 goto profile_name0_end
 code2str ps pc
 strconcat pname0 ps
-pc = (tailarea[47669] >> 0) and 255
+pc = (tailarea[48693] >> 0) and 255
 if pc = 0 goto profile_name0_end
 code2str ps pc
 strconcat pname0 ps
-pc = (tailarea[47669] >> 8) and 255
+pc = (tailarea[48693] >> 8) and 255
 if pc = 0 goto profile_name0_end
 code2str ps pc
 strconcat pname0 ps
-pc = (tailarea[47669] >> 16) and 255
+pc = (tailarea[48693] >> 16) and 255
 if pc = 0 goto profile_name0_end
 code2str ps pc
 strconcat pname0 ps
-pc = (tailarea[47669] >> 24) and 255
+pc = (tailarea[48693] >> 24) and 255
 if pc = 0 goto profile_name0_end
 code2str ps pc
 strconcat pname0 ps
 :profile_name0_end
 pname1 = ''
-pc = (tailarea[47672] >> 0) and 255
+pc = (tailarea[48696] >> 0) and 255
 if pc = 0 goto profile_name1_end
 code2str ps pc
 strconcat pname1 ps
-pc = (tailarea[47672] >> 8) and 255
+pc = (tailarea[48696] >> 8) and 255
 if pc = 0 goto profile_name1_end
 code2str ps pc
 strconcat pname1 ps
-pc = (tailarea[47672] >> 16) and 255
+pc = (tailarea[48696] >> 16) and 255
 if pc = 0 goto profile_name1_end
 code2str ps pc
 strconcat pname1 ps
-pc = (tailarea[47672] >> 24) and 255
+pc = (tailarea[48696] >> 24) and 255
 if pc = 0 goto profile_name1_end
 code2str ps pc
 strconcat pname1 ps
-pc = (tailarea[47673] >> 0) and 255
+pc = (tailarea[48697] >> 0) and 255
 if pc = 0 goto profile_name1_end
 code2str ps pc
 strconcat pname1 ps
-pc = (tailarea[47673] >> 8) and 255
+pc = (tailarea[48697] >> 8) and 255
 if pc = 0 goto profile_name1_end
 code2str ps pc
 strconcat pname1 ps
-pc = (tailarea[47673] >> 16) and 255
+pc = (tailarea[48697] >> 16) and 255
 if pc = 0 goto profile_name1_end
 code2str ps pc
 strconcat pname1 ps
-pc = (tailarea[47673] >> 24) and 255
+pc = (tailarea[48697] >> 24) and 255
 if pc = 0 goto profile_name1_end
 code2str ps pc
 strconcat pname1 ps
 :profile_name1_end
 pname2 = ''
-pc = (tailarea[47676] >> 0) and 255
+pc = (tailarea[48700] >> 0) and 255
 if pc = 0 goto profile_name2_end
 code2str ps pc
 strconcat pname2 ps
-pc = (tailarea[47676] >> 8) and 255
+pc = (tailarea[48700] >> 8) and 255
 if pc = 0 goto profile_name2_end
 code2str ps pc
 strconcat pname2 ps
-pc = (tailarea[47676] >> 16) and 255
+pc = (tailarea[48700] >> 16) and 255
 if pc = 0 goto profile_name2_end
 code2str ps pc
 strconcat pname2 ps
-pc = (tailarea[47676] >> 24) and 255
+pc = (tailarea[48700] >> 24) and 255
 if pc = 0 goto profile_name2_end
 code2str ps pc
 strconcat pname2 ps
-pc = (tailarea[47677] >> 0) and 255
+pc = (tailarea[48701] >> 0) and 255
 if pc = 0 goto profile_name2_end
 code2str ps pc
 strconcat pname2 ps
-pc = (tailarea[47677] >> 8) and 255
+pc = (tailarea[48701] >> 8) and 255
 if pc = 0 goto profile_name2_end
 code2str ps pc
 strconcat pname2 ps
-pc = (tailarea[47677] >> 16) and 255
+pc = (tailarea[48701] >> 16) and 255
 if pc = 0 goto profile_name2_end
 code2str ps pc
 strconcat pname2 ps
-pc = (tailarea[47677] >> 24) and 255
+pc = (tailarea[48701] >> 24) and 255
 if pc = 0 goto profile_name2_end
 code2str ps pc
 strconcat pname2 ps
 :profile_name2_end
 pname3 = ''
-pc = (tailarea[47680] >> 0) and 255
+pc = (tailarea[48704] >> 0) and 255
 if pc = 0 goto profile_name3_end
 code2str ps pc
 strconcat pname3 ps
-pc = (tailarea[47680] >> 8) and 255
+pc = (tailarea[48704] >> 8) and 255
 if pc = 0 goto profile_name3_end
 code2str ps pc
 strconcat pname3 ps
-pc = (tailarea[47680] >> 16) and 255
+pc = (tailarea[48704] >> 16) and 255
 if pc = 0 goto profile_name3_end
 code2str ps pc
 strconcat pname3 ps
-pc = (tailarea[47680] >> 24) and 255
+pc = (tailarea[48704] >> 24) and 255
 if pc = 0 goto profile_name3_end
 code2str ps pc
 strconcat pname3 ps
-pc = (tailarea[47681] >> 0) and 255
+pc = (tailarea[48705] >> 0) and 255
 if pc = 0 goto profile_name3_end
 code2str ps pc
 strconcat pname3 ps
-pc = (tailarea[47681] >> 8) and 255
+pc = (tailarea[48705] >> 8) and 255
 if pc = 0 goto profile_name3_end
 code2str ps pc
 strconcat pname3 ps
-pc = (tailarea[47681] >> 16) and 255
+pc = (tailarea[48705] >> 16) and 255
 if pc = 0 goto profile_name3_end
 code2str ps pc
 strconcat pname3 ps
-pc = (tailarea[47681] >> 24) and 255
+pc = (tailarea[48705] >> 24) and 255
 if pc = 0 goto profile_name3_end
 code2str ps pc
 strconcat pname3 ps
 :profile_name3_end
 pname4 = ''
-pc = (tailarea[47684] >> 0) and 255
+pc = (tailarea[48708] >> 0) and 255
 if pc = 0 goto profile_name4_end
 code2str ps pc
 strconcat pname4 ps
-pc = (tailarea[47684] >> 8) and 255
+pc = (tailarea[48708] >> 8) and 255
 if pc = 0 goto profile_name4_end
 code2str ps pc
 strconcat pname4 ps
-pc = (tailarea[47684] >> 16) and 255
+pc = (tailarea[48708] >> 16) and 255
 if pc = 0 goto profile_name4_end
 code2str ps pc
 strconcat pname4 ps
-pc = (tailarea[47684] >> 24) and 255
+pc = (tailarea[48708] >> 24) and 255
 if pc = 0 goto profile_name4_end
 code2str ps pc
 strconcat pname4 ps
-pc = (tailarea[47685] >> 0) and 255
+pc = (tailarea[48709] >> 0) and 255
 if pc = 0 goto profile_name4_end
 code2str ps pc
 strconcat pname4 ps
-pc = (tailarea[47685] >> 8) and 255
+pc = (tailarea[48709] >> 8) and 255
 if pc = 0 goto profile_name4_end
 code2str ps pc
 strconcat pname4 ps
-pc = (tailarea[47685] >> 16) and 255
+pc = (tailarea[48709] >> 16) and 255
 if pc = 0 goto profile_name4_end
 code2str ps pc
 strconcat pname4 ps
-pc = (tailarea[47685] >> 24) and 255
+pc = (tailarea[48709] >> 24) and 255
 if pc = 0 goto profile_name4_end
 code2str ps pc
 strconcat pname4 ps
 :profile_name4_end
 pname5 = ''
-pc = (tailarea[47688] >> 0) and 255
+pc = (tailarea[48712] >> 0) and 255
 if pc = 0 goto profile_name5_end
 code2str ps pc
 strconcat pname5 ps
-pc = (tailarea[47688] >> 8) and 255
+pc = (tailarea[48712] >> 8) and 255
 if pc = 0 goto profile_name5_end
 code2str ps pc
 strconcat pname5 ps
-pc = (tailarea[47688] >> 16) and 255
+pc = (tailarea[48712] >> 16) and 255
 if pc = 0 goto profile_name5_end
 code2str ps pc
 strconcat pname5 ps
-pc = (tailarea[47688] >> 24) and 255
+pc = (tailarea[48712] >> 24) and 255
 if pc = 0 goto profile_name5_end
 code2str ps pc
 strconcat pname5 ps
-pc = (tailarea[47689] >> 0) and 255
+pc = (tailarea[48713] >> 0) and 255
 if pc = 0 goto profile_name5_end
 code2str ps pc
 strconcat pname5 ps
-pc = (tailarea[47689] >> 8) and 255
+pc = (tailarea[48713] >> 8) and 255
 if pc = 0 goto profile_name5_end
 code2str ps pc
 strconcat pname5 ps
-pc = (tailarea[47689] >> 16) and 255
+pc = (tailarea[48713] >> 16) and 255
 if pc = 0 goto profile_name5_end
 code2str ps pc
 strconcat pname5 ps
-pc = (tailarea[47689] >> 24) and 255
+pc = (tailarea[48713] >> 24) and 255
 if pc = 0 goto profile_name5_end
 code2str ps pc
 strconcat pname5 ps
 :profile_name5_end
 pname6 = ''
-pc = (tailarea[47692] >> 0) and 255
+pc = (tailarea[48716] >> 0) and 255
 if pc = 0 goto profile_name6_end
 code2str ps pc
 strconcat pname6 ps
-pc = (tailarea[47692] >> 8) and 255
+pc = (tailarea[48716] >> 8) and 255
 if pc = 0 goto profile_name6_end
 code2str ps pc
 strconcat pname6 ps
-pc = (tailarea[47692] >> 16) and 255
+pc = (tailarea[48716] >> 16) and 255
 if pc = 0 goto profile_name6_end
 code2str ps pc
 strconcat pname6 ps
-pc = (tailarea[47692] >> 24) and 255
+pc = (tailarea[48716] >> 24) and 255
 if pc = 0 goto profile_name6_end
 code2str ps pc
 strconcat pname6 ps
-pc = (tailarea[47693] >> 0) and 255
+pc = (tailarea[48717] >> 0) and 255
 if pc = 0 goto profile_name6_end
 code2str ps pc
 strconcat pname6 ps
-pc = (tailarea[47693] >> 8) and 255
+pc = (tailarea[48717] >> 8) and 255
 if pc = 0 goto profile_name6_end
 code2str ps pc
 strconcat pname6 ps
-pc = (tailarea[47693] >> 16) and 255
+pc = (tailarea[48717] >> 16) and 255
 if pc = 0 goto profile_name6_end
 code2str ps pc
 strconcat pname6 ps
-pc = (tailarea[47693] >> 24) and 255
+pc = (tailarea[48717] >> 24) and 255
 if pc = 0 goto profile_name6_end
 code2str ps pc
 strconcat pname6 ps
 :profile_name6_end
 pname7 = ''
-pc = (tailarea[47696] >> 0) and 255
+pc = (tailarea[48720] >> 0) and 255
 if pc = 0 goto profile_name7_end
 code2str ps pc
 strconcat pname7 ps
-pc = (tailarea[47696] >> 8) and 255
+pc = (tailarea[48720] >> 8) and 255
 if pc = 0 goto profile_name7_end
 code2str ps pc
 strconcat pname7 ps
-pc = (tailarea[47696] >> 16) and 255
+pc = (tailarea[48720] >> 16) and 255
 if pc = 0 goto profile_name7_end
 code2str ps pc
 strconcat pname7 ps
-pc = (tailarea[47696] >> 24) and 255
+pc = (tailarea[48720] >> 24) and 255
 if pc = 0 goto profile_name7_end
 code2str ps pc
 strconcat pname7 ps
-pc = (tailarea[47697] >> 0) and 255
+pc = (tailarea[48721] >> 0) and 255
 if pc = 0 goto profile_name7_end
 code2str ps pc
 strconcat pname7 ps
-pc = (tailarea[47697] >> 8) and 255
+pc = (tailarea[48721] >> 8) and 255
 if pc = 0 goto profile_name7_end
 code2str ps pc
 strconcat pname7 ps
-pc = (tailarea[47697] >> 16) and 255
+pc = (tailarea[48721] >> 16) and 255
 if pc = 0 goto profile_name7_end
 code2str ps pc
 strconcat pname7 ps
-pc = (tailarea[47697] >> 24) and 255
+pc = (tailarea[48721] >> 24) and 255
 if pc = 0 goto profile_name7_end
 code2str ps pc
 strconcat pname7 ps
@@ -687,13 +699,13 @@ filewrite pfh ps
 filewrite pfh ' frames '
 int2str ps pframe
 filewriteln pfh ps
-pc = tailarea[47698]
+pc = tailarea[48722]
 if pc = 0 goto profile_slot0
-pcy = tailarea[47699]
-pmx = tailarea[47700]
-tailarea[47698] = 0
-tailarea[47699] = 0
-tailarea[47700] = 0
+pcy = tailarea[48723]
+pmx = tailarea[48724]
+tailarea[48722] = 0
+tailarea[48723] = 0
+tailarea[48724] = 0
 filewrite pfh 'frame.bind '
 int2str ps pc
 filewrite pfh ps
@@ -705,13 +717,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot0
-pc = tailarea[47701]
+pc = tailarea[48725]
 if pc = 0 goto profile_slot1
-pcy = tailarea[47702]
-pmx = tailarea[47703]
-tailarea[47701] = 0
-tailarea[47702] = 0
-tailarea[47703] = 0
+pcy = tailarea[48726]
+pmx = tailarea[48727]
+tailarea[48725] = 0
+tailarea[48726] = 0
+tailarea[48727] = 0
 filewrite pfh 'frame.prepare '
 int2str ps pc
 filewrite pfh ps
@@ -723,13 +735,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot1
-pc = tailarea[47704]
+pc = tailarea[48728]
 if pc = 0 goto profile_slot2
-pcy = tailarea[47705]
-pmx = tailarea[47706]
-tailarea[47704] = 0
-tailarea[47705] = 0
-tailarea[47706] = 0
+pcy = tailarea[48729]
+pmx = tailarea[48730]
+tailarea[48728] = 0
+tailarea[48729] = 0
+tailarea[48730] = 0
 filewrite pfh 'frame.paint '
 int2str ps pc
 filewrite pfh ps
@@ -741,13 +753,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot2
-pc = tailarea[47707]
+pc = tailarea[48731]
 if pc = 0 goto profile_slot3
-pcy = tailarea[47708]
-pmx = tailarea[47709]
-tailarea[47707] = 0
-tailarea[47708] = 0
-tailarea[47709] = 0
+pcy = tailarea[48732]
+pmx = tailarea[48733]
+tailarea[48731] = 0
+tailarea[48732] = 0
+tailarea[48733] = 0
 filewrite pfh 'picture.post '
 int2str ps pc
 filewrite pfh ps
@@ -759,13 +771,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot3
-pc = tailarea[47710]
+pc = tailarea[48734]
 if pc = 0 goto profile_slot4
-pcy = tailarea[47711]
-pmx = tailarea[47712]
-tailarea[47710] = 0
-tailarea[47711] = 0
-tailarea[47712] = 0
+pcy = tailarea[48735]
+pmx = tailarea[48736]
+tailarea[48734] = 0
+tailarea[48735] = 0
+tailarea[48736] = 0
 filewrite pfh 'picture.encode '
 int2str ps pc
 filewrite pfh ps
@@ -777,13 +789,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot4
-pc = tailarea[47713]
+pc = tailarea[48737]
 if pc = 0 goto profile_slot5
-pcy = tailarea[47714]
-pmx = tailarea[47715]
-tailarea[47713] = 0
-tailarea[47714] = 0
-tailarea[47715] = 0
+pcy = tailarea[48738]
+pmx = tailarea[48739]
+tailarea[48737] = 0
+tailarea[48738] = 0
+tailarea[48739] = 0
 filewrite pfh 'menu.icon '
 int2str ps pc
 filewrite pfh ps
@@ -795,13 +807,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot5
-pc = tailarea[47716]
+pc = tailarea[48740]
 if pc = 0 goto profile_slot6
-pcy = tailarea[47717]
-pmx = tailarea[47718]
-tailarea[47716] = 0
-tailarea[47717] = 0
-tailarea[47718] = 0
+pcy = tailarea[48741]
+pmx = tailarea[48742]
+tailarea[48740] = 0
+tailarea[48741] = 0
+tailarea[48742] = 0
 filewrite pfh 'picture.grain '
 int2str ps pc
 filewrite pfh ps
@@ -813,13 +825,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot6
-pc = tailarea[47719]
+pc = tailarea[48743]
 if pc = 0 goto profile_slot7
-pcy = tailarea[47720]
-pmx = tailarea[47721]
-tailarea[47719] = 0
-tailarea[47720] = 0
-tailarea[47721] = 0
+pcy = tailarea[48744]
+pmx = tailarea[48745]
+tailarea[48743] = 0
+tailarea[48744] = 0
+tailarea[48745] = 0
 filewrite pfh pname0
 filewrite pfh ' paint '
 int2str ps pc
@@ -832,13 +844,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot7
-pc = tailarea[47722]
+pc = tailarea[48746]
 if pc = 0 goto profile_slot8
-pcy = tailarea[47723]
-pmx = tailarea[47724]
-tailarea[47722] = 0
-tailarea[47723] = 0
-tailarea[47724] = 0
+pcy = tailarea[48747]
+pmx = tailarea[48748]
+tailarea[48746] = 0
+tailarea[48747] = 0
+tailarea[48748] = 0
 filewrite pfh pname0
 filewrite pfh ' filter '
 int2str ps pc
@@ -851,13 +863,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot8
-pc = tailarea[47725]
+pc = tailarea[48749]
 if pc = 0 goto profile_slot9
-pcy = tailarea[47726]
-pmx = tailarea[47727]
-tailarea[47725] = 0
-tailarea[47726] = 0
-tailarea[47727] = 0
+pcy = tailarea[48750]
+pmx = tailarea[48751]
+tailarea[48749] = 0
+tailarea[48750] = 0
+tailarea[48751] = 0
 filewrite pfh pname0
 filewrite pfh ' call '
 int2str ps pc
@@ -870,13 +882,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot9
-pc = tailarea[47728]
+pc = tailarea[48752]
 if pc = 0 goto profile_slot10
-pcy = tailarea[47729]
-pmx = tailarea[47730]
-tailarea[47728] = 0
-tailarea[47729] = 0
-tailarea[47730] = 0
+pcy = tailarea[48753]
+pmx = tailarea[48754]
+tailarea[48752] = 0
+tailarea[48753] = 0
+tailarea[48754] = 0
 filewrite pfh pname1
 filewrite pfh ' paint '
 int2str ps pc
@@ -889,13 +901,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot10
-pc = tailarea[47731]
+pc = tailarea[48755]
 if pc = 0 goto profile_slot11
-pcy = tailarea[47732]
-pmx = tailarea[47733]
-tailarea[47731] = 0
-tailarea[47732] = 0
-tailarea[47733] = 0
+pcy = tailarea[48756]
+pmx = tailarea[48757]
+tailarea[48755] = 0
+tailarea[48756] = 0
+tailarea[48757] = 0
 filewrite pfh pname1
 filewrite pfh ' filter '
 int2str ps pc
@@ -908,13 +920,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot11
-pc = tailarea[47734]
+pc = tailarea[48758]
 if pc = 0 goto profile_slot12
-pcy = tailarea[47735]
-pmx = tailarea[47736]
-tailarea[47734] = 0
-tailarea[47735] = 0
-tailarea[47736] = 0
+pcy = tailarea[48759]
+pmx = tailarea[48760]
+tailarea[48758] = 0
+tailarea[48759] = 0
+tailarea[48760] = 0
 filewrite pfh pname1
 filewrite pfh ' call '
 int2str ps pc
@@ -927,13 +939,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot12
-pc = tailarea[47737]
+pc = tailarea[48761]
 if pc = 0 goto profile_slot13
-pcy = tailarea[47738]
-pmx = tailarea[47739]
-tailarea[47737] = 0
-tailarea[47738] = 0
-tailarea[47739] = 0
+pcy = tailarea[48762]
+pmx = tailarea[48763]
+tailarea[48761] = 0
+tailarea[48762] = 0
+tailarea[48763] = 0
 filewrite pfh pname2
 filewrite pfh ' paint '
 int2str ps pc
@@ -946,13 +958,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot13
-pc = tailarea[47740]
+pc = tailarea[48764]
 if pc = 0 goto profile_slot14
-pcy = tailarea[47741]
-pmx = tailarea[47742]
-tailarea[47740] = 0
-tailarea[47741] = 0
-tailarea[47742] = 0
+pcy = tailarea[48765]
+pmx = tailarea[48766]
+tailarea[48764] = 0
+tailarea[48765] = 0
+tailarea[48766] = 0
 filewrite pfh pname2
 filewrite pfh ' filter '
 int2str ps pc
@@ -965,13 +977,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot14
-pc = tailarea[47743]
+pc = tailarea[48767]
 if pc = 0 goto profile_slot15
-pcy = tailarea[47744]
-pmx = tailarea[47745]
-tailarea[47743] = 0
-tailarea[47744] = 0
-tailarea[47745] = 0
+pcy = tailarea[48768]
+pmx = tailarea[48769]
+tailarea[48767] = 0
+tailarea[48768] = 0
+tailarea[48769] = 0
 filewrite pfh pname2
 filewrite pfh ' call '
 int2str ps pc
@@ -984,13 +996,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot15
-pc = tailarea[47746]
+pc = tailarea[48770]
 if pc = 0 goto profile_slot16
-pcy = tailarea[47747]
-pmx = tailarea[47748]
-tailarea[47746] = 0
-tailarea[47747] = 0
-tailarea[47748] = 0
+pcy = tailarea[48771]
+pmx = tailarea[48772]
+tailarea[48770] = 0
+tailarea[48771] = 0
+tailarea[48772] = 0
 filewrite pfh pname3
 filewrite pfh ' paint '
 int2str ps pc
@@ -1003,13 +1015,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot16
-pc = tailarea[47749]
+pc = tailarea[48773]
 if pc = 0 goto profile_slot17
-pcy = tailarea[47750]
-pmx = tailarea[47751]
-tailarea[47749] = 0
-tailarea[47750] = 0
-tailarea[47751] = 0
+pcy = tailarea[48774]
+pmx = tailarea[48775]
+tailarea[48773] = 0
+tailarea[48774] = 0
+tailarea[48775] = 0
 filewrite pfh pname3
 filewrite pfh ' filter '
 int2str ps pc
@@ -1022,13 +1034,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot17
-pc = tailarea[47752]
+pc = tailarea[48776]
 if pc = 0 goto profile_slot18
-pcy = tailarea[47753]
-pmx = tailarea[47754]
-tailarea[47752] = 0
-tailarea[47753] = 0
-tailarea[47754] = 0
+pcy = tailarea[48777]
+pmx = tailarea[48778]
+tailarea[48776] = 0
+tailarea[48777] = 0
+tailarea[48778] = 0
 filewrite pfh pname3
 filewrite pfh ' call '
 int2str ps pc
@@ -1041,13 +1053,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot18
-pc = tailarea[47755]
+pc = tailarea[48779]
 if pc = 0 goto profile_slot19
-pcy = tailarea[47756]
-pmx = tailarea[47757]
-tailarea[47755] = 0
-tailarea[47756] = 0
-tailarea[47757] = 0
+pcy = tailarea[48780]
+pmx = tailarea[48781]
+tailarea[48779] = 0
+tailarea[48780] = 0
+tailarea[48781] = 0
 filewrite pfh pname4
 filewrite pfh ' paint '
 int2str ps pc
@@ -1060,13 +1072,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot19
-pc = tailarea[47758]
+pc = tailarea[48782]
 if pc = 0 goto profile_slot20
-pcy = tailarea[47759]
-pmx = tailarea[47760]
-tailarea[47758] = 0
-tailarea[47759] = 0
-tailarea[47760] = 0
+pcy = tailarea[48783]
+pmx = tailarea[48784]
+tailarea[48782] = 0
+tailarea[48783] = 0
+tailarea[48784] = 0
 filewrite pfh pname4
 filewrite pfh ' filter '
 int2str ps pc
@@ -1079,13 +1091,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot20
-pc = tailarea[47761]
+pc = tailarea[48785]
 if pc = 0 goto profile_slot21
-pcy = tailarea[47762]
-pmx = tailarea[47763]
-tailarea[47761] = 0
-tailarea[47762] = 0
-tailarea[47763] = 0
+pcy = tailarea[48786]
+pmx = tailarea[48787]
+tailarea[48785] = 0
+tailarea[48786] = 0
+tailarea[48787] = 0
 filewrite pfh pname4
 filewrite pfh ' call '
 int2str ps pc
@@ -1098,13 +1110,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot21
-pc = tailarea[47764]
+pc = tailarea[48788]
 if pc = 0 goto profile_slot22
-pcy = tailarea[47765]
-pmx = tailarea[47766]
-tailarea[47764] = 0
-tailarea[47765] = 0
-tailarea[47766] = 0
+pcy = tailarea[48789]
+pmx = tailarea[48790]
+tailarea[48788] = 0
+tailarea[48789] = 0
+tailarea[48790] = 0
 filewrite pfh pname5
 filewrite pfh ' paint '
 int2str ps pc
@@ -1117,13 +1129,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot22
-pc = tailarea[47767]
+pc = tailarea[48791]
 if pc = 0 goto profile_slot23
-pcy = tailarea[47768]
-pmx = tailarea[47769]
-tailarea[47767] = 0
-tailarea[47768] = 0
-tailarea[47769] = 0
+pcy = tailarea[48792]
+pmx = tailarea[48793]
+tailarea[48791] = 0
+tailarea[48792] = 0
+tailarea[48793] = 0
 filewrite pfh pname5
 filewrite pfh ' filter '
 int2str ps pc
@@ -1136,13 +1148,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot23
-pc = tailarea[47770]
+pc = tailarea[48794]
 if pc = 0 goto profile_slot24
-pcy = tailarea[47771]
-pmx = tailarea[47772]
-tailarea[47770] = 0
-tailarea[47771] = 0
-tailarea[47772] = 0
+pcy = tailarea[48795]
+pmx = tailarea[48796]
+tailarea[48794] = 0
+tailarea[48795] = 0
+tailarea[48796] = 0
 filewrite pfh pname5
 filewrite pfh ' call '
 int2str ps pc
@@ -1155,13 +1167,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot24
-pc = tailarea[47773]
+pc = tailarea[48797]
 if pc = 0 goto profile_slot25
-pcy = tailarea[47774]
-pmx = tailarea[47775]
-tailarea[47773] = 0
-tailarea[47774] = 0
-tailarea[47775] = 0
+pcy = tailarea[48798]
+pmx = tailarea[48799]
+tailarea[48797] = 0
+tailarea[48798] = 0
+tailarea[48799] = 0
 filewrite pfh pname6
 filewrite pfh ' paint '
 int2str ps pc
@@ -1174,13 +1186,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot25
-pc = tailarea[47776]
+pc = tailarea[48800]
 if pc = 0 goto profile_slot26
-pcy = tailarea[47777]
-pmx = tailarea[47778]
-tailarea[47776] = 0
-tailarea[47777] = 0
-tailarea[47778] = 0
+pcy = tailarea[48801]
+pmx = tailarea[48802]
+tailarea[48800] = 0
+tailarea[48801] = 0
+tailarea[48802] = 0
 filewrite pfh pname6
 filewrite pfh ' filter '
 int2str ps pc
@@ -1193,13 +1205,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot26
-pc = tailarea[47779]
+pc = tailarea[48803]
 if pc = 0 goto profile_slot27
-pcy = tailarea[47780]
-pmx = tailarea[47781]
-tailarea[47779] = 0
-tailarea[47780] = 0
-tailarea[47781] = 0
+pcy = tailarea[48804]
+pmx = tailarea[48805]
+tailarea[48803] = 0
+tailarea[48804] = 0
+tailarea[48805] = 0
 filewrite pfh pname6
 filewrite pfh ' call '
 int2str ps pc
@@ -1212,13 +1224,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot27
-pc = tailarea[47782]
+pc = tailarea[48806]
 if pc = 0 goto profile_slot28
-pcy = tailarea[47783]
-pmx = tailarea[47784]
-tailarea[47782] = 0
-tailarea[47783] = 0
-tailarea[47784] = 0
+pcy = tailarea[48807]
+pmx = tailarea[48808]
+tailarea[48806] = 0
+tailarea[48807] = 0
+tailarea[48808] = 0
 filewrite pfh pname7
 filewrite pfh ' paint '
 int2str ps pc
@@ -1231,13 +1243,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot28
-pc = tailarea[47785]
+pc = tailarea[48809]
 if pc = 0 goto profile_slot29
-pcy = tailarea[47786]
-pmx = tailarea[47787]
-tailarea[47785] = 0
-tailarea[47786] = 0
-tailarea[47787] = 0
+pcy = tailarea[48810]
+pmx = tailarea[48811]
+tailarea[48809] = 0
+tailarea[48810] = 0
+tailarea[48811] = 0
 filewrite pfh pname7
 filewrite pfh ' filter '
 int2str ps pc
@@ -1250,13 +1262,13 @@ int2str ps pmx
 filewrite pfh ps
 filewriteln pfh ''
 :profile_slot29
-pc = tailarea[47788]
+pc = tailarea[48812]
 if pc = 0 goto profile_slot30
-pcy = tailarea[47789]
-pmx = tailarea[47790]
-tailarea[47788] = 0
-tailarea[47789] = 0
-tailarea[47790] = 0
+pcy = tailarea[48813]
+pmx = tailarea[48814]
+tailarea[48812] = 0
+tailarea[48813] = 0
+tailarea[48814] = 0
 filewrite pfh pname7
 filewrite pfh ' call '
 int2str ps pc

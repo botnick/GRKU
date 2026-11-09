@@ -1166,7 +1166,7 @@ mod tests {
             ]
         );
         assert!(at(":plan_file") < at(":plan_check"));
-        assert!(at("intdim tailarea 48815") < at("mb[13] = 1"));
+        assert!(at(&format!("intdim tailarea {TAIL_WORDS}")) < at("mb[13] = 1"));
         assert!(at("mb[13] = 1") < at(":install"));
         // The result: the mailbox first, then the file.
         let install = at(":install");

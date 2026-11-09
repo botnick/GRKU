@@ -9,6 +9,7 @@ import type { MODULES, ModuleKey } from '../modules';
 import { ChangeBadge } from './Workbench';
 import tileFilmLook from '../../../modules/film-look/tiles/0-module.png';
 import tileFraming from '../../../modules/framing/tiles/0-module.png';
+import tileCrop from '../../../modules/crop/tiles/0-module.png';
 import tileGuides from '../../../modules/guides/tiles/0-module.png';
 import tileDate from '../../../modules/date/tiles/0-module.png';
 import tileGlow from '../../../modules/glow/tiles/0-module.png';
@@ -21,6 +22,7 @@ import tileDiffusion from '../../../modules/diffusion/tiles/0-module.png';
 const TILES: Record<ModuleKey, string> = {
   filmLook: tileFilmLook,
   framing: tileFraming,
+  crop: tileCrop,
   guides: tileGuides,
   dateStamp: tileDate,
   glow: tileGlow,

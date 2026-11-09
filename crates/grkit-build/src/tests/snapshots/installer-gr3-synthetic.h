@@ -94,7 +94,7 @@ static const u32 guard_symbols[] = {};
 #define LEGACY_STATE_PATH "/media/storage1/SCRIPT/PLUGINS/STATE.TXT"
 #define LEGACY_STATE_TMP_PATH "/media/storage1/SCRIPT/PLUGINS/STATE.TMP"
 #define LEGACY_EFFECTS_PATH "/media/storage1/SCRIPT/PLUGINS/EFFECTS"
-#define CORE_STATE_IDS 861965461,484706023,790270076,977751003,826089556
+#define CORE_STATE_IDS 861965461,484706023,790270076,977751003,826089556,660632122,618415657
 #define LEGACY_STATE_COUNT 6U
 #define LEGACY_STATE_FROM 495043802U,684634731U,161811731U,541741532U,957718554U,733922165U
 #define LEGACY_STATE_TO 861965461U,484706023U,604351797U,157666443U,247126882U,790270076U
@@ -108,8 +108,8 @@ static const u32 guard_symbols[] = {};
 #define POINT_VIEWFINDER_OVERLAY 0x4U
 #define POINT_MENU_PAGE 0x1U
 #define POINT_PICTURE_ENCODE 0x10U
-static const char *const core_setting_names[] = {"CORE.TONE","CORE.ASPECT","CORE.GRAIN","CORE.GRAIN_SIZE","CORE.ASPECT_MODE"};
-static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc};
+static const char *const core_setting_names[] = {"CORE.TONE","CORE.ASPECT","CORE.GRAIN","CORE.GRAIN_SIZE","CORE.ASPECT_MODE","CORE.CROP","CORE.CROP_MODE"};
+static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc,0x84,0x84};
 #define RTOS_EXECUTABLE_END 0x55000000U
 #define CORE_EXPORT_COUNT 0U
 static const u32 core_exports[] = {};
@@ -122,8 +122,8 @@ static const u8 modules_off_pixels[] __attribute__((aligned(4))) = { /* 6400 val
 static const u8 rotate_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 8a5f3688e3432fc4c20d670e4b092cf937baf93ebd9db2e934d4e3ce63ae2d56 */ };
 #define MENU_TEXT_BYTES 2068U
 static const u8 menu_text[] __attribute__((aligned(4))) = { /* 2068 values, SHA-256 f9543b08d487d89e9f815db7f8890803462d9b0705bcae043e13651bc1532145 */ };
-#define LABELS_BYTES 20248U
-static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 20248 values, SHA-256 90546229f2d4fb819a89c52112c197a1099738564816f90f51477ddc24ada293 */ };
+#define LABELS_BYTES 27616U
+static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 27616 values, SHA-256 f3e690930ea0308815f90fcf2b04ab74f58078706dfbf410b82154eec43bf681 */ };
 static const u8 stock_tables[] __attribute__((aligned(4))) = { /* 312 values, SHA-256 43c6a333770e97d39d0749933c4cc8fd3d39ab51233e06eaefe7dda15bae5cb6 */ };
 static const u32 code_relocations[] = {0x0,0x0};
 static const u8 before_0[] __attribute__((aligned(4))) = {0,0,0,0,0,0,0,0};
