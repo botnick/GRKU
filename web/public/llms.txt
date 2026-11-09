@@ -1,0 +1,24 @@
+# GRKU
+
+> GRKU adds film looks to the RICOH GR III, GR IIIx and GR IV from the SD card: film simulations of real films (Kodak, Fuji, Ilford, CineStill, Polaroid and more), XPan and other framings, crops, date stamps, glow, light leaks, diffusion and grain, with recipes that switch a whole look in one step. It never flashes the firmware: the camera runs a script from the card, and without the card the camera is as before. GRKU is an independent tool by Thai users for Ricoh GR owners and is not affiliated with Ricoh. The site is Thai first, with English, Japanese, Korean, Simplified and Traditional Chinese pages.
+
+How it works: choose film looks and modules on the site, write them to the SD card (directly from the browser, or download a ZIP and copy it), turn the camera on, and press ADJ to pick a look while shooting. GRKU Plus (one-time payment by Thai PromptPay) unlocks more looks on the card; everything else is free and open source (GitHub: https://github.com/botnick/GRKU).
+
+## Pages
+
+- [GRKU (Thai)](https://grku.app/): the home page, with the film looks, the modules, the installer and the FAQ
+- [GRKU (English)](https://grku.app/en/)
+- [GRKU (日本語)](https://grku.app/ja/)
+- [GRKU (한국어)](https://grku.app/ko/)
+- [GRKU (简体中文)](https://grku.app/zh-hans/)
+- [GRKU (繁體中文)](https://grku.app/zh-hant/)
+- [Terms of use](https://grku.app/en/terms/)
+- [Recovery](https://grku.app/en/recovery/): what to do when the camera does not start as expected
+- [Licenses](https://grku.app/en/licenses/)
+
+## Facts
+
+- Cameras: RICOH GR III, GR III HDF, GR IIIx, GR IIIx HDF, GR IV, GR IV HDF, GR IV Monochrome
+- Install: no firmware change; files on the SD card only; remove the card or the files to go back
+- A card holds 40 film looks at a time from a library of 135; recipes save a look with its settings and the mode dial U1 to U3 can hold them
+- Source and issues: https://github.com/botnick/GRKU

@@ -113,8 +113,38 @@ function page(name, code) {
     <meta property="og:title" content="${escape(title)} · GRKU" />
     <meta property="og:description" content="${escape(description)}" />
     <meta property="og:image" content="${SITE}/og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image" content="${SITE}/og-square.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="1200" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escape(title)} · GRKU" />
+    <meta name="twitter:description" content="${escape(description)}" />
+    <meta name="twitter:image" content="${SITE}/og.jpg" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="theme-color" content="#171717" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href="${url}" />
+    <script type="application/ld+json">${JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'WebPage', '@id': `${url}#webpage`, url, name: `${title} · GRKU`, description, inLanguage: code, isPartOf: { '@id': `${SITE}/#website` } },
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'GRKU', item: `${SITE}${LANGUAGE_PATHS[code]}` },
+            { '@type': 'ListItem', position: 2, name: title, item: url },
+          ],
+        },
+      ],
+    }).replaceAll('<', '\\u003c')}</script>
     ${alternates}
     ${fontPreloads}
     <link rel="stylesheet" href="${stylesheet}" />
@@ -155,7 +185,15 @@ for (const code of codes) {
 // The document pages join the sitemap of the prerender.
 const sitemap = join(dist, 'sitemap.xml');
 if (existsSync(sitemap)) {
-  const entries = urls.map((url) => `  <url>\n    <loc>${url}</loc>\n  </url>`).join('\n');
+  const entries = urls
+    .map((url) => {
+      const doc = Object.keys(DOC_PATHS).find((name) => url.endsWith(DOC_PATHS[name]));
+      const alternates = codes
+        .map((other) => `    <xhtml:link rel="alternate" hreflang="${other}" href="${SITE}${LANGUAGE_PATHS[other]}${DOC_PATHS[doc]}"/>`)
+        .join('\n');
+      return `  <url>\n    <loc>${url}</loc>\n${alternates}\n  </url>`;
+    })
+    .join('\n');
   writeFileSync(sitemap, readFileSync(sitemap, 'utf8').replace('</urlset>', `${entries}\n</urlset>`));
 }
 console.log(`docs: ${urls.length} pages`);

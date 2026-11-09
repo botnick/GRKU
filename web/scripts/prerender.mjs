@@ -82,6 +82,8 @@ async function edgeWorker(headers) {
 const template = readFileSync(join(dist, 'index.html'), 'utf8');
 const { render, LANGUAGES, LANGUAGE_PATHS, STRINGS, VERSION, pageText } = await renderer();
 const codes = LANGUAGES.map((language) => language.code);
+/** The Open Graph locale of each language. */
+const LOCALES = { th: 'th_TH', en: 'en_US', 'zh-Hans': 'zh_CN', 'zh-Hant': 'zh_TW', ja: 'ja_JP', ko: 'ko_KR' };
 const pageUrl = (code) => `${SITE}${LANGUAGE_PATHS[code]}`;
 const alternates = [
   ...codes.map((code) => `<link rel="alternate" hreflang="${code}" href="${pageUrl(code)}" />`),
@@ -93,9 +95,28 @@ function structuredData(code) {
   const data = {
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'GRKU', url: `${SITE}/`, inLanguage: codes },
+      {
+        '@type': 'Organization',
+        '@id': `${SITE}/#organization`,
+        name: 'GRKU',
+        url: `${SITE}/`,
+        logo: { '@type': 'ImageObject', url: `${SITE}/icons/icon-512.png`, width: 512, height: 512 },
+        sameAs: ['https://github.com/botnick/GRKU'],
+      },
+      { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'GRKU', url: `${SITE}/`, inLanguage: codes, publisher: { '@id': `${SITE}/#organization` } },
+      {
+        '@type': 'WebPage',
+        '@id': `${pageUrl(code)}#webpage`,
+        url: pageUrl(code),
+        name: strings.title,
+        description: strings.description,
+        inLanguage: code,
+        isPartOf: { '@id': `${SITE}/#website` },
+        primaryImageOfPage: { '@type': 'ImageObject', url: `${SITE}/og.jpg`, width: 1200, height: 630 },
+      },
       {
         '@type': 'SoftwareApplication',
+        '@id': `${SITE}/#app`,
         name: 'GRKU',
         url: pageUrl(code),
         description: strings.description,
@@ -103,10 +124,22 @@ function structuredData(code) {
         applicationCategory: 'MultimediaApplication',
         operatingSystem: 'RICOH GR III, GR IIIx, GR IV',
         softwareVersion: VERSION,
-        image: `${SITE}/og.jpg`,
+        image: [`${SITE}/og.jpg`, `${SITE}/og-square.jpg`],
         isAccessibleForFree: true,
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        publisher: { '@id': `${SITE}/#organization` },
         sameAs: ['https://github.com/botnick/GRKU'],
+      },
+      // The FAQ of the page, as Google and the answer engines read it.
+      {
+        '@type': 'FAQPage',
+        '@id': `${pageUrl(code)}#faq`,
+        inLanguage: code,
+        mainEntity: strings.faq.map((item) => ({
+          '@type': 'Question',
+          name: item.q,
+          acceptedAnswer: { '@type': 'Answer', text: item.a.join(' ') },
+        })),
       },
     ],
   };
@@ -125,6 +158,10 @@ function page(code) {
   html = replaceOne(html, /(<meta property="og:url" content=")[^"]*(")/, `$1${pageUrl(code)}$2`);
   html = replaceOne(html, /(<meta property="og:title" content=")[^"]*(")/, `$1${title}$2`);
   html = replaceOne(html, /(<meta property="og:description" content=")[^"]*(")/, `$1${description}$2`);
+  html = replaceOne(html, /(<meta name="twitter:title" content=")[^"]*(")/, `$1${title}$2`);
+  html = replaceOne(html, /(<meta name="twitter:description" content=")[^"]*(")/, `$1${description}$2`);
+  const locales = codes.filter((other) => other !== code).map((other) => `<meta property="og:locale:alternate" content="${LOCALES[other]}" />`).join('\n    ');
+  html = replaceOne(html, /<meta property="og:locale" content="[^"]*" \/>/, `<meta property="og:locale" content="${LOCALES[code]}" />\n    ${locales}`);
   const head = [
     `<link rel="canonical" href="${pageUrl(code)}" />`,
     alternates,
