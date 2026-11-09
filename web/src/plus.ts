@@ -251,7 +251,7 @@ export function giftShort(error: unknown): { got: number; missing: number } | nu
 }
 
 /** The address a phone opens to upload the slip of an order: the light page public/slip/. */
-export const payLink = (order: string) => `${location.origin}/slip/#${order}.${document.documentElement.lang === 'th' ? 'th' : 'en'}`;
+export const payLink = (order: string) => `${location.origin}/slip/?o=${order}&l=${document.documentElement.lang === 'th' ? 'th' : 'en'}`;
 
 /** The order in the page address (`#pay=<order>`), taken out of the address. Null when the address has none. */
 export function takeOrderFromHash(): string | null {

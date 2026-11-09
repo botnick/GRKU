@@ -13,4 +13,4 @@
 
 # The phone slip page: always the current script, never a cached one.
 /slip/*
-  Cache-Control: no-cache
+  Cache-Control: no-store
