@@ -193,7 +193,7 @@ function Looks({ strings }: { strings: Strings }) {
             aria-pressed={item === look}
             onClick={() => setLook(item)}
           >
-            <EffectIcon effect={{ icon: '', cover: item.cover }} />
+            <EffectIcon effect={{ id: item.effect, icon: '', cover: item.cover }} />
             <span>{item.name}</span>
           </button>
         ))}
@@ -217,9 +217,9 @@ interface Box {
 }
 
 /**
- * The film shelf: every look of the library as its box, the icon that the camera shows at three
- * times its size, in two rows that drift slowly until the visitor touches them. The boxes come
- * from the catalog of the site, so the shelf shows what the installer offers.
+ * The film shelf: every look of the library as its box, drawn sharp at shelf size, in two rows
+ * that drift slowly until the visitor touches them. The boxes come from the catalog of the site,
+ * so the shelf shows what the installer offers.
  */
 function Shelf({ strings }: { strings: Strings }) {
   const t = strings.landing;
@@ -272,7 +272,7 @@ function Shelf({ strings }: { strings: Strings }) {
           <div className="shelf-row" key={index}>
             {row.map((box) => (
               <span className="shelf-box" key={box.id} title={box.name}>
-                <EffectIcon effect={{ icon: box.icon, cover: undefined }} />
+                <EffectIcon effect={{ id: box.id, icon: box.icon, cover: undefined }} />
               </span>
             ))}
           </div>

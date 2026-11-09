@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import type { Cover, Effect } from '../catalog';
+import { useCallback, useState } from 'react';
+import { siteUrl, type Cover, type Effect } from '../catalog';
 
 const SIZE = 40;
 
@@ -131,10 +131,30 @@ export function CoverIcon({ cover }: { cover: Cover }) {
   );
 }
 
-/** The ADJ icon of an effect. A film cover draws with web fonts, other icons with camera pixels. */
-export function EffectIcon({ effect }: { effect: Pick<Effect, 'icon' | 'cover'> }) {
-  const { icon, cover } = effect;
+/**
+ * The icon of an effect. An effect of the catalog has its box drawn sharp at four times the
+ * camera size (`web/public/boxes/<id>.png`, from `scripts/flap-icons.py boxes`), which shows at
+ * any size. An imported effect, or a box that does not load, draws with the camera pixels, or
+ * with web fonts from its cover fields.
+ */
+export function EffectIcon({ effect }: { effect: Pick<Effect, 'icon' | 'cover'> & { id?: string } }) {
+  const { id, icon, cover } = effect;
+  const [boxFailed, setBoxFailed] = useState(false);
   const draw = useCallback((canvas: HTMLCanvasElement | null) => paint(canvas, icon), [icon]);
+  if (id && !boxFailed) {
+    return (
+      <img
+        className="effect-icon box"
+        src={siteUrl(`boxes/${id}.png`)}
+        alt=""
+        width={SIZE}
+        height={SIZE}
+        loading="lazy"
+        decoding="async"
+        onError={() => setBoxFailed(true)}
+      />
+    );
+  }
   if (cover) {
     return <CoverIcon cover={cover} />;
   }

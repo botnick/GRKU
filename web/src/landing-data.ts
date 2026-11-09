@@ -10,15 +10,17 @@ import type { Cover } from './catalog';
 export interface LandingLook {
   name: string;
   image: string;
+  /** The effect whose box the picker shows (web/public/boxes/<effect>.png). */
+  effect: string;
   cover: Cover;
 }
 
 export const LANDING_LOOKS = [
-  { name: 'Portra 400', image: 'portra-400', cover: { band: true, brand: 'Kodak', name: 'PORTRA', number: '400', template: 'box' } },
-  { name: 'Kodachrome 64', image: 'kodachrome-64', cover: { band: true, brand: 'Kodak', name: 'KODACHROME', number: '64', template: 'box' } },
-  { name: 'Velvia 100', image: 'velvia-100', cover: { band: true, brand: 'FUJIFILM', name: 'VELVIA', number: '100', template: 'box' } },
-  { name: 'Eterna 500T', image: 'eterna-500t', cover: { brand: 'FUJIFILM', name: '8573', number: '500T', template: 'cine' } },
-  { name: 'Tri-X 400', image: 'tri-x-400', cover: { band: true, brand: 'Kodak', name: 'TRI-X', number: '400', template: 'box' } },
+  { name: 'Portra 400', image: 'portra-400', effect: 'portra-400-endura-v1', cover: { band: true, brand: 'Kodak', name: 'PORTRA', number: '400', template: 'box' } },
+  { name: 'Kodachrome 64', image: 'kodachrome-64', effect: 'kodachrome-64-v1', cover: { band: true, brand: 'Kodak', name: 'KODACHROME', number: '64', template: 'box' } },
+  { name: 'Velvia 100', image: 'velvia-100', effect: 'velvia-100-v1', cover: { band: true, brand: 'FUJIFILM', name: 'VELVIA', number: '100', template: 'box' } },
+  { name: 'Eterna 500T', image: 'eterna-500t', effect: 'eterna-500t-3523xd-v1', cover: { brand: 'FUJIFILM', name: '8573', number: '500T', template: 'cine' } },
+  { name: 'Tri-X 400', image: 'tri-x-400', effect: 'trix-400-mono-v1', cover: { band: true, brand: 'Kodak', name: 'TRI-X', number: '400', template: 'box' } },
 ] as const satisfies readonly LandingLook[];
 
 /** The photos of the landing page, credited where they show, with a link to their source page. */

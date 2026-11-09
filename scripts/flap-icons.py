@@ -7,6 +7,8 @@ motion picture, rose instant.
 
     python3 scripts/flap-icons.py embed           # write the icon of each effect into its effect.json
     python3 scripts/flap-icons.py sheet OUT.png   # a sheet of every icon at 3x, for review
+    python3 scripts/flap-icons.py boxes OUT_DIR 4  # the box of each effect at 4x (160 px), sharp, for the site
+    python3 scripts/flap-icons.py check            # the embedded icons still match this renderer
 
 Needs Pillow (`python3 -m pip install pillow`). The icon of each effect comes from its `cover`
 fields: the template (box or cine), the brand, the name, and the number of the film box. The
@@ -137,10 +139,11 @@ def measure(draw, text, f):
     return right - left, left, top, bottom
 
 
-def fit(draw, text, path, size, width, smallest=6):
+def fit(draw, text, path, size, width, smallest=6, step=1):
+    """The font of `path` at `size`, or smaller by `step` until `text` fits `width`."""
     f = font(path, size)
     while size > smallest and measure(draw, text, f)[0] > width:
-        size -= 1
+        size -= step
         f = font(path, size)
     return f
 
@@ -169,85 +172,97 @@ def wrap(draw, name, path, size, width):
     return lines[:2]
 
 
-def render(brand, name, number, cine=False, kind=None):
-    """The icon as a Pillow RGBA image with binary alpha."""
-    img = Image.new('RGBA', (WIDTH, WIDTH), (0, 0, 0, 0))
+def render(brand, name, number, cine=False, kind=None, scale=1):
+    """The icon as a Pillow RGBA image with binary alpha: 40 x 40 at scale 1, the icon of the
+    camera; at a larger scale the same box drawn sharp at scale times the size, for the site."""
+    S = scale
+    W = WIDTH * S
+    top, bottom, band = TOP * S, (BOTTOM + 1) * S - 1, (BAND_BOTTOM + 1) * S - 1
+    img = Image.new('RGBA', (W, W), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     band_bg, band_fg = BANDS.get(brand, (YELLOW, RED))
     if cine and brand == 'Kodak':
         band_bg, band_fg = YELLOW, BLACK      # the yellow label of a black can
     body, name_fg, number_fg, accent = palette(brand, name, number, cine)
-    d.rectangle([0, TOP, WIDTH - 1, BOTTOM], fill=body + (255,))
-    d.rectangle([0, TOP, WIDTH - 1, BAND_BOTTOM], fill=band_bg + (255,))
+    d.rectangle([0, top, W - 1, bottom], fill=body + (255,))
+    d.rectangle([0, top, W - 1, band], fill=band_bg + (255,))
     # The brand
     if brand == 'POLAROID':
         for i, color in enumerate(RAINBOW):
-            d.rectangle([1, TOP + 2 + i, 6, TOP + 2 + i], fill=color + (255,))
-        centered(d, BAND_TEXT[brand], TOP + 2, fit(d, BAND_TEXT[brand], BOLD, 8, 30), band_fg, 8, WIDTH)
+            d.rectangle([1 * S, (TOP + 2 + i) * S, 7 * S - 1, (TOP + 3 + i) * S - 1], fill=color + (255,))
+        centered(d, BAND_TEXT[brand], (TOP + 2) * S, fit(d, BAND_TEXT[brand], BOLD, 8 * S, 30 * S, 6 * S, S), band_fg, 8 * S, W)
     elif brand == 'Kodak' and not cine:
         # The red Kodak mark with its yellow K, then the name
-        d.rounded_rectangle([2, TOP + 1, 9, TOP + 7], radius=1, fill=RED + (255,))
-        d.text((4, TOP), 'K', font=font(BLACK_FONT, 8), fill=YELLOW + (255,))
-        centered(d, BAND_TEXT[brand], TOP + 2, fit(d, BAND_TEXT[brand], BOLD, 8, 26), band_fg, 11, WIDTH)
+        d.rounded_rectangle([2 * S, (TOP + 1) * S, 10 * S - 1, (TOP + 8) * S - 1], radius=1 * S, fill=RED + (255,))
+        d.text((4 * S, TOP * S), 'K', font=font(BLACK_FONT, 8 * S), fill=YELLOW + (255,))
+        centered(d, BAND_TEXT[brand], (TOP + 2) * S, fit(d, BAND_TEXT[brand], BOLD, 8 * S, 26 * S, 6 * S, S), band_fg, 11 * S, W)
     else:
-        centered(d, BAND_TEXT[brand], TOP + 2, fit(d, BAND_TEXT[brand], BOLD, 8, 36), band_fg)
+        centered(d, BAND_TEXT[brand], (TOP + 2) * S, fit(d, BAND_TEXT[brand], BOLD, 8 * S, 36 * S, 6 * S, S), band_fg, 0, W)
     # The name: one or two lines, or large when there is no number
-    y = BAND_BOTTOM + 2
-    floor = BOTTOM - (3 if kind else 1)   # the rows above the film type stripe
+    y = (BAND_BOTTOM + 2) * S
+    floor = (BOTTOM - (3 if kind else 1)) * S   # the rows above the film type stripe
     # A name that only repeats the brand, as CineStill 800T, leaves the room to the number.
-    lines = [] if name.upper() == BAND_TEXT[brand].upper() else wrap(d, name, BOLD, 8, 36)
+    lines = [] if name.upper() == BAND_TEXT[brand].upper() else wrap(d, name, BOLD, 8 * S, 36 * S)
     if not number and lines:
-        size = 12 if len(lines) == 1 else 10
-        pitch = size - 1
+        size = (12 if len(lines) == 1 else 10) * S
+        pitch = size - 1 * S
         total = pitch * len(lines)
         y += max(0, (floor - y - total) // 2)
         for line in lines:
-            centered(d, line, y, fit(d, line, BLACK_FONT, size, 38), name_fg)
+            centered(d, line, y, fit(d, line, BLACK_FONT, size, 38 * S, 6 * S, S), name_fg, 0, W)
             y += pitch
     else:
         for line in lines:
-            centered(d, line, y, fit(d, line, BOLD, 8, 38), name_fg)
-            y += 7
+            centered(d, line, y, fit(d, line, BOLD, 8 * S, 38 * S, 6 * S, S), name_fg, 0, W)
+            y += 7 * S
     # The number, as large as the room below the name allows
     if number:
-        size = 19 if len(lines) <= 1 else 12
-        f = fit(d, number.upper(), BLACK_FONT, size, 38)
-        w, left, t, bottom = measure(d, number.upper(), f)
-        h = bottom - t
+        size = (19 if len(lines) <= 1 else 12) * S
+        f = fit(d, number.upper(), BLACK_FONT, size, 38 * S, 6 * S, S)
+        w, left, t, b = measure(d, number.upper(), f)
+        h = b - t
         room = floor - y
-        centered(d, number.upper(), y + max(0, (room - h) // 2), f, number_fg)
+        centered(d, number.upper(), y + max(0, (room - h) // 2), f, number_fg, 0, W)
     # A stripe in the accent color under the band, as Ilford and the cine cans have
     if accent:
-        d.rectangle([0, BAND_BOTTOM + 1, WIDTH - 1, BAND_BOTTOM + 1], fill=accent + (255,))
+        d.rectangle([0, (BAND_BOTTOM + 1) * S, W - 1, (BAND_BOTTOM + 2) * S - 1], fill=accent + (255,))
     # The film type stripe at the bottom
     if kind:
-        d.rectangle([0, BOTTOM - 1, WIDTH - 1, BOTTOM], fill=KINDS[kind] + (255,))
+        d.rectangle([0, (BOTTOM - 1) * S, W - 1, (BOTTOM + 1) * S - 1], fill=KINDS[kind] + (255,))
     # The light on the box: a little brighter under the band, darker toward the bottom
     px = img.load()
-    body_rows = range(BAND_BOTTOM + 1, BOTTOM - (2 if kind else 0))
+    body_rows = range((BAND_BOTTOM + 1) * S, (BOTTOM - (2 if kind else 0)) * S)
     for yy in body_rows:
-        t = (yy - (BAND_BOTTOM + 1)) / max(1, len(body_rows) - 1)
+        t = (yy - (BAND_BOTTOM + 1) * S) / max(1, len(body_rows) - 1)
         factor = 1.06 - 0.12 * t
-        for x in range(WIDTH):
+        for x in range(W):
             r, g, b, a = px[x, yy]
             if (r, g, b) == body:
                 px[x, yy] = shade(body, factor) + (255,)
     # The edges of a box: light at the top and left, dark at the right and bottom
-    for x in range(WIDTH):
-        r, g, b, a = px[x, TOP]; px[x, TOP] = shade((r, g, b), 1.3) + (255,)
-        r, g, b, a = px[x, BOTTOM]; px[x, BOTTOM] = shade((r, g, b), 0.5) + (255,)
-    for yy in range(TOP, BOTTOM + 1):
-        r, g, b, a = px[0, yy]; px[0, yy] = shade((r, g, b), 1.2) + (255,)
-        r, g, b, a = px[WIDTH - 1, yy]; px[WIDTH - 1, yy] = shade((r, g, b), 0.5) + (255,)
+    top_rows, bottom_rows = range(top, top + S), range(bottom - S + 1, bottom + 1)
+    left_cols, right_cols = range(0, S), range(W - S, W)
+    for x in range(W):
+        for yy in top_rows:
+            r, g, b, a = px[x, yy]; px[x, yy] = shade((r, g, b), 1.3) + (255,)
+        for yy in bottom_rows:
+            r, g, b, a = px[x, yy]; px[x, yy] = shade((r, g, b), 0.5) + (255,)
+    for yy in range(top, bottom + 1):
+        for x in left_cols:
+            r, g, b, a = px[x, yy]; px[x, yy] = shade((r, g, b), 1.2) + (255,)
+        for x in right_cols:
+            r, g, b, a = px[x, yy]; px[x, yy] = shade((r, g, b), 0.5) + (255,)
     # A dark body gets a gray rim, so it does not melt into the menu
     if luminance(body) < 60:
-        for x in range(WIDTH):
-            px[x, TOP] = (110, 110, 110, 255); px[x, BOTTOM] = (90, 90, 90, 255)
-        for yy in range(TOP, BOTTOM + 1):
-            px[0, yy] = (110, 110, 110, 255); px[WIDTH - 1, yy] = (90, 90, 90, 255)
+        for x in range(W):
+            for yy in top_rows: px[x, yy] = (110, 110, 110, 255)
+            for yy in bottom_rows: px[x, yy] = (90, 90, 90, 255)
+        for yy in range(top, bottom + 1):
+            for x in left_cols: px[x, yy] = (110, 110, 110, 255)
+            for x in right_cols: px[x, yy] = (90, 90, 90, 255)
     # Binary alpha
-    for yy in range(WIDTH):
-        for x in range(WIDTH):
+    for yy in range(W):
+        for x in range(W):
             r, g, b, a = px[x, yy]
             px[x, yy] = (r, g, b, 255) if a >= 128 else (0, 0, 0, 0)
     return img
@@ -277,14 +292,14 @@ def film_kind(definition):
     return 'negative'
 
 
-def effect_icon(definition):
+def effect_icon(definition, scale=1):
     """The icon of an effect definition from its `cover` fields."""
     cover = definition.get('cover') or definition['icon']
     brand = cover.get('brand', 'Kodak')
     if brand not in BANDS:
         brand = 'Kodak'
     return render(brand, cover['name'], cover.get('number', ''), cine=cover.get('template') == 'cine',
-                  kind=film_kind(definition))
+                  kind=film_kind(definition), scale=scale)
 
 
 def sheet(images, cols=13, scale=3):
@@ -319,4 +334,24 @@ if __name__ == '__main__':
             f.write_text(json.dumps(ordered, indent=2) + '\n')
     if command == 'sheet':
         sheet(images).save(sys.argv[2] if len(sys.argv) > 2 else 'sheet.png')
+    if command == 'boxes':
+        out = pathlib.Path(sys.argv[2]); out.mkdir(parents=True, exist_ok=True)
+        scale = int(sys.argv[3]) if len(sys.argv) > 3 else 4
+        for f in sorted(REPO.glob('effects/*/effect.json')):
+            d = json.loads(f.read_text())
+            if 'template' in d['icon']:
+                d['cover'] = d['icon']
+            if 'cover' not in d:
+                continue
+            (out / f"{d['effect_id']}.png").write_bytes(png_bytes(effect_icon(d, scale)))
+        print('boxes at', scale, 'x in', out)
+    if command == 'check':
+        same = 0
+        for f, img in zip(sorted(REPO.glob('effects/*/effect.json')), images):
+            d = json.loads(f.read_text())
+            if d['icon'].get('png') == base64.b64encode(png_bytes(img)).decode():
+                same += 1
+            else:
+                print('differs:', f.parent.name)
+        print(same, 'of', len(images), 'embedded icons match')
     print(len(images), 'icons')

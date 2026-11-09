@@ -266,8 +266,14 @@ a:hover {
 }
 
 .looks-film .effect-icon {
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
+}
+
+/* The sharp boxes of the site scale smoothly; only the camera pixels stay pixelated. */
+.effect-icon.box {
+  image-rendering: auto;
+  object-fit: contain;
 }
 
 .looks-note {

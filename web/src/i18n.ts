@@ -2364,7 +2364,7 @@ const th: Strings = {
     moduleListText: 'แต่ละโมดูลคือหนึ่งแถวในเมนู GRKU บนกล้อง เลือกติดตั้งเฉพาะตัวที่คุณต้องการ',
     edition: 'รุ่น BOTNICK',
     fork: ['พัฒนาต่อยอดจาก ', 'ahonn/GRKit', ' เพิ่มฟิล์มมากขึ้น ไอคอนสี เริ่มทำงานเร็วขึ้น และไม่ต้องใช้เฟิร์มแวร์บูตเร็ว'] as readonly [string, string, string],
-    install: 'Install',
+    install: 'ติดตั้ง',
     installNote: 'เขียน GRKU ลงการ์ด SD โดยตรง หรือดาวน์โหลดไฟล์ GRKU.zip',
     /** The install note where the browser cannot write to a card: a phone, a tablet, Safari, Firefox. */
     installNoteZip: 'ดาวน์โหลด GRKU.zip แล้วคัดลอกไฟล์ลงในการ์ด SD ของคุณ',
@@ -2414,7 +2414,7 @@ const th: Strings = {
     border: 'Border',
   },
   package: 'Download',
-  install: 'Install',
+  install: 'ติดตั้ง',
   photoSource: (label: string) => `รูปภาพ: ${label}`,
   previewing: 'Previewing',
   samplePhoto: 'รูปตัวอย่าง',
