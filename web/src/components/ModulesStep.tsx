@@ -1,9 +1,11 @@
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -124,6 +126,14 @@ export function ModulesStep({
 }) {
   const visible = modules.filter((module) => enabled.has(module.key));
   const full = visible.length >= MODULES_MAX;
+  const strip = useRef<HTMLDivElement>(null);
+  /** Scrolls the example strip by one frame. */
+  function scrollExamples(direction: 1 | -1) {
+    const node = strip.current;
+    if (!node) return;
+    const frame = node.querySelector('figure');
+    node.scrollBy({ left: direction * ((frame?.clientWidth ?? 400) + 16), behavior: 'smooth' });
+  }
   return (
     <div className="flex flex-col gap-10">
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
@@ -186,8 +196,18 @@ export function ModulesStep({
       {recipes}
 
       <div>
-        <h3 className="mb-3 text-sm font-medium text-muted-foreground">{t.examples}</h3>
-        <div className="-mx-gutter flex gap-4 overflow-x-auto px-gutter pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={t.examples}>
+        <div className="mb-3 flex items-center justify-between gap-4">
+          <h3 className="text-sm font-medium text-muted-foreground">{t.examples}</h3>
+          <div className="flex items-center gap-1">
+            <Button type="button" variant="outline" size="icon" className="size-8" aria-label={t.compare} onClick={() => scrollExamples(-1)}>
+              <ChevronLeft className="size-4" aria-hidden="true" />
+            </Button>
+            <Button type="button" variant="outline" size="icon" className="size-8" aria-label={t.compare} onClick={() => scrollExamples(1)}>
+              <ChevronRight className="size-4" aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
+        <div ref={strip} className="-mx-gutter flex gap-4 overflow-x-auto px-gutter pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(90deg,#000_0,#000_calc(100%-56px),transparent)]" role="group" aria-label={t.examples}>
           {EXAMPLES.map((example, index) => {
             const title = t.moduleNames[example.module];
             const detail = example.detail(t);

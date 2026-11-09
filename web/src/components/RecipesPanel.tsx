@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { ExternalLink, Plus, Trash2 } from 'lucide-react';
+import { Copy, ExternalLink, Plus, Trash2 } from 'lucide-react';
+import { recipeChips, recipeSwatch } from '../recipeSwatch';
 import { RecipeEditor } from './RecipeEditor';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -150,18 +151,6 @@ function details(recipe: Recipe, r: RecipeStrings, language: Language, effects: 
   return rows;
 }
 
-/** The settings of a recipe in one line: the look, Grain, and Glow, then the names of the others. */
-function summary(recipe: Recipe, r: RecipeStrings, language: Language, effects: RecipesPanelProps['effectNames']): string {
-  const parts = [lookName(recipe, r, language, effects)];
-  if (recipe.grain) parts.push(`${r.grain} ${r.grainLevels[recipe.grain.level] ?? ''}`);
-  const glow = recipe.glow;
-  if (glow?.bloom) parts.push(`${r.bloom} ${r.glowLevels[glow.bloom] ?? ''}`);
-  if (glow?.halation) parts.push(`${r.halation} ${r.glowLevels[glow.halation] ?? ''}`);
-  if (recipe.whiteBalance) parts.push(r.whiteBalance);
-  if (recipe.corrections.some((value) => value !== null)) parts.push(r.corrections);
-  if (Object.values(recipe.exposure).some((value) => value !== null)) parts.push(r.exposure);
-  return parts.join(' · ');
-}
 
 /** The value of the option that keeps the camera's value of a user mode. */
 const KEEP_VALUE = 'keep';
@@ -194,6 +183,8 @@ export function RecipesPanel({
   const presets = presetRows(PRESETS, family, library);
   const [shown, setShown] = useState<Recipe | null>(null);
   const [editing, setEditing] = useState(false);
+  /** The recipe that the editor starts from, or null for a new one. */
+  const [draft, setDraft] = useState<Recipe | null>(null);
   // Only the recipes that are on apply on the camera.
   const warnings = libraryWarnings(
     library.filter((recipe) => recipe.enabled),
@@ -205,7 +196,6 @@ export function RecipesPanel({
   function toggle(index: number) {
     onChange(cameraOrder(library.map((recipe, other) => (other === index ? { ...recipe, enabled: !recipe.enabled } : recipe))));
   }
-  const row = 'flex items-center gap-3 px-4 py-3';
   return (
     <div className="flex flex-col gap-5">
       {cardRecipes && (
@@ -233,7 +223,7 @@ export function RecipesPanel({
               {r.onCount(ON_MAX)[1]}
             </p>
           )}
-          <Button type="button" size="sm" variant="outline" disabled={library.length >= LIBRARY_MAX} onClick={() => setEditing(true)}>
+          <Button type="button" size="sm" variant="brand" disabled={library.length >= LIBRARY_MAX} onClick={() => { setDraft(null); setEditing(true); }}>
             <Plus aria-hidden="true" />
             {r.newRecipe}
           </Button>
@@ -248,58 +238,53 @@ export function RecipesPanel({
       {library.length + presets.length === 0 ? (
         <p className="text-sm text-muted-foreground">{r.empty}</p>
       ) : (
-        <ol className="divide-y divide-border overflow-hidden rounded-xl border bg-card">
-          {library.map((recipe, index) => (
-            <li key={`${index}-${recipe.name}`} className={cn(row, !recipe.enabled && 'opacity-60')}>
-              <Checkbox
-                id={`recipe-${index}`}
-                checked={recipe.enabled}
-                disabled={!recipe.enabled && on >= ON_MAX}
-                aria-label={nameOf(recipe)}
-                onCheckedChange={() => toggle(index)}
-              />
-              <div className="min-w-0 flex-1">
-                <button type="button" className="block max-w-full truncate text-left text-[15px] font-semibold hover:underline" onClick={() => setShown(recipe)}>
-                  {nameOf(recipe)}
-                </button>
-                <p className="truncate text-sm text-muted-foreground">{summary(recipe, r, language, effectNames)}</p>
-              </div>
-              {/* A preset of the site stays: turning it off keeps it out of the camera. */}
-              {!presetOf(PRESETS, recipe) && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
-                  aria-label={r.remove}
-                  onClick={() => onChange(library.filter((_, other) => other !== index))}
-                >
-                  <Trash2 className="size-4" aria-hidden="true" />
-                </Button>
-              )}
-            </li>
-          ))}
-          {presets.map(({ preset, recipe }) => (
-            <li key={preset.id} className={cn(row, 'opacity-80')}>
-              <Checkbox
-                id={`preset-${preset.id}`}
-                checked={false}
-                disabled={on >= ON_MAX || library.length >= LIBRARY_MAX}
-                aria-label={recipe.name}
-                onCheckedChange={() => onAddPreset(recipe, preset.effect)}
-              />
-              <div className="min-w-0 flex-1">
-                <button type="button" className="flex max-w-full items-center gap-2 text-left text-[15px] font-semibold hover:underline" onClick={() => setShown(recipe)}>
-                  <span className="truncate">{recipe.name}</span>
-                  <Badge variant="secondary" className="shrink-0 rounded-md px-1.5 py-0 text-[11px] font-medium">
-                    {r.presetTag}
-                  </Badge>
-                </button>
-                <p className="truncate text-sm text-muted-foreground">{summary(recipe, r, language, effectNames)}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {[...library.map((recipe, index) => ({ recipe, index, preset: presetOf(PRESETS, recipe) })), ...presets.map(({ preset, recipe }) => ({ recipe, index: -1, preset }))].map(({ recipe, index, preset }) => {
+            const inLibrary = index >= 0;
+            const name = inLibrary ? nameOf(recipe) : recipe.name;
+            const chips = recipeChips(recipe, r, language, effectNames);
+            return (
+              <li
+                key={inLibrary ? `${index}-${recipe.name}` : `preset-${preset?.id}`}
+                className={cn('flex gap-3 rounded-xl border bg-card p-3 transition-colors', inLibrary && !recipe.enabled && 'opacity-70')}
+              >
+                {/* The mood of the recipe: a gradient from its look, saturation, key and white balance, not a rendering. */}
+                <button type="button" className="relative size-16 shrink-0 overflow-hidden rounded-lg ring-1 ring-black/20 ring-inset" style={{ background: recipeSwatch(recipe) }} aria-label={name} onClick={() => setShown(recipe)} />
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <button type="button" className="min-w-0 text-left hover:underline" onClick={() => setShown(recipe)}>
+                      <span className="block truncate text-[15px] font-semibold">{name}</span>
+                      {preset?.author && <span className="block truncate text-xs text-muted-foreground">{r.by(preset.author)}</span>}
+                    </button>
+                    {inLibrary ? (
+                      <Switch checked={recipe.enabled} disabled={!recipe.enabled && on >= ON_MAX} aria-label={name} onCheckedChange={() => toggle(index)} />
+                    ) : (
+                      <Switch checked={false} disabled={on >= ON_MAX || library.length >= LIBRARY_MAX} aria-label={name} onCheckedChange={() => onAddPreset(recipe, preset!.effect)} />
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {chips.slice(0, 5).map((chip) => (
+                      <Badge key={chip} variant="secondary" className="rounded-md px-1.5 py-0 font-mono text-[11px] font-medium text-muted-foreground">
+                        {chip}
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="mt-auto flex items-center gap-1 text-muted-foreground">
+                    <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => { setDraft(recipe); setEditing(true); }}>
+                      <Copy className="size-3.5" aria-hidden="true" />
+                      {r.wizCopy}
+                    </Button>
+                    {inLibrary && !preset && (
+                      <Button type="button" variant="ghost" size="icon" className="ml-auto size-7 hover:text-destructive" aria-label={r.remove} onClick={() => onChange(library.filter((_, other) => other !== index))}>
+                        <Trash2 className="size-3.5" aria-hidden="true" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
       {(warnings.grain.length > 0 || warnings.glow.length > 0 || warnings.missing.length > 0) && (
         <div className="flex flex-col gap-1 text-sm text-destructive">
@@ -349,6 +334,7 @@ export function RecipesPanel({
         family={family}
         effectNames={effectNames}
         open={editing}
+        initial={draft}
         onClose={() => setEditing(false)}
         onAdd={(recipe) => onChange(cameraOrder([...library, recipe]))}
       />
