@@ -61,6 +61,8 @@ interface Props {
   /** A purchase or a pasted key gave `entitlement` for `key`. */
   onKey: (key: string, entitlement: Entitlement) => void;
   onForget: () => void;
+  /** The tab the sheet opens on: buying, or entering a key. */
+  startOn?: 'tiers' | 'key';
   /** How many looks each pack holds, or null until the catalog is here. */
   packCounts: Record<Pack, number> | null;
   /** An order to pay, from a phone that scanned the QR of the page (`#pay=<order>`). */
@@ -79,9 +81,14 @@ interface Props {
  * GRKU Plus: the tiers, the PromptPay QR for the chosen one, the slip, and the key. Everything
  * runs in this panel; the page behind it unlocks as soon as the slip is accepted.
  */
-export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, packCounts, payOrder = null, termsHref, language, onBrowse, libraryLooks }: Props) {
+export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, startOn = 'tiers', packCounts, payOrder = null, termsHref, language, onBrowse, libraryLooks }: Props) {
   const ids = useId();
   const [view, setView] = useState<View>('tiers');
+  useEffect(() => {
+    if (open && (view === 'tiers' || view === 'key')) setView(startOn);
+    // Only when the sheet opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, startOn]);
   const [choice, setChoice] = useState<Choice>('plus');
   const [pack, setPack] = useState<Pack>('kodak');
   const [email, setEmail] = useState('');

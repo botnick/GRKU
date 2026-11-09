@@ -126,6 +126,12 @@ interface Props {
   owned: Entitlement;
   /** Opens GRKU Plus. */
   onPlus: () => void;
+  /** The GRKU Plus key of this browser, or null. */
+  plusKey?: string | null;
+  /** Opens GRKU Plus on its key tab. */
+  onOtherKey?: () => void;
+  /** Forgets the key on this device. */
+  onForgetKey?: () => void;
   /** A line above the grid when the package takes no film looks: Film Look is off, or the camera has none. */
   notice?: string | null;
 }
@@ -163,6 +169,9 @@ export function Workbench({
   canWrite,
   owned,
   onPlus,
+  plusKey = null,
+  onOtherKey,
+  onForgetKey,
   notice,
 }: Props) {
   const { catalog, error, retry } = useCatalog(PREVIEW_TARGET);
@@ -532,6 +541,21 @@ export function Workbench({
                     <li key={line}>{line}</li>
                   ))}
                 </ul>
+                {plusKey && (
+                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted-foreground">
+                    <span className="font-mono tabular-nums">{t.plus.keyInUse(`${plusKey.slice(0, 4)}-•••-${plusKey.slice(-4)}`)}</span>
+                    {onOtherKey && (
+                      <Button type="button" variant="link" size="sm" className="h-auto p-0 text-[13px]" onClick={onOtherKey}>
+                        {t.plus.useOtherKey}
+                      </Button>
+                    )}
+                    {onForgetKey && (
+                      <Button type="button" variant="link" size="sm" className="h-auto p-0 text-[13px] text-muted-foreground" onClick={onForgetKey}>
+                        {t.plus.forget}
+                      </Button>
+                    )}
+                  </div>
+                )}
                 {fits > 0 && <p className="m-0 mt-2 text-[13px] leading-snug text-muted-foreground">{t.plus.ownedHint}</p>}
                 {fits > 0 && (
                   <Button type="button" variant="brand" size="sm" className="mt-3" onClick={addOwned}>

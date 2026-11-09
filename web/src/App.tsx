@@ -744,6 +744,7 @@ export function App({
   // A phone that scanned the pay QR of another page opens this page with the order to pay.
   const [payOrder] = useState<string | null>(() => takeOrderFromHash());
   const [plusOpen, setPlusOpen] = useState(() => payOrder !== null);
+  const [plusStart, setPlusStart] = useState<'tiers' | 'key'>('tiers');
   useEffect(() => {
     if (!plusKey) return;
     let live = true;
@@ -1014,7 +1015,16 @@ export function App({
           changedOnCard={active ? changedImports(active, imported) : undefined}
           canWrite={canWrite}
           owned={owned}
-          onPlus={() => setPlusOpen(true)}
+          onPlus={() => {
+            setPlusStart('tiers');
+            setPlusOpen(true);
+          }}
+          plusKey={plusKey}
+          onOtherKey={() => {
+            setPlusStart('key');
+            setPlusOpen(true);
+          }}
+          onForgetKey={dropKey}
           notice={!available.includes('filmLook') ? t.effectsUnavailable(camera.name) : !plan.includeEffects ? t.effectsOff : null}
         />
 
@@ -1193,6 +1203,7 @@ export function App({
         hasKey={!!plusKey}
         onKey={adoptKey}
         onForget={dropKey}
+        startOn={plusStart}
         packCounts={previewCatalog ? packCounts(previewCatalog.effects) : null}
         libraryLooks={previewCatalog ? previewCatalog.effects.length : null}
         payOrder={payOrder}
