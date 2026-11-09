@@ -59,7 +59,9 @@ jobs:
             KEY_SECRET
             MAIL_PASS
             EASYSLIP_KEY
+            TRUEMONEY_PHONE
         env:
           KEY_SECRET: ${{ secrets.KEY_SECRET }}
           MAIL_PASS: ${{ secrets.MAIL_PASS }}
           EASYSLIP_KEY: ${{ secrets.EASYSLIP_KEY }}
+          TRUEMONEY_PHONE: ${{ secrets.TRUEMONEY_PHONE }}
