@@ -4,9 +4,9 @@ name: Plus
 # changes it. The repository secrets hold the Cloudflare token (Workers Scripts, D1 and
 # Workers KV edit for the account) and the service's own secrets, which the deploy writes
 # into the Worker: KEY_SECRET (HMAC of the keys), MAIL_PASS (the noreply mailbox),
-# EASYSLIP_KEY (slip verification), TURNSTILE_SECRET (the bot check of the order form). Add
-# TRUEMONEY_PHONE to the list below and to the repository secrets to turn the gift links on;
-# wrangler-action fails on a listed secret that the repository lacks. PROMPTPAY_ID and RECEIVER_NAME are plain vars in
+# EASYSLIP_KEY (slip verification), TURNSTILE_SECRET (the bot check of the order form),
+# TRUEMONEY_PHONE (the wallet that receives gift links). wrangler-action fails on a listed secret
+# that the repository lacks. PROMPTPAY_ID and RECEIVER_NAME are plain vars in
 # wrangler.toml: buyers see the PromptPay ID in the QR anyway.
 # The D1 database is created once by hand (`wrangler d1 create grku-plus`) and its id is in
 # services/plus/wrangler.toml; the deploy applies schema.sql, which only creates what is
@@ -62,8 +62,10 @@ jobs:
             MAIL_PASS
             EASYSLIP_KEY
             TURNSTILE_SECRET
+            TRUEMONEY_PHONE
         env:
           KEY_SECRET: ${{ secrets.KEY_SECRET }}
           MAIL_PASS: ${{ secrets.MAIL_PASS }}
           EASYSLIP_KEY: ${{ secrets.EASYSLIP_KEY }}
           TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
+          TRUEMONEY_PHONE: ${{ secrets.TRUEMONEY_PHONE }}
