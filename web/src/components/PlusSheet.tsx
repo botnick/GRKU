@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import type { Strings } from '../i18n';
 import {
@@ -189,6 +190,15 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
           <SheetDescription>{t.plus.lead}</SheetDescription>
         </SheetHeader>
 
+        {(view === 'tiers' || view === 'key') && (
+          <Tabs value={view} onValueChange={(value) => { setError(null); setView(value as View); }} className="px-4 pb-4">
+            <TabsList className="grid h-10 w-full grid-cols-2">
+              <TabsTrigger value="tiers" className="text-sm">{t.plus.getMore}</TabsTrigger>
+              <TabsTrigger value="key" className="text-sm">{t.plus.haveKey}</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        )}
+
         {view === 'tiers' && (
           <div className="flex flex-col gap-5 px-4 pb-6">
             {hasKey && (
@@ -291,9 +301,6 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
               </p>
             )}
             <p className="text-[13px] text-muted-foreground">{t.plus.includesFree}</p>
-            <Button type="button" variant="link" size="sm" className="h-auto self-start p-0 text-[13px]" onClick={() => setView('key')}>
-              {t.plus.haveKey}
-            </Button>
           </div>
         )}
 
@@ -369,7 +376,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
         {view === 'key' && (
           <div className="flex flex-col gap-5 px-4 pb-6">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor={`${ids}-paste`}>{t.plus.haveKey}</Label>
+              <Label htmlFor={`${ids}-paste`}>{t.plus.yourKey}</Label>
               <div className="flex gap-2">
                 <Input
                   id={`${ids}-paste`}
@@ -409,9 +416,6 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                 {error}
               </p>
             )}
-            <Button type="button" variant="ghost" size="sm" className="self-start" disabled={busy} onClick={reset}>
-              {t.plus.back}
-            </Button>
           </div>
         )}
       </SheetContent>
@@ -445,8 +449,8 @@ function TierCard({
     <Label
       htmlFor={id}
       className={cn(
-        'flex cursor-pointer items-start gap-3 rounded-xl border bg-card p-4 text-left text-base leading-normal font-normal transition-colors hover:border-input',
-        selected && 'border-foreground/70',
+        'flex cursor-pointer items-start gap-3 rounded-xl border-2 border-border bg-card p-4 text-left text-base leading-normal font-normal transition-colors hover:border-foreground/40',
+        selected && 'border-brand bg-brand/5 hover:border-brand',
         owned && 'cursor-default opacity-70',
       )}
     >
@@ -454,7 +458,7 @@ function TierCard({
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="flex items-center justify-between gap-3">
           <span className="font-semibold">{title}</span>
-          {owned ? <Badge variant="outline">{ownedLabel}</Badge> : price}
+          {owned ? <Badge variant="outline">{ownedLabel}</Badge> : <span className={cn(selected && 'text-brand')}>{price}</span>}
         </span>
         <span className="mt-0.5 text-sm text-muted-foreground">{text}</span>
         {children}
