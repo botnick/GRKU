@@ -1,0 +1,21 @@
+{
+  "source": "https://commons.wikimedia.org/wiki/Special:FilePath/Achensee%20n%C3%B6rdlich%20von%20Pertisau.jpg",
+  "sourcePage": "https://commons.wikimedia.org/wiki/File:Achensee_n%C3%B6rdlich_von_Pertisau.jpg",
+  "sourceSha256": "9ed1c1468de11add173798983ca43b9ea9459cbd016342ead68c5ac6603c21b4",
+  "title": "Achensee nördlich von Pertisau",
+  "author": "Stephan van Helden",
+  "license": "CC-BY-SA-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "camera": "RICOH GR III",
+  "decoder": "jpeg-js 0.4.4",
+  "settings": {
+    "input": "sRGB JPEG",
+    "outputColor": "linear sRGB, estimated by inverting preview/standard.lut",
+    "standardTableSha256": "1db097998a56838269ae5960535a4d408e7049b4b5a6749885cb15cf05917e36",
+    "bits": 16,
+    "resize": "area resampling in linear light"
+  },
+  "width": 1200,
+  "height": 800,
+  "sha256": "40c779d84a39994dc0dba1b6fb91b4b050986ceddd21edde749e9bf390c7b6dd"
+}

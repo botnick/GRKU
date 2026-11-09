@@ -1,0 +1,21 @@
+{
+  "source": "https://commons.wikimedia.org/wiki/Special:FilePath/Oguchi%20Joushi%20Kouen%201.jpg",
+  "sourcePage": "https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg",
+  "sourceSha256": "ceec94cbe739c86daaf732170b31c91231199acec527dc388da1baf71c23332d",
+  "title": "Oguchi Joushi Kouen 1",
+  "author": "Mobnoboka",
+  "license": "CC-BY-SA-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "camera": "RICOH GR II",
+  "decoder": "jpeg-js 0.4.4",
+  "settings": {
+    "input": "sRGB JPEG",
+    "outputColor": "linear sRGB, estimated by inverting preview/standard.lut",
+    "standardTableSha256": "1db097998a56838269ae5960535a4d408e7049b4b5a6749885cb15cf05917e36",
+    "bits": 16,
+    "resize": "area resampling in linear light"
+  },
+  "width": 1200,
+  "height": 795,
+  "sha256": "25892831ed3c63f331dc02ad04887a5d6e684dfbfab03c314300fb4a37cf4da2"
+}

@@ -1,0 +1,21 @@
+{
+  "source": "https://commons.wikimedia.org/wiki/Special:FilePath/Tramway%20(53731862585).jpg",
+  "sourcePage": "https://commons.wikimedia.org/wiki/File:Tramway_(53731862585).jpg",
+  "sourceSha256": "dff8652af5e3210cc305401fa0b9e7eaf61137fafabcbdb4612d4fd75593743e",
+  "title": "Tramway (53731862585)",
+  "author": "MIKI Yoshihito",
+  "license": "CC-BY-2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+  "camera": "RICOH GR IIIx",
+  "decoder": "jpeg-js 0.4.4",
+  "settings": {
+    "input": "sRGB JPEG",
+    "outputColor": "linear sRGB, estimated by inverting preview/standard.lut",
+    "standardTableSha256": "1db097998a56838269ae5960535a4d408e7049b4b5a6749885cb15cf05917e36",
+    "bits": 16,
+    "resize": "area resampling in linear light"
+  },
+  "width": 1200,
+  "height": 800,
+  "sha256": "b1d2862be9062d1a66e398685cc8ee00bd6052668d79fc0dff40670d4c79beb0"
+}

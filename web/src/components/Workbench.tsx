@@ -24,11 +24,11 @@ import { effectUrl, MAX_EFFECTS, previewTable, type CardEffect, type Catalog, ty
 import { brandOf, FILM_KINDS, filmKind, type FilmKind } from '../filmKind';
 import { sentences, type Strings } from '../i18n';
 import { editable } from '../import/edit';
-import { LANDING_HERO, LANDING_PHOTOS, landingImage } from '../landing';
+import { LANDING_HERO, landingImage } from '../landing';
 import { PRICES, slotsOf, takesSlot, usedSlots, type Entitlement } from '../plus';
 import { PhotoLoader } from '../preview/raw';
 import { forget, prefetchTable, preview, type PreviewEffect, type Source } from '../preview/render';
-import { DEFAULT_SAMPLE } from '../preview/samples';
+import { DEFAULT_SAMPLE, SAMPLES, sampleOf } from '../preview/samples';
 import { importFit, resolveSelection, selectImport, type Selection } from '../selection';
 import { STOCKS } from '../stocks';
 import { useCatalog } from '../useCatalog';
@@ -277,14 +277,17 @@ export function Workbench({
     return noRoom;
   }
 
-  function showSample() {
+  /** Shows a sample photo: the one picked, else the last sample. */
+  function showSample(next: Source = lastSample.current) {
     loader.cancel();
     setDecoding(false);
     setPhotoError(false);
-    startTransition(() => setSource(DEFAULT_SAMPLE));
+    lastSample.current = next;
+    startTransition(() => setSource(next));
     if (photo.current) forget(photo.current);
     photo.current = null;
   }
+  const lastSample = useRef<Source>(DEFAULT_SAMPLE);
 
   async function openPhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -308,9 +311,10 @@ export function Workbench({
     }
   }
 
-  const sourceLabel = source === DEFAULT_SAMPLE ? t.samplePhoto : t.yourPhoto;
+  const sample = sampleOf(source);
+  const sourceLabel = sample ? t.samplePhoto : t.yourPhoto;
   const requestedOn = !!requested && checked.has(requested.id);
-  const credit = LANDING_PHOTOS.wheels;
+  const credit = sample?.credit ?? SAMPLES[0]!.credit;
 
   function retryPreview() {
     forget(source);
@@ -430,8 +434,8 @@ export function Workbench({
             </label>
           </Button>
           <input id="photo-input" className="sr-only" type="file" accept=".dng,image/x-adobe-dng" onChange={openPhoto} />
-          {source !== DEFAULT_SAMPLE && (
-            <Button type="button" variant="ghost" size="sm" className="text-[13px]" onClick={showSample}>
+          {!sample && (
+            <Button type="button" variant="ghost" size="sm" className="text-[13px]" onClick={() => showSample()}>
               {t.useSample}
             </Button>
           )}
@@ -439,13 +443,31 @@ export function Workbench({
             <span role="alert" className="text-destructive">
               {t.photoError}
             </span>
-          ) : source === DEFAULT_SAMPLE ? (
+          ) : sample ? (
             <a href={credit.source} target="_blank" rel="noreferrer" className="hover:text-foreground">
               {credit.author} · {credit.license} · {credit.camera}
             </a>
           ) : (
             <span>{t.uploadNote}</span>
           )}
+        </div>
+        {/* The sample photos: a street, a tram, a neon night, a lake, a temple, a beach. */}
+        <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={t.samplePhotos}>
+          {SAMPLES.map((item) => (
+            <button
+              key={item.source.key}
+              type="button"
+              className={cn(
+                'relative aspect-[3/2] w-16 shrink-0 overflow-hidden rounded-md ring-1 ring-black/20 transition-opacity hover:opacity-100 sm:w-20',
+                source === item.source ? 'opacity-100 ring-2 ring-brand' : 'opacity-60',
+              )}
+              aria-label={`${item.credit.title} · ${item.credit.camera}`}
+              aria-pressed={source === item.source}
+              onClick={() => showSample(item.source)}
+            >
+              <img src={item.thumbnail} alt="" width="360" height="240" loading="lazy" className="size-full object-cover" />
+            </button>
+          ))}
         </div>
         <p className="mt-1 hidden text-[13px] text-muted-foreground/80 lg:block">{t.previewNote}</p>
       </aside>

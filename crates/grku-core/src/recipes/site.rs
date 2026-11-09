@@ -98,6 +98,42 @@ fn site_module() -> String {
         native::SHIFT_BA.labels.len(),
     )
     .unwrap();
+    // The parameters of each type in each camera line, as the camera menu
+    // shows them: the key, the first stored value, and the labels, with the
+    // overrides of the type. Null where the line has no such type.
+    #[derive(serde::Serialize)]
+    struct ParameterTable {
+        key: &'static str,
+        first: u32,
+        labels: Vec<&'static str>,
+    }
+    let parameters: Vec<[Option<Vec<ParameterTable>>; 2]> = (0..native::TYPES.len())
+        .map(|type_index| {
+            [native::Family::Gr3, native::Family::Gr4].map(|family| {
+                native::TYPES[type_index].families[family as usize].map(|(_, keys)| {
+                    keys.iter()
+                        .filter_map(|key| {
+                            let parameter = native::parameter(key);
+                            native::type_parameter_labels(family, type_index, parameter).map(
+                                |labels| ParameterTable {
+                                    key,
+                                    first: labels.first,
+                                    labels: labels.labels.to_vec(),
+                                },
+                            )
+                        })
+                        .collect()
+                })
+            })
+        })
+        .collect();
+    writeln!(
+        out,
+        "\n/** The parameters of each type in GR III, then GR IV, by portable index: the key, the first stored value, and the camera's labels; null where the line has no such type. */\n\
+         export const TYPE_PARAMETERS: readonly (readonly ({{ key: string; first: number; labels: readonly string[] }}[] | null)[])[] = {};",
+        serde_json::to_string(&parameters).unwrap(),
+    )
+    .unwrap();
     out
 }
 

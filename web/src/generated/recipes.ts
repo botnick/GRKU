@@ -241,6 +241,2414 @@ export const PRESETS: readonly Preset[] = [
         "id": 0
       }
     ]
+  },
+  {
+    "id": "royal-supra",
+    "effect": null,
+    "author": "Ritchie Roesch",
+    "source": "https://ricohrecipes.com/the-street-collection/",
+    "recipes": [
+      {
+        "name": "Royal Supra",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            6,
+            0,
+            5,
+            8,
+            0,
+            1,
+            5,
+            4,
+            8
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 5,
+          "shiftBa": 8,
+          "shiftGm": 10,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          3,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Royal Supra",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            6,
+            0,
+            5,
+            8,
+            0,
+            1,
+            5,
+            4,
+            8
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 5,
+          "shiftBa": 8,
+          "shiftGm": 10,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          3,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "bennets-bw800",
+    "effect": null,
+    "author": "Bennet",
+    "source": "https://www.reddit.com/r/ricohGR/comments/1t2rmuv/bennets_bw800/",
+    "recipes": [
+      {
+        "name": "Bennet's BW800",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 2,
+          "levels": [
+            4,
+            4,
+            2,
+            8,
+            2,
+            0,
+            3,
+            4,
+            4
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 4,
+          "shiftBa": 28,
+          "shiftGm": 12,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          2,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Bennet's BW800",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 2,
+          "levels": [
+            4,
+            4,
+            2,
+            8,
+            2,
+            0,
+            3,
+            4,
+            4
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 4,
+          "shiftBa": 28,
+          "shiftGm": 12,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          2,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "portra-160-chrizz-ocampo",
+    "effect": null,
+    "author": "Chrizz Ocampo",
+    "source": "https://www.facebook.com/groups/363978064347683/posts/1465331294212349/",
+    "recipes": [
+      {
+        "name": "Portra 160",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 6,
+          "levels": [
+            7,
+            3,
+            7,
+            3,
+            6,
+            1,
+            4,
+            4,
+            0
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 5,
+          "shiftBa": 17,
+          "shiftGm": 11,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Portra 160",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 6,
+          "levels": [
+            7,
+            3,
+            7,
+            3,
+            6,
+            1,
+            4,
+            4,
+            0
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 5,
+          "shiftBa": 17,
+          "shiftGm": 11,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "lanzarote-cinema-yellow",
+    "effect": null,
+    "author": "I Am a Camera",
+    "source": "https://ricohcookbook.com/recipe/lanzarote-cinema-yellow",
+    "recipes": [
+      {
+        "name": "Lanzarote",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 12,
+          "levels": [
+            4,
+            3,
+            5,
+            4,
+            2,
+            3,
+            4,
+            4,
+            4
+          ],
+          "tone": 1,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 1,
+          "size": 1
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 2,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "candy-color-400",
+    "effect": null,
+    "author": "Luke Taylor",
+    "source": "https://www.lukeptaylor.com/blog/candy-color-400-ricoh-gr-iii-film-recipe",
+    "recipes": [
+      {
+        "name": "Candy Color 400",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            8,
+            2,
+            4,
+            8,
+            8,
+            8,
+            8,
+            5,
+            8
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 14,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5700
+        },
+        "corrections": [
+          1,
+          3,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Candy Color 400",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            8,
+            2,
+            4,
+            8,
+            8,
+            8,
+            8,
+            5,
+            8
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 14,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5700
+        },
+        "corrections": [
+          1,
+          3,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "iac-tri-x",
+    "effect": null,
+    "author": "I Am a Camera",
+    "source": "https://ricohcookbook.com/recipe/iac-tri-x",
+    "recipes": [
+      {
+        "name": "IAC Tri-X",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 2,
+          "levels": [
+            4,
+            4,
+            3,
+            6,
+            4,
+            2,
+            3,
+            4,
+            5
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 3,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 1,
+          "size": 2
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "IAC Tri-X",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 2,
+          "levels": [
+            4,
+            4,
+            3,
+            6,
+            4,
+            2,
+            3,
+            4,
+            5
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 3,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 1,
+          "size": 2
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "lux-pastel",
+    "effect": null,
+    "author": "Robert Luxun",
+    "source": "https://www.reddit.com/r/ricohGR/comments/1u1a9s6/new_to_the_ricoh_gr_iv_heres_some_portrait_shots/",
+    "recipes": [
+      {
+        "name": "Lux Pastel",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            6,
+            4,
+            6,
+            2,
+            3,
+            7,
+            5,
+            3,
+            5
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 6,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          3,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Lux Pastel",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            6,
+            4,
+            6,
+            2,
+            3,
+            7,
+            5,
+            3,
+            5
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 6,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          3,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "dante-sisofo-street-bw",
+    "effect": null,
+    "author": "Dante Sisofo",
+    "source": "https://dantesisofo.com/my-ricoh-gr-camera-settings-for-street-photography/",
+    "recipes": [
+      {
+        "name": "Sisofo Street BW",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 5,
+          "levels": [
+            4,
+            4,
+            2,
+            8,
+            0,
+            4,
+            8,
+            8,
+            8
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 3,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Sisofo Street BW",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 5,
+          "levels": [
+            4,
+            4,
+            2,
+            8,
+            0,
+            4,
+            8,
+            8,
+            8
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 3,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "kodak-chrome",
+    "effect": null,
+    "author": "Ritchie Roesch",
+    "source": "https://ricohrecipes.com/the-street-collection/",
+    "recipes": [
+      {
+        "name": "Kodak Chrome",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            7,
+            3,
+            2,
+            2,
+            6,
+            0,
+            5,
+            4,
+            6
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 4,
+          "shiftBa": 24,
+          "shiftGm": 10,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          1,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Kodak Chrome",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            7,
+            3,
+            2,
+            2,
+            6,
+            0,
+            5,
+            4,
+            6
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 4,
+          "shiftBa": 24,
+          "shiftGm": 10,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          1,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "classic-chrome-but-better",
+    "effect": null,
+    "author": "Luke Taylor",
+    "source": "https://www.lukeptaylor.com/blog/classic-chrome-ricoh-griii-film-recipe",
+    "recipes": [
+      {
+        "name": "Classic Chrome+",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            4,
+            2,
+            7,
+            6,
+            5,
+            4,
+            3,
+            5,
+            3
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 14,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 3700
+        },
+        "corrections": [
+          0,
+          3,
+          0,
+          1
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Classic Chrome+",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            4,
+            2,
+            7,
+            6,
+            5,
+            4,
+            3,
+            5,
+            3
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 14,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 3700
+        },
+        "corrections": [
+          0,
+          3,
+          0,
+          1
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "kyo-night-bw",
+    "effect": null,
+    "author": "Ricoh (GR official)",
+    "source": "https://www.grblog.jp/en/article/2274/",
+    "recipes": [
+      {
+        "name": "KYO Night B&W",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 2,
+          "levels": [
+            4,
+            4,
+            4,
+            5,
+            3,
+            6,
+            4,
+            4,
+            4
+          ],
+          "tone": 5,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "KYO Night B&W",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 2,
+          "levels": [
+            4,
+            4,
+            4,
+            5,
+            3,
+            6,
+            4,
+            4,
+            4
+          ],
+          "tone": 5,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "asakura-negative",
+    "effect": null,
+    "author": "Ricoh (GR official)",
+    "source": "https://www.grblog.jp/en/article/7151/",
+    "recipes": [
+      {
+        "name": "Asakura Negative",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 6,
+          "levels": [
+            2,
+            4,
+            4,
+            7,
+            8,
+            0,
+            4,
+            4,
+            4
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 1,
+          "shiftBa": 9,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Asakura Negative",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 6,
+          "levels": [
+            2,
+            4,
+            4,
+            7,
+            8,
+            0,
+            4,
+            4,
+            4
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 9,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "photo-stuff-leica-look",
+    "effect": null,
+    "author": "Photo Stuff",
+    "source": "https://ricohcookbook.com/recipe/photo-stuff-leica-look",
+    "recipes": [
+      {
+        "name": "Leica Look",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 0,
+          "levels": [
+            6,
+            4,
+            2,
+            5,
+            5,
+            5,
+            5,
+            3,
+            6
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Leica Look",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 0,
+          "levels": [
+            6,
+            4,
+            2,
+            5,
+            5,
+            5,
+            5,
+            3,
+            6
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "ninzaburo-monotone",
+    "effect": null,
+    "author": "Ricoh (GR official)",
+    "source": "https://www.grblog.jp/article/13501/",
+    "recipes": [
+      {
+        "name": "Ninzaburo Mono",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 2,
+          "levels": [
+            4,
+            4,
+            2,
+            6,
+            4,
+            4,
+            4,
+            8,
+            4
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 3,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 3,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Ninzaburo Mono",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 2,
+          "levels": [
+            4,
+            4,
+            2,
+            6,
+            4,
+            4,
+            4,
+            8,
+            4
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 3,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 3,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "barbican-cinema-green",
+    "effect": null,
+    "author": "I Am a Camera",
+    "source": "https://ricohcookbook.com/recipe/barbican-cinema-green",
+    "recipes": [
+      {
+        "name": "Barbican",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 13,
+          "levels": [
+            5,
+            4,
+            3,
+            5,
+            2,
+            5,
+            3,
+            4,
+            4
+          ],
+          "tone": 1,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 1,
+          "size": 1
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 3,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 5500
+        },
+        "corrections": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "indigo-film-800",
+    "effect": null,
+    "author": "Luke Taylor",
+    "source": "https://www.lukeptaylor.com/blog/indigo-film-ricoh-gr-iii-film-recipe-griiix",
+    "recipes": [
+      {
+        "name": "Indigo Film 800",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 9,
+          "levels": [
+            8,
+            6,
+            4,
+            4,
+            6,
+            7,
+            8,
+            6,
+            2
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 7,
+          "shiftBa": 13,
+          "shiftGm": 17,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          2,
+          0,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Indigo Film 800",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 9,
+          "levels": [
+            8,
+            6,
+            4,
+            4,
+            6,
+            7,
+            8,
+            6,
+            2
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 7,
+          "shiftBa": 13,
+          "shiftGm": 17,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          2,
+          0,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "dramatic-monochrome",
+    "effect": null,
+    "author": "Ritchie Roesch",
+    "source": "https://ricohrecipes.com/the-bw-collection/",
+    "recipes": [
+      {
+        "name": "Dramatic Mono",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 5,
+          "levels": [
+            4,
+            4,
+            3,
+            7,
+            1,
+            1,
+            4,
+            4,
+            5
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 2,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 3,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 14,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 10000
+        },
+        "corrections": [
+          1,
+          1,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Dramatic Mono",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 5,
+          "levels": [
+            4,
+            4,
+            3,
+            7,
+            1,
+            1,
+            4,
+            4,
+            5
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 2,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 3,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 14,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 10000
+        },
+        "corrections": [
+          1,
+          1,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "pro-color",
+    "effect": null,
+    "author": "Ritchie Roesch",
+    "source": "https://ricohrecipes.com/the-starter-collection/",
+    "recipes": [
+      {
+        "name": "Pro Color",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 6,
+          "levels": [
+            8,
+            2,
+            7,
+            7,
+            2,
+            8,
+            3,
+            4,
+            3
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 1,
+          "size": 2
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 4,
+          "shiftBa": 24,
+          "shiftGm": 9,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          3,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Pro Color",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 6,
+          "levels": [
+            8,
+            2,
+            7,
+            7,
+            2,
+            8,
+            3,
+            4,
+            3
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 1,
+          "size": 2
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 4,
+          "shiftBa": 24,
+          "shiftGm": 9,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          3,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "1986-negative",
+    "effect": null,
+    "author": "Ritchie Roesch",
+    "source": "https://ricohrecipes.com/the-adventure-collection/",
+    "recipes": [
+      {
+        "name": "1986 Negative",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 6,
+          "levels": [
+            8,
+            2,
+            3,
+            6,
+            6,
+            1,
+            3,
+            4,
+            2
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 14,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 6700
+        },
+        "corrections": [
+          1,
+          0,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "1986 Negative",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 6,
+          "levels": [
+            8,
+            2,
+            3,
+            6,
+            6,
+            1,
+            3,
+            4,
+            2
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 14,
+          "shiftBa": 14,
+          "shiftGm": 14,
+          "kelvin": 6700
+        },
+        "corrections": [
+          1,
+          0,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "kodamax",
+    "effect": null,
+    "author": "Ritchie Roesch",
+    "source": "https://ricohrecipes.com/the-adventure-collection/",
+    "recipes": [
+      {
+        "name": "Kodamax",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            8,
+            2,
+            4,
+            7,
+            4,
+            2,
+            4,
+            4,
+            5
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 15,
+          "shiftGm": 4,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          2,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Kodamax",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            8,
+            2,
+            4,
+            7,
+            4,
+            2,
+            4,
+            4,
+            5
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 15,
+          "shiftGm": 4,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          2,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "grotto-200",
+    "effect": null,
+    "author": "Brendan Bullivant",
+    "source": "https://ricohcookbook.com/recipe/grotto-200",
+    "recipes": [
+      {
+        "name": "Grotto 200",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 1,
+          "levels": [
+            4,
+            3,
+            5,
+            5,
+            1,
+            3,
+            4,
+            4,
+            3
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 4,
+          "shiftBa": 15,
+          "shiftGm": 15,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          0,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Grotto 200",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 1,
+          "levels": [
+            4,
+            3,
+            5,
+            5,
+            1,
+            3,
+            4,
+            4,
+            3
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "whiteBalance": {
+          "mode": 4,
+          "shiftBa": 15,
+          "shiftGm": 15,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          0,
+          1,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
   }
 ];
 
@@ -282,3 +2690,6 @@ export const TEMPERATURE = { min: 2500, max: 10000, step: 10 } as const;
 
 /** The count of white balance shift steps on each axis; the middle one is no shift. */
 export const SHIFT_STEPS = 29;
+
+/** The parameters of each type in GR III, then GR IV, by portable index: the key, the first stored value, and the camera's labels; null where the line has no such type. */
+export const TYPE_PARAMETERS: readonly (readonly ({ key: string; first: number; labels: readonly string[] }[] | null)[])[] = [[[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]}],[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]}]],[[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]}],[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]}]],[[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"FilterEffectCustom","first":0,"labels":["OFF","Custom1","Custom2","Custom3","Custom4"]},{"key":"Particle","first":0,"labels":["Off","High","Mid","Low"]}],[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"FilterEffectCustom","first":0,"labels":["OFF","Custom1","Custom2","Custom3","Custom4"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"FilterEffectCustom","first":0,"labels":["OFF","Custom1","Custom2","Custom3","Custom4"]},{"key":"Particle","first":0,"labels":["Off","High","Mid","Low"]}],[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"FilterEffectCustom","first":0,"labels":["OFF","Custom1","Custom2","Custom3","Custom4"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"Particle","first":0,"labels":["Off","High","Mid","Low"]}],[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"FilterEffectCustom","first":0,"labels":["OFF","Custom1","Custom2","Custom3","Custom4"]},{"key":"Particle","first":0,"labels":["Off","High","Mid","Low"]}],[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"FilterEffectCustom","first":0,"labels":["OFF","Custom1","Custom2","Custom3","Custom4"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Particle","first":0,"labels":["Off","High","Mid","Low"]}],[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]}],[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneBleechBypass","first":1,"labels":["Normal","Cool","Warm"]}],[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneBleechBypass","first":1,"labels":["Normal","Cool","Warm"]}]],[[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneRetro","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]}],[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneRetro","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]}]],[[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneHdrIntense","first":0,"labels":["OFF","BW","Sepia"]},{"key":"HdrIntense","first":1,"labels":["Low","Mid","High"]}],[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneHdrIntense","first":0,"labels":["OFF","BW","Sepia"]},{"key":"HdrIntense","first":1,"labels":["Low","Mid","High"]}]],[[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneCrossProcess","first":0,"labels":["Basic","Magenta","Yellow"]}],[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneCrossProcess","first":0,"labels":["Basic","Magenta","Yellow"]}]],[null,[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneCinema","first":0,"labels":["Low","Mid","High"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[null,[{"key":"Saturation","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorHue","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneCinema","first":0,"labels":["Low","Mid","High"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[null,[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[null,[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[null,[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[null,[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[null,[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Contrast","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastHighLight","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ContrastShadow","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Shading","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]}]],[null,[{"key":"ColorToneHdrIntense","first":0,"labels":["OFF","","Sepia"]},{"key":"HdrIntense","first":1,"labels":["Low","Mid","High"]}]],[null,[{"key":"ImageKey","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"Sharpness","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ClarityControl","first":0,"labels":["M4","M3","M2","M1","OFF","P1","P2","P3","P4"]},{"key":"ColorToneMonotone","first":0,"labels":["OFF","Sepia","Red","Green","Blue","Purple"]},{"key":"Particle","first":0,"labels":["Off","On"]},{"key":"ParticleSize","first":0,"labels":["Small","Medium","Large"]},{"key":"ParticleStrength","first":0,"labels":["Low","Mid","High"]},{"key":"SolarizationType","first":0,"labels":["TYPE1","TYPE2","TYPE3"]}]]];

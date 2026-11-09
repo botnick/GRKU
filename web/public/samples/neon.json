@@ -1,0 +1,21 @@
+{
+  "source": "https://commons.wikimedia.org/wiki/Special:FilePath/Chicken%20sandwiches%20in%20Vegas.jpg",
+  "sourcePage": "https://commons.wikimedia.org/wiki/File:Chicken_sandwiches_in_Vegas.jpg",
+  "sourceSha256": "fa8008900549b7bd24b3de7ea53baff0d34080608f1fab9d492d093d520823c3",
+  "title": "Chicken sandwiches in Vegas",
+  "author": "Sergiy Galyonkin",
+  "license": "CC-BY-SA-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "camera": "RICOH GR IV",
+  "decoder": "jpeg-js 0.4.4",
+  "settings": {
+    "input": "sRGB JPEG",
+    "outputColor": "linear sRGB, estimated by inverting preview/standard.lut",
+    "standardTableSha256": "1db097998a56838269ae5960535a4d408e7049b4b5a6749885cb15cf05917e36",
+    "bits": 16,
+    "resize": "area resampling in linear light"
+  },
+  "width": 1200,
+  "height": 800,
+  "sha256": "ab27f707bfeff0262d74907e07635b91b5fa9da2b8555e29345daf2af65fcdab"
+}

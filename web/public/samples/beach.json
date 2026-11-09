@@ -1,0 +1,21 @@
+{
+  "source": "https://commons.wikimedia.org/wiki/Special:FilePath/Paradise%20found%20-%20Flickr%20-%20matthias.ripp.jpg",
+  "sourcePage": "https://commons.wikimedia.org/wiki/File:Paradise_found_-_Flickr_-_matthias.ripp.jpg",
+  "sourceSha256": "cde8cef67b3f2968f17960e6e94caed6b8e4bc2b0353d82f1e6258c22cb6c157",
+  "title": "Paradise found - Flickr - matthias.ripp",
+  "author": "Matthias Ripp",
+  "license": "CC-BY-2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+  "camera": "RICOH GR IIIx",
+  "decoder": "jpeg-js 0.4.4",
+  "settings": {
+    "input": "sRGB JPEG",
+    "outputColor": "linear sRGB, estimated by inverting preview/standard.lut",
+    "standardTableSha256": "1db097998a56838269ae5960535a4d408e7049b4b5a6749885cb15cf05917e36",
+    "bits": 16,
+    "resize": "area resampling in linear light"
+  },
+  "width": 1200,
+  "height": 799,
+  "sha256": "3081ecc54c875d6b725aec54199e6ba03417b549d029f9829c48516bb5fa1422"
+}

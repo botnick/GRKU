@@ -343,7 +343,9 @@ fn the_effect_code_is_that_of_the_installer() {
 fn the_presets_are_recipes_of_the_camera() {
     assert_eq!(native::TYPES[NEGATIVE_FILM].label, "NegativeFilm");
     for preset in presets() {
-        assert!(encode(&preset.recipes, &KEEP).is_ok(), "{}", preset.id);
+        if let Err(error) = encode(&preset.recipes, &KEEP) {
+            panic!("{}: {error:#}", preset.id);
+        }
         let families: std::collections::BTreeSet<_> = preset
             .recipes
             .iter()
