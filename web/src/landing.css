@@ -1,4 +1,9 @@
-/* GRKU: the landing page, a darkroom. Loaded after styles.css and theme.css. */
+/* GRKU: the landing page, a darkroom. The page is built from shadcn/ui components and Tailwind
+   classes (components/Landing.tsx); this file keeps only what those cannot say: the header of
+   App.tsx over the dark, the third-party slider, the sizes of the effect icons (styles.css sets
+   them outside any cascade layer, so a Tailwind utility cannot win over them), the mask of the
+   shelf, and the sprocket holes of the contact sheet. */
+
 /* Header: the wordmark GRKU with its red period, quiet links. */
 .masthead {
   padding: 8px 0 0;
@@ -48,161 +53,15 @@
   color: var(--ink-2);
 }
 
-/* Hero: one screen, the statement on the left, the photograph on the right. */
-.hero {
-  margin: 0 calc(50% - 50vw);
-  padding: clamp(32px, 6vh, 72px) var(--gutter) 0;
-}
-
-.hero-grid {
-  max-width: 1280px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: clamp(32px, 5vw, 72px);
-  align-items: center;
-  min-height: min(680px, calc(100svh - 160px));
-}
-
-.hero-title {
-  margin: 0;
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(36px, 4.4vw, 62px);
-  line-height: 1.12;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-}
-
-:root[lang='th'] .hero-title {
-  letter-spacing: 0;
-  line-height: 1.22;
-}
-
-.hero-sub {
-  margin: 20px 0 0;
-  font-size: clamp(17px, 1.5vw, 20px);
-  line-height: 1.6;
-  color: var(--ink-2);
-  max-width: 28em;
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-top: 32px;
-}
-
-.hero-primary,
-.hero-ghost {
-  display: inline-flex;
-  align-items: center;
-  min-height: 48px;
-  padding: 0 24px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+/* The links styled as buttons keep no underline: the base `a` rule sits outside any layer. */
+.dark a[data-slot='button'] {
   text-decoration: none;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-.hero-primary {
-  background: var(--accent-deep);
-  color: #fff;
-}
-
-.hero-primary:hover {
-  background: var(--accent);
-  color: #fff;
-}
-
-.hero-ghost {
-  border: 1px solid var(--line-2);
-  color: var(--ink);
-}
-
-.hero-ghost:hover {
-  border-color: var(--ink);
-  color: var(--ink);
-}
-
-.hero-meta {
-  margin: 20px 0 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--muted);
-  max-width: 36em;
-}
-
-/* The photograph: the comparison in a frame that floats over the dark. */
-.looks-frame {
-  border: 0;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #000;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
-}
-
-.looks-frame .tag {
-  background: rgba(23, 23, 23, 0.8);
-  color: var(--ink);
-  border-radius: 6px;
-  font-family: var(--mono);
-  font-weight: 500;
-  font-size: 12px;
-}
-
+/* The handle of the comparison slider, in the paper white. */
 .image-comparison .__rcs-handle-button,
 .image-comparison .__rcs-handle-line {
   color: var(--ink);
-}
-
-.looks-strip {
-  display: flex;
-  gap: 6px;
-  margin-top: 16px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.looks-strip::-webkit-scrollbar {
-  display: none;
-}
-
-.looks-film {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 8px 8px;
-  min-width: 92px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  background: none;
-  color: var(--muted);
-  font: inherit;
-  font-size: 12px;
-  line-height: 1.3;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.looks-film:hover {
-  background: var(--paper-2);
-  color: var(--ink);
-}
-
-.looks-film[aria-pressed='true'] {
-  border-color: var(--line-2);
-  background: var(--paper-2);
-  color: var(--ink);
-}
-
-.looks-film .effect-icon {
-  width: 56px;
-  height: 56px;
 }
 
 /* The sharp boxes of the site scale smoothly; only the camera pixels stay pixelated. */
@@ -211,342 +70,28 @@
   object-fit: contain;
 }
 
-.looks-note {
-  margin: 12px 0 0;
-  font-size: 13px;
-  color: var(--faint);
-}
-
-.looks-note a {
-  color: var(--faint);
-}
-
-/* The shelf: every box of the library in two rows, edge to edge, on two boards. */
-.shelf-section {
-  margin: clamp(40px, 7vh, 80px) calc(50% - 50vw) 0;
-  padding: 0 0 8px;
-}
-
-.shelf {
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
-  outline: none;
-}
-
-.shelf::-webkit-scrollbar {
-  display: none;
-}
-
-.shelf-row {
-  display: flex;
-  gap: 8px;
-  width: max-content;
-  padding: 0 var(--gutter) 10px;
-  margin-bottom: 14px;
-  border-bottom: 3px solid var(--line-2);
-  box-shadow: 0 3px 0 var(--paper-2);
-}
-
-.shelf-row:last-child {
-  margin-bottom: 0;
-}
-
-.shelf-box {
-  display: block;
-  flex: none;
-  padding: 0;
-  border: 0;
-  background: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: transform 0.15s ease, outline-color 0.15s ease;
-  outline: 2px solid transparent;
-  outline-offset: 3px;
-}
-
-.shelf-box:hover {
-  transform: translateY(-3px);
-}
-
-.shelf-box[aria-pressed='true'] {
-  outline-color: var(--ink);
-}
-
-.shelf-box:focus-visible {
-  outline-color: var(--accent);
-}
-
+/* The boxes of the shelf, at three times the camera size; two on a phone. */
 .shelf-box .effect-icon {
   width: 120px;
   height: 120px;
 }
 
-.shelf-caption {
-  max-width: 1280px;
-  margin: 16px auto 0;
-  padding: 0 var(--gutter);
-  font-size: 14px;
-  color: var(--muted);
+/* The shelf fades out at its edges. */
+.shelf {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
 }
 
-/* Bands: a heading over its content, a hairline above. */
-.band {
-  border-top: 1px solid var(--line);
-  margin-top: clamp(40px, 7vh, 72px);
-  padding-top: clamp(32px, 5vh, 48px);
-}
-
-.band-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px 32px;
-  margin-bottom: 24px;
-}
-
-.band-head h2 {
-  margin: 0;
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: clamp(24px, 2.4vw, 30px);
-  letter-spacing: -0.015em;
-}
-
-.band-head p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 15px;
-  max-width: 48em;
-}
-
-/* On the camera: the GRKU section of MENU as the screen draws it, beside the modules in words. */
-.camera-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: clamp(32px, 5vw, 72px);
-  align-items: start;
-}
-
-.screen {
-  background: #0c0c0c;
-  border: 1px solid var(--line-2);
-  border-radius: 14px;
-  padding: 10px 10px 12px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
-  position: sticky;
-  top: 24px;
-}
-
-.screen-title {
-  padding: 8px 12px;
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  border-bottom: 1px solid var(--line);
-}
-
-.screen-list {
-  list-style: none;
-  margin: 0;
-  padding: 4px 0 0;
-}
-
-.screen-list li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 6px 10px;
-  font-size: 15px;
-  font-weight: 500;
-  border-bottom: 1px solid #161616;
-}
-
-.screen-list li:last-child {
-  border-bottom: 0;
-}
-
-.screen-list img {
-  width: 32px;
-  height: 32px;
-  image-rendering: pixelated;
-  border-radius: 3px;
-}
-
-.screen-list b {
-  margin-left: auto;
-  font-weight: 500;
-  color: var(--muted);
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-.screen-foot {
-  padding: 10px 12px 2px;
-  font-size: 12px;
-  color: var(--faint);
-}
-
-.camera-text h2 {
-  margin: 0;
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: clamp(24px, 2.4vw, 30px);
-  letter-spacing: -0.015em;
-}
-
-.band-lead {
-  margin: 12px 0 28px;
-  color: var(--muted);
-  font-size: 15px;
-  max-width: 48em;
-}
-
-.module-list {
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px 32px;
-}
-
-.module-list dt {
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.module-list dd {
-  margin: 4px 0 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--muted);
-}
-
-/* The contact sheet: results on photos, as frames of a strip, edge to edge. */
+/* The sprocket holes above and below the contact sheet. */
 .contact {
-  display: flex;
-  gap: 16px;
-  margin: 0 calc(50% - 50vw);
-  padding: 14px var(--gutter) 10px;
-  overflow-x: auto;
-  scrollbar-width: none;
   background:
     repeating-linear-gradient(to right, transparent 0 14px, #2a2a2a 14px 24px) top / 100% 8px no-repeat,
     repeating-linear-gradient(to right, transparent 0 14px, #2a2a2a 14px 24px) bottom / 100% 8px no-repeat;
 }
 
-.contact::-webkit-scrollbar {
-  display: none;
-}
-
-.contact-frame {
-  flex: none;
-  width: min(440px, 80vw);
-  margin: 0;
-}
-
-.contact-frame img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 4px;
-  background: #000;
-}
-
-.contact-frame figcaption {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 8px;
-  padding: 10px 2px 0;
-  font-size: 14px;
-  color: var(--muted);
-}
-
-.contact-frame b {
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.contact-index {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--faint);
-}
-
-.contact-credit,
-.contact-credit a {
-  width: 100%;
-  font-size: 12px;
-  color: var(--faint);
-}
-
-/* Safe to try: one line, large. */
-.safe-band {
-  text-align: left;
-}
-
-.safe-line {
-  margin: 0;
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: clamp(22px, 2.6vw, 34px);
-  line-height: 1.35;
-  letter-spacing: -0.015em;
-  max-width: 28em;
-}
-
-.safe-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin: 0 14px 4px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-.safe-text {
-  margin: 16px 0 0;
-  color: var(--muted);
-  font-size: 15px;
-  line-height: 1.7;
-  max-width: 52em;
-}
-
 @media (max-width: 960px) {
-  .hero-grid {
-    grid-template-columns: minmax(0, 1fr);
-    min-height: 0;
-    gap: 32px;
-  }
-
-  .camera-grid,
-  .module-list {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .screen {
-    position: static;
-  }
-
   .shelf-box .effect-icon {
     width: 80px;
     height: 80px;
-  }
-}
-
-@media (max-width: 600px) {
-  .effects-list {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
-
-  .row-body .effect-icon {
-    width: 72px;
-    height: 72px;
   }
 }
