@@ -26,8 +26,8 @@ if [ -e /media/storage1/GRKIT/DIAG ]; then
       echo "== dev"; ls -l /dev
       echo "== messages"; tail -n 300 /var/log/messages
       echo "== dmesg"; dmesg
-      echo "== boot-ram"; cat /tmp/grkit-boot.log
-      echo "== read-core"; cat /proc/uptime; cat /media/storage1/SCRIPT/GRKIT/CORE.BIN >/dev/null; cat /proc/uptime; cat /media/storage1/SCRIPT/GRKIT/CORE.BIN >/dev/null; cat /proc/uptime
+      echo "== boot-ram"; cat /tmp/grkit-boot.log 2>/dev/null || tail -n 24 /media/storage1/GRKIT/BOOT.TXT
+      echo "== read-core"; cat /proc/uptime; cat /media/storage1/SCRIPT/GRKIT/$(cat /media/storage1/GRKIT/CORE.TXT 2>/dev/null || echo CORE.BIN) >/dev/null; cat /proc/uptime; cat /media/storage1/SCRIPT/GRKIT/$(cat /media/storage1/GRKIT/CORE.TXT 2>/dev/null || echo CORE.BIN) >/dev/null; cat /proc/uptime
       echo "== read-effects"; cat /proc/uptime; cat /media/storage1/GRKIT/EFFECTS/* >/dev/null; cat /proc/uptime
       echo "== write"; cat /proc/uptime; echo test >/media/storage1/GRKIT/DIAG.TMP; cat /proc/uptime; echo test >>/media/storage1/GRKIT/DIAG.TMP; cat /proc/uptime
     } >/media/storage1/GRKIT/DIAG.TXT 2>&1

@@ -89,7 +89,10 @@ pub const HEADER_REFERENCE: u32 = 0x58012340;
 pub const HOST_MAGIC_VALUE: u32 = 0x314d5247;
 pub const HOST_VERSION_VALUE: u32 = 1;
 /// The most module pages that the header holds: one for each listed module.
-pub const MODULE_PAGES_MAX: usize = MODULES_MAX;
+/// A group page (Glow) counts its children as pages too, so the ten modules
+/// need more pages than modules: the GR IV test of 2026-11-09 stopped at ten
+/// with Border and Grain left out (GRM_NO_ROOM).
+pub const MODULE_PAGES_MAX: usize = MODULES_MAX + 6;
 /// The most module layers, and the most module plane filters, of all modules
 /// that the header holds.
 pub const MODULE_LAYERS_MAX: usize = 16;

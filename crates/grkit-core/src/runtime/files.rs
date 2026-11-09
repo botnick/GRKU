@@ -270,8 +270,10 @@ pub fn package_runtime_files_with(binaries: &[&[u8]], fast: &Files, icon_stride:
 /// whether Linux keeps a read file. The camera's Linux has no `wc` and may
 /// lack other tools, so each command may fail on its own.
 fn diagnostics() -> String {
+    // The core in use: GRKIT/CORE.TXT names it in a package of several builds
+    // (CORE1.BIN, CORE2.BIN), else it is the one core file.
     let core = format!(
-        "{LINUX_DIRECTORY}/{}",
+        "{LINUX_DIRECTORY}/$(cat {LINUX_DATA_DIRECTORY}/{CORE_CHOICE} 2>/dev/null || echo {})",
         core_path_of(0, 1).rsplit('/').next().unwrap()
     );
     format!(
@@ -292,7 +294,7 @@ fn diagnostics() -> String {
          \x20     echo \"== dev\"; ls -l /dev\n\
          \x20     echo \"== messages\"; tail -n 300 /var/log/messages\n\
          \x20     echo \"== dmesg\"; dmesg\n\
-         \x20     echo \"== boot-ram\"; cat {BOOT_RAM_LOG}\n\
+         \x20     echo \"== boot-ram\"; cat {BOOT_RAM_LOG} 2>/dev/null || tail -n 24 {LINUX_DATA_DIRECTORY}/BOOT.TXT\n\
          \x20     echo \"== read-core\"; cat /proc/uptime; cat {core} >/dev/null; cat /proc/uptime; cat {core} >/dev/null; cat /proc/uptime\n\
          \x20     echo \"== read-effects\"; cat /proc/uptime; cat {LINUX_DATA_DIRECTORY}/EFFECTS/* >/dev/null; cat /proc/uptime\n\
          \x20     echo \"== write\"; cat /proc/uptime; echo test >{LINUX_DATA_DIRECTORY}/DIAG.TMP; cat /proc/uptime; echo test >>{LINUX_DATA_DIRECTORY}/DIAG.TMP; cat /proc/uptime\n\

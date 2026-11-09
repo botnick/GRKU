@@ -89,6 +89,25 @@ RAM is empty at each power-on, so none of the `/tmp` files reaches another start
 
 Create an empty file `GRKIT/DIAG` on the card. At the next start, `SCAN.SH` writes `GRKIT/DIAG.TXT` about 15 s later: the mounts and their options, the file systems, the kernel, the busybox commands, the processes, the system log, the RAM boot log, and the uptime before and after two reads of `CORE.BIN`, one read of the effects, and two small writes. The reads give the speed of the card file system and whether a second read of the same file is cheaper (the page cache). Delete `GRKIT/DIAG` afterwards.
 
+## First camera results: GR IV, firmware 1.11, 2026-11-09
+
+GRKU 1.5.2 (`gr4-1.11`, the package of commit 1e683a4 with ten modules and 60 effects on the card) started on a GR IV three times. `GRKIT/BOOT.TXT`, seconds after power-on:
+
+| Step | Start 1 (fresh files) | Start 2 | Start 3 |
+| --- | --- | --- | --- |
+| `load` (the loader script runs) | 7.46 | 7.46 | 7.63 |
+| `started` (SCAN.SH ran, the start owns the install) | 7.96 | 7.80 | 7.98 |
+| `relocated` (305 windows from `RELOC.BIN`, `searched=0 hint=1`) | 8.17 | 8.04 | 8.14 |
+| `modules 10` (ten module files read) | 24.96 | 9.07 | 9.04 |
+| `library` | 31.08 | 10.42 | 9.80 |
+| `listed` (the effect files read) | 65.11 (21 listed) | 26.38 (60) | 10.59 (60) |
+| `install 0` | 65.67 | 26.85 | 10.95 |
+
+- The first start after the card was written read the module and effect files slowly: 17 s for the ten modules, 34 s for the effects, and it listed only 21 effects before it went on. The second start still took 16 s to list the effects; the third was at 11 s all in, with every file. The camera's `ipcufs` reads fresh files slowly (the RTOS side of the file system, see above); the `._*` AppleDouble files that macOS leaves beside each file add directory entries. Expect a slow first power-on after a write from a Mac, then about 11 s on GR IV. `DIAG.TXT`: Linux up at 14 s, the card mounted (`/media/storage1 ipcufs`), 65 MB free.
+- Linux 5.15.196 on a Socionext Milbeaut (ARMv7, one core at 80 BogoMIPS), 151 MB. The RTOS image, data, and core addresses matched the `gr4-1.11` target; 171 of 175 patches applied (the four others are the fast-boot points, not needed on the official firmware).
+- `REPORT.TXT` showed the bug of the round: Border and Grain were `not loaded: error 54, the modules need more memory than GRKU has` (GRM_NO_ROOM). The limit was the module page count (`GRKIT_MODULE_PAGES_MAX`, one per module), which a group page (Glow) exceeds by its two children: eight modules took ten pages. The limit is 16 since this test. Eight modules ran: Film Look, Framing, Crop, Guides, Date, Glow, Light Leak, Diffusion; the photos of the test show a film look and the GR1s date stamp recorded.
+- The diagnostics read `CORE.BIN`, which a package of several builds does not have (`CORE1.BIN`, `CORE2.BIN`); `SCAN.SH` now reads the core that `GRKIT/CORE.TXT` names, and shows the tail of `BOOT.TXT` where the RAM log is already flushed.
+
 ## Next step: start before the camera mounts the card
 
 The one-shot start works after the mount, at 6 to 7 s. Linux runs commands from 4.2 s. The loader of 1.3.1 and 1.3.2 mounted `ipcufs` itself at 4.2 s, copied the package to RAM, released the mount, and ran SCAN from RAM, which loaded GRKit in 3 to 6 s. It was withdrawn in 1.3.3, because the camera's own mount failed while the loader held the card, and an unmount after that failure stopped Linux; a few cameras, new cards, and exFAT cards with macOS files hit this. Nothing about the firmware forbids it; the timing did.

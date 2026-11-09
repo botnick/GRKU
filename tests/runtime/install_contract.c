@@ -901,14 +901,17 @@ static void install_group_page(void)
     add_module(PACKAGE_MODULES_PATH, "GROUP.GRM", &group);
     assert(install() == 0 && module_status[0] == GRM_BAD_DESCRIPTOR && !module_page_count);
     group.settings[0].values = 2;
+    /* Each group takes three pages. The first module past the page limit
+       loads with GRM_NO_ROOM; the others keep their pages. */
     reset();
-    for (u32 i = 0; i < 4; ++i) {
+    u32 fit = GRKIT_MODULE_PAGES_MAX / 3;
+    for (u32 i = 0; i <= fit; ++i) {
         char id[] = "GROUP0", file[] = "GROUP0.GRM";
         id[5] += (char)i; file[5] += (char)i;
         group.id = id; group.order = i;
         add_module(PACKAGE_MODULES_PATH, file, &group);
     }
-    assert(install() == 0 && module_page_count == 9 && module_status[3] == GRM_NO_ROOM);
+    assert(install() == 0 && module_page_count == fit * 3 && module_status[fit] == GRM_NO_ROOM);
 }
 /* The GRKit switch Off stops each module that loads, as its own Off does,
    and keeps the Enable of each. */

@@ -9,7 +9,7 @@ The goal is a GRKit that loads sooner, has every feature that [GRLife Pro](https
 | Step | State | Expected GRK in ADJ (GR III) |
 | --- | --- | --- |
 | Upstream 1.5.1, official firmware | shipped | 8 to 10 s |
-| **Phase 1: one-shot start** (this branch) | code done, tests pass, **not yet run on a camera** | 7 to 8 s: one program load, one read of each file, four card writes |
+| **Phase 1: one-shot start** (this branch) | **ran on a GR IV 1.11 on 2026-11-09**: 11 s warm, 27 s and 66 s on the two starts after the card was written (one-shot-start.md, First camera results) | 7 to 8 s on GR III: one program load, one read of each file, four card writes |
 | **Phase 2: start before the camera's mount** | designed in one-shot-start.md, needs `DIAG.TXT` numbers from a camera first | 5 to 6 s: Linux runs commands at 4.2 s, the camera mounts the card at 6 to 7 s |
 
 Phase 2 is what gets the 4 to 5 s the user asked for. It is also the step that upstream withdrew in 1.3.3 for reliability, so it must be built with the measurements and the safety rules in one-shot-start.md, and tested on each camera model.
