@@ -17,7 +17,9 @@ import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/500.css';
 import './index.css';
 import './styles.css';
-import './grku.css';
+import './theme.css';
+import './landing.css';
+import './desk.css';
 
 const language = pageLanguage();
 // A visitor who chose a language before each language had its own page goes to that page once.
