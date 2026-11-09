@@ -1,11 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { startTransition, Suspense, use, useEffect, useRef, useState } from 'react';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { CAMERAS, PREVIEW_TARGET } from '../cameras';
-import { loadCatalog } from '../catalog';
+import { effectUrl, loadCatalog, previewTable, type Catalog, type CatalogEffect } from '../catalog';
 import { sentences, type Language, type Strings } from '../i18n';
-import { LANDING_HERO, LANDING_LOOKS, LANDING_PHOTOS, landingImage } from '../landing';
+import { LANDING_HERO, LANDING_PHOTOS, landingImage } from '../landing';
+import { preview, type PreviewEffect, type Source } from '../preview/render';
+import { DEFAULT_SAMPLE } from '../preview/samples';
 import { EffectIcon } from './EffectIcon';
+import { ErrorBoundary } from './ErrorBoundary';
 import { OFFICIAL_MODULES, type ModuleKey } from '../generated/modules';
 import tileFilmLook from '../../../modules/film-look/tiles/0-module.png';
 import tileFraming from '../../../modules/framing/tiles/0-module.png';
@@ -30,8 +33,10 @@ const MODULE_TILES: Record<ModuleKey, string> = {
   diffusion: tileDiffusion,
 };
 
+/** The look of this fork, which the hero shows first. */
+const FIRST_LOOK = 'positive-film-grii-v1';
+
 type Photo = keyof typeof LANDING_PHOTOS;
-type Look = (typeof LANDING_LOOKS)[number];
 
 interface Props {
   strings: Strings;
@@ -42,12 +47,33 @@ interface Props {
 }
 
 /**
- * The landing page above the installer, in the dark: the statement and the real photograph in
- * one screen, the film shelf under them, then the camera menu, three results, and the three
- * facts that make GRKU safe to try.
+ * The landing page above the installer, in the dark. The hero is alive: the GR IIIx photograph
+ * renders in the browser with the look that the visitor picks from the film shelf under it,
+ * Positive GRII first. Then the camera's menu, a contact sheet of results, one line on safety,
+ * and the installer.
  */
 export function Landing({ strings, canWrite }: Props) {
   const t = strings.landing;
+  const [catalog, setCatalog] = useState<Catalog | null>(null);
+  const [lookId, setLookId] = useState(FIRST_LOOK);
+  const frame = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let live = true;
+    loadCatalog(PREVIEW_TARGET)
+      .then((loaded) => {
+        if (live) setCatalog(loaded);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, []);
+  const look = catalog?.effects.find((effect) => effect.id === lookId) ?? null;
+  function pick(id: string) {
+    startTransition(() => setLookId(id));
+    // On a phone the photograph is above the shelf: bring it back into view.
+    if (window.innerWidth < 960) frame.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
   return (
     <>
       <section className="hero" id={LANDING_HERO}>
@@ -65,76 +91,74 @@ export function Landing({ strings, canWrite }: Props) {
             </div>
             <p className="hero-meta">{sentences(t.supports(SUPPORTED_CAMERAS), canWrite ? t.installNote : t.installNoteZip)}</p>
           </div>
-          <div className="hero-visual">
-            <Looks strings={strings} />
+          <div className="hero-visual" ref={frame}>
+            <HeroPreview catalog={catalog} look={look} strings={strings} />
+            <p className="looks-note">
+              {look?.name ?? ''} · {t.lookNote} <Credit photo="kitchen" camera />
+            </p>
           </div>
         </div>
       </section>
 
-      <Shelf strings={strings} />
+      <Shelf catalog={catalog} selected={lookId} onPick={pick} strings={strings} />
 
-      <section className="band" id="modules" aria-labelledby="landing-modules">
-        <div className="band-head">
-          <h2 id="landing-modules">{strings.modules}</h2>
-          <p>{t.moduleListText}</p>
+      <section className="band camera-band" id="modules" aria-labelledby="landing-modules">
+        <div className="camera-grid">
+          <div className="screen" role="img" aria-label={t.menuCaption}>
+            <div className="screen-title">GRKU</div>
+            <ul className="screen-list">
+              {OFFICIAL_MODULES.map((module) => (
+                <li key={module.key}>
+                  <img src={MODULE_TILES[module.key]} alt="" width="40" height="40" />
+                  <span>{strings.moduleNames[module.key]}</span>
+                  {module.key === 'filmLook' && look && <b>{look.name}</b>}
+                </li>
+              ))}
+            </ul>
+            <div className="screen-foot">{t.menuCaption}</div>
+          </div>
+          <div className="camera-text">
+            <h2 id="landing-modules">{strings.modules}</h2>
+            <p className="band-lead">{t.moduleListText}</p>
+            <dl className="module-list">
+              {OFFICIAL_MODULES.map((module) => (
+                <div key={module.key}>
+                  <dt>{strings.moduleNames[module.key]}</dt>
+                  <dd>{strings.modulesText[module.key]}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </div>
-        <ul className="menu" aria-label={strings.modules}>
-          {OFFICIAL_MODULES.map((module) => (
-            <li key={module.key}>
-              <img src={MODULE_TILES[module.key]} alt="" width="40" height="40" />
-              <div>
-                <b>{strings.moduleNames[module.key]}</b>
-                <p>{strings.modulesText[module.key]}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
       </section>
 
       <section className="band" aria-labelledby="landing-details">
         <div className="band-head">
           <h2 id="landing-details">{t.details}</h2>
         </div>
-        <div className="stills">
-          <Still
-            image="date-gr2.jpg"
-            title={strings.moduleNames.dateStamp}
-            text={t.dateText}
-            photo="tram"
-            alt={`${strings.moduleNames.dateStamp} — ${t.dateLooks[2]}`}
-          />
-          <Still
-            image="halation.jpg"
-            title={strings.moduleNames.glow}
-            text={t.glowText}
-            photo="street"
-            alt={`${strings.moduleNames.glow} — ${t.glowKinds[2]}`}
-          />
-          <Still
-            image="grain-3.jpg"
-            title={strings.moduleNames.grain}
-            text={t.grainText}
-            photo="tram"
-            alt={`${strings.moduleNames.grain} — ${t.grainLevels[2]}`}
-          />
+        <div className="contact" role="group" aria-label={t.details}>
+          <Frame index="01" image="date-gr2.jpg" title={strings.moduleNames.dateStamp} detail={t.dateLooks[2] ?? ''} photo="tram" />
+          <Frame index="02" image="date-gr1s.jpg" title={strings.moduleNames.dateStamp} detail={t.dateLooks[1] ?? ''} photo="tram" />
+          <Frame index="03" image="bloom.jpg" title={strings.moduleNames.glow} detail={t.glowKinds[1] ?? ''} photo="street" />
+          <Frame index="04" image="halation.jpg" title={strings.moduleNames.glow} detail={t.glowKinds[2] ?? ''} photo="street" />
+          <Frame index="05" image="grain-2.jpg" title={strings.moduleNames.grain} detail={t.grainLevels[1] ?? ''} photo="tram" />
+          <Frame index="06" image="grain-4.jpg" title={strings.moduleNames.grain} detail={t.grainLevels[3] ?? ''} photo="tram" />
         </div>
       </section>
 
-      <section className="band" aria-labelledby="landing-safe">
-        <div className="band-head">
-          <h2 id="landing-safe">{t.safe}</h2>
-        </div>
-        <ul className="facts">
-          {t.facts.map(([title, text]) => (
-            <li key={title}>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </li>
+      <section className="band safe-band" aria-labelledby="landing-safe">
+        <h2 id="landing-safe" className="safe-line">
+          {t.facts.map(([title], index) => (
+            <span key={title}>
+              {index > 0 && <span className="safe-dot" aria-hidden="true" />}
+              {title}
+            </span>
           ))}
-        </ul>
+        </h2>
+        <p className="safe-text">{t.facts.map(([, text]) => text).join(' ')}</p>
       </section>
 
-      {/* The title of the installer below, where the install link goes. */}
+      {/* The title of the installer below, where the install link goes. The desk is light. */}
       <h2 className="landing-start" id="install">
         {t.install}
       </h2>
@@ -159,84 +183,74 @@ function Credit({ photo, camera = false }: { photo: Photo; camera?: boolean }) {
 }
 
 /**
- * The photograph of the hero: a GR IIIx picture, the Standard development against the picked
- * film look, which the handle compares, and the looks to pick from.
+ * The photograph of the hero. Until the catalog is here, the Standard development of the
+ * sample; then the picked look, rendered in the browser from the linear sample with the same
+ * tables as the installer, against the Standard development under the handle.
  */
-function Looks({ strings }: { strings: Strings }) {
-  const t = strings.landing;
-  const [look, setLook] = useState<Look>(LANDING_LOOKS[0]);
+function HeroPreview({ catalog, look, strings }: { catalog: Catalog | null; look: CatalogEffect | null; strings: Strings }) {
+  const still = (
+    <div className="frame looks-frame">
+      <img src={landingImage('looks/standard.jpg')} alt={`${strings.samplePhoto} — ${strings.original}`} />
+      <span className="tag">{strings.original}</span>
+    </div>
+  );
+  if (!catalog || !look) return still;
+  const effect: PreviewEffect = {
+    id: look.id,
+    table: previewTable(catalog.target, look),
+    size: catalog.lutSize,
+    baseline: effectUrl(catalog.target, catalog.baseline),
+  };
+  return (
+    <ErrorBoundary resetKey={look.id} fallback={still}>
+      <Suspense fallback={still}>
+        <LookFrame source={DEFAULT_SAMPLE} effect={effect} name={look.name} strings={strings} />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function LookFrame({ source, effect, name, strings }: { source: Source; effect: PreviewEffect; name: string; strings: Strings }) {
+  const result = use(preview(source, effect));
   const comparison = useReactCompareSlider({ clip: 'itemTwo' });
   return (
-    <div className="looks">
-      <div className="frame looks-frame">
-        <Provider {...comparison}>
-          <Root className="image-comparison">
-            <Item item="itemOne">
-              <img src={landingImage('looks/standard.jpg')} alt={`${strings.samplePhoto} — ${strings.original}`} />
-            </Item>
-            <Item item="itemTwo" className="comparison-effect">
-              <img src={landingImage(`looks/${look.image}.jpg`)} alt={`${strings.samplePhoto} — ${look.name}`} />
-            </Item>
-            <HandleRoot aria-label={strings.compare}>
-              <Handle buttonStyle={{ width: 32, height: 32, gap: '0.2rem' }} />
-            </HandleRoot>
-          </Root>
-        </Provider>
-        <span className="tag">{look.name}</span>
-      </div>
-      <div className="looks-strip" role="group" aria-label={t.looks}>
-        {LANDING_LOOKS.map((item) => (
-          <button
-            key={item.name}
-            type="button"
-            className="looks-film"
-            aria-pressed={item === look}
-            onClick={() => setLook(item)}
-          >
-            <EffectIcon effect={{ id: item.effect, icon: '', cover: item.cover }} />
-            <span>{item.name}</span>
-          </button>
-        ))}
-      </div>
-      <p className="looks-note">
-        {t.lookNote} <Credit photo="kitchen" camera />
-      </p>
-      {/* The other looks load while the visitor reads, so a pick shows at once. */}
-      {LANDING_LOOKS.filter((item) => item !== look).map((item) => (
-        <link key={item.image} rel="prefetch" as="image" href={landingImage(`looks/${item.image}.jpg`)} />
-      ))}
+    <div className="frame looks-frame">
+      <Provider {...comparison}>
+        <Root className="image-comparison">
+          <Item item="itemOne">
+            <img src={result.original} alt={`${strings.samplePhoto} — ${strings.original}`} />
+          </Item>
+          <Item item="itemTwo" className="comparison-effect">
+            <img src={result.processed} alt={`${strings.samplePhoto} — ${name}`} />
+          </Item>
+          <HandleRoot aria-label={strings.compare}>
+            <Handle buttonStyle={{ width: 32, height: 32, gap: '0.2rem' }} />
+          </HandleRoot>
+        </Root>
+      </Provider>
+      <span className="tag">{name}</span>
     </div>
   );
 }
 
-interface Box {
-  id: string;
-  name: string;
-  /** The ADJ icon of the effect, 40 x 40 pixels: the film box in its real colors. */
-  icon: string;
-}
-
 /**
  * The film shelf: every look of the library as its box, drawn sharp at shelf size, in two rows
- * that drift slowly until the visitor touches them. The boxes come from the catalog of the site,
- * so the shelf shows what the installer offers.
+ * that drift slowly until the visitor touches them. A box picks the look of the hero.
  */
-function Shelf({ strings }: { strings: Strings }) {
+function Shelf({
+  catalog,
+  selected,
+  onPick,
+  strings,
+}: {
+  catalog: Catalog | null;
+  selected: string;
+  onPick: (id: string) => void;
+  strings: Strings;
+}) {
   const t = strings.landing;
-  const [boxes, setBoxes] = useState<Box[]>([]);
   const shelf = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    let live = true;
-    loadCatalog(PREVIEW_TARGET)
-      .then((catalog) => {
-        if (!live) return;
-        setBoxes(catalog.effects.map((effect) => ({ id: effect.id, name: effect.name, icon: effect.icon })));
-      })
-      .catch(() => {});
-    return () => {
-      live = false;
-    };
-  }, []);
+  const boxes = catalog?.effects ?? [];
   useEffect(() => {
     const element = shelf.current;
     if (!element || boxes.length === 0) return;
@@ -246,7 +260,7 @@ function Shelf({ strings }: { strings: Strings }) {
     const stop = () => {
       stopped = true;
     };
-    for (const event of ['pointerdown', 'wheel', 'touchstart', 'keydown']) {
+    for (const event of ['pointerdown', 'wheel', 'touchstart', 'keydown', 'focusin']) {
       element.addEventListener(event, stop, { passive: true });
     }
     let frame = requestAnimationFrame(function step(now: number) {
@@ -258,22 +272,30 @@ function Shelf({ strings }: { strings: Strings }) {
     });
     return () => {
       cancelAnimationFrame(frame);
-      for (const event of ['pointerdown', 'wheel', 'touchstart', 'keydown']) {
+      for (const event of ['pointerdown', 'wheel', 'touchstart', 'keydown', 'focusin']) {
         element.removeEventListener(event, stop);
       }
     };
-  }, [boxes]);
+  }, [boxes.length]);
   const half = Math.ceil(boxes.length / 2);
   const rows = [boxes.slice(0, half), boxes.slice(half)];
   return (
     <section className="shelf-section" id="shelf" aria-label={t.shelf}>
-      <div className="shelf" ref={shelf} role="group" aria-label={t.shelfAlt} tabIndex={0}>
+      <div className="shelf" ref={shelf} role="group" aria-label={t.shelfAlt}>
         {rows.map((row, index) => (
           <div className="shelf-row" key={index}>
             {row.map((box) => (
-              <span className="shelf-box" key={box.id} title={box.name}>
-                <EffectIcon effect={{ id: box.id, icon: box.icon, cover: undefined }} />
-              </span>
+              <button
+                type="button"
+                className="shelf-box"
+                key={box.id}
+                title={box.name}
+                aria-label={box.name}
+                aria-pressed={box.id === selected}
+                onClick={() => onPick(box.id)}
+              >
+                <EffectIcon effect={{ id: box.id, icon: box.icon, cover: box.cover }} />
+              </button>
             ))}
           </div>
         ))}
@@ -283,29 +305,29 @@ function Shelf({ strings }: { strings: Strings }) {
   );
 }
 
-/** One result on a photo, with the module it comes from. */
-function Still({
+/** One frame of the contact sheet: a result on a photo, the module, and the setting. */
+function Frame({
+  index,
   image,
   title,
-  text,
+  detail,
   photo,
-  alt,
 }: {
+  index: string;
   image: string;
   title: string;
-  text: string;
+  detail: string;
   photo: Photo;
-  alt: string;
 }) {
   return (
-    <figure className="still">
-      <img src={landingImage(image)} alt={alt} width="800" height="600" loading="lazy" />
+    <figure className="contact-frame">
+      <img src={landingImage(image)} alt={`${title} — ${detail}`} width="800" height="600" loading="lazy" />
       <figcaption>
-        <h3>{title}</h3>
-        <p>{text}</p>
-        <p className="still-credit">
+        <span className="contact-index">{index}</span>
+        <b>{title}</b> <span>{detail}</span>
+        <span className="contact-credit">
           <Credit photo={photo} />
-        </p>
+        </span>
       </figcaption>
     </figure>
   );
