@@ -447,61 +447,59 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                 watermark with the buyer, the order and the time, so a copy of the picture tells on itself. */}
             {(() => {
               const who = email.trim() || t.plus.email;
-              const stamp = new Date().toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' });
+              const locale = language === 'th' ? 'th-TH' : language;
+              const stamp = new Date().toLocaleString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
               const minutes = Math.max(1, Math.round((order.expires - Date.now()) / 60000));
-              const mark = `GRKU Plus · ${who} · #${order.order.toUpperCase()} · ${stamp}`;
+              const mark = `${who} · ${order.order.toUpperCase()}`;
+              const [baht, satang] = order.amount.toFixed(2).split('.');
               return (
-                <div className="relative overflow-hidden rounded-2xl bg-white text-neutral-900 shadow-[0_1px_0_rgba(0,0,0,0.3)]">
-                  <div className="relative z-[2] flex items-center justify-between bg-[#171717] px-4 py-2.5 text-white">
-                    <span className="font-sans text-[15px] font-extrabold tracking-tight">
-                      GRKU<span className="text-brand">.</span>
-                    </span>
-                    <span className="text-[11px] font-semibold tracking-[0.14em] uppercase">QR Payment · PromptPay</span>
-                  </div>
-                  {/* The watermark: the buyer and the order, repeated across the card. */}
-                  <div className="pointer-events-none absolute inset-x-[-40%] top-10 bottom-0 z-[1] -rotate-[28deg] select-none" aria-hidden="true">
-                    {Array.from({ length: 9 }, (_, row) => (
-                      <p key={row} className="m-0 truncate font-mono text-[10px] leading-[44px] whitespace-nowrap text-neutral-900/[0.055]" style={{ paddingLeft: (row % 3) * 80 }}>
-                        {`${mark}      `.repeat(5)}
+                <div className="relative overflow-hidden rounded-2xl bg-white text-neutral-900">
+                  {/* A faint watermark of the buyer and the order: a copy of the card tells whose it is. */}
+                  <div className="pointer-events-none absolute -inset-x-1/2 inset-y-0 z-0 -rotate-[24deg] select-none" aria-hidden="true">
+                    {Array.from({ length: 8 }, (_, row) => (
+                      <p key={row} className="m-0 truncate text-[10px] leading-[64px] whitespace-nowrap text-neutral-900/[0.045]" style={{ paddingLeft: (row % 2) * 110 }}>
+                        {`${mark}          `.repeat(5)}
                       </p>
                     ))}
                   </div>
-                  <div className="relative z-[2] flex flex-col items-center px-4 pt-4">
-                    <span className="rounded-full bg-neutral-100 px-3 py-1 text-[12px] font-medium text-neutral-600">
+                  <div className="relative z-[1] flex items-center justify-between px-5 pt-4">
+                    <span className="font-sans text-[17px] font-extrabold tracking-tight">
+                      GRKU<span className="text-brand">.</span>
+                    </span>
+                    <span className="rounded-full bg-[#113566] px-2.5 py-0.5 text-[11px] font-semibold text-white">PromptPay</span>
+                  </div>
+                  <div className="relative z-[1] flex flex-col items-center px-5 pt-2 pb-4">
+                    <span className="text-[13px] text-neutral-500">
                       {choice === 'pack' ? `${t.plus.tierPack} · ${t.plus.packs[pack]}` : choice === 'slots25' ? t.plus.tierSlots : t.plus.tierAll}
                     </span>
-                    <div className="relative my-3">
+                    <div className="relative my-3 rounded-xl border border-neutral-200 bg-white p-2">
                       {qr ? (
-                        <img src={qr} alt="PromptPay QR" width="240" height="240" className="block size-52 sm:size-60" />
+                        <img src={qr} alt="PromptPay QR" width="232" height="232" className="block size-52 sm:size-56" />
                       ) : (
-                        <div className="flex size-52 items-center justify-center sm:size-60">
+                        <div className="flex size-52 items-center justify-center sm:size-56">
                           <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
                         </div>
                       )}
                       {qr && (
-                        <span className="absolute top-1/2 left-1/2 flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg bg-white" aria-hidden="true">
-                          <span className="flex size-8 items-center justify-center rounded-md bg-[#171717] font-sans text-[13px] font-extrabold text-white">G<span className="text-brand">.</span></span>
+                        <span className="absolute top-1/2 left-1/2 flex size-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md bg-white" aria-hidden="true">
+                          <span className="flex size-7 items-center justify-center rounded bg-[#171717] font-sans text-[12px] font-extrabold text-white">G<span className="text-brand">.</span></span>
                         </span>
                       )}
                     </div>
-                    <div className="flex w-full items-end justify-between gap-3 pb-3">
-                      <div className="min-w-0">
-                        {order.receiver && (
-                          <>
-                            <p className="truncate text-[15px] font-semibold">{order.receiver.name}</p>
-                            <p className="font-mono text-[12px] text-neutral-500">{order.receiver.account}</p>
-                          </>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <p className="font-mono text-4xl leading-none font-semibold tabular-nums">฿{order.amount.toFixed(2)}</p>
-                        <p className="mt-1 text-[11px] text-neutral-500">THB</p>
-                      </div>
-                    </div>
+                    <p className="m-0 font-sans tabular-nums">
+                      <span className="text-[40px] leading-none font-bold tracking-tight">฿{baht}</span>
+                      <span className="text-[22px] font-semibold text-neutral-500">.{satang}</span>
+                    </p>
+                    {order.receiver && (
+                      <p className="mt-2 mb-0 text-center text-[14px]">
+                        <span className="font-medium">{order.receiver.name}</span>
+                        <span className="text-neutral-500"> · {order.receiver.account}</span>
+                      </p>
+                    )}
                   </div>
-                  <div className="relative z-[2] border-t border-dashed border-neutral-300 bg-neutral-50 px-4 py-2.5 text-[11.5px] leading-snug text-neutral-500">
+                  <div className="relative z-[1] border-t border-dashed border-neutral-200 bg-neutral-50 px-5 py-3 text-center text-[12px] leading-relaxed text-neutral-500">
                     <p className="m-0 font-medium text-neutral-700">{t.plus.issuedTo(who)}</p>
-                    <p className="m-0 font-mono">
+                    <p className="m-0">
                       {t.plus.orderRef} {order.order.toUpperCase()} · {stamp} · {t.plus.singleUse(minutes)}
                     </p>
                   </div>
