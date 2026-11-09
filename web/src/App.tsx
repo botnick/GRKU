@@ -1134,6 +1134,7 @@ export function App({
         payOrder={payOrder}
         termsHref={`${LANGUAGE_PATHS[language]}${DOC_PATHS.TERMS}`}
         language={language}
+        onBrowse={() => document.getElementById('looks')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
       />
       <AppPromo strings={t} />
     </>

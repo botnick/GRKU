@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { Check, Copy, Download, LoaderCircle, Smartphone, Upload } from 'lucide-react';
+import { Check, Copy, Download, LoaderCircle, Smartphone, Sparkles, Upload } from 'lucide-react';
 import QRCode from 'qrcode';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +29,7 @@ import {
   type Order,
   type Pack,
   giftShort,
+  ownedLines,
   orderStatus,
   payLink,
   redeemAngpao,
@@ -63,13 +64,15 @@ interface Props {
   termsHref: string;
   /** The language of the page, for the Turnstile widget's own words. */
   language: Language;
+  /** Close the sheet and show the looks that a purchase unlocked. */
+  onBrowse: () => void;
 }
 
 /**
  * GRKU Plus: the tiers, the PromptPay QR for the chosen one, the slip, and the key. Everything
  * runs in this panel; the page behind it unlocks as soon as the slip is accepted.
  */
-export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, packCounts, payOrder = null, termsHref, language }: Props) {
+export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, packCounts, payOrder = null, termsHref, language, onBrowse }: Props) {
   const ids = useId();
   const [view, setView] = useState<View>('tiers');
   const [choice, setChoice] = useState<Choice>('plus');
@@ -263,7 +266,8 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
       const result = await fetchEntitlement(key);
       onKey(key, result.entitlement);
       setPasted('');
-      setView('tiers');
+      setPaid({ key, owner: result.owner, entitlement: result.entitlement });
+      setView('done');
     } catch (failure) {
       fail(failure);
     } finally {
@@ -318,6 +322,14 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
 
         {view === 'tiers' && (
           <div className="flex flex-col gap-5 px-4 pb-6">
+            <ol className="m-0 flex list-none flex-col gap-2 rounded-xl border bg-card p-3 text-[13px] leading-snug">
+              {[t.plus.how1, t.plus.how2, t.plus.how3].map((step, index) => (
+                <li key={index} className="flex items-start gap-2.5">
+                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-brand-foreground">{index + 1}</span>
+                  <span className="pt-px text-muted-foreground">{step}</span>
+                </li>
+              ))}
+            </ol>
             {hasKey && (
               <Alert>
                 <Check aria-hidden="true" />
@@ -608,24 +620,44 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
 
         {view === 'done' && paid && (
           <div className="flex flex-col gap-5 px-4 pb-6">
-            <Alert className="border-brand/40">
-              <Check aria-hidden="true" />
-              <AlertTitle>{t.plus.unlocked}</AlertTitle>
-              <AlertDescription>{paid.owner !== 'anon' && t.plus.keySent}</AlertDescription>
-            </Alert>
+            <div className="flex flex-col items-center gap-2 rounded-2xl border border-brand/40 bg-brand/[0.08] px-4 py-5 text-center">
+              <span className="flex size-11 items-center justify-center rounded-full bg-brand text-brand-foreground">
+                <Check className="size-6" aria-hidden="true" />
+              </span>
+              <p className="m-0 text-lg font-semibold">{t.plus.unlocked}</p>
+              <ul className="m-0 flex list-none flex-col gap-1 p-0 text-sm">
+                {ownedLines(paid.entitlement, t.plus, packCounts).map((line) => (
+                  <li key={line} className="font-medium">{line}</li>
+                ))}
+              </ul>
+            </div>
+            <p className="m-0 text-sm text-muted-foreground">{t.plus.doneNext}</p>
+            <Button
+              type="button"
+              variant="brand"
+              size="lg"
+              className="h-11 text-[15px]"
+              onClick={() => {
+                change(false);
+                onBrowse();
+              }}
+            >
+              <Sparkles aria-hidden="true" />
+              {t.plus.browseUnlocked}
+            </Button>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor={`${ids}-key`}>{t.plus.yourKey}</Label>
               <div className="flex gap-2">
-                <Input id={`${ids}-key`} readOnly value={paid.key} className="font-mono text-xs" onFocus={(event) => event.target.select()} />
+                <Input id={`${ids}-key`} readOnly value={paid.key} className="font-mono text-base tracking-wider" onFocus={(event) => event.target.select()} />
                 <Button type="button" variant="outline" onClick={copyKey}>
                   {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
                   {copied ? t.plus.copied : t.plus.copy}
                 </Button>
               </div>
+              <p className="m-0 text-[13px] text-muted-foreground">
+                {t.plus.keyHint} {paid.owner !== 'anon' && t.plus.keySent}
+              </p>
             </div>
-            <Button type="button" variant="brand" onClick={() => change(false)}>
-              {t.done}
-            </Button>
           </div>
         )}
 

@@ -25,7 +25,7 @@ import { brandOf, FILM_KINDS, filmKind, type FilmKind } from '../filmKind';
 import { sentences, type Strings } from '../i18n';
 import { editable } from '../import/edit';
 import { LANDING_HERO, landingImage } from '../landing';
-import { PRICES, slotsOf, takesSlot, usedSlots, type Entitlement } from '../plus';
+import { ownedLines, packCounts, PRICES, slotsOf, takesSlot, unlockedBy, usedSlots, type Entitlement } from '../plus';
 import { PhotoLoader } from '../preview/raw';
 import { forget, prefetchTable, preview, type PreviewEffect, type Source } from '../preview/render';
 import { DEFAULT_SAMPLE, SAMPLES, sampleOf } from '../preview/samples';
@@ -497,7 +497,34 @@ export function Workbench({
             </>
           }
         />
-        {!owned.plus && (
+        {(() => {
+          const lines = ownedLines(owned, t.plus, catalog ? packCounts(catalog.effects) : null);
+          if (lines.length === 0) return null;
+          return (
+            <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-brand/40 bg-brand/[0.08] p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="m-0 flex items-center gap-2 text-lg font-semibold tracking-tight">
+                  <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground">
+                    <Check className="size-4" aria-hidden="true" />
+                  </span>
+                  {t.plus.yoursTitle}
+                </p>
+                <ul className="m-0 mt-2 flex list-none flex-col gap-0.5 p-0 text-sm">
+                  {lines.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </div>
+              {!owned.plus && (
+                <Button type="button" variant="outline" className="shrink-0" onClick={onPlus}>
+                  <Sparkles aria-hidden="true" />
+                  {t.plus.addMore}
+                </Button>
+              )}
+            </div>
+          );
+        })()}
+        {!owned.plus && ownedLines(owned, t.plus, null).length === 0 && (
           <div className="mb-4 overflow-hidden rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/[0.16] via-card to-card">
             <div className="flex flex-col gap-4 p-5">
               <div className="flex items-start justify-between gap-4">
@@ -710,6 +737,11 @@ export function Workbench({
                 data-checked={isChecked || undefined}
                 data-previewed={isPreviewed || undefined}
               >
+                {unlockedBy(effect, owned) && (
+                  <span className="absolute -top-1.5 -left-1.5 z-10 rounded-full bg-brand px-1.5 py-px text-[9px] font-semibold tracking-wide text-brand-foreground ring-2 ring-background">
+                    {t.plus.unlockedBadge}
+                  </span>
+                )}
                 {isChecked && (
                   <span
                     className="absolute -top-1.5 -right-1.5 z-10 flex size-[18px] items-center justify-center rounded-full bg-foreground text-background ring-2 ring-background"
