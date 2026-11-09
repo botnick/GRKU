@@ -14,3 +14,6 @@
 # The phone slip page: always the current script, never a cached one.
 /slip/*
   Cache-Control: no-store
+
+/guides/*
+  Cache-Control: public, max-age=0, must-revalidate
