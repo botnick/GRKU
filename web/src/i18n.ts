@@ -708,46 +708,26 @@ const zhHans: Strings = {
     newLooks: '每月新增风格',
     lifetime: '一次付费，永久使用',
     includesFree: '所有免费内容保持免费',
-    // TODO(gemini): translate
-    phoneTitle: 'Pay from your phone',
-    // TODO(gemini): translate
-    phoneHint: 'Scan this with your phone: it opens this order there, where you pay and upload the slip. This page unlocks by itself.',
-    // TODO(gemini): translate
-    phoneWaiting: 'Waiting for the slip from your phone…',
-    // TODO(gemini): translate
-    receiver: 'Receiver',
-    // TODO(gemini): translate
-    orderRef: 'Order',
-    // TODO(gemini): translate
-    saveQr: 'Save the QR',
-    // TODO(gemini): translate
-    angpaoTitle: 'Or pay with a TrueMoney gift link',
-    // TODO(gemini): translate
-    angpaoHint: 'Open TrueMoney Wallet, make a gift (อั่งเปา) of the exact amount, copy its link and paste it here.',
-    // TODO(gemini): translate
+    phoneTitle: '手机扫码支付',
+    phoneHint: '使用手机扫描此二维码：即可在手机上打开该订单完成支付并上传凭证。本页面将自动解锁。',
+    phoneWaiting: '正在等待手机端上传凭证…',
+    receiver: '收款方',
+    orderRef: '订单',
+    saveQr: '保存二维码',
+    angpaoTitle: '或使用 TrueMoney 礼品链接支付',
+    angpaoHint: '打开 TrueMoney Wallet，制作相应金额的礼品链接（红包），复制并粘贴至此处。',
     angpaoPlaceholder: 'https://gift.truemoney.com/campaign/?v=…',
-    // TODO(gemini): translate
-    angpaoUse: 'Redeem',
-    // TODO(gemini): translate
-    angpaoShort: (got: number, missing: number) => `The gift was ฿${got}, so ฿${missing} is still missing. The gift is kept as credit on this order.`,
-    // TODO(gemini): translate
-    angpaoFailed: 'TrueMoney did not accept this link. Check that it is unused and not expired.',
-    // TODO(gemini): translate
-    changeTier: 'Change the plan',
-    // TODO(gemini): translate
-    issuedTo: (who: string) => `Issued for ${who} only. Do not forward.`,
-    // TODO(gemini): translate
-    singleUse: (minutes: number) => `One payment, valid for ${minutes} more minutes.`,
-    // TODO(gemini): translate
-    anyBank: 'Scan with any Thai bank app or e-wallet.',
-    // TODO(gemini): translate
-    acceptTerms: ['I have read and accept the ', 'Terms of Use', '.'] as readonly [string, string, string],
-    // TODO(gemini): translate
-    transferNote: 'Avoid transferring between 23:00 and 00:10: banks settle then and a slip can be read late.',
-    // TODO(gemini): translate
-    humanCheck: 'Checking that you are not a robot…',
-    // TODO(gemini): translate
-    humanFailed: 'The check did not pass. Reload the page and try again.',
+    angpaoUse: '兑换',
+    angpaoShort: (got: number, missing: number) => `礼品金额为 ฿${got}，尚缺 ฿${missing}。已收金额将计入此订单。`,
+    angpaoFailed: 'TrueMoney 未能接受此链接。请确认其未被使用且在有效期内。',
+    changeTier: '更改方案',
+    issuedTo: (who: string) => `仅限 ${who} 使用。请勿转发。`,
+    singleUse: (minutes: number) => `单次支付，有效期还剩 ${minutes} 分钟。`,
+    anyBank: '支持任一泰国银行应用或电子钱包扫码。',
+    acceptTerms: ['我已阅读并同意', '使用条款', '。'] as readonly [string, string, string],
+    transferNote: '请避开 23:00 至 00:10 之间转账：此为银行结算时段，凭证确认可能会有所延迟。',
+    humanCheck: '正在进行人机身份验证…',
+    humanFailed: '验证失败。请刷新页面后重试。',
   },
   riskTitle: '使用风险自负',
   riskText: 'GRKU 是非官方的实验性附加组件，无任何担保。它从 SD 卡加载，从不写入固件，但 Ricoh 不提供支持，您在相机上安装的内容由您自行负责。',
@@ -761,11 +741,11 @@ const zhHans: Strings = {
   landing: {
     fact: '开机约九秒后载入。格式化存储卡，相机就回到原样。',
     shelf: '胶片架',
-    shelfText: '库中的每一种风格都是一个胶片盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及本分支自制的 Positive GRII。一个安装包带 40 种进相机，随时可以在本页换。',
+    shelfText: '库中的每款色彩风格均拥有独立包装盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid 以及 GRKU 独创的 Positive GRII。单个配置包最多可向相机传输 40 款色彩风格，且随时可在此页面进行更换。',
     shelfAlt: '架子上的 135 个胶片盒',
     moduleListText: '每个模块是相机 GRKU 菜单里的一行。只装你想要的。',
     edition: 'BOTNICK 版',
-    fork: ['基于 ', 'ahonn/GRKit', ' 的分支：更多胶片、彩色图标、更快启动，不含快速启动固件。'],
+    fork: ['基于 ', 'ahonn/GRKit', ' 的代码重新构建的独立项目：支持更多胶片、彩色图标、色彩配方，启动更快，且无需快速启动固件。'] as readonly [string, string, string],
     install: '开始安装',
     installNote: '可直接写入 SD 卡，或下载 GRKU.zip。',
     installNoteZip: '下载 GRKU.zip，复制到 SD 卡。',
@@ -1282,46 +1262,26 @@ const zhHant: Strings = {
     newLooks: '每月新增風格',
     lifetime: '一次付款，永久使用',
     includesFree: '免費功能維持免費',
-    // TODO(gemini): translate
-    phoneTitle: 'Pay from your phone',
-    // TODO(gemini): translate
-    phoneHint: 'Scan this with your phone: it opens this order there, where you pay and upload the slip. This page unlocks by itself.',
-    // TODO(gemini): translate
-    phoneWaiting: 'Waiting for the slip from your phone…',
-    // TODO(gemini): translate
-    receiver: 'Receiver',
-    // TODO(gemini): translate
-    orderRef: 'Order',
-    // TODO(gemini): translate
-    saveQr: 'Save the QR',
-    // TODO(gemini): translate
-    angpaoTitle: 'Or pay with a TrueMoney gift link',
-    // TODO(gemini): translate
-    angpaoHint: 'Open TrueMoney Wallet, make a gift (อั่งเปา) of the exact amount, copy its link and paste it here.',
-    // TODO(gemini): translate
+    phoneTitle: '使用手機付款',
+    phoneHint: '使用手機掃描此處：即可在手機上開啟此訂單以進行付款並上傳憑條。此頁面將自動解鎖。',
+    phoneWaiting: '正在等待來自手機的憑條…',
+    receiver: '收款人',
+    orderRef: '訂單',
+    saveQr: '儲存 QR 碼',
+    angpaoTitle: '或使用 TrueMoney 禮物連結付款',
+    angpaoHint: '開啟 TrueMoney Wallet，製作剛好金額的禮物紅包（อั่งเปา），複製連結並貼於此處。',
     angpaoPlaceholder: 'https://gift.truemoney.com/campaign/?v=…',
-    // TODO(gemini): translate
-    angpaoUse: 'Redeem',
-    // TODO(gemini): translate
-    angpaoShort: (got: number, missing: number) => `The gift was ฿${got}, so ฿${missing} is still missing. The gift is kept as credit on this order.`,
-    // TODO(gemini): translate
-    angpaoFailed: 'TrueMoney did not accept this link. Check that it is unused and not expired.',
-    // TODO(gemini): translate
-    changeTier: 'Change the plan',
-    // TODO(gemini): translate
-    issuedTo: (who: string) => `Issued for ${who} only. Do not forward.`,
-    // TODO(gemini): translate
-    singleUse: (minutes: number) => `One payment, valid for ${minutes} more minutes.`,
-    // TODO(gemini): translate
-    anyBank: 'Scan with any Thai bank app or e-wallet.',
-    // TODO(gemini): translate
-    acceptTerms: ['I have read and accept the ', 'Terms of Use', '.'] as readonly [string, string, string],
-    // TODO(gemini): translate
-    transferNote: 'Avoid transferring between 23:00 and 00:10: banks settle then and a slip can be read late.',
-    // TODO(gemini): translate
-    humanCheck: 'Checking that you are not a robot…',
-    // TODO(gemini): translate
-    humanFailed: 'The check did not pass. Reload the page and try again.',
+    angpaoUse: '兌換',
+    angpaoShort: (got: number, missing: number) => `禮物金額為 ฿${got}，尚缺 ฿${missing}。已付金額將保留為此訂單的餘額。`,
+    angpaoFailed: 'TrueMoney 無法接受此連結。請確認該連結尚未使用且未過期。',
+    changeTier: '變更方案',
+    issuedTo: (who: string) => `僅供 ${who} 使用。請勿轉發。`,
+    singleUse: (minutes: number) => `單次付款，有效時間剩餘 ${minutes} 分鐘。`,
+    anyBank: '可使用任何泰國銀行 App 或電子錢包掃描。',
+    acceptTerms: ['我已閱讀並同意', '使用條款', '。'] as readonly [string, string, string],
+    transferNote: '請避免在 23:00 至 00:10 之間轉帳：此時段為銀行結算時間，憑條辨識可能會延遲。',
+    humanCheck: '正在確認您是否為真人…',
+    humanFailed: '驗證失敗。請重新載入頁面後再試一次。',
   },
   riskTitle: '請自行承擔使用風險',
   riskText: 'GRKU 為非官方的實驗性附加元件，不提供任何保固。它由 SD 卡載入，絕不會寫入韌體，但 Ricoh 並不支援此產品，您在相機上安裝的內容須自行負責。',
@@ -1335,11 +1295,11 @@ const zhHant: Strings = {
   landing: {
     fact: '開機約九秒後載入。格式化記憶卡，相機就回到原樣。',
     shelf: '底片架',
-    shelfText: '庫中的每一種風格都是一個底片盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及本分支自製的 Positive GRII。一個安裝包帶 40 種進相機，隨時可在本頁更換。',
+    shelfText: '資料庫中的每種風格皆為獨立包裝：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及 GRKU 專屬的 Positive GRII。每個套件可載入 40 組風格至相機，並可隨時在此頁面進行更換。',
     shelfAlt: '架上的 135 個底片盒',
     moduleListText: '每個模組是相機 GRKU 選單裡的一列。只裝你想要的。',
     edition: 'BOTNICK 版',
-    fork: ['基於 ', 'ahonn/GRKit', ' 的分支：更多底片、彩色圖示、更快啟動，不含快速啟動韌體。'],
+    fork: ['基於 ', 'ahonn/GRKit', ' 程式碼，重新打造的獨立專案：更多底片外觀、彩色圖示、色彩配方、更快的啟動速度，且無需快速開機韌體。'] as readonly [string, string, string],
     install: '開始安裝',
     installNote: '可直接寫入 SD 卡，或下載 GRKU.zip。',
     installNoteZip: '下載 GRKU.zip，複製到 SD 卡。',
@@ -1856,46 +1816,26 @@ const ja: Strings = {
     newLooks: '毎月新しいルック',
     lifetime: '1回のお支払いで永久に',
     includesFree: '無料のものはすべて無料のまま',
-    // TODO(gemini): translate
-    phoneTitle: 'Pay from your phone',
-    // TODO(gemini): translate
-    phoneHint: 'Scan this with your phone: it opens this order there, where you pay and upload the slip. This page unlocks by itself.',
-    // TODO(gemini): translate
-    phoneWaiting: 'Waiting for the slip from your phone…',
-    // TODO(gemini): translate
-    receiver: 'Receiver',
-    // TODO(gemini): translate
-    orderRef: 'Order',
-    // TODO(gemini): translate
-    saveQr: 'Save the QR',
-    // TODO(gemini): translate
-    angpaoTitle: 'Or pay with a TrueMoney gift link',
-    // TODO(gemini): translate
-    angpaoHint: 'Open TrueMoney Wallet, make a gift (อั่งเปา) of the exact amount, copy its link and paste it here.',
-    // TODO(gemini): translate
+    phoneTitle: 'スマートフォンで支払う',
+    phoneHint: 'このQRコードをスマートフォンで読み取ると、支払いと明細書の送信画面が開きます。完了するとこの画面が自動で更新されます。',
+    phoneWaiting: 'スマートフォンからの明細書送信を待機中…',
+    receiver: '受取人',
+    orderRef: 'ご注文番号',
+    saveQr: 'QRコードを保存',
+    angpaoTitle: 'またはTrueMoneyギフトリンクで支払う',
+    angpaoHint: 'TrueMoney Walletを開き、指定の金額でギフト（อั่งเปา）を作成してリンクをここに貼り付けてください。',
     angpaoPlaceholder: 'https://gift.truemoney.com/campaign/?v=…',
-    // TODO(gemini): translate
-    angpaoUse: 'Redeem',
-    // TODO(gemini): translate
-    angpaoShort: (got: number, missing: number) => `The gift was ฿${got}, so ฿${missing} is still missing. The gift is kept as credit on this order.`,
-    // TODO(gemini): translate
-    angpaoFailed: 'TrueMoney did not accept this link. Check that it is unused and not expired.',
-    // TODO(gemini): translate
-    changeTier: 'Change the plan',
-    // TODO(gemini): translate
-    issuedTo: (who: string) => `Issued for ${who} only. Do not forward.`,
-    // TODO(gemini): translate
-    singleUse: (minutes: number) => `One payment, valid for ${minutes} more minutes.`,
-    // TODO(gemini): translate
-    anyBank: 'Scan with any Thai bank app or e-wallet.',
-    // TODO(gemini): translate
-    acceptTerms: ['I have read and accept the ', 'Terms of Use', '.'] as readonly [string, string, string],
-    // TODO(gemini): translate
-    transferNote: 'Avoid transferring between 23:00 and 00:10: banks settle then and a slip can be read late.',
-    // TODO(gemini): translate
-    humanCheck: 'Checking that you are not a robot…',
-    // TODO(gemini): translate
-    humanFailed: 'The check did not pass. Reload the page and try again.',
+    angpaoUse: '適用',
+    angpaoShort: (got: number, missing: number) => `ギフト金額は ฿${got} です。不足分の ฿${missing} をお支払いください。受領額はこの注文のクレジットとして保持されます。`,
+    angpaoFailed: 'TrueMoneyでリンクを処理できませんでした。未使用かつ有効期限内であることをご確認ください。',
+    changeTier: 'プランを変更',
+    issuedTo: (who: string) => `${who} 専用です。転送しないでください。`,
+    singleUse: (minutes: number) => `1回のみ有効・残り有効時間 ${minutes} 分`,
+    anyBank: 'タイの各銀行アプリまたは電子ウォレットで読み取れます。',
+    acceptTerms: ['', '利用規約', 'に同意します。'] as readonly [string, string, string],
+    transferNote: '23:00〜00:10の間の送金はお控えください（銀行のシステム処理により明細書の確認に遅れが生じる場合があります）。',
+    humanCheck: '認証中…',
+    humanFailed: '認証に失敗しました。ページを再読み込みして再度お試しください。',
   },
   riskTitle: '自己責任でご利用ください',
   riskText: 'GRKUは非公式の実験的なアドオンであり、保証はありません。SDカードから読み込まれ、ファームウェアには書き込みませんが、Ricohのサポート対象外です。カメラに入れるものはご自身の責任となります。',
@@ -1909,11 +1849,11 @@ const ja: Strings = {
   landing: {
     fact: '電源を入れて約 9 秒で読み込まれます。カードをフォーマットすればカメラは元どおりです。',
     shelf: 'フィルム棚',
-    shelfText: 'ライブラリの全ルックを箱の姿で。Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid、そしてこのフォーク独自の Positive GRII。パッケージには 40 本をカメラへ。入れ替えはいつでもこのページから。',
+    shelfText: 'ライブラリ内の各ルックを専用パッケージで収録：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid、GRKUオリジナルの Positive GRII。カメラには最大40種類を登録可能。本ページからいつでも入れ替えできます。',
     shelfAlt: '棚に並ぶ 135 個のフィルム箱',
     moduleListText: '各モジュールはカメラの GRKU メニューの 1 行です。使いたいものだけ入れます。',
     edition: 'BOTNICK 版',
-    fork: ['', 'ahonn/GRKit', ' のフォーク。フィルムを増やし、アイコンをカラーにし、起動を速くし、高速起動ファームウェアは含みません。'],
+    fork: ['', 'ahonn/GRKit', ' をベースに再構築された独自プロジェクト。フィルム数の拡充、カラーアイコン、レシピ対応、起動の高速化を実現し、ファストブート用ファームウェアも不要です。'] as readonly [string, string, string],
     install: 'インストール',
     installNote: 'SD カードに直接書き込むか、GRKU.zip をダウンロードします。',
     installNoteZip: 'GRKU.zip をダウンロードして SD カードにコピーします。',
@@ -2434,46 +2374,26 @@ const ko: Strings = {
     newLooks: '매달 새로운 룩',
     lifetime: '한 번 결제, 영구 사용',
     includesFree: '무료는 계속 무료입니다',
-    // TODO(gemini): translate
-    phoneTitle: 'Pay from your phone',
-    // TODO(gemini): translate
-    phoneHint: 'Scan this with your phone: it opens this order there, where you pay and upload the slip. This page unlocks by itself.',
-    // TODO(gemini): translate
-    phoneWaiting: 'Waiting for the slip from your phone…',
-    // TODO(gemini): translate
-    receiver: 'Receiver',
-    // TODO(gemini): translate
-    orderRef: 'Order',
-    // TODO(gemini): translate
-    saveQr: 'Save the QR',
-    // TODO(gemini): translate
-    angpaoTitle: 'Or pay with a TrueMoney gift link',
-    // TODO(gemini): translate
-    angpaoHint: 'Open TrueMoney Wallet, make a gift (อั่งเปา) of the exact amount, copy its link and paste it here.',
-    // TODO(gemini): translate
+    phoneTitle: '스마트폰으로 결제',
+    phoneHint: '스마트폰으로 스캔하세요. 주문 페이지가 열리며 결제 및 영수증 업로드를 진행할 수 있습니다. 완료 시 이 페이지가 자동으로 전환됩니다.',
+    phoneWaiting: '스마트폰에서 영수증 전송 대기 중…',
+    receiver: '수취인',
+    orderRef: '주문',
+    saveQr: 'QR 코드 저장',
+    angpaoTitle: '또는 TrueMoney 선물 링크로 결제',
+    angpaoHint: 'TrueMoney Wallet을 열어 정확한 금액으로 선물(อั่งเปา)을 생성한 후 링크를 복사하여 여기에 붙여넣으세요.',
     angpaoPlaceholder: 'https://gift.truemoney.com/campaign/?v=…',
-    // TODO(gemini): translate
-    angpaoUse: 'Redeem',
-    // TODO(gemini): translate
-    angpaoShort: (got: number, missing: number) => `The gift was ฿${got}, so ฿${missing} is still missing. The gift is kept as credit on this order.`,
-    // TODO(gemini): translate
-    angpaoFailed: 'TrueMoney did not accept this link. Check that it is unused and not expired.',
-    // TODO(gemini): translate
-    changeTier: 'Change the plan',
-    // TODO(gemini): translate
-    issuedTo: (who: string) => `Issued for ${who} only. Do not forward.`,
-    // TODO(gemini): translate
-    singleUse: (minutes: number) => `One payment, valid for ${minutes} more minutes.`,
-    // TODO(gemini): translate
-    anyBank: 'Scan with any Thai bank app or e-wallet.',
-    // TODO(gemini): translate
-    acceptTerms: ['I have read and accept the ', 'Terms of Use', '.'] as readonly [string, string, string],
-    // TODO(gemini): translate
-    transferNote: 'Avoid transferring between 23:00 and 00:10: banks settle then and a slip can be read late.',
-    // TODO(gemini): translate
-    humanCheck: 'Checking that you are not a robot…',
-    // TODO(gemini): translate
-    humanFailed: 'The check did not pass. Reload the page and try again.',
+    angpaoUse: '사용',
+    angpaoShort: (got: number, missing: number) => `선물 금액은 ฿${got}이며, ฿${missing}가 부족합니다. 입력된 금액은 이 주문의 크레딧으로 보관됩니다.`,
+    angpaoFailed: 'TrueMoney에서 이 링크를 처리하지 못했습니다. 사용되지 않은 링크인지 및 만료 여부를 확인하세요.',
+    changeTier: '플랜 변경',
+    issuedTo: (who: string) => `${who} 전용으로 발급되었습니다. 타인에게 전달하지 마세요.`,
+    singleUse: (minutes: number) => `1회 결제용, 유효 시간 ${minutes}분 남음.`,
+    anyBank: '태국 은행 앱 또는 전자지갑으로 스캔하세요.',
+    acceptTerms: ['', '이용약관', '을(를) 확인하였으며 이에 동의합니다.'] as readonly [string, string, string],
+    transferNote: '23:00~00:10 사이에는 이체를 피하세요. 은행 정산 시간으로 인해 영수증 확인이 지연될 수 있습니다.',
+    humanCheck: '봇 여부 확인 중…',
+    humanFailed: '확인에 실패했습니다. 페이지를 새로고침한 후 다시 시도해 주십시오.',
   },
   riskTitle: '사용자 책임 하에 사용',
   riskText: 'GRKU는 보증 없는 비공식 실험적 애드온입니다. SD 카드에서 로드되며 펌웨어를 쓰지 않지만, Ricoh가 지원하지 않으며 카메라에 설치하는 것은 사용자 본인의 책임입니다.',
@@ -2487,11 +2407,11 @@ const ko: Strings = {
   landing: {
     fact: '전원을 켠 뒤 약 9초면 불러옵니다. 카드를 포맷하면 카메라는 원래대로입니다.',
     shelf: '필름 선반',
-    shelfText: '라이브러리의 모든 룩을 필름 상자 모습으로: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, 그리고 이 포크의 Positive GRII. 패키지 하나에 40개를 카메라로 가져갑니다. 이 페이지에서 언제든 바꿀 수 있습니다.',
+    shelfText: '라이브러리의 각 필름 룩이 개별 박스로 제공됩니다: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid 및 GRKU 오리지널 Positive GRII. 한 번에 최대 40개를 카메라에 담을 수 있으며, 이 페이지에서 언제든지 교체할 수 있습니다.',
     shelfAlt: '선반 위의 필름 상자 135개',
     moduleListText: '각 모듈은 카메라 GRKU 메뉴의 한 줄입니다. 원하는 것만 설치하세요.',
     edition: 'BOTNICK 에디션',
-    fork: ['', 'ahonn/GRKit', '의 포크: 더 많은 필름, 컬러 아이콘, 더 빠른 시작, 패스트부트 펌웨어 없음.'],
+    fork: ['', 'ahonn/GRKit', '의 코드를 기반으로 재구축된 독립 프로젝트입니다: 더 많은 필름 룩, 컬러 아이콘, 레시피, 빠른 구동을 지원하며 패스트 부트 펌웨어는 사용하지 않습니다.'] as readonly [string, string, string],
     install: '설치하기',
     installNote: 'SD 카드에 바로 기록하거나 GRKU.zip을 다운로드합니다.',
     installNoteZip: 'GRKU.zip을 다운로드해 SD 카드에 복사합니다.',
@@ -3026,46 +2946,26 @@ const th: Strings = {
     newLooks: 'ลุคใหม่ทุกเดือน',
     lifetime: 'จ่ายครั้งเดียว ใช้ตลอดไป',
     includesFree: 'ของฟรีทั้งหมดยังคงฟรี',
-    // TODO(gemini): translate
-    phoneTitle: 'Pay from your phone',
-    // TODO(gemini): translate
-    phoneHint: 'Scan this with your phone: it opens this order there, where you pay and upload the slip. This page unlocks by itself.',
-    // TODO(gemini): translate
-    phoneWaiting: 'Waiting for the slip from your phone…',
-    // TODO(gemini): translate
-    receiver: 'Receiver',
-    // TODO(gemini): translate
-    orderRef: 'Order',
-    // TODO(gemini): translate
-    saveQr: 'Save the QR',
-    // TODO(gemini): translate
-    angpaoTitle: 'Or pay with a TrueMoney gift link',
-    // TODO(gemini): translate
-    angpaoHint: 'Open TrueMoney Wallet, make a gift (อั่งเปา) of the exact amount, copy its link and paste it here.',
-    // TODO(gemini): translate
+    phoneTitle: 'จ่ายผ่านมือถือ',
+    phoneHint: 'สแกนด้วยมือถือเพื่อเปิดคำสั่งซื้อนี้ แล้วจ่ายเงินพร้อมแนบสลิปได้เลย หน้านี้จะปลดล็อกให้เอง',
+    phoneWaiting: 'กำลังรอสลิปจากมือถือของคุณ…',
+    receiver: 'ผู้รับเงิน',
+    orderRef: 'คำสั่งซื้อ',
+    saveQr: 'บันทึก QR',
+    angpaoTitle: 'หรือจ่ายด้วยซองของขวัญ TrueMoney',
+    angpaoHint: 'เปิด TrueMoney Wallet แล้วสร้างซองของขวัญ (อั่งเปา) ตามยอดเงินที่พอดี จากนั้นคัดลอกลิงก์มาวางที่นี่',
     angpaoPlaceholder: 'https://gift.truemoney.com/campaign/?v=…',
-    // TODO(gemini): translate
-    angpaoUse: 'Redeem',
-    // TODO(gemini): translate
-    angpaoShort: (got: number, missing: number) => `The gift was ฿${got}, so ฿${missing} is still missing. The gift is kept as credit on this order.`,
-    // TODO(gemini): translate
-    angpaoFailed: 'TrueMoney did not accept this link. Check that it is unused and not expired.',
-    // TODO(gemini): translate
-    changeTier: 'Change the plan',
-    // TODO(gemini): translate
-    issuedTo: (who: string) => `Issued for ${who} only. Do not forward.`,
-    // TODO(gemini): translate
-    singleUse: (minutes: number) => `One payment, valid for ${minutes} more minutes.`,
-    // TODO(gemini): translate
-    anyBank: 'Scan with any Thai bank app or e-wallet.',
-    // TODO(gemini): translate
-    acceptTerms: ['I have read and accept the ', 'Terms of Use', '.'] as readonly [string, string, string],
-    // TODO(gemini): translate
-    transferNote: 'Avoid transferring between 23:00 and 00:10: banks settle then and a slip can be read late.',
-    // TODO(gemini): translate
-    humanCheck: 'Checking that you are not a robot…',
-    // TODO(gemini): translate
-    humanFailed: 'The check did not pass. Reload the page and try again.',
+    angpaoUse: 'ใช้อั่งเปา',
+    angpaoShort: (got: number, missing: number) => `ซองของขวัญมีมูลค่า ฿${got} ยังขาดอีก ฿${missing} โดยยอดนี้จะถูกเก็บไว้เป็นเครดิตสำหรับคำสั่งซื้อนี้`,
+    angpaoFailed: 'TrueMoney ไม่รับลิงก์นี้ ลองตรวจดูว่าลิงก์ยังไม่เคยถูกใช้และยังไม่หมดอายุ',
+    changeTier: 'เปลี่ยนแพ็กเกจ',
+    issuedTo: (who: string) => `สำหรับ ${who} เท่านั้น ห้ามส่งต่อ`,
+    singleUse: (minutes: number) => `ใช้จ่ายได้ครั้งเดียว มีอายุอีก ${minutes} นาที`,
+    anyBank: 'สแกนได้ด้วยแอปธนาคารไทยทุกแห่งหรือ e-wallet',
+    acceptTerms: ['ฉันได้อ่านและยอมรับ', 'ข้อกำหนดการใช้งาน', ''] as readonly [string, string, string],
+    transferNote: 'หลีกเลี่ยงการโอนช่วง 23:00 - 00:10 น. เนื่องจากระบบธนาคารปิดยอด อาจทำให้ตรวจสลิปล่าช้า',
+    humanCheck: 'กำลังตรวจสอบว่าคุณไม่ใช่บอท…',
+    humanFailed: 'การตรวจสอบไม่ผ่าน โหลดหน้านี้ใหม่แล้วลองอีกครั้ง',
   },
   riskTitle: 'ใช้งานด้วยความเสี่ยงของคุณเอง',
   riskText: 'GRKU เป็นส่วนเสริมที่ไม่เป็นทางการและอยู่ในขั้นทดลอง ไม่มีการรับประกัน โหลดจากการ์ด SD และไม่เขียนเฟิร์มแวร์ แต่ Ricoh ไม่รองรับ และสิ่งที่คุณติดตั้งลงในกล้องเป็นความรับผิดชอบของคุณเอง',
@@ -3083,11 +2983,11 @@ const th: Strings = {
   landing: {
     fact: 'โหลดประมาณเก้าวินาทีหลังเปิดเครื่อง ล้างการ์ดแล้วกล้องจะกลับสู่ค่าเดิมจากโรงงาน',
     shelf: 'ชั้นวางฟิล์ม',
-    shelfText: 'ทุกลุคในคลังมาในกล่องฟิล์มของตัวเอง ทั้ง Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid และ Positive GRII ของเวอร์ชันนี้ หนึ่งแพ็กเกจบรรจุได้ 40 ลุคลงในกล้อง สลับเปลี่ยนได้ทุกเมื่อจากหน้านี้',
+    shelfText: 'ทุกลุคในคลังมาพร้อมกล่องเฉพาะตัว ทั้ง Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid และ Positive GRII ของ GRKU เอง แพ็กเกจเดียวใส่ฟิล์มไปใช้ในกล้องได้ 40 แบบ สลับเปลี่ยนเมื่อไหร่ก็ได้จากหน้านี้',
     shelfAlt: 'กล่องฟิล์ม 135 กล่องบนชั้นวาง',
     moduleListText: 'แต่ละโมดูลคือหนึ่งแถวในเมนู GRKU บนกล้อง เลือกติดตั้งเฉพาะตัวที่คุณต้องการ',
     edition: 'รุ่น BOTNICK',
-    fork: ['พัฒนาต่อยอดจาก ', 'ahonn/GRKit', ' เพิ่มฟิล์มมากขึ้น ไอคอนสี เริ่มทำงานเร็วขึ้น และไม่ต้องใช้เฟิร์มแวร์บูตเร็ว'] as readonly [string, string, string],
+    fork: ['พัฒนาต่อจากโค้ดของ ', 'ahonn/GRKit', ' สู่โปรเจกต์ของตัวเอง เพิ่มฟิล์ม ไอคอนสี สูตรสี เริ่มต้นใช้งานได้เร็วกว่า และไม่ต้องใช้เฟิร์มแวร์ fast-boot'] as readonly [string, string, string],
     install: 'ติดตั้ง',
     installNote: 'เขียน GRKU ลงการ์ด SD โดยตรง หรือดาวน์โหลดไฟล์ GRKU.zip',
     /** The install note where the browser cannot write to a card: a phone, a tablet, Safari, Firefox. */
