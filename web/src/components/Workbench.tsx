@@ -33,7 +33,7 @@ import { importFit, resolveSelection, selectImport, type Selection } from '../se
 import { STOCKS } from '../stocks';
 import { useCatalog } from '../useCatalog';
 import { EditDialog, type EditDialogHandle } from './EditDialog';
-import { BrandMark } from './BrandMark';
+import { BrandSwatch } from './BrandMark';
 import { EffectIcon } from './EffectIcon';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ImportDialog, type ImportDialogHandle } from './ImportDialog';
@@ -580,24 +580,27 @@ export function Workbench({
               />
             </div>
             <Select value={brand} onValueChange={setBrand}>
-              <SelectTrigger className="h-10 w-36 shrink-0 bg-card data-[size=default]:h-10" aria-label={t.allBrands}>
+              <SelectTrigger className="h-10 w-40 shrink-0 bg-card data-[size=default]:h-10" aria-label={t.allBrands}>
                 <SelectValue>
                   {brand === 'all' ? (
                     t.allBrands
                   ) : (
-                    <span className="flex items-center">
-                      <BrandMark brand={brand} />
-                      <span className="sr-only">{brand}</span>
+                    <span className="flex items-center gap-2">
+                      <BrandSwatch brand={brand} />
+                      <span className="truncate">{brand}</span>
                     </span>
                   )}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent position="popper" align="end">
-                <SelectItem value="all">{t.allBrands}</SelectItem>
+              <SelectContent position="popper" align="end" className="min-w-44">
+                <SelectItem value="all">
+                  <span className="size-4 shrink-0" aria-hidden="true" />
+                  {t.allBrands}
+                </SelectItem>
                 {brands.map((item) => (
-                  <SelectItem key={item} value={item} className="py-2">
-                    <BrandMark brand={item} />
-                    <span className="sr-only">{item}</span>
+                  <SelectItem key={item} value={item} textValue={item}>
+                    <BrandSwatch brand={item} />
+                    {item}
                   </SelectItem>
                 ))}
               </SelectContent>

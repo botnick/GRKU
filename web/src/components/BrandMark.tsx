@@ -44,3 +44,21 @@ export function BrandMark({ brand, className }: { brand: string; className?: str
     </span>
   );
 }
+
+/**
+ * A 16px square in the brand's band colour with the brand's initial in its text colour (the
+ * Polaroid rainbow for Polaroid): the quiet, distinct mark of a list row, like a favicon.
+ */
+export function BrandSwatch({ brand, className }: { brand: string; className?: string }) {
+  const style = BRAND_STYLE[brand];
+  const rainbow = style?.rainbow ?? false;
+  return (
+    <span
+      className={cn('inline-flex size-4 shrink-0 items-center justify-center rounded-[4px] text-[9px] leading-none font-extrabold ring-1 ring-white/15 ring-inset', className)}
+      style={{ background: rainbow ? 'linear-gradient(180deg, #ed1c24 0 20%, #f7941d 20% 40%, #ffde00 40% 60%, #00a651 60% 80%, #0072bc 80%)' : (style?.band ?? 'var(--muted)'), color: rainbow ? 'transparent' : (style?.text ?? 'var(--foreground)') }}
+      aria-hidden="true"
+    >
+      {brand.charAt(0)}
+    </span>
+  );
+}
