@@ -8,11 +8,11 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![grku.app](https://img.shields.io/badge/site-grku.app-d94135)](https://grku.app)
 
-GRKU は、ahonn 氏の [GRKit](https://github.com/ahonn/GRKit) をもとに開発されています。GRKit は SD カードから GR 上でコードを実行する方法を発見し、最初のフィルムルック、モジュール、ウェブインストーラーを構築しました。GRKU はその成果を受け継ぎ、まずタイの GR ユーザーへ、そして世界中のすべての人へ向けたプロダクトとして仕上げました。リアルなフィルム箱のアイコンを備えたより大きなフィルムライブラリ、レシピ、さらなるモジュール、ワンショット起動、カードへの書き込みや追加ルックの購入ができるサイト、そしてタイ語のトーンを備えています。[GRKU が GRKit に追加したもの](#what-grku-adds-to-grkit)のセクションにすべての変更点を掲載しています。
+GRKU は、[BOTNICK](https://github.com/botnick) がまずタイの GR ユーザーへ、そして世界中のすべての人へ向けて制作した独自のプロジェクトです。SD カードから GR 上でコードを実行する方法を発見した ahonn 氏による [GRKit](https://github.com/ahonn/GRKit) のコードから始まり、その後ひとつひとつ再構築されました。リアルなフィルム箱のアイコンを備えた 135 種類のルックからなるフィルムライブラリ、レシピ、さらなるモジュール、ワンショット起動、カードへの書き込みや追加ルックの購入ができるサイト、タイ語のトーン、そして独自のリリースパイプラインを備えています。[ルーツ](#origins)のセクションに、何が GRKit に由来し、GRKU がそれをどのように作り上げたかを掲載しています。
 
 <p>
   <img src="resources/images/grku-root.jpg" alt="ADJ メニューの GRKU ページ" width="49%">
-  <img src="resources/images/grku-menu.jpg" alt="MENU のカスタマイズタブにある GRKU" width="49%">
+  <img src="resources/images/grku-menu.jpg" alt="MENU のカスタマイズタブにある GRKU セクション" width="49%">
 </p>
 
 写真：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)、[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)。
@@ -60,7 +60,7 @@ GRKU 独自の変更点は、ファームウェア 1.11 の GR IV で動作し�
 
 MENU ボタンを押しながら電源を入れるのは初回だけです。ZIP からアップデートするときは、カードの `SCRIPT` フォルダーを入れ替えてください。設定は `GRKU` に残ります。カードをフォーマットすると GRKU は消去されます。
 
-GRKit から移行する場合：サイトを利用すると、設定とルックが `GRKIT` フォルダーから `GRKU` に移動されます。手動でファイルをコピーする場合は、初回起動前にカードのルートにある `GRKIT` の名前を `GRKU` に変更するか、削除してください。
+GRKit（GRKU の母体となったプロジェクト）から移行する場合：サイトを利用すると、設定とルックが `GRKIT` フォルダーから `GRKU` に移動されます。手動でファイルをコピーする場合は、初回起動前にカードのルートにある `GRKIT` の名前を `GRKU` に変更するか、削除してください。
 
 GRKU が表示されない場合は、`GRKU/REPORT.TXT`、`GRKU/BOOT.TXT`、`SCRIPT/GRKU/INSTALL.ERR`（存在する場合）を添えて [issue](https://github.com/botnick/GRKU/issues/new) を送信してください。[各行の意味について](docs/diagnostics.md)。
 
@@ -68,11 +68,11 @@ GRKU が表示されない場合は、`GRKU/REPORT.TXT`、`GRKU/BOOT.TXT`、`SCR
 
 無料のサイトでは、任意の 10 種類のルックをカードに書き込めます。GRKU Plus は PromptPay による 1 回限りの支払いで、25 スロット、ブランドパック、またはすべて（40 スロットとすべてのルック）のロックを解除します。キーはメールで届き、すべてのデバイスで使用できます。このサービスは `services/plus` で動作し、カードを見ることは一切ありません。
 
-## GRKU が GRKit に追加した機能
+## 起源
 
-GRKU は GRKit 1.5.2 からスタートし、GRKit の `feat/recipes` ブランチをマージしました。GRKit の高速起動ファームウェアは意図的に除外されています。以下に挙げるすべてが、GRKit のランタイム、モジュールシステム、ウェブインストーラー、テストの上で構築された GRKU による追加要素です。
+GRKU は GRKit 1.5.2 および GRKit の `feat/recipes` ブランチをもとに成長しました。ランタイムの仕組み、モジュール ABI、テストハーネスは GRKit のものであり、GRKU はその MIT 表記を保持しています。GRKit の高速起動ファームウェアは意図的に除外されています。以下に挙げるその他すべてが、GRKU 独自の成果です。
 
-| 領域 | GRKit | GRKU | 実装方法 |
+| 領域 | GRKit（GRKU の起点） | 現在の GRKU | 実装方法 |
 | --- | --- | --- | --- |
 | フィルムライブラリ | 21 種類のルック | 135 種類のルック、カードあたり 40 種類。すべてのルックを収録したフィルムライブラリ ZIP | Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT、Fotufilm のオープンなフィルムプリセットからフィッティングを行い、`docs/popular-films-2026.md` における 2026 年の人気度調査に基づいてデフォルトの 40 種類を選定 |
 | アイコン | フラットなタイル | すべてのルックに実物のパッケージ色を模したフィルム箱、メニュー用のカラータイル、独自の PNG アイコンを持つエフェクト | `scripts/flap-icons.py` が箱を描画。エフェクトコンパイラが `icon: {"png": ...}` を処理 |
@@ -83,9 +83,9 @@ GRKU は GRKit 1.5.2 からスタートし、GRKit の `feat/recipes` ブラン�
 | サイト | 英語、中国語、日本語、韓国語 | タイ語ファースト、6 言語、shadcn/ui で構築されたダーク調の 1 ページ構成インストーラー、6 枚のサンプル写真でのライブプレビュー、GRKU Plus、SEO およびリンクプレビュー | `web/`、`services/plus` |
 | カード | `GRKIT` フォルダー | `GRKU` フォルダー。サイトおよび `scripts/card.py` が古い `GRKIT` フォルダーを移動し、カメラ側は触れません | `web/src/card.ts`、`scripts/card.py` |
 | ブランド | GRKit | GRKU：赤いピリオドが付いたワードマーク、タイのトーン、`docs/brand.md` | |
-| リリース | GitHub Actions から grkit.app へ | grku.app 用の同一パイプライン：プッシュによりリリースのプルリクエストが作成され、マージすると公式ファームウェアからビルドして Cloudflare Pages 経由でサイトをデプロイ。Plus サービスは `services/plus` からデプロイ | `.github/workflows`、`docs/releasing.md` |
+| リリース | GitHub Actions から grkit.app へ | grku.app 用の同一パイプライン：プッシュによりリリースのプルリクエストが作成され、マージすると公式ファームウェアからビルドして Cloudflare Pages 経由でサイトをデプロイ。Plus サービスは `services/plus` からデプロイ | `.github/workflows`, `docs/releasing.md` |
 
-GRKU は GRKit のモジュール ABI を維持しており（GRKit SDK でビルドされたモジュールも引き続き読み込まれます）、そのライセンスも保持し、適用可能な修正は GRKit に送り返されます。
+GRKU は GRKit のモジュール ABI を維持しており（GRKit SDK でビルドされたモジュールも引き続き読み込まれます）、そのライセンスも保持し、適用可能な修正は GRKit に送り返されます。GRKU は GRKit のミラーではありません。GRKit のその後のリリースはマージするのではなく、内容を吟味しています。
 
 ## ソースからのビルド
 

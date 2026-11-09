@@ -37,18 +37,18 @@ GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可
 - **Grain：** 照片上的底片顆粒。按下 Fn 可選擇顆粒大小。
 - **Border：** 覆蓋在照片上的白色或黑色邊框，寬度為照片寬度的 3% 或 6%，僅適用於 JPEG 照片。
 
-所有設定同樣位於 MENU 的 Custom 分頁 (C) 末尾的 **GRKU** 區段中。每個模組各佔一列。您可以在那裡開啟或關閉模組，在 **Options** 中勾選要讓 ADJ 顯示的效果、比例或樣式，並在 **ADJ Order** 中設定順序。GRKU 會在關機後保留您的設定。
+所有設定同樣位於 MENU 的 Customize 分頁 (C) 末尾的 **GRKU** 區段中。每個模組各佔一列。您可以在那裡開啟或關閉模組，在 **Options** 中勾選要讓 ADJ 顯示的效果、比例或樣式，並在 **ADJ Order** 中設定順序。GRKU 會在關機後保留您的設定。
 
 ## 更新
 
-在電腦上的 Chrome 或 Edge 中開啟 [grku.app](https://grku.app/)，可以透過讀卡機直接更新記憶卡，代替第 2、3 步。
+在電腦上的 Chrome 或 Edge 中，[grku.app](https://grku.app/) 可以更新讀卡機裡的記憶卡。它會取代步驟 2 與 3。
 
-1. 關閉相機。
+1. 關閉相機電源。
 2. 從記憶卡刪除 `SCRIPT` 資料夾。
-3. 把新安裝包 `SD_ROOT` 中的 `SCRIPT` 資料夾複製到記憶卡根目錄。
-4. 正常開機，不需要按住 MENU。
+3. 將新安裝包 `SD_ROOT` 裡的 `SCRIPT` 資料夾複製到 SD 卡的根目錄。
+4. 正常開啟相機電源。你不需要按住 MENU。
 
-GRKU 會把設定和效果保存在 `GRKU` 資料夾中，因此更新後仍在。要從 GRKU 換成 GRKU，請用 grku.app 更新，以保留設定和效果：兩者都把它們存在同一個 `GRKU` 資料夾裡。
+GRKU 會將你的設定和效果保留在 `GRKU` 資料夾中，因此更新後仍會保留。要從 GRKit 轉換至 GRKU，請使用 grku.app，它會保留設定和效果。如果你改為手動複製安裝包，請在第一次啟動前將記憶卡根目錄的 `GRKIT` 資料夾重新命名為 `GRKU`，或將其刪除：相機不會去變動它。
 
 ## 疑難排解
 
@@ -58,33 +58,33 @@ GRKU 會把設定和效果保存在 `GRKU` 資料夾中，因此更新後仍在�
 
 ### 相機沒有顯示 Mode Set Command
 
-- 先按住 MENU 按鈕，再開機。
-- 把 `SD_ROOT` 中的內容複製到記憶卡根目錄，不要複製到 `DCIM` 等資料夾中。
+- 先按住 MENU，再開機。
+- 把 `SD_ROOT` 中的內容複製到記憶卡根目錄，不要複製到 `DCIM` 或其他資料夾中。
 
 ### ADJ 中沒有 GRKU
 
 1. 開機後等待幾秒，直到拍攝畫面頂部顯示 **GRKU**。
 2. 確認記憶卡根目錄中有 `SCRIPT` 資料夾。
-3. 如果記憶卡中有 `SCRIPT/GRKU/INSTALL.ERR`，在相機選單中確認韌體版本與安裝包對應。版本正確時，請提交[裝置報告](https://github.com/botnick/GRKU/issues/new?template=device-report.yml)，並附上 `INSTALL.ERR`、`GRKU/REPORT.TXT` 和 `GRKU/BOOT.TXT`（如果有）。
+3. 如果記憶卡中有 `SCRIPT/GRKU/INSTALL.ERR`，打開相機選單並確認安裝包是否適用於你相機的韌體版本。如果版本正確，請提交[裝置報告](https://github.com/botnick/GRKU/issues/new?template=device-report.yml)，並附上 `INSTALL.ERR`、`GRKU/REPORT.TXT` 以及 `GRKU/BOOT.TXT`（如果記憶卡中有）。
 4. GRKU 只能在 Ricoh 官方韌體上運作。
 
-### 格式化記憶卡後 GRKU 不運作
+### 格式化記憶卡後 GRKU 停止運作
 
-格式化會刪除 GRKU 和它的設定。格式化之前，把 `GRKU` 資料夾複製到電腦。格式化之後，重新複製 `SD_ROOT` 中的內容，再把 `GRKU` 資料夾複製回記憶卡根目錄。
+格式化會刪除 GRKU 及其設定。格式化記憶卡之前，先把 `GRKU` 資料夾複製到電腦。格式化之後，重新複製 `SD_ROOT` 中的內容，再把 `GRKU` 資料夾複製回記憶卡根目錄。
 
 ## 移除 GRKU
 
-在電腦上的 Chrome 或 Edge 中，[grku.app](https://grku.app/) 可以透過讀卡機直接從記憶卡移除 GRKU，也可以同時關閉 SD 腳本功能。
+在電腦上的 Chrome 或 Edge 中，[grku.app](https://grku.app/) 可以透過讀卡機直接從記憶卡移除 GRKU，也可以同時關閉 SD 指令碼。
 
-關閉相機，從記憶卡刪除 `SCRIPT` 和 `GRKU` 資料夾。
+關閉相機電源，從記憶卡刪除 `SCRIPT` 和 `GRKU` 資料夾。
 
-SD 腳本功能會保持開啟。要關閉它：
+SD 指令碼設定會保持開啟。要關閉它：
 
-1. 在 https://grku.app 下載你的相機對應的關閉 SD 腳本的檔案。
-2. 把 `SD_ROOT` 中的內容複製到記憶卡根目錄。
-3. 插入記憶卡。按住 MENU 按鈕開機，等待相機自動關機。
-4. 從記憶卡根目錄刪除 `00078350.588` 與 `DEVELOP.MOD`。
+1. 在 https://grku.app 下載你的相機對應的關閉 SD 指令碼檔案。
+2. 把 `SD_ROOT` 中的內容複製到 SD 卡的根目錄。
+3. 插入記憶卡。按住 MENU 的同時開啟相機電源。等到相機自行關機。
+4. 從記憶卡根目錄移除 `00078350.588` 與 `DEVELOP.MOD`。
 
-相機在啟動時停止回應時，請參閱[復原指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。
+如果相機在啟動時停止回應，請參閱[復原指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。
 
 GRKU 與 Ricoh 無關。原始碼和授權：https://github.com/botnick/GRKU

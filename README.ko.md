@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![grku.app](https://img.shields.io/badge/site-grku.app-d94135)](https://grku.app)
 
-GRKU는 ahonn의 [GRKit](https://github.com/ahonn/GRKit)을 바탕으로 개발되었습니다. GRKit은 SD 카드에서 GR의 코드를 실행하는 방법을 찾아냈고, 최초의 필름 룩과 모듈, 웹 설치 프로그램을 구축했습니다. GRKU는 그 작업을 이어받아 태국의 GR 사용자들을 최우선으로, 나아가 모든 사용자를 위한 제품으로 완성했습니다: 실제 필름 상자 아이콘을 갖춘 더 방대한 필름 라이브러리, 레시피, 더 많은 모듈, 원샷 시작, 카드에 직접 기록하고 추가 룩을 판매하는 사이트, 그리고 태국어 지원을 제공합니다. [GRKU가 GRKit에 추가한 것](#what-grku-adds-to-grkit) 섹션에 모든 변경 사항이 나열되어 있습니다.
+GRKU는 [BOTNICK](https://github.com/botnick)이 태국의 GR 사용자들을 최우선으로, 나아가 모든 사용자를 위해 만든 독자적인 프로젝트입니다. SD 카드에서 GR의 코드를 실행하는 방법을 찾아낸 ahonn의 [GRKit](https://github.com/ahonn/GRKit) 코드에서 시작되었으며, 이후 하나씩 새롭게 재구축되었습니다: 실제 필름 상자 아이콘을 갖춘 135가지 룩의 필름 라이브러리, 레시피, 더 많은 모듈, 원샷 시작, 카드에 직접 기록하고 추가 룩을 판매하는 사이트, 태국어 지원 및 자체 릴리스 파이프라인을 갖추었습니다. [기원](#origins) 섹션에서 GRKit에서 가져온 부분과 GRKU가 새롭게 만든 부분을 설명합니다.
 
 <p>
   <img src="resources/images/grku-root.jpg" alt="ADJ 메뉴의 GRKU 페이지" width="49%">
@@ -48,7 +48,7 @@ GRKU는 전원을 켠 후 약 9초 후에 나타납니다(설치 후 첫 시작 
 GRKU의 자체 변경 사항은 펌웨어 1.11이 설치된 GR IV에서 실행되었습니다. GR III 및 GR IIIx 패키지는 동일한 코드와 GRKit의 테스트로부터 빌드되었지만, 아직 아무도 해당 카메라에서 GRKU를 실행해 보지 않았습니다. 실행해 보신다면 작동 여부와 관계없이 [이슈](https://github.com/botnick/GRKU/issues)로 알려 주십시오.
 
 > [!WARNING]
-> GRKU은 실험적인 프로젝트입니다. 사용에 따른 책임은 본인에게 있습니다.
+> GRKU는 실험적인 프로젝트입니다. 사용에 따른 책임은 본인에게 있습니다.
 > 설치하면 카메라의 SD 스크립트 설정이 켜지고, 끌 때까지 그대로 유지됩니다. GRKU에 문제가 발생하면 카메라가 시작 중에 멈출 수 있습니다. 먼저 [복구 가이드](resources/RECOVERY.md)를 읽어 주십시오.
 
 ## 설치
@@ -58,9 +58,9 @@ GRKU의 자체 변경 사항은 펌웨어 1.11이 설치된 GR IV에서 실행�
 - Chrome이나 Edge에서 **SD 카드에 기록**합니다(사이트에서 업데이트, 룩 추가 및 삭제, 제거도 가능합니다). 또는
 - **ZIP 다운로드**(`GRKU-gr3.zip`, `GRKU-gr3x.zip` 또는 `GRKU-gr4.zip`)를 하고 안에 들어 있는 PDF 가이드를 따릅니다([GR III 및 GR IIIx](resources/INSTALLATION.md), [GR IV](resources/INSTALLATION-GR4.md)).
 
-MENU 버튼을 누른 채 전원을 켜는 것은 처음 한 번뿐입니다. ZIP으로 업데이트할 때는 카드의 `SCRIPT` 폴더를 교체합니다. 설정은 `GRKU`에 유지됩니다. 카드를 포맷하면 GRKU가 제거됩니다.
+처음 한 번만 MENU를 누른 채 전원을 켭니다. ZIP으로 업데이트할 때는 카드의 `SCRIPT` 폴더를 교체합니다. 설정은 `GRKU`에 유지됩니다. 카드를 포맷하면 GRKU가 제거됩니다.
 
-GRKit에서 전환하는 경우: 사이트에서 설정과 룩을 `GRKIT` 폴더에서 `GRKU`로 이동해 줍니다. 직접 파일을 복사하는 경우에는 첫 시작 전에 카드 루트에서 `GRKIT`의 이름을 `GRKU`로 바꾸거나 삭제하십시오.
+GRKit(GRKU의 모태가 된 프로젝트)에서 전환하는 경우: 사이트에서 설정과 룩을 `GRKIT` 폴더에서 `GRKU`로 이동해 줍니다. 대신 직접 파일을 복사하는 경우에는 첫 시작 전에 카드 루트에서 `GRKIT`의 이름을 `GRKU`로 바꾸거나 삭제하십시오.
 
 GRKU가 나타나지 않으면 `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT`, `SCRIPT/GRKU/INSTALL.ERR`(있는 경우)을 첨부하여 [이슈](https://github.com/botnick/GRKU/issues/new)를 등록해 주십시오. [각 줄의 의미](docs/diagnostics.md)를 참고하십시오.
 
@@ -68,11 +68,11 @@ GRKU가 나타나지 않으면 `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT`, `SCRIPT/GRKU/
 
 무료 사이트에서는 10개의 룩을 카드에 기록할 수 있습니다. GRKU Plus는 PromptPay를 통한 일회성 결제로 25개의 슬롯, 브랜드 팩, 또는 모든 기능(40개 슬롯 및 모든 룩)을 잠금 해제합니다. 키는 이메일로 전송되며 모든 기기에서 작동합니다. 이 서비스는 `services/plus`에서 실행되며 카드를 직접 보지 않습니다.
 
-## GRKU가 GRKit에 추가한 것
+## 기원
 
-GRKU는 GRKit 1.5.2에서 시작하여 GRKit의 `feat/recipes` 브랜치를 병합했습니다. GRKit의 빠른 부팅 펌웨어는 의도적으로 제외되었습니다. 아래의 모든 내용은 GRKit의 런타임, 모듈 시스템, 웹 설치 프로그램, 테스트를 바탕으로 한 GRKU의 작업입니다.
+GRKU는 GRKit 1.5.2와 GRKit의 `feat/recipes` 브랜치에서 시작되었습니다. 런타임 기술, 모듈 ABI 및 테스트 하네스는 GRKit의 것이며, GRKU는 해당 MIT 고지 사항을 그대로 유지합니다. GRKit의 빠른 부팅 펌웨어는 의도적으로 제외되었습니다. 아래의 그 외 모든 내용은 GRKU의 자체 작업입니다.
 
-| 영역 | GRKit | GRKU | 방법 |
+| 영역 | GRKit (GRKU의 시작점) | 현재의 GRKU | 방법 |
 | --- | --- | --- | --- |
 | 필름 라이브러리 | 21가지 룩 | 135가지 룩, 카드당 40가지, 모든 룩이 포함된 필름 라이브러리 ZIP | Pat David (CC BY-SA 4.0), t3mujinpack (MIT), spektrafilm, Spectral Film LUT, Fotufilm의 오픈 필름 프리셋에서 피팅하고, `docs/popular-films-2026.md`의 2026년 인기도 조사를 바탕으로 기본 40가지를 선정 |
 | 아이콘 | 평면 타일 | 모든 룩에 실제 상자 색상의 필름 박스, 메뉴용 컬러 타일, 고유한 PNG 아이콘을 가져오는 효과 | `scripts/flap-icons.py`가 상자를 그리고, 효과 컴파일러가 `icon: {"png": ...}`를 처리 |
@@ -85,7 +85,7 @@ GRKU는 GRKit 1.5.2에서 시작하여 GRKit의 `feat/recipes` 브랜치를 병�
 | 브랜드 | GRKit | GRKU: 빨간 마침표가 있는 워드마크, 태국어 어조, `docs/brand.md` | |
 | 릴리스 | GitHub Actions로 grkit.app에 배포 | grku.app을 위한 동일한 파이프라인: 푸시 시 릴리스 풀 리퀘스트 생성, 병합 시 공식 펌웨어에서 빌드하고 Cloudflare Pages를 통해 사이트 배포, Plus 서비스는 `services/plus`에서 배포 | `.github/workflows`, `docs/releasing.md` |
 
-GRKU는 GRKit의 모듈 ABI를 유지하여(GRKit SDK로 빌드된 모듈도 계속 불러와짐) 라이선스를 준수하며, 해당 사항이 있는 수정 사항은 업스트림인 GRKit으로 다시 보냅니다.
+GRKU는 GRKit의 모듈 ABI를 유지하여(GRKit SDK로 빌드된 모듈도 계속 불러와짐) 라이선스를 준수하며, 해당 사항이 있는 수정 사항은 업스트림인 GRKit으로 다시 보냅니다. 이는 GRKit의 미러가 아니며, GRKit의 후속 릴리스는 병합되지 않고 검토만 이루어집니다.
 
 ## 소스에서 빌드
 
@@ -108,7 +108,7 @@ grku verify dist/GRKU-gr4.zip
 
 ## 기여하기
 
-[CONTRIBUTING.md](CONTRIBUTING.md)를 참조하십시오. 기기 보고는 보내주실 수 있는 가장 유용한 피드백이며, 특히 GR III 또는 GR IIIx의 보고를 환영합니다. 문제, 아이디어 및 질문은 [issues](https://github.com/botnick/GRKU/issues)로 보내 주십시오.
+[CONTRIBUTING.md](CONTRIBUTING.md)를 참조하십시오. 기기 보고는 보내주실 수 있는 가장 유용한 피드백이며, 특히 GR III 또는 GR IIIx의 보고를 환영합니다. 문제, 아이디어 및 질문은 [이슈](https://github.com/botnick/GRKU/issues)로 보내 주십시오.
 
 ## 문서
 
