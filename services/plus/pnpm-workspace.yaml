@@ -1,3 +1,4 @@
+# pnpm 11 runs the install scripts of these packages only (workerd and esbuild fetch their binaries).
 allowBuilds:
-  esbuild: set this to true or false
-  workerd: set this to true or false
+  esbuild: true
+  workerd: true
