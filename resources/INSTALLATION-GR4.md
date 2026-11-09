@@ -44,7 +44,7 @@ In Chrome or Edge on a computer, [grku.app](https://grku.app/) can update the ca
 3. Copy the `SCRIPT` folder of `SD_ROOT` of the new package to the root of the SD card.
 4. Turn the camera on normally. You do not need to hold MENU.
 
-GRKU keeps your settings and effects in the `GRKU` folder, so the update keeps them. To move from GRKit to GRKU, use grku.app, which keeps the settings and effects. If you copy the package by hand instead, rename the `GRKIT` folder at the card root to `GRKU` before the first start, or delete it: the camera leaves it alone.
+GRKU keeps your settings and effects in the `GRKU` folder, so the update keeps them.
 
 ## Troubleshooting
 

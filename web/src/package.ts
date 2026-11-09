@@ -1,4 +1,4 @@
-import { guideLanguage } from './links';
+import { guideLanguage, packageLanguage } from './links';
 import type { Language } from './i18n';
 import type { CardFile } from './card';
 import { effectUrl, siteUrl, type Effect, type PackageEffect } from './catalog';
@@ -176,8 +176,8 @@ async function assemble<T>(
     const builder = new Package(builds[0]!);
     try {
       builder.setCamera(camera);
-      // The package has the guide languages only; Thai gets the English texts, as the guide does.
-      builder.setLanguage(guideLanguage(language as Language));
+      // The camera has no Thai font: Thai pages get the English menus and the Thai guide.
+      builder.setLanguage(packageLanguage(language as Language));
       builder.setGuide(guide);
       if (imports) builder.setImports(imports);
       if (recipes) builder.setRecipes(recipes);

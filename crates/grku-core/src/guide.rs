@@ -14,6 +14,78 @@ use crate::{
     Files,
 };
 
+/// The language of a guide: a package language, or Thai. The camera has no Thai
+/// font, so Thai is a guide language only: the site offers the Thai guide, and
+/// the menu and package text stay English.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum GuideLanguage {
+    Package(Language),
+    Thai,
+}
+
+impl GuideLanguage {
+    pub const ALL: [GuideLanguage; 6] = [
+        GuideLanguage::Package(Language::English),
+        GuideLanguage::Package(Language::SimplifiedChinese),
+        GuideLanguage::Package(Language::TraditionalChinese),
+        GuideLanguage::Package(Language::Japanese),
+        GuideLanguage::Package(Language::Korean),
+        GuideLanguage::Thai,
+    ];
+
+    /// The language tag of the site: `en`, `zh-Hans`, `zh-Hant`, `ja`, `ko`, or `th`.
+    pub fn code(self) -> &'static str {
+        match self {
+            GuideLanguage::Package(language) => language.code(),
+            GuideLanguage::Thai => "th",
+        }
+    }
+
+    fn title(self) -> &'static str {
+        match self {
+            GuideLanguage::Package(language) => language.guide_title(),
+            GuideLanguage::Thai => "คู่มือติดตั้ง GRKU",
+        }
+    }
+
+    fn template(self, gr4: bool) -> &'static str {
+        match (self, gr4) {
+            (GuideLanguage::Package(language), _) => language.guide_template(gr4),
+            (GuideLanguage::Thai, false) => include_str!("../../../resources/INSTALLATION.th.md"),
+            (GuideLanguage::Thai, true) => {
+                include_str!("../../../resources/INSTALLATION-GR4.th.md")
+            }
+        }
+    }
+
+    fn camera_phrase(self, camera: &Camera, versions: &[&str]) -> String {
+        match self {
+            GuideLanguage::Package(language) => language.camera_phrase(camera, versions),
+            GuideLanguage::Thai => format!(
+                "{} และ {} เฟิร์มแวร์ {}",
+                camera.name,
+                camera.hdf,
+                versions.join(" หรือ ")
+            ),
+        }
+    }
+
+    fn recovery(self) -> &'static str {
+        match self {
+            GuideLanguage::Package(language) => recovery_guide(language),
+            GuideLanguage::Thai => include_str!("../../../resources/RECOVERY.th.md"),
+        }
+    }
+
+    fn text_settings(self) -> &'static str {
+        match self {
+            GuideLanguage::Package(language) => text_settings(language),
+            // Noto Sans Thai has no Latin letters of its own weight; Noto Sans SC sets them.
+            GuideLanguage::Thai => r#"font: ("Noto Sans Thai", "Noto Sans SC"), lang: "th""#,
+        }
+    }
+}
+
 /// The installation guide of each language.
 impl Language {
     /// The title of the installation guide in this language. A package has
@@ -116,13 +188,18 @@ pub fn guide_images(camera: &Camera) -> &'static [(&'static str, &'static [u8])]
 /// its names, firmware version, and ModeSet file. GR IV, which has fewer modules,
 /// has its own resource.
 pub fn installation_guide(camera: &Camera, language: Language) -> Vec<u8> {
+    guide_markdown(camera, GuideLanguage::Package(language))
+}
+
+/// The installation guide of `camera` in a guide language, as Markdown.
+pub fn guide_markdown(camera: &Camera, language: GuideLanguage) -> Vec<u8> {
     let gr4 = camera.is_gr4();
     // The resource names the first release of its camera. The guide of a
     // camera names each release that GRKU supports. A guide serves each
     // package of the camera, so it names the releases of each runtime build.
     let base = if gr4 { &camera::GR4 } else { &camera::GR3 };
     let releases = camera.versions();
-    let guide = language.guide_template(gr4).replace(
+    let guide = language.template(gr4).replace(
         &language.camera_phrase(base, &[base.releases[0].firmware]),
         &language.camera_phrase(camera, &releases),
     );
@@ -164,8 +241,13 @@ fn text_settings(language: Language) -> &'static str {
 /// that it shows: `guide.typ` and `images/*`. The recovery guide follows as an
 /// appendix on its own page.
 pub fn source(camera: &Camera, language: Language) -> Result<Files> {
-    let guide = String::from_utf8(installation_guide(camera, language))?;
-    let title = language.guide_title();
+    guide_source(camera, GuideLanguage::Package(language))
+}
+
+/// The Typst source of the guide of `camera` in a guide language, Thai included.
+pub fn guide_source(camera: &Camera, language: GuideLanguage) -> Result<Files> {
+    let guide = String::from_utf8(guide_markdown(camera, language))?;
+    let title = language.title();
     let mut typst = format!(
         "#set document(title: \"{title}\", author: \"GRKU\", date: none)\n\
          #set page(paper: \"a5\", margin: (x: 15mm, y: 16mm), numbering: \"1\")\n\
@@ -179,11 +261,11 @@ pub fn source(camera: &Camera, language: Language) -> Result<Files> {
          #show heading.where(level: 1): set text(size: 17pt)\n\
          #show heading.where(level: 2): set text(size: 12pt)\n\
          #show link: underline\n\n",
-        text_settings(language)
+        language.text_settings()
     );
     typst.push_str(&markdown(&guide, None)?);
     typst.push_str("\n#pagebreak()\n\n");
-    typst.push_str(&markdown(recovery_guide(language), Some(RECOVERY_LABEL))?);
+    typst.push_str(&markdown(language.recovery(), Some(RECOVERY_LABEL))?);
     let mut files = Files::from([(SOURCE.to_owned(), typst.into_bytes())]);
     for (name, image) in guide_images(camera) {
         files.insert((*name).to_owned(), image.to_vec());

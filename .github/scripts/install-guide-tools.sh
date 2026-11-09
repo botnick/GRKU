@@ -1,6 +1,6 @@
 #!/bin/sh
 # Installs the tools that build the installation guides into DIR: Typst in
-# DIR/bin and the Noto Sans SC, TC, JP, and KR fonts in DIR/fonts.
+# DIR/bin and the Noto Sans SC, TC, JP, KR, and Thai fonts in DIR/fonts.
 # Each download must match its pinned SHA-256.
 # Usage: sh .github/scripts/install-guide-tools.sh DIR
 set -eu
@@ -68,3 +68,9 @@ fetch "$fonts_url/KR/NotoSansKR-Regular.otf" "$dir/fonts/NotoSansKR-Regular.otf"
   69975a0ac8472717870aefeab0a4d52739308d90856b9955313b2ad5e0148d68
 fetch "$fonts_url/KR/NotoSansKR-Bold.otf" "$dir/fonts/NotoSansKR-Bold.otf" \
   5a6ceb287ed2fc6cfc6213144ebea68cbd94b20fc9eb873d8486493bf02d9bda
+# Noto Sans Thai for the Thai guides, at a pinned commit of the Noto site.
+thai_url=https://raw.githubusercontent.com/notofonts/notofonts.github.io/6da9d59fd18f429cb8dbfa87e87669204f77ddab/fonts/NotoSansThai/hinted/ttf
+fetch "$thai_url/NotoSansThai-Regular.ttf" "$dir/fonts/NotoSansThai-Regular.ttf" \
+  61cf814eec46b294d6ea4401ac295d0cecd5207bd2331dcc5a15e7301d30ee44
+fetch "$thai_url/NotoSansThai-Bold.ttf" "$dir/fonts/NotoSansThai-Bold.ttf" \
+  2ac6c6e8a478e23b15f76e4894af1fa2210f8f350e4e6e54aad530bec03efbfb

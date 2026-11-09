@@ -630,15 +630,15 @@ fn run(command: Command) -> Result<Value> {
             storage::validate_output(&out)?;
             let mut tree = Files::new();
             for camera in grku_core::camera::CAMERAS {
-                for language in Language::ALL {
-                    for (name, bytes) in grku_core::guide::source(camera, language)? {
+                for language in grku_core::guide::GuideLanguage::ALL {
+                    for (name, bytes) in grku_core::guide::guide_source(camera, language)? {
                         tree.insert(format!("{}/{}/{name}", camera.id, language.code()), bytes);
                     }
                 }
             }
             storage::write_directory(&out, &tree)?;
             Ok(
-                json!({"output": out, "guides": grku_core::camera::CAMERAS.len() * Language::ALL.len()}),
+                json!({"output": out, "guides": grku_core::camera::CAMERAS.len() * grku_core::guide::GuideLanguage::ALL.len()}),
             )
         }
         Command::Cameras => Ok(

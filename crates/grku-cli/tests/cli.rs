@@ -842,7 +842,13 @@ fn effect_publish_writes_the_site_catalog() {
 fn guides_writes_one_typst_source_for_each_camera_and_language() {
     let tmp = tempfile::tempdir().unwrap();
     let out = tmp.path().join("guides");
-    assert_eq!(success(&["guides", "--out", text(&out)])["guides"], 15);
+    assert_eq!(success(&["guides", "--out", text(&out)])["guides"], 18);
+    // Thai is a guide language only: each camera has a Thai guide.
+    let thai = fs::read_to_string(out.join("gr3x/th/guide.typ")).unwrap();
+    assert!(
+        thai.contains("RICOH GR IIIx และ GR IIIx HDF เฟิร์มแวร์ 1.60 หรือ 1.70")
+            && thai.contains("Noto Sans Thai")
+    );
     let source = fs::read_to_string(out.join("gr3x/zh-Hans/guide.typ")).unwrap();
     assert!(source.contains("仅适用于 RICOH GR IIIx 和 GR IIIx HDF 固件 1.60 或 1.70。"));
     assert!(source.contains("#link(<recovery>)") && source.contains("= 恢复 <recovery>"));
