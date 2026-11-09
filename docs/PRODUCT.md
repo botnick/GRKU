@@ -8,7 +8,7 @@ GRKU gives a RICOH GR the looks of real films, from the SD card, so that a GR ow
 
 ## Where it comes from
 
-GRKU is developed from [GRKit](https://github.com/ahonn/GRKit). GRKit proved the idea: the camera runs a script from the card, the script installs modules in RAM, and the modules change the picture pipeline and the menus. GRKU keeps that core and turns it into a product: a wide film library with icons people recognize, recipes, more modules, a one-shot start, a Thai-first site that writes the card, and a small paid tier that pays for the work.
+GRKU grew out of [GRKit](https://github.com/ahonn/GRKit) and is its own project now. GRKit proved the idea: the camera runs a script from the card, the script installs modules in RAM, and the modules change the picture pipeline and the menus. GRKU keeps that core and turns it into a product: a wide film library with icons people recognize, recipes, more modules, a one-shot start, a Thai-first site that writes the card, and a small paid tier that pays for the work.
 
 ## Users
 

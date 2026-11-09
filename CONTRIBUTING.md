@@ -1,6 +1,6 @@
 # Contributing to GRKU
 
-GRKU is developed from [GRKit](https://github.com/ahonn/GRKit). The runtime, the module system, the build and the tests are GRKit's design; GRKU adds the film library, the recipes, more modules, the one-shot start, the Thai-first site and GRKU Plus. Read [README.md](README.md#what-grku-adds-to-grkit) for the list, and [HANDOFF.md](HANDOFF.md) for the state of the work and the lessons of the camera tests.
+GRKU is its own project that grew out of [GRKit](https://github.com/ahonn/GRKit). The runtime technique, the module system and the test harness came from GRKit; the film library, the recipes, the newer modules, the one-shot start, the Thai-first site, GRKU Plus and the release pipeline are GRKU's. Read [README.md](README.md#origins) for the list, and [HANDOFF.md](HANDOFF.md) for the state of the work and the lessons of the camera tests.
 
 The most useful contribution is a camera report: whether GRKU worked or not, on which camera and firmware, with `GRKU/BOOT.TXT` and `GRKU/REPORT.TXT` from the card ([what each line means](docs/diagnostics.md)). Open an [issue](https://github.com/botnick/GRKU/issues) for it.
 

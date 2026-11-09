@@ -49,4 +49,4 @@ Rules of thumb:
 - Website grku.app: the wordmark top left, the one red action in the first screen, Thai as the first language with English, Chinese, Japanese, and Korean as choices.
 - Camera: the GRKU entry in ADJ, the GRKU section of MENU, About GRKU, and the power-on label "GRKU Loaded".
 - Documents: README, installation guides, release notes. The disclaimer in the last paragraph.
-- Credit: "GRKU by BOTNICK", and "a fork of ahonn/GRKit" with the link, in the footer of the site and the README.
+- Credit: "GRKU by BOTNICK", and "built on code from ahonn/GRKit" with the link, in the footer of the site and the README. GRKU is its own project, not a fork, so the word fork does not appear.

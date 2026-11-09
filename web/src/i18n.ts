@@ -98,11 +98,11 @@ const en = {
   landing: {
     fact: 'Loads about nine seconds after power-on. Format the card and the camera is stock again.',
     shelf: 'The film shelf',
-    shelfText: 'Every look in the library as its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and the Positive GRII of this fork. A package carries 40 of them to the camera. Swap them any time from this page.',
+    shelfText: 'Every look in the library as its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and GRKU\'s own Positive GRII. A package carries 40 of them to the camera. Swap them any time from this page.',
     shelfAlt: '135 film boxes on shelves',
     moduleListText: 'Each module is one row of the GRKU menu on the camera. Install the ones you want.',
     edition: 'BOTNICK edition',
-    fork: ['A fork of ', 'ahonn/GRKit', ' with more films, color icons, a quicker start, and no fast-boot firmware.'] as readonly [string, string, string],
+    fork: ['Built on code from ', 'ahonn/GRKit', ', rebuilt into its own project: more films, color icons, recipes, a quicker start, and no fast-boot firmware.'] as readonly [string, string, string],
     install: 'Install',
     installNote: 'Write GRKU straight to your SD card, or download GRKU.zip.',
     /** The install note where the browser cannot write to a card: a phone, a tablet, Safari, Firefox. */

@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![grku.app](https://img.shields.io/badge/site-grku.app-d94135)](https://grku.app)
 
-GRKU is developed from [GRKit](https://github.com/ahonn/GRKit) by ahonn. GRKit found the way to run code on a GR from the SD card and built the first film looks, modules and web installer. GRKU takes that work and makes it a product for Thai GR owners first and everyone else next: a bigger film library with real film-box icons, recipes, more modules, a one-shot start, a site that writes the card and sells extra looks, and a Thai voice. The section [What GRKU adds to GRKit](#what-grku-adds-to-grkit) lists every change.
+GRKU is its own project, made by [BOTNICK](https://github.com/botnick) for GR owners in Thailand first and everyone else next. It began from the code of [GRKit](https://github.com/ahonn/GRKit) by ahonn, who found the way to run code on a GR from the SD card, and it has since been rebuilt piece by piece: a film library of 135 looks with real film-box icons, recipes, more modules, a one-shot start, a site that writes the card and sells extra looks, a Thai voice and its own release pipeline. The section [Origins](#origins) says what came from GRKit and what GRKU made of it.
 
 <p>
   <img src="resources/images/grku-root.jpg" alt="The GRKU page in the ADJ menu" width="49%">
@@ -60,7 +60,7 @@ Go to [grku.app](https://grku.app), pick your camera, your modules and your film
 
 The first time only, hold MENU while you turn the camera on. To update from a ZIP, replace the `SCRIPT` folder on the card; your settings stay in `GRKU`. Formatting the card removes GRKU.
 
-Coming from GRKit: the site moves your settings and looks from the `GRKIT` folder to `GRKU`. If you copy files by hand instead, rename `GRKIT` to `GRKU` at the card root before the first start, or delete it.
+Coming from GRKit (the project GRKU grew out of): the site moves your settings and looks from the `GRKIT` folder to `GRKU`. If you copy files by hand instead, rename `GRKIT` to `GRKU` at the card root before the first start, or delete it.
 
 If GRKU does not show up, send `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT` and `SCRIPT/GRKU/INSTALL.ERR` (if it exists) in an [issue](https://github.com/botnick/GRKU/issues/new). [What each line means](docs/diagnostics.md).
 
@@ -68,11 +68,11 @@ If GRKU does not show up, send `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT` and `SCRIPT/GR
 
 The free site writes any 10 looks to the card. GRKU Plus is a one-time payment by PromptPay that unlocks 25 slots, a brand pack, or everything (40 slots and every look). The key arrives by email and works on every device. The service runs in `services/plus`; it never sees your card.
 
-## What GRKU adds to GRKit
+## Origins
 
-GRKU started from GRKit 1.5.2 and merged GRKit's `feat/recipes` branch. GRKit's fast-boot firmware was left out on purpose. Everything below is GRKU's work, on top of GRKit's runtime, module system, web installer and tests.
+GRKU grew out of GRKit 1.5.2 and GRKit's `feat/recipes` branch; the runtime technique, the module ABI and the test harness are GRKit's, and GRKU keeps their MIT notices. GRKit's fast-boot firmware was left out on purpose. Everything else below is GRKU's own work.
 
-| Area | GRKit | GRKU | How |
+| Area | GRKit (where GRKU started) | GRKU today | How |
 | --- | --- | --- | --- |
 | Film library | 21 looks | 135 looks, 40 per card; a film library ZIP with every look | Fits from the open film presets of Pat David (CC BY-SA 4.0), t3mujinpack (MIT), spektrafilm, Spectral Film LUT and Fotufilm, with the 2026 popularity research in `docs/popular-films-2026.md` choosing the default 40 |
 | Icons | Flat tiles | A film box in the colors of the real box for every look, color tiles for the menu, and effects that bring their own PNG icon | `scripts/flap-icons.py` draws the boxes; the effect compiler takes `icon: {"png": ...}` |
@@ -85,7 +85,7 @@ GRKU started from GRKit 1.5.2 and merged GRKit's `feat/recipes` branch. GRKit's 
 | Brand | GRKit | GRKU: the wordmark with a red period, Thai voice, `docs/brand.md` | |
 | Release | GitHub Actions to grkit.app | The same pipeline for grku.app: a push opens the release pull request, merging it builds from the official firmware and deploys the site through Cloudflare Pages; the Plus service deploys from `services/plus` | `.github/workflows`, `docs/releasing.md` |
 
-GRKU keeps GRKit's module ABI (a module built with the GRKit SDK still loads) and its licenses, and sends fixes back to GRKit where they apply.
+GRKU keeps GRKit's module ABI (a module built with the GRKit SDK still loads) and its licenses, and sends fixes back to GRKit where they apply. It is not a mirror of GRKit: GRKit's later releases are reviewed, not merged.
 
 ## Build from source
 
@@ -122,7 +122,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Reports from a camera are the most usefu
 
 ## License
 
-The code is under the [MIT License](LICENSE). GRKU builds on [GRKit](https://github.com/ahonn/GRKit) by ahonn, also MIT, and keeps its notices. Each package includes `LICENSES.md` with the licenses of its files.
+The code is under the [MIT License](LICENSE). GRKU includes code from [GRKit](https://github.com/ahonn/GRKit) by ahonn, also MIT, and keeps its notices. Each package includes `LICENSES.md` with the licenses of its files.
 
 - The effects are under CC BY-SA 4.0, MIT or Apache-2.0. See [effects/NOTICE.md](effects/NOTICE.md).
 - The menu and live view text uses [Roboto Condensed](https://github.com/googlefonts/roboto-classic) under the [SIL Open Font License 1.1](crates/grku-core/assets/RobotoCondensed-LICENSE.txt).

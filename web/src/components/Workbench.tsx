@@ -39,7 +39,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { ImportDialog, type ImportDialogHandle } from './ImportDialog';
 import { StepHeading } from './Step';
 
-/** The look of this fork, which the page shows first. */
+/** GRKU's own look, which the page shows first. */
 const FIRST_LOOK = 'positive-film-grii-v1';
 
 /** The headline with each brand name (RICOH GR…) as its own inline box, so the brand stays on one line. */

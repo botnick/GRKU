@@ -4,7 +4,7 @@ import { docUrl, guideUrl, REPOSITORY, UPSTREAM } from '../links';
 
 const LINK = 'text-muted-foreground hover:text-foreground hover:underline underline-offset-4';
 
-/** The end of the page: the guides, the licenses, the trademarks, and the credit to the fork's source. */
+/** The end of the page: the guides, the licenses, the trademarks, and the credit to GRKit, where GRKU's code began. */
 export function SiteFooter({
   strings: t,
   language,

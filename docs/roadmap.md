@@ -1,6 +1,6 @@
 # Roadmap
 
-GRKU is developed from [GRKit](https://github.com/ahonn/GRKit) and keeps its one hard rule: **the camera's firmware is never flashed.** Everything loads from the SD card through the camera's own script setting. This page says what GRKU has done since it started from GRKit 1.5.2 and what comes next. The history of each release is in [CHANGELOG.md](../CHANGELOG.md).
+GRKU grew out of [GRKit](https://github.com/ahonn/GRKit) and keeps the one hard rule it learned there: **the camera's firmware is never flashed.** Everything loads from the SD card through the camera's own script setting. This page says what GRKU has done since it began from GRKit 1.5.2 and what comes next. The history of each release is in [CHANGELOG.md](../CHANGELOG.md).
 
 ## Done
 
