@@ -1,4 +1,10 @@
 import { Suspense, use, useCallback, useRef, useState, type ReactNode } from 'react';
+import { Minus, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   trackCardUninstall,
   trackCardWrite,
@@ -44,6 +50,9 @@ import { loadCatalog, siteUrl, type Catalog, type CardEffect, type ImportedEffec
 import {
   CardChangesView,
   CardUninstall,
+  FACT_LABEL,
+  FACT_VALUE,
+  FACTS,
   StartSection,
   UninstallSection,
   type CardMessage,
@@ -51,11 +60,13 @@ import {
   type InstallMode,
 } from './components/CardPanel';
 import { AppPromo } from './components/AppPromo';
+import { ChoiceCard } from './components/ChoiceCard';
 import { ChangeBadge, EffectsSection } from './components/EffectsSection';
 import { PackageOpen, type PackageStatus } from './components/PackageOpen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Landing } from './components/Landing';
 import { RichText } from './components/RichText';
+import { Section } from './components/Section';
 import { TermsNote } from './components/TermsNote';
 import { guideUrl, REPOSITORY, UPSTREAM } from './links';
 import { loadFonts } from './fonts';
@@ -85,6 +96,14 @@ const FEEDBACK_FORM = `${REPOSITORY}/issues`;
 /** The release notes of the GRKU version that the site packages, on the releases page. */
 const RELEASE_URL = `${REPOSITORY}/releases#release-v${__GRKIT_VERSION__}`;
 
+/** The content of the desk is as wide as the page above it: the page width less its gutters. */
+const DESK_INNER = 'mx-auto w-full max-w-[calc(1280px_-_2_*_var(--gutter))]';
+/** The steps of a guide. */
+const STEPS = 'flex max-w-[72ch] list-decimal flex-col gap-3 pl-6 leading-relaxed';
+/** A note under a control, and a status line. */
+const NOTE = 'max-w-[72ch] text-sm text-muted-foreground';
+const STATUS = 'text-sm text-muted-foreground';
+const ERROR = 'text-sm text-destructive';
 
 type Build =
   | { state: 'idle' }
@@ -632,164 +651,181 @@ export function App({
     }
   }
 
-
   const packageLinks = (
-    <ul className="package-links">
+    <ul className="flex flex-wrap gap-2">
       <li>
-        <a className="button" href={FEEDBACK_FORM}>
-          {t.feedback}
-        </a>
-      </li>
-      <li>
+        <Button asChild variant="outline">
+          <a href={FEEDBACK_FORM}>{t.feedback}</a>
+        </Button>
       </li>
     </ul>
   );
 
+  const languageLabel = LANGUAGES.find((item) => item.code === language)?.label ?? language;
+
   return (
     <>
       {(appBrowser || cardHintKind) && (
-        <div className="browser-banner" role="note">
+        <div
+          className="browser-banner bg-[var(--ink)] px-[var(--gutter)] py-3 text-center text-sm leading-normal text-[var(--paper)] text-balance"
+          role="note"
+        >
           {appBrowser ? t.appBrowser : cardHintKind === 'computer' ? t.cardComputer : t.cardBrowser}
         </div>
       )}
-    <div className="page">
-      <header className="masthead">
-        {/* One row: the name on the left, the links and the language on the right. */}
-        <div className="masthead-top">
-          <div className="masthead-title">
-            <h1>
-              GRKU<span className="dot">.</span>
-            </h1>
-            <a className="masthead-version" href={RELEASE_URL}>
-              v{__GRKIT_VERSION__}
-            </a>
-          </div>
-          <div className="languages">
-            <nav className="masthead-nav" aria-label="GRKU">
-              <a href="#effects-label">{t.effects}</a>
-              <a href="#modules-label">{t.modules}</a>
-              <a href="#faq-label">{t.faqTitle}</a>
-            </nav>
-            <a className="github" href={REPOSITORY} aria-label="GitHub" title="GitHub">
-              <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true" focusable="false">
-                <path
-                  fill="currentColor"
-                  d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
-                />
-              </svg>
-            </a>
-            <span className="language-select">
-              <select
-                className="button"
-                aria-label={t.language}
-                value={language}
-                onChange={(event) => chooseLanguage(event.target.value as Language)}
+      <div className="page">
+        <header className="masthead pb-10">
+          {/* One row: the name on the left, the links and the language on the right. */}
+          <div className="masthead-top flex items-center justify-between gap-4">
+            <div className="masthead-title flex items-start gap-1.5">
+              <h1 className="m-0 text-[28px] leading-none font-extrabold tracking-tight">
+                GRKU<span className="dot">.</span>
+              </h1>
+              <a
+                className="masthead-version border border-[var(--line-2)] px-1.5 py-px font-mono text-[11px] no-underline"
+                href={RELEASE_URL}
               >
-                {LANGUAGES.map((item) => (
-                  <option key={item.code} value={item.code} lang={item.code}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-            </span>
+                v{__GRKIT_VERSION__}
+              </a>
+            </div>
+            <div className="languages flex items-center justify-end gap-3">
+              <nav className="masthead-nav hidden gap-6 text-[15px] md:flex" aria-label="GRKU">
+                <a href="#effects-label">{t.effects}</a>
+                <a href="#modules-label">{t.modules}</a>
+                <a href="#faq-label">{t.faqTitle}</a>
+              </nav>
+              <a
+                className="github inline-flex size-11 items-center justify-center"
+                href={REPOSITORY}
+                aria-label="GitHub"
+                title="GitHub"
+              >
+                <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true" focusable="false">
+                  <path
+                    fill="currentColor"
+                    d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+                  />
+                </svg>
+              </a>
+              <Select value={language} onValueChange={(next) => chooseLanguage(next as Language)}>
+                <SelectTrigger size="sm" aria-label={t.language}>
+                  <SelectValue>{languageLabel}</SelectValue>
+                </SelectTrigger>
+                <SelectContent position="popper" align="end">
+                  {LANGUAGES.map((item) => (
+                    <SelectItem key={item.code} value={item.code} lang={item.code}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <Landing strings={t} language={language} canWrite={canWriteCards()} />
+        <Landing strings={t} language={language} canWrite={canWriteCards()} />
 
-      <main>
-        {canWriteCards() && (
-          <StartSection
-            strings={t}
-            mode={mode}
-            onMode={chooseMode}
-            session={card}
-            cardCamera={cardCamera}
-          onCamera={(next) => chooseCamera(next.key)}
-          otherCamera={
-              !!card && !!support && cardBuilds(card.state).some((build) => !support.targets.includes(build))
-            }
-            busy={cardTask.kind !== 'idle'}
-            reading={cardTask.kind === 'reading'}
-            message={connectMessage}
-            lastCard={lastCard?.name ?? null}
-            onConnect={connectCard}
-            onReconnect={reconnectCard}
-            onDisconnect={disconnectCard}
-            zip={packageOpen}
-            next={
-              card && (
-                <ErrorBoundary resetKey={String(catalogAttempt)} fallback={null}>
-                  <Suspense fallback={null}>
-                    <CardNext
-                      strings={t}
-                      session={card}
-                      selection={selection}
-                      imported={imported}
-                      cardEffects={cardExtra}
-                      changes={cardChanges}
-                    />
-                  </Suspense>
-                </ErrorBoundary>
-              )
-            }
-          />
-        )}
+        <main>
+          <div className={DESK_INNER}>
+            {canWriteCards() && (
+              <StartSection
+                strings={t}
+                mode={mode}
+                onMode={chooseMode}
+                session={card}
+                cardCamera={cardCamera}
+                onCamera={(next) => chooseCamera(next.key)}
+                otherCamera={
+                  !!card && !!support && cardBuilds(card.state).some((build) => !support.targets.includes(build))
+                }
+                busy={cardTask.kind !== 'idle'}
+                reading={cardTask.kind === 'reading'}
+                message={connectMessage}
+                lastCard={lastCard?.name ?? null}
+                onConnect={connectCard}
+                onReconnect={reconnectCard}
+                onDisconnect={disconnectCard}
+                zip={packageOpen}
+                next={
+                  card && (
+                    <ErrorBoundary resetKey={String(catalogAttempt)} fallback={null}>
+                      <Suspense fallback={null}>
+                        <CardNext
+                          strings={t}
+                          session={card}
+                          selection={selection}
+                          imported={imported}
+                          cardEffects={cardExtra}
+                          changes={cardChanges}
+                        />
+                      </Suspense>
+                    </ErrorBoundary>
+                  )
+                }
+              />
+            )}
 
-        {!cardCamera && (
-          <section className="section" aria-labelledby="camera-label">
-            <h2 id="camera-label">{t.camera}</h2>
-            <div className="section-body">
-              {/* Without the mode section, the ZIP is the only mode, and this is the first section. */}
-              {!canWriteCards() && packageOpen}
-              <div role="radiogroup" aria-labelledby="camera-label" className="cameras">
-                {CAMERAS.map((item) => (
-                  <label key={item.key} className="camera">
-                    <input
-                      type="radio"
-                      name="camera"
-                      checked={item.key === camera.key}
-                      disabled={!item.support || (!!lockedCameras && !lockedCameras.includes(item))}
-                      onChange={() => chooseCamera(item.key)}
-                    />
-                    <span className="camera-text">
-                      <span className="camera-name">{item.name}</span>
+            {!cardCamera && (
+              <Section id="camera-label" title={t.camera}>
+                {/* Without the mode section, the ZIP is the only mode, and this is the first section. */}
+                {!canWriteCards() && packageOpen}
+                <RadioGroup
+                  name="camera"
+                  value={camera.key}
+                  aria-labelledby="camera-label"
+                  className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+                  onValueChange={(next) => chooseCamera(next as Camera['key'])}
+                >
+                  {CAMERAS.map((item) => (
+                    <ChoiceCard
+                      key={item.key}
+                      htmlFor={`camera-${item.key}`}
+                      control={
+                        <RadioGroupItem
+                          id={`camera-${item.key}`}
+                          value={item.key}
+                          className="mt-1"
+                          disabled={!item.support || (!!lockedCameras && !lockedCameras.includes(item))}
+                        />
+                      }
+                    >
+                      <span className="font-semibold">{item.name}</span>
                       {item.support && (
-                        <span className="camera-firmware">
+                        <span className="text-sm text-muted-foreground">
                           {t.firmware} {item.support.firmware}
                         </span>
                       )}
                       {/* A badge marks only a camera that GRKU does not support yet. */}
                       {!item.support && (
-                        <span className="camera-status">
-                          <span className="badge">{t.planned}</span>
-                        </span>
+                        <Badge variant="outline" className="w-fit">
+                          {t.planned}
+                        </Badge>
                       )}
-                      {item.support?.noEffects && <span className="camera-firmware">{t.noEffects}</span>}
-                    </span>
-                  </label>
-                ))}
-              </div>
-              <p className="note">{t.firmwareNote}</p>
-            </div>
-          </section>
-        )}
+                      {item.support?.noEffects && <span className="text-sm text-muted-foreground">{t.noEffects}</span>}
+                    </ChoiceCard>
+                  ))}
+                </RadioGroup>
+                <p className={NOTE}>{t.firmwareNote}</p>
+              </Section>
+            )}
 
-        <section className="section" aria-labelledby="modules-label">
-          <h2 id="modules-label">{t.modules}</h2>
-          <div className="section-body">
-            <p className="note">{t.modulesNote}</p>
-            <div role="group" aria-labelledby="modules-label" className="modules">
-              {MODULES.filter((module) => available.includes(module.key)).map((module) => (
-                <label key={module.key} className="module">
-                  <input
-                    type="checkbox"
-                    checked={enabled.has(module.key)}
-                    onChange={() => toggleModule(module.key)}
-                  />
-                  <span className="module-text">
-                    <span className="module-name">
+            <Section id="modules-label" title={t.modules}>
+              <p className={NOTE}>{t.modulesNote}</p>
+              <div role="group" aria-labelledby="modules-label" className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {MODULES.filter((module) => available.includes(module.key)).map((module) => (
+                  <ChoiceCard
+                    key={module.key}
+                    htmlFor={`module-${module.key}`}
+                    control={
+                      <Checkbox
+                        id={`module-${module.key}`}
+                        className="mt-1"
+                        checked={enabled.has(module.key)}
+                        onCheckedChange={() => toggleModule(module.key)}
+                      />
+                    }
+                  >
+                    <span className="flex flex-wrap items-center gap-2 font-semibold">
                       {t.moduleNames[module.key]}
                       {active && active.state.install !== 'none' && (
                         <ChangeBadge
@@ -799,303 +835,320 @@ export function App({
                         />
                       )}
                     </span>
-                    <span className="module-description">
-                      {t.modulesText[module.key]}
-                    </span>
-                    {module.key === 'filmLook' &&
-                      enabled.has('filmLook') &&
-                      selection?.size === 0 && (
-                        <span className="module-warning">{t.filmLookEmpty}</span>
-                      )}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="section" aria-labelledby="effects-label" ref={prefetchInView}>
-          <h2 id="effects-label">{t.effects}</h2>
-          {!available.includes('filmLook') ? (
-            <p className="status section-body">{t.effectsUnavailable(camera.name)}</p>
-          ) : plan.includeEffects ? (
-            <ErrorBoundary
-              resetKey={String(catalogAttempt)}
-              fallback={
-                <div className="section-body load-error">
-                  <p className="status error">{t.loadError}</p>
-                  <button
-                    type="button"
-                    className="button small"
-                    onClick={() => setCatalogAttempt((attempt) => attempt + 1)}
-                  >
-                    {t.retryLoad}
-                  </button>
-                </div>
-              }
-            >
-              <Suspense fallback={<p className="status section-body">{t.loading}</p>}>
-                <EffectsSection
-                  strings={t}
-                  language={language}
-                  selection={selection}
-                  onSelectionChange={changeSelection}
-                  imported={imported}
-                  onImport={addImported}
-                  onRemove={removeImported}
-                  onEdit={editImported}
-                  // GRKU never asks for a firmware file, so the GR IV looks that need one are not offered.
-                  nativeLooks={false}
-                  cardEffects={active ? cardExtra : []}
-                  onCard={active && active.state.install !== 'none' ? new Set(active.effects.keys()) : null}
-                  changedOnCard={active ? changedImports(active, imported) : undefined}
-                />
-              </Suspense>
-            </ErrorBoundary>
-          ) : (
-            <p className="status section-body">{t.effectsOff}</p>
-          )}
-        </section>
-
-        <section className="section" aria-labelledby="package-label">
-          <h2 id="package-label">{mode === 'card' ? t.install : t.package}</h2>
-          {mode === 'card' && !card ? (
-            <div className="section-body card">
-              <div className="card-actions">
-                <button
-                  type="button"
-                  className="download"
-                  disabled={cardTask.kind !== 'idle'}
-                  onClick={lastCard ? reconnectCard : connectCard}
-                >
-                  {lastCard ? t.cardReconnect(lastCard.name) : t.cardConnect}
-                </button>
-              </div>
-              <p className="note">{t.cardConnectNext}</p>
-            </div>
-          ) : mode === 'card' && card ? (
-            <div className="section-body">
-              <ErrorBoundary resetKey={String(catalogAttempt)} fallback={<p className="status error">{t.loadError}</p>}>
-                <Suspense fallback={<p className="status">{t.loading}</p>}>
-                  <CardChangesSection
-                    strings={t}
-                    session={card}
-                    selection={selection}
-                    imported={imported}
-                    cardEffects={cardExtra}
-                    changes={cardChanges}
-                    modules={MODULES.filter((module) => plan.visible.includes(module.key)).map(
-                      (module) => t.moduleNames[module.key],
+                    <span className="text-sm text-muted-foreground">{t.modulesText[module.key]}</span>
+                    {module.key === 'filmLook' && enabled.has('filmLook') && selection?.size === 0 && (
+                      <span className="text-sm text-destructive">{t.filmLookEmpty}</span>
                     )}
-                    canWrite={!!targets && plan.visible.length > 0}
-                    busy={cardTask.kind !== 'idle'}
-                    task={taskArea === 'apply' ? cardTask : IDLE}
-                    message={applyMessage}
-                    onApply={applyCard}
-                    links={packageLinks}
-                    termsUrl={guideUrl('TERMS', language)}
-                    camera={camera.name}
-                    firmware={support?.firmware ?? '—'}
-                  />
-                </Suspense>
-              </ErrorBoundary>
-              {plan.visible.length === 0 && <p className="status error">{t.noModules}</p>}
-            </div>
-          ) : (
-          <div className="package">
-              <dl>
-                <dt>{t.camera}</dt>
-                <dd>{camera.name}</dd>
-                <dt>{t.firmware}</dt>
-                <dd>{support?.firmware ?? '—'}</dd>
-                <dt>{t.effectCount}</dt>
-                <dd>
-                  {plan.includeEffects ? (
-                    <ErrorBoundary resetKey={String(catalogAttempt)} fallback="—">
-                      <Suspense fallback="—">
-                        <CheckedCount
-                          selection={selection}
-                          others={[...imported, ...(active ? cardExtra : [])].map((effect) => effect.id)}
-                        />
-                      </Suspense>
-                    </ErrorBoundary>
-                  ) : (
-                    0
-                  )}
-                </dd>
-                <dt>{t.modules}</dt>
-                <dd>
-                  {plan.visible.length > 0
-                    ? MODULES.filter((module) => plan.visible.includes(module.key))
-                        .map((module) => t.moduleNames[module.key])
-                        .join(t.listSeparator)
-                    : '—'}
-                </dd>
-              </dl>
-              <div className="package-action">
-                <button
-                  type="button"
-                  className="download"
-                  disabled={!targets || plan.visible.length === 0 || build.state === 'building'}
-                  aria-busy={build.state === 'building'}
-                  onClick={download}
-                  onPointerEnter={prefetch}
-                  onFocus={prefetch}
-                >
-                  {t.download}
-                </button>
-                <TermsNote text={t.termsNote} href={guideUrl('TERMS', language)} />
-                <div aria-live="polite">
-                  {plan.visible.length === 0 && <p className="status error">{t.noModules}</p>}
-                  {build.state === 'building' && (
-                    <p className="status">
-                      {build.retrying
-                        ? t.retrying
-                        : build.received > 0
-                          ? t.downloading(megabytes(build.received))
-                          : t.building}
-                    </p>
-                  )}
-                  {build.state === 'ready' && <p className="status">{t.ready}</p>}
-                  {build.state === 'failed' && <p className="status error">{t.buildError}</p>}
-                </div>
-                {build.state === 'ready' && packageLinks}
-              </div>
-            </div>
-          )}
-        </section>
-
-        {mode === 'zip' && (
-          <section className="section" aria-labelledby="install-label">
-            <h2 id="install-label">{t.install}</h2>
-            <ol className="steps">
-              {t.steps.map((parts, index) => (
-                <li key={index}>
-                  <RichText
-                    parts={parts.map((part) =>
-                      part === MODESET_TOKEN ? `\`${support?.modeset ?? ''}` : part,
-                    )}
-                  />
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-
-        {showUninstall && (
-          <UninstallSection title={t.remove}>
-            <CardUninstall
-              strings={t}
-              session={card!}
-              busy={cardTask.kind !== 'idle'}
-              task={taskArea === 'remove' ? cardTask : IDLE}
-              message={removeMessage}
-              onUninstall={uninstallCard}
-              onScriptsOff={scriptsOffCard}
-              onCleanModeset={cleanModeset}
-            />
-          </UninstallSection>
-        )}
-
-        {mode === 'zip' && (
-          <section className="section" aria-labelledby="update-label">
-            <h2 id="update-label">{t.update}</h2>
-            <ol className="steps">
-              {t.updateSteps.map((parts, index) => (
-                <li key={index}>
-                  <RichText parts={parts} />
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-
-        {mode === 'zip' && (
-          <section className="section" aria-labelledby="remove-label">
-            <h2 id="remove-label">{t.remove}</h2>
-            <div className="section-body">
-              <ol className="steps">
-                {t.removeSteps.map((parts, index) => (
-                  <li key={index}>
-                    <RichText
-                      parts={parts.map((part) =>
-                        part === MODESET_TOKEN ? `\`${support?.modeset ?? ''}` : part,
-                      )}
-                    />
-                  </li>
+                  </ChoiceCard>
                 ))}
-              </ol>
-              <div className="package-action">
-                <button
-                  type="button"
-                  className="download secondary"
-                  disabled={!support || scriptsOff === 'building'}
-                  aria-busy={scriptsOff === 'building'}
-                  onClick={downloadScriptsOff}
-                >
-                  {t.scriptsOff(camera.name)}
-                </button>
-                <div aria-live="polite">
-                  {scriptsOff === 'failed' && <p className="status error">{t.scriptsOffError}</p>}
-                </div>
               </div>
-            </div>
-          </section>
-        )}
+            </Section>
 
-        <section className="section" aria-labelledby="faq-label">
-          <h2 id="faq-label">{t.faqTitle}</h2>
-          <div className="section-body faq">
-            {t.faq.map((item) => (
-              <details key={item.q}>
-                <summary>{item.q}</summary>
-                <p>
-                  <RichText parts={item.a} link="" />
-                </p>
-              </details>
-            ))}
+            <Section id="effects-label" title={t.effects} ref={prefetchInView}>
+              {!available.includes('filmLook') ? (
+                <p className={STATUS}>{t.effectsUnavailable(camera.name)}</p>
+              ) : plan.includeEffects ? (
+                <ErrorBoundary
+                  resetKey={String(catalogAttempt)}
+                  fallback={
+                    <div className="flex flex-col items-start gap-3">
+                      <p className={ERROR}>{t.loadError}</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCatalogAttempt((attempt) => attempt + 1)}
+                      >
+                        {t.retryLoad}
+                      </Button>
+                    </div>
+                  }
+                >
+                  <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
+                    <EffectsSection
+                      strings={t}
+                      language={language}
+                      selection={selection}
+                      onSelectionChange={changeSelection}
+                      imported={imported}
+                      onImport={addImported}
+                      onRemove={removeImported}
+                      onEdit={editImported}
+                      // GRKU never asks for a firmware file, so the GR IV looks that need one are not offered.
+                      nativeLooks={false}
+                      cardEffects={active ? cardExtra : []}
+                      onCard={active && active.state.install !== 'none' ? new Set(active.effects.keys()) : null}
+                      changedOnCard={active ? changedImports(active, imported) : undefined}
+                    />
+                  </Suspense>
+                </ErrorBoundary>
+              ) : (
+                <p className={STATUS}>{t.effectsOff}</p>
+              )}
+            </Section>
+
+            <Section id="package-label" title={mode === 'card' ? t.install : t.package}>
+              {mode === 'card' && !card ? (
+                <div className="flex flex-col items-start gap-3">
+                  <Button
+                    type="button"
+                    variant="brand"
+                    size="lg"
+                    disabled={cardTask.kind !== 'idle'}
+                    onClick={lastCard ? reconnectCard : connectCard}
+                  >
+                    {lastCard ? t.cardReconnect(lastCard.name) : t.cardConnect}
+                  </Button>
+                  <p className={NOTE}>{t.cardConnectNext}</p>
+                </div>
+              ) : mode === 'card' && card ? (
+                <>
+                  <ErrorBoundary resetKey={String(catalogAttempt)} fallback={<p className={ERROR}>{t.loadError}</p>}>
+                    <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
+                      <CardChangesSection
+                        strings={t}
+                        session={card}
+                        selection={selection}
+                        imported={imported}
+                        cardEffects={cardExtra}
+                        changes={cardChanges}
+                        modules={MODULES.filter((module) => plan.visible.includes(module.key)).map(
+                          (module) => t.moduleNames[module.key],
+                        )}
+                        canWrite={!!targets && plan.visible.length > 0}
+                        busy={cardTask.kind !== 'idle'}
+                        task={taskArea === 'apply' ? cardTask : IDLE}
+                        message={applyMessage}
+                        onApply={applyCard}
+                        links={packageLinks}
+                        termsUrl={guideUrl('TERMS', language)}
+                        camera={camera.name}
+                        firmware={support?.firmware ?? '—'}
+                      />
+                    </Suspense>
+                  </ErrorBoundary>
+                  {plan.visible.length === 0 && <p className={ERROR}>{t.noModules}</p>}
+                </>
+              ) : (
+                <>
+                  <dl className={FACTS}>
+                    <dt className={FACT_LABEL}>{t.camera}</dt>
+                    <dd className={FACT_VALUE}>{camera.name}</dd>
+                    <dt className={FACT_LABEL}>{t.firmware}</dt>
+                    <dd className={FACT_VALUE}>{support?.firmware ?? '—'}</dd>
+                    <dt className={FACT_LABEL}>{t.effectCount}</dt>
+                    <dd className={FACT_VALUE}>
+                      {plan.includeEffects ? (
+                        <ErrorBoundary resetKey={String(catalogAttempt)} fallback="—">
+                          <Suspense fallback="—">
+                            <CheckedCount
+                              selection={selection}
+                              others={[...imported, ...(active ? cardExtra : [])].map((effect) => effect.id)}
+                            />
+                          </Suspense>
+                        </ErrorBoundary>
+                      ) : (
+                        0
+                      )}
+                    </dd>
+                    <dt className={FACT_LABEL}>{t.modules}</dt>
+                    <dd className={FACT_VALUE}>
+                      {plan.visible.length > 0
+                        ? MODULES.filter((module) => plan.visible.includes(module.key))
+                            .map((module) => t.moduleNames[module.key])
+                            .join(t.listSeparator)
+                        : '—'}
+                    </dd>
+                  </dl>
+                  <div className="flex flex-col items-start gap-3">
+                    <Button
+                      type="button"
+                      variant="brand"
+                      size="lg"
+                      disabled={!targets || plan.visible.length === 0 || build.state === 'building'}
+                      aria-busy={build.state === 'building'}
+                      onClick={download}
+                      onPointerEnter={prefetch}
+                      onFocus={prefetch}
+                    >
+                      {t.download}
+                    </Button>
+                    <TermsNote text={t.termsNote} href={guideUrl('TERMS', language)} />
+                    <div aria-live="polite" className="flex flex-col gap-1">
+                      {plan.visible.length === 0 && <p className={ERROR}>{t.noModules}</p>}
+                      {build.state === 'building' && (
+                        <p className={STATUS}>
+                          {build.retrying
+                            ? t.retrying
+                            : build.received > 0
+                              ? t.downloading(megabytes(build.received))
+                              : t.building}
+                        </p>
+                      )}
+                      {build.state === 'ready' && <p className={STATUS}>{t.ready}</p>}
+                      {build.state === 'failed' && <p className={ERROR}>{t.buildError}</p>}
+                    </div>
+                    {build.state === 'ready' && packageLinks}
+                  </div>
+                </>
+              )}
+            </Section>
+
+            {mode === 'zip' && (
+              <Section id="install-label" title={t.install}>
+                <ol className={STEPS}>
+                  {t.steps.map((parts, index) => (
+                    <li key={index}>
+                      <RichText
+                        parts={parts.map((part) =>
+                          part === MODESET_TOKEN ? `\`${support?.modeset ?? ''}` : part,
+                        )}
+                      />
+                    </li>
+                  ))}
+                </ol>
+              </Section>
+            )}
+
+            {showUninstall && (
+              <UninstallSection title={t.remove}>
+                <CardUninstall
+                  strings={t}
+                  session={card!}
+                  busy={cardTask.kind !== 'idle'}
+                  task={taskArea === 'remove' ? cardTask : IDLE}
+                  message={removeMessage}
+                  onUninstall={uninstallCard}
+                  onScriptsOff={scriptsOffCard}
+                  onCleanModeset={cleanModeset}
+                />
+              </UninstallSection>
+            )}
+
+            {mode === 'zip' && (
+              <Section id="update-label" title={t.update}>
+                <ol className={STEPS}>
+                  {t.updateSteps.map((parts, index) => (
+                    <li key={index}>
+                      <RichText parts={parts} />
+                    </li>
+                  ))}
+                </ol>
+              </Section>
+            )}
+
+            {mode === 'zip' && (
+              <Section id="remove-label" title={t.remove}>
+                <ol className={STEPS}>
+                  {t.removeSteps.map((parts, index) => (
+                    <li key={index}>
+                      <RichText
+                        parts={parts.map((part) =>
+                          part === MODESET_TOKEN ? `\`${support?.modeset ?? ''}` : part,
+                        )}
+                      />
+                    </li>
+                  ))}
+                </ol>
+                <div className="flex flex-col items-start gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    disabled={!support || scriptsOff === 'building'}
+                    aria-busy={scriptsOff === 'building'}
+                    onClick={downloadScriptsOff}
+                  >
+                    {t.scriptsOff(camera.name)}
+                  </Button>
+                  <div aria-live="polite">
+                    {scriptsOff === 'failed' && <p className={ERROR}>{t.scriptsOffError}</p>}
+                  </div>
+                </div>
+              </Section>
+            )}
+
+            <Section id="faq-label" title={t.faqTitle}>
+              <div className="flex max-w-[760px] flex-col">
+                {t.faq.map((item) => (
+                  <details key={item.q} className="group border-b border-border">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3.5 font-semibold leading-normal [&::-webkit-details-marker]:hidden">
+                      {item.q}
+                      <Plus className="size-4 shrink-0 text-muted-foreground group-open:hidden" aria-hidden="true" />
+                      <Minus className="hidden size-4 shrink-0 text-muted-foreground group-open:block" aria-hidden="true" />
+                    </summary>
+                    <p className="pb-4 text-[15px] leading-relaxed">
+                      <RichText parts={item.a} link="" />
+                    </p>
+                  </details>
+                ))}
+              </div>
+            </Section>
           </div>
-        </section>
-      </main>
+        </main>
 
-      <footer className="footer">
-        <div className="footer-links">
-          <ul>
-            <li>
-              <a href={guideUrl('RECOVERY', language)}>{t.recovery}</a>
-            </li>
-            <li>
-              <a href={guideUrl('DUMP', language)}>{t.firmwareDump}</a>
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <a href={FEEDBACK_FORM}>{t.feedback}</a>
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <a href={`${REPOSITORY}/blob/main/effects/NOTICE.md`}>{t.licenses}</a>
-            </li>
-            <li>
-              <a href={siteUrl('THIRD_PARTY_LICENSES.txt')}>{t.thirdParty}</a>
-            </li>
-            <li>
-              <a href={guideUrl('TERMS', language)}>{t.terms}</a>
-            </li>
-          </ul>
-        </div>
-        <div className="footer-meta">
-          <p>{t.trademarks}</p>
-          <p className="footer-credit">
-            <b>GRKU {t.landing.edition}</b> — {t.landing.fork[0]}
-            <a href={UPSTREAM}>{t.landing.fork[1]}</a>
-            {t.landing.fork[2]}
-          </p>
-          <a href={RELEASE_URL}>GRKU {__GRKIT_VERSION__}</a>
-        </div>
-      </footer>
-    </div>
+        <footer className="footer">
+          <div className={`${DESK_INNER} flex flex-col gap-6 text-sm text-muted-foreground`}>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <ul className="flex flex-col gap-2">
+                <li>
+                  <a className="hover:text-foreground hover:underline underline-offset-4" href={guideUrl('RECOVERY', language)}>
+                    {t.recovery}
+                  </a>
+                </li>
+                <li>
+                  <a className="hover:text-foreground hover:underline underline-offset-4" href={guideUrl('DUMP', language)}>
+                    {t.firmwareDump}
+                  </a>
+                </li>
+              </ul>
+              <ul className="flex flex-col gap-2">
+                <li>
+                  <a className="hover:text-foreground hover:underline underline-offset-4" href={FEEDBACK_FORM}>
+                    {t.feedback}
+                  </a>
+                </li>
+              </ul>
+              <ul className="flex flex-col gap-2">
+                <li>
+                  <a
+                    className="hover:text-foreground hover:underline underline-offset-4"
+                    href={`${REPOSITORY}/blob/main/effects/NOTICE.md`}
+                  >
+                    {t.licenses}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="hover:text-foreground hover:underline underline-offset-4"
+                    href={siteUrl('THIRD_PARTY_LICENSES.txt')}
+                  >
+                    {t.thirdParty}
+                  </a>
+                </li>
+                <li>
+                  <a className="hover:text-foreground hover:underline underline-offset-4" href={guideUrl('TERMS', language)}>
+                    {t.terms}
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div className="flex flex-col gap-2 border-t border-border pt-4 text-[13px]">
+              <p>{t.trademarks}</p>
+              <p>
+                <b className="font-semibold text-foreground">GRKU {t.landing.edition}</b> — {t.landing.fork[0]}
+                <a className="underline underline-offset-4 hover:text-foreground" href={UPSTREAM}>
+                  {t.landing.fork[1]}
+                </a>
+                {t.landing.fork[2]}
+              </p>
+              <a className="w-fit hover:text-foreground hover:underline underline-offset-4" href={RELEASE_URL}>
+                GRKU {__GRKIT_VERSION__}
+              </a>
+            </div>
+          </div>
+        </footer>
+      </div>
       <AppPromo strings={t} />
     </>
   );
@@ -1220,10 +1273,13 @@ function CardNext({
           ...(next.grkit === 'update' ? [t.cardNextUpdate(__GRKIT_VERSION__)] : []),
           ...(count > 0 ? [t.cardNextChanges(count)] : []),
         ];
-  if (lines.length === 0) return <p className="status">{t.cardNextNone}</p>;
+  if (lines.length === 0) return <p className={STATUS}>{t.cardNextNone}</p>;
   return (
-    <p className="status">
-      {sentences(...lines)} <a href="#package-label">{t.cardNextReview}</a>
+    <p className={STATUS}>
+      {sentences(...lines)}{' '}
+      <a href="#package-label" className="text-foreground underline underline-offset-4 hover:text-brand">
+        {t.cardNextReview}
+      </a>
     </p>
   );
 }

@@ -1,4 +1,8 @@
-import { useId, useImperativeHandle, useRef, useState, type FormEvent, type Ref } from 'react';
+import { useId, useImperativeHandle, useState, type FormEvent, type Ref } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import type { ImportedEffect } from '../catalog';
 import type { Strings } from '../i18n';
 import { coverFields, relabelImport } from '../import/edit';
@@ -26,7 +30,7 @@ const NO_COVER: CoverFields = { brand: '', name: '', number: '', band: false };
  */
 export function EditDialog({ strings: t, onSave, ref }: Props) {
   const ids = useId();
-  const dialog = useRef<HTMLDialogElement>(null);
+  const [open, setOpen] = useState(false);
   const [effect, setEffect] = useState<ImportedEffect | null>(null);
   const [name, setName] = useState('');
   // The cover fields of an import with a film box cover, else null: its icon stays.
@@ -45,7 +49,7 @@ export function EditDialog({ strings: t, onSave, ref }: Props) {
       if (cover) void coverEditor.show(cover);
       setSaving(false);
       setFailed(false);
-      dialog.current?.showModal();
+      setOpen(true);
     },
   }));
 
@@ -55,7 +59,7 @@ export function EditDialog({ strings: t, onSave, ref }: Props) {
 
   function close() {
     coverEditor.cancel();
-    dialog.current?.close();
+    setOpen(false);
   }
 
   async function submit(event: FormEvent) {
@@ -75,30 +79,29 @@ export function EditDialog({ strings: t, onSave, ref }: Props) {
   }
 
   return (
-    <dialog
-      ref={dialog}
-      className="dialog"
-      aria-labelledby={`${ids}-title`}
-      onCancel={(event) => {
-        event.preventDefault();
-        close();
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) close();
       }}
     >
-      <div className="dialog-head">
-        <h3 id={`${ids}-title`} className="dialog-title">
-          {t.editTitle}
-        </h3>
-        <button type="button" className="button small" onClick={close}>
-          {t.close}
-        </button>
-      </div>
-      {effect && (
-        <form className="dialog-body" onSubmit={submit}>
-          <div className="import-fields">
-            <label className="field">
-              <span className="field-label">{t.importName}</span>
-              <input
-                className="import-text"
+      <DialogContent
+        showCloseButton={false}
+        aria-describedby={undefined}
+        className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md"
+      >
+        <DialogHeader className="flex-row items-center justify-between gap-4 text-left">
+          <DialogTitle>{t.editTitle}</DialogTitle>
+          <Button type="button" variant="outline" size="sm" onClick={close}>
+            {t.close}
+          </Button>
+        </DialogHeader>
+        {effect && (
+          <form className="flex flex-col gap-5" onSubmit={submit}>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor={`${ids}-name`}>{t.importName}</Label>
+              <Input
+                id={`${ids}-name`}
                 type="text"
                 value={name}
                 maxLength={16}
@@ -108,30 +111,30 @@ export function EditDialog({ strings: t, onSave, ref }: Props) {
                 onChange={(event) => setName(event.target.value)}
               />
               {badName && (
-                <span id={`${ids}-name-note`} className="note error">
+                <p id={`${ids}-name-note`} className="text-sm text-destructive">
                   {t.importNameNote}
-                </span>
+                </p>
               )}
-            </label>
-          </div>
-          {cover ? (
-            <CoverFieldset strings={t} editor={coverEditor} disabled={saving} />
-          ) : (
-            <div className="import-icon">
-              <span className="field-label">{t.iconHeading}</span>
-              <div className="import-icon-preview">
-                <EffectIcon effect={effect} />
-              </div>
             </div>
-          )}
-          <div aria-live="polite">{failed && <p className="status error">{t.editError}</p>}</div>
-          <div className="dialog-actions">
-            <button type="submit" className="button primary" disabled={!ready} aria-busy={saving}>
-              {t.editSave}
-            </button>
-          </div>
-        </form>
-      )}
-    </dialog>
+            {cover ? (
+              <CoverFieldset strings={t} editor={coverEditor} disabled={saving} />
+            ) : (
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium">{t.iconHeading}</span>
+                <div className="cover-preview flex items-center justify-center rounded-lg bg-muted p-4">
+                  <EffectIcon effect={effect} />
+                </div>
+              </div>
+            )}
+            <div aria-live="polite">{failed && <p className="text-sm text-destructive">{t.editError}</p>}</div>
+            <DialogFooter>
+              <Button type="submit" variant="brand" disabled={!ready} aria-busy={saving}>
+                {t.editSave}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

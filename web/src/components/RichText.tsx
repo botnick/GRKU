@@ -7,9 +7,11 @@ import type { RichText as Parts } from '../i18n';
 export function RichText({ parts, link }: { parts: Parts; link?: string }) {
   return parts.map((part, index) =>
     part.startsWith('`') ? (
-      <code key={index}>{part.slice(1)}</code>
+      <code key={index} className="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.9em]">
+        {part.slice(1)}
+      </code>
     ) : part.startsWith('[') && link ? (
-      <a key={index} href={link}>
+      <a key={index} href={link} className="underline underline-offset-4 hover:text-brand">
         {part.slice(1)}
       </a>
     ) : (

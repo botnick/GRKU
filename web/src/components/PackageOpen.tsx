@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Button } from '@/components/ui/button';
 import { sentences, type Strings } from '../i18n';
 
 /** The read of a GRKU.zip of an earlier download. */
@@ -22,20 +23,22 @@ export function PackageOpen({
 }) {
   const input = useRef<HTMLInputElement>(null);
   return (
-    <div className="note-group">
-      <p className="note">
+    <div className="flex flex-col gap-1 text-sm">
+      <p className="text-muted-foreground">
         {t.packageHint}{' '}
-        <button
+        <Button
           type="button"
-          className="link-button"
+          variant="link"
+          size="sm"
+          className="h-auto p-0 text-sm"
           disabled={status.state === 'reading'}
           onClick={() => input.current?.click()}
         >
           {t.packageOpen}
-        </button>
+        </Button>
         <input
           ref={input}
-          className="visually-hidden"
+          className="sr-only"
           type="file"
           accept=".zip,application/zip"
           tabIndex={-1}
@@ -48,10 +51,10 @@ export function PackageOpen({
         />
       </p>
       <div aria-live="polite">
-        {status.state === 'reading' && <p className="status">{t.packageReading}</p>}
-        {status.state === 'error' && <p className="status error">{t.packageError}</p>}
+        {status.state === 'reading' && <p className="text-muted-foreground">{t.packageReading}</p>}
+        {status.state === 'error' && <p className="text-destructive">{t.packageError}</p>}
         {status.state === 'done' && (
-          <p className="status">
+          <p className="text-muted-foreground">
             {sentences(
               t.packageDone,
               ...(status.added > 0 ? [t.packageImports(status.added)] : []),

@@ -1,13 +1,19 @@
 import {
-  useCallback,
+  useEffect,
   useId,
   useImperativeHandle,
-  useRef,
   useState,
   type ChangeEvent,
   type FormEvent,
   type Ref,
 } from 'react';
+import { Upload } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import { MAX_EFFECTS, type ImportedEffect, type LutImport } from '../catalog';
 import type { Strings } from '../i18n';
 import { trackHaldImage, trackImport } from '../analytics';
@@ -21,7 +27,7 @@ import {
   validCover,
   validName,
   type CoverFields,
-  type Input,
+  type Input as LutInput,
 } from '../import/names';
 import { TaskSlot } from '../import/task';
 import { CoverFieldset, useCoverEditor } from './CoverEditor';
@@ -51,13 +57,17 @@ type Status =
   | { state: 'done'; effect: ImportedEffect<LutImport>; full: boolean };
 
 /** `auto` uses the input that the LUT data suggests (`guessInput`). */
-type InputChoice = 'auto' | Input;
+type InputChoice = 'auto' | LutInput;
 
 const EMPTY_COVER: CoverFields = { brand: 'LUT', name: 'LUT', number: '', band: false };
 
 /** Any touch pointer, not only the primary one, so an iPad with a trackpad still counts. */
 const hasTouch = () =>
   typeof window !== 'undefined' && (window.matchMedia?.('(any-pointer: coarse)').matches ?? false);
+
+/** The ring of a file button whose hidden input has the keyboard focus. */
+const FILE_FOCUS =
+  '[&:has(+input:focus-visible)]:border-ring [&:has(+input:focus-visible)]:ring-[3px] [&:has(+input:focus-visible)]:ring-ring/50';
 
 /**
  * The LUT import dialog. `ref.open()` opens it, so several buttons on the page can open the
@@ -67,12 +77,12 @@ const hasTouch = () =>
  */
 export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Props) {
   const ids = useId();
-  const dialog = useRef<HTMLDialogElement>(null);
+  const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState('');
   const [choice, setChoice] = useState<InputChoice>('auto');
   // The input that the LUT data suggests, or null while the worker reads the file.
-  const [guessed, setGuessed] = useState<Input | null>('standard');
+  const [guessed, setGuessed] = useState<LutInput | null>('standard');
   const coverEditor = useCoverEditor(EMPTY_COVER);
   const { cover } = coverEditor;
   const [status, setStatus] = useState<Status>({ state: 'idle' });
@@ -82,21 +92,17 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
   const [guess] = useState(() => new TaskSlot());
   const [fit] = useState(() => new TaskSlot());
   // An unmount stops a running guess and fit, as a new photo stops a RAW decode.
-  const ownDialog = useCallback(
-    (element: HTMLDialogElement | null) => {
-      dialog.current = element;
-      return () => {
-        fit.cancel();
-        guess.cancel();
-        dialog.current = null;
-      };
+  useEffect(
+    () => () => {
+      fit.cancel();
+      guess.cancel();
     },
     [fit, guess],
   );
 
   const importing = status.state === 'importing';
   const reading = choice === 'auto' && guessed === null;
-  const input: Input = choice === 'auto' ? (guessed ?? 'standard') : choice;
+  const input: LutInput = choice === 'auto' ? (guessed ?? 'standard') : choice;
   const badName = file !== null && !validName(name);
   const ready =
     file !== null &&
@@ -118,17 +124,17 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
     setFileKey((key) => key + 1);
   }
 
-  function open() {
+  function openDialog() {
     if (status.state === 'done' || status.state === 'failed') reset();
-    dialog.current?.showModal();
+    setOpen(true);
   }
 
-  useImperativeHandle(ref, () => ({ open }));
+  useImperativeHandle(ref, () => ({ open: openDialog }));
 
   function close() {
     fit.cancel();
     if (importing) setStatus({ state: 'idle' });
-    dialog.current?.close();
+    setOpen(false);
   }
 
   async function chooseFile(event: ChangeEvent<HTMLInputElement>) {
@@ -199,171 +205,196 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
     }
   }
 
-  function inputLabel(item: Input): string {
+  function inputLabel(item: LutInput): string {
     if (item === 'standard') return t.inputStandard;
     if (item === 'srgb') return t.inputSrgb;
     return INPUT_NAMES[item];
   }
 
+  const autoLabel = guessed === null ? t.inputAutoReading : t.inputAuto(INPUT_NAMES[guessed]);
+  const choiceLabel = choice === 'auto' ? autoLabel : inputLabel(choice);
   const done = status.state === 'done' ? status : null;
 
   return (
-    <dialog
-      ref={ownDialog}
-      className="dialog"
-      aria-labelledby={`${ids}-title`}
-      onCancel={(event) => {
-        event.preventDefault();
-        close();
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) close();
       }}
     >
-      <div className="dialog-head">
-        <h3 id={`${ids}-title`} className="dialog-title">
-          {t.importTitle}
-        </h3>
-        <button type="button" className="button small" onClick={close}>
-          {t.close}
-        </button>
-      </div>
+      <DialogContent
+        showCloseButton={false}
+        aria-describedby={undefined}
+        className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg"
+      >
+        <DialogHeader className="flex-row items-center justify-between gap-4 text-left">
+          <DialogTitle>{t.importTitle}</DialogTitle>
+          <Button type="button" variant="outline" size="sm" onClick={close}>
+            {t.close}
+          </Button>
+        </DialogHeader>
 
-      {done ? (
-        <div className="dialog-body">
-          <div className="import-done">
-            <CoverIcon cover={done.effect.cover} />
-            <div>
-              <p className="import-done-name">{done.effect.name}</p>
-              <p className="status">{t.fitText[done.effect.imported.grade]}</p>
-              <p className="status">{t.importUsed(INPUT_NAMES[done.effect.imported.input])}</p>
+        {done ? (
+          <div className="flex flex-col gap-5">
+            <div className="cover-preview flex items-center gap-4">
+              <CoverIcon cover={done.effect.cover} />
+              <div className="flex min-w-0 flex-col gap-1 text-sm text-muted-foreground">
+                <p className="text-base font-semibold text-foreground">{done.effect.name}</p>
+                <p>{t.fitText[done.effect.imported.grade]}</p>
+                <p>{t.importUsed(INPUT_NAMES[done.effect.imported.input])}</p>
+              </div>
             </div>
-          </div>
-          {done.full && <p className="status">{t.importUnchecked(MAX_EFFECTS)}</p>}
-          {done.effect.imported.warnings.length > 0 && (
-            <div className="import-result">
-              <p className="status error">{t.importWarnings}</p>
-              <ul className="import-warnings">
-                {done.effect.imported.warnings.map((warning) => (
-                  <li key={warning} lang="en">
-                    {warning}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <div className="dialog-actions">
-            <button type="button" className="button" onClick={reset}>
-              {t.importAnother}
-            </button>
-            <button type="button" className="button primary" onClick={close}>
-              {t.done}
-            </button>
-          </div>
-        </div>
-      ) : (
-        <form className="dialog-body" onSubmit={submit}>
-          <p className="note">{t.importNote}</p>
-
-          <label htmlFor={`${ids}-file`} className="upload" aria-disabled={importing}>
-            <span className="import-file-name">{file?.name ?? t.importFile}</span>
-          </label>
-          <input
-            key={fileKey}
-            id={`${ids}-file`}
-            className="visually-hidden"
-            type="file"
-            accept={lutAccept(hasTouch())}
-            disabled={importing}
-            onChange={chooseFile}
-          />
-
-          <div className="import-fields">
-            <label className="field">
-              <span className="field-label">{t.importName}</span>
-              <input
-                className="import-text"
-                type="text"
-                value={name}
-                maxLength={16}
-                disabled={importing}
-                aria-invalid={badName}
-                aria-describedby={badName ? `${ids}-name-note` : undefined}
-                onChange={(event) => setName(event.target.value)}
-              />
-              {badName && (
-                <span id={`${ids}-name-note`} className="note error">
-                  {t.importNameNote}
-                </span>
-              )}
-            </label>
-            <label className="field">
-              <span className="field-label">{t.importInput}</span>
-              <select
-                className="import-text"
-                value={choice}
-                disabled={importing}
-                onChange={(event) => setChoice(event.target.value as InputChoice)}
-              >
-                <option value="auto">
-                  {guessed === null ? t.inputAutoReading : t.inputAuto(INPUT_NAMES[guessed])}
-                </option>
-                {INPUTS.map((item) => (
-                  <option key={item} value={item}>
-                    {inputLabel(item)}
-                  </option>
-                ))}
-              </select>
-              {choice === 'auto' && guessed !== null && (
-                <span className="note">
-                  {guessed === 'standard' ? t.inputAutoStandard : t.inputAutoLog}
-                </span>
-              )}
-            </label>
-          </div>
-
-          <CoverFieldset strings={t} editor={coverEditor} disabled={importing} />
-
-          <details className="hald">
-            <summary>{t.haldSummary}</summary>
-            <p className="note">{t.haldNote}</p>
-            <button
-              type="button"
-              className="button small"
-              onClick={() => void saveHaldImage().then(trackHaldImage)}
-            >
-              {t.haldDownload}
-            </button>
-          </details>
-
-          <div aria-live="polite">
-            {status.state === 'importing' && (
-              <div className="import-progress">
-                <p className="status">{t.importing}</p>
-                <progress max={1} value={status.fraction} aria-label={t.importing} />
-                <span className="import-percent">{Math.round(status.fraction * 100)}%</span>
+            {done.full && <p className="text-sm text-muted-foreground">{t.importUnchecked(MAX_EFFECTS)}</p>}
+            {done.effect.imported.warnings.length > 0 && (
+              <div className="flex flex-col gap-2 rounded-lg border border-border p-4 text-sm">
+                <p className="font-medium text-destructive">{t.importWarnings}</p>
+                <ul className="flex list-disc flex-col gap-1 pl-5 leading-relaxed">
+                  {done.effect.imported.warnings.map((warning) => (
+                    <li key={warning} lang="en">
+                      {warning}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
-            {status.state === 'failed' && (
-              <p className="status error">
-                {t.importError} {status.message}
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={reset}>
+                {t.importAnother}
+              </Button>
+              <Button type="button" variant="brand" onClick={close}>
+                {t.done}
+              </Button>
+            </DialogFooter>
+          </div>
+        ) : (
+          <form className="flex flex-col gap-5" onSubmit={submit}>
+            <p className="text-sm text-muted-foreground">{t.importNote}</p>
+
+            <div className="flex flex-col gap-1.5">
+              <Button
+                asChild
+                variant="outline"
+                className={cn(
+                  'h-auto min-h-11 w-full justify-start font-normal whitespace-normal',
+                  FILE_FOCUS,
+                  importing && 'pointer-events-none opacity-50',
+                )}
+              >
+                <label htmlFor={`${ids}-file`} aria-disabled={importing}>
+                  <Upload aria-hidden="true" />
+                  <span className="min-w-0 truncate">{file?.name ?? t.importFile}</span>
+                </label>
+              </Button>
+              <input
+                key={fileKey}
+                id={`${ids}-file`}
+                className="sr-only"
+                type="file"
+                accept={lutAccept(hasTouch())}
+                disabled={importing}
+                onChange={chooseFile}
+              />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor={`${ids}-name`}>{t.importName}</Label>
+                <Input
+                  id={`${ids}-name`}
+                  type="text"
+                  value={name}
+                  maxLength={16}
+                  disabled={importing}
+                  aria-invalid={badName}
+                  aria-describedby={badName ? `${ids}-name-note` : undefined}
+                  onChange={(event) => setName(event.target.value)}
+                />
+                {badName && (
+                  <p id={`${ids}-name-note`} className="text-sm text-destructive">
+                    {t.importNameNote}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor={`${ids}-input`}>{t.importInput}</Label>
+                <Select
+                  value={choice}
+                  disabled={importing}
+                  onValueChange={(value) => setChoice(value as InputChoice)}
+                >
+                  <SelectTrigger id={`${ids}-input`} className="w-full">
+                    <SelectValue>{choiceLabel}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="auto">{autoLabel}</SelectItem>
+                    {INPUTS.map((item) => (
+                      <SelectItem key={item} value={item}>
+                        {inputLabel(item)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {choice === 'auto' && guessed !== null && (
+                  <p className="text-sm text-muted-foreground">
+                    {guessed === 'standard' ? t.inputAutoStandard : t.inputAutoLog}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <CoverFieldset strings={t} editor={coverEditor} disabled={importing} />
+
+            <details className="rounded-lg border border-border px-4 py-3 text-sm">
+              <summary className="font-medium">{t.haldSummary}</summary>
+              <p className="mt-2 text-muted-foreground">{t.haldNote}</p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={() => void saveHaldImage().then(trackHaldImage)}
+              >
+                {t.haldDownload}
+              </Button>
+            </details>
+
+            <div aria-live="polite">
+              {status.state === 'importing' && (
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <p>{t.importing}</p>
+                  <progress
+                    className="h-2 min-w-0 flex-1 appearance-none overflow-hidden rounded-full bg-muted [&::-moz-progress-bar]:bg-foreground [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-foreground"
+                    max={1}
+                    value={status.fraction}
+                    aria-label={t.importing}
+                  />
+                  <span className="tabular-nums">{Math.round(status.fraction * 100)}%</span>
+                </div>
+              )}
+              {status.state === 'failed' && (
+                <p className="text-sm text-destructive">
+                  {t.importError} {status.message}
+                </p>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button type="submit" variant="brand" disabled={!ready} aria-busy={importing}>
+                {t.importButton}
+              </Button>
+            </DialogFooter>
+
+            <div className="flex flex-col gap-2 border-t border-border pt-4 text-sm text-muted-foreground">
+              <p>
+                <strong className="font-semibold text-foreground">{t.importHowTitle}</strong> {t.importHow}
               </p>
-            )}
-          </div>
-
-          <div className="dialog-actions">
-            <button type="submit" className="button primary" disabled={!ready} aria-busy={importing}>
-              {t.importButton}
-            </button>
-          </div>
-
-          <div className="import-about">
-            <p className="note">
-              <strong>{t.importHowTitle}</strong> {t.importHow}
-            </p>
-            <p className="note">
-              <strong>{t.importLimitsTitle}</strong> {t.importLimits}
-            </p>
-          </div>
-        </form>
-      )}
-    </dialog>
+              <p>
+                <strong className="font-semibold text-foreground">{t.importLimitsTitle}</strong> {t.importLimits}
+              </p>
+            </div>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import type { Strings } from '../i18n';
 import { coverProblem } from '../import/lut';
 import { coverIcon, validCover, validCoverText, type CoverFields } from '../import/names';
@@ -55,18 +58,19 @@ interface Props {
 
 /** The film cover icon of an effect, with its brand, film name, number, and band to edit. */
 export function CoverFieldset({ strings: t, editor, disabled }: Props) {
+  const ids = useId();
   const { cover, error } = editor;
   const edit = <K extends keyof CoverFields>(key: K, value: CoverFields[K]) =>
     void editor.show({ ...cover, [key]: value });
   return (
-    <fieldset className="import-icon" disabled={disabled}>
-      <legend className="field-label">{t.iconHeading}</legend>
-      <div className="import-icon-preview">
+    <fieldset className="flex flex-col gap-3 rounded-xl border border-border p-4 disabled:opacity-60" disabled={disabled}>
+      <legend className="px-1 text-sm font-medium">{t.iconHeading}</legend>
+      <div className="cover-preview flex items-center justify-center rounded-lg bg-muted p-4">
         <CoverIcon cover={coverIcon(cover)} />
       </div>
-      <details className="import-icon-edit" open>
-        <summary>{t.iconEdit}</summary>
-        <div className="import-icon-fields">
+      <details className="group" open>
+        <summary className="cursor-pointer text-sm text-muted-foreground">{t.iconEdit}</summary>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {(
             [
               ['brand', t.iconBrand, true],
@@ -74,26 +78,30 @@ export function CoverFieldset({ strings: t, editor, disabled }: Props) {
               ['number', t.iconNumber, false],
             ] as const
           ).map(([key, label, required]) => (
-            <label key={key} className="field">
-              <span className="field-label">{label}</span>
-              <input
-                className="import-text"
+            <div key={key} className="flex flex-col gap-1.5">
+              <Label htmlFor={`${ids}-${key}`}>{label}</Label>
+              <Input
+                id={`${ids}-${key}`}
                 type="text"
                 value={cover[key]}
                 maxLength={12}
                 aria-invalid={(required || cover[key] !== '') && !validCoverText(cover[key])}
                 onChange={(event) => edit(key, event.target.value)}
               />
-            </label>
+            </div>
           ))}
-          <label className="check">
-            <input type="checkbox" checked={cover.band} onChange={(event) => edit('band', event.target.checked)} />
-            <span>{t.iconBand}</span>
-          </label>
-          {!validCover(cover) && <p className="note error">{t.iconNote}</p>}
+          <div className="flex items-center gap-2 sm:col-span-3">
+            <Checkbox
+              id={`${ids}-band`}
+              checked={cover.band}
+              onCheckedChange={(value) => edit('band', value === true)}
+            />
+            <Label htmlFor={`${ids}-band`}>{t.iconBand}</Label>
+          </div>
+          {!validCover(cover) && <p className="text-sm text-destructive sm:col-span-3">{t.iconNote}</p>}
         </div>
       </details>
-      {error && <p className="note error import-icon-error">{t.iconTooWide}</p>}
+      {error && <p className="text-sm text-destructive">{t.iconTooWide}</p>}
     </fieldset>
   );
 }

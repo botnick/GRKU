@@ -1,4 +1,6 @@
 import { useState, useSyncExternalStore } from 'react';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { isAppleMobileDevice, type DeviceNavigator } from '../card';
 import type { Strings } from '../i18n';
 import { LANDING_HERO } from '../landing';
@@ -66,22 +68,23 @@ function PromoBar({ strings, onClose }: { strings: Strings; onClose: () => void 
   return (
     <>
       {/* Keeps the end of the page clear of the fixed bar. */}
-      <div className="app-promo-space" aria-hidden="true" />
-      <aside className="app-promo" aria-label="GR Snap">
-        <img src="/gr-snap.png" alt="" width="40" height="40" />
-        <div className="app-promo-text">
-          <strong>GR Snap</strong>
-          <span>{strings.appPromo}</span>
-          <small>{strings.appPromoMaker}</small>
+      <div className="h-20" aria-hidden="true" />
+      <aside
+        className="promo-bar fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-card px-4 py-3 text-card-foreground shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
+        aria-label="GR Snap"
+      >
+        <img src="/gr-snap.png" alt="" width="40" height="40" className="size-10 rounded-lg" />
+        <div className="flex min-w-0 flex-1 flex-col text-sm leading-tight">
+          <strong className="font-semibold">GR Snap</strong>
+          <span className="truncate text-muted-foreground">{strings.appPromo}</span>
+          <small className="text-xs text-muted-foreground">{strings.appPromoMaker}</small>
         </div>
-        <a className="button small primary" href={APP_URL}>
-          {strings.appPromoOpen}
-        </a>
-        <button type="button" className="app-promo-close" aria-label={strings.appPromoClose} onClick={close}>
-          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
-            <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.5" />
-          </svg>
-        </button>
+        <Button asChild variant="brand" size="sm">
+          <a href={APP_URL}>{strings.appPromoOpen}</a>
+        </Button>
+        <Button type="button" variant="ghost" size="icon-sm" aria-label={strings.appPromoClose} onClick={close}>
+          <X aria-hidden="true" />
+        </Button>
       </aside>
     </>
   );

@@ -5,9 +5,14 @@
 export function TermsNote({ text, href }: { text: readonly [string, string, string]; href: string }) {
   const [before, link, after] = text;
   return (
-    <p className="note">
+    <p className="text-sm text-muted-foreground">
       {before}
-      <a href={href} target="_blank" rel="noreferrer">
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className="underline underline-offset-4 hover:text-foreground"
+      >
         {link}
       </a>
       {after}

@@ -6,9 +6,18 @@ import {
   useState,
   useTransition,
   type ChangeEvent,
+  type ReactNode,
 } from 'react';
+import { ChevronDown, LoaderCircle, Lock, Plus, Search, Upload } from 'lucide-react';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { cn } from '@/lib/utils';
 import { PREVIEW_TARGET } from '../cameras';
 import {
   effectUrl,
@@ -77,7 +86,6 @@ interface Props {
 }
 
 /** The change badge of an effect or a module: what a write to the card does with it. */
-
 export function ChangeBadge({
   on,
   checked,
@@ -90,11 +98,25 @@ export function ChangeBadge({
   changed?: boolean;
   strings: Strings;
 }) {
-  if (checked && !on) return <span className="change add">{t.changeAdds}</span>;
-  if (!checked && on) return <span className="change remove">{t.changeRemoves}</span>;
-  if (checked && changed) return <span className="change add">{t.changeUpdates}</span>;
+  if (checked && !on) return <Badge variant="outline">{t.changeAdds}</Badge>;
+  if (!checked && on)
+    return (
+      <Badge variant="outline" className="border-destructive text-destructive">
+        {t.changeRemoves}
+      </Badge>
+    );
+  if (checked && changed) return <Badge variant="outline">{t.changeUpdates}</Badge>;
   return null;
 }
+
+/** A film box on the shelf: the icon above the name, in the middle of its card. */
+const FILM_BODY =
+  'flex w-full flex-1 flex-col items-center gap-2.5 rounded-lg px-0 pt-1.5 pb-1 text-center';
+const FILM_CARD =
+  'film-card relative flex flex-col rounded-xl border border-border bg-card p-2 pt-3 transition-colors hover:border-input';
+/** The ring of a file button whose hidden input has the keyboard focus. */
+const FILE_FOCUS =
+  '[&:has(+input:focus-visible)]:border-ring [&:has(+input:focus-visible)]:ring-[3px] [&:has(+input:focus-visible)]:ring-ring/50';
 
 export function EffectsSection({
   strings: t,
@@ -284,21 +306,21 @@ export function EffectsSection({
   }
 
   return (
-    <div className="section-body effects-body" ref={ownPhoto}>
-      <div className="preview-row">
-        <div className="viewer">
+    <div className="flex flex-col gap-8" ref={ownPhoto}>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-8">
+        <div className="min-w-0">
           {shown && previewed && (
             <ErrorBoundary
               resetKey={`${source.key}\n${shown.id}\n${previewAttempt}`}
               fallback={
-                <div className="frame">
-                  <div className="frame-placeholder">
+                <Frame>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-center text-sm">
                     <p>{t.previewError}</p>
-                    <button type="button" className="button small" onClick={retryPreview}>
+                    <Button type="button" variant="outline" size="sm" onClick={retryPreview}>
                       {t.retryPreview}
-                    </button>
+                    </Button>
                   </div>
-                </div>
+                </Frame>
               }
             >
               <Suspense fallback={<Placeholder text={sourceLabel} busy />}>
@@ -317,59 +339,47 @@ export function EffectsSection({
           )}
         </div>
 
-        <div className="preview-side">
-          <div className="field">
-            <span className="field-label">{t.previewing}</span>
-            <span className="previewing">{name}</span>
+        <div className="flex min-w-0 flex-col gap-6">
+          <div className="flex flex-col gap-1">
+            <span className="text-sm text-muted-foreground">{t.previewing}</span>
+            <span className="text-xl font-semibold">{name}</span>
             {requested && STOCKS[requested.id] && (
-              <span className="effect-stock">{stockText(STOCKS[requested.id]!, t)}</span>
+              <span className="font-mono text-sm text-muted-foreground">{stockText(STOCKS[requested.id]!, t)}</span>
             )}
-            {look && <span className="previewing-look">{look}</span>}
+            {look && <span className="text-sm text-muted-foreground">{look}</span>}
           </div>
 
-          <div className="field photo-field">
-            <span className="field-label">{t.photoSource(sourceLabel)}</span>
-            <label htmlFor="photo-input" className="upload">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M12 16V4" />
-                <path d="M7 9l5-5 5 5" />
-                <path d="M4 20h16" />
-              </svg>
-              <span>{t.upload}</span>
-            </label>
+          <div className="flex flex-col items-start gap-3">
+            <span className="text-sm text-muted-foreground">{t.photoSource(sourceLabel)}</span>
+            <Button asChild variant="outline" className={FILE_FOCUS}>
+              <label htmlFor="photo-input">
+                <Upload aria-hidden="true" />
+                <span>{t.upload}</span>
+              </label>
+            </Button>
             <input
               id="photo-input"
-              className="visually-hidden"
+              className="sr-only"
               type="file"
               accept=".dng,image/x-adobe-dng"
               onChange={openPhoto}
             />
             {decoding && (
-              <p role="status" className="status">
+              <p role="status" className="text-sm text-muted-foreground">
                 {t.decodingPhoto}
               </p>
             )}
             {photoError && (
-              <p role="alert" className="status error">
+              <p role="alert" className="text-sm text-destructive">
                 {t.photoError}
               </p>
             )}
             {source !== DEFAULT_SAMPLE && (
-              <button type="button" className="button small" onClick={showSample}>
+              <Button type="button" variant="ghost" size="sm" onClick={showSample}>
                 {t.useSample}
-              </button>
+              </Button>
             )}
-            <p className="note">
+            <p className="max-w-[60ch] text-sm text-muted-foreground">
               {/* The landing hero credits the sample photo where it first shows. */}
               {sentences(t.uploadNote, t.previewNote)}
             </p>
@@ -377,18 +387,19 @@ export function EffectsSection({
         </div>
       </div>
 
-      <div className="effects-pick">
-        <div className="toolbar">
-          <p>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm">
             {t.count(selectable)[0]}
-            <span className="count">{checked.size}</span>
+            <span className="font-semibold tabular-nums">{checked.size}</span>
             {t.count(selectable)[1]}
             {listed > MAX_EFFECTS && t.countTotal(listed)}
           </p>
-          <div>
-            <button
+          <div className="flex gap-2">
+            <Button
               type="button"
-              className="button"
+              variant="outline"
+              size="sm"
               onClick={() =>
                 onSelectionChange(
                   new Set(
@@ -398,57 +409,85 @@ export function EffectsSection({
               }
             >
               {t.selectAll}
-            </button>
-            <button type="button" className="button" onClick={() => onSelectionChange(new Set())}>
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => onSelectionChange(new Set())}>
               {t.clear}
-            </button>
+            </Button>
           </div>
         </div>
-        <div className="note-group">
-          <p className="note">{t.countLimit(MAX_EFFECTS)}</p>
+        <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+          <p>{t.countLimit(MAX_EFFECTS)}</p>
           {catalog.baseGamma && (
-            <p className="note">
+            <p>
               {t.importHint}{' '}
-              <button type="button" className="link-button" onClick={openImport}>
+              <Button type="button" variant="link" size="sm" className="h-auto p-0 text-sm" onClick={openImport}>
                 {t.importOpen}
-              </button>
+              </Button>
             </p>
           )}
-          {onCard && <p className="note">{t.effectsCardNote}</p>}
+          {onCard && <p>{t.effectsCardNote}</p>}
         </div>
 
-        <div className="effects-filter">
-          <input
-            type="search"
-            className="effects-search"
-            placeholder={t.searchEffects}
-            aria-label={t.searchEffects}
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-          <div className="chips" role="group" aria-label={t.searchEffects}>
-            <button type="button" className="chip" aria-pressed={kind === 'all'} onClick={() => setKind('all')}>
-              {t.filterAll}
-            </button>
-            {kinds.map((item) => (
-              <button type="button" className="chip" key={item} aria-pressed={kind === item} onClick={() => setKind(item)}>
-                {kindLabel(item, t)}
-              </button>
-            ))}
+        <div className="flex flex-col gap-3 border-b border-border pb-4">
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              type="search"
+              className="h-11 bg-card pl-10 text-base"
+              placeholder={t.searchEffects}
+              aria-label={t.searchEffects}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
           </div>
-          <select className="effects-brand" aria-label={t.allBrands} value={brand} onChange={(event) => setBrand(event.target.value)}>
-            <option value="all">{t.allBrands}</option>
-            {brands.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-          <span className="effects-shown">{t.shownOf(visible.length, listedEffects.length)}</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              size="sm"
+              spacing={2}
+              className="flex-wrap"
+              aria-label={t.searchEffects}
+              value={kind}
+              onValueChange={(value) => {
+                if (value) setKind(value as FilmKind | 'all');
+              }}
+            >
+              <ToggleGroupItem value="all" className="bg-card">
+                {t.filterAll}
+              </ToggleGroupItem>
+              {kinds.map((item) => (
+                <ToggleGroupItem key={item} value={item} className="bg-card">
+                  {kindLabel(item, t)}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+            <Select value={brand} onValueChange={setBrand}>
+              <SelectTrigger size="sm" className="ml-auto min-w-36 bg-card" aria-label={t.allBrands}>
+                <SelectValue>{brand === 'all' ? t.allBrands : brand}</SelectValue>
+              </SelectTrigger>
+              <SelectContent position="popper" align="end">
+                <SelectItem value="all">{t.allBrands}</SelectItem>
+                {brands.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {item}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <span className="text-[13px] text-muted-foreground tabular-nums">
+            {t.shownOf(visible.length, listedEffects.length)}
+          </span>
         </div>
 
-        <ul className="effects-list" aria-label={t.effects}>
-          {visible.length === 0 && <li className="effects-empty">{t.noMatches}</li>}
+        <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-6" aria-label={t.effects}>
+          {visible.length === 0 && (
+            <li className="col-span-full py-8 text-center text-muted-foreground">{t.noMatches}</li>
+          )}
           {visible.map((effect) => {
             const isChecked = checked.has(effect.id);
             const previewed = effect.id === requested?.id;
@@ -456,9 +495,9 @@ export function EffectsSection({
             const body = (
               <>
                 <EffectIcon effect={effect} />
-                <span className="row-text">
-                  <span className="row-name">{effect.name}</span>
-                  <span className="row-meta">
+                <span className="flex w-full min-w-0 flex-col items-center gap-0.5">
+                  <span className="text-[13px] leading-[1.3] font-semibold sm:text-sm">{effect.name}</span>
+                  <span className="max-w-full truncate text-[11px] text-muted-foreground">
                     {effect.card ? t.cardOnlyEffect : effect.monochrome ? t.mono : t.color}
                     {stock && ` · ${stockText(stock, t)}`}
                   </span>
@@ -468,24 +507,27 @@ export function EffectsSection({
             return (
               <li
                 key={effect.id}
-                className="effect-row"
+                className={cn(
+                  FILM_CARD,
+                  isChecked && 'border-foreground hover:border-foreground',
+                  previewed && 'border-brand ring-2 ring-brand hover:border-brand',
+                )}
                 data-checked={isChecked || undefined}
                 data-previewed={previewed || undefined}
               >
-                <input
-                  className="row-check"
-                  type="checkbox"
+                <Checkbox
+                  className="absolute top-2 left-2 z-10 size-[18px] bg-card"
                   checked={isChecked}
                   disabled={!isChecked && checked.size >= MAX_EFFECTS}
                   aria-label={effect.name}
-                  onChange={() => toggle(effect)}
+                  onCheckedChange={() => toggle(effect)}
                 />
                 {effect.card ? (
-                  <div className="row-body">{body}</div>
+                  <div className={FILM_BODY}>{body}</div>
                 ) : (
                   <button
                     type="button"
-                    className="row-body"
+                    className={cn(FILM_BODY, 'outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50')}
                     aria-pressed={previewed}
                     aria-label={t.previewOf(effect.name)}
                     onPointerEnter={() => prefetch(effect)}
@@ -497,89 +539,102 @@ export function EffectsSection({
                   </button>
                 )}
                 {onCard && (
-                  <ChangeBadge
-                    on={onCard.has(effect.id)}
-                    checked={isChecked}
-                    changed={changedOnCard?.has(effect.id)}
-                    strings={t}
-                  />
-                )}
-                {effect.imported && editable(effect) && (
-                  <button
-                    type="button"
-                    className="row-remove"
-                    aria-label={t.editOf(effect.name)}
-                    onClick={() => editor.current?.open(effect)}
-                  >
-                    {t.editEffect}
-                  </button>
+                  <span className="absolute top-2 right-2">
+                    <ChangeBadge
+                      on={onCard.has(effect.id)}
+                      checked={isChecked}
+                      changed={changedOnCard?.has(effect.id)}
+                      strings={t}
+                    />
+                  </span>
                 )}
                 {effect.imported && (
-                  <button
-                    type="button"
-                    className="row-remove"
-                    aria-label={t.removeOf(effect.name)}
-                    onClick={() => onRemove(effect)}
-                  >
-                    {t.removeEffect}
-                  </button>
+                  <span className="flex justify-center gap-1">
+                    {editable(effect) && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="xs"
+                        aria-label={t.editOf(effect.name)}
+                        onClick={() => editor.current?.open(effect)}
+                      >
+                        {t.editEffect}
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="xs"
+                      aria-label={t.removeOf(effect.name)}
+                      onClick={() => onRemove(effect)}
+                    >
+                      {t.removeEffect}
+                    </Button>
+                  </span>
                 )}
               </li>
             );
           })}
           {locked.length > 0 && (
-            <li className="effect-row native-row native-group">
-              <svg className="native-lock" viewBox="0 0 20 20" aria-hidden="true">
-                <rect x="4" y="9" width="12" height="9" rx="1.5" />
-                <path d="M7 9V6.5a3 3 0 0 1 6 0V9" />
-              </svg>
+            <li className={cn(FILM_CARD, 'col-span-full flex-row items-center gap-3 p-3')}>
+              <Lock className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
               <button
                 type="button"
-                className="row-body"
+                className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 aria-expanded={showLocked}
                 onClick={() => setShowLocked(!showLocked)}
               >
-                <span className="native-stack" aria-hidden="true">
+                <span className="flex shrink-0 -space-x-6" aria-hidden="true">
                   {locked.slice(0, 3).map((look) => (
-                    <span key={look.id} className="native-stack-cover">
+                    <span key={look.id} className="rounded-md bg-card shadow-sm">
                       <CoverIcon cover={look.cover} />
                     </span>
                   ))}
                 </span>
-                <span className="row-text">
-                  <span className="row-name">
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-sm font-semibold">
                     {t.nativeGroup} · {t.nativeCount(locked.length)}
                   </span>
-                  <span className="row-meta">{t.nativeNeeds}</span>
+                  <span className="text-xs text-muted-foreground">{t.nativeNeeds}</span>
                 </span>
-                <span className="native-chevron" aria-hidden="true" />
+                <ChevronDown
+                  className={cn('ml-auto size-4 shrink-0 text-muted-foreground transition-transform', showLocked && 'rotate-180')}
+                  aria-hidden="true"
+                />
               </button>
-              <button type="button" className="row-remove native-action" onClick={openUnlock}>
+              <Button type="button" variant="outline" size="sm" onClick={openUnlock}>
                 {t.nativeUnlock}
-              </button>
+              </Button>
             </li>
           )}
           {showLocked &&
             locked.map((look) => (
-              <li key={look.id} className="effect-row native-row native-item">
+              <li key={look.id} className={cn(FILM_CARD, 'opacity-80')}>
                 <button
                   type="button"
-                  className="row-body"
+                  className={cn(FILM_BODY, 'outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50')}
                   aria-label={t.nativeUnlockOf(look.name)}
                   onClick={openUnlock}
                 >
                   <CoverIcon cover={look.cover} />
-                  <span className="row-name">{look.name}</span>
+                  <span className="text-[13px] leading-[1.3] font-semibold sm:text-sm">{look.name}</span>
                 </button>
               </li>
             ))}
           {catalog.baseGamma && (
-            <li className="effect-row import-row">
-              <button type="button" className="row-body" onClick={openImport}>
-                <span className="import-mark" aria-hidden="true">
-                  +
+            <li className={cn(FILM_CARD, 'border-dashed bg-transparent')}>
+              <button
+                type="button"
+                className={cn(
+                  FILM_BODY,
+                  'justify-center text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                )}
+                onClick={openImport}
+              >
+                <span className="flex size-10 items-center justify-center rounded-full border border-border" aria-hidden="true">
+                  <Plus className="size-5" />
                 </span>
-                <span className="row-name">{t.importOpen}</span>
+                <span className="text-[13px] leading-[1.3] font-semibold sm:text-sm">{t.importOpen}</span>
               </button>
             </li>
           )}
@@ -603,6 +658,15 @@ export function EffectsSection({
           />
         )}
       </div>
+    </div>
+  );
+}
+
+/** The preview frame: a 3:2 photograph, which clips what it holds. */
+function Frame({ busy = false, children }: { busy?: boolean; children: ReactNode }) {
+  return (
+    <div className="preview-frame relative aspect-[3/2] overflow-hidden rounded-xl bg-[#c9c4ba]" aria-busy={busy}>
+      {children}
     </div>
   );
 }
@@ -633,38 +697,51 @@ function PreviewFrame({
   const result = use(preview(source, effect));
   const comparison = useReactCompareSlider({ clip: 'itemTwo' });
   return (
-    <div className="frame" aria-busy={busy}>
+    <Frame busy={busy}>
       <Provider {...comparison}>
         <Root className="image-comparison">
           <Item item="itemOne">
-            <img src={result.original} alt={`${originalAlt} — ${originalLabel}`} />
+            <img
+              className="absolute inset-0 size-full object-cover"
+              src={result.original}
+              alt={`${originalAlt} — ${originalLabel}`}
+            />
           </Item>
           <Item item="itemTwo" className="comparison-effect">
-            <img src={result.processed} alt={`${originalAlt} — ${effectName}`} />
+            <img
+              className="absolute inset-0 size-full object-cover"
+              src={result.processed}
+              alt={`${originalAlt} — ${effectName}`}
+            />
           </Item>
           <HandleRoot aria-label={compareLabel}>
             <Handle buttonStyle={{ width: 32, height: 32, gap: '0.2rem' }} />
           </HandleRoot>
         </Root>
       </Provider>
-      <span className="tag">{effectName}</span>
+      <span className="pointer-events-none absolute top-2.5 right-2.5 z-[2] rounded-md bg-black/80 px-2 py-1 text-xs text-[#f7f7f2]">
+        {effectName}
+      </span>
       {status && (
-        <span className="frame-status" role="status">
-          <span className="spinner" aria-hidden="true" />
-          {status}
+        <span
+          className="pointer-events-none absolute bottom-4 left-1/2 z-[3] inline-flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 rounded-md bg-black/80 px-3.5 py-2 text-[13px] whitespace-nowrap text-[#f7f7f2]"
+          role="status"
+        >
+          <LoaderCircle className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
+          <span className="truncate">{status}</span>
         </span>
       )}
-    </div>
+    </Frame>
   );
 }
 
 function Placeholder({ text, busy = false }: { text: string; busy?: boolean }) {
   return (
-    <div className="frame" aria-busy={busy}>
-      <span className="frame-placeholder">
-        {busy && <span className="spinner" aria-hidden="true" />}
+    <Frame busy={busy}>
+      <span className="absolute inset-0 flex items-center justify-center gap-2.5 font-mono text-[13px] text-[#2c2c2c]">
+        {busy && <LoaderCircle className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />}
         {text}
       </span>
-    </div>
+    </Frame>
   );
 }
