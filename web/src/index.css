@@ -1,0 +1,5 @@
+/* Tailwind for the shadcn/ui components: the theme and the utilities, without the preflight,
+   which the hand-written styles of the page do not expect while they are being replaced. */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);

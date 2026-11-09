@@ -936,3 +936,10 @@ input[type='radio'] {
     gap: 32px;
   }
 }
+
+/* The preview no longer sticks beside the list: the grid runs under it. */
+@media (min-width: 1024px) {
+  main .effects-body .preview-row {
+    position: static;
+  }
+}

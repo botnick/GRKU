@@ -2,6 +2,7 @@
 import { createReadStream, existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin, type PreviewServer, type ViteDevServer } from 'vite';
 import { addPlausible, allowPlausible, plausibleOrigin } from './plausible.ts';
 
@@ -120,7 +121,8 @@ function plausible(host: string | undefined): Plugin {
 }
 
 export default defineConfig({
-  plugins: [
+  resolve: { alias: { '@': resolve(import.meta.dirname, 'src') } },
+  plugins: [tailwindcss(), 
     react(),
     woff2Only(),
     preloadFonts(),
