@@ -776,8 +776,9 @@ function TierCard({
           <span className="font-semibold">{title}</span>
           {owned ? <Badge variant="outline">{ownedLabel}</Badge> : <span className={cn(selected && 'text-brand')}>{price}</span>}
         </span>
-        <span className={cn('mt-1 text-[15px] font-semibold', selected ? 'text-foreground' : 'text-foreground/90')}>→ {outcome}</span>
-        <span className="mt-0.5 text-[13px] text-muted-foreground">{text}</span>
+        {/* One line of what the tier gives, in looks; the longer description stays for screen readers. */}
+        <span className="mt-1 text-sm leading-snug text-muted-foreground">{outcome}</span>
+        <span className="sr-only">{text}</span>
         {children}
       </span>
     </Label>
