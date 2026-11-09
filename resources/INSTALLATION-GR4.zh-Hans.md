@@ -2,11 +2,11 @@
 
 仅适用于 RICOH GR IV 和 GR IV HDF 固件 1.11。
 
-GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可能在启动时停止响应。请在安装前阅读[恢复指南](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.zh-Hans.md)。安装 GRKU 即表示你接受[使用条款](https://github.com/botnick/GRKit/blob/main/resources/TERMS.zh-Hans.md)。
+GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可能在启动时停止响应。请在安装前阅读[恢复指南](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md)。安装 GRKU 即表示你接受[使用条款](https://github.com/botnick/GRKit/blob/main/resources/TERMS.md)。
 
 ## 安装
 
-在电脑上的 Chrome 或 Edge 中打开 [grkit.app](https://grkit.app/zh-hans/)，可以通过读卡器直接把 GRKU 写入存储卡，代替第 2 步。
+在电脑上的 Chrome 或 Edge 中打开 [grku.app](https://grku.app/)，可以通过读卡器直接把 GRKU 写入存储卡，代替第 2 步。
 
 1. 关闭相机。
 2. 把 `SD_ROOT` 中的内容（不是这个文件夹本身）复制到存储卡根目录。复制后，根目录中应有 `SCRIPT` 文件夹。
@@ -21,33 +21,30 @@ GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可
 
 ## 使用
 
-开机几秒后，拍摄画面顶部显示 **GRKU**，表示加载完成。安装或更新后的第一次开机会久一些。加载完成前拍的照片没有 GRKU 效果。在拍摄模式下按 ADJ 杆，选择第 6 项 GRK。
+开机几秒后，拍摄画面顶部显示 **GRKU**，表示加载完成。安装或更新后的第一次开机会久一些。加载完成前拍的照片没有 GRKU 效果。在拍摄模式下按 ADJ 杆，选择第 6 项 GRKU。
 
 - **胶片风格：** 高亮一个效果即可在实时显示中预览，按 OK 保留。按 Fn 调整这个效果。不会改变相机的影像控制设置。这些效果是为 GR III 制作的，在 GR IV 上颜色可能不同。
 - **画幅：** XPan、2.35:1、16:9 等比例。默认裁切 JPEG 照片，DNG 保持 3:2。按 Fn 可以改为仅辅助构图，或设置遮罩。
 - **辅助线：** 只显示在屏幕上，不会出现在照片中。
 - **加印日期：** 在照片右下角加印日期。按 Fn 选择日期样式和字体。
 - **光晕：** 柔光和胶片光晕，只作用于 JPEG 照片，拍摄画面不预览。
+- **漏光：** 暗角、灰尘、漏光和划痕，只作用于 JPEG 照片，拍摄画面不预览。按 Fn 调整每种的强度。
+- **柔光镜：** 黑柔滤镜的柔光效果，只作用于 JPEG 照片，拍摄画面不预览。按 Fn 可以添加黑柔、阴影上的薄纱，或变形镜头的水平眩光。
 - **颗粒感：** 给照片加颗粒。按 Fn 选择颗粒大小。
+- **边框：** 在照片上加白色或黑色的边，宽度为照片的 3% 或 6%，只作用于 JPEG 照片。
 
 全部设置也在 MENU 自定义页（C）最后的 **GRKU** 小节中。每个模块一行，可以启用或关闭模块，在**可选项**中勾选 ADJ 里显示的效果、比例或样式，在 **ADJ 菜单顺序**中调整顺序。关机后设置会保留。
 
 ## 更新
 
-在电脑上的 Chrome 或 Edge 中打开 [grkit.app](https://grkit.app/zh-hans/)，可以通过读卡器直接更新存储卡，代替第 2、3 步。
+在电脑上的 Chrome 或 Edge 中打开 [grku.app](https://grku.app/)，可以通过读卡器直接更新存储卡，代替第 2、3 步。
 
 1. 关闭相机。
 2. 从存储卡删除 `SCRIPT` 文件夹。
 3. 把新安装包 `SD_ROOT` 中的 `SCRIPT` 文件夹复制到存储卡根目录。
 4. 正常开机，不需要按住 MENU。
 
-设置和效果保存在 `GRKIT` 文件夹中，更新后仍在。从 GRKU 1.2 更新时，请用 grkit.app 更新，以保留设置和效果。
-
-## 快速启动（可选）
-
-在官方固件上，GRKU 要等相机读完存储卡，开机后十秒左右才加载。装上快速启动固件后，开机后一到两秒就能加载。同一个安装包两种固件都能用。不装快速启动固件，GRKU 的功能也一样。
-
-快速启动固件在 grkit.app 的[快速启动页面](https://grkit.app/zh-hans/fastboot/)制作：选择从 Ricoh 官网下载的官方固件，页面会生成快速启动固件，然后像更新官方固件一样安装。安装需要更新相机固件，更新中断时相机可能无法开机。要恢复，安装同一版本的官方固件即可。不支持 GR IV Monochrome。
+GRKU 的设置和效果保存在 `GRKIT` 文件夹中，更新后仍在。要从 GRKit 迁移到 GRKU，请使用 grku.app，它会保留设置和效果：两者都保存在同一个 `GRKIT` 文件夹中。
 
 ## 故障排除
 
@@ -60,12 +57,12 @@ GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可
 - 先按住 MENU 按钮，再开机。
 - 把 `SD_ROOT` 中的内容复制到存储卡根目录，不要复制到 `DCIM` 等文件夹中。
 
-### ADJ 中没有 GRK
+### ADJ 中没有 GRKU
 
 1. 开机后等待几秒，直到拍摄画面顶部显示 **GRKU**。
 2. 确认存储卡根目录中有 `SCRIPT` 文件夹。
 3. 如果存储卡中有 `SCRIPT/GRKIT/INSTALL.ERR`，在相机菜单中确认相机显示的是受支持的固件版本。版本受支持时，请提交[设备报告](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)，并附上 `INSTALL.ERR`、`GRKIT/REPORT.TXT` 和 `GRKIT/BOOT.TXT`（如果有）。
-4. GRKU 只能在 Ricoh 官方固件和 grkit.app 的快速启动固件上运行。
+4. GRKU 只能在 Ricoh 官方固件上运行。
 
 ### 格式化存储卡后 GRKU 不工作
 
@@ -73,17 +70,17 @@ GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可
 
 ## 移除 GRKU
 
-在电脑上的 Chrome 或 Edge 中打开 [grkit.app](https://grkit.app/zh-hans/)，可以通过读卡器直接移除 GRKU，并可同时关闭 SD 脚本功能。
+在电脑上的 Chrome 或 Edge 中打开 [grku.app](https://grku.app/)，可以通过读卡器直接移除 GRKU，并可同时关闭 SD 脚本功能。
 
 关闭相机，从存储卡删除 `SCRIPT` 和 `GRKIT` 文件夹。
 
 SD 脚本功能会保持打开。要关闭它：
 
-1. 在 https://grkit.app 下载你的相机对应的关闭 SD 脚本的文件。
+1. 在 https://grku.app 下载你的相机对应的关闭 SD 脚本的文件。
 2. 把 `SD_ROOT` 中的内容复制到存储卡根目录。
 3. 插入存储卡。按住 MENU 按钮开机，等待相机自动关机。
 4. 从存储卡根目录删除 `00078560.636` 和 `DEVELOP.MOD`。
 
-相机在启动时停止响应时，请参阅[恢复指南](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.zh-Hans.md)。
+相机在启动时停止响应时，请参阅[恢复指南](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md)。
 
 GRKU 与 Ricoh 无关。源代码和许可：https://github.com/botnick/GRKit

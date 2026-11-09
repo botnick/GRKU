@@ -4,121 +4,40 @@
 
 GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可能在啟動時停止回應。請在安裝前閱讀[復原指南](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md)。安裝 GRKU 即表示你接受[使用條款](https://github.com/botnick/GRKit/blob/main/resources/TERMS.md)。
 
-# GRKU
-
-[English](https://github.com/botnick/GRKit/blob/main/README.md) | [日本語](https://github.com/botnick/GRKit/blob/main/README.ja.md) | Traditional Chinese
-
-僅適用於 RICOH GR III、GR IIIx 與 GR IV，韌體 2.10。
-
-GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可能在啟動時停止回應。請在安裝前閱讀[復原指南](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.zh-Hant.md)。安裝 GRKU 即表示你接受[使用條款](https://github.com/botnick/GRKit/blob/main/resources/TERMS.zh-Hant.md)。
-
 ## 安裝
 
-在電腦上的 Chrome 或 Edge 中開啟 [grku.app](https://grku.app/)，可以透過讀卡機直接把 GRKU 寫入記憶卡，代替第 2 步。
+在電腦上的 Chrome 或 Edge 瀏覽器中，[grku.app](https://grku.app/) 可以將 GRKU 寫入讀卡機裡的記憶卡。它會取代步驟 2。
 
-1. 關閉相機。
-2. 把 `SD_ROOT` 中的內容（不是這個資料夾本身）複製到記憶卡根目錄。複製後，根目錄中應有 `SCRIPT` 資料夾。
-3. 插入記憶卡。按住 MENU 按鈕開機，等待相機自動關機。
-4. 正常開機。
+1. 關閉相機電源。
+2. 將 `SD_ROOT` 裡面的內容（而不是資料夾本身）複製到 SD 卡的根目錄。這樣記憶卡根目錄就會有 `SCRIPT` 資料夾。
+3. 插入記憶卡。按住 MENU 的同時開啟相機電源。等到相機自行關機。
+4. 正常開啟相機電源。
 
-第 3 步會開啟相機的 SD 腳本功能：相機顯示 Mode Set Command 和 Complete，然後自動關機。如果 SD 腳本功能已經開啟，跳過這一步。
+步驟 3 會開啟相機的 SD 指令碼：相機會顯示 Mode Set Command 與 Complete，然後自行關機。如果 SD 指令碼已經開啟，請跳過步驟 3。
 
-![Mode Set Command 畫面顯示 Script - Enable 和 Complete。](images/modeset.png)
+![Mode Set Command 畫面顯示 Script - Enable 與 Complete。](images/modeset.png)
 
-安裝後，可以從記憶卡根目錄刪除 `00078350.588` 與 `DEVELOP.MOD`。
-
-## 使用
-
-開機幾秒後，拍攝畫面頂部顯示 **GRKU**，表示載入完成。安裝或更新後的第一次開機會久一些。載入完成前拍的照片沒有 GRKU 效果。在拍攝模式下按 ADJ 桿，選擇第 6 項 GRK。
-
-![GRKU 頁面列出模組，並顯示目前的效果。](images/grkit-root.jpg)
-
-照片：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)，[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)。
-
-- **底片風格：** 反白一個效果即可在實時顯示中預覽，按 OK 保留。按 Fn 調整這個效果。不會改變相機的 Image Control 設定。
-- **構圖比例：** XPan、2.35:1、16:9 等比例。預設裁切 JPEG 照片，DNG 保持 3:2。按 Fn 可以改為僅輔助取景，或設定遮罩。
-- **輔助線：** 只顯示在螢幕上，不會出現在照片中。
-- **日期戳記：** 在照片右下角加印日期。按 Fn 選擇日期樣式和字體。
-- **光暈：** 柔光和底片光暈，只套用於 JPEG 照片，拍攝畫面不預覽。
-- **顆粒：** 為照片加上顆粒。按 Fn 選擇顆粒大小。
-
-全部設定也在 MENU Custom 頁（C）最後的 **GRKU** 小節中。每個模組一列，可以啟用或關閉模組，在**可選項**中勾選 ADJ 裡顯示的效果、比例或樣式，在 **ADJ 選單順序**中調整順序。關機後設定會保留。
-
-## 更新
-
-在電腦上的 Chrome 或 Edge 中開啟 [grku.app](https://grku.app/)，可以透過讀卡機直接更新記憶卡，代替第 2、3 步。
-
-1. 關閉相機。
-2. 從記憶卡刪除 `SCRIPT` 資料夾。
-3. 把新安裝包 `SD_ROOT` 中的 `SCRIPT` 資料夾複製到記憶卡根目錄。
-4. 正常開機，不需要按住 MENU。
-
-設定和效果保存在 `GRKIT` 資料夾中，更新後仍在。從 GRKU 1.2 更新時，請用 grku.app 更新，以保留設定和效果。
-
-## 快速啟動（選用）
-
-在官方韌體上，GRKU 要等相機讀完記憶卡，開機後約 8 到 10 秒才載入。裝上快速啟動韌體後，開機後一到兩秒就能載入。同一個安裝包兩種韌體都能用。不裝快速啟動韌體，GRKU 的功能也一樣。
-
-快速啟動韌體在 grku.app 的[快速啟動頁面](https://grku.app/fastboot/)製作：選擇從 Ricoh 官網下載的官方韌體，頁面會產生快速啟動韌體，然後像更新官方韌體一樣安裝。安裝需要更新相機韌體，更新中斷時相機可能無法開機。要復原，安裝同一版本的官方韌體即可。
-
-## 疑難排解
-
-### 按住 MENU 開機時，相機開始更新韌體
-
-記憶卡根目錄中有韌體檔案。關閉相機，刪除根目錄中所有 `.bin` 檔案，然後重新執行安裝第 3 步。
-
-### 相機沒有顯示 Mode Set Command
-
-- 先按住 MENU 按鈕，再開機。
-- 把 `SD_ROOT` 中的內容複製到記憶卡根目錄，不要複製到 `DCIM` 等資料夾中。
-
-### ADJ 中沒有 GRK
-
-1. 開機後等待幾秒，直到拍攝畫面頂部顯示 **GRKU**。
-2. 確認記憶卡根目錄中有 `SCRIPT` 資料夾。
-3. 如果記憶卡中有 `SCRIPT/GRKIT/INSTALL.ERR`，在相機選單中確認韌體版本與安裝包對應。版本正確時，請提交[裝置報告](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)，並附上 `INSTALL.ERR`、`GRKIT/REPORT.TXT` 和 `GRKIT/BOOT.TXT`（如果有）。
-4. GRKU 只能在 Ricoh 官方韌體和 grku.app 的快速啟動韌體上運作。
-
-### 格式化記憶卡後 GRKU 不運作
-
-格式化會刪除 GRKU 和它的設定。格式化之前，把 `GRKIT` 資料夾複製到電腦。格式化之後，重新複製 `SD_ROOT` 中的內容，再把 `GRKIT` 資料夾複製回記憶卡根目錄。
-
-## 移除 GRKU
-
-在電腦上的 Chrome 或 Edge 中開啟 [grku.app](https://grku.app/)，可以透過讀卡機直接移除 GRKU，並可同時關閉 SD 腳本功能。
-
-關閉相機，從記憶卡刪除 `SCRIPT` 和 `GRKIT` 資料夾。
-
-SD 腳本功能會保持開啟。要關閉它：
-
-1. 在 https://grku.app 下載你的相機對應的關閉 SD 腳本的檔案。
-2. 把 `SD_ROOT` 中的內容複製到記憶卡根目錄。
-3. 插入記憶卡。按住 MENU 按鈕開機，等待相機自動關機。
-4. 從記憶卡根目錄刪除 `00078350.588` 與 `DEVELOP.MOD`。
-
-相機在啟動時停止回應時，請參閱[復原指南](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.zh-Hant.md)。
-
-GRKU 與 Ricoh 無關。原始碼和授權：https://github.com/botnick/GRKit
+安裝完成後，你可以從記憶卡根目錄移除 `00078350.588` 與 `DEVELOP.MOD`。
 
 ## 使用
 
-開機幾秒後，拍攝畫面頂部顯示 **GRKU**，表示載入完成。安裝或更新後的第一次開機會久一些。載入完成前拍的照片沒有 GRKU 效果。在拍攝模式下按 ADJ 桿，選擇第 6 項 GRKU。
+開機後幾秒鐘，拍攝畫面頂部會顯示 **GRKU**：GRKU 已載入。安裝或更新後的第一次啟動會花較長的時間。在 GRKU 載入之前拍攝的照片不會有 GRKU 效果。在拍攝模式下，按下 ADJ 撥桿並選擇第六個項目 GRKU。
 
-![GRKU 頁面列出模組，並顯示目前的效果。](images/grkit-root.jpg)
+![GRKU 頁面列出各模組並顯示目前的效果。](images/grkit-root.jpg)
 
 照片：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)，[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)。
 
-- **底片風格：** 反白一個效果即可在實時顯示中預覽，按 OK 保留。按 Fn 調整這個效果。不會改變相機的影像控制設定。
-- **構圖比例：** XPan、2.35:1、16:9 等比例。預設裁切 JPEG 照片，DNG 保持 3:2。按 Fn 可以改為僅輔助構圖，或設定遮罩。
-- **輔助線：** 只顯示在螢幕上，不會出現在照片中。
-- **加印日期：** 在照片右下角加印日期。按 Fn 選擇日期樣式和字體。
-- **光暈：** 柔光和底片光暈，只套用於 JPEG 照片，拍攝畫面不預覽。
-- **漏光：** 暗角、灰塵、漏光和刮痕，只套用於 JPEG 照片，拍攝畫面不預覽。按 Fn 設定每一項的強度。
-- **柔焦：** 黑柔焦濾鏡的柔光效果，只套用於 JPEG 照片，拍攝畫面不預覽。按 Fn 可加上黑霧（陰影上的薄紗）或拉絲（變形鏡頭的水平眩光）。
-- **粒紋感：** 為照片加上粒紋。按 Fn 選擇粒紋大小。
-- **邊框：** 在照片上加上白色或黑色邊緣，寬度為照片寬度的 3% 或 6%，只套用於 JPEG 照片。
+- **Film Look：** 將游標移到某個效果上即可在即時取景中預覽，按下 OK 即可保留。按下 Fn 可調整效果。它不會改變相機的 Image Control 設定。
+- **Framing：** XPan、2.35:1、16:9 及其他比例。它會裁切 JPEG 照片，而 DNG 檔案保持 3:2。按下 Fn 可僅將框線用於構圖，或設定遮罩。
+- **Guides：** 僅顯示在螢幕上的線條，不會出現在照片中。
+- **Date Imprint：** 照片右下角的日期戳記。按下 Fn 可選擇日期樣式和字體。
+- **Glow：** Bloom 與 Halation，僅適用於 JPEG 照片，即時取景中無法預覽。
+- **Light Leak：** 暗角、灰塵、漏光與刮痕，僅適用於 JPEG 照片，即時取景中無法預覽。按下 Fn 可分別設定每一項的強度。
+- **Diffusion：** Black Pro-Mist 柔焦濾鏡的柔光效果，僅適用於 JPEG 照片，即時取景中無法預覽。按下 Fn 可加入 Black Mist（覆蓋在陰影上的薄紗效果）或 Streak（變形鏡頭的水平眩光）。
+- **Grain：** 照片上的底片顆粒。按下 Fn 可選擇顆粒大小。
+- **Border：** 覆蓋在照片上的白色或黑色邊框，寬度為照片寬度的 3% 或 6%，僅適用於 JPEG 照片。
 
-全部設定也在 MENU 自訂頁（C）最後的 **GRKU** 小節中。每個模組一列，可以啟用或關閉模組，在**可選項**中勾選 ADJ 裡顯示的效果、比例或樣式，在 **ADJ 選單順序**中調整順序。關機後設定會保留。
+所有設定同樣位於 MENU 的 Custom 分頁 (C) 末尾的 **GRKU** 區段中。每個模組各佔一列。您可以在那裡開啟或關閉模組，在 **Options** 中勾選要讓 ADJ 顯示的效果、比例或樣式，並在 **ADJ Order** 中設定順序。GRKU 會在關機後保留您的設定。
 
 ## 更新
 
@@ -146,7 +65,7 @@ GRKU 會把設定和效果保存在 `GRKIT` 資料夾中，因此更新後仍在
 
 1. 開機後等待幾秒，直到拍攝畫面頂部顯示 **GRKU**。
 2. 確認記憶卡根目錄中有 `SCRIPT` 資料夾。
-3. 如果記憶卡中有 `SCRIPT/GRKIT/INSTALL.ERR`，在相機選單中確認安裝包與相機的韌體版本對應。版本正確時，請提交[裝置報告](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)，並附上 `INSTALL.ERR`、`GRKIT/REPORT.TXT`，以及記憶卡中有的話一併附上 `GRKIT/BOOT.TXT`。
+3. 如果記憶卡中有 `SCRIPT/GRKIT/INSTALL.ERR`，在相機選單中確認韌體版本與安裝包對應。版本正確時，請提交[裝置報告](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)，並附上 `INSTALL.ERR`、`GRKIT/REPORT.TXT` 和 `GRKIT/BOOT.TXT`（如果有）。
 4. GRKU 只能在 Ricoh 官方韌體上運作。
 
 ### 格式化記憶卡後 GRKU 不運作
@@ -155,7 +74,7 @@ GRKU 會把設定和效果保存在 `GRKIT` 資料夾中，因此更新後仍在
 
 ## 移除 GRKU
 
-在電腦上的 Chrome 或 Edge 中開啟 [grku.app](https://grku.app/)，可以透過讀卡機直接移除 GRKU，並可同時關閉 SD 腳本功能。
+在電腦上的 Chrome 或 Edge 中，[grku.app](https://grku.app/) 可以透過讀卡機直接從記憶卡移除 GRKU，也可以同時關閉 SD 腳本功能。
 
 關閉相機，從記憶卡刪除 `SCRIPT` 和 `GRKIT` 資料夾。
 
