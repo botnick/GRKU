@@ -73,6 +73,7 @@ import { Masthead } from './components/Masthead';
 import { ModulesStep } from './components/ModulesStep';
 import { PackageOpen, type PackageStatus } from './components/PackageOpen';
 import { PlusSheet } from './components/PlusSheet';
+import { DOC_PATHS, LANGUAGE_PATHS } from './languagePage';
 import { RichText } from './components/RichText';
 import { SiteFooter } from './components/SiteFooter';
 import { Step } from './components/Step';
@@ -1131,6 +1132,7 @@ export function App({
         onForget={dropKey}
         packCounts={previewCatalog ? packCounts(previewCatalog.effects) : null}
         payOrder={payOrder}
+        termsHref={`${LANGUAGE_PATHS[language]}${DOC_PATHS.TERMS}`}
       />
       <AppPromo strings={t} />
     </>

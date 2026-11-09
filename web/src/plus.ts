@@ -229,8 +229,11 @@ export interface Paid {
 export const fetchEntitlement = (key: string) =>
   call<{ owner: string; entitlement: Entitlement }>(`/me?key=${encodeURIComponent(key)}`);
 
-export const createOrder = (tier: Tier, email: string, key: string | null) =>
-  call<Order>('/order', json({ tier, email, key: key ?? undefined }));
+/** The Turnstile widget of grku.app (a public site key); the service checks the token with its secret. */
+export const TURNSTILE_SITEKEY = '0x4AAAAAAF6WphXG1XRt8M87';
+
+export const createOrder = (tier: Tier, email: string, key: string | null, turnstile: string | null) =>
+  call<Order>('/order', json({ tier, email, key: key ?? undefined, turnstile: turnstile ?? undefined }));
 
 export const orderStatus = (order: string) => call<OrderStatus>(`/order/${encodeURIComponent(order)}`);
 

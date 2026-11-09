@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Turnstile } from './Turnstile';
 import { cn } from '@/lib/utils';
 import type { Strings } from '../i18n';
 import {
@@ -30,8 +32,10 @@ import {
   orderStatus,
   payLink,
   redeemAngpao,
+  TURNSTILE_SITEKEY,
   type Paid,
   type Tier,
+  PlusError,
 } from '../plus';
 
 type View = 'tiers' | 'pay' | 'done' | 'key';
@@ -53,13 +57,15 @@ interface Props {
   packCounts: Record<Pack, number> | null;
   /** An order to pay, from a phone that scanned the QR of the page (`#pay=<order>`). */
   payOrder?: string | null;
+  /** The terms page of the language, which the buyer accepts. */
+  termsHref: string;
 }
 
 /**
  * GRKU Plus: the tiers, the PromptPay QR for the chosen one, the slip, and the key. Everything
  * runs in this panel; the page behind it unlocks as soon as the slip is accepted.
  */
-export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, packCounts, payOrder = null }: Props) {
+export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, packCounts, payOrder = null, termsHref }: Props) {
   const ids = useId();
   const [view, setView] = useState<View>('tiers');
   const [choice, setChoice] = useState<Choice>('plus');
@@ -77,6 +83,9 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
   const [gift, setGift] = useState('');
   /** The sheet opened from a phone that scanned the QR of this order: it pays, the other page waits. */
   const [phoneMode, setPhoneMode] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const [human, setHuman] = useState<string | null>(null);
+  const [humanReset, setHumanReset] = useState(0);
 
   const tier: Tier = choice === 'pack' ? `pack:${pack}` : choice;
   const due = amountDue(tier, owned);
@@ -190,12 +199,15 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
     setBusy(true);
     setError(null);
     try {
-      const made = await createOrder(tier, email.trim(), null);
+      const made = await createOrder(tier, email.trim(), null, human);
       setOrder(made);
       setView('pay');
     } catch (failure) {
-      fail(failure);
+      if (failure instanceof PlusError && failure.status === 403) setError(t.plus.humanFailed);
+      else fail(failure);
     } finally {
+      // A token is redeemed once; the widget issues another for the next try.
+      setHumanReset((n) => n + 1);
       setBusy(false);
     }
   }
@@ -384,12 +396,32 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
               <p className="text-[13px] text-muted-foreground">{t.plus.emailNote}</p>
             </div>
 
+            <label htmlFor={`${ids}-agree`} className="flex cursor-pointer items-start gap-3 text-sm leading-normal">
+              <Checkbox id={`${ids}-agree`} checked={agreed} onCheckedChange={(value) => setAgreed(value === true)} className="mt-0.5" />
+              <span>
+                {t.plus.acceptTerms[0]}
+                <a href={termsHref} target="_blank" rel="noreferrer" className="font-medium text-brand hover:text-brand/80">
+                  {t.plus.acceptTerms[1]}
+                </a>
+                {t.plus.acceptTerms[2]}
+              </span>
+            </label>
+            <p className="flex items-start gap-2 text-[13px] text-muted-foreground">
+              <span className="mt-[5px] inline-block size-1.5 shrink-0 rounded-full bg-amber-400" aria-hidden="true" />
+              {t.plus.transferNote}
+            </p>
+            {TURNSTILE_SITEKEY && (
+              <div className="flex flex-col gap-1">
+                <Turnstile siteKey={TURNSTILE_SITEKEY} action="plus-order" onToken={setHuman} resetKey={humanReset} />
+                {!human && <p className="text-[12px] text-muted-foreground">{t.plus.humanCheck}</p>}
+              </div>
+            )}
             <Button
               type="button"
               variant="brand"
               size="lg"
               className="h-11 text-[15px]"
-              disabled={busy || !validEmail || hasTier(tier, owned)}
+              disabled={busy || !validEmail || hasTier(tier, owned) || !agreed || (!!TURNSTILE_SITEKEY && !human)}
               aria-busy={busy}
               onClick={startOrder}
             >

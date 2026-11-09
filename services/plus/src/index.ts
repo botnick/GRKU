@@ -19,6 +19,8 @@ export interface Env {
   RECEIVER_DISPLAY: string;
   /** The TrueMoney Wallet phone that receives gift links (อั่งเปา); a secret. Unset: no TrueMoney. */
   TRUEMONEY_PHONE?: string;
+  /** The Turnstile secret: with it, an order needs a Turnstile token from the page. */
+  TURNSTILE_SECRET?: string;
   SLIP_PROVIDER: 'slipok' | 'easyslip' | 'mock';
   SLIPOK_BRANCH: string;
   SLIPOK_KEY?: string;
@@ -120,7 +122,8 @@ async function route(request: Request, url: URL, env: Env): Promise<Response> {
 // ---- Orders -------------------------------------------------------------------------------------
 
 async function order(request: Request, env: Env): Promise<Response> {
-  const body = (await request.json().catch(() => ({}))) as { tier?: string; email?: string; key?: string };
+  const body = (await request.json().catch(() => ({}))) as { tier?: string; email?: string; key?: string; turnstile?: string };
+  if (env.TURNSTILE_SECRET && !(await humanToken(body.turnstile ?? '', request, env))) throw new HttpError(403, 'turnstile failed');
   const tier = body.tier ?? '';
   const price = PRICES[tier];
   if (!price) throw new HttpError(400, 'unknown tier');
@@ -142,6 +145,21 @@ async function order(request: Request, env: Env): Promise<Response> {
     .bind(id, owner, tier, amount, 'open', now)
     .run();
   return json({ order: id, tier, amount, promptpay: promptPayPayload(env.PROMPTPAY_ID, amount), expires: now + ORDER_TTL, receiver: receiverOf(env), angpao: !!env.TRUEMONEY_PHONE });
+}
+
+/** Whether a Turnstile token from the page stands: Cloudflare's siteverify with our secret. */
+async function humanToken(token: string, request: Request, env: Env): Promise<boolean> {
+  if (!token) return false;
+  const form = new FormData();
+  form.append('secret', env.TURNSTILE_SECRET ?? '');
+  form.append('response', token);
+  const ip = request.headers.get('CF-Connecting-IP');
+  if (ip) form.append('remoteip', ip);
+  const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: form }).catch(() => null);
+  const result = (await response?.json().catch(() => null)) as { success?: boolean; action?: string; hostname?: string } | null;
+  // The token must come from our page on our site: the action the page sets, a hostname of ours.
+  const site = new URL(env.SITE_URL).hostname;
+  return result?.success === true && result.action === 'plus-order' && (result.hostname === site || result.hostname === `www.${site}`);
 }
 
 /** The receiver as the page shows it: the name, and the PromptPay with only its last digits. */

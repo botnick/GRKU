@@ -97,6 +97,10 @@ const en = {
     issuedTo: (who: string) => `Issued for ${who} only. Do not forward.`,
     singleUse: (minutes: number) => `One payment, valid for ${minutes} more minutes.`,
     anyBank: 'Scan with any Thai bank app or e-wallet.',
+    acceptTerms: ['I have read and accept the ', 'Terms of Use', '.'] as readonly [string, string, string],
+    transferNote: 'Avoid transferring between 23:00 and 00:10: banks settle then and a slip can be read late.',
+    humanCheck: 'Checking that you are not a robot…',
+    humanFailed: 'The check did not pass. Reload the page and try again.',
   },
   riskTitle: 'Use it at your own risk',
   riskText: 'GRKU is an unofficial, experimental add-on with no warranty. It loads from the SD card and never writes the firmware, but Ricoh does not support it, and what you put on your camera is your own responsibility.',
@@ -736,6 +740,14 @@ const zhHans: Strings = {
     singleUse: (minutes: number) => `One payment, valid for ${minutes} more minutes.`,
     // TODO(gemini): translate
     anyBank: 'Scan with any Thai bank app or e-wallet.',
+    // TODO(gemini): translate
+    acceptTerms: ['I have read and accept the ', 'Terms of Use', '.'] as readonly [string, string, string],
+    // TODO(gemini): translate
+    transferNote: 'Avoid transferring between 23:00 and 00:10: banks settle then and a slip can be read late.',
+    // TODO(gemini): translate
+    humanCheck: 'Checking that you are not a robot…',
+    // TODO(gemini): translate
+    humanFailed: 'The check did not pass. Reload the page and try again.',
   },
   riskTitle: '使用风险自负',
   riskText: 'GRKU 是非官方的实验性附加组件，无任何担保。它从 SD 卡加载，从不写入固件，但 Ricoh 不提供支持，您在相机上安装的内容由您自行负责。',
@@ -1302,6 +1314,14 @@ const zhHant: Strings = {
     singleUse: (minutes: number) => `One payment, valid for ${minutes} more minutes.`,
     // TODO(gemini): translate
     anyBank: 'Scan with any Thai bank app or e-wallet.',
+    // TODO(gemini): translate
+    acceptTerms: ['I have read and accept the ', 'Terms of Use', '.'] as readonly [string, string, string],
+    // TODO(gemini): translate
+    transferNote: 'Avoid transferring between 23:00 and 00:10: banks settle then and a slip can be read late.',
+    // TODO(gemini): translate
+    humanCheck: 'Checking that you are not a robot…',
+    // TODO(gemini): translate
+    humanFailed: 'The check did not pass. Reload the page and try again.',
   },
   riskTitle: '請自行承擔使用風險',
   riskText: 'GRKU 為非官方的實驗性附加元件，不提供任何保固。它由 SD 卡載入，絕不會寫入韌體，但 Ricoh 並不支援此產品，您在相機上安裝的內容須自行負責。',
@@ -1868,6 +1888,14 @@ const ja: Strings = {
     singleUse: (minutes: number) => `One payment, valid for ${minutes} more minutes.`,
     // TODO(gemini): translate
     anyBank: 'Scan with any Thai bank app or e-wallet.',
+    // TODO(gemini): translate
+    acceptTerms: ['I have read and accept the ', 'Terms of Use', '.'] as readonly [string, string, string],
+    // TODO(gemini): translate
+    transferNote: 'Avoid transferring between 23:00 and 00:10: banks settle then and a slip can be read late.',
+    // TODO(gemini): translate
+    humanCheck: 'Checking that you are not a robot…',
+    // TODO(gemini): translate
+    humanFailed: 'The check did not pass. Reload the page and try again.',
   },
   riskTitle: '自己責任でご利用ください',
   riskText: 'GRKUは非公式の実験的なアドオンであり、保証はありません。SDカードから読み込まれ、ファームウェアには書き込みませんが、Ricohのサポート対象外です。カメラに入れるものはご自身の責任となります。',
@@ -2438,6 +2466,14 @@ const ko: Strings = {
     singleUse: (minutes: number) => `One payment, valid for ${minutes} more minutes.`,
     // TODO(gemini): translate
     anyBank: 'Scan with any Thai bank app or e-wallet.',
+    // TODO(gemini): translate
+    acceptTerms: ['I have read and accept the ', 'Terms of Use', '.'] as readonly [string, string, string],
+    // TODO(gemini): translate
+    transferNote: 'Avoid transferring between 23:00 and 00:10: banks settle then and a slip can be read late.',
+    // TODO(gemini): translate
+    humanCheck: 'Checking that you are not a robot…',
+    // TODO(gemini): translate
+    humanFailed: 'The check did not pass. Reload the page and try again.',
   },
   riskTitle: '사용자 책임 하에 사용',
   riskText: 'GRKU는 보증 없는 비공식 실험적 애드온입니다. SD 카드에서 로드되며 펌웨어를 쓰지 않지만, Ricoh가 지원하지 않으며 카메라에 설치하는 것은 사용자 본인의 책임입니다.',
@@ -3022,6 +3058,14 @@ const th: Strings = {
     singleUse: (minutes: number) => `One payment, valid for ${minutes} more minutes.`,
     // TODO(gemini): translate
     anyBank: 'Scan with any Thai bank app or e-wallet.',
+    // TODO(gemini): translate
+    acceptTerms: ['I have read and accept the ', 'Terms of Use', '.'] as readonly [string, string, string],
+    // TODO(gemini): translate
+    transferNote: 'Avoid transferring between 23:00 and 00:10: banks settle then and a slip can be read late.',
+    // TODO(gemini): translate
+    humanCheck: 'Checking that you are not a robot…',
+    // TODO(gemini): translate
+    humanFailed: 'The check did not pass. Reload the page and try again.',
   },
   riskTitle: 'ใช้งานด้วยความเสี่ยงของคุณเอง',
   riskText: 'GRKU เป็นส่วนเสริมที่ไม่เป็นทางการและอยู่ในขั้นทดลอง ไม่มีการรับประกัน โหลดจากการ์ด SD และไม่เขียนเฟิร์มแวร์ แต่ Ricoh ไม่รองรับ และสิ่งที่คุณติดตั้งลงในกล้องเป็นความรับผิดชอบของคุณเอง',
