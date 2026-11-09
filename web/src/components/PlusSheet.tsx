@@ -68,13 +68,15 @@ interface Props {
   language: Language;
   /** Close the sheet and show the looks that a purchase unlocked. */
   onBrowse: () => void;
+  /** How many looks the library has, or null until the catalog is here. */
+  libraryLooks: number | null;
 }
 
 /**
  * GRKU Plus: the tiers, the PromptPay QR for the chosen one, the slip, and the key. Everything
  * runs in this panel; the page behind it unlocks as soon as the slip is accepted.
  */
-export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, packCounts, payOrder = null, termsHref, language, onBrowse }: Props) {
+export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, packCounts, payOrder = null, termsHref, language, onBrowse, libraryLooks }: Props) {
   const ids = useId();
   const [view, setView] = useState<View>('tiers');
   const [choice, setChoice] = useState<Choice>('plus');
@@ -97,8 +99,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
   const [humanReset, setHumanReset] = useState(0);
 
   const tier: Tier = choice === 'pack' ? `pack:${pack}` : choice;
-  // Every look of the library: the packs together, at least the 135 the site ships.
-  const totalLooks = packCounts ? Object.values(packCounts).reduce((sum, n) => sum + n, 0) : 135;
+  const totalLooks = libraryLooks ?? 135;
   const due = amountDue(tier, owned);
   const validEmail = EMAIL.test(email.trim());
 

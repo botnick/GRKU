@@ -1130,6 +1130,7 @@ export function App({
         onKey={adoptKey}
         onForget={dropKey}
         packCounts={previewCatalog ? packCounts(previewCatalog.effects) : null}
+        libraryLooks={previewCatalog ? previewCatalog.effects.length : null}
         payOrder={payOrder}
         termsHref={`${LANGUAGE_PATHS[language]}${DOC_PATHS.TERMS}`}
         language={language}
