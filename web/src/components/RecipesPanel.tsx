@@ -297,7 +297,7 @@ export function RecipesPanel({
         onAdd={(recipe) => onChange(cameraOrder([...library, recipe]))}
       />
       <Dialog open={shown !== null} onOpenChange={(open) => !open && setShown(null)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+        <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-4xl">
           {shown && (
             <RecipeDetails
               t={t}
@@ -345,6 +345,8 @@ function RecipeDetails({
         <DialogTitle>{name}</DialogTitle>
         {preset && <DialogDescription>{r.presetText[preset.id]}</DialogDescription>}
       </DialogHeader>
+      <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_320px] md:items-start">
+      <div className="flex flex-col gap-3">
       {picture && photo && (
         <figure className="m-0">
           <div className="relative aspect-[3/2] overflow-hidden rounded-lg bg-black">
@@ -392,7 +394,9 @@ function RecipeDetails({
           <figcaption className="mt-2 text-xs text-muted-foreground">{t.previewNote}</figcaption>
         </figure>
       )}
-      <RecipeSheet recipe={recipe} r={r} language={language} effectNames={effectNames} />
+      </div>
+      <RecipeSheet recipe={recipe} r={r} language={language} effectNames={effectNames} compact />
+      </div>
     </>
   );
 }
