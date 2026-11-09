@@ -254,10 +254,15 @@ jobs:
             modules+=(--module "$module")
           done
           while IFS=$'\t' read -r camera use targets <&3; do
+            # Only the runtimes that were built: a firmware without a backup leaves its runtime out.
             builds=()
             for target in $targets; do
-              builds+=(--build "site/runtime/$target")
+              if [ -d "site/runtime/$target" ]; then builds+=(--build "site/runtime/$target"); fi
             done
+            if [ "${#builds[@]}" -eq 0 ]; then
+              echo "::error::No runtime was built for the $camera package."
+              exit 1
+            fi
             target/release/grku package "${builds[@]}" "${modules[@]}" --camera "$camera" \
               --effects "$RUNNER_TEMP/effects-default" --guide "site/guides/$camera/en.pdf" \
               --out "GRKU-$version-$use.zip"
