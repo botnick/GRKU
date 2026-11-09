@@ -19,6 +19,7 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { LaunchOffer } from './LaunchOffer';
 import { CAMERAS, PREVIEW_TARGET } from '../cameras';
 import { effectUrl, MAX_EFFECTS, previewTable, type CardEffect, type Catalog, type Effect, type ImportedEffect } from '../catalog';
 import { brandOf, FILM_KINDS, filmKind, type FilmKind } from '../filmKind';
@@ -542,7 +543,7 @@ export function Workbench({
                   {t.plus.getMore}
                 </Button>
               </div>
-              {inLaunch() && <span className="-mb-2 w-fit rounded-full bg-brand px-2.5 py-0.5 text-[12px] font-semibold text-brand-foreground">{t.plus.launchBadge}</span>}
+              <LaunchOffer strings={t} />
               {/* The three tiers at a glance; each opens GRKU Plus. */}
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {(() => {

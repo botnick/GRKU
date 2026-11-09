@@ -15,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Turnstile } from './Turnstile';
 import { MAX_EFFECTS } from '../catalog';
 import { cn } from '@/lib/utils';
+import { LaunchOffer } from './LaunchOffer';
 import type { Language, Strings } from '../i18n';
 import {
   amountDue,
@@ -357,12 +358,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
               </Alert>
             )}
 
-            {inLaunch() && (
-              <div className="-mb-1 flex flex-col gap-1">
-                <span className="w-fit rounded-full bg-brand px-2.5 py-0.5 text-[12px] font-semibold text-brand-foreground">{t.plus.launchBadge}</span>
-                <span className="text-[12px] text-muted-foreground">{t.plus.launchNote}</span>
-              </div>
-            )}
+            <LaunchOffer strings={t} />
             <p className="-mb-2 text-[13px] text-muted-foreground">{t.plus.outcomeFree(FREE.slots)}</p>
             <RadioGroup value={choice} onValueChange={(value) => setChoice(value as Choice)} className="gap-3">
               <TierCard
