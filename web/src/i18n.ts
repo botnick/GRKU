@@ -2866,7 +2866,7 @@ const th: Strings = {
     glowText: 'Bloom เพิ่มประกายแสงนุ่มนวลในส่วนสว่าง Halation เพิ่มขอบแสงสีแดงส้มรอบไฟดวงสว่าง',
     glowKinds: ['Off', 'Bloom', 'Halation'],
     grainText: "เกรนฟิล์มของตัวกล้องเอง",
-    grainLevels: ['Weak', 'Medium', 'Strong', 'เข้มพิเศษ'],
+    grainLevels: ['อ่อน', 'ปานกลาง', 'เข้ม', 'เข้มพิเศษ'],
     inCamera: 'บนตัวกล้อง',
     adjCaption: 'กดปุ่ม ADJ แล้วเลือก GRK',
     menuCaption: 'การตั้งค่าทั้งหมดอยู่ในหมวด GRKU ของ MENU',

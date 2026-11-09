@@ -38,7 +38,7 @@ const TILES: Record<ModuleKey, string> = {
 type Photo = keyof typeof LANDING_PHOTOS;
 
 /** The example photos of the modules: the image in public/landing/, the module, the setting, the photo. */
-const EXAMPLES: readonly { image: string; before?: string; module: ModuleKey; detail: (t: Strings) => string; photo: Photo }[] = [
+const EXAMPLES: readonly { image: string; before?: string; beforeDetail?: (t: Strings) => string; module: ModuleKey; detail: (t: Strings) => string; photo: Photo }[] = [
   { image: 'framing-xpan.jpg', before: 'framing-xpan-before.jpg', module: 'framing', detail: () => 'XPan 65:24', photo: 'achensee' },
   { image: 'crop-50.jpg', before: 'crop-50-before.jpg', module: 'crop', detail: () => '50mm', photo: 'tram' },
   { image: 'guides-thirds.jpg', before: 'guides-thirds-before.jpg', module: 'guides', detail: (t) => t.landing.guideRows[1] ?? '', photo: 'clouds' },
@@ -50,12 +50,12 @@ const EXAMPLES: readonly { image: string; before?: string; module: ModuleKey; de
   { image: 'leak-dusty.jpg', before: 'leak-dusty-before.jpg', module: 'lightLeak', detail: () => 'Dusty', photo: 'nathans' },
   { image: 'diffusion-half.jpg', before: 'diffusion-half-before.jpg', module: 'diffusion', detail: () => '1/2 · Streak', photo: 'neon' },
   { image: 'border-white.jpg', before: 'border-white-before.jpg', module: 'border', detail: () => 'White 3%', photo: 'temple' },
-  { image: 'grain-2.jpg', module: 'grain', detail: (t) => t.landing.grainLevels[1] ?? '', photo: 'tram' },
-  { image: 'grain-4.jpg', module: 'grain', detail: (t) => t.landing.grainLevels[3] ?? '', photo: 'tram' },
+  // Grain comes from the camera itself, so the comparison is Weak against Extra Strong.
+  { image: 'grain-4.jpg', before: 'grain-1.jpg', beforeDetail: (t) => t.landing.grainLevels[0] ?? '', module: 'grain', detail: (t) => t.landing.grainLevels[3] ?? '', photo: 'tram' },
 ];
 
 /** A frame of the strip: the photo without the module on the left, with it on the right, under a handle. */
-function Example({ before, after, alt, detail, compareLabel }: { before?: string; after: string; alt: string; detail: string; compareLabel: string }) {
+function Example({ before, beforeDetail = 'Off', after, alt, detail, compareLabel }: { before?: string; beforeDetail?: string; after: string; alt: string; detail: string; compareLabel: string }) {
   const comparison = useReactCompareSlider({ clip: 'itemTwo' });
   const frame = 'relative aspect-[3/2] overflow-hidden rounded-lg bg-black';
   if (!before) {
@@ -71,7 +71,7 @@ function Example({ before, after, alt, detail, compareLabel }: { before?: string
       <Provider {...comparison}>
         <Root className="image-comparison">
           <Item item="itemOne">
-            <img src={landingImage(before)} alt={`${alt} — Off`} width="1200" height="800" loading="lazy" />
+            <img src={landingImage(before)} alt={`${alt} — ${beforeDetail}`} width="1200" height="800" loading="lazy" />
           </Item>
           <Item item="itemTwo" className="comparison-effect">
             <img src={landingImage(after)} alt={alt} width="1200" height="800" loading="lazy" />
@@ -81,7 +81,7 @@ function Example({ before, after, alt, detail, compareLabel }: { before?: string
           </HandleRoot>
         </Root>
       </Provider>
-      <Badge className="pointer-events-none absolute top-2 left-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">Off</Badge>
+      <Badge className="pointer-events-none absolute top-2 left-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">{beforeDetail}</Badge>
       <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">{detail}</Badge>
     </div>
   );
@@ -176,7 +176,7 @@ export function ModulesStep({
             const credit = LANDING_PHOTOS[example.photo];
             return (
               <figure key={example.image} className="m-0 w-[min(420px,82vw)] shrink-0">
-                <Example before={example.before} after={example.image} alt={`${title} — ${detail}`} detail={detail} compareLabel={t.compare} />
+                <Example before={example.before} beforeDetail={example.beforeDetail?.(t)} after={example.image} alt={`${title} — ${detail}`} detail={detail} compareLabel={t.compare} />
                 <figcaption className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-2.5 text-sm text-muted-foreground">
                   <span className="font-mono text-xs text-muted-foreground/70">{String(index + 1).padStart(2, '0')}</span>
                   <b className="font-semibold text-foreground">{title}</b>
