@@ -10,3 +10,7 @@
 # A notice file, not a page for search results.
 /THIRD_PARTY_LICENSES.txt
   X-Robots-Tag: noindex
+
+# The phone slip page: always the current script, never a cached one.
+/slip/*
+  Cache-Control: no-cache

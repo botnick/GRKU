@@ -1,0 +1,22 @@
+:root{color-scheme:dark;--bg:#121212;--card:#1c1c1c;--line:#2e2e2e;--fg:#f7f7f2;--muted:#a3a3a3;--brand:#d94135}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--fg);font-family:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,-apple-system,sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:440px;margin:0 auto;padding:16px 16px calc(24px + env(safe-area-inset-bottom))}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 14px}
+.mark{font-weight:800;font-size:20px;letter-spacing:-.03em}.mark b{color:var(--brand)}
+.tag{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px}
+h1{margin:0 0 6px;font-size:22px;font-weight:600}
+.lead{margin:0 0 16px;color:var(--muted);font-size:14px;line-height:1.6}
+.sum{background:#fff;color:#171717;border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.plan{margin:0;font-size:13px;color:#555}
+.amount{margin:2px 0 10px;font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:13px;border-top:1px dashed #ccc;padding-top:10px}
+dt{color:#777}dd{margin:0;text-align:right;font-weight:500}.mono{font-family:ui-monospace,Menlo,monospace;font-weight:400}
+.expires{margin:10px 0 0;font-size:12px;color:#777}
+.drop{display:flex;flex-direction:column;align-items:center;gap:6px;border:2px dashed #4a4a4a;border-radius:16px;padding:26px 16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.drop:active,.drop.busy{border-color:var(--brand);background:rgba(217,65,53,.06)}
+.drop svg{width:44px;height:44px;fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pick{font-size:18px;font-weight:600}.hint{font-size:13px;color:var(--muted)}
+.status{min-height:22px;margin:12px 0 0;font-size:14px;color:var(--muted);text-align:center}.status.bad{color:#ff7a6e}
+.done{text-align:center;padding:32px 20px}.tick{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;background:#2e7d32;color:#fff;font-size:34px;line-height:64px;font-weight:700}
+.error{margin:18px 4px;color:#ff7a6e;font-size:15px;line-height:1.6}

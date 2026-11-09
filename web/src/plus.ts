@@ -250,8 +250,8 @@ export function giftShort(error: unknown): { got: number; missing: number } | nu
   return match ? { got: Number(match[1]), missing: Number(match[2]) } : null;
 }
 
-/** The address a phone opens to pay an order: the page with the order in its hash. */
-export const payLink = (order: string) => `${location.origin}${location.pathname}#pay=${order}`;
+/** The address a phone opens to upload the slip of an order: the light page public/slip/. */
+export const payLink = (order: string) => `${location.origin}/slip/#${order}.${document.documentElement.lang === 'th' ? 'th' : 'en'}`;
 
 /** The order in the page address (`#pay=<order>`), taken out of the address. Null when the address has none. */
 export function takeOrderFromHash(): string | null {
