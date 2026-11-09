@@ -147,6 +147,8 @@ interface Slip {
   time: number;
   receiver: string;
   payer: string;
+  /** The receiver's account or PromptPay proxy as the slip shows it (masked), when the provider gives it. */
+  receiverAccount?: string;
 }
 
 async function slip(request: Request, env: Env): Promise<Response> {
@@ -166,6 +168,10 @@ async function slip(request: Request, env: Env): Promise<Response> {
   if (Math.round(verified.amount) !== row.amount) throw new HttpError(422, `amount ${verified.amount} is not ${row.amount}`);
   if (verified.time && verified.time < row.created - 10 * 60 * 1000) throw new HttpError(422, 'slip is older than the order');
   if (env.RECEIVER_NAME && !verified.receiver.toLowerCase().includes(env.RECEIVER_NAME.toLowerCase()))
+    throw new HttpError(422, 'the money did not come to GRKU');
+  // The slip masks the receiver's PromptPay, but its last digits show: they must be ours.
+  const shown = (verified.receiverAccount ?? '').replace(/\D/g, '');
+  if (env.PROMPTPAY_ID && shown.length >= 4 && !env.PROMPTPAY_ID.endsWith(shown.slice(-4)))
     throw new HttpError(422, 'the money did not come to GRKU');
   const used = await env.DB.prepare('SELECT ref FROM slips WHERE ref = ?').bind(verified.ref).first();
   if (used) throw new HttpError(409, 'slip already used');
@@ -263,7 +269,9 @@ async function verifySlip(file: File | null, payload: string, amount: number, en
     const receiver = raw.receiver as { account?: { name?: { th?: string; en?: string } } } | undefined;
     const sender = raw.sender as { account?: { name?: { th?: string; en?: string } } } | undefined;
     if (d.isDuplicate) console.warn('easyslip duplicate', raw.transRef);
+    const receiverAccount = (raw.receiver as { account?: { proxy?: { account?: string }; bank?: { account?: string } } } | undefined)?.account;
     return {
+      receiverAccount: receiverAccount?.proxy?.account ?? receiverAccount?.bank?.account,
       ref: String(raw.transRef ?? ''),
       amount: Number(d.amountInSlip ?? slipAmount?.amount ?? 0),
       time: raw.date ? Date.parse(String(raw.date)) : 0,
