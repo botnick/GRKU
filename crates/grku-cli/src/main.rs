@@ -121,7 +121,7 @@ enum Command {
         out: PathBuf,
     },
     /// Write a recipe library (RECIPES.BIN, which a package holds as
-    /// SCRIPT/GRKIT/RECIPES.BIN) from a JSON array of recipes or a JSON
+    /// SCRIPT/GRKU/RECIPES.BIN) from a JSON array of recipes or a JSON
     /// library ({"recipes": [...], "dial": [...]}), or with --decode, print
     /// the library of a RECIPES.BIN as JSON.
     Recipes {
