@@ -31,6 +31,8 @@ import {
   type Pack,
   FREE,
   giftShort,
+  inLaunch,
+  REGULAR_PRICES,
   ownedLines,
   orderStatus,
   payLink,
@@ -304,8 +306,16 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
     }
   }
 
-  const price = (baht: number) => (
-    <span className="font-mono text-base font-semibold tabular-nums">฿{baht}</span>
+  // The price of a tier: the launch price, and while the launch lasts the regular price struck through.
+  const price = (baht: number, tierOf: Tier = 'plus') => (
+    <span className="flex flex-col items-end leading-tight">
+      <span className="font-mono text-base font-semibold tabular-nums">฿{baht}</span>
+      {inLaunch() && REGULAR_PRICES[tierOf] > baht && (
+        <span className="text-[11px] tabular-nums text-muted-foreground">
+          <s>฿{REGULAR_PRICES[tierOf]}</s> · {t.plus.launchSave(REGULAR_PRICES[tierOf] - baht)}
+        </span>
+      )}
+    </span>
   );
 
   return (
@@ -347,6 +357,12 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
               </Alert>
             )}
 
+            {inLaunch() && (
+              <div className="-mb-1 flex flex-col gap-1">
+                <span className="w-fit rounded-full bg-brand px-2.5 py-0.5 text-[12px] font-semibold text-brand-foreground">{t.plus.launchBadge}</span>
+                <span className="text-[12px] text-muted-foreground">{t.plus.launchNote}</span>
+              </div>
+            )}
             <p className="-mb-2 text-[13px] text-muted-foreground">{t.plus.outcomeFree(FREE.slots)}</p>
             <RadioGroup value={choice} onValueChange={(value) => setChoice(value as Choice)} className="gap-3">
               <TierCard
@@ -372,7 +388,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                 title={t.plus.tierSlots}
                 text={t.plus.tierSlotsText}
                 outcome={t.plus.outcomeSlots(25)}
-                price={price(PRICES.slots25)}
+                price={price(PRICES.slots25, 'slots25')}
                 owned={hasTier('slots25', owned)}
                 ownedLabel={t.plus.owned}
                 selected={choice === 'slots25'}
@@ -383,7 +399,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                 title={t.plus.tierPack}
                 text={t.plus.tierPackText}
                 outcome={t.plus.outcomePack(packCounts?.[pack] ?? 0, t.plus.packs[pack], FREE.slots, FREE.slots + (packCounts?.[pack] ?? 0))}
-                price={price(PRICES['pack:kodak'])}
+                price={price(PRICES['pack:kodak'], 'pack:kodak')}
                 owned={false}
                 ownedLabel={t.plus.owned}
                 selected={choice === 'pack'}

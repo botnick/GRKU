@@ -40,7 +40,8 @@ export interface Env {
 }
 
 /** The tiers and their prices in baht. The site shows the same table (web/src/plus.ts). */
-export const PRICES: Record<string, number> = {
+/** The launch prices, until LAUNCH_ENDS; the site shows the same tables. */
+export const LAUNCH_PRICES: Record<string, number> = {
   plus: 199,
   slots25: 79,
   'pack:kodak': 49,
@@ -51,6 +52,22 @@ export const PRICES: Record<string, number> = {
   'pack:indie': 49,
   'pack:instant': 49,
 };
+/** The regular prices, from LAUNCH_ENDS on. */
+export const REGULAR_PRICES: Record<string, number> = {
+  plus: 299,
+  slots25: 119,
+  'pack:kodak': 79,
+  'pack:fuji': 79,
+  'pack:slide': 79,
+  'pack:mono': 79,
+  'pack:cinema': 79,
+  'pack:instant': 79,
+  'pack:indie': 79,
+};
+/** The end of the launch prices: 1 January 2027, 00:00 Bangkok time. */
+const LAUNCH_ENDS = Date.parse('2027-01-01T00:00:00+07:00');
+/** The prices that hold at `now`. */
+const pricesAt = (now = Date.now()) => (now < LAUNCH_ENDS ? LAUNCH_PRICES : REGULAR_PRICES);
 /** The least an order can cost after the credit of earlier purchases. */
 const MIN_AMOUNT = 20;
 /** The free tier: this many looks of the library on the card. */
@@ -112,8 +129,8 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 
 async function route(request: Request, url: URL, env: Env): Promise<Response> {
   const path = url.pathname.replace(/\/+$/, '') || '/';
-  if (request.method === 'GET' && path === '/') return json({ service: 'grku-plus', prices: PRICES, free_slots: FREE_SLOTS });
-  if (request.method === 'GET' && path === '/prices') return json({ prices: PRICES, free_slots: FREE_SLOTS, min_amount: MIN_AMOUNT, methods: { promptpay: !!env.PROMPTPAY_ID, truemoney: !!env.TRUEMONEY_PHONE } });
+  if (request.method === 'GET' && path === '/') return json({ service: 'grku-plus', prices: pricesAt(), regular: REGULAR_PRICES, launch_ends: LAUNCH_ENDS, free_slots: FREE_SLOTS });
+  if (request.method === 'GET' && path === '/prices') return json({ prices: pricesAt(), regular: REGULAR_PRICES, launch_ends: LAUNCH_ENDS, free_slots: FREE_SLOTS, min_amount: MIN_AMOUNT, methods: { promptpay: !!env.PROMPTPAY_ID, truemoney: !!env.TRUEMONEY_PHONE } });
   if (request.method === 'POST' && path === '/order') return order(request, env);
   if (request.method === 'GET' && path.startsWith('/order/')) return orderStatus(path.slice('/order/'.length), env);
   if (request.method === 'POST' && path === '/slip') return slip(request, env);
@@ -130,7 +147,7 @@ async function order(request: Request, env: Env): Promise<Response> {
   const body = (await request.json().catch(() => ({}))) as { tier?: string; email?: string; key?: string; turnstile?: string };
   if (env.TURNSTILE_SECRET && !(await humanToken(body.turnstile ?? '', request, env))) throw new HttpError(403, 'turnstile failed');
   const tier = body.tier ?? '';
-  const price = PRICES[tier];
+  const price = pricesAt()[tier];
   if (!price) throw new HttpError(400, 'unknown tier');
   // The owner: the key's owner, else the email, else a new anonymous id.
   let owner = body.key ? await ownerOfKey(body.key, env) : null;

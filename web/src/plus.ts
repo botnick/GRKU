@@ -24,7 +24,8 @@ export const PACKS: readonly Pack[] = ['kodak', 'fuji', 'slide', 'mono', 'cinema
 export type Tier = 'plus' | 'slots25' | `pack:${Pack}`;
 
 /** The price of each tier in baht, as the service has it (services/plus/src/index.ts PRICES). */
-export const PRICES: Readonly<Record<Tier, number>> = {
+/** The launch prices, until LAUNCH_ENDS. The service (services/plus) has the same tables. */
+export const LAUNCH_PRICES: Readonly<Record<Tier, number>> = {
   plus: 199,
   slots25: 79,
   'pack:kodak': 49,
@@ -35,6 +36,24 @@ export const PRICES: Readonly<Record<Tier, number>> = {
   'pack:instant': 49,
   'pack:indie': 49,
 };
+/** The regular prices, from LAUNCH_ENDS on. */
+export const REGULAR_PRICES: Readonly<Record<Tier, number>> = {
+  plus: 299,
+  slots25: 119,
+  'pack:kodak': 79,
+  'pack:fuji': 79,
+  'pack:slide': 79,
+  'pack:mono': 79,
+  'pack:cinema': 79,
+  'pack:instant': 79,
+  'pack:indie': 79,
+};
+/** The end of the launch prices: 1 January 2027, 00:00 Bangkok time. */
+export const LAUNCH_ENDS = Date.parse('2027-01-01T00:00:00+07:00');
+/** Whether the launch prices hold now. */
+export const inLaunch = (now = Date.now()) => now < LAUNCH_ENDS;
+/** The prices that hold now. */
+export const PRICES: Readonly<Record<Tier, number>> = inLaunch() ? LAUNCH_PRICES : REGULAR_PRICES;
 /** The least an order costs after the credit of earlier purchases. */
 export const MIN_AMOUNT = 20;
 
