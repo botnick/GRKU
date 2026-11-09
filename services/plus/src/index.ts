@@ -114,6 +114,7 @@ async function route(request: Request, url: URL, env: Env): Promise<Response> {
   if (request.method === 'GET' && path.startsWith('/order/')) return orderStatus(path.slice('/order/'.length), env);
   if (request.method === 'POST' && path === '/slip') return slip(request, env);
   if (request.method === 'POST' && path === '/angpao') return angpao(request, env);
+  if (request.method === 'GET' && path === '/angpao/probe') return angpaoProbe(env);
   if (request.method === 'POST' && path === '/magic') return magic(request, env);
   if (request.method === 'GET' && path === '/me') return me(url, env);
   throw new HttpError(404, 'not found');
@@ -397,6 +398,29 @@ async function angpao(request: Request, env: Env): Promise<Response> {
   const result2 = await paidResponse(row.owner, env);
   if (!row.owner.startsWith('anon:')) await sendKeyMail(row.owner, result2.key, env).catch((e) => console.error(e));
   return json(result2);
+}
+
+/**
+ * Whether TrueMoney's gift endpoint answers this Worker at all: a redeem of a hash that does not
+ * exist should give a JSON error (VOUCHER_NOT_FOUND). Their edge answers scripted clients from
+ * some networks with an HTML 403 instead; then the gift links cannot work from here.
+ */
+async function angpaoProbe(env: Env): Promise<Response> {
+  if (!env.TRUEMONEY_PHONE) return json({ enabled: false });
+  const hash = 'probe000000000000000000000000000000';
+  const response = await fetch(`https://gift.truemoney.com/campaign/vouchers/${hash}/redeem`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ mobile: env.TRUEMONEY_PHONE, voucher_hash: hash }),
+  }).catch(() => null);
+  const text = (await response?.text().catch(() => '')) ?? '';
+  let code: string | null = null;
+  try {
+    code = (JSON.parse(text) as { status?: { code?: string } }).status?.code ?? null;
+  } catch {
+    code = null;
+  }
+  return json({ enabled: true, http: response?.status ?? 0, json: code !== null, code, sample: code === null ? text.slice(0, 80) : undefined });
 }
 
 // ---- Keys and owners ---------------------------------------------------------------------------
