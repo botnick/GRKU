@@ -18,6 +18,8 @@ PROMPTPAY_ID = "004999119724275"
 # A part of the receiver's name as the bank shows it on a slip, to check that the money came to
 # us (optional; empty skips the check).
 RECEIVER_NAME = "ธนวัฒน์"
+# The last digits of the bank account behind the PromptPay, as bank slips show it (KBank: xxx-x-x3117-x).
+RECEIVER_ACCOUNTS = "3117"
 # The receiver's name as the page shows it next to the QR.
 RECEIVER_DISPLAY = "นาย ธนวัฒน์ ช่างไม้"
 # TrueMoney gift links (อั่งเปา) on the page: "on" or "off". The redeem endpoint of TrueMoney answered

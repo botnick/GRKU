@@ -21,6 +21,8 @@ export interface Env {
   TRUEMONEY_PHONE?: string;
   /** "on" offers gift links on the page. Off while TrueMoney's edge answers this Worker with a 403 page. */
   TRUEMONEY_LINKS: string;
+  /** The last digits of the bank accounts that receive the PromptPay money, comma-separated. */
+  RECEIVER_ACCOUNTS?: string;
   /** The Turnstile secret: with it, an order needs a Turnstile token from the page. */
   TURNSTILE_SECRET?: string;
   SLIP_PROVIDER: 'slipok' | 'easyslip' | 'mock';
@@ -216,10 +218,14 @@ async function slip(request: Request, env: Env): Promise<Response> {
   if (verified.time && verified.time < row.created - 10 * 60 * 1000) throw new HttpError(422, 'slip is older than the order');
   if (env.RECEIVER_NAME && !verified.receiver.toLowerCase().includes(env.RECEIVER_NAME.toLowerCase()))
     throw new HttpError(422, 'the money did not come to GRKU');
-  // The slip masks the receiver's PromptPay, but its last digits show: they must be ours.
+  // The slip masks the receiving account, but its last digits show: the PromptPay ID, or the bank
+  // account behind it (a KBank slip shows the account, xxx-x-x3117-x). Either must be ours.
   const shown = (verified.receiverAccount ?? '').replace(/\D/g, '');
-  if (env.PROMPTPAY_ID && shown.length >= 4 && !env.PROMPTPAY_ID.endsWith(shown.slice(-4)))
+  const ours = [env.PROMPTPAY_ID.slice(-4), ...(env.RECEIVER_ACCOUNTS ?? '').split(',').map((d) => d.trim()).filter(Boolean)];
+  if (shown.length >= 4 && !ours.some((digits) => shown.endsWith(digits) || digits.endsWith(shown.slice(-4)))) {
+    console.warn('receiver account', verified.receiverAccount, 'not one of', ours.join(','));
     throw new HttpError(422, 'the money did not come to GRKU');
+  }
   const used = await env.DB.prepare('SELECT ref FROM slips WHERE ref = ?').bind(verified.ref).first();
   if (used) throw new HttpError(409, 'slip already used');
   const now = Date.now();
