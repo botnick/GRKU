@@ -15,7 +15,7 @@ GRKU는 [BOTNICK](https://github.com/botnick)이 태국의 GR 사용자들을 �
   <img src="resources/images/grku-menu.jpg" alt="MENU 사용자 설정 탭의 GRKU 항목" width="49%">
 </p>
 
-사진: [MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/), [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+사진: [Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
 ## 기능
 

@@ -15,7 +15,7 @@ GRKU 是一个独立项目，由 [BOTNICK](https://github.com/botnick) 首先为
   <img src="resources/images/grku-menu.jpg" alt="MENU 自定义页中的 GRKU 小节" width="49%">
 </p>
 
-照片：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)，[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)。
+照片：[Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg)，[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)。
 
 ## 功能
 

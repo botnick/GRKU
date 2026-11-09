@@ -88,3 +88,5 @@ SD 脚本功能会保持打开。要关闭它：
 相机在启动时停止响应时，请参阅[恢复指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。
 
 GRKU 与 Ricoh 无关。
+
+Photo in the camera screens: Mobnoboka, CC BY-SA 4.0.

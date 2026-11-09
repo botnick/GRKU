@@ -92,3 +92,5 @@ The SD script setting stays on. To turn it off:
 If the camera stops during startup, see the [recovery guide](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md).
 
 GRKU is not affiliated with Ricoh.
+
+Photo in the camera screens: Mobnoboka, CC BY-SA 4.0.

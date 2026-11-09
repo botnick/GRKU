@@ -15,7 +15,7 @@ GRKU は、[BOTNICK](https://github.com/botnick) がまずタイの GR ユーザ
   <img src="resources/images/grku-menu.jpg" alt="MENU のカスタマイズタブにある GRKU セクション" width="49%">
 </p>
 
-写真：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)、[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)。
+写真：[Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg)、[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)。
 
 ## 機能
 

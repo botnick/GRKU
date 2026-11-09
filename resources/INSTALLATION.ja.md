@@ -92,3 +92,5 @@ SD スクリプトの設定はオンのままです。オフにするには：
 起動の途中でカメラが止まった場合は、[復旧ガイド](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)を参照してください。
 
 GRKU は Ricoh と提携していません。
+
+Photo in the camera screens: Mobnoboka, CC BY-SA 4.0.

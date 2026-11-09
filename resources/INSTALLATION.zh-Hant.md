@@ -92,3 +92,5 @@ SD 指令碼設定會保持開啟。要關閉它：
 如果相機在啟動時停止回應，請參閱[復原指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。
 
 GRKU 與 Ricoh 無關。
+
+Photo in the camera screens: Mobnoboka, CC BY-SA 4.0.

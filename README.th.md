@@ -15,7 +15,7 @@ GRKU เป็นโปรเจกต์อิสระที่สร้าง
   <img src="resources/images/grku-menu.jpg" alt="ส่วนของ GRKU ในแท็บ Customize ของ MENU" width="49%">
 </p>
 
-ภาพถ่ายโดย: [MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/), [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+ภาพถ่ายโดย: [Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
 ## ฟีเจอร์
 

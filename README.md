@@ -15,7 +15,7 @@ GRKU is its own project, made by [BOTNICK](https://github.com/botnick) for GR ow
   <img src="resources/images/grku-menu.jpg" alt="The GRKU section in the Customize tab of MENU" width="49%">
 </p>
 
-Photo: [MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/), [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+Photo in the screens: [Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
 ## What it does
 

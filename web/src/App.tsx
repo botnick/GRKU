@@ -832,15 +832,15 @@ export function App({
       </ol>
       {/* The card after step 2, then the camera in steps 3 and 4. */}
       <div className="mt-4 flex flex-col gap-3">
-        <figure className="relative m-0 rounded-xl bg-background/50 p-2">
-          <StepNumber n={2} className="absolute top-2 left-2 z-10" />
-          <img src={CARD_IMAGES[camera.key] ?? CARD_IMAGES.gr4} alt="" width="600" height="200" className="mx-auto h-auto w-full max-w-lg" />
+        <figure className="relative m-0">
+          <StepNumber n={2} className="absolute -top-2 -left-2 z-10 ring-2 ring-card" />
+          <img src={CARD_IMAGES[camera.key] ?? CARD_IMAGES.gr4} alt="" width="600" height="178" className="mx-auto h-auto w-full max-w-lg" />
         </figure>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {([[3, cameraMenuImage], [4, cameraAdjImage]] as const).map(([n, src]) => (
-            <figure key={n} className="relative m-0 rounded-xl bg-background/50 p-2">
-              <StepNumber n={n} className="absolute top-2 left-2 z-10" />
-              <img src={src} alt="" width="600" height="340" className="h-auto w-full" />
+            <figure key={n} className="relative m-0">
+              <StepNumber n={n} className="absolute -top-2 -left-2 z-10 ring-2 ring-card" />
+              <img src={src} alt="" width="580" height="318" className="h-auto w-full" />
             </figure>
           ))}
         </div>

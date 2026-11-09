@@ -88,3 +88,5 @@ GRKU จะเก็บการตั้งค่าและเอฟเฟก
 หากกล้องค้างระหว่างการเปิดเครื่อง ให้อ่าน[คู่มือการกู้คืนระบบ](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)
 
 GRKU ไม่มีส่วนเกี่ยวข้องใดๆ กับ Ricoh
+
+Photo in the camera screens: Mobnoboka, CC BY-SA 4.0.

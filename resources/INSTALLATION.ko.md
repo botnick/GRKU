@@ -93,3 +93,5 @@ SD 스크립트 설정은 켜진 상태로 유지됩니다. 이를 끄려면 다
 시작 중에 카메라가 멈추면 [복구 가이드](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)를 참조하십시오.
 
 GRKU는 Ricoh와 제휴하지 않았습니다.
+
+Photo in the camera screens: Mobnoboka, CC BY-SA 4.0.
