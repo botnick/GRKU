@@ -4,10 +4,10 @@ Four workflows release GRKU:
 
 - `Release PR` keeps one pull request from the `release` branch open while change files are pending. knope sets the version and writes `CHANGELOG.md` from the change files. `Release PR` then starts `Tests` on the `release` branch, so the pull request shows the test results.
 - `Release` starts when the release pull request is merged. It tags the merge commit, runs the tests, builds the site and the packages from the official firmware, and creates a draft GitHub release. Then it runs `Deploy`.
-- `Deploy` commits the site of one release to the `site` branch, which Cloudflare Pages deploys. When the site serves the new version, `Deploy` publishes the release. Start `Deploy` by hand to deploy a release again.
+- `Deploy` uploads the site of one release to the Cloudflare Pages project `grku-site` (direct upload with the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets). When the site serves the new version, `Deploy` publishes the release. Start `Deploy` by hand to deploy a release again.
 - `Site` starts when a push to `main` changes `web/`. It rebuilds the web page with the runtimes and effects of the latest published release. If `web/` needs a packager change that is not released yet, the build fails and the site stays as it is. If a camera entry of `web/` needs a runtime build that the latest release does not have, `Site` deploys nothing, and the release that has the build deploys the page.
 
-The `site` branch holds only deployed sites and shares no history with `main`. Do not push to it by hand. The repository holds no Cloudflare credentials, because Cloudflare reads the branch through its GitHub app.
+The deployed site lives only in the Cloudflare Pages project `grku-site` (direct upload); the repository has no deployed-site branch. `Deploy` and `Site` upload with `wrangler pages deploy`, using the `CLOUDFLARE_API_TOKEN` (an account token with Cloudflare Pages edit) and `CLOUDFLARE_ACCOUNT_ID` secrets, which the Plus deploy shares.
 
 The version is the `[workspace.package]` version in `Cargo.toml`. A release tag is `v` and the version, for example `v1.2.0`.
 
@@ -16,12 +16,8 @@ The site holds no firmware bytes: `grku site` leaves out the generated header of
 ## Set up
 
 1. In the repository settings, under Actions, General, select "Allow GitHub Actions to create and approve pull requests". `Release PR` needs it.
-2. If the repository has no `site` branch, push an orphan `site` branch with one placeholder `index.html`. Cloudflare can connect only to a branch that exists.
-3. Connect a Cloudflare Pages project to the repository:
-   1. In the Cloudflare dashboard, go to Workers & Pages. Select Create, Pages, and Connect to Git.
-   2. Install the Cloudflare GitHub app for this repository only.
-   3. Set the production branch to `site` and the framework preset to None. Leave the build command empty. Set the build output directory to `/`.
-   4. After Cloudflare creates the project, go to Settings, Builds, Branch control. Set the preview branch to None. Otherwise Cloudflare deploys the source of each other branch as a preview.
+2. Create the Pages project once: `wrangler pages project create grku-site --production-branch main --force` (`--force` keeps it on classic Pages, which serves the site's `_worker.js`, `_headers` and `_routes.json`), then add the custom domains (grku.app and www.grku.app) to it in the dashboard or with the API.
+3. Add the repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
 4. Add the repository variable `SITE_URL` with the production URL of the site and no trailing slash, for example `https://<project>.pages.dev`. `Deploy` reads the `build.json` of a runtime under `SITE_URL/runtime/` to find the version that the site serves.
 5. Optional: add the repository variable `PLAUSIBLE_HOST` with the origin of a Plausible server, for example `https://plausible.example.com`. Release then adds Plausible analytics to the site for the domain `grku.app`.
 6. Keep a private backup of the firmware, so that a release does not depend on the Ricoh download:

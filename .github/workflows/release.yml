@@ -240,11 +240,17 @@ jobs:
         run: |
           version="${TAG#v}"
           target/release/grku effects build --source effects --out "$RUNNER_TEMP/effects"
+          # A package carries at most 40 effects: the 40 of effects/defaults.txt. The film library
+          # ZIP carries every effect file, for the card's GRKU/EFFECTS folder or the site.
+          python3 -I scripts/defaults.py "$RUNNER_TEMP/effects" "$RUNNER_TEMP/effects-default"
+          (cd "$RUNNER_TEMP/effects" && zip -q -r "$GITHUB_WORKSPACE/GRKU-$version-film-library.zip" . -i '*.GRF')
           # Each camera has one package with the runtime of each of its builds.
           jq -r '.packages[] | [.camera, .name, (.targets | join(" "))] | @tsv' \
             "$RUNNER_TEMP/release-plan.json" > "$RUNNER_TEMP/packages.tsv"
+          # A package holds ten modules; Border stays out (modules::DEFAULT_PACKAGE).
           modules=()
           for module in site/modules/*.GRM; do
+            case "$module" in */BORDER.GRM) continue ;; esac
             modules+=(--module "$module")
           done
           while IFS=$'\t' read -r camera use targets <&3; do
@@ -253,7 +259,7 @@ jobs:
               builds+=(--build "site/runtime/$target")
             done
             target/release/grku package "${builds[@]}" "${modules[@]}" --camera "$camera" \
-              --effects "$RUNNER_TEMP/effects" --guide "site/guides/$camera/en.pdf" \
+              --effects "$RUNNER_TEMP/effects-default" --guide "site/guides/$camera/en.pdf" \
               --out "GRKU-$version-$use.zip"
             target/release/grku verify "GRKU-$version-$use.zip"
           done 3< "$RUNNER_TEMP/packages.tsv"

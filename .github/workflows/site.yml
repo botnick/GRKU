@@ -166,21 +166,27 @@ jobs:
             fi
           done
           cp -R web/dist/. "$RUNNER_TEMP/site/"
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: site
-          path: site-branch
-      - name: Commit the site to the site branch
-        working-directory: site-branch
+      - name: Check that no newer release was published during this run
         run: |
           set -euo pipefail
-          # A release that Deploy published during this run has a newer site.
           latest=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
           if [ "$latest" != "$TAG" ]; then
             echo "::error::$latest was published during this run. Start Site again to deploy web/ of main with $latest."
             exit 1
           fi
-          sh ../.github/scripts/commit-site.sh "$RUNNER_TEMP/site" "deploy web ${GITHUB_SHA::7} with $TAG"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Upload the site to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          # Direct upload to the Pages project grku-site: no deployed-site branch in this
+          # repository, so GitHub shows no "recent pushes" of one.
+          npx --yes wrangler@4 pages deploy "$RUNNER_TEMP/site" --project-name grku-site --branch main \
+            --commit-message "deploy web ${GITHUB_SHA::7} with $TAG" --commit-dirty=true
       - name: Wait until the site serves the web page
         run: |
           set -euo pipefail
@@ -199,5 +205,5 @@ jobs:
             fi
             sleep 10
           done
-          echo "::error::$SITE_URL does not serve $entry after 15 minutes. Examine the deployment of the site branch in Cloudflare Pages."
+          echo "::error::$SITE_URL does not serve $entry after 15 minutes. Examine the deployments of the Pages project grku-site."
           exit 1

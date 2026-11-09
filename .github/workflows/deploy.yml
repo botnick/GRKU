@@ -4,10 +4,9 @@ name: Deploy
 # Release calls this workflow when it has built a tag. Start it by hand to deploy
 # a release again, for example to go back to an earlier version.
 #
-# The workflow commits the site to the `site` branch. Cloudflare Pages deploys
-# each commit on that branch through its Git integration, so the repository holds
-# no Cloudflare credentials. The workflow then waits until SITE_URL serves the
-# version of the tag.
+# The workflow uploads the site to the Cloudflare Pages project grku-site with the
+# CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets (direct upload, no deployed-site
+# branch), then waits until SITE_URL serves the version of the tag.
 on:
   workflow_call:
     inputs:
@@ -67,17 +66,7 @@ jobs:
           fi
           echo "draft=$draft" >> "$GITHUB_OUTPUT"
           echo "site=$site" >> "$GITHUB_OUTPUT"
-      # The scripts of the commit that runs this workflow.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          path: source
-          sparse-checkout: .github/scripts
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: site
-          path: site
-      - name: Commit the site to the site branch
-        working-directory: site
+      - name: Download the site of the release
         env:
           SITE_ARCHIVE: ${{ steps.release.outputs.site }}
         run: |
@@ -85,7 +74,19 @@ jobs:
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$SITE_ARCHIVE" --dir "$RUNNER_TEMP"
           mkdir "$RUNNER_TEMP/site"
           tar -xzf "$RUNNER_TEMP/$SITE_ARCHIVE" -C "$RUNNER_TEMP/site"
-          sh ../source/.github/scripts/commit-site.sh "$RUNNER_TEMP/site" "deploy $TAG"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Upload the site to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          # Direct upload to the Pages project grku-site: no deployed-site branch in this
+          # repository, so GitHub shows no "recent pushes" of one.
+          npx --yes wrangler@4 pages deploy "$RUNNER_TEMP/site" --project-name grku-site --branch main \
+            --commit-message "deploy $TAG" --commit-dirty=true
       - name: Wait until the site serves the release
         run: |
           set -euo pipefail
@@ -103,7 +104,7 @@ jobs:
             fi
             sleep 10
           done
-          echo "::error::$SITE_URL does not serve $TAG after 15 minutes. Examine the deployment of the site branch in Cloudflare Pages."
+          echo "::error::$SITE_URL does not serve $TAG after 15 minutes. Examine the deployments of the Pages project grku-site."
           exit 1
       - name: Publish the release
         if: steps.release.outputs.draft == 'true'
