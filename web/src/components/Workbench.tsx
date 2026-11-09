@@ -679,11 +679,11 @@ export function Workbench({
                 {t.clear}
               </Button>
             </div>
-            <ul className="flex gap-2.5 overflow-x-auto pt-1 pr-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={t.onCard}>
+            <ul className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={t.onCard}>
               {listed
                 .filter((effect) => checked.has(effect.id))
                 .map((effect) => (
-                  <li key={effect.id} className="relative shrink-0">
+                  <li key={effect.id} className="relative shrink-0 pt-2 pr-2">
                     <button
                       type="button"
                       className={cn('block rounded-md p-0.5', effect.id === requested?.id && 'ring-2 ring-brand/70', RING)}
@@ -697,7 +697,7 @@ export function Workbench({
                     </button>
                     <button
                       type="button"
-                      className={cn('absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-foreground text-background ring-2 ring-background hover:bg-brand hover:text-white', RING)}
+                      className={cn('absolute top-0 right-0 flex size-4 items-center justify-center rounded-full bg-muted text-foreground ring-2 ring-card hover:bg-brand hover:text-white', RING)}
                       aria-label={t.removeOf(effect.name)}
                       onClick={() => toggle(effect)}
                     >
@@ -729,7 +729,18 @@ export function Workbench({
               .join(' · ');
             const body = (
               <>
-                <EffectIcon effect={effect} className="size-14 sm:size-16" />
+                {/* A look on the card shows faded with a check over the box: it is taken, the
+                    row above lists it, and a press still previews it. */}
+                <span className="relative">
+                  <EffectIcon effect={effect} className={cn('size-14 transition-opacity sm:size-16', isChecked && 'opacity-35 grayscale-[60%]')} />
+                  {isChecked && (
+                    <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+                      <span className="flex size-7 items-center justify-center rounded-full bg-foreground text-background shadow-sm">
+                        <Check className="size-4" strokeWidth={3} />
+                      </span>
+                    </span>
+                  )}
+                </span>
                 <span className="line-clamp-2 w-full text-center text-[11px] leading-[1.25] font-medium">{effect.name}</span>
               </>
             );
@@ -739,7 +750,7 @@ export function Workbench({
                 title={`${effect.name} · ${detail}`}
                 className={cn(
                   'relative flex flex-col rounded-lg border bg-card p-1.5 pt-2 transition-colors hover:border-input',
-                  isChecked && 'border-foreground/60 hover:border-foreground/60',
+                  isChecked && 'bg-card/40 text-muted-foreground',
                   isPreviewed && 'border-brand ring-2 ring-brand/70 hover:border-brand',
                 )}
                 data-checked={isChecked || undefined}
@@ -748,14 +759,6 @@ export function Workbench({
                 {unlockedBy(effect, owned) && (
                   <span className="absolute -top-1.5 -left-1.5 z-10 rounded-full bg-brand px-1.5 py-px text-[9px] font-semibold tracking-wide text-brand-foreground ring-2 ring-background">
                     {t.plus.unlockedBadge}
-                  </span>
-                )}
-                {isChecked && (
-                  <span
-                    className="absolute -top-1.5 -right-1.5 z-10 flex size-[18px] items-center justify-center rounded-full bg-foreground text-background ring-2 ring-background"
-                    aria-hidden="true"
-                  >
-                    <Check className="size-3" strokeWidth={3} />
                   </span>
                 )}
                 {effect.card ? (
