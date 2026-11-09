@@ -475,12 +475,44 @@ async function magic(request: Request, env: Env): Promise<Response> {
 }
 
 /** A key: base64url(JSON {o: owner, i: issued}) . base64url(HMAC-SHA256). */
+/** The letters of a short key: no 0/O, 1/I/L, so a key read aloud or typed by hand stays right. */
+const KEY_LETTERS = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+
+/** A short key in the form AAAA-AAA-AAAA, from 31^11 (about 2.5e16) codes. */
+function shortKey(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(11));
+  const letters = Array.from(bytes, (b) => KEY_LETTERS[b % KEY_LETTERS.length]).join('');
+  return `${letters.slice(0, 4)}-${letters.slice(4, 7)}-${letters.slice(7)}`;
+}
+
+/** A typed key as stored: upper case, the dashes in place, the look-alike letters read as ours. */
+function normalizeShortKey(key: string): string | null {
+  const plain = key.toUpperCase().replace(/[^0-9A-Z]/g, '').replace(/O/g, '0').replace(/[IL]/g, '1');
+  if (plain.length !== 11) return null;
+  return `${plain.slice(0, 4)}-${plain.slice(4, 7)}-${plain.slice(7)}`;
+}
+
+/** The owner's short key: the one it has, or a new one. */
 export async function mintKey(owner: string, env: Env): Promise<string> {
-  const payload = b64url(new TextEncoder().encode(JSON.stringify({ o: owner, i: Date.now() })));
-  return `${payload}.${await sign(payload, env.KEY_SECRET)}`;
+  const known = await env.DB.prepare('SELECT code FROM keys WHERE owner = ?').bind(owner).first<{ code: string }>();
+  if (known) return known.code;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const code = shortKey();
+    const done = await env.DB.prepare('INSERT OR IGNORE INTO keys (code, owner, created) VALUES (?, ?, ?)').bind(code, owner, Date.now()).run();
+    if (done.meta.changes === 1) return code;
+    const again = await env.DB.prepare('SELECT code FROM keys WHERE owner = ?').bind(owner).first<{ code: string }>();
+    if (again) return again.code;
+  }
+  throw new HttpError(503, 'could not make a key');
 }
 
 export async function ownerOfKey(key: string, env: Env): Promise<string | null> {
+  // A short key (AAAA-AAA-AAAA), or a long signed key of the first days, which still works.
+  const short = !key.includes('.') ? normalizeShortKey(key) : null;
+  if (short) {
+    const row = await env.DB.prepare('SELECT owner FROM keys WHERE code = ?').bind(short).first<{ owner: string }>();
+    return row?.owner ?? null;
+  }
   const [payload, mac] = key.trim().split('.');
   if (!payload || !mac) return null;
   if ((await sign(payload, env.KEY_SECRET)) !== mac) return null;

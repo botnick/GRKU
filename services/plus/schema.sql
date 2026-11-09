@@ -26,3 +26,9 @@ CREATE TABLE IF NOT EXISTS entitlements (
   updated INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS orders_owner ON orders(owner);
+-- The short keys of the owners (AAAA-AAA-AAAA): one per owner, given in the email and on the page.
+CREATE TABLE IF NOT EXISTS keys (
+  code TEXT PRIMARY KEY,
+  owner TEXT NOT NULL UNIQUE,
+  created INTEGER NOT NULL
+);
