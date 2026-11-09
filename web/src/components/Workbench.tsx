@@ -140,6 +140,15 @@ const FILE_FOCUS =
  * picked look live (it stays in view while the shelf scrolls), and the shelf of every look with
  * its search and filters. A press on a box shows the look; the checkbox puts it on the card.
  */
+/** The mark of a look the buyer owns through GRKU Plus: a sparkle, not a price tag. */
+function PlusMark() {
+  return (
+    <span className="flex size-4 items-center justify-center rounded-full bg-background text-brand ring-1 ring-brand/60" aria-hidden="true">
+      <Sparkles className="size-2.5" strokeWidth={2.5} />
+    </span>
+  );
+}
+
 export function Workbench({
   strings: t,
   selection,
@@ -501,6 +510,14 @@ export function Workbench({
         {(() => {
           const lines = ownedLines(owned, t.plus, catalog ? packCounts(catalog.effects) : null);
           if (lines.length === 0) return null;
+          // Bought looks are unlocked, not placed: this puts the ones not yet on the card there, as many as fit.
+          const notOnCard = listed.filter((effect) => !effect.card && unlockedBy(effect, owned) && !checked.has(effect.id));
+          const fits = Math.min(notOnCard.length, Math.max(0, MAX_EFFECTS - checked.size));
+          const addOwned = () => {
+            const next = new Set(checked);
+            for (const effect of notOnCard.slice(0, fits)) next.add(effect.id);
+            onSelectionChange(next);
+          };
           return (
             <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-brand/40 bg-brand/[0.08] p-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
@@ -515,6 +532,13 @@ export function Workbench({
                     <li key={line}>{line}</li>
                   ))}
                 </ul>
+                {fits > 0 && <p className="m-0 mt-2 text-[13px] leading-snug text-muted-foreground">{t.plus.ownedHint}</p>}
+                {fits > 0 && (
+                  <Button type="button" variant="brand" size="sm" className="mt-3" onClick={addOwned}>
+                    <Plus aria-hidden="true" />
+                    {t.plus.addOwned(fits)}
+                  </Button>
+                )}
               </div>
               {!owned.plus && (
                 <Button type="button" variant="outline" className="shrink-0" onClick={onPlus}>
@@ -660,7 +684,23 @@ export function Workbench({
           </Tabs>
           <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-muted-foreground tabular-nums">
             <span>{catalog ? t.shownOf(visible.length, listed.length) : error ? t.loadError : t.loading}</span>
-            <span>{t.previewFree}</span>
+            {/* The key to the marks on the boxes. */}
+            <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="flex items-center gap-1.5">
+                <span className="flex size-4 items-center justify-center rounded-full bg-foreground text-background" aria-hidden="true">
+                  <Check className="size-2.5" strokeWidth={3} />
+                </span>
+                {t.onCard}
+              </span>
+              {owned.plus || owned.packs.length > 0 ? (
+                <span className="flex items-center gap-1.5">
+                  <PlusMark />
+                  {t.plus.legendPlus}
+                </span>
+              ) : (
+                <span>{t.previewFree}</span>
+              )}
+            </span>
           </div>
           {error && (
             <Button type="button" variant="outline" size="sm" className="self-start" onClick={retry}>
@@ -757,8 +797,8 @@ export function Workbench({
                 data-previewed={isPreviewed || undefined}
               >
                 {unlockedBy(effect, owned) && (
-                  <span className="absolute -top-1.5 -left-1.5 z-10 rounded-full bg-brand px-1.5 py-px text-[9px] font-semibold tracking-wide text-brand-foreground ring-2 ring-background">
-                    {t.plus.unlockedBadge}
+                  <span className="absolute top-1 left-1 z-10" title={t.plus.legendPlus}>
+                    <PlusMark />
                   </span>
                 )}
                 {effect.card ? (
