@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ExternalLink, Trash2 } from 'lucide-react';
+import { ExternalLink, Plus, Trash2 } from 'lucide-react';
+import { RecipeEditor } from './RecipeEditor';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -192,6 +193,7 @@ export function RecipesPanel({
   const on = onCount(library);
   const presets = presetRows(PRESETS, family, library);
   const [shown, setShown] = useState<Recipe | null>(null);
+  const [editing, setEditing] = useState(false);
   // Only the recipes that are on apply on the camera.
   const warnings = libraryWarnings(
     library.filter((recipe) => recipe.enabled),
@@ -221,16 +223,28 @@ export function RecipesPanel({
           </AlertDescription>
         </Alert>
       )}
-      <div className="flex items-center justify-between gap-4">
-        <h3 className="text-base font-semibold">{t.moduleNames.recipes}</h3>
-        {on >= ON_MAX - COUNT_NEAR && (
-          <p className="text-sm text-muted-foreground tabular-nums">
-            {r.onCount(ON_MAX)[0]}
-            <b className="font-semibold text-foreground">{on}</b>
-            {r.onCount(ON_MAX)[1]}
-          </p>
-        )}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h3 className="text-base font-semibold">{r.heading}</h3>
+        <div className="flex items-center gap-4">
+          {on >= ON_MAX - COUNT_NEAR && (
+            <p className="text-sm text-muted-foreground tabular-nums">
+              {r.onCount(ON_MAX)[0]}
+              <b className="font-semibold text-foreground">{on}</b>
+              {r.onCount(ON_MAX)[1]}
+            </p>
+          )}
+          <Button type="button" size="sm" variant="outline" disabled={library.length >= LIBRARY_MAX} onClick={() => setEditing(true)}>
+            <Plus aria-hidden="true" />
+            {r.newRecipe}
+          </Button>
+        </div>
       </div>
+      {/* What a recipe is, in four lines: new to most people. */}
+      <ul className="grid gap-2 rounded-xl border border-dashed bg-card/60 p-4 text-sm leading-relaxed text-muted-foreground sm:grid-cols-2">
+        {[r.introWhat, r.introCamera, r.introSite, r.introDial].map((text) => (
+          <li key={text}>{text}</li>
+        ))}
+      </ul>
       {library.length + presets.length === 0 ? (
         <p className="text-sm text-muted-foreground">{r.empty}</p>
       ) : (
@@ -328,6 +342,16 @@ export function RecipesPanel({
           </div>
         </div>
       )}
+      <RecipeEditor
+        strings={t}
+        r={r}
+        language={language}
+        family={family}
+        effectNames={effectNames}
+        open={editing}
+        onClose={() => setEditing(false)}
+        onAdd={(recipe) => onChange(cameraOrder([...library, recipe]))}
+      />
       <Dialog open={shown !== null} onOpenChange={(open) => !open && setShown(null)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
           {shown && (

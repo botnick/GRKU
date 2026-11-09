@@ -261,3 +261,24 @@ export const TYPE_NAMES: Readonly<Record<string, readonly string[]>> = {
   'ja': ["スタンダード","ビビッド","モノトーン","ソフトモノトーン","ハードモノトーン","ハイコントラスト白黒","ネガフィルム調","ポジフィルム調","ブリーチバイパス","レトロ","HDR調","クロスプロセス","シネマ調(イエロー)","シネマ調(グリーン)","スタンダード","ソフト","ハイコントラスト","グレイニー","ソリッド","HDR調","ソラリゼーション調"],
   'ko': ["스탠다드","비비드","모노톤","소프트 모노톤","하드 모노톤","하이 콘트라스트 흑백","네거티브 필름","포지티브 필름","블리치 바이패스","레트로","HDR 톤","크로스 프로세스","시네마(옐로)","시네마(그린)","표준","소프트","하이 콘트라스트","그레이니","솔리드","HDR톤","솔라리제이션톤"],
 };
+
+/** Whether GR III, then GR IV, has each type, by portable index. */
+export const TYPE_FAMILIES: readonly (readonly [boolean, boolean])[] = [[true,true],[true,true],[true,true],[true,true],[true,true],[true,true],[true,true],[true,true],[true,true],[true,true],[true,true],[true,true],[false,true],[false,true],[false,true],[false,true],[false,true],[false,true],[false,true],[false,true],[false,true]];
+
+/** The types of GR IV Monochrome, by portable index. */
+export const TYPE_MONOCHROME: readonly boolean[] = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,true,true,true,true,true];
+
+/** The nominal ISO of each third stop from ISO 100. */
+export const ISO_STEPS: readonly number[] = [100,125,160,200,250,320,400,500,640,800,1000,1250,1600,2000,2500,3200,4000,5000,6400,8000,10000,12800,16000,20000,25600,32000,40000,51200,64000,80000,102400,128000,160000,204800];
+
+/** The highest ISO of each camera line. */
+export const ISO_MAX = { gr3: 102400, gr4: 204800 } as const;
+
+/** The largest exposure compensation, in thirds of a stop. */
+export const EXPOSURE_THIRDS_MAX = 15;
+
+/** The color temperature range of the Color Temperature white balance, in kelvin. */
+export const TEMPERATURE = { min: 2500, max: 10000, step: 10 } as const;
+
+/** The count of white balance shift steps on each axis; the middle one is no shift. */
+export const SHIFT_STEPS = 29;

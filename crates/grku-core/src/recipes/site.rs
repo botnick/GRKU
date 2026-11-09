@@ -53,6 +53,51 @@ fn site_module() -> String {
         writeln!(out, "  '{}': {names},", language.code()).unwrap();
     }
     out.push_str("};\n");
+    // The tables of the recipe editor of the site: which camera line has each
+    // type, the Monochrome types, the ISO steps and the highest ISO of each
+    // line, the exposure compensation range, the color temperature range, and
+    // the count of white balance shift steps.
+    let families: Vec<[bool; 2]> = native::TYPES
+        .iter()
+        .map(|image_type| {
+            [
+                image_type.families[0].is_some(),
+                image_type.families[1].is_some(),
+            ]
+        })
+        .collect();
+    let monochrome: Vec<bool> = native::TYPES
+        .iter()
+        .map(|image_type| image_type.monochrome)
+        .collect();
+    writeln!(
+        out,
+        "\n/** Whether GR III, then GR IV, has each type, by portable index. */\n\
+         export const TYPE_FAMILIES: readonly (readonly [boolean, boolean])[] = {};\n\n\
+         /** The types of GR IV Monochrome, by portable index. */\n\
+         export const TYPE_MONOCHROME: readonly boolean[] = {};\n\n\
+         /** The nominal ISO of each third stop from ISO 100. */\n\
+         export const ISO_STEPS: readonly number[] = {};\n\n\
+         /** The highest ISO of each camera line. */\n\
+         export const ISO_MAX = {{ gr3: {}, gr4: {} }} as const;\n\n\
+         /** The largest exposure compensation, in thirds of a stop. */\n\
+         export const EXPOSURE_THIRDS_MAX = {};\n\n\
+         /** The color temperature range of the Color Temperature white balance, in kelvin. */\n\
+         export const TEMPERATURE = {{ min: {}, max: {}, step: {} }} as const;\n\n\
+         /** The count of white balance shift steps on each axis; the middle one is no shift. */\n\
+         export const SHIFT_STEPS = {};",
+        serde_json::to_string(&families).unwrap(),
+        serde_json::to_string(&monochrome).unwrap(),
+        serde_json::to_string(&native::ISO_STEPS[..]).unwrap(),
+        native::Family::Gr3.iso_max(),
+        native::Family::Gr4.iso_max(),
+        native::EXPOSURE_THIRDS_MAX,
+        native::TEMPERATURE_MIN,
+        native::TEMPERATURE_MAX,
+        native::TEMPERATURE_STEP,
+        native::SHIFT_BA.labels.len(),
+    )
+    .unwrap();
     out
 }
 

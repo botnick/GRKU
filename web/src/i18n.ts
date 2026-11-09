@@ -2912,7 +2912,7 @@ const th: Strings = {
     diffusion: 'Diffusion',
     grain: 'Grain',
     border: 'Border',
-    recipes: 'Recipes', // TODO Thai through the Gemini tools
+    recipes: 'Recipes',
   },
   package: 'ดาวน์โหลด',
   install: 'ติดตั้ง',
@@ -3003,7 +3003,7 @@ const th: Strings = {
   packageDone: 'คืนค่ารุ่นกล้อง โมดูล และฟิล์มลุคของ GRKU.zip นี้แล้ว',
   packageImports: (count: number) =>
     count === 1 ? 'คืนค่าฟิล์มลุคที่นำเข้า 1 รายการแล้ว' : `คืนค่าฟิล์มลุคที่นำเข้า ${count} รายการแล้ว`,
-  packageRecipes: (count: number) => (count === 1 ? '1 recipe is back.' : `${count} recipes are back.`), // TODO Thai through the Gemini tools
+  packageRecipes: (count: number) => (count === 1 ? 'คืนค่าสูตรสี 1 รายการแล้ว' : `คืนค่าสูตรสี ${count} รายการแล้ว`),
   packageLocked: 'ปลดล็อกฟิล์มลุคของ GR IV อีกครั้งเพื่อนำมารวมด้วย',
   packageError: 'ไฟล์นี้ไม่ใช่ GRKU.zip',
   /** How closely an imported effect follows its LUT, by its grade (`fit::Grade`). The page
@@ -3106,7 +3106,7 @@ const th: Strings = {
     diffusion: 'ประกายแสงแบบฟิลเตอร์ Black Pro-Mist ระดับ 1/8, 1/4 หรือ 1/2 เลือกเปิดม่านแสง Black Mist ในส่วนเงา และเส้นแสงอนามอร์ฟิกสีน้ำเงินหรือสีอำพันจากจุดไฟได้ ไม่มีตัวอย่างบนไลฟ์วิว',
     grain: "เกรนฟิล์มจากระบบสร้างเกรนของกล้อง ปรับได้ 4 ระดับ สำหรับภาพนิ่งเท่านั้น",
     border: 'กรอบขาวหรือดำทับลงบนภาพ ขนาด 3% หรือ 6% ของความกว้างภาพ สำหรับภาพนิ่งเท่านั้น',
-    recipes: 'Save looks and settings as recipes and switch in ADJ. Add popular ones here.', // TODO Thai through the Gemini tools
+    recipes: 'บันทึกโทนภาพและการตั้งค่าเป็นสูตรสี แล้วสลับใช้ผ่านปุ่ม ADJ เพิ่มสูตรสียอดนิยมได้ที่นี่',
   },
   steps: [
     ['ปิดกล้อง'],
