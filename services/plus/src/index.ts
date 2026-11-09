@@ -21,6 +21,10 @@ export interface Env {
   TRUEMONEY_PHONE?: string;
   /** "on" offers gift links on the page. Off while TrueMoney's edge answers this Worker with a 403 page. */
   TRUEMONEY_LINKS: string;
+  /** The gift proxy in Thailand that calls TrueMoney for this Worker (TrueMoney's edge refuses Workers). */
+  ANGPAO_PROXY?: string;
+  /** The bearer key of the gift proxy; a secret. Unset: redeem straight at TrueMoney. */
+  ANGPAO_PROXY_KEY?: string;
   /** The last digits of the bank accounts that receive the PromptPay money, comma-separated. */
   RECEIVER_ACCOUNTS?: string;
   /** The Turnstile secret: with it, an order needs a Turnstile token from the page. */
@@ -379,6 +383,27 @@ function slipokTime(date: string, time: string): number {
 // ---- TrueMoney gift links (อั่งเปา) ----------------------------------------------------------------
 
 /**
+ * Redeems one gift hash to the wallet of TRUEMONEY_PHONE: through the proxy when it is set up, else
+ * straight at TrueMoney. The proxy passes TrueMoney's answer through unchanged, so both give the same
+ * JSON; a proxy failure (blocked, timeout) becomes a status code that is not SUCCESS.
+ */
+async function redeemVoucher(env: Env, code: string): Promise<{ http: number; text: string }> {
+  const viaProxy = !!(env.ANGPAO_PROXY && env.ANGPAO_PROXY_KEY);
+  const response = viaProxy
+    ? await fetch(`${env.ANGPAO_PROXY!.replace(/\/$/, '')}/redeem`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${env.ANGPAO_PROXY_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hash: code, mobile: env.TRUEMONEY_PHONE }),
+      }).catch(() => null)
+    : await fetch(`https://gift.truemoney.com/campaign/vouchers/${code}/redeem`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ mobile: env.TRUEMONEY_PHONE, voucher_hash: code }),
+      }).catch(() => null);
+  return { http: response?.status ?? 0, text: (await response?.text().catch(() => '')) ?? '' };
+}
+
+/**
  * Redeems a TrueMoney Wallet gift link to GRKU's wallet and pays the order with it. TrueMoney has
  * no "look before you take" call, so the gift is redeemed first: a gift of at least the amount pays
  * the order; a smaller one is kept as credit on the owner (`paid`), and the answer says how much
@@ -398,15 +423,19 @@ async function angpao(request: Request, env: Env): Promise<Response> {
   if (Date.now() - row.created > ORDER_TTL) throw new HttpError(410, 'order expired');
   const ref = `tmn:${code}`;
   if (await env.DB.prepare('SELECT ref FROM slips WHERE ref = ?').bind(ref).first()) throw new HttpError(409, 'slip already used');
-  const response = await fetch(`https://gift.truemoney.com/campaign/vouchers/${code}/redeem`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mobile: env.TRUEMONEY_PHONE, voucher_hash: code }),
-  });
-  const result = (await response.json().catch(() => null)) as
+  const answer = await redeemVoucher(env, code);
+  let parsed: unknown = null;
+  try {
+    parsed = JSON.parse(answer.text);
+  } catch {
+    parsed = null;
+  }
+  const result = parsed as
     | { status?: { code?: string; message?: string }; data?: { voucher?: { redeemed_amount_baht?: string; amount_baht?: string }; my_ticket?: { amount_baht?: string }; owner_profile?: { full_name?: string } } }
     | null;
-  const status = result?.status?.code ?? 'NO_ANSWER';
+  // The proxy's own errors ({"error":"timeout"}, "blocked") have no status: report them as such.
+  const proxyError = (parsed as { error?: string } | null)?.error;
+  const status = result?.status?.code ?? (proxyError ? `PROXY_${proxyError.toUpperCase().replace(/\W+/g, '_')}` : 'NO_ANSWER');
   if (status !== 'SUCCESS') {
     console.warn('truemoney', status, result?.status?.message);
     throw new HttpError(422, `gift ${status}`);
@@ -449,19 +478,14 @@ async function angpao(request: Request, env: Env): Promise<Response> {
 async function angpaoProbe(env: Env): Promise<Response> {
   if (!env.TRUEMONEY_PHONE) return json({ enabled: false });
   const hash = 'probe000000000000000000000000000000';
-  const response = await fetch(`https://gift.truemoney.com/campaign/vouchers/${hash}/redeem`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ mobile: env.TRUEMONEY_PHONE, voucher_hash: hash }),
-  }).catch(() => null);
-  const text = (await response?.text().catch(() => '')) ?? '';
+  const { http, text } = await redeemVoucher(env, hash);
   let code: string | null = null;
   try {
     code = (JSON.parse(text) as { status?: { code?: string } }).status?.code ?? null;
   } catch {
     code = null;
   }
-  return json({ enabled: true, http: response?.status ?? 0, json: code !== null, code, sample: code === null ? text.slice(0, 80) : undefined });
+  return json({ enabled: true, proxy: !!(env.ANGPAO_PROXY && env.ANGPAO_PROXY_KEY), http, json: code !== null, code, sample: code === null ? text.slice(0, 80) : undefined });
 }
 
 // ---- Keys and owners ---------------------------------------------------------------------------
