@@ -9,6 +9,16 @@ import {
 } from './card';
 import type { CardEffect, CatalogEffect, ImportedEffect, PackageEffect } from './catalog';
 import { effectFile, effectLabel } from './package';
+import {
+  NO_DIAL,
+  readRecipeDial,
+  readRecipeFile,
+  sameDial,
+  sameRecipes,
+  type Dial,
+  type Family,
+  type Recipe,
+} from './recipes';
 
 /** The connected card, as the page compares it with the selection. */
 export interface CardSession {
@@ -20,6 +30,12 @@ export interface CardSession {
   extra: readonly CardEffect[];
   /** The file on the card of each import that the card has, to find the changed ones. */
   contents?: ReadonlyMap<string, Uint8Array>;
+  /** The camera line that the page reads the recipe file for. The file holds no camera line. */
+  family: Family;
+  /** The recipes of the camera on the card (`RECIPE_FILE`) for `family`, or null without the file. */
+  recipes: readonly Recipe[] | null;
+  /** What each user mode of the mode dial does in the recipe file, or `NO_DIAL` without the file. */
+  dial: Dial;
   /**
    * The page wrote the GRKU of this site to the card. The report shows the new version only
    * after the next power-on.
@@ -36,11 +52,13 @@ function base64(bytes: Uint8Array): string {
 /**
  * Reads the card and finds its effects among `known`, the catalog and the imports, by file name.
  * An effect file that `known` does not have becomes a card effect. A file that is not an effect
- * stays out: the page neither shows nor changes it.
+ * stays out: the page neither shows nor changes it. The recipes are those of the camera line
+ * `family`.
  */
 export async function openSession(
   root: CardDirectory,
   known: readonly (CatalogEffect | ImportedEffect)[],
+  family: Family,
 ): Promise<CardSession> {
   const state = await readCard(root);
   const byFile = new Map<string, string>();
@@ -81,7 +99,23 @@ export async function openSession(
     effects,
     extra,
     contents,
+    family,
+    recipes: await readRecipes(state, family),
+    dial: state.recipeText === null ? NO_DIAL : await readRecipeDial(state.recipeText),
   };
+}
+
+async function readRecipes(state: CardState, family: Family): Promise<Recipe[] | null> {
+  return state.recipeText === null ? null : readRecipeFile(state.recipeText, family);
+}
+
+/**
+ * The session with the recipes of the camera line `family`. One card fits GR IV and GR IV
+ * Monochrome, so a change of camera can change the line of the same card.
+ */
+export async function withFamily(session: CardSession, family: Family): Promise<CardSession> {
+  if (session.family === family) return session;
+  return { ...session, family, recipes: await readRecipes(session.state, family) };
 }
 
 function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
@@ -112,6 +146,20 @@ export function extraCardEffects(
 ): readonly CardEffect[] {
   const ids = new Set(imported.map((effect) => effect.id));
   return effects.filter((effect) => !ids.has(effect.id));
+}
+
+/**
+ * The change of the recipes of the camera: `site` is the library of the site for a package with the
+ * Recipes module, or null to leave the card as it is, and `dial` what the user modes of the mode
+ * dial do on the site. A write replaces the recipe file.
+ */
+export function recipeChange(
+  session: CardSession,
+  site: readonly Recipe[] | null,
+  dial: Dial,
+): 'same' | 'write' {
+  if (!site) return 'same';
+  return sameRecipes(session.recipes ?? [], site) && sameDial(session.dial, dial) ? 'same' : 'write';
 }
 
 /**

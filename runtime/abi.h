@@ -7,13 +7,135 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 1064
+#define GRKU_HOST_HEADER_SIZE 6116
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
 #define GRKU_MODULE_FILTERS_MAX 8
 #define GRKU_INDICATORS_MAX 16
 #define GRKU_STATUS_ICONS_MAX 6
+/* The recipes (runtime/recipes.h): the most recipes, the most recipes that are
+   on, the most undo steps, and the words of one recipe. The recipes that are
+   on come first. In the recipe file, word w of recipe n has the key
+   GRKU_RECIPE_KEY_BASE + w * GRKU_RECIPE_KEY_STRIDE + n. The name of a recipe
+   has GRKU_RECIPE_NAME_WORDS words of four 7-bit characters, at most
+   GRKU_RECIPE_NAME_CHARS; word w of the name of recipe n has the key
+   GRKU_RECIPE_NAME_KEY_BASE + w * GRKU_RECIPE_KEY_STRIDE + n. The words after
+   the names have one key each from GRKU_RECIPE_IMPORTED_KEY: the hash of the
+   imported package library, the ID of recipe n at GRKU_RECIPE_ID_KEY_BASE + n,
+   the assignment of user mode u at GRKU_RECIPE_DIAL_KEY_BASE + u
+   (grku_core::runtime::recipe_key). A recipe ID is a generated number, 1 to
+   GRKU_RECIPE_ID_MAX (runtime/recipe_id.h). A user mode follows
+   (GRKU_RECIPE_DIAL_FOLLOW), turns GRKU off (GRKU_RECIPE_DIAL_OFF), or applies
+   the recipe with its ID. The undo steps are not saved. */
+#define GRKU_RECIPE_SLOTS 64U
+#define GRKU_RECIPE_ON_MAX 40U
+#define GRKU_RECIPE_UNDO 5U
+#define GRKU_RECIPE_WORDS 5U
+#define GRKU_RECIPE_NAME_CHARS 16U
+#define GRKU_RECIPE_NAME_WORDS 4U
+#define GRKU_RECIPE_DIAL_POSITIONS 3U
+/* The bit layout of the recipe words (grku_core::recipes::layout): the index
+   of each word, then for each field its _SHIFT and the _MASK of its value
+   after the shift, and the bit of each flag. */
+#define GRKU_RECIPE_FN_WORD 1U
+#define GRKU_RECIPE_NATIVE_WORD 2U
+#define GRKU_RECIPE_EXTRA_WORD 3U
+#define GRKU_RECIPE_MODULE_WORD 4U
+#define GRKU_RECIPE_VALUE_BITS 29U
+#define GRKU_RECIPE_LOOK_MASK 3U
+#define GRKU_RECIPE_LOOK_KEPT 0U
+#define GRKU_RECIPE_LOOK_OFF 1U
+#define GRKU_RECIPE_LOOK_EFFECT 2U
+#define GRKU_RECIPE_GRAIN_HELD 4U
+#define GRKU_RECIPE_GRAIN_LEVEL_SHIFT 3U
+#define GRKU_RECIPE_GRAIN_LEVEL_MASK 7U
+#define GRKU_RECIPE_GRAIN_SIZE_SHIFT 6U
+#define GRKU_RECIPE_GRAIN_SIZE_MASK 3U
+#define GRKU_RECIPE_CODE_SHIFT 8U
+#define GRKU_RECIPE_CODE_MASK 0x00007fffU
+#define GRKU_RECIPE_NUMBER_SHIFT 23U
+#define GRKU_RECIPE_NUMBER_MAX 15U
+#define GRKU_RECIPE_USED 0x08000000U
+#define GRKU_RECIPE_HIDDEN 0x10000000U
+#define GRKU_RECIPE_TYPE_SHIFT 0U
+#define GRKU_RECIPE_TYPE_MASK 31U
+#define GRKU_RECIPE_TONE_SHIFT 5U
+#define GRKU_RECIPE_TONE_MASK 15U
+#define GRKU_RECIPE_INTENSITY_SHIFT 9U
+#define GRKU_RECIPE_INTENSITY_MASK 3U
+#define GRKU_RECIPE_FILTER_SHIFT 11U
+#define GRKU_RECIPE_FILTER_MASK 7U
+#define GRKU_RECIPE_MODE_SHIFT 14U
+#define GRKU_RECIPE_MODE_MASK 31U
+#define GRKU_RECIPE_BA_SHIFT 19U
+#define GRKU_RECIPE_GM_SHIFT 24U
+#define GRKU_RECIPE_SHIFT_MASK 31U
+#define GRKU_RECIPE_LOOK_BITS 0x00003fffU
+#define GRKU_RECIPE_MODE_BITS 0x1fffc000U
+#define GRKU_RECIPE_TEMPERATURE_MASK 0x000003ffU
+#define GRKU_RECIPE_CORRECTION_SHIFT 10U
+#define GRKU_RECIPE_CORRECTION_BITS 3U
+#define GRKU_RECIPE_CORRECTION_MASK 7U
+#define GRKU_RECIPE_NATIVE_GRAIN_SHIFT 22U
+#define GRKU_RECIPE_NATIVE_GRAIN_MASK 3U
+#define GRKU_RECIPE_NATIVE_GRAIN_SIZE_SHIFT 24U
+#define GRKU_RECIPE_NATIVE_GRAIN_SIZE_MASK 3U
+#define GRKU_RECIPE_NATIVE_GRAIN_BITS 0x03c00000U
+#define GRKU_RECIPE_SOLARIZATION_SHIFT 26U
+#define GRKU_RECIPE_SOLARIZATION_MASK 7U
+#define GRKU_RECIPE_TYPE_EXTRA_BITS 0x1fc00000U
+#define GRKU_RECIPE_MODULE_SETTING_BITS 3U
+#define GRKU_RECIPE_MODULE_VALUE_MASK 3U
+#define GRKU_RECIPE_EV_SHIFT 9U
+#define GRKU_RECIPE_EV_MASK 63U
+#define GRKU_RECIPE_EV_ZERO 31U
+#define GRKU_RECIPE_ISO_SHIFT 15U
+#define GRKU_RECIPE_ISO_MASK 63U
+#define GRKU_RECIPE_METERING_SHIFT 21U
+#define GRKU_RECIPE_METERING_MASK 7U
+#define GRKU_RECIPE_ND_SHIFT 24U
+#define GRKU_RECIPE_ND_MASK 3U
+#define GRKU_RECIPE_EXPOSURE_BITS 0x03fffe00U
+#define GRKU_RECIPE_OFF 0x10000000U
+/* The module settings that a recipe holds
+   (grku_core::recipes::MODULE_SETTINGS), in the order of their bits in word 4:
+   GLOW.BLOOM, GLOW.HALATION, GLOW.HALATION_COLOR. Each is its state file ID,
+   which finds it in the settings table. GRKU_RECIPE_MODULE_COLOR_ONLY has bit
+   i for a color-only setting, which GR IV Monochrome does not hold. */
+#define GRKU_RECIPE_MODULE_SETTINGS 3U
+#define GRKU_RECIPE_MODULE_SETTING_IDS 73603892U, 979977653U, 208924775U
+#define GRKU_RECIPE_MODULE_COLOR_ONLY 4U
+#define GRKU_RECIPE_KEY_BASE 991000000U
+#define GRKU_RECIPE_KEY_STRIDE 100U
+#define GRKU_RECIPE_NAME_KEY_BASE 991005000U
+#define GRKU_RECIPE_IMPORTED_KEY 991009000U
+#define GRKU_RECIPE_ID_KEY_BASE 991009001U
+#define GRKU_RECIPE_DIAL_KEY_BASE 991009065U
+#define GRKU_RECIPE_ID_MAX 536870909U
+#define GRKU_RECIPE_DIAL_FOLLOW 0U
+#define GRKU_RECIPE_DIAL_SAVED 536870910U
+#define GRKU_RECIPE_DIAL_OFF 536870911U
+/* The settings that the camera saves in a user mode of the mode dial
+   (runtime/mode_dial.h, grku_core::abi::DIAL_SET_WORDS): GRKU_DIAL_SET_WORDS
+   words, the number of pairs + 1 (0 without a set), a word for each
+   capability, the Fn adjustments and the Toning of the effect, then
+   GRKU_DIAL_SET_PAIRS pairs of a state file ID and a value. The effect word is
+   0 for Off, else GRKU_DIAL_SET_EFFECT with the recipe code of the effect. In
+   their file, word w of user mode u (0 for U1) has the key
+   GRKU_DIAL_SET_KEY_BASE + u * GRKU_DIAL_SET_KEY_STRIDE + w, and a word is at
+   most GRKU_DIAL_SET_VALUE_MAX. */
+#define GRKU_DIAL_SET_PAIRS 93U
+#define GRKU_DIAL_SET_COUNT 0U
+#define GRKU_DIAL_SET_CORE 1U
+#define GRKU_DIAL_SET_FN 9U
+#define GRKU_DIAL_SET_TONING 10U
+#define GRKU_DIAL_SET_PAIR 11U
+#define GRKU_DIAL_SET_WORDS 197U
+#define GRKU_DIAL_SET_EFFECT 32768U
+#define GRKU_DIAL_SET_KEY_BASE 992000000U
+#define GRKU_DIAL_SET_KEY_STRIDE 1000U
+#define GRKU_DIAL_SET_VALUE_MAX 999999999U
 #define GRKU_MODULE_SETTINGS_MAX 160
 /* The most modules that GRKU lists, and the words of the largest script array,
    which holds the module array. */
@@ -30,6 +152,7 @@
 #define GRKU_MODULE_TILES_MAX 128
 #define GRKU_ICON_MODULE_TILE(n) (0x7000U+(n))
 #define GRKU_STATE_CHANGED(h) (++(h)[GRKU_HOST_STATE_CHANGES/4])
+#define GRKU_RECIPES_CHANGED(h) (++(h)[GRKU_HOST_RECIPE_CHANGES/4])
 #define GRKU_HOST_MAGIC_VALUE 0x314d5247
 #define GRKU_HOST_VERSION_VALUE 1
 /* Number of Image Control records. */
@@ -172,8 +295,8 @@
 #define GRKU_HOST_RETURN 252
 /* Number of changes of the saved selections: the effect, CORE.ASPECT,
    CORE.GRAIN, CORE.GRAIN_SIZE, the Fn adjustments, and the module settings
-   (GRKU_STATE_CHANGED). The resident loader polls only this word and saves the
-   state file after it changes. */
+   (GRKU_STATE_CHANGED). The resident loader polls this word and
+   HOST_RECIPE_CHANGES, and saves the state file after it changes. */
 #define GRKU_HOST_STATE_CHANGES 256
 /* Number of module plane filters in GRKU_HOST_MODULE_FILTERS. INSTALL writes
    it. */
@@ -301,13 +424,64 @@
 /* GR IV: the queue completion flags of that shot, CROP_QUEUE_POSTED and
    CROP_QUEUE_RECOVERED. */
 #define GRKU_HOST_CROP_QUEUE_FLAGS 1060
+/* The recipes (runtime/recipes.h): RECIPE_WORDS words for each of the
+   RECIPE_SLOTS recipes. A recipe whose word 0 is 0 is empty. The resident
+   loader saves each word that is not 0 in the recipe file
+   (`capabilities::StateFile::Recipes`). */
+#define GRKU_HOST_RECIPES 1064
+#define GRKU_HOST_RECIPES_WORDS 320
+/* The names of the recipes, RECIPE_NAME_WORDS words each (RECIPE_NAME_CHARS),
+   right after HOST_RECIPES, which the loader saves after the recipe words. */
+#define GRKU_HOST_RECIPE_NAMES 2344
+#define GRKU_HOST_RECIPE_NAMES_WORDS 256
+/* The hash of the recipe library of the package that INSTALL imported last
+   (runtime/install_recipes.h), after the names: the loader saves it with the
+   recipes, so a package imports once. */
+#define GRKU_HOST_RECIPE_IMPORTED 3368
+/* The ID of each recipe, by slot, 1 to `runtime::RECIPE_ID_MAX`: a generated
+   number, so that a recipe that the site moves to another card keeps an ID
+   that no recipe of that card had. A reference to a recipe holds its ID, so
+   that it stays valid when the recipes move. Each part that creates a recipe
+   (the camera, INSTALL, the site) generates its ID. The loader saves the IDs
+   after the import hash. */
+#define GRKU_HOST_RECIPE_IDS 3372
+#define GRKU_HOST_RECIPE_IDS_WORDS 64
+/* What each user mode of the mode dial, U1 to U3, does
+   (`runtime::RECIPE_DIAL_FOLLOW`, `RECIPE_DIAL_OFF`, or the ID of a recipe).
+   An ID that no recipe has follows, as `RECIPE_DIAL_FOLLOW`. A generated ID is
+   never one of these values, so a deleted recipe never gets the references of
+   another. */
+#define GRKU_HOST_RECIPE_DIAL 3628
+#define GRKU_HOST_RECIPE_DIAL_WORDS 3
+/* The count of changes of the recipes: the loader saves the recipe file after
+   it changes (GRKU_RECIPES_CHANGED). INSTALL sets 1 after an import. */
+#define GRKU_HOST_RECIPE_CHANGES 3640
+/* The undo steps, the oldest first, RECIPE_WORDS words each. They are not
+   saved: a start begins without them. */
+#define GRKU_HOST_RECIPE_UNDO 3644
+#define GRKU_HOST_RECIPE_UNDO_WORDS 25
+/* Nonzero while the mode dial is on a user mode whose settings are temporary
+   (runtime/mode_dial.h): the resident loader then does not save the main state
+   file, so the file keeps the settings of the other positions. The recipe file
+   still saves. */
+#define GRKU_HOST_STATE_HOLD 3744
+/* The count of changes of the saved settings of the user modes
+   (`HOST_DIAL_SETS`): the loader saves their file after it changes. */
+#define GRKU_HOST_DIAL_SET_CHANGES 3748
+/* The settings that the camera saved in each user mode of the mode dial, U1 to
+   U3, `DIAL_SET_WORDS` words each (runtime/mode_dial.h). A user mode applies
+   them while it has `runtime::RECIPE_DIAL_SAVED` (`HOST_RECIPE_DIAL`). The
+   resident loader saves each word that is not 0 in their file
+   (`capabilities::StateFile::DialSets`), and INSTALL restores them. */
+#define GRKU_HOST_DIAL_SETS 3752
+#define GRKU_HOST_DIAL_SETS_WORDS 591
 
 /* The capabilities of the core (grku_core::capabilities): the handle of each
    CORE setting, and for each handle in order, its header word and its number
    of values. CORE.TONE has neither: its value is the active record, and the
    effects give its number of values (runtime/tone.h). */
 #define GRKU_CORE_SETTING_BASE 0x100U
-#define GRKU_CORE_SETTING_COUNT 7U
+#define GRKU_CORE_SETTING_COUNT 8U
 #define GRKU_CORE_TONE 0x100U
 #define GRKU_CORE_TONE_VALUES 0U
 #define GRKU_CORE_TONE_BIT 0x1
@@ -329,8 +503,11 @@
 #define GRKU_CORE_CROP_MODE 0x106U
 #define GRKU_CORE_CROP_MODE_VALUES 2U
 #define GRKU_CORE_CROP_MODE_BIT 0x40
-#define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044
-#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,6,2
+#define GRKU_CORE_RECIPE 0x107U
+#define GRKU_CORE_RECIPE_VALUES 0U
+#define GRKU_CORE_RECIPE_BIT 0x80
+#define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,0
+#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,6,2,0
 
 /* An Image Control record. The records follow the header. */
 #define GRKU_RECORD_SIZE 0x1100
@@ -437,6 +614,40 @@
 #define GRKU_GRF_HUE_SIZE 88U
 #define GRKU_GRF_ID_MAX 31U
 #define GRKU_GRF_NAME_MAX 16U
+/* A GRKR0001 recipe library has GRKU_RCP_HEADER_SIZE bytes, then
+   GRKU_RCP_RECORD_SIZE bytes for each of at most GRKU_RCP_MAX recipes. */
+#define GRKU_RCP_HEADER_SIZE 32U
+#define GRKU_RCP_RECORD_SIZE 64U
+#define GRKU_RCP_MAX 64U
+#define GRKU_RCP_NAME_UNITS 16U
+/* A user mode of the mode dial in the header (GRKU_RCP_DIAL): keep the value
+   of the camera, follow the dial, turn GRKU off, or apply record k at
+   GRKU_RCP_DIAL_RECORD + k. */
+#define GRKU_RCP_DIAL_KEEP 0U
+#define GRKU_RCP_DIAL_FOLLOW 1U
+#define GRKU_RCP_DIAL_OFF 2U
+#define GRKU_RCP_DIAL_RECORD 3U
+/* The family byte of a record: the camera line whose INSTALL imports it. */
+#define GRKU_RCP_FAMILY_GR3 1U
+#define GRKU_RCP_FAMILY_GR4 2U
+#define GRKU_RCP_FAMILY_GR4_MONOCHROME 3U
+/* The magic `GRKR0001`. */
+#define GRKU_RCP_MAGIC 0U
+/* u32 size of the file. */
+#define GRKU_RCP_BYTES 8U
+/* u32 CRC-32 of the file, which reads these bytes as zero. */
+#define GRKU_RCP_CRC 12U
+/* u32 number of recipes. */
+#define GRKU_RCP_COUNT 16U
+/* u32 for each user mode of the mode dial, U1 to U3: what INSTALL sets it to
+   when it imports the library (`recipes::DialStep`). */
+#define GRKU_RCP_DIAL 20U
+/* The name: UTF-16LE units, zero-padded, without a NUL at 16 units. */
+#define GRKU_RCP_RECORD_NAME 0U
+/* The RECIPE_WORDS words of the recipe (runtime/recipes.h). */
+#define GRKU_RCP_RECORD_WORDS 32U
+/* u8 family: 1 GR III, 2 GR IV, 3 GR IV Monochrome. */
+#define GRKU_RCP_RECORD_FAMILY 52U
 #define GRKU_FEATURE_POST 1U
 #define GRKU_FEATURE_SELECTIVE 2U
 #define GRKU_FEATURE_HUE 8U
@@ -691,6 +902,24 @@
 #define TEXT_SWITCH 22
 /* Between a group title and its value in the ADJ root summary. */
 #define TEXT_SEPARATOR 25
-#define GRKU_TEXT_STRINGS 26
+/* The page of recipes: the Undo and Save rows, the text before a saved name,
+   the text before and after the name to delete, the message when the recipes
+   are full, the text of a missing effect, the name of a recipe without a look,
+   the message of a value that the camera does not have, the message of an
+   apply whose Grain has no effect, then the two buttons of Fn on a camera
+   recipe: Rename and Delete, then the message of an apply whose Glow module is
+   not loaded, and the mark after the name of a recipe whose effect is not
+   installed, then the Apply row of the Recipes page of MENU. */
+#define TEXT_RECIPE 26
+/* The names of the native Image Control types, in the order of
+   runtime/native.h. */
+#define TEXT_NATIVE_TYPE 41
+/* Enable at Start, which decides the switch at each start: its MENU row, then
+   its Keep Last value. Its On and Off are TEXT_ON and TEXT_OFF. */
+#define TEXT_START 62
+/* The Mode Dial row of the Recipes page of MENU, then the values of a user
+   mode besides a recipe: None, GRKU Off, and Saved Settings. */
+#define TEXT_DIAL 64
+#define GRKU_TEXT_STRINGS 68
 
 #endif

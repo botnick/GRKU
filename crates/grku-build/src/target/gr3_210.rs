@@ -157,6 +157,12 @@ const SITES: &[Site] = &[
     ("menu_settings_draw_4", 0x531b5c74, "0dc0a0e1"),
     ("menu_settings_apply_4", 0x531b7604, "0dc0a0e1"),
     ("menu_settings_current_4", 0x531b8de8, "0dc0a0e1"),
+    // SoftwareKeyboardController: the entry of its text length method, then
+    // the tail calls of its copyright text load and store to the settings
+    // getter (0x5324642c) and setter (0x5326cc14).
+    ("menu_keyboard_length", 0x531daf3c, "0dc0a0e1"),
+    ("menu_keyboard_load", 0x531dbb10, "45aa01ea"),
+    ("menu_keyboard_store", 0x531dbd40, "b34302ea"),
     ("framing_update", 0x5317681c, "0dc0a0e1"),
     ("framing_exit", 0x53176de4, "0dc0a0e1"),
     ("framing_destroy", 0x53170b50, "0dc0a0e1"),
@@ -260,6 +266,9 @@ const SITES: &[Site] = &[
     ("menu_parameter_get_9", 0x532c295c, "0dc0a0e1"),
     ("menu_parameter_set_9", 0x532c0700, "0dc0a0e1"),
     ("menu_parameter_row_9", 0x532ac9a4, "f9750aeb"),
+    // The entry of the apply of a dial position, which each App event of the
+    // dial reaches.
+    ("menu_dial", 0x532241a8, "0dc0a0e1"),
 ];
 
 const CONTEXTS: &[(u32, &str)] = &[

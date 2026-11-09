@@ -20,6 +20,7 @@ import tileGrain from '../../../modules/grain/tiles/0-module.png';
 import tileBorder from '../../../modules/border/tiles/0-module.png';
 import tileLightLeak from '../../../modules/lightleak/tiles/0-module.png';
 import tileDiffusion from '../../../modules/diffusion/tiles/0-module.png';
+import tileRecipes from '../../../modules/recipes/tiles/0-module.png';
 
 /** The menu tile of each module, as the camera shows it. */
 const TILES: Record<ModuleKey, string> = {
@@ -33,6 +34,7 @@ const TILES: Record<ModuleKey, string> = {
   border: tileBorder,
   lightLeak: tileLightLeak,
   diffusion: tileDiffusion,
+  recipes: tileRecipes,
 };
 
 type Photo = keyof typeof LANDING_PHOTOS;

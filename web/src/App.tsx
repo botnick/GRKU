@@ -23,6 +23,8 @@ import {
   pickCard,
   planChanges,
   readFile,
+  RECIPE_FILE,
+  RECIPES_PACKAGE,
   removeGrku,
   removeModesetFiles,
   writeFiles,
@@ -30,12 +32,15 @@ import {
   type CardDirectory,
 } from './card';
 import { allowCard, forgetLastCard, saveLastCard } from './cardStore';
+import { useRecipeLibrary } from './recipeLibrary';
+import { familyOf, writeRecipeFile, type Family } from './recipes';
 import {
   changedImports,
   extraCardEffects,
   libraryChanges,
   openSession,
   packageEffects as cardPackageEffects,
+  withFamily,
   type CardSession,
 } from './cardSession';
 import {
@@ -198,6 +203,13 @@ export function App({
       : null;
   // Before the first change, every catalog effect is checked, so the count is not 0.
   const plan = planModules(enabled, selection?.size ?? 1, available);
+  const family = familyOf(camera.key);
+  const recipeLibrary = useRecipeLibrary({
+    family,
+    inPackage: plan.modules.includes('RECIPES'),
+    storage: browserStorage,
+    onChange: resetBuild,
+  });
 
   function prefetch() {
     if (targets) prefetchPackage(targets, camera.id, language);
@@ -239,6 +251,19 @@ export function App({
   function chooseCamera(key: Camera['key']) {
     setCameraKey(key);
     resetBuild();
+    // The recipe file holds no camera line, and one card fits GR IV and GR IV Monochrome, so the
+    // recipes of the card are read again for the line of the chosen camera.
+    const of = familyOf(key);
+    if (card && of !== familyOf(camera.key)) void readCardRecipes(card, of);
+  }
+
+  /** Reads the recipes of the card `session` again for the camera line `of`. */
+  async function readCardRecipes(session: CardSession, of: Family) {
+    const run = cardRun.current;
+    const next = await withFamily(session, of);
+    if (run !== cardRun.current) return;
+    setCard((current) => (current === session ? next : current));
+    if (next.recipes) recipeLibrary.adoptCard(of, next.recipes);
   }
 
   function keepSelection(next: ReadonlySet<string>) {
@@ -411,7 +436,7 @@ export function App({
   async function readPackage(file: File) {
     const root = await packageCard(file);
     const catalog = await loadCatalog(PREVIEW_TARGET);
-    const session = await openSession(root, [...catalog.effects, ...imported]);
+    const session = await openSession(root, [...catalog.effects, ...imported], family);
     if (session.state.install !== 'current') throw new Error('The ZIP is not a GRKU package');
     return { root, session, catalog };
   }
@@ -433,10 +458,28 @@ export function App({
     setPackageStatus({ state: 'reading' });
     try {
       const { root, session, catalog } = await readPackage(file);
-      adoptCard(session);
+      const fit = adoptCard(session);
       const added = await adoptImports(root, session, file.name, catalog);
+      // The package works without its recipes, so a damaged library adds none.
+      const recipes = await recipeLibrary.restorePackage(root).catch((error: unknown) => {
+        console.warn(error);
+        return { count: 0, family: null };
+      });
+      // A package fits GR IV and GR IV Monochrome; the camera line of its recipes tells which.
+      const line = recipes.family;
+      if (line && line !== familyOf(fit.key)) {
+        const other = camerasForCard(cardBuilds(session.state), session.state.rootNames)?.find(
+          (item) => familyOf(item.key) === line,
+        );
+        if (other) setCameraKey(other.key);
+      }
       resetBuild();
-      setPackageStatus({ state: 'done', added: added.length, locked: lockedLooks(session, added) });
+      setPackageStatus({
+        state: 'done',
+        added: added.length,
+        recipes: recipes.count,
+        locked: lockedLooks(session, added),
+      });
     } catch (error) {
       console.error(error);
       setPackageStatus({ state: 'error' });
@@ -452,9 +495,14 @@ export function App({
     setRemoveMessage(null);
     try {
       const catalog = await loadCatalog(PREVIEW_TARGET);
-      const session = await openSession(root, [...catalog.effects, ...imported]);
+      const opened = await openSession(root, [...catalog.effects, ...imported], family);
       if (run !== cardRun.current) return;
-      const fit = adoptCard(session);
+      const fit = adoptCard(opened);
+      // The recipes of the camera are those of its recipe file: the page shows and edits them.
+      const session = await withFamily(opened, familyOf(fit.key));
+      if (run !== cardRun.current) return;
+      recipeLibrary.dropCardChoice();
+      if (session.recipes) recipeLibrary.adoptCard(familyOf(fit.key), session.recipes);
       setCard(session);
       setLastCard(root);
       void saveLastCard(root);
@@ -486,7 +534,7 @@ export function App({
     try {
       await action(session);
       const catalog = await loadCatalog(PREVIEW_TARGET);
-      const next = await openSession(session.root, [...catalog.effects, ...imported]);
+      const next = await openSession(session.root, [...catalog.effects, ...imported], family);
       if (run !== cardRun.current) return;
       setCard(next);
       setRemoveMessage({ tone: 'ok', lines: done });
@@ -552,6 +600,7 @@ export function App({
       plan.includeEffects
         ? { before: [...session.effects.keys()], after: checked, changed: [...changedImports(session, imported)] }
         : null,
+      recipeLibrary.cardChange(session),
     );
     return session.written && changes.grku === 'update' ? { ...changes, grku: 'same' } : changes;
   }
@@ -583,12 +632,24 @@ export function App({
         [...changes.addEffects, ...changes.updateEffects],
         changes.removeEffects,
       );
+      // The recipes of the site replace the recipe file of the camera, which keeps its import
+      // record; the library of a ZIP package has no more use.
+      if (changes.recipes === 'write' && recipeLibrary.packageRecipes) {
+        const text = await writeRecipeFile(
+          recipeLibrary.packageRecipes,
+          family,
+          session.state.recipeText ?? '',
+          recipeLibrary.dial(session),
+        );
+        files.push({ path: RECIPE_FILE, bytes: new TextEncoder().encode(text) });
+        library.remove.push(RECIPES_PACKAGE);
+      }
       await applyChanges(session.root, session.state, files, library, ({ written, total }) => {
         if (run !== cardRun.current) return;
         setCardTask(written < total ? { kind: 'writing', written, total } : { kind: 'finishing' });
       });
       const catalog = await loadCatalog(PREVIEW_TARGET);
-      const next = await openSession(session.root, [...catalog.effects, ...imported]);
+      const next = await openSession(session.root, [...catalog.effects, ...imported], family);
       if (run !== cardRun.current) return;
       setCard({ ...next, written: true });
       setApplyMessage({
@@ -630,6 +691,7 @@ export function App({
     setBuild({ state: 'building', received: 0, retrying: false });
     try {
       const effects = await packageEffects();
+      const recipes = await recipeLibrary.packageBytes();
       const blob = await buildPackage(
         targets,
         camera.id,
@@ -640,6 +702,7 @@ export function App({
         (received, retrying) => {
           if (run === buildRun.current) setBuild({ state: 'building', received, retrying });
         },
+        recipes,
       );
       if (run === buildRun.current) {
         save(blob, packageFilename(__GRKU_VERSION__, camera.name, new Date()));
@@ -832,6 +895,7 @@ export function App({
               cardEffects={cardExtra}
               changes={cardChanges}
               modules={moduleNames}
+              recipes={recipeLibrary.changeLine(card, language, t.moduleNames.recipes)}
               canWrite={!!targets && plan.visible.length > 0}
               busy={cardTask.kind !== 'idle'}
               task={taskArea === 'apply' ? cardTask : IDLE}
@@ -1089,6 +1153,7 @@ interface ChangesSectionProps {
   cardEffects: readonly CardEffect[];
   changes: (session: CardSession, checked: readonly string[]) => CardChanges;
   modules: readonly string[];
+  recipes: { label: string; text: string } | null;
   canWrite: boolean;
   busy: boolean;
   task: CardTask;

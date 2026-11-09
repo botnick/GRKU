@@ -130,8 +130,7 @@ pub fn module(id: &str) -> Vec<u8> {
 
 /// A module file for each official module (`crate::modules::OFFICIAL`).
 pub fn official_modules() -> Vec<Vec<u8>> {
-    crate::modules::OFFICIAL
-        .iter()
+    crate::modules::default_package()
         .map(|official| module(official.id))
         .collect()
 }

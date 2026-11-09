@@ -27,7 +27,7 @@ pub const TEXT_GROUP_VALUE: usize = TEXT_SETTINGS - 2 * GROUP_UNITS;
 /// The units of the longest string with its NUL, and of each summary slot.
 pub const SUMMARY_UNITS: usize = 32;
 /// The number of strings in each language (`GRKU_TEXT_STRINGS`).
-pub const STRINGS: usize = 26;
+pub const STRINGS: usize = 68;
 /// The website that About GRKU shows.
 const WEBSITE: &str = "grku.app";
 /// The longest effect name in a record.
@@ -65,6 +65,19 @@ struct Words {
     on: &'static str,
     /// The MENU row of the switch that turns all modules off and on again.
     enable_grku: &'static str,
+    /// The MENU row that decides the switch at each start, and its value
+    /// that keeps the switch of the last session. Its other values are the
+    /// On and Off of the switch.
+    enable_at_start: &'static str,
+    keep_last: &'static str,
+    /// The Mode Dial row of the Recipes page of MENU, and the values of a
+    /// user mode besides a recipe: None, which follows the dial, GRKU Off,
+    /// and Saved Settings, the settings that Save Settings saved in the user
+    /// mode. U1 to U3 have the names of the dial.
+    mode_dial: &'static str,
+    dial_none: &'static str,
+    dial_off: &'static str,
+    dial_saved: &'static str,
     /// The MENU row that orders the module pages in the GRKU root of ADJ.
     adj_order: &'static str,
     /// The settings row that lists the options of a module page.
@@ -82,6 +95,41 @@ struct Words {
     /// word (OK, 确定, 決定): empty keeps the native word.
     turn: &'static str,
     back: &'static str,
+    /// The page of camera recipes (runtime/recipe_page.h): the undo row,
+    /// the save row, the toast after a save (before the name), the confirm
+    /// of a delete (before and after the name), the message when the
+    /// recipes are full, the label and message of a recipe whose effect is
+    /// not installed, and the name of a recipe without a look.
+    recipe_undo: &'static str,
+    recipe_save: &'static str,
+    recipe_saved: &'static str,
+    recipe_delete: (&'static str, &'static str),
+    recipe_full: &'static str,
+    recipe_missing: &'static str,
+    recipe_name: &'static str,
+    /// The message of a recipe with a native value that this camera does
+    /// not have.
+    recipe_unsupported: &'static str,
+    /// The message after an apply that left out the Grain of the recipe: no
+    /// Grain module runs.
+    recipe_no_grain: &'static str,
+    /// The buttons of the box that Fn on a camera recipe shows: Rename, which
+    /// opens the keyboard of the camera, and Delete. The words are those of
+    /// the native Customize rows (Rename, 重命名, 名称変更, 이름 변경) and of
+    /// the native Delete (删除, 刪除, 消去, 삭제).
+    recipe_actions: [&'static str; 2],
+    /// The Apply row of the page of a recipe in MENU.
+    recipe_apply: &'static str,
+    /// The message after an apply that left out the Glow of the recipe: the
+    /// Glow module is not loaded.
+    recipe_no_glow: &'static str,
+    /// The mark after the name of a recipe whose effect is not installed.
+    recipe_missing_mark: &'static str,
+    /// The names of the native Image Control types in the order of
+    /// `grku_core::native::TYPES`, as the camera menus name them. The last
+    /// seven are the types of GR IV Monochrome, with the names of its
+    /// firmware.
+    native_types: [&'static str; 21],
 }
 
 const ENGLISH: Words = Words {
@@ -95,6 +143,12 @@ const ENGLISH: Words = Words {
     enable: "Enable",
     on: "On",
     enable_grku: "Enable GRKU",
+    enable_at_start: "Enable at Start",
+    keep_last: "Keep Last",
+    mode_dial: "Mode Dial",
+    dial_none: "None",
+    dial_off: "GRKU Off",
+    dial_saved: "Saved Settings",
     adj_order: "ADJ Order",
     options: "Options",
     about: "About GRKU",
@@ -103,6 +157,42 @@ const ENGLISH: Words = Words {
     film: "Film Stock",
     turn: "",
     back: "Back",
+    recipe_undo: "Undo",
+    recipe_save: "Save Settings",
+    recipe_saved: "Saved: ",
+    recipe_delete: ("Delete ", "?"),
+    recipe_full: "Full. Fn on a recipe deletes it",
+    recipe_missing: "Effect not installed",
+    recipe_name: "Recipe",
+    recipe_unsupported: "Not available on this camera",
+    recipe_no_grain: "Grain needs the Grain module",
+    recipe_actions: ["Rename", "Delete"],
+    recipe_apply: "Apply",
+    recipe_no_glow: "Glow needs the Glow module",
+    recipe_missing_mark: "effect missing",
+    native_types: [
+        "Standard",
+        "Vivid",
+        "Monotone",
+        "Soft Monotone",
+        "Hard Monotone",
+        "Hi-Contrast B&W",
+        "Negative Film",
+        "Positive Film",
+        "Bleach Bypass",
+        "Retro",
+        "HDR Tone",
+        "Cross Processing",
+        "Cinema (Yellow)",
+        "Cinema (Green)",
+        "Standard",
+        "Soft",
+        "Hi-Contrast",
+        "Grainy",
+        "Solid",
+        "HDR Tone",
+        "Solarized Effect",
+    ],
 };
 
 const SIMPLIFIED_CHINESE: Words = Words {
@@ -116,6 +206,12 @@ const SIMPLIFIED_CHINESE: Words = Words {
     enable: "启用",
     on: "开启",
     enable_grku: "启用 GRKU",
+    enable_at_start: "开机启用",
+    keep_last: "保持上次",
+    mode_dial: "模式转盘",
+    dial_none: "无",
+    dial_off: "关闭 GRKU",
+    dial_saved: "已保存设置",
     adj_order: "ADJ 菜单顺序",
     options: "可选项",
     about: "关于 GRKU",
@@ -124,6 +220,42 @@ const SIMPLIFIED_CHINESE: Words = Words {
     film: "胶卷",
     turn: "切换",
     back: "返回",
+    recipe_undo: "撤销",
+    recipe_save: "保存设置",
+    recipe_saved: "已保存：",
+    recipe_delete: ("删除", "？"),
+    recipe_full: "配方已满，在配方上按 Fn 可删除",
+    recipe_missing: "未安装此效果",
+    recipe_name: "配方",
+    recipe_unsupported: "此相机不支持这个配方",
+    recipe_no_grain: "颗粒感需要颗粒感模块",
+    recipe_actions: ["重命名", "删除"],
+    recipe_apply: "应用",
+    recipe_no_glow: "光晕需要光晕模块",
+    recipe_missing_mark: "缺少效果",
+    native_types: [
+        "标准",
+        "鲜艳",
+        "单色",
+        "柔和单色",
+        "硬调单色",
+        "高对比度黑白",
+        "负片",
+        "正片",
+        "漂白效果",
+        "复古",
+        "HDR 色调",
+        "交叉冲印",
+        "电影（黄）",
+        "电影（绿）",
+        "标准",
+        "柔和",
+        "高对比度",
+        "颗粒感",
+        "无颗粒感",
+        "HDR色调",
+        "中途曝光效果",
+    ],
 };
 
 const TRADITIONAL_CHINESE: Words = Words {
@@ -137,6 +269,12 @@ const TRADITIONAL_CHINESE: Words = Words {
     enable: "啟用",
     on: "開啟",
     enable_grku: "啟用 GRKU",
+    enable_at_start: "開機啟用",
+    keep_last: "保持上次",
+    mode_dial: "模式轉盤",
+    dial_none: "無",
+    dial_off: "關閉 GRKU",
+    dial_saved: "已儲存設定",
     adj_order: "ADJ 選單順序",
     options: "可選項",
     about: "關於 GRKU",
@@ -145,6 +283,42 @@ const TRADITIONAL_CHINESE: Words = Words {
     film: "膠卷",
     turn: "切換",
     back: "返回",
+    recipe_undo: "復原",
+    recipe_save: "儲存設定",
+    recipe_saved: "已儲存：",
+    recipe_delete: ("刪除", "？"),
+    recipe_full: "配方已滿，在配方上按 Fn 可刪除",
+    recipe_missing: "未安裝此效果",
+    recipe_name: "配方",
+    recipe_unsupported: "此相機不支援這個配方",
+    recipe_no_grain: "粒紋感需要粒紋感模組",
+    recipe_actions: ["重命名", "刪除"],
+    recipe_apply: "套用",
+    recipe_no_glow: "光暈需要光暈模組",
+    recipe_missing_mark: "缺少效果",
+    native_types: [
+        "標準",
+        "鮮豔",
+        "單色",
+        "柔和單色",
+        "硬調單色",
+        "高對比度黑白",
+        "負片",
+        "正片",
+        "漂白效果",
+        "復古",
+        "HDR 色調",
+        "交叉沖印",
+        "電影（黃）",
+        "電影（綠）",
+        "標準",
+        "柔和",
+        "高對比度",
+        "顆粒感",
+        "無顆粒感",
+        "HDR色調",
+        "中途曝光效果",
+    ],
 };
 
 const JAPANESE: Words = Words {
@@ -160,6 +334,12 @@ const JAPANESE: Words = Words {
     enable: "有効",
     on: "オン",
     enable_grku: "GRKU を有効",
+    enable_at_start: "起動時に有効",
+    keep_last: "前回のまま",
+    mode_dial: "モードダイヤル",
+    dial_none: "なし",
+    dial_off: "GRKU オフ",
+    dial_saved: "保存した設定",
     adj_order: "ADJ メニューの順番",
     options: "オプション",
     about: "GRKU について",
@@ -168,6 +348,42 @@ const JAPANESE: Words = Words {
     film: "フィルム銘柄",
     turn: "切替",
     back: "戻る",
+    recipe_undo: "元に戻す",
+    recipe_save: "設定を保存",
+    recipe_saved: "保存しました:",
+    recipe_delete: ("", "を削除しますか?"),
+    recipe_full: "上限です。Fn でレシピを削除",
+    recipe_missing: "エフェクト未インストール",
+    recipe_name: "レシピ",
+    recipe_unsupported: "このカメラでは使えません",
+    recipe_no_grain: "粒状感には粒状感モジュールが必要",
+    recipe_actions: ["名称変更", "消去"],
+    recipe_apply: "適用",
+    recipe_no_glow: "グローにはグローモジュールが必要",
+    recipe_missing_mark: "エフェクトなし",
+    native_types: [
+        "スタンダード",
+        "ビビッド",
+        "モノトーン",
+        "ソフトモノトーン",
+        "ハードモノトーン",
+        "ハイコントラスト白黒",
+        "ネガフィルム調",
+        "ポジフィルム調",
+        "ブリーチバイパス",
+        "レトロ",
+        "HDR調",
+        "クロスプロセス",
+        "シネマ調(イエロー)",
+        "シネマ調(グリーン)",
+        "スタンダード",
+        "ソフト",
+        "ハイコントラスト",
+        "グレイニー",
+        "ソリッド",
+        "HDR調",
+        "ソラリゼーション調",
+    ],
 };
 
 const KOREAN: Words = Words {
@@ -181,6 +397,12 @@ const KOREAN: Words = Words {
     enable: "사용",
     on: "켜짐",
     enable_grku: "GRKU 사용",
+    enable_at_start: "시작 시 사용",
+    keep_last: "이전 상태",
+    mode_dial: "모드 다이얼",
+    dial_none: "없음",
+    dial_off: "GRKU 끄기",
+    dial_saved: "저장된 설정",
     adj_order: "ADJ 메뉴 순서",
     options: "옵션",
     about: "GRKU 정보",
@@ -189,6 +411,42 @@ const KOREAN: Words = Words {
     film: "필름 종류",
     turn: "전환",
     back: "뒤로",
+    recipe_undo: "실행 취소",
+    recipe_save: "설정 저장",
+    recipe_saved: "저장됨: ",
+    recipe_delete: ("", " 삭제?"),
+    recipe_full: "가득 참. 레시피에서 Fn으로 삭제",
+    recipe_missing: "효과가 설치되지 않음",
+    recipe_name: "레시피",
+    recipe_unsupported: "이 카메라에서 쓸 수 없음",
+    recipe_no_grain: "입자감에는 입자감 모듈이 필요함",
+    recipe_actions: ["이름 변경", "삭제"],
+    recipe_apply: "적용",
+    recipe_no_glow: "글로우에는 글로우 모듈이 필요함",
+    recipe_missing_mark: "효과 없음",
+    native_types: [
+        "스탠다드",
+        "비비드",
+        "모노톤",
+        "소프트 모노톤",
+        "하드 모노톤",
+        "하이 콘트라스트 흑백",
+        "네거티브 필름",
+        "포지티브 필름",
+        "블리치 바이패스",
+        "레트로",
+        "HDR 톤",
+        "크로스 프로세스",
+        "시네마(옐로)",
+        "시네마(그린)",
+        "표준",
+        "소프트",
+        "하이 콘트라스트",
+        "그레이니",
+        "솔리드",
+        "HDR톤",
+        "솔라리제이션톤",
+    ],
 };
 
 /// The text between a page title and its value in a root row summary, such
@@ -282,6 +540,34 @@ pub const RUNS: &[Run] = &[
         1,
         "Between a group title and its value in the ADJ root summary.",
     ),
+    run(
+        "RECIPE",
+        15,
+        "The page of recipes: the Undo and Save rows, the text before a saved name, \
+         the text before and after the name to delete, the message when the recipes are \
+         full, the text of a missing effect, the name of a recipe without a look, the \
+         message of a value that the camera does not have, \
+         the message of an apply whose Grain has no effect, then the two buttons of Fn on a camera recipe: Rename and Delete, then the \
+         message of an apply whose Glow module is not loaded, and the mark after the name of a \
+         recipe whose effect is not installed, then the Apply row of the Recipes page of MENU.",
+    ),
+    run(
+        "NATIVE_TYPE",
+        21,
+        "The names of the native Image Control types, in the order of runtime/native.h.",
+    ),
+    run(
+        "START",
+        2,
+        "Enable at Start, which decides the switch at each start: its MENU row, then its \
+         Keep Last value. Its On and Off are TEXT_ON and TEXT_OFF.",
+    ),
+    run(
+        "DIAL",
+        4,
+        "The Mode Dial row of the Recipes page of MENU, then the values of a user mode \
+         besides a recipe: None, GRKU Off, and Saved Settings.",
+    ),
 ];
 
 /// The first string ID of each run, in table order.
@@ -334,8 +620,34 @@ fn run_strings(w: &Words, name: &str, version: &str) -> Vec<String> {
             w.enable_grku.into(),
         ],
         "SEPARATOR" => vec![w.separator.into()],
+        "RECIPE" => words(&[
+            w.recipe_undo,
+            w.recipe_save,
+            w.recipe_saved,
+            w.recipe_delete.0,
+            w.recipe_delete.1,
+            w.recipe_full,
+            w.recipe_missing,
+            w.recipe_name,
+            w.recipe_unsupported,
+            w.recipe_no_grain,
+        ])
+        .into_iter()
+        .chain(words(&w.recipe_actions))
+        .chain(words(&[w.recipe_no_glow, w.recipe_missing_mark]))
+        .chain(words(&[w.recipe_apply]))
+        .collect(),
+        "NATIVE_TYPE" => words(&w.native_types),
+        "START" => words(&[w.enable_at_start, w.keep_last]),
+        "DIAL" => words(&[w.mode_dial, w.dial_none, w.dial_off, w.dial_saved]),
         _ => unreachable!("Unknown menu text run {name}"),
     }
+}
+
+/// The camera names of the native Image Control types in a language, in the
+/// order of `native::TYPES`.
+pub fn native_type_names(language: Language) -> &'static [&'static str; 21] {
+    &words(language).native_types
 }
 
 /// The strings of one language in the ID order of `runtime/abi.h`. `version`
@@ -471,6 +783,68 @@ mod tests {
             );
             assert!(list[id("SWITCH") + 2].contains("GRKU"));
         }
+    }
+
+    /// Enable at Start shows the On and Off of the switch, so only its row
+    /// and Keep Last are new texts.
+    #[test]
+    fn enable_at_start_has_its_row_and_keep_last_in_each_language() {
+        let expected = [
+            (Language::English, "Enable at Start", "Keep Last"),
+            (Language::SimplifiedChinese, "开机启用", "保持上次"),
+            (Language::TraditionalChinese, "開機啟用", "保持上次"),
+            (Language::Japanese, "起動時に有効", "前回のまま"),
+            (Language::Korean, "시작 시 사용", "이전 상태"),
+        ];
+        for (language, row, keep) in expected {
+            let list = strings(language, VERSION);
+            assert_eq!(list[id("START")], row);
+            assert_eq!(list[id("START") + 1], keep);
+            assert_eq!(language.undrawable(row), None);
+            assert_eq!(language.undrawable(keep), None);
+        }
+        assert!(strings(Language::English, VERSION)[id("START")..]
+            .iter()
+            .all(|text| text.is_ascii()));
+    }
+
+    /// The Mode Dial page names U1 to U3 as the dial does and shows a recipe
+    /// by its name, and its Save Settings row is that of the Recipes page,
+    /// so only its row, None, GRKU Off, and Saved Settings are new texts.
+    #[test]
+    fn the_mode_dial_has_its_row_and_values_in_each_language() {
+        let expected = [
+            (
+                Language::English,
+                ["Mode Dial", "None", "GRKU Off", "Saved Settings"],
+            ),
+            (
+                Language::SimplifiedChinese,
+                ["模式转盘", "无", "关闭 GRKU", "已保存设置"],
+            ),
+            (
+                Language::TraditionalChinese,
+                ["模式轉盤", "無", "關閉 GRKU", "已儲存設定"],
+            ),
+            (
+                Language::Japanese,
+                ["モードダイヤル", "なし", "GRKU オフ", "保存した設定"],
+            ),
+            (
+                Language::Korean,
+                ["모드 다이얼", "없음", "GRKU 끄기", "저장된 설정"],
+            ),
+        ];
+        for (language, texts) in expected {
+            let list = strings(language, VERSION);
+            for (k, text) in texts.iter().enumerate() {
+                assert_eq!(list[id("DIAL") + k], *text);
+                assert_eq!(language.undrawable(text), None);
+            }
+        }
+        assert!(strings(Language::English, VERSION)[id("DIAL")..]
+            .iter()
+            .all(|text| text.is_ascii()));
     }
 
     #[test]

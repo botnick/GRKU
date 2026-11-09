@@ -70,14 +70,16 @@ A package holds only `SCRIPT`. `GRKU` at the card root is the data folder: no pa
 
 | Path | Contents |
 | --- | --- |
-| `SCRIPT/GRKU` | the loader, the installers, the package list, and the modules and effects of the package |
+| `SCRIPT/GRKU` | the loader, the installers, the package list, and the modules, effects, and recipe library of the package |
 | `GRKU/EFFECTS` | the effects library |
 | `GRKU/MODULES` | the modules that a person adds |
 | `GRKU/STATE.TXT` | the saved settings |
+| `GRKU/RECIPES.TXT` | the recipes |
+| `GRKU/USERMODE.TXT` | the settings that the camera saved in the user modes of the mode dial |
 | `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT` | the result and the boot log of the last starts |
 | `GRKU/SAFE` | starts the safe mode |
 
-A package module loads only if the package list names it, and a module in `GRKU/MODULES` replaces the package module with the same name. A new package copies its effects into the library once, so an effect that a person deleted stays deleted. The installer never renames or deletes a file in the data folder, because the camera's file systems do not support it reliably.
+A package module loads only if the package list names it, and a module in `GRKU/MODULES` replaces the package module with the same name. A new package copies its effects into the library once, so an effect that a person deleted stays deleted. INSTALL adds the recipes of a package library to `GRKU/RECIPES.TXT` once for each library, so a recipe that a person deleted stays deleted. The installer never renames or deletes a file in the data folder, because the camera's file systems do not support it reliably.
 
 ### Report and safe mode
 
@@ -98,6 +100,7 @@ Each feature is a module, `<ID>.GRM`, linked at power-on. The same file runs on 
 | `GLOW` | independent Bloom and Halation around the highlights of each recorded picture |
 | `DIFFUSE` | the glow of a highlight diffusion filter, with a Black Mist veil over the shadows and an anamorphic Streak from point lights, on each recorded picture |
 | `GRAIN` | a page of `CORE.GRAIN` and `CORE.GRAIN_SIZE` |
+| `RECIPES` | a page of `CORE.RECIPE` ([Recipes](#recipes)) |
 
 The core keeps the value of each setting. The capabilities, `CORE.<KEY>`, are settings of the core. The core keeps each in a header word that its hooks read, so module code never runs in a hot path. INSTALL applies the patches of a capability only when a loaded module uses it.
 
@@ -116,7 +119,7 @@ GRKU adds an entry to the ADJ toolbar that lists the module pages. It reuses the
 
 ### GRKU section of MENU
 
-The Customize tab of MENU gets a GRKU section. It has **Enable GRKU**, a row for each module file, which turns the module on or off and opens its settings, **ADJ Order**, and **About GRKU**. This switch, which ADJ shows too, turns all modules off and on again and keeps the Enable of each. The settings pages are native pages of the camera. A module that is off loads stopped: the core calls none of its code, so on applies at once. A page with options can turn each of its values, or each effect, on or off in ADJ.
+The Customize tab of MENU gets a GRKU section. It has **Enable GRKU**, **Enable at Start**, a row for each module file, which turns the module on or off and opens its settings, **ADJ Order**, and **About GRKU**. The switch Enable GRKU, which ADJ shows too, turns all modules off and on again and keeps the Enable of each. Enable at Start sets the switch at each start: On, Off, or Keep Last. The settings pages are native pages of the camera. A module that is off loads stopped: the core calls none of its code, so on applies at once. A page with options can turn each of its values, or each effect, on or off in ADJ.
 
 The menu text follows the camera language.
 
@@ -127,6 +130,25 @@ The menu text follows the camera language.
 - **RAW default crop**: when Framing crops a shot, DNG defaults to native 3:2 and preserves the shot's digital crop setting. The DNG writer changes only `DefaultCropOrigin` and `DefaultCropSize`. The capture snapshot identifies the shot's Framing crop. Embedded previews keep the selected composition.
 - **Guides** follow the framing area in both Framing modes, so that they divide the frame that the photographer composes in. Without a framing area, they follow the native aspect ratio.
 - **Recorded pictures**: a hook on the JPEG encode changes the main picture, the screennail, and the thumbnail. It applies the selective color of the effect and the plane filters of the modules. Each shot keeps its own settings, so continuous shooting is correct. Grain uses the camera's grain stage, so the live view and DNG files have no grain.
+
+## Recipes
+
+A recipe is a named set of picture settings that OK applies in one step: the look (a Film Look effect with its Fn adjustments, or a native Image Control type with its parameters), Grain, Glow, white balance, the correction and noise reduction settings, and the exposure settings. The capability is `CORE.RECIPE`; the `RECIPES` module is its page in ADJ and in MENU. In MENU a person chooses a recipe, then Apply, Rename, or Delete. Mode Dial sets what U1, U2, and U3 of the mode dial do, and saves the GRKU settings in one.
+
+- **Store.** The camera keeps at most 64 recipes in `GRKU/RECIPES.TXT`, with its own change count, so a change of a setting does not write the recipes again. At most 40 are on; the camera lists only those and keeps the others for the site. Undo steps stay in memory.
+- **IDs.** Each recipe has a generated ID, which the recipe file keeps. A reference to a recipe holds the ID, so it stays with the recipe when the recipes move. A user mode of the mode dial is such a reference. A reference to a deleted recipe refers to nothing.
+- **Record.** A recipe is the same five words in the core, in the recipe file, and in the package library. `grku_core::recipes` defines them, generates their layout for the core, and gives the site the same codec through the wasm build. The words hold portable values, so a recipe of one camera line fails the checks of another. An effect recipe finds its effect by a hash of the effect ID.
+- **Whole look.** A recipe holds each setting of the picture, so it gives the same picture after any other recipe. Only the exposure settings, which belong to one scene, stay as they are when a recipe does not hold them (`runtime/recipes.h`).
+- **Apply.** Apply checks each value against the tables of the running build first, so a value that the camera does not have changes nothing. It sets the settings of the capabilities and modules that run, writes the native settings by name and label as the native menu does (the build generates those tables from each firmware, `grku_build::userdata`), and reports what it left out.
+- **Mode dial.** The recipe file also keeps what each user mode does: it follows the dial (None), turns GRKU off, applies a recipe, or applies its saved settings. A user mode whose recipe the camera does not list follows. The dial acts while the `RECIPES` module is on, also when Enable GRKU is Off (`runtime/mode_dial.h`). When it acts on a bound user mode, a label in the live view shows the user mode and the recipe name, or GRKU Off, for 2 seconds, with a line for each part of the recipe that did not apply. The label shows in the native live-view font and in the menu language, and hides with the live-view text (DISP No Info or Off).
+  - The firmware applies each position that the dial passes. The core acts only on the position where the dial stays, after the firmware loads the native settings of that position.
+  - In a bound user mode, the core applies the recipe without an undo step. Changes there are temporary: the main state file does not save, and another position restores the GRKU settings from before the user mode. The firmware restores the native settings itself.
+  - **Saved settings.** Save Settings on a user mode of the Mode Dial page saves the GRKU settings in it and gives it Saved Settings. Another value keeps the saved settings, so a person can switch between a recipe and them. They are the settings that a person changes for shooting: the value of each capability, with the effect by the hash of its ID and its Fn adjustments and Toning, and by their state file IDs each module setting, the Enable of each module, and the switch Enable GRKU. They hold no ADJ order or options, no Enable at Start, no recipe, and not the Enable of the `RECIPES` module, which the dial needs. The core sets each saved value that differs from the current one through the setters, so Framing sets the native aspect as its page does. A setting that no longer exists is skipped; an effect that is missing selects Film Look Off, and the label says so. A user mode without saved settings follows.
+  - From a user mode with saved settings, another user mode starts from the GRKU settings from before the user modes, because the saved settings hold more than a recipe sets.
+  - The header holds the saved settings of each user mode. The resident loader saves them in `GRKU/USERMODE.TXT` after they change, with their own change count, and INSTALL restores them. Only the camera writes that file.
+  - At a start on a bound user mode, the core applies it when the shooting screen shows. The firmware sends no dial event at power-on.
+- **Site and packages.** The camera makes and edits recipes. The site turns them on and off, adds presets, and writes the recipe file again in full, keeping each recipe that it cannot read. A ZIP package carries a library in `SCRIPT/GRKIT/RECIPES.BIN`; INSTALL adds the recipes of the camera's line that the list does not hold, once for each library.
+- **Mode dial from the site.** The site also sets what U1, U2, and U3 do. On a connected card, it writes them in the recipe file; a user mode whose recipe is off or deleted follows. A user mode with saved settings shows them as saved on the camera and keeps them; the site can replace them with another value but cannot make them. In a ZIP package, the header of the library gives each user mode a step: keep the camera's value (the default), follow, GRKU Off, or a record of the library. INSTALL applies the steps once, when it imports the library, and gives a record the ID of the recipe that the record became; a record that it does not import follows. No step gives saved settings.
 
 ## Relocation
 

@@ -33,6 +33,7 @@ Press the ADJ lever while shooting and pick the sixth item, GRKU.
 - **Grain**: film grain in four strengths and four sizes (Auto, Small, Medium, Large).
 - **Border**: a white or black print border over the photo, 3% or 6% of its width.
 - **Feet**: with a file `GRKU/FEET.TXT` on the card, the Snap Focus Distance setting reads 1', 3', 5', 7', 8', and 16' instead of meters.
+- **Recipes**: save the current look on the camera, or add recipes from [grku.app](https://grku.app), and switch Film Look or Image Control, grain, glow, and white balance in one step. U1, U2, and U3 of the mode dial can keep your settings, apply a recipe, or turn GRKU off.
 
 GRKU takes about 9 seconds to load after power-on, and longer on the first start after an install or update. Until then, the camera uses its own settings. All the settings are in the GRKU section at the end of the Customize tab in MENU. To write your own module, see [Writing a module](docs/modules.md).
 

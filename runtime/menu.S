@@ -14,6 +14,9 @@
 #if !defined(FW_CHECK_ITEM) || !defined(HOOK_MENU_CHECK_FACTORY)
 #error "The build header defines FW_CHECK_ITEM, and the target has the menu_check_* hooks"
 #endif
+#if !defined(KEYBOARD_CONTROLLER) || !defined(HOOK_MENU_KEYBOARD_LOAD)
+#error "The build header defines KEYBOARD_CONTROLLER, and the target has the menu_keyboard_* hooks"
+#endif
 .syntax unified
 .arm
 .text
@@ -575,6 +578,47 @@ menu_check_factory:
     .inst HOOK_MENU_CHECK_FACTORY_STOCK
     ldr pc, =HOOK_MENU_CHECK_FACTORY_RESUME
 
+/* The keyboard of the camera, which GRKU borrows for text
+   (runtime/ui_keyboard.h). The copyright text load and store of
+   SoftwareKeyboardController end in a tail call to the settings getter or
+   setter, with the settings in r0 and the text of the keyboard in r1. While GRKU holds the keyboard, they take
+   the GRKU text instead, and the stores return 1 as the setter does. */
+.global menu_keyboard_load
+.type menu_keyboard_load, %function
+menu_keyboard_load:
+    push {r0, r1, r12, lr}
+    bl menu_keyboard_text_in
+    cmp r0, #0
+    pop {r0, r1, r12, lr}
+    bxne lr
+    ldr pc, =HOOK_MENU_KEYBOARD_LOAD_TARGET
+.global menu_keyboard_store
+.type menu_keyboard_store, %function
+menu_keyboard_store:
+    push {r0, r1, r12, lr}
+    bl menu_keyboard_text_out
+    cmp r0, #0
+    pop {r0, r1, r12, lr}
+    movne r0, #1
+    bxne lr
+    ldr pc, =HOOK_MENU_KEYBOARD_STORE_TARGET
+/* The entry of the text length method (r0 the keyboard): the GRKU length,
+   else the native method. */
+.global menu_keyboard_length
+.type menu_keyboard_length, %function
+menu_keyboard_length:
+    push {r0-r3, r12, lr}
+    bl menu_keyboard_limit
+    cmp r0, #0
+    beq 1f
+    add sp, sp, #4
+    pop {r1-r3, r12, pc}
+1:
+    pop {r0-r3, r12, lr}
+    .inst HOOK_MENU_KEYBOARD_LENGTH_STOCK
+    ldr pc, =HOOK_MENU_KEYBOARD_LENGTH_RESUME
+.ltorg
+
 #ifdef HOOK_MENU_INFO_UPDATE
 /* The update of the camera information page (menu.c: menu_info_fill). The
    entry hook keeps r0 (the controller) and lr, and returns into
@@ -895,3 +939,28 @@ crop_button:
     ldr pc, =HOOK_CROP_BUTTON_RESUME
 .ltorg
 #endif
+
+/* The mode dial (runtime/mode_dial.h): the firmware applies a dial
+   position. Each build of a family hooks the same place: on GR III the entry
+   of the apply of a dial position, which each event of the dial reaches, and
+   on GR IV the BL to the setter of the user mode in the apply of a dial
+   position. The hook notes the move (menu_dial_moved starts a timer of the
+   App task) and the firmware code runs as it would: the replaced
+   instruction, or the call of the BL target with the caller's return
+   address. */
+#if !defined(HOOK_MENU_DIAL)
+#error "The family has the menu_dial hook"
+#endif
+.global menu_dial
+.type menu_dial, %function
+menu_dial:
+    push {r0-r3, r12, lr}
+    bl menu_dial_moved
+    pop {r0-r3, r12, lr}
+#ifdef HOOK_MENU_DIAL_TARGET
+    ldr pc, =HOOK_MENU_DIAL_TARGET
+#else
+    .inst HOOK_MENU_DIAL_STOCK
+    ldr pc, =HOOK_MENU_DIAL_RESUME
+#endif
+.ltorg

@@ -25,6 +25,7 @@ describe('downloadProps', () => {
       diffusion: 'off',
       grain: 'off',
       border: 'off',
+      recipes: 'off',
     });
   });
 

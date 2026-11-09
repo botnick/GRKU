@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <string.h>
+#include <stdint.h>
 /* The build's label table, which the Rust test writes for this harness. */
 #include "menu_text.h"
 /* The family header sends the aspect request; the harness counts requests. */
@@ -78,7 +79,7 @@ static volatile unsigned *mapped_settings(unsigned address)
 #define TEST_EFFECTS (TEST_MANAGE + 0x300U)
 static unsigned manage_memory[(TEST_EFFECTS - TEST_MANAGE + 12 + 3 * 44) / 4];
 /* The module list: the header, then module i at word MANAGE_ENTRY(i). */
-#define MANAGE_ENTRY(i) (5 + (i) * 14)
+#define MANAGE_ENTRY(i) (MANAGE_HEADER / 4 + (i) * 14)
 static volatile unsigned *mapped_manage(unsigned address)
 {
     assert(address >= TEST_MANAGE && address < TEST_MANAGE + sizeof(manage_memory) && !(address & 3));
@@ -109,6 +110,7 @@ static unsigned menu_tabs[8];
 static unsigned *object_at(unsigned address);
 #define MENU_OBJECT_WORD(a,o) (*object_at((a)+(o)))
 #define MENU_OBJECT_BYTE(a,o) (((unsigned char *)object_at(((a)+(o)) & ~3U))[((a)+(o)) & 3U])
+#define MENU_OBJECT_HALF(a,o) (((unsigned short *)object_at(((a)+(o)) & ~3U))[(((a)+(o)) & 3U) >> 1])
 /* The memory of WORD, HALF, and BYTE: the services block by the address that
    services_word gives, or a firmware object. */
 static unsigned char *mapped(unsigned address);
@@ -144,6 +146,50 @@ static unsigned level_calls, level_screen, level_mode;
 #define MENU_LEVEL_ALARM(screen,mode) (++level_calls, level_screen = (screen), level_mode = (mode))
 static unsigned preview_invalidations, preview_invalidated;
 #define MENU_PREVIEW_INVALIDATE(view) (++preview_invalidations, preview_invalidated = (view))
+/* The native settings of recipes (runtime/native_look.h): no settings
+   record, and each UserData Set counted. */
+static unsigned native_sets_count;
+#define NATIVE_SETTINGS() 0U
+#define NATIVE_SET(argv) ((void)(argv), ++native_sets_count)
+#define NATIVE_MONOCHROME() 0U
+#define NATIVE_SET_TYPE(code) ((void)(code), ++native_sets_count)
+/* On GR IV, a model holds the use of the keyboard: an object of the test
+   holds it. */
+#ifdef FW_KEYBOARD_MODEL
+#undef FW_KEYBOARD_MODEL
+#undef FW_KEYBOARD_SET_FUNCTION
+#define TEST_KEYBOARD_MODEL (TEST_OBJECTS + 0x600U)
+static unsigned keyboard_model(void) { return TEST_KEYBOARD_MODEL; }
+static unsigned keyboard_set_function(unsigned model, unsigned function) { BYTE(model, KEYBOARD_MODEL_FUNCTION) = (unsigned char)function; return 0; }
+#define FW_KEYBOARD_MODEL keyboard_model
+#define FW_KEYBOARD_SET_FUNCTION keyboard_set_function
+#endif
+/* The mode dial (runtime/mode_dial.h): the dial position and whether the
+   firmware has loaded its settings, which a test sets, and the timers of the
+   dial, which a test fires by their ID. */
+#undef DIAL_POSITION
+#undef DIAL_NATIVE_SETTLED
+static unsigned dial_code, dial_loaded, dial_timer_ids, dial_timer_ms, dial_timer_cancels;
+#define DIAL_POSITION() (dial_code)
+#define DIAL_NATIVE_SETTLED(position) ((void)(position), dial_loaded)
+static unsigned dial_timer_start(unsigned ms)
+{
+    dial_timer_ms = ms;
+    return ++dial_timer_ids;
+}
+#define DIAL_TIMER_START(ms) dial_timer_start(ms)
+#define DIAL_TIMER_CANCEL(id) ((void)((id) && ++dial_timer_cancels))
+/* The string views of the label of the dial: each that the core makes, with
+   its parent and top, and each that it removes. */
+static unsigned label_made, label_removed, label_parent, label_tops[4];
+static void label_create(unsigned parent, unsigned top, volatile unsigned *at)
+{
+    label_parent = parent;
+    if (label_made < 4) label_tops[label_made] = top;
+    *at = 0x7000U + ++label_made;
+}
+#define DIAL_LABEL_CREATE(parent,top,at) label_create(parent, top, at)
+#define DIAL_LABEL_REMOVE(parent,view) ((void)(parent), (void)(view), ++label_removed)
 #include "menu.c"
 _Static_assert(SERVICES_SIZE <= sizeof(services_memory), "The test maps the services block");
 /* The firmware side of the checkbox page (runtime/menu_settings.h): the
@@ -1272,6 +1318,325 @@ static void the_grain_page_changes_only_the_grain_word(void)
     assert(setting_limit(test_header, GRKU_CORE_SETTING_BASE + GRKU_CORE_SETTING_COUNT) == 0);
 }
 
+/* The page of CORE.RECIPE in place of Grain: Undo while an undo step
+   exists, the camera recipes, then Save. The rows are actions: an ADJ exit
+   applies none, and the page shows with Save alone. The recipes here hold
+   Film Look Off and the grain, so no record is read. */
+static void the_recipe_page_saves_applies_and_deletes(void)
+{
+    reset();
+    install_page(4, "Recipes", 0, 0, GRKU_CORE_RECIPE, 19);
+    test_header[GRKU_HOST_CAPABILITIES / 4] |= GRKU_CORE_RECIPE_BIT;
+    test_header[GRKU_HOST_SERVICES / 4] = TEST_SERVICES;
+    test_header[GRKU_HOST_ACTIVE / 4] = 0;
+    test_header[GRKU_HOST_GRAIN / 4] = 0;
+    assert(MODULE(GRAIN_MODULE).rows(test_header) == 1);
+    assert(visible_modules(test_header) >> GRAIN_MODULE & 1);
+    test_header[GRKU_HOST_MENU_LEVEL / 4] = MENU_ROOT;
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = GRAIN_ROW;
+    assert(same(current_module(test_header)->summary(test_header), "Recipes"));
+    assert(PAGE_ICON(GRAIN_MODULE, GRAIN_ROW) == GRAIN_TILE(0));
+    menu_confirm(test_header);
+    assert(test_header[GRKU_HOST_MENU_LEVEL / 4] == MENU_MODULE && test_header[GRKU_HOST_MENU_CURSOR / 4] == 0);
+    assert(same(current_module(test_header)->label(test_header, 0), "Save Settings"));
+    assert(CURRENT_ICON(0) == GRAIN_TILE(2));
+    /* OK on Save adds a recipe and puts the cursor on it. The second of a
+       look gets a number. */
+    menu_confirm(test_header);
+    assert(recipe_count(test_header) == 1 && test_header[GRKU_HOST_MENU_CURSOR / 4] == 0);
+    test_header[GRKU_HOST_GRAIN / 4] = 3;
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = 1;
+    menu_confirm(test_header);
+    assert(recipe_count(test_header) == 2 && test_header[GRKU_HOST_MENU_CURSOR / 4] == 1);
+    assert(count(test_header) == 3);
+    assert(same(current_module(test_header)->label(test_header, 0), "Film Look: Off"));
+    assert(same(current_module(test_header)->label(test_header, 1), "Film Look: Off 2"));
+    assert(CURRENT_ICON(0) == GRAIN_TILE(3));
+    assert(!current_module(test_header)->checked(test_header, 0) && current_module(test_header)->checked(test_header, 1));
+    assert(same(current_module(test_header)->summary(test_header), "Recipes: Film Look: Off 2"));
+    /* OK on a recipe applies it and stores an undo step, which adds the Undo
+       row first. */
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = 0;
+    menu_confirm(test_header);
+    assert(test_header[GRKU_HOST_GRAIN / 4] == 0 && recipe_undo_count(test_header) == 1);
+    assert(count(test_header) == 4);
+    assert(same(current_module(test_header)->label(test_header, 0), "Undo (1)"));
+    assert(CURRENT_ICON(0) == GRAIN_TILE(1));
+    assert(same(current_module(test_header)->label(test_header, 2), "Film Look: Off 2"));
+    assert(current_module(test_header)->committed(test_header) == 1);
+    /* An ADJ exit on a recipe applies nothing. */
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = 2;
+    exit_commit(test_header);
+    assert(test_header[GRKU_HOST_GRAIN / 4] == 0 && recipe_undo_count(test_header) == 1);
+    /* Fn on a recipe shows its name with Rename and Delete; Fn on Undo or
+       Save does nothing. Delete asks to delete it. */
+    assert(current_module(test_header)->fn(test_header, 2));
+    assert(same((const u16 *)recipe_text_at(test_header, RECIPE_BOX_AT), "Film Look: Off 2"));
+    assert(same(text(test_header, RECIPE_TEXT_RENAME), "Rename") && same(text(test_header, RECIPE_TEXT_REMOVE), "Delete"));
+    assert(!current_module(test_header)->fn(test_header, 0) && !current_module(test_header)->fn(test_header, 3));
+    recipe_action_done(2, 1);
+    assert(same((const u16 *)recipe_text_at(test_header, RECIPE_BOX_AT), "Film Look: Off 2"));
+    recipe_action_done(1, 1);
+    assert(same((const u16 *)recipe_text_at(test_header, RECIPE_BOX_AT), "Delete Film Look: Off 2?"));
+    /* A typed name replaces the automatic name in the label, the summary,
+       and the texts of the boxes. */
+    recipe_name_set(test_header, 1, (const volatile u8 *)"  Street  Nega  ");
+    assert(same(current_module(test_header)->label(test_header, 2), "Street  Nega"));
+    recipe_action_done(1, 1);
+    assert(same((const u16 *)recipe_text_at(test_header, RECIPE_BOX_AT), "Delete Street  Nega?"));
+    recipe_name_set(test_header, 1, (const volatile u8 *)"   ");
+    assert(same(current_module(test_header)->label(test_header, 2), "Film Look: Off 2"));
+    recipe_name_set(test_header, 1, (const volatile u8 *)"Street Nega");
+    recipe_delete_done(0, 1);
+    assert(recipe_count(test_header) == 2);
+    /* The name of a deleted recipe goes with it, and the names after it
+       move up. */
+    recipe_name_set(test_header, 0, (const volatile u8 *)"First");
+    recipe_delete_done(1, 1);
+    assert(recipe_count(test_header) == 1 && count(test_header) == 3);
+    assert(test_header[GRKU_HOST_MENU_CURSOR / 4] == 2);
+    assert(same(current_module(test_header)->label(test_header, 1), "First"));
+    assert(!recipe_name_length(test_header, 1) && !test_header[GRKU_HOST_RECIPE_NAMES / 4 + GRKU_RECIPE_NAME_WORDS]);
+    recipe_delete_done(1, 0);
+    assert(!recipe_count(test_header) && !recipe_name_length(test_header, 0));
+    menu_confirm(test_header);
+    assert(recipe_count(test_header) == 1 && !recipe_name_length(test_header, 0));
+    /* OK on Undo keeps ADJ open, and on a recipe closes it. */
+    assert(current_module(test_header)->stays(test_header, 0));
+    assert(!current_module(test_header)->stays(test_header, 1) && !current_module(test_header)->stays(test_header, 2));
+    /* OK on Undo restores the grain before the apply. The last undo step
+       takes the Undo row away, and the cursor moves to the page's row. */
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = 0;
+    menu_confirm(test_header);
+    assert(test_header[GRKU_HOST_GRAIN / 4] == 3 && recipe_undo_count(test_header) == 0);
+    assert(count(test_header) == 2);
+    assert(test_header[GRKU_HOST_MENU_CURSOR / 4] == current_module(test_header)->committed(test_header));
+    /* With undo steps left, the cursor stays on Undo for the next one. */
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = 0;
+    menu_confirm(test_header);
+    assert(recipe_undo_count(test_header) == 1 && test_header[GRKU_HOST_MENU_CURSOR / 4] == 1);
+    menu_confirm(test_header);
+    assert(recipe_undo_count(test_header) == 2);
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = 0;
+    menu_confirm(test_header);
+    assert(recipe_undo_count(test_header) == 1 && test_header[GRKU_HOST_MENU_CURSOR / 4] == 0);
+    menu_confirm(test_header);
+    assert(recipe_undo_count(test_header) == 0);
+    assert(test_header[GRKU_HOST_MENU_CURSOR / 4] == current_module(test_header)->committed(test_header));
+    /* CORE.RECIPE has no value, and a store does nothing. */
+    assert(setting_value(test_header, GRKU_CORE_RECIPE) == 0 && setting_limit(test_header, GRKU_CORE_RECIPE) == 0);
+    setting_store(test_header, GRKU_CORE_RECIPE, 0);
+    assert(recipe_count(test_header) == 1);
+}
+
+/* Recipe i in the header (runtime/recipes.h), with its name. */
+static void header_recipe(u32 i, const char *name, u32 first)
+{
+    volatile u32 *w = test_header + GRKU_HOST_RECIPES / 4 + i * GRKU_RECIPE_WORDS;
+    volatile u32 *n = test_header + GRKU_HOST_RECIPE_NAMES / 4 + i * GRKU_RECIPE_NAME_WORDS;
+    for (u32 k = 0; k < GRKU_RECIPE_WORDS; ++k) w[k] = 0;
+    for (u32 k = 0; k < GRKU_RECIPE_NAME_WORDS; ++k) n[k] = 0;
+    w[0] = first;
+    for (u32 c = 0; name[c] && c < GRKU_RECIPE_NAME_CHARS; ++c) n[c / 4] |= (u32)name[c] << (7U * (c % 4));
+}
+
+/* The keyboard of the camera (runtime/ui_keyboard.h): its hooks serve the GRKU text
+   only while GRKU borrows the keyboard, so the copyright text never meets
+   a GRKU text. OK gives the typed text to the call after the return, which
+   names the recipe. */
+static void the_keyboard_serves_the_grku_text_only_while_borrowed(void)
+{
+    const u32 keyboard = TEST_OBJECTS + 0x100U, buffer = TEST_OBJECTS + 0x200U;
+    volatile u8 *grku;
+    reset();
+    install_page(4, "Recipes", 0, 0, GRKU_CORE_RECIPE, 19);
+    test_header[GRKU_HOST_CAPABILITIES / 4] |= GRKU_CORE_RECIPE_BIT;
+    test_header[GRKU_HOST_SERVICES / 4] = TEST_SERVICES;
+    grku = (volatile u8 *)ui_word(test_header, UI_KEYBOARD_TEXT);
+    BYTE(keyboard, KEYBOARD_FUNCTION) = KEYBOARD_COPYRIGHT;
+    for (u32 i = 0; i < 6; ++i) BYTE(buffer, i) = (u8)"Owner"[i];
+    /* Not borrowed: the native getter, setter, and length run. */
+    assert(!menu_keyboard_text_in(0, buffer) && !menu_keyboard_text_out(0, buffer) && !menu_keyboard_limit(keyboard));
+    assert(BYTE(buffer, 0) == 'O' && !ui_keyboard_result(test_header));
+    /* Borrowed: the keyboard shows the GRKU text, with at most 16
+       characters, and only for its copyright use. */
+    ui_word(test_header, UI_KEYBOARD)[0] = UI_KEYBOARD_ARMED;
+    strcpy((char *)grku, "Nega");
+    assert(menu_keyboard_text_in(0, buffer) && BYTE(buffer, 0) == 'N' && BYTE(buffer, 4) == 0);
+    assert(ui_word(test_header, UI_KEYBOARD)[0] == UI_KEYBOARD_SHOWN);
+    assert(menu_keyboard_limit(keyboard) == GRKU_RECIPE_NAME_CHARS);
+    BYTE(keyboard, KEYBOARD_FUNCTION) = KEYBOARD_COPYRIGHT + 1U;
+    assert(!menu_keyboard_limit(keyboard));
+    BYTE(keyboard, KEYBOARD_FUNCTION) = KEYBOARD_COPYRIGHT;
+    /* OK: GRKU takes the text, and the borrow ends. */
+    for (u32 i = 0; i < 9; ++i) BYTE(buffer, i) = (u8)"Nega Two"[i];
+    assert(menu_keyboard_text_out(0, buffer));
+    assert(!ui_word(test_header, UI_KEYBOARD)[0] && ui_keyboard_result(test_header));
+    assert(!strcmp((const char *)ui_keyboard_result(test_header), "Nega Two"));
+    assert(!menu_keyboard_text_out(0, buffer) && !menu_keyboard_text_in(0, buffer) && !menu_keyboard_limit(keyboard));
+    /* The call after the return names the new recipe. */
+    test_header[GRKU_HOST_MENU_LEVEL / 4] = MENU_ROOT;
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = GRAIN_ROW;
+    menu_confirm(test_header);
+    menu_confirm(test_header);
+    assert(recipe_count(test_header) == 1);
+    recipe_saved_back(0);
+    assert(same(current_module(test_header)->label(test_header, 0), "Nega Two"));
+    /* MENU on the keyboard keeps the name. */
+    ui_word(test_header, UI_KEYBOARD_RESULT)[0] = 0;
+    recipe_renamed_back(0);
+    assert(same(current_module(test_header)->label(test_header, 0), "Nega Two"));
+    strcpy((char *)grku, "Rio");
+    ui_word(test_header, UI_KEYBOARD_RESULT)[0] = 1;
+    recipe_renamed_back(0);
+    assert(same(current_module(test_header)->label(test_header, 0), "Rio"));
+    /* A change to another controller ends a borrow; the change to the
+       keyboard keeps it. */
+    ui_word(test_header, UI_KEYBOARD)[0] = UI_KEYBOARD_SHOWN;
+    ui_keyboard_change(test_header, KEYBOARD_CONTROLLER);
+    assert(ui_word(test_header, UI_KEYBOARD)[0] == UI_KEYBOARD_SHOWN);
+    ui_keyboard_change(test_header, KEYBOARD_CONTROLLER + 1U);
+    assert(!ui_word(test_header, UI_KEYBOARD)[0] && !menu_keyboard_text_in(0, buffer));
+}
+
+
+/* OK on the keyboard with the text that it started with keeps the automatic
+   name of a recipe, so the name follows its look and is not cut to the
+   keyboard length. A changed text names the recipe, in ADJ and in MENU. */
+static void the_keyboard_keeps_an_unchanged_automatic_name(void)
+{
+    volatile u8 *grku;
+    reset();
+    install_page(4, "Recipes", 0, 0, GRKU_CORE_RECIPE, 19);
+    test_header[GRKU_HOST_CAPABILITIES / 4] |= GRKU_CORE_RECIPE_BIT;
+    test_header[GRKU_HOST_SERVICES / 4] = TEST_SERVICES;
+    grku = (volatile u8 *)ui_word(test_header, UI_KEYBOARD_TEXT);
+    header_recipe(0, "", RECIPE_USED | RECIPE_LOOK_OFF | 12U << RECIPE_NUMBER_SHIFT);
+    header_recipe(1, "", RECIPE_USED | RECIPE_LOOK_OFF | 2U << RECIPE_NUMBER_SHIFT);
+    /* The keyboard starts with the automatic name, cut to its length. */
+    ui_keyboard_text(test_header, recipe_keyboard_text(test_header, 0));
+    assert(!strcmp((const char *)grku, "Film Look: Off 1"));
+    /* OK without a change: after Save and Rename in ADJ, and in MENU. */
+    ui_word(test_header, UI_KEYBOARD_RESULT)[0] = 1;
+    recipe_saved_back(0);
+    recipe_renamed_back(0);
+    recipe_named(0);
+    assert(!recipe_name_length(test_header, 0));
+    assert(same(menu_recipe_name(test_header, 0), "Film Look: Off 12"));
+    ui_keyboard_text(test_header, recipe_keyboard_text(test_header, 1));
+    assert(!strcmp((const char *)grku, "Film Look: Off 2"));
+    ui_word(test_header, UI_KEYBOARD_RESULT)[0] = 1;
+    recipe_named(1);
+    assert(!recipe_name_length(test_header, 1));
+    /* MENU on the keyboard gives no text. */
+    ui_word(test_header, UI_KEYBOARD_RESULT)[0] = 0;
+    strcpy((char *)grku, "Other");
+    recipe_named(1);
+    assert(!recipe_name_length(test_header, 1));
+    /* A changed text names the recipe; a shorter one too. */
+    ui_word(test_header, UI_KEYBOARD_RESULT)[0] = 1;
+    recipe_named(1);
+    assert(same(menu_recipe_name(test_header, 1), "Other"));
+    strcpy((char *)grku, "Film Look: Off");
+    recipe_saved_back(0);
+    assert(same(menu_recipe_name(test_header, 0), "Film Look: Off") && recipe_name_length(test_header, 0) == 14);
+    /* A recipe with a typed name keeps the text as its name. */
+    ui_keyboard_text(test_header, recipe_keyboard_text(test_header, 1));
+    ui_word(test_header, UI_KEYBOARD_RESULT)[0] = 1;
+    recipe_renamed_back(1);
+    assert(same(menu_recipe_name(test_header, 1), "Other") && recipe_name_length(test_header, 1) == 5);
+}
+
+/* The page lists the recipes that show in ADJ, by their names. OK on one
+   applies it, and Fn offers Rename and Delete. */
+static void the_recipe_page_lists_the_shown_recipes(void)
+{
+    reset();
+    install_page(4, "Recipes", 0, 0, GRKU_CORE_RECIPE, 19);
+    test_header[GRKU_HOST_CAPABILITIES / 4] |= GRKU_CORE_RECIPE_BIT;
+    test_header[GRKU_HOST_SERVICES / 4] = TEST_SERVICES;
+    test_header[GRKU_HOST_ACTIVE / 4] = 0;
+    test_header[GRKU_HOST_GRAIN / 4] = 3;
+    /* Film Look Off and Grain 0; a hidden one. */
+    header_recipe(0, "Far Away", RECIPE_USED | RECIPE_HIDDEN | RECIPE_LOOK_OFF);
+    header_recipe(1, "Street", RECIPE_USED | RECIPE_LOOK_OFF | RECIPE_GRAIN);
+    test_header[GRKU_HOST_MENU_LEVEL / 4] = MENU_ROOT;
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = GRAIN_ROW;
+    menu_confirm(test_header);
+    assert(count(test_header) == 2);
+    assert(same(current_module(test_header)->label(test_header, 0), "Street"));
+    assert(same(current_module(test_header)->label(test_header, 1), "Save Settings"));
+    /* Save goes after the recipes, and the cursor shows it. */
+    u32 recipes = test_header[GRKU_HOST_RECIPE_CHANGES / 4];
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = 1;
+    menu_confirm(test_header);
+    assert(recipe_count(test_header) == 3 && test_header[GRKU_HOST_MENU_CURSOR / 4] == 1);
+    assert(test_header[GRKU_HOST_RECIPE_CHANGES / 4] == recipes + 1);
+    assert(current_module(test_header)->checked(test_header, 1) && !current_module(test_header)->checked(test_header, 0));
+    /* Street: applied. An apply saves no recipe. */
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = 0;
+    menu_confirm(test_header);
+    assert(test_header[GRKU_HOST_GRAIN / 4] == 0 && recipe_undo_count(test_header) == 1);
+    assert(test_header[GRKU_HOST_RECIPE_CHANGES / 4] == recipes + 1);
+    /* The Undo row came first, and the cursor stays on the recipe. */
+    assert(test_header[GRKU_HOST_MENU_CURSOR / 4] == 1);
+    assert(same(current_module(test_header)->summary(test_header), "Recipes: Street"));
+    /* Undo, Street, the saved recipe, Save. */
+    assert(count(test_header) == 4 && current_module(test_header)->committed(test_header) == 1);
+}
+
+/* A recipe with a name whose effect is not installed shows a mark after its
+   name, before OK tells why it does not apply. */
+static void the_recipe_page_marks_a_missing_effect(void)
+{
+    reset();
+    install_page(4, "Recipes", 0, 0, GRKU_CORE_RECIPE, 19);
+    test_header[GRKU_HOST_CAPABILITIES / 4] |= GRKU_CORE_RECIPE_BIT;
+    test_header[GRKU_HOST_SERVICES / 4] = TEST_SERVICES;
+    /* Film Look does not run, so the effect is missing. */
+    test_header[GRKU_HOST_CAPABILITIES / 4] &= ~(u32)GRKU_CORE_TONE_BIT;
+    header_recipe(0, "Street", RECIPE_USED | RECIPE_LOOK_OFF);
+    header_recipe(1, "Gone", RECIPE_USED | RECIPE_LOOK_EFFECT | 0x7777U << RECIPE_CODE_SHIFT);
+    test_header[GRKU_HOST_MENU_LEVEL / 4] = MENU_ROOT;
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = GRAIN_ROW;
+    menu_confirm(test_header);
+    assert(same(current_module(test_header)->label(test_header, 0), "Street"));
+    assert(same(current_module(test_header)->label(test_header, 1), "Gone (effect missing)"));
+}
+
+/* A recipe of a native type shows the native Image Control icon of the type
+   (NATIVE_TYPE_ICONS). A type without an icon on the camera, or a type
+   after the table, and Film Look Off show the recipe tile. */
+static void the_recipe_page_shows_native_type_icons(void)
+{
+    static const u16 icons[NATIVE_TYPES] = {NATIVE_TYPE_ICONS};
+    u32 missing = NATIVE_TYPES;
+    reset();
+    install_page(4, "Recipes", 0, 0, GRKU_CORE_RECIPE, 19);
+    test_header[GRKU_HOST_CAPABILITIES / 4] |= GRKU_CORE_RECIPE_BIT;
+    test_header[GRKU_HOST_SERVICES / 4] = TEST_SERVICES;
+    test_header[GRKU_HOST_ACTIVE / 4] = 0;
+    /* GR III has no Cinema types, GR IV 1.11 no Solarization; GR IV 1.20
+       has an icon for each type. */
+    for (u32 t = 0; t < NATIVE_TYPES; ++t)
+        if (!icons[t] && missing == NATIVE_TYPES) missing = t;
+    header_recipe(0, "Standard", RECIPE_USED);
+    header_recipe(1, "Missing", RECIPE_USED);
+    header_recipe(2, "Off", RECIPE_USED | RECIPE_LOOK_OFF);
+    for (u32 i = 0; i < 2; ++i)
+        test_header[GRKU_HOST_RECIPES / 4 + i * GRKU_RECIPE_WORDS + RECIPE_NATIVE_WORD] =
+            ((i ? missing : 0U) + 1U) << NATIVE_TYPE_SHIFT;
+    test_header[GRKU_HOST_MENU_LEVEL / 4] = MENU_ROOT;
+    test_header[GRKU_HOST_MENU_CURSOR / 4] = GRAIN_ROW;
+    menu_confirm(test_header);
+    assert(count(test_header) == 4);
+    assert(icons[0] && icons[0] < 0x7000U);
+    assert(CURRENT_ICON(0) == icons[0]);
+    assert(CURRENT_ICON(1) == GRAIN_TILE(3));
+    assert(CURRENT_ICON(2) == GRAIN_TILE(3));
+    assert(CURRENT_ICON(3) == GRAIN_TILE(2));
+}
+
 static void invalid_cursors_form_no_effect_pointer(void)
 {
     adj_pages_start(CROP_RATIO);
@@ -1608,7 +1973,7 @@ static void the_date_imprint_settings_page_reads_and_stores_values(void)
 static void install_module_list(void)
 {
     u32 entry;
-    _Static_assert(MANAGE_STRIDE == 56 && MANAGE_HEADER == 20, "The test list matches manage.h");
+    _Static_assert(MANAGE_STRIDE == 56 && MANAGE_HEADER == 24, "The test list matches manage.h");
     settings_memory[0] = 12;
     for (u32 i = 0; i < 3; ++i) {
         settings_memory[2 + (3 + 3 * i) * 3 + 1] = 0;
@@ -2475,6 +2840,178 @@ static void group_back_keeps_the_shared_native_parent_return_target(void)
     assert(MENU_OBJECT_WORD(controller, SETTINGS_RETURN_TARGET) == 0x10000000U);
 }
 
+/* The MENU page of Recipes (runtime/menu_recipes.h): Enable, Options,
+   Recipes, whose value page lists the recipes and shows the page of the
+   recipe that OK chooses, then Save Settings. */
+static void the_recipes_menu_page_chooses_a_recipe_then_an_action(void)
+{
+    install_menu_pages();
+    volatile u32 *h = test_header, *menu = services_word(h, SERVICES_MENU), *block = settings_block(h);
+    volatile u32 *state = menu + MENU_ROWS_PAGE_STATE / 4;
+    const u32 buffer = TEST_OBJECTS + 0x200U, controller = TEST_OBJECTS + 0x800U;
+    install_page(4, "Recipes", 0, 0, GRKU_CORE_RECIPE, 19);
+    h[GRKU_HOST_CAPABILITIES / 4] |= GRKU_CORE_RECIPE_BIT;
+    h[GRKU_HOST_ACTIVE / 4] = 0;
+    h[GRKU_HOST_GRAIN / 4] = 3;
+    /* The own page without a canvas shows no box. */
+    MENU_OBJECT_WORD(controller, ADJ_CANVAS) = 0;
+    header_recipe(0, "Far Away", RECIPE_USED | RECIPE_HIDDEN | RECIPE_LOOK_OFF | RECIPE_GRAIN | 4U << RECIPE_GRAIN_LEVEL_SHIFT);
+    header_recipe(1, "Street", RECIPE_USED | RECIPE_LOOK_OFF | RECIPE_GRAIN);
+    header_recipe(2, "Corner", RECIPE_USED | RECIPE_LOOK_OFF | RECIPE_GRAIN | 2U << RECIPE_GRAIN_LEVEL_SHIFT);
+    /* A recipe that is off stays for the site: no list of the camera has it. */
+    header_recipe(3, "Archive", RECIPE_USED | RECIPE_LOOK_OFF);
+    h[GRKU_HOST_RECIPES / 4 + 3 * GRKU_RECIPE_WORDS + RECIPE_MODULE_WORD] = RECIPE_OFF;
+    menu[MENU_ROWS_LISTED / 4] = 0;
+    menu[MENU_ROWS_PAGE / 4] = 4;
+    /* The Options row shows as the manifest declares it (options = true). */
+    settings_open(h, LISTED_PAGE, 0);
+    assert(settings_rows(h) == 4 && same(listed_label(h, 1), "Recipes"));
+    menu[MENU_ROWS_CURRENT / 4] = SETTINGS_SUBMENU;
+    *page_at(TEST_PAGE + 4 * TEST_PAGE_SIZE + PAGE_FLAGS) |= CHOICE_OPTIONS;
+    *state = 7;
+    assert(menu_settings_controller(SETTINGS_SUBMENU) == SETTINGS_SUBMENU);
+    /* A start of the settings page clears the state of the value page. */
+    assert(!*state);
+    const Setting *page = settings_page(h);
+    assert(settings_rows(h) == 5 && same(listed_label(h, 1), "Options"));
+    assert(same(listed_label(h, 2), "Recipes") && same(listed_label(h, 3), "Mode Dial"));
+    assert(same(listed_label(h, 4), "Save Settings") && same(listed_text(h, 4, 0), "3/40"));
+    /* Options: each recipe, on while ADJ shows it. OK turns it on or off. */
+    assert(options_count(h) == 3 && option_off(h, 0) && !option_off(h, 1));
+    assert(same(option_label(h, 1), "Street"));
+    listed_set(h, 1, 0);
+    assert(recipe_shown(h, 0));
+    listed_set(h, 1, 0);
+    assert(!recipe_shown(h, 0));
+    menu[MENU_ROWS_STAY / 4] = 0;
+    /* Recipes and Mode Dial show on the own value page; Save acts at OK. */
+    for (u32 row = 0; row < 5; ++row) {
+        u32 flags = settings_flags(h, page, row);
+        assert(!!(flags & SETTING_OWN_PAGE) == (row == 2 || row == 3));
+        assert(settings_long(h, page, row) == (row >= 1 && row <= 3));
+        assert(!!(flags & SETTING_ACTION) == (row == 4));
+    }
+    assert(listed_setting(h, 0) == 0 && listed_setting(h, 1) == 0);
+    assert(menu_settings_row_controller(settings_pages[0], 4) == MENU_ACTION_TARGET + 4);
+    assert(block[SUBMENU_KIND_CONTROLLERS / 4 + 2] == settings_pages[2]);
+    assert(block[SUBMENU_KIND_CONTROLLERS / 4 + 3] == settings_pages[3]);
+    /* Mode Dial (runtime/menu_dial.h): the row shows no value, and its list
+       has no mark. The values of U1 have U1 as the title, Save Settings,
+       None, GRKU Off, and each recipe that is on, with the mark and the
+       cursor on None. */
+    const Setting *dial = listed_setting(h, 3);
+    assert(listed_get(h, 3) == DIAL_NO_MARK && same(listed_text(h, 3, listed_get(h, 3)), ""));
+    assert(listed_values(h, 3) == 3 && same(listed_text(h, 3, 0), "U1: None") && !dial->title(h));
+    assert(dial->select(h, 0, 0) && *state == DIAL_PAGE_SHOWN);
+    assert(listed_values(h, 3) == 6 && same(listed_text(h, 3, 0), "Save Settings"));
+    assert(same(listed_text(h, 3, 1), "None") && same(listed_text(h, 3, 2), "GRKU Off"));
+    assert(same(listed_text(h, 3, 3), "Far Away") && same(listed_text(h, 3, 5), "Corner"));
+    assert(menu_settings_current(1, 0, 3) == 2 && menu_settings_current(4, 0, 3) == 1);
+    assert(menu_settings_current(0, 0, 3) == 1);
+    menu[MENU_ROWS_CURRENT / 4] = settings_pages[3];
+    assert(settings_text(h, 0, settings_row_texts[3]) == (u32)services_word(h, SERVICES_MENU + MENU_ROWS_PAGE_TEXTS) + 1U);
+    assert(same(dial->title(h), "U1"));
+    menu[MENU_ROWS_CURRENT / 4] = SETTINGS_SUBMENU;
+    /* A half-press confirms the value under the cursor with the native set,
+       which sets nothing, and on Save Settings saves nothing. OK sets it and
+       returns to the list. */
+    assert(menu_settings_apply(4, 0, 3) && h[GRKU_HOST_RECIPE_DIAL / 4] == GRKU_RECIPE_DIAL_FOLLOW);
+    assert(menu_settings_apply(DIAL_VALUE_SAVE, 0, 3) && h[GRKU_HOST_RECIPE_DIAL / 4] == GRKU_RECIPE_DIAL_FOLLOW);
+    assert(!h[GRKU_HOST_DIAL_SET_CHANGES / 4] && !dial_has_set(h, 1));
+    assert(dial->select(h, 0, 4) && *state == 1 && h[GRKU_HOST_RECIPE_DIAL / 4] == *recipe_id_at(h, 1));
+    assert(same(listed_text(h, 3, 0), "U1: Street"));
+    assert(dial->select(h, 0, 0) && dial->select(h, 0, DIAL_VALUE_NONE));
+    assert(h[GRKU_HOST_RECIPE_DIAL / 4] == GRKU_RECIPE_DIAL_FOLLOW);
+    *state = 0;
+    const Setting *recipes = listed_setting(h, 2);
+    /* The list has each recipe, also one that ADJ does not show. Without a
+       recipe that the settings match, the row shows no value, the page has
+       no mark, and the cursor is on the first recipe. */
+    assert(listed_values(h, 2) == 3 && same(listed_text(h, 2, 0), "Far Away") && same(listed_text(h, 2, 2), "Corner"));
+    assert(listed_get(h, 2) == RECIPE_NONE && same(listed_text(h, 2, listed_get(h, 2)), ""));
+    assert(recipes->cursor(h) == 0 && !recipes->title(h));
+    /* Grain 2 matches Corner: the row shows it, and the list has the mark
+       and the cursor on it. */
+    h[GRKU_HOST_GRAIN / 4] = 2;
+    assert(listed_get(h, 2) == 2 && recipes->cursor(h) == 2 && same(listed_text(h, 2, 2), "Corner"));
+    assert(menu_settings_current(2, 0, 2) == 2 && menu_settings_current(1, 0, 2) == 1);
+    /* MENU lists the recipes that ADJ does not show, so its mark can be on
+       one of them, while ADJ names the first recipe that it shows. */
+    volatile u32 *far = h + GRKU_HOST_RECIPES / 4;
+    far[0] = (far[0] & ~(7U << RECIPE_GRAIN_LEVEL_SHIFT)) | 2U << RECIPE_GRAIN_LEVEL_SHIFT;
+    assert(listed_get(h, 2) == 0 && recipes->cursor(h) == 0 && same(recipe_menu_value(h), "Far Away"));
+    assert(recipe_current(h) == 2);
+    far[0] = (far[0] & ~(7U << RECIPE_GRAIN_LEVEL_SHIFT)) | 4U << RECIPE_GRAIN_LEVEL_SHIFT;
+    assert(listed_get(h, 2) == 2);
+    /* MENU on the list returns to the page as MENU does. */
+    assert(!recipes->select(h, 0, SETTING_BACK) && !recipes->select(h, 0, 3));
+    /* OK on Street shows its page: its name, Apply, Rename, and Delete,
+       the cursor on Apply and no mark. */
+    assert(recipes->select(h, 0, 1));
+    assert(*state == (RECIPE_PAGE_SHOWN | 1U) && same(recipes->title(h), "Street"));
+    assert(listed_values(h, 2) == 3 && same(listed_text(h, 2, 0), "Apply"));
+    assert(same(listed_text(h, 2, 1), "Rename") && same(listed_text(h, 2, 2), "Delete"));
+    assert(recipes->cursor(h) == 0 && recipes->get(h) == RECIPE_NONE);
+    menu[MENU_ROWS_CURRENT / 4] = settings_pages[2];
+    assert(settings_text(h, 0, settings_row_texts[2]) == (u32)services_word(h, SERVICES_MENU + MENU_ROWS_PAGE_TEXTS) + 1U);
+    menu[MENU_ROWS_CURRENT / 4] = SETTINGS_SUBMENU;
+    /* MENU returns to the list with the cursor on Street, which the
+       settings do not match. */
+    assert(recipes->select(h, 0, SETTING_BACK));
+    assert(*state == 2 && recipes->cursor(h) == 1 && listed_get(h, 2) == 2 && same(listed_text(h, 2, 1), "Street"));
+    /* Rename: the return from the keyboard names the recipe after an OK,
+       keeps the name after MENU, and the page shows the new name. The
+       change from the keyboard calls the callback (ui_keyboard_change); a
+       host pointer does not fit the services word, so the test calls it. */
+    assert(recipes->select(h, 0, 1));
+    ui_word(h, UI_KEYBOARD)[0] = UI_KEYBOARD_ARMED;
+    assert(menu_keyboard_text_in(0, buffer));
+    for (u32 i = 0; i < 7; ++i) BYTE(buffer, i) = (u8)"Night"[i];
+    assert(menu_keyboard_text_out(0, buffer));
+    recipe_menu_renamed(1);
+    assert(same(recipes->title(h), "Night"));
+    ui_word(h, UI_KEYBOARD_RESULT)[0] = 0;
+    recipe_menu_renamed(1);
+    assert(same(recipes->title(h), "Night") && *state == (RECIPE_PAGE_SHOWN | 1U));
+    ui_word(h, UI_KEYBOARD)[0] = UI_KEYBOARD_ARMED;
+    ui_keyboard_change(h, KEYBOARD_CONTROLLER);
+    assert(ui_keyboard_borrowed(h));
+    ui_keyboard_change(h, settings_pages[2]);
+    assert(!ui_keyboard_borrowed(h));
+    /* The page keeps the settings while the keyboard that it opened shows. */
+    ui_word(h, UI_KEYBOARD)[0] = UI_KEYBOARD_ARMED;
+    assert(menu_settings_controller(KEYBOARD_CONTROLLER) == KEYBOARD_CONTROLLER);
+    assert(h[GRKU_HOST_SETTINGS / 4] == LISTED_PAGE + 1);
+    ui_word(h, UI_KEYBOARD)[0] = 0;
+    menu[MENU_ROWS_CURRENT / 4] = SETTINGS_SUBMENU;
+    /* Apply applies the recipe and returns to the Recipes page, whose row
+       shows it. */
+    assert(recipes->select(h, 0, 0));
+    assert(h[GRKU_HOST_GRAIN / 4] == 0 && recipe_undo_count(h) == 1 && !*state);
+    assert(listed_get(h, 2) == 1 && same(listed_text(h, 2, listed_get(h, 2)), "Night"));
+    /* Delete asks first: Cancel keeps the recipe, and Execute returns to
+       the list with the cursor on the recipe after it. */
+    assert(recipes->select(h, 0, 1) && recipes->select(h, controller, 2));
+    recipe_menu_deleted(0, 1);
+    assert(recipe_entries(h) == 3 && *state == (RECIPE_PAGE_SHOWN | 1U));
+    recipe_menu_deleted(1, 1);
+    assert(recipe_entries(h) == 2 && *state == 2 && recipes->cursor(h) == 1 && same(listed_text(h, 2, 1), "Corner"));
+    /* The last recipe: the cursor goes to the one before it. */
+    assert(recipes->select(h, 0, 1) && recipes->select(h, controller, 2));
+    recipe_menu_deleted(1, 1);
+    assert(recipe_entries(h) == 1 && *state == 1 && recipes->cursor(h) == 0);
+    /* After the last recipe, the page returns to the Recipes page, which
+       has Enable and Save Settings. */
+    assert(recipes->select(h, 0, 0) && recipes->select(h, controller, 2));
+    recipe_menu_deleted(1, 0);
+    assert(!recipe_entries(h) && !*state && recipe_count(h) == 1);
+    settings_open(h, LISTED_PAGE, 0);
+    assert(settings_rows(h) == 3 && same(listed_label(h, 1), "Mode Dial"));
+    assert(settings_flags(h, listed_settings, 1) == SETTING_OWN_PAGE);
+    assert(same(listed_label(h, 2), "Save Settings") && settings_flags(h, listed_settings, 2) == SETTING_ACTION);
+    menu[MENU_ROWS_CURRENT / 4] = SETTINGS_SUBMENU;
+}
+
 /* A camera whose MENU has another controller ID, as GR IV: the parent page
    returns to the controller that the submenu holds, not to the one of GR III,
    which is another screen there. */
@@ -2670,6 +3207,17 @@ static void the_options_page_shows_checkboxes(void)
     assert(check[CHECK_PAGE / 4] == TEST_CHECK_PAGE && !check[CHECK_BUILD / 4]);
     view_calls = 0;
     assert(menu_check_controller(0, pages[1]) == TEST_CHECK_PAGE && !view_calls);
+    /* Each open sets the title ID of the page again: own pages share one
+       title ID, so the title measures the text of this page. */
+    const u32 title = TEST_OBJECTS + 0x3c00U;
+    MENU_OBJECT_WORD(TEST_CHECK_PAGE, SELECT_TITLE_STRING) = title;
+    MENU_OBJECT_HALF(title, STRING_VIEW_TEXT) = 0x217;
+    assert(menu_check_controller(0, pages[1]) == TEST_CHECK_PAGE);
+    assert(view_calls == 2 && view_functions[0] == FW_STRING_VIEW_RESET && view_args[0][0] == title &&
+           !view_args[0][1] && view_functions[1] == FW_STRING_VIEW_RESET && view_args[1][0] == title &&
+           view_args[1][1] == 0x217 && !view_args[1][2]);
+    MENU_OBJECT_WORD(TEST_CHECK_PAGE, SELECT_TITLE_STRING) = 0;
+    MENU_OBJECT_HALF(title, STRING_VIEW_TEXT) = 0;
     /* A native list keeps its radio rows. */
     MENU_OBJECT_BYTE(TEST_CHECK_KINDS, 0) = 0x15;
     menu_check_lines(TEST_OBJECTS + 0x3400, TEST_CHECK_KINDS, 1, 50);
@@ -2877,6 +3425,785 @@ static void each_selection_change_counts_once(void)
     assert(h[GRKU_HOST_STATE_CHANGES / 4] == ++n);
 }
 
+/* The mode dial (runtime/mode_dial.h). Listed module 0 is the Recipes
+   module, which uses CORE.RECIPE; listed module 1 runs the other
+   capabilities; handle 12 is the switch Enable GRKU. Two effect records,
+   "a" and "b", are in mapped memory. Recipe 0 (ID 1001) is effect b with Fn
+   adjustments and Grain Strong, recipe 1 (ID 1002) holds only Grain Extra
+   Strong, and recipe 2 (ID 1003) is an effect that is not installed. */
+#define DIAL_P 3U
+#define DIAL_U(u) (DIAL_CODE_U1 + (u) - 1U)
+#define DIAL_SWITCH_HANDLE 12U
+#define DIAL_RECIPES_OFF settings_memory[2 + 3 * 3 + 1]
+#define DIAL_SWITCH_OFF settings_memory[2 + DIAL_SWITCH_HANDLE * 3 + 1]
+#define DIAL_FN 19U
+static u32 dial_record(u32 i) { return TEST_OBJECTS + i * GRKU_RECORD_SIZE; }
+static void dial_reset(void)
+{
+    volatile u32 *h = test_header;
+    const u32 running = GRKU_CORE_TONE_BIT | GRKU_CORE_ASPECT_BIT | GRKU_CORE_GRAIN_BIT | GRKU_CORE_GRAIN_SIZE_BIT;
+    reset();
+    install_module_list();
+    h[GRKU_HOST_SERVICES / 4] = TEST_SERVICES;
+    settings_memory[0] = DIAL_SWITCH_HANDLE + 1;
+    settings_memory[2 + DIAL_SWITCH_HANDLE * 3 + 2] = 2;
+    manage_memory[MANAGE_SWITCH / 4] = DIAL_SWITCH_HANDLE + 1;
+    manage_memory[MANAGE_ENTRY(0) + MANAGE_USES / 4] = GRKU_CORE_RECIPE_BIT;
+    manage_memory[MANAGE_ENTRY(1) + MANAGE_USES / 4] = running;
+    h[GRKU_HOST_CAPABILITIES / 4] = running | GRKU_CORE_RECIPE_BIT;
+    h[GRKU_HOST_RECORDS / 4] = dial_record(0);
+    h[GRKU_HOST_COUNT / 4] = 2;
+    BYTE(dial_record(0), GRKU_RECORD_ID) = 'a';
+    BYTE(dial_record(1), GRKU_RECORD_ID) = 'b';
+    const u32 b = recipe_effect_code(dial_record(1));
+    u32 missing = 1;
+    while (missing == b || missing == recipe_effect_code(dial_record(0))) ++missing;
+    header_recipe(0, "", RECIPE_USED | RECIPE_LOOK_EFFECT | b << RECIPE_CODE_SHIFT | RECIPE_GRAIN | 3U << RECIPE_GRAIN_LEVEL_SHIFT);
+    h[GRKU_HOST_RECIPES / 4 + RECIPE_FN_WORD] = DIAL_FN;
+    header_recipe(1, "", RECIPE_USED | RECIPE_GRAIN | 4U << RECIPE_GRAIN_LEVEL_SHIFT);
+    header_recipe(2, "", RECIPE_USED | RECIPE_LOOK_EFFECT | missing << RECIPE_CODE_SHIFT);
+    for (u32 i = 0; i < 3; ++i) *recipe_id_at(h, i) = 1001 + i;
+    h[GRKU_HOST_RECIPE_DIAL / 4] = 1001;
+    h[GRKU_HOST_RECIPE_DIAL / 4 + 1] = 1002;
+    h[GRKU_HOST_RECIPE_DIAL / 4 + 2] = GRKU_RECIPE_DIAL_OFF;
+    /* The base state: Film Look Off, Grain Weak, and Guides Center. */
+    h[GRKU_HOST_ACTIVE / 4] = 0;
+    h[GRKU_HOST_GRAIN / 4] = 1;
+    GUIDE_STYLE = 2;
+    dial_code = DIAL_P;
+    dial_loaded = 1;
+    dial_timer_ids = dial_timer_ms = dial_timer_cancels = 0;
+}
+/* The firmware applies position `code`. */
+static void dial_to(u32 code)
+{
+    dial_code = code;
+    menu_dial_moved();
+}
+/* The last timer of the dial ends. */
+static void dial_fire(void)
+{
+    assert(services_word(test_header, SERVICES_DIAL + DIAL_TIMER)[0] == dial_timer_ids);
+    ui_timer_fired(0, dial_timer_ids);
+}
+static int dial_base(void)
+{
+    volatile u32 *h = test_header;
+    return !h[GRKU_HOST_ACTIVE / 4] && h[GRKU_HOST_GRAIN / 4] == 1 && GUIDE_STYLE == 2 && !DIAL_SWITCH_OFF &&
+           recipe_fn_read(dial_record(1)) == 0 && !h[GRKU_HOST_STATE_HOLD / 4] &&
+           !services_word(h, SERVICES_DIAL + DIAL_ACTIVE)[0];
+}
+
+static void the_mode_dial_applies_a_user_mode_and_restores_the_base(void)
+{
+    volatile u32 *h = test_header;
+    u32 changes, sets;
+    dial_reset();
+    /* A move starts the timer of the dial; nothing applies before it ends. */
+    dial_to(DIAL_U(1));
+    assert(dial_timer_ids == 1 && dial_timer_ms == DIAL_SETTLE_MS && dial_base());
+    /* U1 applies its recipe without an undo step and holds the state file. */
+    changes = h[GRKU_HOST_STATE_CHANGES / 4];
+    dial_fire();
+    assert(h[GRKU_HOST_ACTIVE / 4] == dial_record(1) && h[GRKU_HOST_GRAIN / 4] == 3);
+    assert(recipe_fn_read(dial_record(1)) == DIAL_FN && !recipe_undo_count(h));
+    assert(h[GRKU_HOST_STATE_HOLD / 4] == 1 && h[GRKU_HOST_STATE_CHANGES / 4] > changes);
+    assert(!services_word(h, SERVICES_DIAL + DIAL_TIMER)[0]);
+    /* Changes in the user mode: Grain Medium, Guides Thirds, and Fn. */
+    setting_store(h, GRKU_CORE_GRAIN, 2);
+    setting_store(h, 0, 1);
+    BYTE(dial_record(0), GRKU_RECORD_PARAMETERS) = 3;
+    /* The firmware applies U1 again: the core acted on it, so nothing
+       changes. */
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(h[GRKU_HOST_GRAIN / 4] == 2 && GUIDE_STYLE == 1);
+    /* U1 to U2 applies U2 at once, on the settings of U1: the recipe holds
+       only Grain. The copy of the base state stays. */
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(h[GRKU_HOST_GRAIN / 4] == 4 && h[GRKU_HOST_ACTIVE / 4] == dial_record(1) && GUIDE_STYLE == 1);
+    assert(h[GRKU_HOST_STATE_HOLD / 4] == 1 && services_word(h, SERVICES_DIAL + DIAL_ACTIVE)[0] == 2);
+    /* P restores each setting of the base state, also the Fn adjustments of
+       each effect, and releases the state file. A setting that did not
+       change writes nothing: Framing keeps the native aspect. */
+    sets = native_sets;
+    changes = h[GRKU_HOST_STATE_CHANGES / 4];
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(dial_base() && BYTE(dial_record(0), GRKU_RECORD_PARAMETERS) == 0);
+    assert(native_sets == sets && !framing_requests);
+    /* The restore counts its changes, so the loader saves the base state. */
+    assert(h[GRKU_HOST_STATE_CHANGES / 4] > changes);
+    assert(services_word(h, SERVICES_DIAL + DIAL_AT)[0] == 0);
+    /* A position that is no user mode leaves the base state as it is. */
+    dial_to(DIAL_P + 2);
+    dial_fire();
+    assert(dial_base());
+}
+
+static void the_mode_dial_acts_once_where_the_dial_stays(void)
+{
+    volatile u32 *h = test_header;
+    u32 first;
+    dial_reset();
+    /* A fast pass P, U1, U2, U3: each move starts the timer again, and only
+       the last one acts. U3 turns GRKU off. */
+    dial_to(DIAL_U(1));
+    first = dial_timer_ids;
+    dial_to(DIAL_U(2));
+    dial_to(DIAL_U(3));
+    assert(dial_timer_cancels == 2 && dial_base());
+    /* A timer that a move replaced does nothing. */
+    ui_timer_fired(0, first);
+    assert(dial_base());
+    dial_fire();
+    assert(DIAL_SWITCH_OFF == 1 && manage_all_off(h) && h[GRKU_HOST_STATE_HOLD / 4] == 1);
+    assert(h[GRKU_HOST_GRAIN / 4] == 1 && !h[GRKU_HOST_ACTIVE / 4]);
+    /* P turns GRKU on again. */
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(dial_base() && !manage_all_off(h));
+    /* While the firmware loads the settings of the user mode, the timer
+       tries again, a bounded number of times, and then gives up. */
+    dial_loaded = 0;
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(dial_timer_ms == DIAL_RETRY_MS && dial_base());
+    for (u32 i = 2; i < DIAL_TRIES; ++i) dial_fire();
+    assert(services_word(h, SERVICES_DIAL + DIAL_TIMER)[0] == dial_timer_ids);
+    dial_fire();
+    assert(!services_word(h, SERVICES_DIAL + DIAL_TIMER)[0] && dial_base());
+    /* The next move tries again from the start. */
+    dial_to(DIAL_U(1));
+    dial_fire();
+    dial_loaded = 1;
+    dial_fire();
+    assert(h[GRKU_HOST_GRAIN / 4] == 3 && h[GRKU_HOST_STATE_HOLD / 4] == 1);
+}
+
+static void the_mode_dial_follows_without_a_recipe_that_applies(void)
+{
+    volatile u32 *h = test_header;
+    dial_reset();
+    /* A user mode that follows changes nothing and holds nothing. */
+    h[GRKU_HOST_RECIPE_DIAL / 4] = GRKU_RECIPE_DIAL_FOLLOW;
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(dial_base());
+    /* So does an ID that no recipe has, as of a deleted recipe, and that of
+       a recipe that is off. */
+    h[GRKU_HOST_RECIPE_DIAL / 4] = 4242;
+    dial_to(DIAL_U(1));
+    dial_to(DIAL_P);
+    dial_fire();
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(dial_base());
+    h[GRKU_HOST_RECIPE_DIAL / 4] = 1002;
+    recipe_at(h, 1)[RECIPE_MODULE_WORD] |= RECIPE_OFF;
+    recipe_at(h, 2)[RECIPE_MODULE_WORD] |= RECIPE_OFF;
+    dial_to(DIAL_P);
+    dial_fire();
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(dial_base());
+    recipe_at(h, 1)[RECIPE_MODULE_WORD] &= ~RECIPE_OFF;
+    recipe_at(h, 2)[RECIPE_MODULE_WORD] &= ~RECIPE_OFF;
+    /* A recipe whose effect is not installed follows too, also with the
+       switch Off, which the core turned On to check the recipe. */
+    DIAL_SWITCH_OFF = 1;
+    manage_off_changed(h);
+    h[GRKU_HOST_RECIPE_DIAL / 4] = 1003;
+    dial_to(DIAL_P);
+    dial_fire();
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(DIAL_SWITCH_OFF == 1 && manage_all_off(h) && !h[GRKU_HOST_STATE_HOLD / 4]);
+    /* From a bound user mode, it restores the base state. */
+    DIAL_SWITCH_OFF = 0;
+    manage_off_changed(h);
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(h[GRKU_HOST_GRAIN / 4] == 4 && h[GRKU_HOST_STATE_HOLD / 4] == 1);
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(dial_base());
+}
+
+static void the_mode_dial_belongs_to_the_recipes_module(void)
+{
+    volatile u32 *h = test_header;
+    dial_reset();
+    /* With the Recipes module Off, the dial does nothing, also at a start. */
+    DIAL_RECIPES_OFF = 1;
+    manage_off_changed(h);
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(dial_base() && !manage_stopped(h, 1));
+    dial_code = DIAL_P;
+    services_word(h, SERVICES_DIAL + DIAL_AT)[0] = 0;
+    dial_timer_ids = 0;
+    dial_code = DIAL_U(1);
+    menu_viewfinder(VIEWFINDER_READY);
+    assert(!dial_timer_ids);
+    /* The switch Off does not stop it: U1 turns GRKU on and applies its
+       recipe, and P turns GRKU off again. */
+    DIAL_RECIPES_OFF = 0;
+    DIAL_SWITCH_OFF = 1;
+    manage_off_changed(h);
+    assert(manage_stopped(h, 0) && manage_stopped(h, 1) && !h[GRKU_HOST_CAPABILITIES / 4]);
+    dial_to(DIAL_P);
+    dial_fire();
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(!DIAL_SWITCH_OFF && !manage_stopped(h, 1));
+    assert(h[GRKU_HOST_ACTIVE / 4] == dial_record(1) && h[GRKU_HOST_GRAIN / 4] == 3);
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(DIAL_SWITCH_OFF == 1 && manage_stopped(h, 1) && !h[GRKU_HOST_ACTIVE / 4]);
+    assert(!h[GRKU_HOST_STATE_HOLD / 4]);
+}
+
+static void the_mode_dial_applies_a_user_mode_at_a_start(void)
+{
+    volatile u32 *h = test_header;
+    dial_reset();
+    /* At a start in U1 the firmware sends no dial event: the first
+       shooting screen starts the timer, and its end applies U1. */
+    dial_code = DIAL_U(1);
+    menu_viewfinder(VIEWFINDER_READY);
+    assert(dial_timer_ids == 1 && dial_timer_ms == DIAL_RETRY_MS);
+    dial_fire();
+    assert(h[GRKU_HOST_GRAIN / 4] == 3 && h[GRKU_HOST_STATE_HOLD / 4] == 1);
+    /* A start in P changes nothing. */
+    dial_reset();
+    menu_viewfinder(VIEWFINDER_READY);
+    dial_fire();
+    assert(dial_base());
+}
+
+/* The label of the dial (runtime/mode_dial.h). TEST_LIVE_VIEW is the
+   canvas of the live view. */
+#define TEST_LIVE_VIEW 0x5a000000U
+static u32 label_state(void) { return services_word(test_header, SERVICES_DIAL + DIAL_LABEL)[0]; }
+static u32 label_lines(void) { return services_word(test_header, SERVICES_DIAL + DIAL_LABEL_LINES)[0]; }
+/* Line i of the label is `expected`: line 0 in its own text, a later line
+   as the menu string `id`. */
+static int label_line(u32 i, const char *expected, u32 id)
+{
+    volatile u32 *at = services_word(test_header, SERVICES_DIAL + DIAL_LABEL_TEXTS + 8U * i);
+    const u16 *name = (const u16 *)services_word(test_header, SERVICES_DIAL + DIAL_LABEL_NAME);
+    if (i) return at[1] == (u32)(uintptr_t)text(test_header, id);
+    return at[1] == (u32)(uintptr_t)name && same(name, expected);
+}
+/* The label waits; the live view shows it. */
+static void label_show(void)
+{
+    assert(label_state() == DIAL_LABEL_WAITS);
+    menu_viewfinder(VIEWFINDER_LABEL_SHOW);
+    assert(label_state() == DIAL_LABEL_SHOWN && dial_timer_ms == DIAL_LABEL_MS);
+}
+static void label_reset(void)
+{
+    dial_reset();
+    test_header[GRKU_HOST_FRAME_CANVAS / 4] = TEST_LIVE_VIEW;
+    recipe_name_set(test_header, 0, (const volatile u8 *)"Street");
+    label_made = label_removed = label_parent = 0;
+}
+
+static void the_mode_dial_labels_what_a_user_mode_applies(void)
+{
+    volatile u32 *h = test_header;
+    u32 view, other;
+    label_reset();
+    /* No label before the dial acts. */
+    menu_viewfinder(VIEWFINDER_LABEL_SHOW);
+    assert(label_state() == DIAL_LABEL_NONE && !label_made);
+    /* U1 applies its recipe: the label waits for the live view with the
+       user mode and the recipe name. */
+    dial_to(DIAL_U(1));
+    assert(label_state() == DIAL_LABEL_NONE);
+    dial_fire();
+    assert(label_state() == DIAL_LABEL_WAITS && label_lines() == 1 && label_line(0, "U1: Street", 0) && !label_made);
+    /* The live view shows it: one string view on its canvas, and the text
+       hook gives the line in the font of the menu language for that view
+       only. */
+    label_show();
+    view = 0x7001U;
+    assert(label_made == 1 && label_parent == TEST_LIVE_VIEW && label_tops[0] == DIAL_LABEL_TOP);
+    assert(menu_text_override(view, SETTINGS_TITLE_TEXT) ==
+           ((u32)(uintptr_t)services_word(h, SERVICES_DIAL + DIAL_LABEL_TEXTS) | 1U));
+    assert(menu_text_override(view, SETTINGS_TITLE_TEXT + 1U) != menu_text_override(view, SETTINGS_TITLE_TEXT));
+    assert(!dial_label_text(h, view + 1U, SETTINGS_TITLE_TEXT));
+    /* A second show changes nothing; the timer ends the label. */
+    menu_viewfinder(VIEWFINDER_LABEL_SHOW);
+    assert(label_made == 1);
+    ui_timer_fired(0, dial_timer_ids);
+    assert(label_state() == DIAL_LABEL_NONE && label_removed == 1 && !dial_label_text(h, view, SETTINGS_TITLE_TEXT));
+    /* GRKU Off. */
+    dial_to(DIAL_U(3));
+    dial_fire();
+    assert(label_lines() == 1 && label_line(0, "U3: GRKU Off", 0));
+    /* A recipe without a name has its automatic name; one whose Grain does
+       not run says so on a second line. */
+    manage_memory[MANAGE_ENTRY(1) + MANAGE_USES / 4] &= ~(GRKU_CORE_GRAIN_BIT | GRKU_CORE_GRAIN_SIZE_BIT);
+    h[GRKU_HOST_CAPABILITIES / 4] &= ~(GRKU_CORE_GRAIN_BIT | GRKU_CORE_GRAIN_SIZE_BIT);
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(label_lines() == 2 && label_line(0, "U2: Recipe", 0) && label_line(1, 0, RECIPE_TEXT_NO_GRAIN));
+    /* A module setting of a module that is not loaded: a line for it. */
+    recipe_at(h, 1)[RECIPE_MODULE_WORD] |= (1U | 2U << 1) << (RECIPE_MODULE_BITS * 0);
+    dial_to(DIAL_U(1));
+    dial_fire();
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(label_lines() == 3 && label_line(1, 0, RECIPE_TEXT_NO_GRAIN) && label_line(2, 0, RECIPE_TEXT_NO_GLOW));
+    label_show();
+    assert(label_made == 4 && label_tops[1] == DIAL_LABEL_TOP && label_tops[2] == DIAL_LABEL_TOP + DIAL_LABEL_HEIGHT &&
+           label_tops[3] == DIAL_LABEL_TOP + 2U * DIAL_LABEL_HEIGHT);
+    other = 0x7004U;
+    assert(menu_text_override(other, SETTINGS_TITLE_TEXT) ==
+           ((u32)(uintptr_t)services_word(h, SERVICES_DIAL + DIAL_LABEL_TEXTS + 16U) | 1U));
+    /* A move to another position ends the label and shows none. */
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(label_state() == DIAL_LABEL_NONE && label_removed == 4);
+    /* A recipe whose effect is missing: the user mode follows, and the
+       label says why under the name. Without a name, the automatic name
+       says it already. */
+    h[GRKU_HOST_RECIPE_DIAL / 4] = 1003;
+    recipe_name_set(h, 2, (const volatile u8 *)"Lost");
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(dial_base() && label_lines() == 2 && label_line(0, "U1: Lost", 0) && label_line(1, 0, RECIPE_TEXT_MISSING));
+    recipe_name_set(h, 2, (const volatile u8 *)"");
+    dial_to(DIAL_P);
+    dial_fire();
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(label_lines() == 1 && label_line(0, "U1: Effect not installed", 0));
+    /* A native value that the camera does not have: the user mode follows
+       too, with a line that says so. */
+    h[GRKU_HOST_RECIPE_DIAL / 4] = 1002;
+    recipe_at(h, 1)[RECIPE_NATIVE_WORD] |= 30U << NATIVE_TYPE_SHIFT;
+    dial_to(DIAL_P);
+    dial_fire();
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(dial_base() && label_lines() == 2 && label_line(0, "U1: Recipe", 0) &&
+           label_line(1, 0, RECIPE_TEXT_UNSUPPORTED));
+    recipe_at(h, 1)[RECIPE_NATIVE_WORD] &= ~(30U << NATIVE_TYPE_SHIFT);
+    /* A user mode that follows shows no label. */
+    h[GRKU_HOST_RECIPE_DIAL / 4] = GRKU_RECIPE_DIAL_FOLLOW;
+    dial_to(DIAL_P);
+    dial_fire();
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(label_state() == DIAL_LABEL_NONE);
+}
+
+static void the_label_of_the_mode_dial_follows_the_live_view(void)
+{
+    volatile u32 *h = test_header;
+    label_reset();
+    /* Without a live view the label waits, as while MENU shows. */
+    h[GRKU_HOST_FRAME_CANVAS / 4] = 0;
+    dial_to(DIAL_U(1));
+    dial_fire();
+    menu_viewfinder(VIEWFINDER_LABEL_SHOW);
+    assert(label_state() == DIAL_LABEL_WAITS && !label_made);
+    /* The live view hides its text: a waiting label ends without views. */
+    menu_viewfinder(VIEWFINDER_LABEL_DROP);
+    assert(label_state() == DIAL_LABEL_NONE && !label_removed);
+    /* A label that shows ends with its views. */
+    h[GRKU_HOST_FRAME_CANVAS / 4] = TEST_LIVE_VIEW;
+    dial_to(DIAL_P);
+    dial_fire();
+    dial_to(DIAL_U(1));
+    dial_fire();
+    label_show();
+    menu_viewfinder(VIEWFINDER_LABEL_DROP);
+    assert(label_state() == DIAL_LABEL_NONE && label_removed == 1 && dial_timer_cancels);
+    /* At a start in a bound user mode. */
+    label_reset();
+    dial_code = DIAL_U(2);
+    menu_viewfinder(VIEWFINDER_READY);
+    dial_fire();
+    assert(label_state() == DIAL_LABEL_WAITS && label_line(0, "U2: Recipe", 0));
+    label_show();
+    /* The Mode Dial page changes the user mode that the dial is on: the new
+       label waits for the return from MENU. */
+    h[GRKU_HOST_FRAME_CANVAS / 4] = 0;
+    dial_assign(h, 1, dial_first_recipe(h, 1) + 0U);
+    assert(label_state() == DIAL_LABEL_WAITS && label_removed == 1 && label_line(0, "U2: Street", 0));
+    dial_assign(h, 1, DIAL_VALUE_OFF);
+    assert(label_line(0, "U2: GRKU Off", 0));
+    /* Another user mode on the page changes no label. */
+    dial_assign(h, 0, DIAL_VALUE_OFF);
+    assert(label_line(0, "U2: GRKU Off", 0));
+    dial_assign(h, 1, DIAL_VALUE_NONE);
+    assert(label_state() == DIAL_LABEL_NONE);
+    /* With the Recipes module Off, no label. */
+    label_reset();
+    DIAL_RECIPES_OFF = 1;
+    manage_off_changed(h);
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(label_state() == DIAL_LABEL_NONE);
+}
+
+/* The Mode Dial page of MENU (runtime/menu_dial.h) shows and sets what each
+   user mode does, and a new value applies at once while the dial is on that
+   user mode. */
+static void the_mode_dial_page_sets_what_each_user_mode_does(void)
+{
+    volatile u32 *h = test_header, *dials = h + GRKU_HOST_RECIPE_DIAL / 4;
+    volatile u32 *state = services_word(h, SERVICES_MENU + MENU_ROWS_PAGE_STATE);
+    const Setting *dial = &recipe_menu_settings[1];
+    u32 changes;
+    dial_reset();
+    recipe_name_set(h, 0, (const volatile u8 *)"Street");
+    recipe_name_set(h, 1, (const volatile u8 *)"Coarse");
+    recipe_name_set(h, 2, (const volatile u8 *)"Lost");
+    *state = 0;
+    /* The list: each user mode with its value, the cursor on U1, no mark,
+       and the row label as the title. */
+    assert(same(dial->label(h), "Mode Dial") && dial->values(h) == 3 && !dial->title(h));
+    assert(same(dial->value_text(h, 0), "U1: Street") && same(dial->value_text(h, 1), "U2: Coarse"));
+    assert(same(dial->value_text(h, 2), "U3: GRKU Off") && same(dial->value_text(h, 3), ""));
+    assert(dial->get(h) == DIAL_NO_MARK && dial->cursor(h) == 0);
+    /* A recipe that the camera does not list shows None, as the dial then
+       follows: a deleted recipe, and one that is off. */
+    dials[1] = 4242;
+    assert(same(dial->value_text(h, 1), "U2: None"));
+    dials[1] = 1002;
+    recipe_at(h, 1)[RECIPE_MODULE_WORD] |= RECIPE_OFF;
+    assert(same(dial->value_text(h, 1), "U2: None"));
+    recipe_at(h, 1)[RECIPE_MODULE_WORD] &= ~RECIPE_OFF;
+    /* MENU on the list returns as MENU does. */
+    assert(!dial->select(h, 0, SETTING_BACK) && !dial->select(h, 0, 3));
+    /* OK on U2: its values, with U2 as the title, the mark and the cursor
+       on its recipe. */
+    assert(dial->select(h, 0, 1) && *state == (DIAL_PAGE_SHOWN | 1U) && same(dial->title(h), "U2"));
+    assert(dial->values(h) == 6 && same(dial->value_text(h, 0), "Save Settings"));
+    assert(same(dial->value_text(h, 1), "None") && same(dial->value_text(h, 2), "GRKU Off"));
+    assert(same(dial->value_text(h, 3), "Street") && same(dial->value_text(h, 5), "Lost"));
+    assert(dial->get(h) == 4 && dial->cursor(h) == 4 && same(dial->value_text(h, 6), ""));
+    /* MENU returns to the list, with the cursor on U2, and changes nothing. */
+    changes = h[GRKU_HOST_RECIPE_CHANGES / 4];
+    assert(dial->select(h, 0, SETTING_BACK) && *state == 2 && dial->cursor(h) == 1 && dial->get(h) == DIAL_NO_MARK);
+    assert(dials[1] == 1002 && h[GRKU_HOST_RECIPE_CHANGES / 4] == changes);
+    /* OK on a value sets it, so the recipe file saves, and returns to the
+       list. The same value again changes nothing. */
+    assert(dial->select(h, 0, 1) && dial->select(h, 0, dial_first_recipe(h, 1)));
+    assert(dials[1] == 1001 && h[GRKU_HOST_RECIPE_CHANGES / 4] == changes + 1 && *state == 2);
+    assert(same(dial->value_text(h, 1), "U2: Street"));
+    assert(dial->select(h, 0, 1) && dial->select(h, 0, dial_first_recipe(h, 1)));
+    assert(h[GRKU_HOST_RECIPE_CHANGES / 4] == changes + 1);
+    /* None follows; a recipe without an ID gets one. */
+    assert(dial->select(h, 0, 1) && dial->select(h, 0, DIAL_VALUE_NONE) && dials[1] == GRKU_RECIPE_DIAL_FOLLOW);
+    *recipe_id_at(h, 2) = 0;
+    assert(dial->select(h, 0, 1) && dial->select(h, 0, dial_first_recipe(h, 1) + 2));
+    assert(dials[1] && dials[1] == *recipe_id_at(h, 2) && dials[1] != 1001 && dials[1] != 1002);
+    assert(dial->select(h, 0, 1) && dial->select(h, 0, DIAL_VALUE_OFF) && dials[1] == GRKU_RECIPE_DIAL_OFF);
+    /* While the dial is elsewhere, a value applies nothing. */
+    assert(dial_base());
+
+    /* The dial on U1: a new value of U1 applies at once, through the same
+       steps as a move of the dial. A value of another user mode does not. */
+    dial_reset();
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(h[GRKU_HOST_GRAIN / 4] == 3 && h[GRKU_HOST_STATE_HOLD / 4] == 1);
+    setting_store(h, 0, 1);
+    assert(dial->select(h, 0, 1) && dial->select(h, 0, DIAL_VALUE_NONE));
+    assert(h[GRKU_HOST_GRAIN / 4] == 3);
+    /* Another recipe for U1 applies on the settings of U1 and keeps the copy
+       of the base state. */
+    assert(dial->select(h, 0, 0) && dial->select(h, 0, dial_first_recipe(h, 0) + 1));
+    assert(dials[0] == 1002 && h[GRKU_HOST_GRAIN / 4] == 4 && GUIDE_STYLE == 1);
+    assert(h[GRKU_HOST_STATE_HOLD / 4] == 1 && services_word(h, SERVICES_DIAL + DIAL_ACTIVE)[0] == 1);
+    /* GRKU Off turns the switch off; None restores the base state. */
+    assert(dial->select(h, 0, 0) && dial->select(h, 0, DIAL_VALUE_OFF));
+    assert(DIAL_SWITCH_OFF == 1 && h[GRKU_HOST_STATE_HOLD / 4] == 1);
+    assert(dial->select(h, 0, 0) && dial->select(h, 0, DIAL_VALUE_NONE));
+    assert(dial_base());
+    /* From None, a recipe takes the copy of the base state, and P restores
+       it. */
+    assert(dial->select(h, 0, 0) && dial->select(h, 0, dial_first_recipe(h, 0)));
+    assert(h[GRKU_HOST_GRAIN / 4] == 3 && h[GRKU_HOST_STATE_HOLD / 4] == 1);
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(dial_base());
+    /* With the Recipes module Off, a new value of U2 applies nothing: the
+       core leaves the user mode, as at a move of the dial. */
+    dial_to(DIAL_U(2));
+    dial_fire();
+    DIAL_RECIPES_OFF = 1;
+    manage_off_changed(h);
+    assert(dial->select(h, 0, 1) && dial->select(h, 0, dial_first_recipe(h, 1)));
+    assert(dials[1] == 1001 && h[GRKU_HOST_GRAIN / 4] == 1 && !h[GRKU_HOST_STATE_HOLD / 4]);
+}
+
+/* The settings that the camera saves in a user mode (runtime/mode_dial.h).
+   Each setting of the table of dial_reset has the state file ID 100 + its
+   handle: the module settings 0 to 2, the Enable, position, and options of
+   listed modules 0 (Recipes) to 2 at 3 to 11, and the switch at 12. */
+#define DIAL_ID(k) (100U + (k))
+static volatile u32 *dial_set_of(u32 u) { return test_header + GRKU_HOST_DIAL_SETS / 4 + (u - 1U) * GRKU_DIAL_SET_WORDS; }
+static void dial_saved_reset(void)
+{
+    dial_reset();
+    for (u32 k = 0; k <= DIAL_SWITCH_HANDLE; ++k) settings_memory[2 + 3 * k] = DIAL_ID(k);
+    test_header[GRKU_HOST_FRAME_CANVAS / 4] = 0;
+    *services_word(test_header, SERVICES_MENU + MENU_ROWS_PAGE_STATE) = 0;
+}
+/* The settings of U2 of the tests: effect b with Fn adjustments and
+   Toning, Framing XPan, Grain Extra Strong of size 2, Guides Thirds, and
+   Date Imprint style 3. */
+static void dial_saved_settings(void)
+{
+    volatile u32 *h = test_header;
+    setting_store(h, GRKU_CORE_TONE, 2);
+    recipe_fn_write(dial_record(1), DIAL_FN);
+    BYTE(dial_record(1), GRKU_RECORD_TONING) = 3;
+    setting_store(h, GRKU_CORE_ASPECT, 1);
+    setting_store(h, GRKU_CORE_GRAIN, 4);
+    setting_store(h, GRKU_CORE_GRAIN_SIZE, 2);
+    setting_store(h, 0, 1);
+    setting_store(h, 1, 3);
+    assert(h[GRKU_HOST_ACTIVE / 4] == dial_record(1) && h[GRKU_HOST_FRAME_RATIO / 4] == 1);
+}
+static int dial_saved_applies(void)
+{
+    volatile u32 *h = test_header;
+    return h[GRKU_HOST_ACTIVE / 4] == dial_record(1) && recipe_fn_read(dial_record(1)) == DIAL_FN &&
+           BYTE(dial_record(1), GRKU_RECORD_TONING) == 3 && h[GRKU_HOST_FRAME_RATIO / 4] == 1 &&
+           h[GRKU_HOST_GRAIN / 4] == 4 && h[GRKU_HOST_GRAIN_SIZE / 4] == 2 && GUIDE_STYLE == 1 && DATE_STYLE == 3;
+}
+/* Back to the base state of dial_base, without a move of the dial. */
+static void dial_saved_base(void)
+{
+    volatile u32 *h = test_header;
+    setting_store(h, GRKU_CORE_TONE, 0);
+    recipe_fn_write(dial_record(1), 0);
+    BYTE(dial_record(1), GRKU_RECORD_TONING) = 0;
+    setting_store(h, GRKU_CORE_ASPECT, 0);
+    setting_store(h, GRKU_CORE_GRAIN, 1);
+    setting_store(h, GRKU_CORE_GRAIN_SIZE, 0);
+    setting_store(h, 0, 2);
+    setting_store(h, 1, 0);
+    assert(dial_base() && DATE_STYLE == 0 && !h[GRKU_HOST_FRAME_RATIO / 4]);
+}
+
+static void the_mode_dial_saves_the_settings_in_a_user_mode(void)
+{
+    volatile u32 *h = test_header, *dials = h + GRKU_HOST_RECIPE_DIAL / 4, *set = dial_set_of(2);
+    volatile u32 *state = services_word(h, SERVICES_MENU + MENU_ROWS_PAGE_STATE);
+    const Setting *dial = &recipe_menu_settings[1];
+    u32 recipes, sets;
+    dial_saved_reset();
+    dial_saved_settings();
+    /* U2 has no set: its values have no Saved Settings. */
+    assert(dial->select(h, 0, 1) && dial->values(h) == 6 && dial_first_recipe(h, 1) == DIAL_VALUE_SAVED);
+    /* OK on Save Settings saves the settings in U2 and gives U2 Saved
+       Settings: the recipe file and the file of the sets save. */
+    recipes = h[GRKU_HOST_RECIPE_CHANGES / 4];
+    sets = h[GRKU_HOST_DIAL_SET_CHANGES / 4];
+    assert(dial->select(h, 0, DIAL_VALUE_SAVE) && *state == 2);
+    assert(dials[1] == GRKU_RECIPE_DIAL_SAVED && h[GRKU_HOST_RECIPE_CHANGES / 4] == recipes + 1);
+    assert(h[GRKU_HOST_DIAL_SET_CHANGES / 4] == sets + 1 && same(dial->value_text(h, 1), "U2: Saved Settings"));
+    /* The set: the effect by its code with its Fn adjustments and Toning,
+       each capability, and by ID the module settings, the Enable of each
+       module but that of the Recipes module, and the switch. No position,
+       options, or kept value. */
+    const u32 ids[] = {DIAL_ID(0), DIAL_ID(1), DIAL_ID(2), DIAL_ID(6), DIAL_ID(9), DIAL_ID(DIAL_SWITCH_HANDLE)};
+    const u32 values[] = {1, 3, 0, 0, 0, 0};
+    assert(set[GRKU_DIAL_SET_COUNT] == 6 + 1);
+    for (u32 i = 0; i < 6; ++i)
+        assert(set[GRKU_DIAL_SET_PAIR + 2 * i] == ids[i] && set[GRKU_DIAL_SET_PAIR + 2 * i + 1] == values[i]);
+    assert(!set[GRKU_DIAL_SET_PAIR + 12] && !set[GRKU_DIAL_SET_PAIR + 13]);
+    assert(set[GRKU_DIAL_SET_CORE] == (GRKU_DIAL_SET_EFFECT | recipe_effect_code(dial_record(1))));
+    assert(set[GRKU_DIAL_SET_FN] == DIAL_FN && set[GRKU_DIAL_SET_TONING] == 3);
+    assert(set[GRKU_DIAL_SET_CORE + 1] == 1 && set[GRKU_DIAL_SET_CORE + 2] == 4 && set[GRKU_DIAL_SET_CORE + 3] == 2);
+    /* The dial is at P: nothing applies. U2 now lists Saved Settings, with
+       the mark on it, before the recipes. */
+    assert(!h[GRKU_HOST_STATE_HOLD / 4] && !services_word(h, SERVICES_DIAL + DIAL_ACTIVE)[0]);
+    assert(dial->select(h, 0, 1) && dial->values(h) == 7 && dial->get(h) == DIAL_VALUE_SAVED);
+    assert(same(dial->value_text(h, DIAL_VALUE_SAVED), "Saved Settings") && same(dial->value_text(h, 5), "Recipe"));
+    /* A recipe for U2 keeps the set, so Saved Settings comes back. */
+    assert(dial->select(h, 0, dial_first_recipe(h, 1)) && dials[1] == 1001 && dial_has_set(h, 2));
+    assert(dial->select(h, 0, 1) && dial->get(h) == 4 && dial->select(h, 0, DIAL_VALUE_SAVED));
+    assert(dials[1] == GRKU_RECIPE_DIAL_SAVED && set[GRKU_DIAL_SET_COUNT] == 7);
+    /* Save Settings again replaces the set; the value stays, so the recipe
+       file does not save. */
+    setting_store(h, 0, 4);
+    recipes = h[GRKU_HOST_RECIPE_CHANGES / 4];
+    set[GRKU_DIAL_SET_PAIR + 12] = 77;
+    assert(dial->select(h, 0, 1) && dial->select(h, 0, DIAL_VALUE_SAVE));
+    assert(set[GRKU_DIAL_SET_PAIR + 1] == 4 && h[GRKU_HOST_DIAL_SET_CHANGES / 4] == sets + 2);
+    assert(set[GRKU_DIAL_SET_COUNT] == 7 && !set[GRKU_DIAL_SET_PAIR + 12]);
+    assert(h[GRKU_HOST_RECIPE_CHANGES / 4] == recipes && dials[1] == GRKU_RECIPE_DIAL_SAVED);
+    /* A setting that the state file does not save (ID 0) and a value that
+       the table keeps for a module that did not load stay out of a set. */
+    settings_memory[2 + 3 * 2] = 0;
+    settings_memory[0] = DIAL_SWITCH_HANDLE + 2;
+    settings_memory[2 + 3 * (DIAL_SWITCH_HANDLE + 1)] = DIAL_ID(DIAL_SWITCH_HANDLE + 1);
+    settings_memory[2 + 3 * (DIAL_SWITCH_HANDLE + 1) + 2] = 2;
+    dial_save(h, 3);
+    assert(dial_set_of(3)[GRKU_DIAL_SET_COUNT] == 5 + 1 && dial_set_of(3)[GRKU_DIAL_SET_PAIR + 4] == DIAL_ID(6));
+    assert(dial_set_of(3)[GRKU_DIAL_SET_PAIR + 8] == DIAL_ID(DIAL_SWITCH_HANDLE));
+    settings_memory[0] = DIAL_SWITCH_HANDLE + 1;
+    /* A set whose count no set has is no set: U2 follows, and shows None. */
+    set[GRKU_DIAL_SET_COUNT] = GRKU_DIAL_SET_PAIRS + 2;
+    assert(!dial_has_set(h, 2) && same(dial->value_text(h, 1), "U2: None"));
+    set[GRKU_DIAL_SET_COUNT] = 0;
+    assert(same(dial->value_text(h, 1), "U2: None"));
+}
+
+static void the_mode_dial_applies_saved_settings_and_restores_the_base(void)
+{
+    volatile u32 *h = test_header;
+    const Setting *dial = &recipe_menu_settings[1];
+    u32 table, requests;
+    dial_saved_reset();
+    dial_saved_settings();
+    assert(dial->select(h, 0, 1) && dial->select(h, 0, DIAL_VALUE_SAVE));
+    dial_saved_base();
+    /* U2 applies each value of its set that differs, through the setters,
+       holds the state file, and labels it. Date LOOK did not change, so
+       the table counts two changes. */
+    table = settings_memory[1];
+    requests = framing_requests;
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(dial_saved_applies() && h[GRKU_HOST_STATE_HOLD / 4] == 1 && settings_memory[1] == table + 2);
+    assert(framing_requests > requests && !recipe_undo_count(h));
+    assert(label_state() == DIAL_LABEL_WAITS && label_lines() == 1 && label_line(0, "U2: Saved Settings", 0));
+    /* Changes in U2 are temporary; P restores the base state. */
+    setting_store(h, 2, 2);
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(dial_base() && DATE_STYLE == 0 && DATE_LOOK == 0 && !h[GRKU_HOST_FRAME_RATIO / 4]);
+    assert(BYTE(dial_record(1), GRKU_RECORD_TONING) == 0 && !h[GRKU_HOST_GRAIN_SIZE / 4]);
+    /* A second visit applies only what differs: nothing, when the settings
+       are those of the set. */
+    dial_saved_settings();
+    table = settings_memory[1];
+    requests = framing_requests;
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(dial_saved_applies() && settings_memory[1] == table && framing_requests == requests);
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(dial_saved_applies() && !h[GRKU_HOST_STATE_HOLD / 4]);
+    dial_saved_base();
+    /* From U2 to another user mode, the base state comes first: U1 applies
+       its recipe (effect b, Grain Strong) on the base state, so Framing,
+       Guides, and Date do not carry over. U3 turns GRKU off on it too. */
+    dial_to(DIAL_U(2));
+    dial_fire();
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(h[GRKU_HOST_ACTIVE / 4] == dial_record(1) && h[GRKU_HOST_GRAIN / 4] == 3);
+    assert(GUIDE_STYLE == 2 && DATE_STYLE == 0 && !h[GRKU_HOST_FRAME_RATIO / 4] && h[GRKU_HOST_STATE_HOLD / 4] == 1);
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(dial_saved_applies());
+    dial_to(DIAL_U(3));
+    dial_fire();
+    assert(DIAL_SWITCH_OFF == 1 && GUIDE_STYLE == 2 && h[GRKU_HOST_GRAIN / 4] == 1 && !h[GRKU_HOST_FRAME_RATIO / 4]);
+    /* From a recipe, U2 applies its whole set. */
+    dial_to(DIAL_U(1));
+    dial_fire();
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(dial_saved_applies() && !DIAL_SWITCH_OFF);
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(dial_base() && DATE_STYLE == 0);
+    /* At a start in U2, the first shooting screen applies it. */
+    services_word(h, SERVICES_DIAL + DIAL_AT)[0] = 0;
+    dial_code = DIAL_U(2);
+    menu_viewfinder(VIEWFINDER_READY);
+    dial_fire();
+    assert(dial_saved_applies() && h[GRKU_HOST_STATE_HOLD / 4] == 1);
+    /* Save Settings on the user mode that the dial is on applies at once:
+       with the settings of the set, nothing changes, and the label waits. */
+    dial_to(DIAL_P);
+    dial_fire();
+    dial_saved_settings();
+    h[GRKU_HOST_RECIPE_DIAL / 4] = GRKU_RECIPE_DIAL_FOLLOW;
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(!h[GRKU_HOST_STATE_HOLD / 4] && label_state() == DIAL_LABEL_NONE);
+    assert(dial->select(h, 0, 0) && dial->select(h, 0, DIAL_VALUE_SAVE));
+    assert(h[GRKU_HOST_STATE_HOLD / 4] == 1 && services_word(h, SERVICES_DIAL + DIAL_ACTIVE)[0] == 1);
+    assert(dial_saved_applies() && label_line(0, "U1: Saved Settings", 0));
+    /* Saved Settings without a set follows; Save Settings there makes the
+       set, which applies at once although the value stays. */
+    dial_to(DIAL_P);
+    dial_fire();
+    dial_set_of(1)[GRKU_DIAL_SET_COUNT] = 0;
+    dial_to(DIAL_U(1));
+    dial_fire();
+    assert(!h[GRKU_HOST_STATE_HOLD / 4] && h[GRKU_HOST_RECIPE_DIAL / 4] == GRKU_RECIPE_DIAL_SAVED);
+    assert(dial->select(h, 0, 0) && dial->select(h, 0, DIAL_VALUE_SAVE));
+    assert(h[GRKU_HOST_STATE_HOLD / 4] == 1 && dial_has_set(h, 1));
+}
+
+static void saved_settings_skip_what_the_camera_does_not_have(void)
+{
+    volatile u32 *h = test_header, *set = dial_set_of(2);
+    const Setting *dial = &recipe_menu_settings[1];
+    u32 missing = 1;
+    dial_saved_reset();
+    dial_saved_settings();
+    assert(dial->select(h, 0, 1) && dial->select(h, 0, DIAL_VALUE_SAVE));
+    dial_saved_base();
+    /* A setting that the table no longer holds is skipped: the ID of Date
+       STYLE is another one now. So is a value that a setting does not
+       offer. The others apply. */
+    settings_memory[2 + 3 * 1] = 999;
+    set[GRKU_DIAL_SET_PAIR + 1] = 6;
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(DATE_STYLE == 0 && GUIDE_STYLE == 2 && h[GRKU_HOST_GRAIN / 4] == 4 && h[GRKU_HOST_FRAME_RATIO / 4] == 1);
+    assert(label_lines() == 1);
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(dial_base());
+    /* An effect that is not installed: Film Look is Off, and the label says
+       so. The Fn adjustments of no record change. */
+    while (missing == recipe_effect_code(dial_record(0)) || missing == recipe_effect_code(dial_record(1))) ++missing;
+    set[GRKU_DIAL_SET_CORE] = GRKU_DIAL_SET_EFFECT | missing;
+    setting_store(h, GRKU_CORE_TONE, 1);
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(!h[GRKU_HOST_ACTIVE / 4] && recipe_fn_read(dial_record(0)) == 0 && recipe_fn_read(dial_record(1)) == 0);
+    assert(label_lines() == 2 && label_line(0, "U2: Saved Settings", 0) && label_line(1, 0, RECIPE_TEXT_MISSING));
+    /* P restores the effect of the base state. */
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(h[GRKU_HOST_ACTIVE / 4] == dial_record(0));
+    /* The set holds the Enable of a module: U2 turns module 1 off, and P
+       turns it on again. The Enable of the Recipes module stays out, so a
+       set never stops the dial. */
+    setting_store(h, GRKU_CORE_TONE, 0);
+    set[GRKU_DIAL_SET_CORE] = 0;
+    set[GRKU_DIAL_SET_PAIR + 7] = 1;
+    set[GRKU_DIAL_SET_PAIR + 2 * 6] = DIAL_ID(3);
+    set[GRKU_DIAL_SET_PAIR + 2 * 6 + 1] = 1;
+    set[GRKU_DIAL_SET_COUNT] = 8;
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(manage_stopped(h, 1) && !DIAL_RECIPES_OFF && dial_enabled(h));
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(!manage_stopped(h, 1) && dial_base());
+}
+
 static void record_index_finds_each_record_start(void)
 {
     reset();
@@ -2994,23 +4321,28 @@ static void a_color_only_module_gets_no_row(void)
     assert(menu_row(h, 2)[MENU_ROW_KIND / 4] == MENU_ROW_ADJ && menu_row(h, 3)[MENU_ROW_KIND / 4] == MENU_ROW_GRKU);
     assert(BYTE(tab_copy(), MENU_TAB_ROWS) == 14);
 }
-/* While a module loaded, the section starts with the GRKU switch. OK on it
-   opens its value page. A tab without room for each row keeps the switch,
-   ADJ Order, and About GRKU. */
+/* While a module loaded, the section starts with the GRKU switch, then
+   Enable at Start. OK on either opens its value page. A tab without room for
+   each row keeps the switch, Enable at Start, ADJ Order, and About GRKU. */
 static void the_section_starts_with_the_switch(void)
 {
-    static const u32 kinds[] = {MENU_ROW_SWITCH, MENU_ROW_LISTED, MENU_ROW_LISTED, MENU_ROW_LISTED, MENU_ROW_ADJ,
-                                MENU_ROW_GRKU},
-                     short_kinds[] = {MENU_ROW_SWITCH, MENU_ROW_LISTED, MENU_ROW_ADJ, MENU_ROW_GRKU};
+    static const u32 kinds[] = {MENU_ROW_SWITCH, MENU_ROW_START, MENU_ROW_LISTED, MENU_ROW_LISTED, MENU_ROW_LISTED,
+                                MENU_ROW_ADJ, MENU_ROW_GRKU},
+                     short_kinds[] = {MENU_ROW_SWITCH, MENU_ROW_START, MENU_ROW_LISTED, MENU_ROW_ADJ, MENU_ROW_GRKU};
     volatile u32 *h = test_header, *menu;
+    u32 n;
+    /* The switch is setting 12 and Enable at Start setting 13
+       (runtime/install_modules.h). */
     install_stock_tab(10, 3);
-    settings_memory[0] = 13;
+    settings_memory[0] = 14;
     settings_memory[2 + 12 * 3 + 2] = 2;
+    settings_memory[2 + 13 * 3 + 2] = MANAGE_START_VALUES;
     manage_memory[MANAGE_SWITCH / 4] = 12 + 1;
+    manage_memory[MANAGE_START / 4] = 13 + 1;
     menu = services_word(h, SERVICES_MENU);
     menu_rows_install(h);
-    assert(menu[MENU_ROWS_COUNT / 4] == 6 && BYTE(tab_copy(), MENU_TAB_ROWS) == 16);
-    for (u32 slot = 0; slot < 6; ++slot) assert(menu_row(h, slot)[MENU_ROW_KIND / 4] == kinds[slot]);
+    assert(menu[MENU_ROWS_COUNT / 4] == 7 && BYTE(tab_copy(), MENU_TAB_ROWS) == 17);
+    for (u32 slot = 0; slot < 7; ++slot) assert(menu_row(h, slot)[MENU_ROW_KIND / 4] == kinds[slot]);
     /* The row, Enable GRKU, opens its value page at once: On, then Off,
        as the Enable of a module. */
     assert(menu_rows_controller(h, MENU_ROW_TARGET) == settings_pages[0]);
@@ -3022,12 +4354,37 @@ static void the_section_starts_with_the_switch(void)
     switch_settings[0].set(h, 1);
     assert(switch_settings[0].get(h) == 1 && settings_memory[2 + 12 * 3 + 1] == 1);
     switch_settings[0].set(h, 0);
+    /* Enable at Start opens its value page at once too: On, Off, then Keep
+       Last. A choice is a saved change for the next start, and the switch
+       keeps its value in this session. */
+    assert(menu_rows_controller(h, MENU_ROW_TARGET + 1) == settings_pages[0]);
+    assert(h[GRKU_HOST_SETTINGS / 4] == START_PAGE + 1 && settings_page(h) == start_settings);
+    assert(settings_rows(h) == 1 && same(start_settings[0].label(h), "Enable at Start"));
+    assert(start_settings[0].values(h) == 3 && same(start_settings[0].value_text(h, MANAGE_START_ON), "On") &&
+           same(start_settings[0].value_text(h, MANAGE_START_OFF), "Off") &&
+           same(start_settings[0].value_text(h, MANAGE_START_KEEP), "Keep Last"));
+    assert(start_settings[0].get(h) == MANAGE_START_ON);
+    n = h[GRKU_HOST_STATE_CHANGES / 4];
+    start_settings[0].set(h, MANAGE_START_OFF);
+    assert(start_settings[0].get(h) == MANAGE_START_OFF && settings_memory[2 + 13 * 3 + 1] == MANAGE_START_OFF);
+    assert(h[GRKU_HOST_STATE_CHANGES / 4] == n + 1 && !manage_all_off(h));
+    /* The row shows the value. */
+    assert(same(start_value_text(h, start_value(h)), "Off"));
+    start_settings[0].set(h, MANAGE_START_KEEP);
+    assert(same(start_value_text(h, start_value(h)), "Keep Last"));
+    start_settings[0].set(h, MANAGE_START_ON);
     h[GRKU_HOST_SETTINGS / 4] = 0;
-    install_stock_tab(MENU_TAB_MAX_ROWS - 4, 3);
+    install_stock_tab(MENU_TAB_MAX_ROWS - 5, 3);
+    manage_memory[MANAGE_SWITCH / 4] = 12 + 1;
+    manage_memory[MANAGE_START / 4] = 13 + 1;
+    menu_rows_install(h);
+    assert(menu[MENU_ROWS_COUNT / 4] == 5 && BYTE(tab_copy(), MENU_TAB_ROWS) == MENU_TAB_MAX_ROWS);
+    for (u32 slot = 0; slot < 5; ++slot) assert(menu_row(h, slot)[MENU_ROW_KIND / 4] == short_kinds[slot]);
+    /* Without Enable at Start in the module list, the switch shows alone. */
+    install_stock_tab(10, 3);
     manage_memory[MANAGE_SWITCH / 4] = 12 + 1;
     menu_rows_install(h);
-    assert(menu[MENU_ROWS_COUNT / 4] == 4 && BYTE(tab_copy(), MENU_TAB_ROWS) == MENU_TAB_MAX_ROWS);
-    for (u32 slot = 0; slot < 4; ++slot) assert(menu_row(h, slot)[MENU_ROW_KIND / 4] == short_kinds[slot]);
+    assert(menu[MENU_ROWS_COUNT / 4] == 6 && menu_row(h, 1)[MENU_ROW_KIND / 4] == MENU_ROW_LISTED);
 }
 /* A tab with all its sections gets the rows in its last section. A tab
    without room for each row keeps ADJ Order and About GRKU, and gives rows
@@ -3187,6 +4544,12 @@ int main(void)
     an_exit_from_a_page_commits_the_highlighted_row();
     the_date_imprint_page_lists_its_styles();
     the_grain_page_changes_only_the_grain_word();
+    the_recipe_page_saves_applies_and_deletes();
+    the_keyboard_serves_the_grku_text_only_while_borrowed();
+    the_keyboard_keeps_an_unchanged_automatic_name();
+    the_recipe_page_lists_the_shown_recipes();
+    the_recipe_page_marks_a_missing_effect();
+    the_recipe_page_shows_native_type_icons();
     invalid_cursors_form_no_effect_pointer();
     film_look_previews_and_commits_the_highlighted_effect();
     the_root_has_no_about_row();
@@ -3218,6 +4581,7 @@ int main(void)
 #endif
     reused_row_views_show_the_page_that_reuses_them();
     the_film_look_menu_page_lists_film_stocks();
+    the_recipes_menu_page_chooses_a_recipe_then_an_action();
     a_section_row_shows_its_module_and_value();
     about_grku_shows_the_version_the_website_and_the_looks();
 #ifdef FW_MENU_TABS
@@ -3228,5 +4592,16 @@ int main(void)
 #endif
     each_selection_change_counts_once();
     record_index_finds_each_record_start();
+    the_mode_dial_applies_a_user_mode_and_restores_the_base();
+    the_mode_dial_acts_once_where_the_dial_stays();
+    the_mode_dial_follows_without_a_recipe_that_applies();
+    the_mode_dial_belongs_to_the_recipes_module();
+    the_mode_dial_applies_a_user_mode_at_a_start();
+    the_mode_dial_page_sets_what_each_user_mode_does();
+    the_mode_dial_saves_the_settings_in_a_user_mode();
+    the_mode_dial_applies_saved_settings_and_restores_the_base();
+    saved_settings_skip_what_the_camera_does_not_have();
+    the_mode_dial_labels_what_a_user_mode_applies();
+    the_label_of_the_mode_dial_follows_the_live_view();
     return 0;
 }

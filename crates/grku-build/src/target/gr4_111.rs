@@ -166,6 +166,12 @@ const SITES: &[Site] = &[
     ("menu_settings_draw_4", 0x531d1dc0, "0dc0a0e1"),
     ("menu_settings_apply_4", 0x531d3a6c, "0dc0a0e1"),
     ("menu_settings_current_4", 0x531d5434, "0dc0a0e1"),
+    // SoftwareKeyboardController: the entry of its text length method, then
+    // the tail calls of its copyright text load and store to the settings
+    // getter (0x5329ae94) and setter (0x5333c234).
+    ("menu_keyboard_length", 0x531f7054, "0dc0a0e1"),
+    ("menu_keyboard_load", 0x531f7c4c, "908c02ea"),
+    ("menu_keyboard_store", 0x531f7eb0, "df1005ea"),
     ("framing_update", 0x5318e350, "0dc0a0e1"),
     ("framing_exit", 0x5318e984, "0dc0a0e1"),
     ("framing_destroy", 0x531879e0, "0dc0a0e1"),
@@ -260,6 +266,9 @@ const SITES: &[Site] = &[
     ("grain_gate", 0x5371557c, "defeffeb"),
     // The grain tables: `mov r0, #0x200` after the luma amplitude load.
     ("grain_amplitude", 0x5389e3c8, "020ca0e3"),
+    // AeModel's apply of a dial position (0x53257d80): the BL to
+    // UserModeModel::SetUserMode (0x533e5498).
+    ("menu_dial", 0x53257de4, "ab3506eb"),
 ];
 
 /// The stock instructions around the processing hooks.

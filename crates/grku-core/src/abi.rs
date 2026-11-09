@@ -4,7 +4,7 @@
 
 use std::fmt::Write;
 
-use crate::{capabilities, effects, hue, menu_text, native_look, selective};
+use crate::{capabilities, effects, hue, menu_text, native_look, recipes, selective};
 
 /// A byte range of the private header, of a record, or of a GRF file.
 pub struct Field {
@@ -100,6 +100,49 @@ pub const MODULE_FILTERS_MAX: usize = 8;
 /// The most registered viewfinder indicators and visible status-row cells.
 pub const INDICATORS_MAX: usize = 16;
 pub const STATUS_ICONS_MAX: usize = 6;
+/// The camera recipes of `CORE.RECIPE` (runtime/recipes.h): the most recipes
+/// that the camera holds, the most of them that are on, the most undo steps,
+/// and the words of one recipe. The recipes that are on come first; the
+/// camera lists only them, and keeps the others for the site.
+pub const RECIPE_SLOTS: usize = 64;
+pub const RECIPE_ON_MAX: usize = 40;
+pub const RECIPE_UNDO: usize = 5;
+pub const RECIPE_WORDS: usize = 5;
+/// The name of a camera recipe that the person typed on the camera: at most
+/// `RECIPE_NAME_CHARS` printable ASCII characters, `RECIPE_NAME_CHARS / 4`
+/// words of four 7-bit characters, the first in the low bits. A character 0
+/// ends the name, and a recipe whose name word 0 is 0 has the automatic name.
+pub const RECIPE_NAME_CHARS: usize = 16;
+pub const RECIPE_NAME_WORDS: usize = RECIPE_NAME_CHARS / 4;
+/// The user modes of the mode dial, U1 to U3, that the recipe file assigns
+/// (`HOST_RECIPE_DIAL`).
+pub const RECIPE_DIAL_POSITIONS: usize = 3;
+/// The settings that the camera saves in a user mode of the mode dial
+/// (`HOST_DIAL_SETS`, runtime/mode_dial.h): a set of `DIAL_SET_WORDS` words.
+/// Word `DIAL_SET_COUNT` holds the number of its pairs + 1, or 0 without a
+/// set. A word for each capability follows at `DIAL_SET_CORE`, in the order
+/// of `capabilities::CAPABILITIES`: the effect as `DIAL_SET_EFFECT` with the
+/// recipe code of its ID (`recipes::effect_code`), or 0 for Off, and the
+/// value of each other capability. Then the Fn adjustments of the effect
+/// (`DIAL_SET_FN`, base-9 digits as a recipe holds them) and its Toning byte
+/// (`DIAL_SET_TONING`), and from `DIAL_SET_PAIR` the pairs of a state file ID
+/// of a setting and its value: the saved module settings, the Enable of each
+/// listed module, and the switch Enable GRKU.
+///
+/// The settings table holds at most `DIAL_SET_PAIRS` such settings: it keeps
+/// a choice for each listed effect, at most 64 (runtime/effects.h), and the
+/// position, the options, and the Enable of each module, and Enable at Start,
+/// among its `MODULE_SETTINGS_MAX` entries (runtime/install_plan.h checks
+/// the bound).
+pub const DIAL_SET_PAIRS: usize = 93;
+pub const DIAL_SET_COUNT: usize = 0;
+pub const DIAL_SET_CORE: usize = 1;
+pub const DIAL_SET_FN: usize = DIAL_SET_CORE + crate::capabilities::CAPABILITIES.len();
+pub const DIAL_SET_TONING: usize = DIAL_SET_FN + 1;
+pub const DIAL_SET_PAIR: usize = DIAL_SET_TONING + 1;
+pub const DIAL_SET_WORDS: usize = DIAL_SET_PAIR + 2 * DIAL_SET_PAIRS;
+pub const DIAL_SET_EFFECT: u32 = 0x8000;
+const _: () = assert!(DIAL_SET_EFFECT > crate::recipes::layout::CODE_MASK);
 
 // The fields of the header. The loader, the installer, and the ARM code of one
 // build take the offsets from this table, so a field can go anywhere in it.
@@ -239,8 +282,8 @@ packed_fields!(HEADER_FIELDS, HOST_HEADER_SIZE {
     HOST_RETURN: 4;
     /// Number of changes of the saved selections: the effect, CORE.ASPECT,
     /// CORE.GRAIN, CORE.GRAIN_SIZE, the Fn adjustments, and the module settings
-    /// (GRKU_STATE_CHANGED). The resident loader polls only this word and
-    /// saves the state file after it changes.
+    /// (GRKU_STATE_CHANGED). The resident loader polls this word and
+    /// HOST_RECIPE_CHANGES, and saves the state file after it changes.
     HOST_STATE_CHANGES: 4;
     /// Number of module plane filters in GRKU_HOST_MODULE_FILTERS. INSTALL
     /// writes it.
@@ -362,6 +405,54 @@ packed_fields!(HEADER_FIELDS, HOST_HEADER_SIZE {
     /// GR IV: the queue completion flags of that shot, CROP_QUEUE_POSTED and
     /// CROP_QUEUE_RECOVERED.
     HOST_CROP_QUEUE_FLAGS: 4;
+    /// The recipes (runtime/recipes.h): RECIPE_WORDS words for each of the
+    /// RECIPE_SLOTS recipes. A recipe whose word 0 is 0 is empty. The resident
+    /// loader saves each word that is not 0 in the recipe file
+    /// (`capabilities::StateFile::Recipes`).
+    HOST_RECIPES: 4 * RECIPE_WORDS * RECIPE_SLOTS;
+    /// The names of the recipes, RECIPE_NAME_WORDS words each
+    /// (RECIPE_NAME_CHARS), right after HOST_RECIPES, which the loader saves
+    /// after the recipe words.
+    HOST_RECIPE_NAMES: 4 * RECIPE_NAME_WORDS * RECIPE_SLOTS;
+    /// The hash of the recipe library of the package that INSTALL imported
+    /// last (runtime/install_recipes.h), after the names: the loader saves it
+    /// with the recipes, so a package imports once.
+    HOST_RECIPE_IMPORTED: 4;
+    /// The ID of each recipe, by slot, 1 to `runtime::RECIPE_ID_MAX`: a
+    /// generated number, so that a recipe that the site moves to another card
+    /// keeps an ID that no recipe of that card had. A reference to a recipe
+    /// holds its ID, so that it stays valid when the recipes move. Each part
+    /// that creates a recipe (the camera, INSTALL, the site) generates its ID.
+    /// The loader saves the IDs after the import hash.
+    HOST_RECIPE_IDS: 4 * RECIPE_SLOTS;
+    /// What each user mode of the mode dial, U1 to U3, does
+    /// (`runtime::RECIPE_DIAL_FOLLOW`, `RECIPE_DIAL_OFF`, or the ID of a
+    /// recipe). An ID that no recipe has follows, as `RECIPE_DIAL_FOLLOW`. A
+    /// generated ID is never one of these values, so a deleted recipe never
+    /// gets the references of another.
+    HOST_RECIPE_DIAL: 4 * RECIPE_DIAL_POSITIONS;
+    /// The count of changes of the recipes: the loader saves the recipe file
+    /// after it changes (GRKU_RECIPES_CHANGED). INSTALL sets 1 after an
+    /// import.
+    HOST_RECIPE_CHANGES: 4;
+    /// The undo steps, the oldest first, RECIPE_WORDS words each. They are
+    /// not saved: a start begins without them.
+    HOST_RECIPE_UNDO: 4 * RECIPE_WORDS * RECIPE_UNDO;
+    /// Nonzero while the mode dial is on a user mode whose settings are
+    /// temporary (runtime/mode_dial.h): the resident loader then does not
+    /// save the main state file, so the file keeps the settings of the other
+    /// positions. The recipe file still saves.
+    HOST_STATE_HOLD: 4;
+    /// The count of changes of the saved settings of the user modes
+    /// (`HOST_DIAL_SETS`): the loader saves their file after it changes.
+    HOST_DIAL_SET_CHANGES: 4;
+    /// The settings that the camera saved in each user mode of the mode
+    /// dial, U1 to U3, `DIAL_SET_WORDS` words each (runtime/mode_dial.h). A
+    /// user mode applies them while it has `runtime::RECIPE_DIAL_SAVED`
+    /// (`HOST_RECIPE_DIAL`). The resident loader saves each word that is not
+    /// 0 in their file (`capabilities::StateFile::DialSets`), and INSTALL
+    /// restores them.
+    HOST_DIAL_SETS: 4 * DIAL_SET_WORDS * RECIPE_DIAL_POSITIONS;
 });
 
 pub const RECORD_SIZE: usize = 0x1100;
@@ -471,6 +562,32 @@ const _: () = assert!(
         && RECORD_SELECTIVE - RECORD_POST == GRF_SELECTIVE - GRF_POST
         && RECORD_PARAMETERS - RECORD_POST == GRF_MATRIX - GRF_POST
 );
+
+// The recipe library (`recipes`), GRKU/RECIPES.BIN, which INSTALL reads:
+// the header, then `recipes::RECORD_SIZE` bytes for each recipe. Each byte
+// that no field holds is zero.
+fields!(RCP_FIELDS {
+    /// The magic `GRKR0001`.
+    RCP_MAGIC = 0, 8;
+    /// u32 size of the file.
+    RCP_BYTES = 8, 4;
+    /// u32 CRC-32 of the file, which reads these bytes as zero.
+    RCP_CRC = 12, 4;
+    /// u32 number of recipes.
+    RCP_COUNT = 16, 4;
+    /// u32 for each user mode of the mode dial, U1 to U3: what INSTALL sets
+    /// it to when it imports the library (`recipes::DialStep`).
+    RCP_DIAL = 20, 12;
+});
+
+fields!(RCP_RECORD_FIELDS {
+    /// The name: UTF-16LE units, zero-padded, without a NUL at 16 units.
+    RCP_RECORD_NAME = 0, 32;
+    /// The RECIPE_WORDS words of the recipe (runtime/recipes.h).
+    RCP_RECORD_WORDS = 32, 20;
+    /// u8 family: 1 GR III, 2 GR IV, 3 GR IV Monochrome.
+    RCP_RECORD_FAMILY = 52, 1;
+});
 
 /// The plan file that SCAN writes and INSTALL and the loader read
 /// (`PLAN.BIN`): this header, the GRF file of each installed effect
@@ -702,6 +819,56 @@ fn array(out: &mut String, doc: &str, name: &str, values: &[impl std::fmt::Displ
 
 /// The GRF file: the offset and the size of each field, the file sizes, and
 /// the longest ID and name.
+/// The recipe library: the offset and the size of each field.
+fn recipe_table(out: &mut String) {
+    comment(
+        out,
+        "A GRKR0001 recipe library has GRKU_RCP_HEADER_SIZE bytes, then \
+         GRKU_RCP_RECORD_SIZE bytes for each of at most GRKU_RCP_MAX recipes.",
+    );
+    writeln!(
+        out,
+        "#define GRKU_RCP_HEADER_SIZE {}U",
+        recipes::HEADER_SIZE
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "#define GRKU_RCP_RECORD_SIZE {}U",
+        recipes::RECORD_SIZE
+    )
+    .unwrap();
+    writeln!(out, "#define GRKU_RCP_MAX {}U", recipes::LIBRARY_MAX).unwrap();
+    writeln!(out, "#define GRKU_RCP_NAME_UNITS {}U", recipes::NAME_UNITS).unwrap();
+    comment(
+        out,
+        "A user mode of the mode dial in the header (GRKU_RCP_DIAL): keep the value of the \
+         camera, follow the dial, turn GRKU off, or apply record k at GRKU_RCP_DIAL_RECORD + k.",
+    );
+    for (name, value) in [
+        ("KEEP", recipes::DialStep::Keep),
+        ("FOLLOW", recipes::DialStep::Follow),
+        ("OFF", recipes::DialStep::Off),
+        ("RECORD", recipes::DialStep::Record(0)),
+    ] {
+        writeln!(out, "#define GRKU_RCP_DIAL_{name} {}U", value.code()).unwrap();
+    }
+    comment(
+        out,
+        "The family byte of a record: the camera line whose INSTALL imports it.",
+    );
+    for (name, family) in [
+        ("GR3", recipes::Family::Gr3),
+        ("GR4", recipes::Family::Gr4),
+        ("GR4_MONOCHROME", recipes::Family::Gr4Monochrome),
+    ] {
+        writeln!(out, "#define GRKU_RCP_FAMILY_{name} {}U", family.code()).unwrap();
+    }
+    for field in RCP_FIELDS.iter().chain(RCP_RECORD_FIELDS) {
+        define(out, field.doc, field.name, format!("{}U", field.offset));
+    }
+}
+
 fn grf_table(out: &mut String) {
     comment(
         out,
@@ -856,6 +1023,144 @@ pub fn header() -> String {
     writeln!(out, "#define GRKU_MODULE_FILTERS_MAX {MODULE_FILTERS_MAX}").unwrap();
     writeln!(out, "#define GRKU_INDICATORS_MAX {INDICATORS_MAX}").unwrap();
     writeln!(out, "#define GRKU_STATUS_ICONS_MAX {STATUS_ICONS_MAX}").unwrap();
+    comment(
+        &mut out,
+        "The recipes (runtime/recipes.h): the most recipes, the most recipes \
+         that are on, the most undo steps, and the words of one recipe. The \
+         recipes that are on come first. In the recipe file, word w of recipe n has \
+         the key GRKU_RECIPE_KEY_BASE + w * GRKU_RECIPE_KEY_STRIDE + n. The \
+         name of a recipe has GRKU_RECIPE_NAME_WORDS words of four 7-bit \
+         characters, at most GRKU_RECIPE_NAME_CHARS; word w of the name of \
+         recipe n has the key GRKU_RECIPE_NAME_KEY_BASE + w * \
+         GRKU_RECIPE_KEY_STRIDE + n. The words after the names have one key \
+         each from GRKU_RECIPE_IMPORTED_KEY: the hash of the imported package \
+         library, the ID of recipe n at GRKU_RECIPE_ID_KEY_BASE + n, the \
+         assignment of user mode u at GRKU_RECIPE_DIAL_KEY_BASE + u \
+         (grku_core::runtime::recipe_key). A recipe ID is a generated number, \
+         1 to GRKU_RECIPE_ID_MAX (runtime/recipe_id.h). A user mode follows \
+         (GRKU_RECIPE_DIAL_FOLLOW), turns GRKU off (GRKU_RECIPE_DIAL_OFF), \
+         or applies the recipe with its ID. The undo steps are not saved.",
+    );
+    writeln!(out, "#define GRKU_RECIPE_SLOTS {RECIPE_SLOTS}U").unwrap();
+    writeln!(out, "#define GRKU_RECIPE_ON_MAX {RECIPE_ON_MAX}U").unwrap();
+    writeln!(out, "#define GRKU_RECIPE_UNDO {RECIPE_UNDO}U").unwrap();
+    writeln!(out, "#define GRKU_RECIPE_WORDS {RECIPE_WORDS}U").unwrap();
+    writeln!(out, "#define GRKU_RECIPE_NAME_CHARS {RECIPE_NAME_CHARS}U").unwrap();
+    writeln!(out, "#define GRKU_RECIPE_NAME_WORDS {RECIPE_NAME_WORDS}U").unwrap();
+    writeln!(
+        out,
+        "#define GRKU_RECIPE_DIAL_POSITIONS {RECIPE_DIAL_POSITIONS}U"
+    )
+    .unwrap();
+    comment(
+        &mut out,
+        "The bit layout of the recipe words (grku_core::recipes::layout): the \
+         index of each word, then for each field its _SHIFT and the _MASK of its \
+         value after the shift, and the bit of each flag.",
+    );
+    for (name, value) in crate::recipes::layout::C_DEFINES {
+        if *value > 0xff {
+            writeln!(out, "#define GRKU_RECIPE_{name} {value:#010x}U").unwrap();
+        } else {
+            writeln!(out, "#define GRKU_RECIPE_{name} {value}U").unwrap();
+        }
+    }
+    comment(
+        &mut out,
+        &format!(
+            "The module settings that a recipe holds (grku_core::recipes::MODULE_SETTINGS), \
+             in the order of their bits in word 4: {}. Each is its state file ID, which \
+             finds it in the settings table. GRKU_RECIPE_MODULE_COLOR_ONLY has bit i \
+             for a color-only setting, which GR IV Monochrome does not hold.",
+            crate::recipes::MODULE_SETTINGS
+                .iter()
+                .map(|(module, key)| format!("{module}.{key}"))
+                .collect::<Vec<_>>()
+                .join(", ")
+        ),
+    );
+    writeln!(
+        out,
+        "#define GRKU_RECIPE_MODULE_SETTINGS {}U",
+        crate::recipes::MODULE_SETTINGS.len()
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "#define GRKU_RECIPE_MODULE_SETTING_IDS {}",
+        crate::recipes::MODULE_SETTINGS
+            .iter()
+            .map(|(module, key)| format!("{}U", crate::grm::state_id(module, key)))
+            .collect::<Vec<_>>()
+            .join(", ")
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "#define GRKU_RECIPE_MODULE_COLOR_ONLY {}U",
+        crate::recipes::MODULE_SETTINGS_COLOR_ONLY
+            .iter()
+            .enumerate()
+            .fold(0u32, |mask, (index, &color_only)| mask
+                | u32::from(color_only) << index)
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "#define GRKU_RECIPE_KEY_BASE {}U",
+        crate::runtime::RECIPE_KEY_BASE
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "#define GRKU_RECIPE_KEY_STRIDE {}U",
+        crate::runtime::RECIPE_KEY_STRIDE
+    )
+    .unwrap();
+    writeln!(
+        out,
+        "#define GRKU_RECIPE_NAME_KEY_BASE {}U",
+        crate::runtime::RECIPE_NAME_KEY_BASE
+    )
+    .unwrap();
+    for (name, value) in [
+        ("IMPORTED_KEY", crate::runtime::RECIPE_IMPORTED_KEY),
+        ("ID_KEY_BASE", crate::runtime::RECIPE_ID_KEY_BASE),
+        ("DIAL_KEY_BASE", crate::runtime::RECIPE_DIAL_KEY_BASE),
+        ("ID_MAX", crate::runtime::RECIPE_ID_MAX),
+        ("DIAL_FOLLOW", crate::runtime::RECIPE_DIAL_FOLLOW),
+        ("DIAL_SAVED", crate::runtime::RECIPE_DIAL_SAVED),
+        ("DIAL_OFF", crate::runtime::RECIPE_DIAL_OFF),
+    ] {
+        writeln!(out, "#define GRKU_RECIPE_{name} {value}U").unwrap();
+    }
+    comment(
+        &mut out,
+        "The settings that the camera saves in a user mode of the mode dial \
+         (runtime/mode_dial.h, grku_core::abi::DIAL_SET_WORDS): GRKU_DIAL_SET_WORDS \
+         words, the number of pairs + 1 (0 without a set), a word for each \
+         capability, the Fn adjustments and the Toning of the effect, then \
+         GRKU_DIAL_SET_PAIRS pairs of a state file ID and a value. The effect \
+         word is 0 for Off, else GRKU_DIAL_SET_EFFECT with the recipe code of \
+         the effect. In their file, word w of user mode u (0 for U1) has the key \
+         GRKU_DIAL_SET_KEY_BASE + u * GRKU_DIAL_SET_KEY_STRIDE + w, and a word \
+         is at most GRKU_DIAL_SET_VALUE_MAX.",
+    );
+    for (name, value) in [
+        ("PAIRS", DIAL_SET_PAIRS as u32),
+        ("COUNT", DIAL_SET_COUNT as u32),
+        ("CORE", DIAL_SET_CORE as u32),
+        ("FN", DIAL_SET_FN as u32),
+        ("TONING", DIAL_SET_TONING as u32),
+        ("PAIR", DIAL_SET_PAIR as u32),
+        ("WORDS", DIAL_SET_WORDS as u32),
+        ("EFFECT", DIAL_SET_EFFECT),
+        ("KEY_BASE", crate::runtime::DIAL_SET_KEY_BASE),
+        ("KEY_STRIDE", crate::runtime::DIAL_SET_KEY_STRIDE),
+        ("VALUE_MAX", crate::runtime::DIAL_SET_VALUE_MAX),
+    ] {
+        writeln!(out, "#define GRKU_DIAL_SET_{name} {value}U").unwrap();
+    }
     writeln!(
         out,
         "#define GRKU_MODULE_SETTINGS_MAX {}",
@@ -894,6 +1199,12 @@ pub fn header() -> String {
     writeln!(
         out,
         "#define GRKU_STATE_CHANGED(h) (++(h)[GRKU_HOST_STATE_CHANGES/4])"
+    )
+    .unwrap();
+    // A change of the recipes: the loader saves the recipe file.
+    writeln!(
+        out,
+        "#define GRKU_RECIPES_CHANGED(h) (++(h)[GRKU_HOST_RECIPE_CHANGES/4])"
     )
     .unwrap();
     writeln!(out, "#define GRKU_HOST_MAGIC_VALUE {HOST_MAGIC_VALUE:#x}").unwrap();
@@ -952,7 +1263,7 @@ pub fn header() -> String {
                 .iter()
                 .map(|c| match c.state {
                     capabilities::State::Word(word) => word.to_string(),
-                    capabilities::State::Effect => "0".into(),
+                    capabilities::State::Effect | capabilities::State::Recipes => "0".into(),
                 })
                 .collect()
         )
@@ -986,6 +1297,7 @@ pub fn header() -> String {
     );
     writeln!(out, "#define GRKU_RECORD_CURVE_SIZE {RECORD_CURVE_SIZE:#x}").unwrap();
     grf_table(&mut out);
+    recipe_table(&mut out);
     hue_tables(&mut out);
     define(
         &mut out,
@@ -1241,6 +1553,12 @@ mod tests {
             .iter()
             .all(|field| field.offset % 4 == 0 && field.size % 4 == 0));
         check(HEADER_FIELDS, HOST_HEADER_SIZE, true);
+    }
+
+    #[test]
+    fn the_recipe_fields_fit_the_file() {
+        check(RCP_FIELDS, recipes::HEADER_SIZE, false);
+        check(RCP_RECORD_FIELDS, recipes::RECORD_SIZE, false);
     }
 
     #[test]

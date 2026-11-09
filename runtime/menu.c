@@ -32,6 +32,7 @@ extern u32 menu_destroy_original(u32);
 #ifndef MENU_OBJECT_WORD
 #define MENU_OBJECT_WORD(a,o) WORD(a,o)
 #define MENU_OBJECT_BYTE(a,o) BYTE(a,o)
+#define MENU_OBJECT_HALF(a,o) HALF(a,o)
 #endif
 /* Memory access. A host test maps it to its own buffers. */
 #ifndef WORD
@@ -221,6 +222,16 @@ static void aspect_set_native(u32 id) { MENU_STOP_LIVE_VIEW(); MENU_SET_NATIVE_A
 static void aspect_request(void) { MENU_FRAMING_REQUEST(); }
 /* A new effect sets the highlight warning again. */
 static void tone_stored(volatile u32 *h) { level_reapply(h); }
+/* The text descriptor of a text view: the length with its NUL, and the
+   text. */
+static void descriptor(volatile u32 *at, const u16 *name) {
+    u32 length=0;
+    while (length<GRKU_SUMMARY_UNITS-1 && name[length]) ++length;
+    at[0]=(length+1)|0x100; at[1]=(u32)name;
+}
+/* The timer and UI services for modules and the pages of the core. */
+#include "ui.h"
+#include "ui_keyboard.h"
 #include "modules.h"
 /* Only the still-viewfinder slot consults module state. Playback continues
    to resolve the icon recorded in the photo metadata. */
@@ -399,11 +410,6 @@ static void list_grow_rows(u32 view,u32 rows,u32 style,u32 height) {
 static void list_grow(u32 view,u32 rows) { list_grow_rows(view,rows,ADJ_ROW_STYLE,ADJ_ROW_HEIGHT); }
 static u32 list_start(volatile u32 *h,u32 view) {
     return count(h)>list_capacity(view) ? page_start(h[GRKU_HOST_MENU_CURSOR/4]) : 0;
-}
-static void descriptor(volatile u32 *at, const u16 *name) {
-    u32 length=0;
-    while (length<GRKU_SUMMARY_UNITS-1 && name[length]) ++length;
-    at[0]=(length+1)|0x100; at[1]=(u32)name;
 }
 static void label(u32 object) {
     CALL3(FW_STRING_VIEW_RESET)(object,0,0);
@@ -691,10 +697,23 @@ static void fit_value(u32 view) {
     CALL2(WORD(WORD(view,0),VIEW_SET_FRAME))(view,(u32)rect);
 }
 #include "menu_settings.h"
+#include "mode_dial.h"
+#include "menu_dial.h"
+#include "menu_recipes.h"
 #include "menu_section.h"
 #include "menu_about.h"
-/* The timer and UI services for modules. */
-#include "ui.h"
+/* The shooting screen: the framing component calls this entry, whose
+   address INSTALL writes (SERVICES_CORE_VIEWFINDER), in the App task with
+   an event (runtime/services.h): the first shooting screen after INSTALL,
+   and the label of the mode dial (runtime/mode_dial.h). */
+A32_ENTRY void menu_viewfinder(u32 event) {
+    volatile u32 *h=menu_header();
+    if(!h[GRKU_HOST_SERVICES/4]) return;
+    if(event==VIEWFINDER_READY) dial_ready(h);
+    else if(event==VIEWFINDER_LABEL_SHOW) dial_label_show(h);
+    /* The live view hides its text or ends. */
+    else if(event==VIEWFINDER_LABEL_DROP) dial_label_end(h);
+}
 /* The text descriptor for `view` and text ID `id`, or 0 for the native text.
    Bit 0 selects the font of the menu language. GRKU gives the texts of one
    screen, which the last controller change selects (MENU_ROWS_CURRENT): the
@@ -713,10 +732,11 @@ A32_ENTRY u32 menu_text_override(u32 view,u32 id) {
     if(title) return title;
     title=develop_text(h,id);
     if(title) return title;
-    title=ui_text_override(h,id);
+    title=ui_text_override(h,view,id);
     if(title) return title;
     if(h[GRKU_HOST_SERVICES/4]) {
-        u32 current=services_word(h,SERVICES_MENU+MENU_ROWS_CURRENT)[0];
+        u32 current=services_word(h,SERVICES_MENU+MENU_ROWS_CURRENT)[0], label=dial_label_text(h,view,id);
+        if(label) return label;
         if(current==INFO_CONTROLLER) return info_text(h,id);
         if(settings_shows(current)) return settings_text(h,view,id);
         return menu_rows_text(h,view,id);
@@ -793,6 +813,14 @@ static u32 group_settings_row(volatile u32 *h) {
 static u32 direct_settings_event(volatile u32 *h,u32 kind) {
     return (kind==EV_RIGHT || (kind==EV_CONFIRM && !after_adj_press(h))) && direct_settings_root(h);
 }
+/* Whether OK on the highlighted row keeps ADJ open (MenuPage::stays). An
+   ADJ press closes ADJ still. */
+static u32 row_stays(volatile u32 *h) {
+    const MenuPage *page;
+    if(h[GRKU_HOST_MENU_LEVEL/4]!=MENU_MODULE || after_adj_press(h)) return 0;
+    page=current_module(h);
+    return page->stays && page->stays(h,h[GRKU_HOST_MENU_CURSOR/4]);
+}
 /* Confirm the current selection and return whether ADJ should close.
    Group OK toggles a child in place; an ADJ press only closes its list. */
 static u32 confirm_selection(volatile u32 *h) {
@@ -830,11 +858,14 @@ A32_ENTRY void menu_native_touch(u32 controller,u32 slot) {
    keeps the highlighted row of a page, as a native ADJ keeps the value under
    its cursor. The Modules page opens settings on OK, so it commits nothing.
    The GRKU switch and group toggles commit only on OK or a touch: leaving
-   their pages must not change an Enable setting. */
+   their pages must not change an Enable setting. A page of actions, such as
+   the camera recipes, acts only on OK. */
 static void exit_commit(volatile u32 *h) {
     u32 module=h[GRKU_HOST_MODULE/4];
-    if(h[GRKU_HOST_MENU_LEVEL/4]==MENU_MODULE && module!=MANAGE_MODULE && module!=SWITCH_MODULE &&
-       menu_page(h,module)!=&group_module) menu_confirm(h);
+    const MenuPage *page;
+    if(h[GRKU_HOST_MENU_LEVEL/4]!=MENU_MODULE || module==MANAGE_MODULE || module==SWITCH_MODULE) return;
+    page=menu_page(h,module);
+    if(page!=&group_module && !(page->flags&MENU_PAGE_ACTIONS)) menu_confirm(h);
 }
 A32_ENTRY void menu_exit(u32 controller) {
     volatile u32 *h=menu_header();
@@ -977,6 +1008,13 @@ A32_ENTRY u32 menu_event(u32 controller,const u16 *event) {
         }
     }
     menu_normalize(h);
+    /* Fn on a row of a page that takes it, such as a delete on the page of
+       recipes. */
+    if(kind==EV_FN && *(u8 *)WORD((u32)event,4)==FN_PRESS_ARG && h[GRKU_HOST_MENU_LEVEL/4]==MENU_MODULE &&
+       current_module(h)->fn && current_module(h)->fn(h,h[GRKU_HOST_MENU_CURSOR/4])) {
+        render(controller);
+        return 0;
+    }
     /* On an effect row, commit the highlighted row, then adjust its parameters.
        On the root row, adjust the committed effect. Fn on Off does nothing. */
     if(kind==EV_FN && *(u8 *)WORD((u32)event,4)==FN_PRESS_ARG && parameters_row(h)) {
@@ -1021,10 +1059,11 @@ A32_ENTRY u32 menu_event(u32 controller,const u16 *event) {
        the list open. An ADJ press closes that list without another toggle;
        on other pages it commits the row first.
        If the commit made a module show a UI box or ask for a native screen,
-       ADJ stays open on the page instead (ui_holds_page). */
+       ADJ stays open on the page instead (ui_holds_page), as it does for a
+       row whose page keeps it open (row_stays). */
     if(kind==EV_CONFIRM) {
-        u32 close=confirm_selection(h);
-        if(close && ui_holds_page(h)) close=0;
+        u32 stays=row_stays(h), close=confirm_selection(h);
+        if(close && (stays || ui_holds_page(h))) close=0;
         if(close) {
             leave(controller);
             h[GRKU_HOST_RETURN/4]=RETURN_CLOSING;

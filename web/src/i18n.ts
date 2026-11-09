@@ -152,6 +152,7 @@ const en = {
     diffusion: 'Diffusion',
     grain: 'Grain',
     border: 'Border',
+    recipes: 'Recipes',
   },
   package: 'Download',
   install: 'Install',
@@ -242,6 +243,7 @@ const en = {
   packageDone: 'The camera, modules, and film looks of this GRKU.zip are back.',
   packageImports: (count: number) =>
     count === 1 ? '1 imported film look is back.' : `${count} imported film looks are back.`,
+  packageRecipes: (count: number) => (count === 1 ? '1 recipe is back.' : `${count} recipes are back.`),
   packageLocked: 'Unlock the GR IV looks again to include them.',
   packageError: 'This file is not a GRKU.zip.',
   /** How closely an imported effect follows its LUT, by its grade (`fit::Grade`). The page
@@ -344,6 +346,7 @@ const en = {
     diffusion: 'The glow of a Black Pro-Mist diffusion filter at 1/8, 1/4, or 1/2, with an optional Black Mist veil over the shadows and a blue or amber anamorphic streak from point lights. No live-view preview.',
     grain: "Film grain from the camera's grain stage, in four strengths. Photos only.",
     border: 'A white or black print border over the photo, 3% or 6% of its width. Photos only.',
+    recipes: 'Save looks and settings as recipes and switch in ADJ. Add popular ones here.',
   },
   steps: [
     ['Turn the camera off.'],
@@ -748,6 +751,7 @@ const zhHans: Strings = {
     diffusion: '柔光镜',
     grain: '颗粒感',
     border: '边框',
+    recipes: '配方',
   },
   package: '下载',
   install: '安装',
@@ -833,6 +837,7 @@ const zhHans: Strings = {
   packageReading: '正在读取 GRKU.zip…',
   packageDone: '已恢复这个 GRKU.zip 的机型、模块和胶片风格。',
   packageImports: (count) => `已恢复 ${count} 种导入的胶片风格。`,
+  packageRecipes: (count) => `已恢复 ${count} 个配方。`,
   packageLocked: '要加入 GR IV 色彩，请重新解锁。',
   packageError: '这个文件不是 GRKU.zip。',
   fitText: {
@@ -921,6 +926,7 @@ const zhHans: Strings = {
     diffusion: '黑柔滤镜的高光柔光，分 1/8、1/4、1/2 三档，可加黑柔雾化提亮暗部，以及点光源的蓝色或琥珀色横向拉丝光。无法实时预览。',
     grain: '相机内置的颗粒感，分弱、中、强、特强四档。仅用于照片。',
     border: '照片上的白色或黑色边框，宽度为照片宽度的 3% 或 6%。仅用于照片。',
+    recipes: '把风格和白平衡等设置存成配方，在 ADJ 中一步切换。也可添加本站的热门配方。',
   },
   steps: [
     ['关闭相机。'],
@@ -1278,6 +1284,7 @@ const zhHant: Strings = {
     diffusion: '柔光鏡',
     grain: '粒紋感',
     border: '邊框',
+    recipes: '配方',
   },
   package: '下載',
   install: '安裝',
@@ -1363,6 +1370,7 @@ const zhHant: Strings = {
   packageReading: '正在讀取 GRKU.zip…',
   packageDone: '已還原這個 GRKU.zip 的機型、模組和底片風格。',
   packageImports: (count) => `已還原 ${count} 種匯入的底片風格。`,
+  packageRecipes: (count) => `已還原 ${count} 個配方。`,
   packageLocked: '要加入 GR IV 色彩，請重新解鎖。',
   packageError: '這個檔案不是 GRKU.zip。',
   fitText: {
@@ -1451,6 +1459,7 @@ const zhHant: Strings = {
     diffusion: '黑柔濾鏡的亮部柔光，分 1/8、1/4、1/2 三段，可加黑柔霧化提亮暗部，以及點光源的藍色或琥珀色橫向拉絲光。實時顯示中無法預覽。',
     grain: '相機內建的粒紋感，分弱、中、強、特強四段。僅用於照片。',
     border: '照片上的白色或黑色邊框，寬度為照片寬度的 3% 或 6%。僅用於照片。',
+    recipes: '把風格和白平衡等設定存成配方，在 ADJ 中一步切換。也可加入本站的熱門配方。',
   },
   steps: [
     ['關閉相機。'],
@@ -1808,6 +1817,7 @@ const ja: Strings = {
     diffusion: 'ディフュージョン',
     grain: '粒状感',
     border: 'ボーダー',
+    recipes: 'レシピ',
   },
   package: 'ダウンロード',
   install: 'インストール',
@@ -1894,6 +1904,7 @@ const ja: Strings = {
   packageReading: 'GRKU.zip を読み込んでいます…',
   packageDone: 'この GRKU.zip のカメラ、モジュール、フィルムルックを復元しました。',
   packageImports: (count) => `読み込んだフィルムルックを ${count} 個復元しました。`,
+  packageRecipes: (count) => `レシピを ${count} 個復元しました。`,
   packageLocked: 'GR IV のルックを入れるには、もう一度ロックを解除してください。',
   packageError: 'このファイルは GRKU.zip ではありません。',
   fitText: {
@@ -1985,6 +1996,7 @@ const ja: Strings = {
     diffusion: 'ブラックプロミストのようにハイライトをにじませます（1/8・1/4・1/2）。ブラックミストで暗部を持ち上げ、ストリークで点光源にブルーまたはアンバーの横方向のフレアを加えられます。ライブビューには反映されません。',
     grain: 'カメラ内蔵の粒状感を、弱・中・強・特強の 4 段階で加えます。静止画のみ。',
     border: '写真の縁に白または黒の枠を重ねます。幅は写真の 3% または 6%。静止画のみ。',
+    recipes: 'ルックや WB などをレシピに保存し、ADJ で一度に切り替え。人気レシピも追加可。',
   },
   steps: [
     ['カメラの電源を切ります。'],
@@ -2342,6 +2354,7 @@ const ko: Strings = {
     diffusion: '디퓨전',
     grain: '입자감',
     border: '테두리',
+    recipes: '레시피',
   },
   package: '다운로드',
   install: '설치',
@@ -2427,6 +2440,7 @@ const ko: Strings = {
   packageReading: 'GRKU.zip을 읽는 중…',
   packageDone: '이 GRKU.zip의 카메라, 모듈, 필름 룩을 복원했습니다.',
   packageImports: (count) => `가져온 필름 룩 ${count}개를 복원했습니다.`,
+  packageRecipes: (count) => `레시피 ${count}개를 복원했습니다.`,
   packageLocked: 'GR IV 색감을 넣으려면 다시 잠금 해제하세요.',
   packageError: '이 파일은 GRKU.zip이 아닙니다.',
   fitText: {
@@ -2516,6 +2530,7 @@ const ko: Strings = {
     diffusion: '블랙 프로미스트 필터처럼 하이라이트를 번지게 합니다(1/8, 1/4, 1/2). 블랙 미스트로 어두운 부분을 띄우고, 스트릭으로 점광원에 블루 또는 앰버의 가로 플레어를 더할 수 있습니다. 라이브 뷰에서는 미리 볼 수 없습니다.',
     grain: '카메라 자체의 입자감을 약, 중, 강, 매우 강 4단계로 더합니다. 사진에만 적용됩니다.',
     border: '사진 가장자리에 흰색 또는 검은색 테두리를 넣습니다. 너비는 사진의 3% 또는 6%. 사진만.',
+    recipes: '룩과 화이트 밸런스 등을 레시피로 저장해 ADJ에서 바로 전환. 인기 레시피도 추가.',
   },
   steps: [
     ['카메라 전원을 끕니다.'],
@@ -2897,6 +2912,7 @@ const th: Strings = {
     diffusion: 'Diffusion',
     grain: 'Grain',
     border: 'Border',
+    recipes: 'Recipes', // TODO Thai through the Gemini tools
   },
   package: 'ดาวน์โหลด',
   install: 'ติดตั้ง',
@@ -2987,6 +3003,7 @@ const th: Strings = {
   packageDone: 'คืนค่ารุ่นกล้อง โมดูล และฟิล์มลุคของ GRKU.zip นี้แล้ว',
   packageImports: (count: number) =>
     count === 1 ? 'คืนค่าฟิล์มลุคที่นำเข้า 1 รายการแล้ว' : `คืนค่าฟิล์มลุคที่นำเข้า ${count} รายการแล้ว`,
+  packageRecipes: (count: number) => (count === 1 ? '1 recipe is back.' : `${count} recipes are back.`), // TODO Thai through the Gemini tools
   packageLocked: 'ปลดล็อกฟิล์มลุคของ GR IV อีกครั้งเพื่อนำมารวมด้วย',
   packageError: 'ไฟล์นี้ไม่ใช่ GRKU.zip',
   /** How closely an imported effect follows its LUT, by its grade (`fit::Grade`). The page
@@ -3089,6 +3106,7 @@ const th: Strings = {
     diffusion: 'ประกายแสงแบบฟิลเตอร์ Black Pro-Mist ระดับ 1/8, 1/4 หรือ 1/2 เลือกเปิดม่านแสง Black Mist ในส่วนเงา และเส้นแสงอนามอร์ฟิกสีน้ำเงินหรือสีอำพันจากจุดไฟได้ ไม่มีตัวอย่างบนไลฟ์วิว',
     grain: "เกรนฟิล์มจากระบบสร้างเกรนของกล้อง ปรับได้ 4 ระดับ สำหรับภาพนิ่งเท่านั้น",
     border: 'กรอบขาวหรือดำทับลงบนภาพ ขนาด 3% หรือ 6% ของความกว้างภาพ สำหรับภาพนิ่งเท่านั้น',
+    recipes: 'Save looks and settings as recipes and switch in ADJ. Add popular ones here.', // TODO Thai through the Gemini tools
   },
   steps: [
     ['ปิดกล้อง'],

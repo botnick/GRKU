@@ -20,8 +20,23 @@ pub struct Official {
     pub needs_effects: bool,
 }
 
+/// The official modules that the release packages hold: a package holds at
+/// most `abi::MODULES_MAX` modules, and the official modules are one more,
+/// so Border stays out of the default package and the site offers it.
+pub const DEFAULT_PACKAGE: [&str; 10] = [
+    "FILMLOOK", "FRAMING", "CROP", "GUIDES", "DATE", "GLOW", "LEAK", "DIFFUSE", "GRAIN", "RECIPES",
+];
+
+/// The official modules of the default package (`DEFAULT_PACKAGE`), in the
+/// order of `OFFICIAL`.
+pub fn default_package() -> impl Iterator<Item = &'static Official> {
+    OFFICIAL
+        .iter()
+        .filter(|official| DEFAULT_PACKAGE.contains(&official.id))
+}
+
 /// The official modules, in the order that the site shows them.
-pub const OFFICIAL: [Official; 10] = [
+pub const OFFICIAL: [Official; 11] = [
     Official {
         id: "FILMLOOK",
         folder: "film-look",
@@ -80,6 +95,12 @@ pub const OFFICIAL: [Official; 10] = [
         id: "GRAIN",
         folder: "grain",
         key: "grain",
+        needs_effects: false,
+    },
+    Official {
+        id: "RECIPES",
+        folder: "recipes",
+        key: "recipes",
         needs_effects: false,
     },
 ];

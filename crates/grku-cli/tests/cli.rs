@@ -8,8 +8,7 @@ use std::process::{Command, Output};
 fn official_modules() -> Vec<String> {
     let directory = Path::new(env!("CARGO_TARGET_TMPDIR")).join("official-modules");
     fs::create_dir_all(&directory).unwrap();
-    grku_core::modules::OFFICIAL
-        .iter()
+    grku_core::modules::default_package()
         .map(|official| {
             // Tests run in parallel and share the directory: write each file
             // under another name and rename it, so that no grku process
@@ -313,8 +312,8 @@ fn package_roundtrip_and_output_ownership() {
         text(&zip),
     ];
     let packaged = success(&args);
-    // Eleven runtime, package list, and document entries, the ten official
-    // modules, then one per effect.
+    // Eleven runtime, package list, and document entries, the ten modules of
+    // the default package, then one per effect.
     assert_eq!(packaged["entries"], 21 + fixture_count());
     assert_eq!(success(&["verify", text(&zip)])["effects"], fixture_count());
     let before = fs::read(&zip).unwrap();

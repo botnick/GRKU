@@ -85,4 +85,16 @@ export const LANDING_PHOTOS = {
     camera: 'RICOH GR II',
     source: 'https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg',
   },
+  takeaway: {
+    author: 'Tony Barrett',
+    license: 'CC BY-SA 4.0',
+    camera: 'RICOH GR III',
+    source: 'https://discuss.pixls.us/t/40918',
+  },
+  dunes: {
+    author: 'raw.pixls.us',
+    license: 'CC0 1.0',
+    camera: 'RICOH GR III',
+    source: 'https://raw.pixls.us/',
+  },
 } as const;
