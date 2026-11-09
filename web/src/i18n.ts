@@ -93,7 +93,7 @@ const en = {
   description:
     'Film looks, XPan crops, date stamps, glow, and grain for RICOH GR III, IIIx, and IV. Use film simulation recipes or your own LUT. No firmware flashing.',
   /** The hero lines under the GRKU heading, one line each. */
-  lead: ['135 film looks for your RICOH GR.', 'From the SD card, with the firmware untouched.'] as readonly string[],
+  lead: ['Film looks for your RICOH GR', 'From the SD card, with the firmware untouched.'] as readonly string[],
   /** The landing page above the installer. */
   landing: {
     fact: 'Loads about nine seconds after power-on. Format the card and the camera is stock again.',
@@ -693,7 +693,7 @@ const zhHans: Strings = {
   title: 'GRKU：理光 GR III / IIIx / IV 胶片滤镜与 XPan 宽幅，无需刷机',
   description:
     '为理光 GR III、GR IIIx、GR IV 加上胶片滤镜（胶片模拟）、XPan 宽幅等画幅、日期水印、光晕和颗粒，也能导入自己的 LUT。从 SD 卡加载，无需刷机。',
-  lead: ['给理光 GR 的 135 种胶片风格。', '只放在 SD 卡上，不动固件。'],
+  lead: ['RICOH GR 胶片风格', '只放在 SD 卡上，不动固件。'],
   landing: {
     fact: '开机约九秒后载入。格式化存储卡，相机就回到原样。',
     shelf: '胶片架',
@@ -1223,7 +1223,7 @@ const zhHant: Strings = {
   title: 'GRKU：理光 GR III / IIIx / IV 底片濾鏡與 XPan 比例，不改韌體',
   description:
     '為理光 GR III、GR IIIx、GR IV 加上底片濾鏡（底片模擬）、XPan 等畫面比例、日期浮水印、光暈與顆粒，也能匯入自己的 LUT。從 SD 卡執行，不改韌體。',
-  lead: ['給理光 GR 的 135 種底片風格。', '只放在 SD 卡上，不動韌體。'],
+  lead: ['RICOH GR 專用底片風格', '只放在 SD 卡上，不動韌體。'],
   landing: {
     fact: '開機約九秒後載入。格式化記憶卡，相機就回到原樣。',
     shelf: '底片架',
@@ -1753,7 +1753,7 @@ const ja: Strings = {
   title: 'GRKU：RICOH GR III / IIIx / IV にフィルム風の色味と XPan を',
   description:
     'RICOH GR III・GR IIIx・GR IV に、フィルム風の色味、XPan などのアスペクト比、日付写し込み、グロー、粒状感を追加します。フィルムシミュレーションのレシピも、自分の LUT も使えます。ファームウェアの書き換えは不要です。',
-  lead: ['RICOH GR に 135 のフィルムルック。', 'SD カードから動き、ファームウェアには触れません。'],
+  lead: ['RICOH GRのためのフィルムルック', 'SD カードから動き、ファームウェアには触れません。'],
   landing: {
     fact: '電源を入れて約 9 秒で読み込まれます。カードをフォーマットすればカメラは元どおりです。',
     shelf: 'フィルム棚',
@@ -2287,7 +2287,7 @@ const ko: Strings = {
   title: 'GRKU: RICOH GR III, IIIx, IV용 필름 룩과 XPan, 펌웨어 수정 없이',
   description:
     'RICOH GR III, GR IIIx, GR IV에 필름 룩, XPan 등 여러 비율, 날짜 각인, 글로우, 입자감을 더합니다. 필름 레시피를 쓰거나 가지고 있는 LUT를 가져올 수 있습니다. 펌웨어는 수정하지 않습니다.',
-  lead: ['RICOH GR을 위한 135가지 필름 룩.', 'SD 카드에서 실행되고 펌웨어는 그대로입니다.'],
+  lead: ['RICOH GR을 위한 필름 룩', 'SD 카드에서 실행되고 펌웨어는 그대로입니다.'],
   landing: {
     fact: '전원을 켠 뒤 약 9초면 불러옵니다. 카드를 포맷하면 카메라는 원래대로입니다.',
     shelf: '필름 선반',
@@ -2838,7 +2838,7 @@ const th: Strings = {
   description:
     'ฟิล์มลุค ครอป XPan ประทับวันที่ ประกายแสง และเกรนสำหรับ RICOH GR III, IIIx และ IV ใช้สูตรจำลองสีฟิล์มหรือ LUT ของคุณเองโดยไม่ต้องแฟลชเฟิร์มแวร์',
   /** The hero lines under the GRKU heading, one line each. */
-  lead: ['135 ฟิล์มลุคสำหรับ RICOH GR ของคุณ', 'ทำงานจากการ์ด SD โดยไม่แตะต้องเฟิร์มแวร์'] as readonly string[],
+  lead: ['ฟิล์มลุคสำหรับ RICOH GR ของคุณ', 'ทำงานจากการ์ด SD โดยไม่แตะต้องเฟิร์มแวร์'] as readonly string[],
   /** The landing page above the installer. */
   landing: {
     fact: 'โหลดประมาณเก้าวินาทีหลังเปิดเครื่อง ล้างการ์ดแล้วกล้องจะกลับสู่ค่าเดิมจากโรงงาน',

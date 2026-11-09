@@ -1,4 +1,7 @@
 import type { ReactNode } from 'react';
+import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
+import { useReactCompareSlider } from 'react-compare-slider/hooks';
+import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -35,21 +38,54 @@ const TILES: Record<ModuleKey, string> = {
 type Photo = keyof typeof LANDING_PHOTOS;
 
 /** The example photos of the modules: the image in public/landing/, the module, the setting, the photo. */
-const EXAMPLES: readonly { image: string; module: ModuleKey; detail: (t: Strings) => string; photo: Photo }[] = [
-  { image: 'framing-xpan.jpg', module: 'framing', detail: () => 'XPan 65:24', photo: 'achensee' },
-  { image: 'crop-50.jpg', module: 'crop', detail: () => '50mm', photo: 'tram' },
-  { image: 'guides-thirds.jpg', module: 'guides', detail: (t) => t.landing.guideRows[1] ?? '', photo: 'clouds' },
-  { image: 'date-gr2.jpg', module: 'dateStamp', detail: (t) => t.landing.dateLooks[2] ?? '', photo: 'wakkanai' },
-  { image: 'date-gr1s.jpg', module: 'dateStamp', detail: (t) => t.landing.dateLooks[1] ?? '', photo: 'wakkanai' },
-  { image: 'bloom.jpg', module: 'glow', detail: (t) => t.landing.glowKinds[1] ?? '', photo: 'hokkaido' },
-  { image: 'halation.jpg', module: 'glow', detail: (t) => t.landing.glowKinds[2] ?? '', photo: 'hokkaido' },
-  { image: 'leak-leaky.jpg', module: 'lightLeak', detail: () => 'Leaky', photo: 'beach' },
-  { image: 'leak-dusty.jpg', module: 'lightLeak', detail: () => 'Dusty', photo: 'nathans' },
-  { image: 'diffusion-half.jpg', module: 'diffusion', detail: () => '1/2 · Streak', photo: 'neon' },
-  { image: 'border-white.jpg', module: 'border', detail: () => 'White 3%', photo: 'temple' },
+const EXAMPLES: readonly { image: string; before?: string; module: ModuleKey; detail: (t: Strings) => string; photo: Photo }[] = [
+  { image: 'framing-xpan.jpg', before: 'framing-xpan-before.jpg', module: 'framing', detail: () => 'XPan 65:24', photo: 'achensee' },
+  { image: 'crop-50.jpg', before: 'crop-50-before.jpg', module: 'crop', detail: () => '50mm', photo: 'tram' },
+  { image: 'guides-thirds.jpg', before: 'guides-thirds-before.jpg', module: 'guides', detail: (t) => t.landing.guideRows[1] ?? '', photo: 'clouds' },
+  { image: 'date-gr2.jpg', before: 'date-before.jpg', module: 'dateStamp', detail: (t) => t.landing.dateLooks[2] ?? '', photo: 'wakkanai' },
+  { image: 'date-gr1s.jpg', before: 'date-before.jpg', module: 'dateStamp', detail: (t) => t.landing.dateLooks[1] ?? '', photo: 'wakkanai' },
+  { image: 'bloom.jpg', before: 'glow-off.jpg', module: 'glow', detail: (t) => t.landing.glowKinds[1] ?? '', photo: 'hokkaido' },
+  { image: 'halation.jpg', before: 'glow-off.jpg', module: 'glow', detail: (t) => t.landing.glowKinds[2] ?? '', photo: 'hokkaido' },
+  { image: 'leak-leaky.jpg', before: 'leak-leaky-before.jpg', module: 'lightLeak', detail: () => 'Leaky', photo: 'beach' },
+  { image: 'leak-dusty.jpg', before: 'leak-dusty-before.jpg', module: 'lightLeak', detail: () => 'Dusty', photo: 'nathans' },
+  { image: 'diffusion-half.jpg', before: 'diffusion-half-before.jpg', module: 'diffusion', detail: () => '1/2 · Streak', photo: 'neon' },
+  { image: 'border-white.jpg', before: 'border-white-before.jpg', module: 'border', detail: () => 'White 3%', photo: 'temple' },
   { image: 'grain-2.jpg', module: 'grain', detail: (t) => t.landing.grainLevels[1] ?? '', photo: 'tram' },
   { image: 'grain-4.jpg', module: 'grain', detail: (t) => t.landing.grainLevels[3] ?? '', photo: 'tram' },
 ];
+
+/** A frame of the strip: the photo without the module on the left, with it on the right, under a handle. */
+function Example({ before, after, alt, detail, compareLabel }: { before?: string; after: string; alt: string; detail: string; compareLabel: string }) {
+  const comparison = useReactCompareSlider({ clip: 'itemTwo' });
+  const frame = 'relative aspect-[3/2] overflow-hidden rounded-lg bg-black';
+  if (!before) {
+    return (
+      <div className={frame}>
+        <img src={landingImage(after)} alt={alt} width="1200" height="800" loading="lazy" className="absolute inset-0 size-full object-cover" />
+        <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">{detail}</Badge>
+      </div>
+    );
+  }
+  return (
+    <div className={frame}>
+      <Provider {...comparison}>
+        <Root className="image-comparison">
+          <Item item="itemOne">
+            <img src={landingImage(before)} alt={`${alt} — Off`} width="1200" height="800" loading="lazy" />
+          </Item>
+          <Item item="itemTwo" className="comparison-effect">
+            <img src={landingImage(after)} alt={alt} width="1200" height="800" loading="lazy" />
+          </Item>
+          <HandleRoot aria-label={compareLabel}>
+            <Handle buttonStyle={{ width: 28, height: 28, gap: '0.2rem' }} />
+          </HandleRoot>
+        </Root>
+      </Provider>
+      <Badge className="pointer-events-none absolute top-2 left-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">Off</Badge>
+      <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">{detail}</Badge>
+    </div>
+  );
+}
 
 /**
  * The modules of the camera menu: a card per module to turn it on, the menu as the camera will
@@ -139,15 +175,8 @@ export function ModulesStep({
             const detail = example.detail(t);
             const credit = LANDING_PHOTOS[example.photo];
             return (
-              <figure key={example.image} className="m-0 w-[min(360px,78vw)] shrink-0">
-                <img
-                  src={landingImage(example.image)}
-                  alt={`${title} — ${detail}`}
-                  width="1200"
-                  height="800"
-                  loading="lazy"
-                  className="block aspect-[3/2] h-auto w-full rounded-lg bg-black object-cover"
-                />
+              <figure key={example.image} className="m-0 w-[min(420px,82vw)] shrink-0">
+                <Example before={example.before} after={example.image} alt={`${title} — ${detail}`} detail={detail} compareLabel={t.compare} />
                 <figcaption className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-2.5 text-sm text-muted-foreground">
                   <span className="font-mono text-xs text-muted-foreground/70">{String(index + 1).padStart(2, '0')}</span>
                   <b className="font-semibold text-foreground">{title}</b>

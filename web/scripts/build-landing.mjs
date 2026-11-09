@@ -173,10 +173,12 @@ try {
   }
   const save = (name, { width, height, rgba }) => writeFileSync(join(OUTPUT, name), encode(width, height, rgba));
 
+  // Each example has its "before": the same view without the module, for the slider of the site.
   // Framing: the live view of XPan 65:24 on the Achensee, the picture outside the frame dimmed,
   // as the Dark mask of the camera shows it.
   {
     const image = whole(decoded('achensee'));
+    save('framing-xpan-before.jpg', image);
     const band = Math.round((OUT_W * 24) / 65);
     const top = (OUT_H - band) >> 1;
     for (let y = 0; y < OUT_H; y++) if (y < top || y >= top + band) for (let x = 0; x < OUT_W; x++) darken(image, x, y, 0.55);
@@ -187,12 +189,20 @@ try {
   {
     const tram = decoded('tram');
     const w = Math.round(tram.width * (28 / 50)) & ~1, h = Math.round((w * 2) / 3);
-    save('crop-50.jpg', resample(tram, (tram.width - w) >> 1, (tram.height - h) >> 1, w, h));
+    const left = (tram.width - w) >> 1, top = (tram.height - h) >> 1;
+    // Before: the whole 28 mm frame with the frame lines of the crop, as the live view shows it.
+    const before = whole(tram);
+    const fx0 = Math.round((left / tram.width) * OUT_W), fx1 = Math.round(((left + w) / tram.width) * OUT_W);
+    const fy0 = Math.round((top / tram.height) * OUT_H), fy1 = Math.round(((top + h) / tram.height) * OUT_H);
+    line(before, fx0, fy0, fx1, fy0); line(before, fx0, fy1, fx1, fy1); line(before, fx0, fy0, fx0, fy1); line(before, fx1, fy0, fx1, fy1);
+    save('crop-50-before.jpg', before);
+    save('crop-50.jpg', resample(tram, left, top, w, h));
     console.log('Crop: done.');
   }
   // Guides: the thirds over the clouds, as the live view draws them.
   {
     const image = whole(decoded('clouds'));
+    save('guides-thirds-before.jpg', image);
     for (const t of [1 / 3, 2 / 3]) {
       line(image, Math.round(OUT_W * t), 0, Math.round(OUT_W * t), OUT_H - 1);
       line(image, 0, Math.round(OUT_H * t), OUT_W - 1, Math.round(OUT_H * t));
@@ -204,6 +214,7 @@ try {
   // the bottom right part of the photo.
   const date = renderer('date', 'RENDER_DATE');
   const wakkanai = decoded('wakkanai');
+  save('date-before.jpg', resample(wakkanai, 3600, 2400, 2400, 1600));
   ['classic', 'gr1s', 'gr2'].forEach((look, value) => {
     const out = date(wakkanai, [1, value], { RENDER_TIME: '2023 3 15 7 47' });
     save(`date-${look}.jpg`, resample(out, 3600, 2400, 2400, 1600));
@@ -221,16 +232,23 @@ try {
   console.log('Glow: done.');
   // Light Leak: the Leaky preset on the beach, the Dusty preset on Nathan's.
   const leak = renderer('lightleak', 'RENDER_LEAK');
-  save('leak-leaky.jpg', whole(leak(decoded('beach'), [4])));
-  save('leak-dusty.jpg', whole(leak(decoded('nathans'), [3])));
+  const beach = decoded('beach'), nathans = decoded('nathans');
+  save('leak-leaky-before.jpg', whole(beach));
+  save('leak-leaky.jpg', whole(leak(beach, [4])));
+  save('leak-dusty-before.jpg', whole(nathans));
+  save('leak-dusty.jpg', whole(leak(nathans, [3])));
   console.log('Light Leak: done.');
   // Diffusion: Black Pro-Mist 1/2 with the amber Streak on the neon sign.
   const diffusion = renderer('diffusion', 'RENDER_DIFFUSION');
-  save('diffusion-half.jpg', whole(diffusion(decoded('neon'), [3, 0, 2])));
+  const neon = decoded('neon');
+  save('diffusion-half-before.jpg', whole(neon));
+  save('diffusion-half.jpg', whole(diffusion(neon, [3, 0, 2])));
   console.log('Diffusion: done.');
   // Border: the white 3% edge on the temple.
   const border = renderer('border', 'RENDER_BORDER');
-  save('border-white.jpg', whole(border(decoded('temple'), [1])));
+  const temple = decoded('temple');
+  save('border-white-before.jpg', whole(temple));
+  save('border-white.jpg', whole(border(temple, [1])));
   console.log('Border: done.');
 
   // Grain: the light grey footbridge girder, at full size. A smaller size averages the grain
