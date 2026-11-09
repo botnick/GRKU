@@ -54,7 +54,8 @@ crop_queue_post:
     ldr r3, [r2, #GRKIT_HOST_CROP_QUEUE_OWNER]
     cmp r0, r3
     bne 2f
-    add r2, r2, #GRKIT_HOST_CROP_QUEUE_FLAGS
+    ldr r3, =GRKIT_HOST_CROP_QUEUE_FLAGS
+    add r2, r2, r3
 1:  ldrex r3, [r2]
     orr r4, r3, #CROP_QUEUE_POSTED
     strex r5, r4, [r2]
@@ -165,7 +166,8 @@ crop_queue_release:
     blo 2b
     b 9f
     /* Mark the check unless a completion came first, then check. */
-5:  add r1, r5, #GRKIT_HOST_CROP_QUEUE_FLAGS
+5:  ldr r1, =GRKIT_HOST_CROP_QUEUE_FLAGS
+    add r1, r5, r1
 6:  ldrex r0, [r1]
     tst r0, #(CROP_QUEUE_POSTED | CROP_QUEUE_RECOVERED)
     bne 8f
