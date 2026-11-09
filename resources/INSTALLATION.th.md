@@ -19,6 +19,8 @@ GRKU เป็นซอฟต์แวร์ทดลองและไม่ม
 
 ![หน้าจอ Mode Set Command แสดง Script - Enable และ Complete](images/camera-menu.png)
 
+![ADJ → GRKU](images/camera-adj.png)
+
 หลังจากการติดตั้งเสร็จสิ้น คุณสามารถลบไฟล์ `00078350.588` และ `DEVELOP.MOD` ออกจากรูทของการ์ดได้
 
 ## การใช้งาน

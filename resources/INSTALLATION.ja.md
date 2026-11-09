@@ -19,6 +19,8 @@ GRKU は試験的なソフトウェアで、保証はありません。GRKU に�
 
 ![Mode Set Command の画面に Script - Enable と Complete が表示されています。](images/camera-menu.png)
 
+![ADJ → GRKU](images/camera-adj.png)
+
 インストール後は、カードのルートから `00078350.588` と `DEVELOP.MOD` を削除できます。
 
 ## 使い方

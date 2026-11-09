@@ -166,15 +166,22 @@ const CAMERA_MENU_IMAGE: (&str, &[u8]) = (
     include_bytes!("../../../resources/images/camera-menu.png"),
 );
 
+/// The camera back with GRKU in ADJ, after the first start.
+const CAMERA_ADJ_IMAGE: (&str, &[u8]) = (
+    "images/camera-adj.png",
+    include_bytes!("../../../resources/images/camera-adj.png"),
+);
+
 /// The screenshots of the GR III guides, at the paths that the guides link, so
 /// the links work in the repository and in the guide source.
-const GUIDE_IMAGES: [(&str, &[u8]); 3] = [
+const GUIDE_IMAGES: [(&str, &[u8]); 4] = [
     (
         "images/grku-root.jpg",
         include_bytes!("../../../resources/images/grku-root.jpg"),
     ),
     MODESET_IMAGE,
     CAMERA_MENU_IMAGE,
+    CAMERA_ADJ_IMAGE,
 ];
 
 /// The card root after step 2: the SD_ROOT files of the package, with the
@@ -189,7 +196,7 @@ fn card_image(camera: &Camera) -> &'static [u8] {
 
 /// The GR IV guides show only the Mode Set screen, because other GR III screens
 /// could differ from GR IV screens.
-const GR4_GUIDE_IMAGES: [(&str, &[u8]); 2] = [MODESET_IMAGE, CAMERA_MENU_IMAGE];
+const GR4_GUIDE_IMAGES: [(&str, &[u8]); 3] = [MODESET_IMAGE, CAMERA_MENU_IMAGE, CAMERA_ADJ_IMAGE];
 
 /// The screenshots that the guides of `camera` show.
 pub fn guide_images(camera: &Camera) -> Vec<(&'static str, &'static [u8])> {

@@ -19,6 +19,8 @@ Step 3 turns on the SD scripts of the camera: the camera shows Mode Set Command 
 
 ![The Mode Set Command screen shows Script - Enable and Complete.](images/camera-menu.png)
 
+![ADJ → GRKU](images/camera-adj.png)
+
 After the installation, you can remove `00078350.588` and `DEVELOP.MOD` from the card root.
 
 ## Use

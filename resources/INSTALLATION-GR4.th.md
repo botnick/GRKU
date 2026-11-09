@@ -19,6 +19,8 @@ GRKU ยังอยู่ในขั้นทดลองและไม่ม
 
 ![หน้าจอ Mode Set Command แสดงข้อความ Script - Enable และ Complete](images/camera-menu.png)
 
+![ADJ → GRKU](images/camera-adj.png)
+
 หลังจากการติดตั้งเสร็จสิ้น คุณสามารถลบไฟล์ `00078560.636` และ `DEVELOP.MOD` ออกจากรูทของการ์ดได้
 
 ## การใช้งาน

@@ -19,6 +19,8 @@ GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可
 
 ![Mode Set Command 画面显示 Script - Enable 和 Complete。](images/camera-menu.png)
 
+![ADJ → GRKU](images/camera-adj.png)
+
 安装后，可以从存储卡根目录删除 `00078560.636` 和 `DEVELOP.MOD`。
 
 ## 使用

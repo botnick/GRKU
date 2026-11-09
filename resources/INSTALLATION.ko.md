@@ -20,6 +20,8 @@ GRKU는 실험적이며 보증이 없습니다. GRKU가 실패하면 카메라�
 
 ![Mode Set Command 화면에 Script - Enable과 Complete가 표시되어 있습니다.](images/camera-menu.png)
 
+![ADJ → GRKU](images/camera-adj.png)
+
 설치 후에는 카드 최상위에서 `00078350.588`과 `DEVELOP.MOD`를 삭제해도 됩니다.
 
 ## 사용 방법

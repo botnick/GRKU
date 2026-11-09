@@ -104,6 +104,14 @@ import cardGr3 from '../../resources/images/card-gr3.png';
 import cardGr3x from '../../resources/images/card-gr3x.png';
 import cardGr4 from '../../resources/images/card-gr4.png';
 import cameraMenuImage from '../../resources/images/camera-menu.png';
+import cameraAdjImage from '../../resources/images/camera-adj.png';
+
+/** A step number in a red circle. */
+function StepNumber({ n, className }: { n: number; className?: string }) {
+  return (
+    <span className={cn('flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-brand-foreground', className)}>{n}</span>
+  );
+}
 
 /** The card root after copying SD_ROOT, with the ModeSet file of each camera. */
 const CARD_IMAGES: Record<string, string> = { gr3: cardGr3, gr3x: cardGr3x, gr4: cardGr4, gr4m: cardGr4 };
@@ -814,18 +822,29 @@ export function App({
   const zipSteps = (
     <div className={cn('rounded-2xl border bg-card p-5', build.state === 'ready' && 'border-brand/60 bg-brand/[0.06]')}>
       <p className="m-0 text-base font-semibold">{t.zipNextTitle}</p>
-      <ol className="m-0 mt-3 flex list-none flex-col gap-3 p-0 text-sm leading-relaxed">
+      <ol className="m-0 mt-3 flex list-none flex-col gap-2 p-0 text-sm leading-relaxed">
         {[t.zipNext1, t.zipNext2, t.zipNext3, t.zipNext4].map((step, index) => (
-          <li key={step} className="flex flex-col gap-2">
-            <span className="flex gap-3">
-              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-brand-foreground">{index + 1}</span>
-              <span>{step}</span>
-            </span>
-            {index === 1 && <img src={CARD_IMAGES[camera.key] ?? CARD_IMAGES.gr4} alt="" width="600" height="200" className="ml-8 h-auto w-[calc(100%-2rem)] max-w-md" />}
-            {index === 2 && <img src={cameraMenuImage} alt="" width="600" height="330" className="ml-8 h-auto w-[calc(100%-2rem)] max-w-sm" />}
+          <li key={step} className="flex gap-3">
+            <StepNumber n={index + 1} />
+            <span>{step}</span>
           </li>
         ))}
       </ol>
+      {/* The card after step 2, then the camera in steps 3 and 4. */}
+      <div className="mt-4 flex flex-col gap-3">
+        <figure className="relative m-0 rounded-xl bg-background/50 p-2">
+          <StepNumber n={2} className="absolute top-2 left-2 z-10" />
+          <img src={CARD_IMAGES[camera.key] ?? CARD_IMAGES.gr4} alt="" width="600" height="200" className="mx-auto h-auto w-full max-w-lg" />
+        </figure>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {([[3, cameraMenuImage], [4, cameraAdjImage]] as const).map(([n, src]) => (
+            <figure key={n} className="relative m-0 rounded-xl bg-background/50 p-2">
+              <StepNumber n={n} className="absolute top-2 left-2 z-10" />
+              <img src={src} alt="" width="600" height="340" className="h-auto w-full" />
+            </figure>
+          ))}
+        </div>
+      </div>
       <a className="mt-4 inline-block text-sm font-medium underline underline-offset-4" href={guidePdfUrl(camera.id, language)} target="_blank" rel="noreferrer">
         {t.zipNextGuide}
       </a>
@@ -834,8 +853,8 @@ export function App({
 
   const zipFlow = (
     <div className="flex flex-col gap-6">
-      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-      <div className="flex flex-col gap-6">
+      <div className="grid items-start gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr]">
+      <div className="flex flex-col gap-6 lg:col-start-1 lg:row-start-1">
       {packageOpen}
       <dl className={FACTS}>
         <dt className={FACT_LABEL}>{t.camera}</dt>
@@ -875,8 +894,8 @@ export function App({
         {build.state === 'ready' && packageLinks}
       </div>
       </div>
-      {zipSteps}
-      </div>
+      <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">{zipSteps}</div>
+      <div className="lg:col-start-1 lg:row-start-2">
       <Accordion type="single" collapsible className="w-full border-t border-border">
         {guide('install', t.install, t.steps)}
         {guide('update', t.update, t.updateSteps)}
@@ -899,6 +918,8 @@ export function App({
           </div>,
         )}
       </Accordion>
+      </div>
+      </div>
     </div>
   );
 
