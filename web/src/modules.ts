@@ -1,4 +1,4 @@
-import { OFFICIAL_MODULES, type ModuleKey } from './generated/modules';
+import { DEFAULT_MODULES, OFFICIAL_MODULES, PACKAGE_MODULES_MAX, type ModuleKey } from './generated/modules';
 
 /**
  * The official modules of the ADJ menu and the package rules for them. The package holds the
@@ -11,6 +11,12 @@ export const MODULES = OFFICIAL_MODULES;
 export type { ModuleKey };
 
 export const ALL_MODULES: ReadonlySet<ModuleKey> = new Set(MODULES.map((module) => module.key));
+
+/** The modules that are on before the first change: those of the release packages. */
+export const DEFAULT_ENABLED: ReadonlySet<ModuleKey> = new Set(DEFAULT_MODULES);
+
+/** A package, and the camera, hold at most this many modules; the official ones are one more. */
+export const MODULES_MAX = PACKAGE_MODULES_MAX;
 
 export interface ModulePlan {
   /** The package includes the selected effects only when Image Control is on. */

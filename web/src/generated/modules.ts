@@ -19,6 +19,12 @@ export const OFFICIAL_MODULES = [
 
 export type ModuleKey = (typeof OFFICIAL_MODULES)[number]['key'];
 
+/** A package holds at most this many modules (`abi::MODULES_MAX`). */
+export const PACKAGE_MODULES_MAX = 10;
+
+/** The modules of the release packages (`DEFAULT_PACKAGE`): the site starts with these on. */
+export const DEFAULT_MODULES = ['filmLook', 'framing', 'crop', 'guides', 'dateStamp', 'glow', 'lightLeak', 'diffusion', 'grain', 'recipes'] as const satisfies readonly ModuleKey[];
+
 /** The official modules that each camera can install, in menu order. */
 export const CAMERA_MODULES = {
   gr3: ['filmLook', 'framing', 'crop', 'guides', 'dateStamp', 'glow', 'lightLeak', 'diffusion', 'border', 'grain', 'recipes'],

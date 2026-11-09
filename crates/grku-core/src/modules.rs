@@ -133,6 +133,22 @@ fn site_module() -> String {
     }
     out.push_str("] as const;\n\n");
     out.push_str("export type ModuleKey = (typeof OFFICIAL_MODULES)[number]['key'];\n\n");
+    out.push_str("/** A package holds at most this many modules (`abi::MODULES_MAX`). */\n");
+    writeln!(
+        out,
+        "export const PACKAGE_MODULES_MAX = {};\n",
+        crate::abi::MODULES_MAX
+    )
+    .unwrap();
+    out.push_str("/** The modules of the release packages (`DEFAULT_PACKAGE`): the site starts with these on. */\n");
+    out.push_str("export const DEFAULT_MODULES = [");
+    out.push_str(
+        &default_package()
+            .map(|module| format!("'{}'", module.key))
+            .collect::<Vec<_>>()
+            .join(", "),
+    );
+    out.push_str("] as const satisfies readonly ModuleKey[];\n\n");
     out.push_str("/** The official modules that each camera can install, in menu order. */\n");
     out.push_str("export const CAMERA_MODULES = {\n");
     for camera in camera::CAMERAS {

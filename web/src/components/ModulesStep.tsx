@@ -4,12 +4,14 @@ import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { Strings } from '../i18n';
 import { LANDING_PHOTOS, landingImage } from '../landing';
 import type { MODULES, ModuleKey } from '../modules';
 import { ChangeBadge } from './Workbench';
+import { MODULES_MAX } from '../modules';
 import tileFilmLook from '../../../modules/film-look/tiles/0-module.png';
 import tileFraming from '../../../modules/framing/tiles/0-module.png';
 import tileCrop from '../../../modules/crop/tiles/0-module.png';
@@ -102,6 +104,7 @@ export function ModulesStep({
   planned,
   emptyLooks,
   lookCount,
+  recipes = null,
 }: {
   strings: Strings;
   /** The modules that the camera offers, in menu order. */
@@ -116,11 +119,22 @@ export function ModulesStep({
   emptyLooks: boolean;
   /** The number of film looks of the package, for the Film Look row of the menu. */
   lookCount: ReactNode;
+  /** The recipes of the camera and the mode dial, while the Recipes module is on. */
+  recipes?: ReactNode;
 }) {
   const visible = modules.filter((module) => enabled.has(module.key));
+  const full = visible.length >= MODULES_MAX;
   return (
     <div className="flex flex-col gap-10">
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+        <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-end gap-3 text-sm tabular-nums">
+          <Progress value={Math.min(100, (visible.length / MODULES_MAX) * 100)} className="w-20 [&>div]:bg-brand" aria-hidden="true" />
+          <span>
+            <b className="font-semibold">{visible.length}</b>
+            <span className="text-muted-foreground"> / {MODULES_MAX}</span>
+          </span>
+        </div>
         <ul role="group" aria-label={t.modules} className="divide-y divide-border overflow-hidden rounded-xl border bg-card">
           {modules.map((module) => {
             const on = enabled.has(module.key);
@@ -133,7 +147,7 @@ export function ModulesStep({
                       {t.moduleNames[module.key]}
                       {installed && <ChangeBadge on={installed.includes(module.id)} checked={planned.includes(module.id)} strings={t} />}
                     </Label>
-                    <Switch id={`module-${module.key}`} checked={on} onCheckedChange={() => onToggle(module.key)} aria-label={t.moduleNames[module.key]} />
+                    <Switch id={`module-${module.key}`} checked={on} disabled={!on && full} onCheckedChange={() => onToggle(module.key)} aria-label={t.moduleNames[module.key]} />
                   </div>
                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t.modulesText[module.key]}</p>
                   {module.key === 'filmLook' && emptyLooks && <p className="mt-1 text-sm text-destructive">{t.filmLookEmpty}</p>}
@@ -142,6 +156,7 @@ export function ModulesStep({
             );
           })}
         </ul>
+        </div>
 
         <Card
           className="gap-0 rounded-2xl border-input bg-[#0c0c0c] py-0 shadow-[0_24px_60px_rgba(0,0,0,0.5)] lg:sticky lg:top-20"
@@ -168,6 +183,7 @@ export function ModulesStep({
           <CardFooter className="px-5 pt-2 pb-3 text-xs text-muted-foreground/70">{t.landing.menuCaption}</CardFooter>
         </Card>
       </div>
+      {recipes}
 
       <div>
         <h3 className="mb-3 text-sm font-medium text-muted-foreground">{t.examples}</h3>

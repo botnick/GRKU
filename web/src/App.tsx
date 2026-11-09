@@ -33,7 +33,8 @@ import {
 } from './card';
 import { allowCard, forgetLastCard, saveLastCard } from './cardStore';
 import { useRecipeLibrary } from './recipeLibrary';
-import { familyOf, writeRecipeFile, type Family } from './recipes';
+import { DIAL_SAVED, effectCode, familyOf, withPreset, writeRecipeFile, type Family, type Recipe } from './recipes';
+import { RecipesPanel } from './components/RecipesPanel';
 import {
   changedImports,
   extraCardEffects,
@@ -52,7 +53,7 @@ import {
   PREVIEW_TARGET,
   type Camera,
 } from './cameras';
-import { loadCatalog, type Catalog, type CardEffect, type ImportedEffect, type PackageEffect } from './catalog';
+import { loadCatalog, MAX_EFFECTS, type Catalog, type CardEffect, type ImportedEffect, type PackageEffect } from './catalog';
 import {
   CardChangesView,
   CardConnect,
@@ -85,7 +86,7 @@ import { importsForCamera, NATIVE_LOOKS } from './import/native';
 import { isLutImportId } from './import/names';
 import { deleteImport, saveImport, updateImport } from './import/store';
 import { applyLanguage, STRINGS, type Language, type Strings } from './i18n';
-import { ALL_MODULES, MODULES, planModules, type ModuleKey } from './modules';
+import { DEFAULT_ENABLED, MODULES, MODULES_MAX, planModules, type ModuleKey } from './modules';
 import {
   buildCardFiles,
   buildPackage,
@@ -139,7 +140,7 @@ export function App({
   // The ZIP download has no card to read the effects from, so the choice of the last visit
   // comes back.
   const [selection, setSelection] = useState<Selection>(() => loadSelection(browserStorage()));
-  const [enabled, setEnabled] = useState<ReadonlySet<ModuleKey>>(ALL_MODULES);
+  const [enabled, setEnabled] = useState<ReadonlySet<ModuleKey>>(DEFAULT_ENABLED);
   // Effects fitted from LUTs and native looks read on this page. This browser keeps them for the
   // next visit.
   const [allImported, setImported] = useState<readonly ImportedEffect[]>(initialImports);
@@ -306,6 +307,8 @@ export function App({
   function toggleModule(key: ModuleKey) {
     const next = new Set(enabled);
     if (!next.delete(key)) {
+      // The camera holds at most MODULES_MAX modules: one has to go off first.
+      if (next.size >= MODULES_MAX) return;
       next.add(key);
     }
     setEnabled(next);
@@ -964,6 +967,49 @@ export function App({
             planned={plan.modules}
             emptyLooks={enabled.has('filmLook') && selection?.size === 0}
             lookCount={effectCount ?? '…'}
+            recipes={
+              available.includes('recipes') && enabled.has('recipes') ? (
+                <ErrorBoundary resetKey={String(catalogAttempt)} fallback={<p className={ERROR}>{t.loadError}</p>}>
+                  <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
+                    <RecipesWithEffects
+                      strings={t}
+                      language={language}
+                      family={family}
+                      library={recipeLibrary.library}
+                      onChange={recipeLibrary.change}
+                      cardRecipes={recipeLibrary.cardChoice}
+                      onCardChoice={recipeLibrary.chooseCard}
+                      selection={selection}
+                      filmLook={plan.includeEffects}
+                      onSelectionChange={changeSelection}
+                      others={[...imported, ...(active ? cardExtra : [])]}
+                      grainModule={plan.modules.includes('GRAIN')}
+                      glowModule={plan.modules.includes('GLOW')}
+                      dial={
+                        // A card shows and writes its own dial; a ZIP package carries the choice
+                        // of this browser.
+                        !recipeLibrary.packageRecipes
+                          ? null
+                          : mode === 'zip'
+                            ? { shown: recipeLibrary.zipDial, canKeep: true, onChange: recipeLibrary.changeZipDial }
+                            : active
+                              ? {
+                                  shown: recipeLibrary.shownDial(active),
+                                  canKeep: false,
+                                  // The settings that the camera saved in a user mode stay a
+                                  // choice while the person tries another value.
+                                  saved: active.dial.map((value) => value === DIAL_SAVED),
+                                  onChange: (u: number, value: number | null) => {
+                                    if (value !== null) recipeLibrary.changeDial(active, u, value);
+                                  },
+                                }
+                              : null
+                      }
+                    />
+                  </Suspense>
+                </ErrorBoundary>
+              ) : null
+            }
           />
         </Step>
 
@@ -1203,3 +1249,39 @@ function CardChangesSection({ strings: t, session, selection, imported, cardEffe
   );
 }
 
+/**
+ * The recipes panel with the names of the effects of the catalog and the imports, by recipe code,
+ * and the effects of the package. A preset that joins the library adds its effect to the package.
+ */
+function RecipesWithEffects({
+  selection,
+  others,
+  filmLook,
+  onSelectionChange,
+  ...rest
+}: Omit<Parameters<typeof RecipesPanel>[0], 'effectNames' | 'packageEffects' | 'onAddPreset'> & {
+  selection: Selection;
+  others: readonly { id: string; name: string }[];
+  /** The package has Film Look, so it holds the checked effects. */
+  filmLook: boolean;
+  onSelectionChange: (selection: ReadonlySet<string>) => void;
+}) {
+  const catalog = use(loadCatalog(PREVIEW_TARGET));
+  const all = [...catalog.effects, ...others];
+  const checked = resolveSelection(
+    selection,
+    catalog.effects.map((effect) => effect.id),
+    others.map((effect) => effect.id),
+  );
+  const effectNames = new Map(all.map((effect) => [effectCode(effect.id), effect.name]));
+  const packageEffects = new Set(
+    filmLook ? all.filter((effect) => checked.has(effect.id)).map((effect) => effectCode(effect.id)) : [],
+  );
+  function addPreset(recipe: Recipe, effect: string | null) {
+    rest.onChange(withPreset(rest.library, recipe));
+    if (filmLook && effect && !checked.has(effect) && checked.size < MAX_EFFECTS) {
+      onSelectionChange(new Set([...checked, effect]));
+    }
+  }
+  return <RecipesPanel {...rest} effectNames={effectNames} packageEffects={packageEffects} onAddPreset={addPreset} />;
+}
