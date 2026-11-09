@@ -46,11 +46,6 @@ fn background() -> Vec<u8> {
     frame(1, 2, 38, 37)
 }
 
-/// The frame of the ADJ toolbar, as the native toolbar icons have it.
-fn toolbar_background() -> Vec<u8> {
-    frame(1, 1, 38, 38)
-}
-
 /// Blend `ink` over an opaque tile pixel by glyph coverage.
 fn blend(rgba: &mut [u8], x: i32, y: i32, ink: u8, coverage: f32) {
     if !(0..40).contains(&x) || !(0..40).contains(&y) {

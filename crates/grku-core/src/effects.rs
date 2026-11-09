@@ -187,7 +187,7 @@ fn base64_decode(text: &str) -> Result<Vec<u8>> {
     const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     let text: Vec<u8> = text.bytes().filter(|b| !b.is_ascii_whitespace()).collect();
     ensure!(
-        text.len() % 4 == 0,
+        text.len().is_multiple_of(4),
         "Expected base64 in groups of four characters"
     );
     let mut out = Vec::with_capacity(text.len() / 4 * 3);
