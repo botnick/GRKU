@@ -160,27 +160,46 @@ const MODESET_IMAGE: (&str, &[u8]) = (
     include_bytes!("../../../resources/images/modeset.png"),
 );
 
+/// The camera back while MENU is held at power-on, with the Mode Set screen.
+const CAMERA_MENU_IMAGE: (&str, &[u8]) = (
+    "images/camera-menu.png",
+    include_bytes!("../../../resources/images/camera-menu.png"),
+);
+
 /// The screenshots of the GR III guides, at the paths that the guides link, so
 /// the links work in the repository and in the guide source.
-const GUIDE_IMAGES: [(&str, &[u8]); 2] = [
+const GUIDE_IMAGES: [(&str, &[u8]); 3] = [
     (
         "images/grku-root.jpg",
         include_bytes!("../../../resources/images/grku-root.jpg"),
     ),
     MODESET_IMAGE,
+    CAMERA_MENU_IMAGE,
 ];
+
+/// The card root after step 2: the SD_ROOT files of the package, with the
+/// ModeSet file of the camera. The guides link it as `images/card.png`.
+fn card_image(camera: &Camera) -> &'static [u8] {
+    match camera.modeset {
+        "00078490.609" => include_bytes!("../../../resources/images/card-gr3x.png"),
+        "00078560.636" => include_bytes!("../../../resources/images/card-gr4.png"),
+        _ => include_bytes!("../../../resources/images/card-gr3.png"),
+    }
+}
 
 /// The GR IV guides show only the Mode Set screen, because other GR III screens
 /// could differ from GR IV screens.
-const GR4_GUIDE_IMAGES: [(&str, &[u8]); 1] = [MODESET_IMAGE];
+const GR4_GUIDE_IMAGES: [(&str, &[u8]); 2] = [MODESET_IMAGE, CAMERA_MENU_IMAGE];
 
 /// The screenshots that the guides of `camera` show.
-pub fn guide_images(camera: &Camera) -> &'static [(&'static str, &'static [u8])] {
-    if camera.is_gr4() {
-        &GR4_GUIDE_IMAGES
+pub fn guide_images(camera: &Camera) -> Vec<(&'static str, &'static [u8])> {
+    let mut images = if camera.is_gr4() {
+        GR4_GUIDE_IMAGES.to_vec()
     } else {
-        &GUIDE_IMAGES
-    }
+        GUIDE_IMAGES.to_vec()
+    };
+    images.push(("images/card.png", card_image(camera)));
+    images
 }
 
 /// The installation guide of `camera` in one language, as Markdown, the source of
@@ -268,7 +287,7 @@ pub fn guide_source(camera: &Camera, language: GuideLanguage) -> Result<Files> {
     typst.push_str(&markdown(language.recovery(), Some(RECOVERY_LABEL))?);
     let mut files = Files::from([(SOURCE.to_owned(), typst.into_bytes())]);
     for (name, image) in guide_images(camera) {
-        files.insert((*name).to_owned(), image.to_vec());
+        files.insert(name.to_owned(), image.to_vec());
     }
     Ok(files)
 }

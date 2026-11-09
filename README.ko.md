@@ -19,7 +19,7 @@ GRKU는 [BOTNICK](https://github.com/botnick)이 태국의 GR 사용자들을 �
 
 ## 기능
 
-촬영 중 ADJ 레버를 누르고 여섯 번째 항목인 GRK를 선택합니다. GRKU의 모든 기능은 여기에 있으며, MENU의 GRKU 섹션에도 있습니다.
+촬영 중 ADJ 레버를 누르고 여섯 번째 항목인 GRKU를 선택합니다. GRKU의 모든 기능은 여기에 있으며, MENU의 GRKU 섹션에도 있습니다.
 
 - **Film Look**: 실제 필름의 135가지 룩으로, 한 번에 40가지가 카드에 들어갑니다. Kodak, Fujifilm, Ilford, CineStill, Lomography, Polaroid, Agfa, Harman, Rollei와 함께 GR II의 Positive Film을 본뜬 GRKU 고유의 룩인 Positive GRII가 있습니다. 각 룩에는 실제 상자의 색상으로 된 필름 상자 아이콘이 있습니다. Fn 버튼으로 룩을 조절할 수 있으며, 사이트에서 직접 만든 LUT를 가져올 수도 있습니다.
 - **Recipes**: 카메라의 전체 룩을 이름으로 저장하거나 사이트에서 인기 있는 레시피를 가져온 다음, Film Look 또는 Image Control, 그레인, 글로우, 화이트 밸런스, 보정 및 노출을 한 번에 전환할 수 있으며 실행 취소도 지원합니다. 모드 다이얼의 U1, U2, U3에 레시피를 할당할 수 있습니다.

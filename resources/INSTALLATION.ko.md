@@ -1,10 +1,9 @@
 # GRKU
 
-[English](https://github.com/botnick/GRKU/blob/main/README.md) | [日本語](https://github.com/botnick/GRKU/blob/main/README.ja.md) | 한국어
 
 RICOH GR III 및 GR III HDF 펌웨어 2.10 전용입니다.
 
-GRKU는 실험적이며 보증이 없습니다. GRKU가 실패하면 카메라가 시작 중에 멈출 수 있습니다. 설치하기 전에 [복구 가이드](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)를 읽어 주십시오. GRKU를 설치하면 [이용 약관](https://github.com/botnick/GRKU/blob/main/resources/TERMS.md)에 동의하는 것입니다.
+GRKU는 실험적이며 보증이 없습니다. GRKU가 실패하면 카메라가 시작 중에 멈출 수 있습니다. 설치하기 전에 [복구 가이드](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)를 읽어 주십시오. GRKU를 설치하면 [이용 약관](https://grku.app/terms/)에 동의하는 것입니다.
 
 ## 설치
 
@@ -15,9 +14,11 @@ GRKU는 실험적이며 보증이 없습니다. GRKU가 실패하면 카메라�
 3. 카드를 넣습니다. MENU 버튼을 누른 채 전원을 켜고, 카메라의 전원이 저절로 꺼질 때까지 기다립니다.
 4. 평소처럼 전원을 켭니다.
 
+![SD_ROOT → SD CARD: SCRIPT, DEVELOP.MOD, 00078350.588](images/card.png)
+
 3단계에서 카메라의 SD 스크립트가 켜집니다. 카메라에 Mode Set Command와 Complete가 표시된 다음, 전원이 저절로 꺼집니다. SD 스크립트가 이미 켜져 있으면 3단계를 건너뜁니다.
 
-![Mode Set Command 화면에 Script - Enable과 Complete가 표시되어 있습니다.](images/modeset.png)
+![Mode Set Command 화면에 Script - Enable과 Complete가 표시되어 있습니다.](images/camera-menu.png)
 
 설치 후에는 카드 최상위에서 `00078350.588`과 `DEVELOP.MOD`를 삭제해도 됩니다.
 
@@ -89,4 +90,4 @@ SD 스크립트 설정은 켜진 상태로 유지됩니다. 이를 끄려면 다
 
 시작 중에 카메라가 멈추면 [복구 가이드](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)를 참조하십시오.
 
-GRKU는 Ricoh와 제휴하지 않았습니다. 소스 코드 및 라이선스: https://github.com/botnick/GRKU
+GRKU는 Ricoh와 제휴하지 않았습니다.

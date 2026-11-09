@@ -2,7 +2,7 @@
 
 僅適用於 RICOH GR IV 與 GR IV HDF 韌體 1.11。
 
-GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可能在啟動時停止回應。請在安裝前閱讀[復原指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。安裝 GRKU 即表示你接受[使用條款](https://github.com/botnick/GRKU/blob/main/resources/TERMS.md)。
+GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可能在啟動時停止回應。請在安裝前閱讀[復原指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。安裝 GRKU 即表示你接受[使用條款](https://grku.app/terms/)。
 
 ## 安裝
 
@@ -13,9 +13,11 @@ GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可
 3. 插入記憶卡。按住 MENU 鍵同時開啟相機電源。等待直到相機自行關機。
 4. 正常開啟相機電源。
 
+![SD_ROOT → SD CARD: SCRIPT, DEVELOP.MOD, 00078560.636](images/card.png)
+
 步驟 3 會開啟相機的 SD 腳本：相機會顯示 Mode Set Command 和 Complete，然後自行關機。如果 SD 腳本已經開啟，請跳過步驟 3。
 
-![Mode Set Command 畫面顯示 Script - Enable 和 Complete。](images/modeset.png)
+![Mode Set Command 畫面顯示 Script - Enable 和 Complete。](images/camera-menu.png)
 
 安裝完成後，您可以從記憶卡根目錄中移除 `00078560.636` 和 `DEVELOP.MOD`。
 
@@ -83,4 +85,4 @@ SD 腳本功能會保持開啟。要關閉它：
 
 相機在啟動時停止回應時，請參閱[復原指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。
 
-GRKU 與 Ricoh 無關。原始碼和授權：https://github.com/botnick/GRKU
+GRKU 與 Ricoh 無關。

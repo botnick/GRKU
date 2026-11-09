@@ -19,7 +19,7 @@ Photo: [MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/), [CC
 
 ## What it does
 
-Press the ADJ lever while shooting and pick the sixth entry, GRK. Everything GRKU does is in there, and in the GRKU section of MENU.
+Press the ADJ lever while shooting and pick the sixth entry, GRKU. Everything GRKU does is in there, and in the GRKU section of MENU.
 
 - **Film Look**: 135 looks of real films, 40 on the card at a time. Kodak, Fujifilm, Ilford, CineStill, Lomography, Polaroid, Agfa, Harman and Rollei, plus Positive GRII, GRKU's own look after the Positive Film of the GR II. Each look has a film-box icon in the colors of the real box. Fn adjusts a look; import your own LUT on the site.
 - **Recipes**: save the whole look of the camera under a name, or bring popular recipes from the site, then switch Film Look or Image Control, grain, glow, white balance, corrections and exposure in one step, with Undo. U1, U2 and U3 on the mode dial can hold a recipe.

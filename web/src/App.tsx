@@ -100,6 +100,13 @@ import {
 } from './package';
 import { packageCard } from './packageCard';
 import { cn } from '@/lib/utils';
+import cardGr3 from '../../resources/images/card-gr3.png';
+import cardGr3x from '../../resources/images/card-gr3x.png';
+import cardGr4 from '../../resources/images/card-gr4.png';
+import cameraMenuImage from '../../resources/images/camera-menu.png';
+
+/** The card root after copying SD_ROOT, with the ModeSet file of each camera. */
+const CARD_IMAGES: Record<string, string> = { gr3: cardGr3, gr3x: cardGr3x, gr4: cardGr4, gr4m: cardGr4 };
 import { fetchEntitlement, forgetKey, FREE, loadKey, packCounts, PlusError, saveKey, takeKeyFromHash, takeOrderFromHash, type Entitlement } from './plus';
 import { loadSelection, resolveSelection, saveSelection, type Selection } from './selection';
 import { TransferError } from './transfer';
@@ -660,7 +667,7 @@ export function App({
       setApplyMessage({
         tone: 'ok',
         // The camera steps after the write: the MENU step for a first install and for SD scripts
-        // that were off, then GRK in ADJ.
+        // that were off, then GRKU in ADJ.
         lines: [
           t.cardDone,
           t.cardStepInsert,
@@ -802,8 +809,33 @@ export function App({
     </AccordionItem>
   );
 
+  // What to do with the ZIP: four steps with the card and the camera as they will look.
+  // It stands out once the ZIP is ready.
+  const zipSteps = (
+    <div className={cn('rounded-2xl border bg-card p-5', build.state === 'ready' && 'border-brand/60 bg-brand/[0.06]')}>
+      <p className="m-0 text-base font-semibold">{t.zipNextTitle}</p>
+      <ol className="m-0 mt-3 flex list-none flex-col gap-3 p-0 text-sm leading-relaxed">
+        {[t.zipNext1, t.zipNext2, t.zipNext3, t.zipNext4].map((step, index) => (
+          <li key={step} className="flex flex-col gap-2">
+            <span className="flex gap-3">
+              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-brand-foreground">{index + 1}</span>
+              <span>{step}</span>
+            </span>
+            {index === 1 && <img src={CARD_IMAGES[camera.key] ?? CARD_IMAGES.gr4} alt="" width="600" height="200" className="ml-8 h-auto w-[calc(100%-2rem)] max-w-md" />}
+            {index === 2 && <img src={cameraMenuImage} alt="" width="600" height="330" className="ml-8 h-auto w-[calc(100%-2rem)] max-w-sm" />}
+          </li>
+        ))}
+      </ol>
+      <a className="mt-4 inline-block text-sm font-medium underline underline-offset-4" href={guidePdfUrl(camera.id, language)} target="_blank" rel="noreferrer">
+        {t.zipNextGuide}
+      </a>
+    </div>
+  );
+
   const zipFlow = (
     <div className="flex flex-col gap-6">
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+      <div className="flex flex-col gap-6">
       {packageOpen}
       <dl className={FACTS}>
         <dt className={FACT_LABEL}>{t.camera}</dt>
@@ -841,21 +873,9 @@ export function App({
           {build.state === 'failed' && <p className={ERROR}>{t.buildError}</p>}
         </div>
         {build.state === 'ready' && packageLinks}
-        {/* What to do with the ZIP, in plain steps; it stands out once the ZIP is ready. */}
-        <div className={cn('w-full max-w-xl rounded-xl border bg-card p-4', build.state === 'ready' && 'border-brand/60 bg-brand/[0.06]')}>
-          <p className="m-0 text-[15px] font-semibold">{t.zipNextTitle}</p>
-          <ol className="m-0 mt-2 flex list-none flex-col gap-2 p-0 text-sm leading-relaxed">
-            {[t.zipNext1, t.zipNext2, t.zipNext3, t.zipNext4].map((step, index) => (
-              <li key={step} className="flex gap-3">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-brand-foreground">{index + 1}</span>
-                <span>{step}</span>
-              </li>
-            ))}
-          </ol>
-          <a className="mt-3 inline-block text-sm font-medium underline underline-offset-4" href={guidePdfUrl(camera.id, language)} target="_blank" rel="noreferrer">
-            {t.zipNextGuide}
-          </a>
-        </div>
+      </div>
+      </div>
+      {zipSteps}
       </div>
       <Accordion type="single" collapsible className="w-full border-t border-border">
         {guide('install', t.install, t.steps)}

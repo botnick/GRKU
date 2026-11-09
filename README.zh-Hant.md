@@ -19,7 +19,7 @@ GRKU 是一個獨立專案，由 [BOTNICK](https://github.com/botnick) 先為泰
 
 ## 功能
 
-拍攝時按下 ADJ 撥桿，選擇第 6 項 GRK。GRKU 的所有功能都在這裡，以及 MENU 中的 GRKU 小節。
+拍攝時按下 ADJ 撥桿，選擇第 6 項 GRKU。GRKU 的所有功能都在這裡，以及 MENU 中的 GRKU 小節。
 
 - **底片風格**：135 種真實底片風格，記憶卡中一次可存放 40 種。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 與 Rollei，再加上 GRKU 仿照 GR II 正片風格自製的 Positive GRII 風格。每種風格都有採用真實底片盒配色的底片盒圖示。按下 Fn 可微調風格；也可以在網站上匯入自己的 LUT。
 - **配方**：將整套相機風格命名儲存，或從網站載入熱門配方，即可一次切換底片風格或 Image Control、顆粒、光暈、白平衡、校正與曝光，並支援還原。模式轉盤上的 U1、U2 與 U3 都能存放配方。

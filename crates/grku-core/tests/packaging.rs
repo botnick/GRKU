@@ -538,7 +538,7 @@ fn each_camera_gets_its_modeset_file_and_guide() {
 }
 
 #[test]
-fn the_guide_names_the_camera_once_and_the_modeset_file_twice() {
+fn the_guide_names_the_camera_once_and_the_modeset_file_three_times() {
     // installation_guide replaces these strings, so each must occur exactly once.
     for (language, guide) in [
         (
@@ -570,10 +570,11 @@ fn the_guide_names_the_camera_once_and_the_modeset_file_twice() {
         let releases = language.camera_phrase(&camera::GR3, &["2.10", "2.20"]);
         assert_eq!(source.matches(&releases).count(), 1, "{releases}");
         assert_eq!(guide.matches(camera::GR3.hdf).count(), 1, "{language:?}");
-        // After the installation, and in the steps that turn SD scripts off.
+        // In the card picture after step 2, after the installation, and in the
+        // steps that turn SD scripts off.
         assert_eq!(
             guide.matches(camera::GR3.modeset).count(),
-            2,
+            3,
             "{language:?}"
         );
     }

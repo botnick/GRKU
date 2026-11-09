@@ -2,7 +2,7 @@
 
 For RICOH GR IV and GR IV HDF firmware 1.11 only.
 
-GRKU is experimental and has no warranty. If GRKU fails, the camera can stop during startup. Read the [recovery guide](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md) before you install. When you install GRKU, you accept the [terms of use](https://github.com/botnick/GRKU/blob/main/resources/TERMS.md).
+GRKU is experimental and has no warranty. If GRKU fails, the camera can stop during startup. Read the [recovery guide](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md) before you install. When you install GRKU, you accept the [terms of use](https://grku.app/terms/).
 
 ## Install
 
@@ -13,9 +13,11 @@ In Chrome or Edge on a computer, [grku.app](https://grku.app/) can write GRKU to
 3. Insert the card. Hold MENU while you turn the camera on. Wait until the camera turns itself off.
 4. Turn the camera on normally.
 
+![SD_ROOT → SD CARD: SCRIPT, DEVELOP.MOD, 00078560.636](images/card.png)
+
 Step 3 turns on the SD scripts of the camera: the camera shows Mode Set Command and Complete, then turns itself off. If the SD scripts are already on, skip step 3.
 
-![The Mode Set Command screen shows Script - Enable and Complete.](images/modeset.png)
+![The Mode Set Command screen shows Script - Enable and Complete.](images/camera-menu.png)
 
 After the installation, you can remove `00078560.636` and `DEVELOP.MOD` from the card root.
 
@@ -83,4 +85,4 @@ The SD script setting stays on. To turn it off:
 
 If the camera stops during startup, see the [recovery guide](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md).
 
-GRKU is not affiliated with Ricoh. Source code and licenses: https://github.com/botnick/GRKU
+GRKU is not affiliated with Ricoh.

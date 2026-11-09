@@ -2,7 +2,7 @@
 
 本條款適用於 GRKU（記憶卡適用的軟體）、grku.app（本網站）以及 GRKU Plus（網站的付費部分）。當你安裝 GRKU、使用本網站或購買 GRKU Plus 時，即表示你接受本條款。如果你不接受，請不要安裝 GRKU，也不要購買 GRKU Plus。
 
-GRKU 由泰國的 BOTNICK (Thanawat Changmai) 開發，以下簡稱「我們」。聯絡方式：noreply@grku.app 的回信不會被閱讀；請至 https://github.com/botnick/GRKU/issues 的 issues 頁面留言，或寫信至網站上提供的電子郵件地址。
+GRKU 由泰國的 BOTNICK 開發，以下簡稱「我們」。聯絡方式：請使用 https://grku.app 上的意見回饋連結。
 
 ## 實驗性軟體
 

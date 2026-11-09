@@ -173,7 +173,7 @@ const en = {
     grainText: "The camera's own film grain.",
     grainLevels: ['Weak', 'Medium', 'Strong', 'Extra Strong'],
     inCamera: 'On the camera',
-    adjCaption: 'Press ADJ and choose GRK.',
+    adjCaption: 'Press ADJ and choose GRKU.',
     menuCaption: 'All settings are in the GRKU section of MENU.',
     safe: 'Safe to try',
     facts: [
@@ -424,7 +424,7 @@ const en = {
       '.',
     ],
     [
-      'Turn the camera on. GRKU loads about 8 to 10 seconds after power-on. Then press ADJ while you shoot and select the sixth entry, GRK.',
+      'Turn the camera on. GRKU loads about 8 to 10 seconds after power-on. Then press ADJ while you shoot and select the sixth entry, GRKU.',
     ],
     ['Optional: delete ', '`{modeset}', ' and ', '`DEVELOP.MOD', ' from the card root. Updates do not need them.'],
   ] as readonly RichText[],
@@ -439,9 +439,9 @@ const en = {
   faqTitle: 'FAQ',
   faq: [
     {
-      q: 'GRK does not show up in ADJ.',
+      q: 'GRKU does not show up in ADJ.',
       a: [
-        'GRKU loads about 8 to 10 seconds after power-on. It takes longer on GR IV and on the first start after an install or update. Wait, then press ADJ while you shoot and select the sixth entry, GRK. The first time, SD scripts must be on: hold MENU while you turn the camera on.',
+        'GRKU loads about 8 to 10 seconds after power-on. It takes longer on GR IV and on the first start after an install or update. Wait, then press ADJ while you shoot and select the sixth entry, GRKU. The first time, SD scripts must be on: hold MENU while you turn the camera on.',
       ],
     },
     {
@@ -527,7 +527,7 @@ const en = {
       'Turn the camera off. Hold MENU and press the power button, then follow the screen. Do not turn the camera off or open the battery cover until the update is complete.',
       'Turn the camera on, and make sure that it takes and plays back photos. Then delete the firmware file from the card. Fast start needs GRKU 1.5.0 or later. If the card has an older GRKU or none, install the latest as usual.',
     ] as readonly string[],
-    installDone: 'After that, GRK shows in ADJ soon after power-on. The camera menu shows the same firmware version as before.',
+    installDone: 'After that, GRKU shows in ADJ soon after power-on. The camera menu shows the same firmware version as before.',
     restore: 'Go back to the official firmware',
     restoreText: 'Open the official ZIP of the same version, and update the camera with the firmware file in it, in the same way. A later official update also replaces the fast-boot firmware.',
   },
@@ -828,7 +828,7 @@ const zhHans: Strings = {
     grainText: '相机内置的胶片颗粒。',
     grainLevels: ['弱', '中', '强', '特强'],
     inCamera: '在相机里',
-    adjCaption: '按 ADJ，选择 GRK。',
+    adjCaption: '按 ADJ，选择 GRKU。',
     menuCaption: '全部设置在 MENU 的 GRKU 小节。',
     safe: '放心安装',
     facts: [
@@ -1046,7 +1046,7 @@ const zhHans: Strings = {
     ['关闭相机。'],
     ['打开 GRKU.zip（有的浏览器会自动解压），把 ', '`SD_ROOT', ' 里面的内容（不是这个文件夹本身）复制到存储卡根目录。复制后，根目录里应有 ', '`SCRIPT', ' 文件夹。'],
     ['插入存储卡。仅首次使用时：按住 MENU 按钮开机，等待相机自动关机。这一步需要 ', '`{modeset}', ' 和 ', '`DEVELOP.MOD', '。'],
-    ['正常开机。GRKU 在开机后约 8 到 10 秒加载，之后在拍摄时按 ADJ，选择第 6 项 GRK。'],
+    ['正常开机。GRKU 在开机后约 8 到 10 秒加载，之后在拍摄时按 ADJ，选择第 6 项 GRKU。'],
     ['可选：从存储卡根目录删除 ', '`{modeset}', ' 和 ', '`DEVELOP.MOD', '，以后更新也不需要它们。'],
   ],
   update: '更新',
@@ -1060,9 +1060,9 @@ const zhHans: Strings = {
   faqTitle: '常见问题',
   faq: [
     {
-      q: 'ADJ 里没有 GRK？',
+      q: 'ADJ 里没有 GRKU？',
       a: [
-        'GRKU 在开机后约 8 到 10 秒加载，GR IV 以及安装或更新后的第一次开机会更久。稍等片刻，然后在拍摄时按 ADJ，选择第 6 项 GRK。首次使用前，需要按住 MENU 开机，打开 SD 脚本。',
+        'GRKU 在开机后约 8 到 10 秒加载，GR IV 以及安装或更新后的第一次开机会更久。稍等片刻，然后在拍摄时按 ADJ，选择第 6 项 GRKU。首次使用前，需要按住 MENU 开机，打开 SD 脚本。',
       ],
     },
     {
@@ -1134,7 +1134,7 @@ const zhHans: Strings = {
       '关机。按住 MENU 再按电源键，按屏幕提示更新。更新完成前，不要关机或打开电池仓。',
       '开机，确认能正常拍照和回放。然后删除卡上的固件文件。快速启动需要 GRKU 1.5.0 或更新版本。卡上没有 GRKU 或版本较旧的，照常安装最新版。',
     ],
-    installDone: '之后开机，ADJ 里很快就会出现 GRK。相机菜单里的固件版本号不变。',
+    installDone: '之后开机，ADJ 里很快就会出现 GRKU。相机菜单里的固件版本号不变。',
     restore: '恢复官方固件',
     restoreText: '解压同版本的官方固件 ZIP，用里面的固件文件按同样的方法更新即可。以后的官方固件更新也会替换快速启动固件。',
   },
@@ -1416,7 +1416,7 @@ const zhHant: Strings = {
     grainText: '相機內建的底片粒紋。',
     grainLevels: ['弱', '中', '強', '特強'],
     inCamera: '在相機裡',
-    adjCaption: '按 ADJ，選擇 GRK。',
+    adjCaption: '按 ADJ，選擇 GRKU。',
     menuCaption: '所有設定都在 MENU 的 GRKU 小節。',
     safe: '放心試用',
     facts: [
@@ -1634,7 +1634,7 @@ const zhHant: Strings = {
     ['關閉相機。'],
     ['開啟 GRKU.zip（有些瀏覽器會自動解壓縮），把 ', '`SD_ROOT', ' 裡面的內容（不是這個資料夾本身）複製到記憶卡根目錄。複製後，根目錄裡應有 ', '`SCRIPT', ' 資料夾。'],
     ['插入記憶卡。僅首次使用時：按住 MENU 按鈕開機，等待相機自動關機。這一步需要 ', '`{modeset}', ' 和 ', '`DEVELOP.MOD', '。'],
-    ['正常開機。GRKU 在開機後約 8 到 10 秒載入，之後在拍攝時按 ADJ，選擇第 6 項 GRK。'],
+    ['正常開機。GRKU 在開機後約 8 到 10 秒載入，之後在拍攝時按 ADJ，選擇第 6 項 GRKU。'],
     ['選用：從記憶卡根目錄刪除 ', '`{modeset}', ' 和 ', '`DEVELOP.MOD', '，以後更新也不需要它們。'],
   ],
   update: '更新',
@@ -1648,9 +1648,9 @@ const zhHant: Strings = {
   faqTitle: '常見問題',
   faq: [
     {
-      q: 'ADJ 裡沒有 GRK？',
+      q: 'ADJ 裡沒有 GRKU？',
       a: [
-        'GRKU 在開機後約 8 到 10 秒載入，GR IV 以及安裝或更新後的第一次開機會更久。稍等片刻，然後在拍攝時按 ADJ，選擇第 6 項 GRK。首次使用前，需要按住 MENU 開機，開啟 SD 腳本。',
+        'GRKU 在開機後約 8 到 10 秒載入，GR IV 以及安裝或更新後的第一次開機會更久。稍等片刻，然後在拍攝時按 ADJ，選擇第 6 項 GRKU。首次使用前，需要按住 MENU 開機，開啟 SD 腳本。',
       ],
     },
     {
@@ -1722,7 +1722,7 @@ const zhHant: Strings = {
       '關機。按住 MENU 再按電源鍵，依畫面提示更新。更新完成前，不要關機或打開電池蓋。',
       '開機，確認能正常拍照與播放。然後刪除卡上的韌體檔案。快速啟動需要 GRKU 1.5.0 或更新版本。卡上沒有 GRKU 或版本較舊的，照常安裝最新版。',
     ],
-    installDone: '之後開機，ADJ 裡很快就會出現 GRK。相機功能表裡的韌體版本號不變。',
+    installDone: '之後開機，ADJ 裡很快就會出現 GRKU。相機功能表裡的韌體版本號不變。',
     restore: '恢復官方韌體',
     restoreText: '解壓縮同版本的官方韌體 ZIP，用裡面的韌體檔案依同樣的方法更新即可。之後的官方韌體更新也會取代快速啟動韌體。',
   },
@@ -2004,7 +2004,7 @@ const ja: Strings = {
     grainText: 'カメラ内蔵の粒状感です。',
     grainLevels: ['弱', '中', '強', '特強'],
     inCamera: 'カメラでの操作',
-    adjCaption: 'ADJ を押して GRK を選びます。',
+    adjCaption: 'ADJ を押して GRKU を選びます。',
     menuCaption: 'すべての設定は MENU の GRKU にあります。',
     safe: '安心して試せます',
     facts: [
@@ -2226,7 +2226,7 @@ const ja: Strings = {
     ['カメラの電源を切ります。'],
     ['GRKU.zip を開きます（ブラウザーによっては自動で展開されます）。', '`SD_ROOT', ' フォルダーそのものではなく、その中身をカードのルートにコピーします。コピー後、カードのルートに ', '`SCRIPT', ' フォルダーがあれば OK です。'],
     ['カードを入れます。初回のみ：MENU ボタンを押したまま電源を入れ、電源が自動で切れるまで待ちます。この手順で ', '`{modeset}', ' と ', '`DEVELOP.MOD', ' を使います。'],
-    ['電源を入れます。GRKU は電源を入れてから約 8〜10 秒で読み込まれます。その後、撮影画面で ADJ を押し、6 番目の項目「GRK」を選びます。'],
+    ['電源を入れます。GRKU は電源を入れてから約 8〜10 秒で読み込まれます。その後、撮影画面で ADJ を押し、6 番目の項目「GRKU」を選びます。'],
     ['任意：カードのルートから ', '`{modeset}', ' と ', '`DEVELOP.MOD', ' を削除します。アップデートでは使いません。'],
   ],
   update: 'アップデート',
@@ -2240,9 +2240,9 @@ const ja: Strings = {
   faqTitle: 'よくある質問',
   faq: [
     {
-      q: 'ADJ に GRK が表示されない',
+      q: 'ADJ に GRKU が表示されない',
       a: [
-        'GRKU は電源を入れてから約 8〜10 秒で読み込まれます。GR IV や、インストール・アップデート後の最初の起動ではもう少しかかります。少し待ってから、撮影画面で ADJ を押し、6 番目の項目「GRK」を選びます。初回は SD スクリプトをオンにする必要があります。MENU ボタンを押したまま電源を入れてください。',
+        'GRKU は電源を入れてから約 8〜10 秒で読み込まれます。GR IV や、インストール・アップデート後の最初の起動ではもう少しかかります。少し待ってから、撮影画面で ADJ を押し、6 番目の項目「GRKU」を選びます。初回は SD スクリプトをオンにする必要があります。MENU ボタンを押したまま電源を入れてください。',
       ],
     },
     {
@@ -2314,7 +2314,7 @@ const ja: Strings = {
       '電源を切ります。MENU を押したまま電源ボタンを押し、画面の指示に従って更新します。更新が終わるまで、電源を切ったりバッテリーカバーを開けたりしないでください。',
       '電源を入れ、撮影と再生ができることを確かめます。そのあとカードのファームウェアのファイルを削除します。高速起動には GRKU 1.5.0 以降が必要です。カードに GRKU がない場合や古い場合は、いつもどおり最新版をインストールします。',
     ],
-    installDone: 'これで、電源を入れてすぐ ADJ に GRK が表示されます。メニューのファームウェアのバージョン表示は変わりません。',
+    installDone: 'これで、電源を入れてすぐ ADJ に GRKU が表示されます。メニューのファームウェアのバージョン表示は変わりません。',
     restore: '公式ファームウェアに戻す',
     restoreText: '同じバージョンの公式 ZIP を展開し、中のファームウェアのファイルで同じ手順で更新します。今後の公式アップデートでも、高速起動ファームウェアは置き換わります。',
   },
@@ -2596,7 +2596,7 @@ const ko: Strings = {
     grainText: '카메라에 내장된 입자감입니다.',
     grainLevels: ['약', '중', '강', '매우 강'],
     inCamera: '카메라에서',
-    adjCaption: 'ADJ를 누르고 GRK를 선택합니다.',
+    adjCaption: 'ADJ를 누르고 GRKU를 선택합니다.',
     menuCaption: '모든 설정은 MENU의 GRKU 항목에 있습니다.',
     safe: '안심하고 써 보세요',
     facts: [
@@ -2827,7 +2827,7 @@ const ko: Strings = {
       '`DEVELOP.MOD',
       ' 파일을 사용합니다.',
     ],
-    ['전원을 켭니다. GRKU은 전원을 켜고 8~10초쯤 뒤에 실행됩니다. 그다음 촬영 중에 ADJ를 누르고 여섯 번째 항목인 GRK를 선택합니다.'],
+    ['전원을 켭니다. GRKU은 전원을 켜고 8~10초쯤 뒤에 실행됩니다. 그다음 촬영 중에 ADJ를 누르고 여섯 번째 항목인 GRKU를 선택합니다.'],
     ['선택 사항: 카드 최상위에서 ', '`{modeset}', ' 파일과 ', '`DEVELOP.MOD', ' 파일을 삭제합니다. 업데이트할 때는 필요 없습니다.'],
   ],
   update: '업데이트',
@@ -2841,9 +2841,9 @@ const ko: Strings = {
   faqTitle: '자주 묻는 질문',
   faq: [
     {
-      q: 'ADJ 모드에 GRK가 보이지 않습니다.',
+      q: 'ADJ 모드에 GRKU가 보이지 않습니다.',
       a: [
-        'GRKU은 전원을 켜고 8~10초쯤 뒤에 실행됩니다. GR IV나 설치·업데이트 후 처음 켤 때는 더 걸립니다. 잠시 기다린 뒤 촬영 중에 ADJ를 누르고 여섯 번째 항목인 GRK를 선택하세요. 처음에는 SD 스크립트를 켜야 합니다. MENU 버튼을 누른 채 전원을 켜세요.',
+        'GRKU은 전원을 켜고 8~10초쯤 뒤에 실행됩니다. GR IV나 설치·업데이트 후 처음 켤 때는 더 걸립니다. 잠시 기다린 뒤 촬영 중에 ADJ를 누르고 여섯 번째 항목인 GRKU를 선택하세요. 처음에는 SD 스크립트를 켜야 합니다. MENU 버튼을 누른 채 전원을 켜세요.',
       ],
     },
     {
@@ -2919,7 +2919,7 @@ const ko: Strings = {
       '전원을 끕니다. MENU를 누른 채 전원 버튼을 누르고 화면 안내에 따라 업데이트합니다. 업데이트가 끝날 때까지 전원을 끄거나 배터리 덮개를 열지 마세요.',
       '전원을 켜고 촬영과 재생이 되는지 확인합니다. 그다음 카드에서 펌웨어 파일을 지웁니다. 빠른 시작에는 GRKU 1.5.0 이상이 필요합니다. 카드에 GRKU이 없거나 이전 버전이면 평소처럼 최신 버전을 설치합니다.',
     ],
-    installDone: '이후에는 전원을 켜자마자 ADJ에 GRK가 나타납니다. 메뉴의 펌웨어 버전 표시는 바뀌지 않습니다.',
+    installDone: '이후에는 전원을 켜자마자 ADJ에 GRKU가 나타납니다. 메뉴의 펌웨어 버전 표시는 바뀌지 않습니다.',
     restore: '공식 펌웨어로 되돌리기',
     restoreText: '같은 버전의 공식 ZIP을 풀고, 안의 펌웨어 파일로 같은 방법으로 업데이트합니다. 이후의 공식 업데이트도 빠른 시작 펌웨어를 대체합니다.',
   },
@@ -3208,7 +3208,7 @@ const th: Strings = {
     grainText: "เกรนฟิล์มของตัวกล้องเอง",
     grainLevels: ['อ่อน', 'ปานกลาง', 'เข้ม', 'เข้มพิเศษ'],
     inCamera: 'บนตัวกล้อง',
-    adjCaption: 'กดปุ่ม ADJ แล้วเลือก GRK',
+    adjCaption: 'กดปุ่ม ADJ แล้วเลือก GRKU',
     menuCaption: 'การตั้งค่าทั้งหมดอยู่ในหมวด GRKU ของ MENU',
     safe: 'ปลอดภัยที่จะลอง',
     facts: [
@@ -3459,7 +3459,7 @@ const th: Strings = {
       '.',
     ],
     [
-      'เปิดกล้อง GRKU จะโหลดหลังเปิดเครื่องประมาณ 8 ถึง 10 วินาที จากนั้นกดปุ่ม ADJ ในหน้าถ่ายภาพ แล้วเลือกรายการที่ 6 คือ GRK',
+      'เปิดกล้อง GRKU จะโหลดหลังเปิดเครื่องประมาณ 8 ถึง 10 วินาที จากนั้นกดปุ่ม ADJ ในหน้าถ่ายภาพ แล้วเลือกรายการที่ 6 คือ GRKU',
     ],
     ['ทำหรือไม่ก็ได้: ลบไฟล์ ', '`{modeset}', ' และ ', '`DEVELOP.MOD', ' ออกจากชั้นนอกสุดของการ์ด เพราะไม่ต้องใช้เมื่ออัปเดต'],
   ] as readonly RichText[],
@@ -3474,9 +3474,9 @@ const th: Strings = {
   faqTitle: 'FAQ',
   faq: [
     {
-      q: 'ไม่พบ GRK ในเมนู ADJ',
+      q: 'ไม่พบ GRKU ในเมนู ADJ',
       a: [
-        'GRKU จะใช้เวลาโหลดประมาณ 8 ถึง 10 วินาทีหลังจากเปิดกล้อง โดยจะใช้เวลานานขึ้นในรุ่น GR IV และในการเปิดเครื่องครั้งแรกหลังติดตั้งหรืออัปเดต ให้รอสักครู่ จากนั้นกดปุ่ม ADJ ในหน้าถ่ายภาพแล้วเลือกช่องที่ 6 คือ GRK สำหรับการใช้งานครั้งแรก ต้องเปิดใช้งานสคริปต์ในการ์ด SD ก่อน โดยกดปุ่ม MENU ค้างไว้ขณะเปิดกล้อง',
+        'GRKU จะใช้เวลาโหลดประมาณ 8 ถึง 10 วินาทีหลังจากเปิดกล้อง โดยจะใช้เวลานานขึ้นในรุ่น GR IV และในการเปิดเครื่องครั้งแรกหลังติดตั้งหรืออัปเดต ให้รอสักครู่ จากนั้นกดปุ่ม ADJ ในหน้าถ่ายภาพแล้วเลือกช่องที่ 6 คือ GRKU สำหรับการใช้งานครั้งแรก ต้องเปิดใช้งานสคริปต์ในการ์ด SD ก่อน โดยกดปุ่ม MENU ค้างไว้ขณะเปิดกล้อง',
       ],
     },
     {
@@ -3562,7 +3562,7 @@ const th: Strings = {
       'ปิดกล้อง กดปุ่ม MENU ค้างไว้แล้วกดปุ่มเปิดกล้อง จากนั้นทำตามหน้าจอ ห้ามปิดกล้องหรือเปิดฝาช่องแบตเตอรี่จนกว่าจะอัปเดตเสร็จ',
       'เปิดกล้อง แล้วทดสอบว่าถ่ายและดูรูปได้ตามปกติ จากนั้นลบไฟล์เฟิร์มแวร์ออกจากการ์ด การบูตไวต้องใช้ GRKU 1.5.0 ขึ้นไป หากในการ์ดมี GRKU รุ่นเก่าหรือยังไม่มี ให้ติดตั้งรุ่นล่าสุดตามปกติ',
     ] as readonly string[],
-    installDone: 'หลังจากนั้น GRK จะแสดงใน ADJ ไม่นานหลังเปิดเครื่อง เมนูกล้องจะแสดงเวอร์ชันเฟิร์มแวร์เดิมเหมือนก่อนหน้า',
+    installDone: 'หลังจากนั้น GRKU จะแสดงใน ADJ ไม่นานหลังเปิดเครื่อง เมนูกล้องจะแสดงเวอร์ชันเฟิร์มแวร์เดิมเหมือนก่อนหน้า',
     restore: 'กลับไปใช้เฟิร์มแวร์ทางการ',
     restoreText: 'เปิดไฟล์ ZIP ทางการที่มีเวอร์ชันเดียวกัน แล้วอัปเดตกล้องด้วยไฟล์เฟิร์มแวร์ข้างในด้วยวิธีเดิม การอัปเดตเฟิร์มแวร์ทางการเวอร์ชันใหม่กว่าจะเขียนทับเฟิร์มแวร์เริ่มทำงานเร็วด้วยเช่นกัน',
   },

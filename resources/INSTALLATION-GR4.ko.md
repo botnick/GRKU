@@ -2,7 +2,7 @@
 
 RICOH GR IV 및 GR IV HDF 펌웨어 1.11 전용입니다.
 
-GRKU은 실험적인 소프트웨어이며, 어떠한 보증도 제공하지 않습니다. GRKU에 문제가 생기면 카메라가 시작 중에 멈출 수 있습니다. 설치 전에 [복구 가이드](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)를 읽어 주세요. GRKU을 설치하면 [이용 약관](https://github.com/botnick/GRKU/blob/main/resources/TERMS.md)에 동의한 것으로 간주됩니다.
+GRKU은 실험적인 소프트웨어이며, 어떠한 보증도 제공하지 않습니다. GRKU에 문제가 생기면 카메라가 시작 중에 멈출 수 있습니다. 설치 전에 [복구 가이드](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)를 읽어 주세요. GRKU을 설치하면 [이용 약관](https://grku.app/terms/)에 동의한 것으로 간주됩니다.
 
 ## 설치
 
@@ -13,9 +13,11 @@ GRKU은 실험적인 소프트웨어이며, 어떠한 보증도 제공하지 않
 3. 카드를 삽입합니다. MENU를 누른 상태에서 카메라 전원을 켭니다. 카메라가 스스로 꺼질 때까지 기다립니다.
 4. 카메라 전원을 평소처럼 켭니다.
 
+![SD_ROOT → SD CARD: SCRIPT, DEVELOP.MOD, 00078560.636](images/card.png)
+
 3단계는 카메라의 SD 스크립트를 활성화합니다. 카메라에 Mode Set Command와 Complete가 표시된 후 카메라가 스스로 꺼집니다. SD 스크립트가 이미 활성화되어 있다면 3단계를 건너뜁니다.
 
-![Mode Set Command 화면에는 Script - Enable과 Complete가 표시됩니다.](images/modeset.png)
+![Mode Set Command 화면에는 Script - Enable과 Complete가 표시됩니다.](images/camera-menu.png)
 
 설치가 끝나면 카드 루트에서 `00078560.636`과 `DEVELOP.MOD`를 삭제할 수 있습니다.
 
@@ -83,4 +85,4 @@ SD 스크립트 설정은 켜진 채로 남습니다. 끄려면:
 
 카메라가 시작 중에 멈추면 [복구 가이드](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)를 참고하세요.
 
-GRKU은 Ricoh와 관계가 없습니다. 소스 코드와 라이선스: https://github.com/botnick/GRKU
+GRKU은 Ricoh와 관계가 없습니다.

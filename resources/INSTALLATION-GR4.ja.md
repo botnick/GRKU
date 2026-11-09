@@ -2,7 +2,7 @@
 
 RICOH GR IV および GR IV HDF ファームウェア 1.11 専用です。
 
-GRKU は試験的なソフトウェアで、保証はありません。GRKU に問題があると、カメラが起動中に止まることがあります。インストール前に[復旧ガイド](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)をお読みください。GRKU をインストールした時点で、[利用規約](https://github.com/botnick/GRKU/blob/main/resources/TERMS.md)に同意したものとみなされます。
+GRKU は試験的なソフトウェアで、保証はありません。GRKU に問題があると、カメラが起動中に止まることがあります。インストール前に[復旧ガイド](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)をお読みください。GRKU をインストールした時点で、[利用規約](https://grku.app/terms/)に同意したものとみなされます。
 
 ## インストール
 
@@ -13,9 +13,11 @@ GRKU は試験的なソフトウェアで、保証はありません。GRKU に�
 3. カードを挿入します。MENU を押しながらカメラの電源を入れます。カメラが自動的に電源オフになるまで待ちます。
 4. カメラの電源を通常どおり入れます。
 
+![SD_ROOT → SD CARD: SCRIPT, DEVELOP.MOD, 00078560.636](images/card.png)
+
 手順 3 でカメラの SD スクリプトが有効になります。カメラに Mode Set Command と Complete が表示され、その後自動的に電源が切れます。SD スクリプトがすでに有効になっている場合は、手順 3 を省略してください。
 
-![Mode Set Command 画面には Script - Enable と Complete が表示されます。](images/modeset.png)
+![Mode Set Command 画面には Script - Enable と Complete が表示されます。](images/camera-menu.png)
 
 インストール後、カードのルートから `00078560.636` と `DEVELOP.MOD` を削除してかまいません。
 
@@ -83,4 +85,4 @@ SD スクリプトの設定はオンのままです。オフにするには：
 
 起動の途中でカメラが止まった場合は、[復旧ガイド](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)を参照してください。
 
-GRKU は Ricoh と提携していません。ソースコードとライセンス：https://github.com/botnick/GRKU
+GRKU は Ricoh と提携していません。

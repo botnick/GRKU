@@ -2,7 +2,7 @@
 
 These terms apply to GRKU (the software for the SD card), to grku.app (the site), and to GRKU Plus (the paid part of the site). When you install GRKU, use the site, or buy GRKU Plus, you accept these terms. If you do not accept them, do not install GRKU and do not buy GRKU Plus.
 
-GRKU is made by BOTNICK (Thanawat Changmai), Thailand, referred to as "we" below. Contact: noreply@grku.app replies are not read; write to the issues page at https://github.com/botnick/GRKU/issues or to the email given on the site.
+GRKU is made by BOTNICK, Thailand, referred to as "we" below. To contact us, use the feedback link on https://grku.app.
 
 ## Experimental software
 

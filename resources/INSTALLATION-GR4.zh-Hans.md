@@ -2,7 +2,7 @@
 
 仅适用于 RICOH GR IV 和 GR IV HDF 固件 1.11。
 
-GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可能在启动时停止响应。请在安装前阅读[恢复指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。安装 GRKU 即表示你接受[使用条款](https://github.com/botnick/GRKU/blob/main/resources/TERMS.md)。
+GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可能在启动时停止响应。请在安装前阅读[恢复指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。安装 GRKU 即表示你接受[使用条款](https://grku.app/terms/)。
 
 ## 安装
 
@@ -13,9 +13,11 @@ GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可
 3. 插入存储卡。按住 MENU 按钮开机，等待相机自动关机。
 4. 正常开机。
 
+![SD_ROOT → SD CARD: SCRIPT, DEVELOP.MOD, 00078560.636](images/card.png)
+
 第 3 步会打开相机的 SD 脚本功能：相机显示 Mode Set Command 和 Complete，然后自动关机。如果 SD 脚本功能已经打开，跳过这一步。
 
-![Mode Set Command 画面显示 Script - Enable 和 Complete。](images/modeset.png)
+![Mode Set Command 画面显示 Script - Enable 和 Complete。](images/camera-menu.png)
 
 安装后，可以从存储卡根目录删除 `00078560.636` 和 `DEVELOP.MOD`。
 
@@ -83,4 +85,4 @@ SD 脚本功能会保持打开。要关闭它：
 
 相机在启动时停止响应时，请参阅[恢复指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。
 
-GRKU 与 Ricoh 无关。源代码和许可：https://github.com/botnick/GRKU
+GRKU 与 Ricoh 无关。

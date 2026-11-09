@@ -20,7 +20,7 @@ What they want, in their words: "ได้โทนฟิล์มโดยไ�
 
 1. Show the looks on real photos before anything is written. The preview is the emotional peak.
 2. Put a chosen set of looks and modules on the card in a few clicks, from Chrome or Edge, and offer the ZIP for every other browser.
-3. Explain the camera side in plain Thai: where GRK is in ADJ, what Recipes are, what U1 to U3 do.
+3. Explain the camera side in plain Thai: where GRKU is in ADJ, what Recipes are, what U1 to U3 do.
 4. Sell GRKU Plus with one PromptPay QR and deliver the key by email, without an account.
 5. Keep working when the catalog is slow or offline: the page renders without the catalog, and the installer tells the truth about what it is writing.
 

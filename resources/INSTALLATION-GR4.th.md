@@ -2,7 +2,7 @@
 
 สำหรับ RICOH GR IV และ GR IV HDF เฟิร์มแวร์ 1.11 เท่านั้น
 
-GRKU ยังอยู่ในขั้นทดลองและไม่มีการรับประกันใดๆ หาก GRKU ทำงานผิดพลาด กล้องอาจค้างระหว่างเปิดเครื่องได้ โปรดอ่าน[คู่มือการกู้คืนระบบ](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)ก่อนทำการติดตั้ง เมื่อคุณติดตั้ง GRKU จะถือว่าคุณยอมรับ[ข้อกำหนดการใช้งาน](https://github.com/botnick/GRKU/blob/main/resources/TERMS.md)
+GRKU ยังอยู่ในขั้นทดลองและไม่มีการรับประกันใดๆ หาก GRKU ทำงานผิดพลาด กล้องอาจค้างระหว่างเปิดเครื่องได้ โปรดอ่าน[คู่มือการกู้คืนระบบ](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)ก่อนทำการติดตั้ง เมื่อคุณติดตั้ง GRKU จะถือว่าคุณยอมรับ[ข้อกำหนดการใช้งาน](https://grku.app/terms/)
 
 ## ติดตั้ง
 
@@ -13,9 +13,11 @@ GRKU ยังอยู่ในขั้นทดลองและไม่ม
 3. ใส่การ์ดเข้าไปในกล้อง กดปุ่ม MENU ค้างไว้พร้อมกับเปิดกล้อง รอจนกระทั่งกล้องปิดตัวเองลง
 4. เปิดกล้องตามปกติ
 
+![SD_ROOT → SD CARD: SCRIPT, DEVELOP.MOD, 00078560.636](images/card.png)
+
 ขั้นตอนที่ 3 เป็นการเปิดใช้งานสคริปต์บนการ์ด SD ของตัวกล้อง: กล้องจะแสดงข้อความ Mode Set Command และ Complete จากนั้นจะปิดตัวเองลง หากระบบสคริปต์บนการ์ด SD ถูกเปิดใช้งานอยู่แล้ว ให้ข้ามขั้นตอนที่ 3 ได้เลย
 
-![หน้าจอ Mode Set Command แสดงข้อความ Script - Enable และ Complete](images/modeset.png)
+![หน้าจอ Mode Set Command แสดงข้อความ Script - Enable และ Complete](images/camera-menu.png)
 
 หลังจากการติดตั้งเสร็จสิ้น คุณสามารถลบไฟล์ `00078560.636` และ `DEVELOP.MOD` ออกจากรูทของการ์ดได้
 
@@ -83,4 +85,4 @@ GRKU จะเก็บการตั้งค่าและเอฟเฟก
 
 หากกล้องค้างระหว่างการเปิดเครื่อง ให้อ่าน[คู่มือการกู้คืนระบบ](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)
 
-GRKU ไม่มีส่วนเกี่ยวข้องใดๆ กับ Ricoh ซอร์สโค้ดและสัญญาอนุญาต: https://github.com/botnick/GRKU
+GRKU ไม่มีส่วนเกี่ยวข้องใดๆ กับ Ricoh

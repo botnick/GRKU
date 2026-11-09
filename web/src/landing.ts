@@ -1,16 +1,5 @@
 import { siteUrl } from './catalog';
-import type { Language } from './i18n';
 export { LANDING_LOOKS, LANDING_PHOTOS } from './landing-data';
-import menuEn from '../../resources/images/grku-menu.jpg';
-import menuJa from '../../resources/images/grku-menu.ja.jpg';
-import menuKo from '../../resources/images/grku-menu.ko.jpg';
-import menuZhHans from '../../resources/images/grku-menu.zh-Hans.jpg';
-import menuZhHant from '../../resources/images/grku-menu.zh-Hant.jpg';
-import rootEn from '../../resources/images/grku-root.jpg';
-import rootJa from '../../resources/images/grku-root.ja.jpg';
-import rootKo from '../../resources/images/grku-root.ko.jpg';
-import rootZhHans from '../../resources/images/grku-root.zh-Hans.jpg';
-import rootZhHant from '../../resources/images/grku-root.zh-Hant.jpg';
 
 /** The Framing ratios in the order of the camera menu, with their width over height. */
 export const LANDING_RATIOS = [
@@ -35,15 +24,6 @@ export function landingImage(name: string): string {
   return siteUrl(`landing/${name}`);
 }
 
-/** The camera screens of the README in each language: the ADJ page and the MENU section. */
-export const CAMERA_SCREENS: Record<Language, { adj: string; menu: string }> = {
-  en: { adj: rootEn, menu: menuEn },
-  'zh-Hans': { adj: rootZhHans, menu: menuZhHans },
-  'zh-Hant': { adj: rootZhHant, menu: menuZhHant },
-  ja: { adj: rootJa, menu: menuJa },
-  ko: { adj: rootKo, menu: menuKo },
-  th: { adj: rootEn, menu: menuEn },
-};
 
 /** The guide lines inside a frame, in percent of its width and height. */
 export function guideLines(guide: LandingGuide): readonly (readonly [number, number, number, number])[] {
