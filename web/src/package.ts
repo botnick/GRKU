@@ -176,7 +176,8 @@ async function assemble<T>(
     const builder = new Package(builds[0]!);
     try {
       builder.setCamera(camera);
-      builder.setLanguage(language);
+      // The package has the guide languages only; Thai gets the English texts, as the guide does.
+      builder.setLanguage(guideLanguage(language));
       builder.setGuide(guide);
       if (imports) builder.setImports(imports);
       if (recipes) builder.setRecipes(recipes);
