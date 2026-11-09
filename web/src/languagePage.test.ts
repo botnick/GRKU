@@ -99,9 +99,15 @@ describe('edge worker', () => {
     expect(assets.fetch).not.toHaveBeenCalled();
   });
 
-  it('serves the English page with the site headers', async () => {
-    vi.stubGlobal('__SITE_HEADERS__', { 'Content-Security-Policy': "default-src 'self'" });
+  it('sends a visitor of English to the English page, not to the root', async () => {
     const response = await edge.fetch(request('/', {}, 'US'), { ASSETS: assets });
+    expect(response.status).toBe(302);
+    expect(response.headers.get('Location')).toBe('https://grku.app/en/');
+  });
+
+  it('serves the root page, which is Thai, to a visitor of Thai, with the site headers', async () => {
+    vi.stubGlobal('__SITE_HEADERS__', { 'Content-Security-Policy': "default-src 'self'" });
+    const response = await edge.fetch(request('/', { 'Accept-Language': 'th' }, 'TH'), { ASSETS: assets });
     expect(response.status).toBe(200);
     expect(await response.text()).toBe(page);
     expect(response.headers.get('Content-Security-Policy')).toBe("default-src 'self'");

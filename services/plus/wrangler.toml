@@ -11,7 +11,7 @@ database_id = "e67fb824-cef1-4d18-bd37-21745eb1efd5"
 [vars]
 # The site that the magic links and the CORS allow.
 SITE_URL = "https://grku.app"
-EXTRA_ORIGINS = "http://localhost:8787,http://localhost:5173,http://localhost:4173"
+EXTRA_ORIGINS = "https://www.grku.app,http://localhost:8787,http://localhost:5173,http://localhost:4173"
 # The PromptPay that receives the money: a phone (0812345678), a national ID (13 digits), or an
 # e-wallet ID (15 digits). Set as a secret in production: `wrangler secret put PROMPTPAY_ID`.
 PROMPTPAY_ID = ""
