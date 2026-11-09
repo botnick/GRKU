@@ -3,7 +3,7 @@ import type { Language } from './i18n';
 import type { CardFile } from './card';
 import { effectUrl, siteUrl, type Effect, type PackageEffect } from './catalog';
 import { effectFilename } from './import/names';
-import { fetchFile, type Progress } from './transfer';
+import { fetchFile, TransferError, type Progress } from './transfer';
 import wasmUrl from './wasm/grku_wasm_bg.wasm?url';
 
 /** One file that the package needs. A download keeps its bytes for later packages. */
@@ -167,12 +167,28 @@ async function assemble<T>(
     );
     // The build awaits the effects later. Until then, a failure is not an unhandled rejection.
     effectBytes.catch(ignore);
-    const [{ Package }, builds, guide] = await Promise.all([
+    // A later build that the site does not publish (a firmware that Ricoh does not publish, such as
+    // gr4-1.20-0528) is left out, as the release packages leave it out. The first build is required.
+    const missing = (error: unknown) => error instanceof TransferError && error.reason === 'status' && error.status === 404;
+    const [{ Package }, found, guide] = await Promise.all([
       loadWasm(),
-      Promise.all(targets.map((target) => use(buildUrl(target)))),
-      use(guideUrl(camera, language)),
+      Promise.all(
+        targets.map((target, index) =>
+          use(buildUrl(target)).catch((error: unknown) => {
+            if (index > 0 && missing(error)) return null;
+            throw error;
+          }),
+        ),
+      ),
+      // A guide that is not published yet in this language: the English one.
+      use(guideUrl(camera, language)).catch((error: unknown) => {
+        if (missing(error)) return use(guideUrl(camera, 'en'));
+        throw error;
+      }),
     ]);
     report();
+    const present = targets.filter((_, index) => found[index] !== null);
+    const builds = found.filter((build): build is Uint8Array => build !== null);
     const builder = new Package(builds[0]!);
     try {
       builder.setCamera(camera);
@@ -182,7 +198,7 @@ async function assemble<T>(
       if (imports) builder.setImports(imports);
       if (recipes) builder.setRecipes(recipes);
       for (const build of builds.slice(1)) builder.addBuild(build);
-      for (const [number, target] of targets.entries()) {
+      for (const [number, target] of present.entries()) {
         const paths = builder.runtimePaths(number);
         const files = await Promise.all(paths.map((path) => use(runtimeUrl(target, path))));
         for (const [index, bytes] of files.entries()) {

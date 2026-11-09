@@ -47,7 +47,10 @@ jobs:
           # site stays as it is, and the release that has it deploys web/.
           targets=$(gh api -H "Accept: application/vnd.github.raw" \
             "repos/$GITHUB_REPOSITORY/contents/web/src/generated/cameras.ts?ref=$GITHUB_SHA" 2>/dev/null \
-            | grep -o "target: '[^']*'" | cut -d "'" -f 2 | sort -u || true)
+            | grep -o "target: '[^']*'" | cut -d "'" -f 2 | sort -u \
+            | grep -Ev '^[a-z0-9]+-[0-9.]+-' || true)
+          # A build with a suffix (gr4-1.20-0528) is of a firmware that Ricoh does not publish:
+          # a release may leave it out, and the site leaves out a build it does not have.
           # Releases before 1.2.0 name the site site.tar.gz.
           archive="GRKU-${tag#v}-site.tar.gz"
           mkdir -p "$RUNNER_TEMP/release-check"
