@@ -545,11 +545,11 @@ export function Workbench({
           )}
         </div>
 
-        <ul className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-2.5 xl:grid-cols-5" aria-label={t.effects}>
+        <ul className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-6 xl:grid-cols-7" aria-label={t.effects}>
           {!catalog &&
             !error &&
-            Array.from({ length: 15 }, (_, index) => (
-              <li key={index} className="aspect-[4/5] animate-pulse rounded-xl border bg-card" aria-hidden="true" />
+            Array.from({ length: 21 }, (_, index) => (
+              <li key={index} className="aspect-[5/6] animate-pulse rounded-lg border bg-card" aria-hidden="true" />
             ))}
           {catalog && visible.length === 0 && (
             <li className="col-span-full py-10 text-center text-muted-foreground">{t.noMatches}</li>
@@ -559,26 +559,23 @@ export function Workbench({
             const isPreviewed = effect.id === requested?.id;
             const stock = STOCKS[effect.id];
             const locked = !isChecked && !canAdd(effect) && checked.size < MAX_EFFECTS;
+            // The box and one line of name: the preview pane tells the rest. The stock and the
+            // kind are in the tooltip of the card.
+            const detail = [effect.card ? t.cardOnlyEffect : effect.monochrome ? t.mono : t.color, stock ? stockText(stock, t) : null]
+              .filter(Boolean)
+              .join(' · ');
             const body = (
               <>
-                <EffectIcon effect={effect} className="size-[68px] sm:size-20" />
-                <span className="flex w-full min-w-0 flex-col items-center gap-0.5">
-                  <span className="text-[13px] leading-[1.3] font-semibold">{effect.name}</span>
-                  {(effect.card || effect.monochrome || stock) && (
-                    <span className="max-w-full truncate text-[11px] text-muted-foreground">
-                      {[effect.card ? t.cardOnlyEffect : effect.monochrome ? t.mono : null, stock ? stockText(stock, t) : null]
-                        .filter(Boolean)
-                        .join(' · ')}
-                    </span>
-                  )}
-                </span>
+                <EffectIcon effect={effect} className="size-14 sm:size-16" />
+                <span className="line-clamp-2 w-full text-center text-[11px] leading-[1.25] font-medium">{effect.name}</span>
               </>
             );
             return (
               <li
                 key={effect.id}
+                title={`${effect.name} · ${detail}`}
                 className={cn(
-                  'relative flex flex-col rounded-xl border bg-card p-2 pt-3 transition-colors hover:border-input',
+                  'relative flex flex-col rounded-lg border bg-card p-1.5 pt-2 transition-colors hover:border-input',
                   isChecked && 'border-foreground/60 hover:border-foreground/60',
                   isPreviewed && 'border-brand ring-2 ring-brand/70 hover:border-brand',
                 )}
@@ -588,15 +585,15 @@ export function Workbench({
                 {locked ? (
                   <button
                     type="button"
-                    className={cn('absolute top-2 left-2 z-10 flex size-[18px] items-center justify-center rounded-[4px] border border-input bg-card text-muted-foreground hover:text-foreground', RING)}
+                    className={cn('absolute top-1 left-1 z-10 flex size-4 items-center justify-center rounded-[4px] border border-input bg-card text-muted-foreground hover:text-foreground', RING)}
                     aria-label={t.plus.lockedTitle}
                     onClick={onPlus}
                   >
-                    <Lock className="size-3" aria-hidden="true" />
+                    <Lock className="size-2.5" aria-hidden="true" />
                   </button>
                 ) : (
                   <Checkbox
-                    className="absolute top-2 left-2 z-10 size-[18px] bg-card"
+                    className="absolute top-1 left-1 z-10 size-4 bg-card"
                     checked={isChecked}
                     disabled={!isChecked && checked.size >= MAX_EFFECTS}
                     aria-label={isChecked ? `${effect.name}: ${t.onCard}` : `${effect.name}: ${t.addToCard}`}
@@ -604,11 +601,11 @@ export function Workbench({
                   />
                 )}
                 {effect.card ? (
-                  <div className="flex w-full flex-1 flex-col items-center gap-2 pt-1.5 pb-1 text-center">{body}</div>
+                  <div className="flex w-full flex-1 flex-col items-center gap-1.5 pt-0.5 text-center">{body}</div>
                 ) : (
                   <button
                     type="button"
-                    className={cn('flex w-full flex-1 flex-col items-center gap-2 rounded-lg pt-1.5 pb-1 text-center', RING)}
+                    className={cn('flex w-full flex-1 flex-col items-center gap-1.5 rounded-md pt-0.5 text-center', RING)}
                     aria-pressed={isPreviewed}
                     aria-label={t.previewOf(effect.name)}
                     onPointerEnter={() => prefetch(effect)}
@@ -620,12 +617,12 @@ export function Workbench({
                   </button>
                 )}
                 {onCard && (
-                  <span className="absolute top-2 right-2">
+                  <span className="absolute -top-1.5 -right-1.5 scale-90">
                     <ChangeBadge on={onCard.has(effect.id)} checked={isChecked} changed={changedOnCard?.has(effect.id)} strings={t} />
                   </span>
                 )}
                 {effect.imported && (
-                  <span className="flex justify-center gap-1">
+                  <span className="mt-1 flex justify-center gap-0.5">
                     {editable(effect) && (
                       <Button type="button" variant="ghost" size="xs" aria-label={t.editOf(effect.name)} onClick={() => editor.current?.open(effect)}>
                         {t.editEffect}
@@ -640,16 +637,16 @@ export function Workbench({
             );
           })}
           {catalog?.baseGamma && (
-            <li className="flex flex-col rounded-xl border border-dashed p-2 pt-3">
+            <li className="flex flex-col rounded-lg border border-dashed p-1.5 pt-2">
               <button
                 type="button"
-                className={cn('flex w-full flex-1 flex-col items-center justify-center gap-2 rounded-lg pt-1.5 pb-1 text-center text-muted-foreground hover:text-foreground', RING)}
+                className={cn('flex w-full flex-1 flex-col items-center justify-center gap-1.5 rounded-md pt-0.5 text-center text-muted-foreground hover:text-foreground', RING)}
                 onClick={() => importer.current?.open()}
               >
-                <span className="flex size-10 items-center justify-center rounded-full border" aria-hidden="true">
-                  <Plus className="size-5" />
+                <span className="flex size-9 items-center justify-center rounded-full border" aria-hidden="true">
+                  <Plus className="size-4" />
                 </span>
-                <span className="text-[13px] leading-[1.3] font-semibold">{t.importOpen}</span>
+                <span className="w-full truncate text-[11px] leading-tight font-medium">{t.importOpen}</span>
               </button>
             </li>
           )}
