@@ -38,7 +38,7 @@ A monochrome effect cannot have `post_matrix`, `selective_color`, `hue_sectors`,
 - A motion picture film label shows the film number in place of the series name: Vision3 500T shows `5219` above `500T`. The target description must give that number.
 - Stock codes, papers, and process details go in the target description.
 - If a text does not fit, the compiler stops with an error.
-- An own image can use color: the camera draws the icon as it is. This fork ships a film box icon in the colors of the real box for each effect, with the brand band, the name, and the speed in Roboto Condensed (`scripts/flap-icons.py embed` draws them from the `cover` fields; it needs Pillow), as [ahonn/GRKit#38](https://github.com/ahonn/GRKit/issues/38) proposed.
+- An own image can use color: the camera draws the icon as it is. GRKU ships a film box icon in the colors of the real box for each effect, with the brand band, the name, and the speed in Roboto Condensed (`scripts/flap-icons.py embed` draws them from the `cover` fields; it needs Pillow), as [ahonn/GRKit#38](https://github.com/ahonn/GRKit/issues/38) proposed.
 
 ## Sources
 

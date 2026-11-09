@@ -1,6 +1,6 @@
 # Film-emulation LUT sources: license survey
 
-Surveyed 2026-11-07/08 by a research agent of this fork; every license was read from the source. Only REDISTRIBUTABLE rows may become effects (see `effects/README.md` and `effects/NOTICE.md`).
+Surveyed 2026-11-07/08 for GRKU; every license was read from the source. Only REDISTRIBUTABLE rows may become effects (see `effects/README.md` and `effects/NOTICE.md`).
 
 **Method.** Every license below was read from the source's own LICENSE/README/zip (via GitHub raw/API, curl, or page fetch), not inferred. Where a page states nothing, it is marked UNCLEAR. RawPedia's Film_Simulation page is currently 404 (the host now serves a bare autoindex), so I read the archived 2023 copy via the Wayback CDX API. GRKU's own `effects/NOTICE.md` already uses spektrafilm (CC BY-SA 4.0), Spectral Film LUT (MIT), t3mujinpack (MIT, HP5 only) and the gr3-film-mods fit method (MIT).
 

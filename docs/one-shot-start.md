@@ -1,6 +1,6 @@
 # One-shot start
 
-This fork loads GRKU with one request to the camera's Linux at each power-on, instead of the two of GRKit 1.3 to 1.5 (SCAN, then INSTALL). GRKU still runs from the SD card only: it never writes to the firmware, and the SD script setting of the camera stays on until the disable package turns it off, as before.
+GRKU loads with one request to the camera's Linux at each power-on, instead of the two of GRKit 1.3 to 1.5 (SCAN, then INSTALL). GRKU still runs from the SD card only: it never writes to the firmware, and the SD script setting of the camera stays on until the disable package turns it off, as before.
 
 ## Why the start was slow
 
@@ -116,7 +116,7 @@ The card was formatted (exFAT) and the package of commit c1446e2 (the page limit
 
 The one-shot start works after the mount, at 6 to 7 s. Linux runs commands from 4.2 s. The loader of 1.3.1 and 1.3.2 mounted `ipcufs` itself at 4.2 s, copied the package to RAM, released the mount, and ran SCAN from RAM, which loaded GRKU in 3 to 6 s. It was withdrawn in 1.3.3, because the camera's own mount failed while the loader held the card, and an unmount after that failure stopped Linux; a few cameras, new cards, and exFAT cards with macOS files hit this. Nothing about the firmware forbids it; the timing did.
 
-A later version of this fork can take that 2 to 3 s back on the official firmware, without a firmware change, if the measurements of `DIAG.TXT` say that the work fits before the camera's mount:
+A later version of GRKU can take that 2 to 3 s back on the official firmware, without a firmware change, if the measurements of `DIAG.TXT` say that the work fits before the camera's mount:
 
 1. At 4.2 s, mount `ipcufs` at a private mount point, copy `CORE.BIN`, the modules, the effects, and the state into RAM, and unmount. With about 1 MB to copy, this takes as long as a read of that size takes on `ipcufs` (`DIAG.TXT`, `read-core`).
 2. Run the one-shot start from the RAM copy. It needs no card until its result.

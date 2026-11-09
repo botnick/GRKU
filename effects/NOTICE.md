@@ -56,7 +56,7 @@ GR2 Positive derives from the GR2 Positive Film LUT of the Ricoh GR2 Film Look f
 ## Names and limits
 
 Effect names and film, paper, and filter names identify the simulated materials. Some of these
-names are trademarks of their owners. GRKit is not affiliated with or endorsed by Eastman Kodak Company,
+names are trademarks of their owners. GRKU is not affiliated with or endorsed by Eastman Kodak Company,
 Kodak Alaris, Fujifilm, HARMAN technology Limited (Ilford Photo), Agfa, Polaroid, Lomography, Rollei, or CineStill. The simulations are models
 of published data or hand-made styles, not measured equivalents of the products.
 
@@ -65,7 +65,7 @@ JPEG transforms. They add no grain, halation, or other spatial effect. The fits 
 at base-gamma index 7.8.
 
 Icon text uses the Inter typeface (SIL Open Font License 1.1, see
-`crates/grkit-core/assets/Inter-LICENSE.txt`). Icons show manufacturer and film names as
+`crates/grku-core/assets/Inter-LICENSE.txt`). Icons show manufacturer and film names as
 text in Inter or in a pixel font. They use no manufacturer logo.
 The project code is licensed under the MIT License (see `LICENSE` at the repository root).
 

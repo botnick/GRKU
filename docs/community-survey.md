@@ -1,6 +1,6 @@
 # Community survey: forks, issues, and pull requests of ahonn/GRKit
 
-Surveyed 2026-11-08 by a research agent of this fork. Fork owners and issue numbers are kept for traceability.
+Surveyed 2026-11-08 for GRKU, when it started from GRKit 1.5.1. Fork owners and issue numbers are kept for traceability.
 
 Snapshot: 2026-11-08. Upstream `main` = 920c1d9 (v1.5.1, 2026-11-07), 260 commits, 192 stars, 26 forks, 23 issues (8 open), 47 PRs. Local clone `/Users/botnick/Desktop/GRKU`: `origin/main` (botnick) is identical to `upstream/main`. Nothing was modified; only `git fetch upstream` was run.
 

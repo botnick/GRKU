@@ -1,5 +1,7 @@
 # Fast-boot firmware
 
+> **GRKU does not ship a fast-boot firmware and never will.** This page is GRKit's design, kept because the code (`grku firmware`, `crates/grku-firmware`, `runtime/fastboot`) is still in the repository and still tested. GRKU is a script on the SD card only; its start is described in [one-shot-start.md](one-shot-start.md). The Fast start page and guide of grkit.app that this page names do not exist on grku.app.
+
 GRKU does not need this firmware. On the official firmware, GRKU loads from the SD card after the camera's Linux mounts the card, about 8 to 10 seconds after power-on.
 The fast-boot firmware is the official firmware with three small changes. With it, SD scripts can run code from the card at power-on, and GRKU loads before Linux mounts the card.
 
@@ -90,7 +92,7 @@ The code of GRKU ends before the fast-boot file, which runs from 0x54c00000 (`ru
 
 ## Make the fast-boot firmware
 
-A person who does not build GRKU uses the Fast start page of grkit.app (`/fastboot/`), which runs the same code in the browser, and the [fast start guide](../resources/FASTBOOT.md). The page takes the official ZIP from Ricoh and makes the latest release of each camera only (`LATEST` in `web/src/fastboot.ts`). The `grku` command takes the official ZIP or its update file of any release in the table of releases.
+A person who does not build GRKU used the Fast start page of grkit.app (`/fastboot/`), which ran the same code in the browser, with GRKit's fast start guide (not part of GRKU). The page takes the official ZIP from Ricoh and makes the latest release of each camera only (`LATEST` in `web/src/fastboot.ts`). The `grku` command takes the official ZIP or its update file of any release in the table of releases.
 
 1. Download the official firmware of your camera and version from Ricoh.
 2. Run `grku firmware patch` with the official ZIP or the update file in it:
