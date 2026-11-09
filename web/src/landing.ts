@@ -23,7 +23,7 @@ export const LANDING_RATIOS = [
   { label: '7:6', ratio: 7 / 6 },
 ] as const;
 
-/** The id of the landing hero. The App Store bar waits until the hero scrolls away (AppPromo). */
+/** The id of the landing hero. */
 export const LANDING_HERO = 'landing-hero';
 
 /** The guide styles in the order of the camera menu (`landing.guideRows`). */

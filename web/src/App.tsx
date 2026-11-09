@@ -65,7 +65,6 @@ import {
   type CardTask,
   type InstallMode,
 } from './components/CardPanel';
-import { AppPromo } from './components/AppPromo';
 import { ChoiceCard } from './components/ChoiceCard';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Faq } from './components/Faq';
@@ -1136,7 +1135,6 @@ export function App({
         language={language}
         onBrowse={() => document.getElementById('looks')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
       />
-      <AppPromo strings={t} />
     </>
   );
 }

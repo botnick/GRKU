@@ -544,13 +544,15 @@ export function Workbench({
               </div>
               {/* The three tiers at a glance; each opens GRKU Plus. */}
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                {(
-                  [
-                    [t.plus.tierAll, PRICES.plus, true],
-                    [t.plus.tierSlots, PRICES.slots25, false],
-                    [t.plus.tierPack, PRICES['pack:kodak'], false],
-                  ] as const
-                ).map(([name, price, featured]) => (
+                {(() => {
+                  const counts = catalog ? packCounts(catalog.effects) : null;
+                  const total = counts ? Object.values(counts).reduce((sum, n) => sum + n, 0) : 135;
+                  return [
+                    [t.plus.tierAll, PRICES.plus, true, t.plus.outcomeAll(total, MAX_EFFECTS)],
+                    [t.plus.tierSlots, PRICES.slots25, false, t.plus.outcomeSlots(25)],
+                    [t.plus.tierPack, PRICES['pack:kodak'], false, t.plus.outcomePack(counts?.kodak ?? 16, t.plus.packs.kodak, 10, 10 + (counts?.kodak ?? 16))],
+                  ] as const;
+                })().map(([name, price, featured, outcome]) => (
                   <button
                     key={name}
                     type="button"
@@ -562,6 +564,7 @@ export function Workbench({
                   >
                     <span className="text-xs text-muted-foreground">{name}</span>
                     <span className={cn('text-xl font-semibold tabular-nums tracking-tight', featured && 'text-brand')}>฿{price}</span>
+                    <span className="text-[11.5px] leading-snug text-muted-foreground">{outcome}</span>
                   </button>
                 ))}
               </div>

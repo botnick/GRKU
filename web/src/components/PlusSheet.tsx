@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Turnstile } from './Turnstile';
+import { MAX_EFFECTS } from '../catalog';
 import { cn } from '@/lib/utils';
 import type { Language, Strings } from '../i18n';
 import {
@@ -28,6 +29,7 @@ import {
   type Entitlement,
   type Order,
   type Pack,
+  FREE,
   giftShort,
   ownedLines,
   orderStatus,
@@ -95,6 +97,8 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
   const [humanReset, setHumanReset] = useState(0);
 
   const tier: Tier = choice === 'pack' ? `pack:${pack}` : choice;
+  // Every look of the library: the packs together, at least the 135 the site ships.
+  const totalLooks = packCounts ? Object.values(packCounts).reduce((sum, n) => sum + n, 0) : 135;
   const due = amountDue(tier, owned);
   const validEmail = EMAIL.test(email.trim());
 
@@ -342,12 +346,14 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
               </Alert>
             )}
 
+            <p className="-mb-2 text-[13px] text-muted-foreground">{t.plus.outcomeFree(FREE.slots)}</p>
             <RadioGroup value={choice} onValueChange={(value) => setChoice(value as Choice)} className="gap-3">
               <TierCard
                 id={`${ids}-plus`}
                 value="plus"
                 title={t.plus.tierAll}
                 text={t.plus.tierAllText}
+                outcome={t.plus.outcomeAll(totalLooks, MAX_EFFECTS)}
                 price={price(PRICES.plus)}
                 owned={hasTier('plus', owned)}
                 ownedLabel={t.plus.owned}
@@ -364,6 +370,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                 value="slots25"
                 title={t.plus.tierSlots}
                 text={t.plus.tierSlotsText}
+                outcome={t.plus.outcomeSlots(25)}
                 price={price(PRICES.slots25)}
                 owned={hasTier('slots25', owned)}
                 ownedLabel={t.plus.owned}
@@ -374,6 +381,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                 value="pack"
                 title={t.plus.tierPack}
                 text={t.plus.tierPackText}
+                outcome={t.plus.outcomePack(packCounts?.[pack] ?? 0, t.plus.packs[pack], FREE.slots, FREE.slots + (packCounts?.[pack] ?? 0))}
                 price={price(PRICES['pack:kodak'])}
                 owned={false}
                 ownedLabel={t.plus.owned}
@@ -717,6 +725,7 @@ function TierCard({
   value,
   title,
   text,
+  outcome,
   price,
   owned,
   ownedLabel,
@@ -727,6 +736,8 @@ function TierCard({
   value: Choice;
   title: string;
   text: string;
+  /** What the buyer gets, in looks on the card. */
+  outcome: string;
   price: React.ReactNode;
   owned: boolean;
   ownedLabel: string;
@@ -748,7 +759,8 @@ function TierCard({
           <span className="font-semibold">{title}</span>
           {owned ? <Badge variant="outline">{ownedLabel}</Badge> : <span className={cn(selected && 'text-brand')}>{price}</span>}
         </span>
-        <span className="mt-0.5 text-sm text-muted-foreground">{text}</span>
+        <span className={cn('mt-1 text-[15px] font-semibold', selected ? 'text-foreground' : 'text-foreground/90')}>→ {outcome}</span>
+        <span className="mt-0.5 text-[13px] text-muted-foreground">{text}</span>
         {children}
       </span>
     </Label>
