@@ -14,7 +14,7 @@
 
 ## 도구 받기
 
-[최신 릴리스](https://github.com/ahonn/grkit/releases/latest)에서 `GRKU-<버전>-dump.zip`을 다운로드합니다. https://grkit.app 아래쪽의 펌웨어 덤프 가이드 링크에서도 같은 파일을 받을 수 있습니다.
+[최신 릴리스](https://github.com/botnick/GRKit/releases/latest)에서 `GRKU-<버전>-dump.zip`을 다운로드합니다. https://grku.app 아래쪽의 펌웨어 덤프 가이드 링크에서도 같은 파일을 받을 수 있습니다.
 
 ## 펌웨어 덤프하기
 
@@ -34,7 +34,7 @@
 ## 파일 보내기
 
 1. `SCRIPT/GRDUMP` 폴더를 ZIP으로 압축합니다.
-2. ZIP을 [GitHub issue](https://github.com/ahonn/grkit/issues)에 첨부합니다. 카메라 모델과 펌웨어 버전을 적습니다.
+2. ZIP을 [GitHub issue](https://github.com/botnick/GRKit/issues)에 첨부합니다. 카메라 모델과 펌웨어 버전을 적습니다.
 
 개발자가 issue에서 덤프를 요청했다면 그 issue에 ZIP을 첨부합니다.
 

@@ -38,7 +38,7 @@ public = true
 setting = "CORE.ASPECT"
 off_row = true
 settings = ["CORE.ASPECT", "CORE.ASPECT_MODE", "MASK", "LABEL"]
-# The GRKit section of MENU turns each ratio on or off for ADJ.
+# The GRKU section of MENU turns each ratio on or off for ADJ.
 options = true
 
 # The mask stays in each display and shows the selected framing area.

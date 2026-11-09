@@ -1,6 +1,6 @@
 # Built-in icon guidelines
 
-These guidelines apply to the GRKit built-in icons. They state the design
+These guidelines apply to the GRKU built-in icons. They state the design
 intent. The exact geometry, sizes, and colors are in the tile generator
 [scripts/menu-tiles.py](../scripts/menu-tiles.py) (the module tiles of
 `modules/*/tiles` and the host tiles of `crates/grkit-core/assets/tiles`), in
@@ -14,7 +14,7 @@ update.
 ## Principles
 
 - Sit well next to the camera. Keep the frame, size, and placement of the
-  native GR icons, and put GRKit icons next to native icons when you review
+  native GR icons, and put GRKU icons next to native icons when you review
   them. Inside the frame, a tile shows a small color picture of what the row
   does: a film box in the colors of the real box, a landscape cropped to the
   ratio, a date stamp in the orange of a date back, a lamp at night for Glow.
@@ -39,7 +39,7 @@ Select the role before you draw. Each role has its own template.
 | Role | Use | Style |
 | --- | --- | --- |
 | List tile | Module entries, their options, and the core entries | The native list frame and fill |
-| Toolbar tile | The GRKit entry in the native ADJ toolbar | The native toolbar frame |
+| Toolbar tile | The GRKU entry in the native ADJ toolbar | The native toolbar frame |
 | Film cover | Film Looks | Its own bands and typography |
 | Viewfinder status | Indicators in the live-view status row | No frame, no fill |
 
@@ -115,7 +115,7 @@ icons.
 3. Use the shared frame, palette, and typography helpers.
 4. Render directly at the final size.
 5. Compare the result at original size with native icons and with the
-   other GRKit icons of the family.
+   other GRKU icons of the family.
 6. Update the PNGs and the tests. Then check the icons on the camera.
 
 Run from the repository root:

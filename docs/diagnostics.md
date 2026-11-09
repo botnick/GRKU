@@ -59,12 +59,12 @@ The lines of one start on the official firmware, in order:
 | `plan-file N` | core | the plan header did not reach the card: a status |
 | `ramplan N` | core | the whole plan was written to `/tmp` for `INSTALL.SH`: `0`, or a status |
 | `install-start` | core or `INSTALL.SH` | the loader allocated the arrays; INSTALL begins |
-| `install N` | core or `INSTALL.SH` | the result: `0`, the hooks are live and GRK appears in ADJ; or a status |
+| `install N` | core or `INSTALL.SH` | the result: `0`, the hooks are live and GRKU appears in ADJ; or a status |
 | `arrays` | core | the addresses that the loader allocated: the registry (the header and the effect records), the tail (the working memory of the hooks), the module array, the mailbox, and each icon chunk |
 | `patches` | core | the firmware patches applied of the total, and the extension points that needed them as a bit mask; the modules loaded of the listed; the capabilities that the modules use and those running; `units`: the snap focus distance labels changed to feet (only with `GRKIT/FEET.TXT`); `retries`: how often INSTALL waited for a native state that the camera still initialized |
 | `fast-boot ...` | loader | only with the optional fast-boot files: why the start did not use them |
 
-`install 0` is the time at which GRK appears in ADJ. A `linux`, `memory`, `build`, `plan`, `arrays`, and `patches` block from `INSTALL.SH` (the fallback of the loader) looks the same.
+`install 0` is the time at which GRKU appears in ADJ. A `linux`, `memory`, `build`, `plan`, `arrays`, and `patches` block from `INSTALL.SH` (the fallback of the loader) looks the same.
 
 ## REPORT.TXT
 

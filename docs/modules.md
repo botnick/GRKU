@@ -1,6 +1,6 @@
 # Writing a module
 
-A module adds one feature to GRKit. It is one file, `<ID>.GRM`, that runs on each supported camera.
+A module adds one feature to GRKU. It is one file, `<ID>.GRM`, that runs on each supported camera.
 This guide shows how to write, test, build, and install a module. [module-reference.md](module-reference.md) gives each key, limit, and error number.
 
 The official modules in `modules/` are complete examples:
@@ -140,7 +140,7 @@ The build or the installer rejects a module that breaks these rules:
 - Do not divide by a variable with `/` or `%`, and do not clear or copy a large array in one statement. The compiler calls helpers for them, which the core does not export. Use `divide(n, d)` and loops.
 - Keep each stack frame at 1536 bytes or less. Module code runs on the stacks of firmware tasks.
 
-A module has no init function. Static variables are writable, and constant data is read-only. To run code when GRKit is ready or when a setting changes, add an event handler:
+A module has no init function. Static variables are writable, and constant data is read-only. To run code when GRKU is ready or when a setting changes, add an event handler:
 
 ```toml
 [events]
@@ -176,10 +176,10 @@ The installer loads a file only if its name is `<ID>.GRM`.
 
 ## Install the module on a card
 
-The card must already hold a GRKit package for the camera.
+The card must already hold a GRKU package for the camera.
 
 1. Copy `HELLO.GRM` into `GRKIT/MODULES` on the card.
-2. Power on the camera, and wait until ADJ shows the GRK entry.
+2. Power on the camera, and wait until ADJ shows the GRKU entry.
 3. Power off the camera, and open `GRKIT/REPORT.TXT` on the computer.
 
 The report gives one line for each module file:
@@ -188,11 +188,11 @@ The report gives one line for each module file:
 HELLO.GRM  not loaded: error 55, it uses a setting that no module has: GUIDES.STYLE
 ```
 
-[Report errors](module-reference.md#report-errors) gives the meaning of each error number. To turn a module off or move its page, use its row and ADJ Order in the GRKit section of MENU. To remove a module, delete its file.
+[Report errors](module-reference.md#report-errors) gives the meaning of each error number. To turn a module off or move its page, use its row and ADJ Order in the GRKU section of MENU. To remove a module, delete its file.
 
 ## If the camera stops at power-on
 
-Turn the module off with its **Enable** row in the GRKit section of MENU. If the camera stops before MENU opens, put an empty file `GRKIT/SAFE` on the card: no module loads then. Remove the module, then delete `GRKIT/SAFE`. See [Report and safe mode](architecture.md#report-and-safe-mode).
+Turn the module off with its **Enable** row in the GRKU section of MENU. If the camera stops before MENU opens, put an empty file `GRKIT/SAFE` on the card: no module loads then. Remove the module, then delete `GRKIT/SAFE`. See [Report and safe mode](architecture.md#report-and-safe-mode).
 
 ## Measure the CPU use on the camera
 
@@ -208,6 +208,6 @@ period <number> frames <live-view frames>
 <MODULE> <paint|filter|call> <calls> <cycles> <cycles of the largest call>
 ```
 
-The core points include the live-view canvas (`frame.bind`, `frame.prepare`, `frame.paint`), the picture (`picture.post`, `picture.encode`), and `menu.icon`. On GR III, `picture.grain` measures the grain noise of a GRKit shot. `picture.grain` counts microseconds instead of cycles. `frame.paint` includes the module layers, and `picture.encode` includes the plane filters.
+The core points include the live-view canvas (`frame.bind`, `frame.prepare`, `frame.paint`), the picture (`picture.post`, `picture.encode`), and `menu.icon`. On GR III, `picture.grain` measures the grain noise of a GRKU shot. `picture.grain` counts microseconds instead of cycles. `frame.paint` includes the module layers, and `picture.encode` includes the plane filters.
 
 The profile counts the first eight modules of the list. The profile does not count the Image Control processing of each frame. It writes the card every 10 seconds, so do not use it to measure battery life.

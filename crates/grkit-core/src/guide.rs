@@ -20,11 +20,11 @@ impl Language {
     /// the guide in one language, as a PDF.
     pub fn guide_title(self) -> &'static str {
         match self {
-            Language::English => "GRKit Installation Guide",
-            Language::SimplifiedChinese => "GRKit 安装指南",
-            Language::TraditionalChinese => "GRKit 安裝指南",
-            Language::Japanese => "GRKit インストールガイド",
-            Language::Korean => "GRKit 설치 가이드",
+            Language::English => "GRKU Installation Guide",
+            Language::SimplifiedChinese => "GRKU 安装指南",
+            Language::TraditionalChinese => "GRKU 安裝指南",
+            Language::Japanese => "GRKU インストールガイド",
+            Language::Korean => "GRKU 설치 가이드",
         }
     }
 
@@ -167,7 +167,7 @@ pub fn source(camera: &Camera, language: Language) -> Result<Files> {
     let guide = String::from_utf8(installation_guide(camera, language))?;
     let title = language.guide_title();
     let mut typst = format!(
-        "#set document(title: \"{title}\", author: \"GRKit\", date: none)\n\
+        "#set document(title: \"{title}\", author: \"GRKU\", date: none)\n\
          #set page(paper: \"a5\", margin: (x: 15mm, y: 16mm), numbering: \"1\")\n\
          #set text({}, size: 9.5pt)\n\
          #set par(leading: 0.75em, spacing: 1.1em)\n\

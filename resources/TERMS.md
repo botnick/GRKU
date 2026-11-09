@@ -1,6 +1,6 @@
 # Terms of Use
 
-These terms apply to GRKU and to grkit.app. When you install or use GRKU, you accept these terms. If you do not accept them, do not install GRKU.
+These terms apply to GRKU and to grku.app. When you install or use GRKU, you accept these terms. If you do not accept them, do not install GRKU.
 
 ## Experimental software
 
@@ -17,8 +17,6 @@ GRKU runs from the SD card. It changes the camera only until the camera turns of
 
 ## Fast-boot firmware
 
-The fast-boot firmware is optional. grkit.app makes it on your device from the official Ricoh firmware, and you install it as a firmware update. Unlike GRKU, it stays in the camera until you install another firmware. The [fast start guide](FASTBOOT.md) tells you how to go back to the official firmware.
-
 - If the update stops, or if the fast-boot firmware fails, the camera may not start. The recovery guide may not help in that case.
 - The fast-boot firmware was tested on a GR III only. On another camera, it can fail.
 - Ricoh may decline warranty or repair service for a camera that used modified firmware.
@@ -26,11 +24,11 @@ The fast-boot firmware is optional. grkit.app makes it on your device from the o
 
 ## No warranty
 
-GRKU and grkit.app are provided "as is", without warranty of any kind. The authors do not promise that GRKU works on your camera, that it has no errors, or that photos look as the preview shows.
+GRKU and grku.app are provided "as is", without warranty of any kind. The authors do not promise that GRKU works on your camera, that it has no errors, or that photos look as the preview shows.
 
 ## Limitation of liability
 
-You use GRKU at your own risk. To the maximum extent that the applicable law permits, the authors are not liable for damage to the camera or the SD card, for lost photos or data, or for other loss that comes from the use of GRKU or grkit.app. These terms do not exclude a liability that the applicable law does not permit to exclude.
+You use GRKU at your own risk. To the maximum extent that the applicable law permits, the authors are not liable for damage to the camera or the SD card, for lost photos or data, or for other loss that comes from the use of GRKU or grku.app. These terms do not exclude a liability that the applicable law does not permit to exclude.
 
 ## Trademarks
 

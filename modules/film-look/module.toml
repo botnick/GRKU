@@ -16,7 +16,7 @@ tiles = ["tiles/0-module.png"]
 
 [page]
 setting = "CORE.TONE"
-# The GRKit section of MENU turns each effect on or off for ADJ.
+# The GRKU section of MENU turns each effect on or off for ADJ.
 options = true
 
 [[indicators]]

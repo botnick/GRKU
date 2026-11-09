@@ -59,7 +59,7 @@ public = true
 setting = "STYLE"
 off_row = true
 settings = ["STYLE", "COLOR", "OPACITY", "DISP", "SPIRAL"]
-# The GRKit section of MENU turns each style on or off for ADJ.
+# The GRKU section of MENU turns each style on or off for ADJ.
 options = true
 # Fn on the Golden Spiral row turns the spiral to the next corner, clockwise.
 fn_cycle = { value = 6, setting = "SPIRAL" }

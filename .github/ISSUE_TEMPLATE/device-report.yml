@@ -4,7 +4,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        If the camera does not start, read the [recovery guide](https://github.com/ahonn/grkit/blob/main/resources/RECOVERY.md) first.
+        If the camera does not start, read the [recovery guide](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md) first.
         For the site, the CLI, the documentation, or a feature request, open a blank issue.
   - type: dropdown
     id: camera
@@ -32,7 +32,7 @@ body:
     id: version
     attributes:
       label: GRKit version
-      description: The last row of the GRK menu shows the version. If GRK does not appear, give the version in the footer of grkit.app.
+      description: The About GRKU row of the GRKU section of MENU shows the version. If GRKU does not appear, give the version in the footer of grku.app.
       placeholder: "1.1.1"
     validations:
       required: true
@@ -43,7 +43,7 @@ body:
       options:
         - Works
         - Works with problems
-        - GRK does not appear
+        - GRKU does not appear
     validations:
       required: true
   - type: textarea
@@ -53,7 +53,7 @@ body:
       description: |
         Give the modules that you tested, the size and format of the card, what you expected, and what occurred.
         Copy all the lines of `GRKIT/REPORT.TXT` and `GRKIT/BOOT.TXT` here. If the card has `SCRIPT/GRKIT/INSTALL.ERR`, also copy all its lines.
-        If the first line is 47, also attach a firmware dump. The [dump guide](https://github.com/ahonn/grkit/blob/main/resources/DUMP.md) tells you how to make one.
+        If the first line is 47, also attach a firmware dump. The [dump guide](https://github.com/botnick/GRKit/blob/main/resources/DUMP.md) tells you how to make one.
         Add photos of the screen if they help.
     validations:
       required: true

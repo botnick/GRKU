@@ -1,6 +1,6 @@
 # One-shot start
 
-This fork loads GRKit with one request to the camera's Linux at each power-on, instead of the two of GRKit 1.3 to 1.5 (SCAN, then INSTALL). GRKit still runs from the SD card only: it never writes to the firmware, and the SD script setting of the camera stays on until the disable package turns it off, as before.
+This fork loads GRKU with one request to the camera's Linux at each power-on, instead of the two of GRKit 1.3 to 1.5 (SCAN, then INSTALL). GRKit still runs from the SD card only: it never writes to the firmware, and the SD script setting of the camera stays on until the disable package turns it off, as before.
 
 ## Why the start was slow
 
@@ -83,7 +83,7 @@ RAM is empty at each power-on, so none of the `/tmp` files reaches another start
 7.95 patches ...     the patches applied, the modules loaded, the capabilities, the feet labels, the retries
 ```
 
-`install 0` is the time at which GRK appears in ADJ. Send `GRKIT/BOOT.TXT` and `GRKIT/REPORT.TXT` with a device report, as before; a start that stopped also leaves `SCRIPT/GRKIT/INSTALL.ERR`, with the status, its name and meaning, the step, and the state of the start.
+`install 0` is the time at which GRKU appears in ADJ. Send `GRKIT/BOOT.TXT` and `GRKIT/REPORT.TXT` with a device report, as before; a start that stopped also leaves `SCRIPT/GRKIT/INSTALL.ERR`, with the status, its name and meaning, the step, and the state of the start.
 
 ## Diagnostics
 

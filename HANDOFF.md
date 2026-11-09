@@ -113,8 +113,8 @@ for module in modules/*/; do grkit module build --dir "$module" --out "build/mod
 sh .github/scripts/install-guide-tools.sh build/guide-tools
 sh .github/scripts/build-guides.sh grkit build/guide-tools build/guides
 grkit package --build build/runtime --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
-  --guide build/guides/gr3/en.pdf --out dist/GRKit.zip
-grkit verify dist/GRKit.zip
+  --guide build/guides/gr3/en.pdf --out dist/GRKU-gr3.zip
+grkit verify dist/GRKU-gr3.zip
 ```
 
 For GR IIIx, package with `--camera gr3x` and `--guide build/guides/gr3x/en.pdf`. For GR IV, build `gr4-1.11` and `gr4-1.20` from their firmware files into two directories and package both:
@@ -123,7 +123,7 @@ For GR IIIx, package with `--camera gr3x` and `--guide build/guides/gr3x/en.pdf`
 grkit build --target gr4-1.11 --firmware ~/firmware/gr4-1.11/fwdc248b.bin --out build/runtime-gr4-1.11 --clang "$GRKIT_CLANG" --lld "$GRKIT_LLD"
 grkit build --target gr4-1.20 --firmware ~/firmware/gr4-1.20/fwdc248b.bin --out build/runtime-gr4-1.20 --clang "$GRKIT_CLANG" --lld "$GRKIT_LLD"
 grkit package --build build/runtime-gr4-1.11 --build build/runtime-gr4-1.20 --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
-  --camera gr4 --guide build/guides/gr4/en.pdf --out dist/GRKit-gr4.zip
+  --camera gr4 --guide build/guides/gr4/en.pdf --out dist/GRKU-gr4.zip
 ```
 
 This fork's packaging accepts a package with the builds the builder has (in release order), so the GR IV package ships without the `gr4-1.20-0528` factory build: a 30th Anniversary camera on that build gets `INSTALL.ERR` 47 instead of GRKit. `build/runtime*/build.json` reports the code sizes; the fast-boot files that `grkit build` also writes are optional and not our path.
@@ -142,7 +142,7 @@ State on 2026-11-08: `cargo fmt` clean; the workspace tests pass with the host C
 
 ## Test on a camera
 
-1. Build the package (above) or take `dist/GRKit.zip`, copy the contents of `SD_ROOT` to the card root. If the card already has GRKit, replace only `SCRIPT`.
+1. Build the package (above) or take `dist/GRKU-gr3.zip` (or `GRKU-gr3x.zip`, `GRKU-gr4.zip`), copy the contents of `SD_ROOT` to the card root. If the card already has GRKit, replace only `SCRIPT`.
 2. Power on three times. Each time, time GRK in ADJ with a stopwatch.
 3. Read `GRKIT/BOOT.TXT`: the `load`, `scan 0`, `install 0` lines of each start (see one-shot-start.md). `GRKIT/REPORT.TXT` says what loaded. `SCRIPT/GRKIT/INSTALL.ERR`, if it exists, says which step stopped.
 4. Create an empty `GRKIT/DIAG`, power on, wait 20 s, power off, read `GRKIT/DIAG.TXT`, delete `GRKIT/DIAG`. The `read-core` block gives the read speed of the card file system and whether a second read is cheaper. The `mounts` block gives the mount of `/media/storage1` and its options. This decides Phase 2.
@@ -150,7 +150,7 @@ State on 2026-11-08: `cargo fmt` clean; the workspace tests pass with the host C
 
 ## Next tasks, in order
 
-1. ~~Build `CORE.BIN` from this branch~~ Done on 2026-11-08 for `gr3-2.10`, `gr4-1.11`, and `gr4-1.20`; `dist/GRKit-gr3.zip`, `GRKit-gr3x.zip`, and `GRKit-gr4.zip` verify. The GR IV package was written to the user's card (a GR IV on firmware 1.11) for the first camera test.
+1. ~~Build `CORE.BIN` from this branch~~ Done on 2026-11-08 for `gr3-2.10`, `gr4-1.11`, and `gr4-1.20`; `dist/GRKU-gr3.zip`, `GRKU-gr3x.zip`, and `GRKU-gr4.zip` verify. The GR IV package was written to the user's card (a GR IV on firmware 1.11) for the first camera test.
 2. Camera test as above (the user's camera is a GR IV 1.11; GR III / IIIx still need a tester). Fix what it says. Commit the `BOOT.TXT` numbers into one-shot-start.md.
 3. Rebuild the site data (`grkit site`, `grkit effects publish`) if the site should serve this fork's packages.
 4. Then follow docs/roadmap.md, section 5.

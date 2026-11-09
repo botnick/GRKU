@@ -2,7 +2,7 @@
 
 僅適用於 RICOH GR IV 與 GR IV HDF 韌體 1.11。
 
-GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可能在啟動時停止回應。請在安裝前閱讀[復原指南](https://github.com/ahonn/grkit/blob/main/resources/RECOVERY.zh-Hant.md)。安裝 GRKU 即表示你接受[使用條款](https://github.com/ahonn/grkit/blob/main/resources/TERMS.zh-Hant.md)。
+GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可能在啟動時停止回應。請在安裝前閱讀[復原指南](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.zh-Hant.md)。安裝 GRKU 即表示你接受[使用條款](https://github.com/botnick/GRKit/blob/main/resources/TERMS.zh-Hant.md)。
 
 ## 安裝
 
@@ -64,7 +64,7 @@ GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可
 
 1. 開機後等待幾秒，直到拍攝畫面頂部顯示 **GRKU**。
 2. 確認記憶卡根目錄中有 `SCRIPT` 資料夾。
-3. 如果記憶卡中有 `SCRIPT/GRKIT/INSTALL.ERR`，在相機選單中確認相機顯示的是支援的韌體版本。版本受支援時，請提交[裝置報告](https://github.com/ahonn/grkit/issues/new?template=device-report.yml)，並附上 `INSTALL.ERR`、`GRKIT/REPORT.TXT` 和 `GRKIT/BOOT.TXT`（如果有）。
+3. 如果記憶卡中有 `SCRIPT/GRKIT/INSTALL.ERR`，在相機選單中確認相機顯示的是支援的韌體版本。版本受支援時，請提交[裝置報告](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)，並附上 `INSTALL.ERR`、`GRKIT/REPORT.TXT` 和 `GRKIT/BOOT.TXT`（如果有）。
 4. GRKU 只能在 Ricoh 官方韌體和 grkit.app 的快速啟動韌體上運作。
 
 ### 格式化記憶卡後 GRKU 不運作
@@ -84,6 +84,6 @@ SD 腳本功能會保持開啟。要關閉它：
 3. 插入記憶卡。按住 MENU 按鈕開機，等待相機自動關機。
 4. 從記憶卡根目錄刪除 `00078560.636` 與 `DEVELOP.MOD`。
 
-相機在啟動時停止回應時，請參閱[復原指南](https://github.com/ahonn/grkit/blob/main/resources/RECOVERY.zh-Hant.md)。
+相機在啟動時停止回應時，請參閱[復原指南](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.zh-Hant.md)。
 
-GRKU 與 Ricoh 無關。原始碼和授權：https://github.com/ahonn/grkit
+GRKU 與 Ricoh 無關。原始碼和授權：https://github.com/botnick/GRKit

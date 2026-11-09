@@ -1,6 +1,6 @@
 # Architecture
 
-GRKit adds features to Ricoh GR cameras without changing the firmware on the camera.
+GRKU adds features to Ricoh GR cameras without changing the firmware on the camera.
 A package on the SD card installs private code into RAM at each power-on, and hooks connect that code to the running RTOS.
 This document describes the parts and the approach. The source code and its comments hold the addresses, formats, and limits.
 
@@ -112,11 +112,11 @@ The core calls module code for these parts:
 
 ## Menu
 
-GRKit adds an entry to the ADJ toolbar that lists the module pages. It reuses the native ADJ list, so it behaves like a native entry. Fn on a row opens the native settings page of the module.
+GRKU adds an entry to the ADJ toolbar that lists the module pages. It reuses the native ADJ list, so it behaves like a native entry. Fn on a row opens the native settings page of the module.
 
-### GRKit section of MENU
+### GRKU section of MENU
 
-The Customize tab of MENU gets a GRKit section. It has **Enable GRKit**, a row for each module file, which turns the module on or off and opens its settings, **ADJ Order**, and **About GRKit**. This switch, which ADJ shows too, turns all modules off and on again and keeps the Enable of each. The settings pages are native pages of the camera. A module that is off loads stopped: the core calls none of its code, so on applies at once. A page with options can turn each of its values, or each effect, on or off in ADJ.
+The Customize tab of MENU gets a GRKU section. It has **Enable GRKU**, a row for each module file, which turns the module on or off and opens its settings, **ADJ Order**, and **About GRKU**. This switch, which ADJ shows too, turns all modules off and on again and keeps the Enable of each. The settings pages are native pages of the camera. A module that is off loads stopped: the core calls none of its code, so on applies at once. A page with options can turn each of its values, or each effect, on or off in ADJ.
 
 The menu text follows the camera language.
 
@@ -144,7 +144,7 @@ If the code of a new firmware version moved only a little, the existing target r
 
 ## Code areas
 
-Private code uses the existing executable mapping after the RTOS image, below `0x55000000`. GRKit changes no other image bytes except hook sites and the listed instruction patches.
+Private code uses the existing executable mapping after the RTOS image, below `0x55000000`. GRKU changes no other image bytes except hook sites and the listed instruction patches.
 
 The core components share this area without fixed partitions. The builder places Processing, Menu, and Framing in order, using each component's compiled size. Each component starts on a 256-byte boundary. The first 256 bytes after the tail base remain unused.
 

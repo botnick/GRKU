@@ -2,7 +2,7 @@
 
 RICOH GR IV および GR IV HDF ファームウェア 1.11 専用です。
 
-GRKU は試験的なソフトウェアで、保証はありません。GRKU に問題があると、カメラが起動中に止まることがあります。インストール前に[復旧ガイド](https://github.com/ahonn/grkit/blob/main/resources/RECOVERY.ja.md)をお読みください。GRKU をインストールした時点で、[利用規約](https://github.com/ahonn/grkit/blob/main/resources/TERMS.ja.md)に同意したものとみなされます。
+GRKU は試験的なソフトウェアで、保証はありません。GRKU に問題があると、カメラが起動中に止まることがあります。インストール前に[復旧ガイド](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.ja.md)をお読みください。GRKU をインストールした時点で、[利用規約](https://github.com/botnick/GRKit/blob/main/resources/TERMS.ja.md)に同意したものとみなされます。
 
 ## インストール
 
@@ -64,7 +64,7 @@ GRKU は試験的なソフトウェアで、保証はありません。GRKU に�
 
 1. 電源を入れて、撮影画面の上部に **GRKU** が表示されるまで数秒待ちます。
 2. カードのルートに `SCRIPT` フォルダーがあることを確認します。
-3. カードに `SCRIPT/GRKIT/INSTALL.ERR` がある場合は、カメラのメニューで、対応するファームウェアのバージョンが表示されていることを確認します。対応している場合は、`INSTALL.ERR`、`GRKIT/REPORT.TXT`、`GRKIT/BOOT.TXT`（ある場合）を添えて[デバイスレポート](https://github.com/ahonn/grkit/issues/new?template=device-report.yml)を送ってください。
+3. カードに `SCRIPT/GRKIT/INSTALL.ERR` がある場合は、カメラのメニューで、対応するファームウェアのバージョンが表示されていることを確認します。対応している場合は、`INSTALL.ERR`、`GRKIT/REPORT.TXT`、`GRKIT/BOOT.TXT`（ある場合）を添えて[デバイスレポート](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)を送ってください。
 4. GRKU は Ricoh の公式ファームウェアと grkit.app の高速起動ファームウェアでのみ動作します。
 
 ### カードをフォーマットした後、GRKU が動かない
@@ -84,6 +84,6 @@ SD スクリプトの設定はオンのままです。オフにするには：
 3. カードを入れます。MENU ボタンを押したまま電源を入れ、電源が自動で切れるまで待ちます。
 4. カードのルートから `00078560.636` と `DEVELOP.MOD` を削除します。
 
-起動の途中でカメラが止まった場合は、[復旧ガイド](https://github.com/ahonn/grkit/blob/main/resources/RECOVERY.ja.md)を参照してください。
+起動の途中でカメラが止まった場合は、[復旧ガイド](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.ja.md)を参照してください。
 
-GRKU は Ricoh と提携していません。ソースコードとライセンス：https://github.com/ahonn/grkit
+GRKU は Ricoh と提携していません。ソースコードとライセンス：https://github.com/botnick/GRKit

@@ -1,6 +1,6 @@
 # Module reference
 
-This document describes the module interface of GRKit. The interface is experimental in GRKit 1.x: a minor release can change it, and its changelog then says so. [modules.md](modules.md) shows how to write, test, build, and install a module.
+This document describes the module interface of GRKU. The interface is experimental in GRKit 1.x: a minor release can change it, and its changelog then says so. [modules.md](modules.md) shows how to write, test, build, and install a module.
 
 The sources of each contract:
 
@@ -34,12 +34,12 @@ The manifest is TOML. An unknown key is an error.
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
 | `id` | string | required | The module ID: 1 to 8 characters `A`-`Z`, `0`-`9`, or `_`. The file name is `<id>.GRM`, and each setting name starts with it. |
-| `version` | integer | required | The module version. The build writes it into the file header. GRKit does not read it. |
-| `order` | integer | 100 | The default place of the module in ADJ and in the GRKit section of MENU, 0 to 65535: a smaller order first, then by ID. The official modules use 10 (Film Look) to 50 (Grain). ADJ Order in MENU changes the place in ADJ. |
+| `version` | integer | required | The module version. The build writes it into the file header. GRKU does not read it. |
+| `order` | integer | 100 | The default place of the module in ADJ and in the GRKU section of MENU, 0 to 65535: a smaller order first, then by ID. The official modules use 10 (Film Look) to 50 (Grain). ADJ Order in MENU changes the place in ADJ. |
 | `sources` | array of strings | `[]` | The C source files, relative to the manifest. |
 | `tiles` | array of strings | `[]` | The tile files, relative to the manifest. Each is a 40 x 40 PNG. At most 64. |
 | `uses` | array of strings | `[]` | The settings of other modules or of the core that the module uses: `MODULE.KEY`, or `?MODULE.KEY` for an optional one. At most 8. See [Used settings](#used-settings). |
-| `color_only` | boolean | `false` | The module loads only on a camera with a color sensor. GR IV Monochrome does not load it, and the GRKit section of MENU does not list it. Needs ABI 2.4. |
+| `color_only` | boolean | `false` | The module loads only on a camera with a color sensor. GR IV Monochrome does not load it, and the GRKU section of MENU does not list it. Needs ABI 2.4. |
 | `settings` | array of tables | `[]` | The settings of the module. At most 16. |
 | `page` | table | none | The menu page. A module has at most one. |
 | `layers` | array of tables | `[]` | The live-view layers. |
@@ -69,7 +69,7 @@ A setting reference is a key of `settings`, or a name of `uses` without its `?`.
 | `setting` | string | required for `choice` | The setting of a choice page. Omit it for `settings` and `group`. |
 | `off_row` | boolean | `false` | Row 0 shows the core Off icon instead of the Off icon of the page. |
 | `settings` | array of strings | `[]` | Up to 5 native settings rows (`GRKIT_SETTING_ROWS`). A choice page starts with its page setting. A settings page needs at least one row. |
-| `options` | boolean | `false` | The settings page of the module in the GRKit section of MENU has an Options row, which turns each value of the page on or off in ADJ, or each effect for a page of `CORE.TONE` (`GRKIT_CHOICE_OPTIONS`). A page of a setting with options needs `off_row` and at most 16 values. Without room on the settings page, its first rows leave it. |
+| `options` | boolean | `false` | The settings page of the module in the GRKU section of MENU has an Options row, which turns each value of the page on or off in ADJ, or each effect for a page of `CORE.TONE` (`GRKIT_CHOICE_OPTIONS`). A page of a setting with options needs `off_row` and at most 16 values. Without room on the settings page, its first rows leave it. |
 | `children` | array of tables | `[]` | A group page has 1 to 4 children, in display order. Other page kinds have none. |
 | `off_icon` | table | none | Optional [icon source](#icon-sources) of row 0 (Off) of a choice page without `off_row`. Without it, row 0 shows tile 0. The root row shows tile 0 while the setting is 0. Other page kinds have none. |
 | `fn_cycle` | table | none | `{ value = n, setting = "KEY" }`: in ADJ, Fn on the row of value `n` sets the setting to its next value, and to 0 after the last one. ADJ stays on the row, and the live view shows the change at once. Fn on the other rows opens the settings as before. `n` is a value of the page other than Off. The setting is a setting reference other than the page setting, with at least 2 values. Only a choice page whose rows come from the module has it. Needs ABI 2.5. |
@@ -146,7 +146,7 @@ An indicator supplies a status icon without a drawing callback. The viewfinder s
 | `enabled` | table | required | A setting condition, or `all = [condition, ...]` with 1 to 4 conditions. |
 | `icon` | table | required | An [icon source](#icon-sources). |
 
-A condition has `setting` and exactly one of `equals` or `not_equals`. All conditions must hold for the indicator to show. The core also hides indicators of stopped modules or when GRKit is off.
+A condition has `setting` and exactly one of `equals` or `not_equals`. All conditions must hold for the indicator to show. The core also hides indicators of stopped modules or when GRKU is off.
 
 ```toml
 [[indicators]]
@@ -205,7 +205,7 @@ A module with a page has one text file for each menu language: `text/en.toml`, `
 
 | Key | Type | Description |
 | --- | --- | --- |
-| `title` | string | The name of the page. The GRKit section of MENU shows the title of the first page as the module name. |
+| `title` | string | The name of the page. The GRKU section of MENU shows the title of the first page as the module name. |
 | `rows` | array of strings | One label for each value of the page setting. A page of `CORE.TONE` has none. |
 | `summaries` | array of strings | Optional. The value in the root row, one for each value. Without it, the root row shows the label. |
 | `settings.<KEY>.label` | string | The label of a row of the native settings page. |
@@ -309,7 +309,7 @@ Fn on a child opens the child's native settings page. Returning to ADJ restores 
 
 MENU shows the module's Enable row and one row for each child, with the value of the child's first setting. Each child row opens the same native settings page as ADJ. Returning from that page restores the module page. The module's Enable setting controls the whole module.
 
-Each module also has a row in the GRKit section of MENU. It opens Enable, then the rows of the settings page, or the row of the page setting for a page without settings rows. See [GRKit section of MENU](architecture.md#grkit-section-of-menu).
+Each module also has a row in the GRKU section of MENU. It opens Enable, then the rows of the settings page, or the row of the page setting for a page without settings rows. See [GRKU section of MENU](architecture.md#grkit-section-of-menu).
 
 ### Layers
 
@@ -385,14 +385,14 @@ A module calls the core only through these functions. The installer links each c
 | `u32 ui_progress_open(GrkitText text)` | Show a message with a progress bar. |
 | `void ui_progress_set(u32 percent)` | Set the progress bar, 0 to 100. |
 | `void ui_progress_close(GrkitText text)` | Close the progress bar, and show `text` for 1.5 s, or close the box when `text` is 0. |
-| `u32 ui_open_native(u32 screen, void (*back)(u32 arg), u32 arg)` | Open a native screen of the camera, then return to the GRKit page and call `back(arg)`. See [UI](#ui). |
+| `u32 ui_open_native(u32 screen, void (*back)(u32 arg), u32 arg)` | Open a native screen of the camera, then return to the GRKU page and call `back(arg)`. See [UI](#ui). |
 | `u32 ui_slider(GrkitText text, u32 min, u32 max, u32 value, void (*changed)(u32 value, u32 arg), void (*done)(u32 committed, u32 value, u32 arg), u32 arg)` | Ask for a value from `min` to `max` with the native slider. See [UI](#ui). |
 
 `overlay_label` takes these labels:
 
 | Label | Text |
 | --- | --- |
-| `LABEL_GRKIT` | the GRKit cue |
+| `LABEL_GRKIT` | the GRKU cue |
 | `LABEL_RATIO(area)` | the name of a capture area (`Surface.area`), such as "XPan" |
 | `LABEL_DATE` | "DATE", the sign that Date Imprint is on |
 
@@ -407,7 +407,7 @@ A module subscribes to events with `[events]` in `module.toml` (`GrkitSubscriber
 | Event | When | `a` | `b` |
 | --- | --- | --- | --- |
 | `GRKIT_EVENT_SYSTEM_READY` | once after each start, when the shooting screen first shows | 0 | 0 |
-| `GRKIT_EVENT_SETTING_CHANGED` | after a setting or a capability changes, in the GRKit menu or through `setting_set` | the handle | the new value |
+| `GRKIT_EVENT_SETTING_CHANGED` | after a setting or a capability changes, in the GRKU menu or through `setting_set` | the handle | the new value |
 
 A handler must return at once. A `setting_set` in a handler sends no second event, so a handler cannot loop. Layers and plane filters run in other tasks, where the timer and UI services refuse each call.
 
@@ -415,7 +415,7 @@ A handler must return at once. A `setting_set` in a handler sends no second even
 
 The UI services show the native message box of the camera. A text is a `GrkitText`: one UTF-16 string for each menu language.
 
-- The box shows only while the GRKit page of ADJ is open. A call returns 1 when the box shows, else 0.
+- The box shows only while the GRKU page of ADJ is open. A call returns 1 when the box shows, else 0.
 - One box shows at a time. A toast closes when a new box opens. A message, a confirm, or a progress box takes each key until it closes.
 - ADJ exit closes the box without a callback.
 - OK on a row of a choice page commits the value and closes ADJ, as OK on a native value does. A commit can make the module show a box or open a native screen in its `SETTING_CHANGED` handler. ADJ then stays open on the page, so the box shows.
@@ -423,7 +423,7 @@ The UI services show the native message box of the camera. A text is a `GrkitTex
 - `ui_message` closes on OK or MENU and calls `done(arg)`.
 - A progress box takes the keys until `ui_progress_close`. Use a timer to move the bar.
 - `ui_slider` shows the text and the native slider. Up and Down move it by one. Left and Right move it by a tenth of the range. Each move calls `changed(value, arg)`, for example to preview the value. OK calls `done(1, value, arg)`, MENU `done(0, start, arg)` with the value at the start. The range has at most 65536 values.
-- `ui_open_native` opens a native screen after the current event. MENU on the screen returns to ADJ, which opens the GRKit page that was open, and then the core calls `back(arg)` (`back` can be 0). The screens: `GRKIT_NATIVE_WHITE_BALANCE` (the white balance list of still mode) and `GRKIT_NATIVE_LCD` (the LCD settings). It returns 0 for an unknown screen, while a message, a confirm, or a progress box shows, or while another screen waits to open.
+- `ui_open_native` opens a native screen after the current event. MENU on the screen returns to ADJ, which opens the GRKU page that was open, and then the core calls `back(arg)` (`back` can be 0). The screens: `GRKIT_NATIVE_WHITE_BALANCE` (the white balance list of still mode) and `GRKIT_NATIVE_LCD` (the LCD settings). It returns 0 for an unknown screen, while a message, a confirm, or a progress box shows, or while another screen waits to open.
 
 The UI services work only in an event handler, a timer callback, or a UI callback, which the core calls in the App task. In other code they return 0.
 
@@ -462,7 +462,7 @@ ABI 2.4 also appends `flags` to `GrkitModule`, increasing its descriptor from 40
 
 | Limit | Value | Error when exceeded |
 | --- | --- | --- |
-| Module files that GRKit lists in both module folders | 10 | GRKit keeps the package modules, then the first other files in the default order. A module of `GRKIT/MODULES` never takes the place of a package module. The report gives the number of the other files. |
+| Module files that GRKU lists in both module folders | 10 | GRKU keeps the package modules, then the first other files in the default order. A module of `GRKIT/MODULES` never takes the place of a package module. The report gives the number of the other files. |
 | Module ID | 1 to 8 characters `A`-`Z`, `0`-`9`, `_` | build error |
 | Code, data, or BSS of one module | 65536 bytes each | build error, or 50 |
 | Code of all modules | 1 MiB | 54 |
@@ -490,15 +490,15 @@ ABI 2.4 also appends `flags` to `GrkitModule`, increasing its descriptor from 40
 
 ## Report errors
 
-`GRKIT/REPORT.TXT` gives one line for each listed module, such as `HELLO.GRM  not loaded: error 51, it needs another version of GRKit`. The GRKit section of MENU shows the same number after the module name, such as `HELLO (51)`.
+`GRKIT/REPORT.TXT` gives one line for each listed module, such as `HELLO.GRM  not loaded: error 51, it needs another version of GRKU`. The GRKU section of MENU shows the same number after the module name, such as `HELLO (51)`.
 
 | Error | Report text | Cause |
 | --- | --- | --- |
-| 50 | it is not a module file that this GRKit reads | The file cannot be read, or its magic, format version, sizes, or relocations are not valid. Also when the file name is not `<ID>.GRM` for the ID in the file. |
-| 51 | it needs another version of GRKit | The ABI major version is not that of the core, or the minor version is larger. |
-| 52 | it calls a function that GRKit does not have: `<name>` | An import names no service of this core. |
+| 50 | it is not a module file that this GRKU reads | The file cannot be read, or its magic, format version, sizes, or relocations are not valid. Also when the file name is not `<ID>.GRM` for the ID in the file. |
+| 51 | it needs another version of GRKU | The ABI major version is not that of the core, or the minor version is larger. |
+| 52 | it calls a function that GRKU does not have: `<name>` | An import names no service of this core. |
 | 53 | its description is not valid | The descriptor breaks a rule: an unknown point or flag, a count over its limit, a bad setting key, a text that is too long, a page whose rows do not match its setting, or a reference outside the module. |
-| 54 | the modules need more memory than GRKit has | The module does not fit in the code area, the script array, the settings table, the tile slots, or the page, layer, or filter slots that earlier modules left. |
+| 54 | the modules need more memory than GRKU has | The module does not fit in the code area, the script array, the settings table, the tile slots, or the page, layer, or filter slots that earlier modules left. |
 | 55 | it uses a setting that no module has: `<name>` | A required used setting is not a capability, a public setting of a loaded module, or a setting of this module. |
 
 Other lines:
@@ -506,10 +506,10 @@ Other lines:
 | Report text | Meaning |
 | --- | --- |
 | `loaded` | The module loaded. |
-| `loaded, stopped: Enable is Off in the GRKit section of MENU` | The module loaded, but Enable is Off, so the core calls none of its code. On applies at once. |
-| `loaded, stopped: Enable GRKit is Off in the GRKit section of MENU` | The module loaded, but Enable GRKit is Off, so the core calls none of its code. On applies at once. |
-| `not loaded: safe mode` | GRKit is in the safe mode, so no module loads. See [Report and safe mode](architecture.md#report-and-safe-mode). |
-| `not loaded: it needs a camera with a color sensor` | The module is `color_only`, and the camera is GR IV Monochrome. The GRKit section of MENU does not list it. |
+| `loaded, stopped: Enable is Off in the GRKU section of MENU` | The module loaded, but Enable is Off, so the core calls none of its code. On applies at once. |
+| `loaded, stopped: Enable GRKU is Off in the GRKU section of MENU` | The module loaded, but Enable GRKU is Off, so the core calls none of its code. On applies at once. |
+| `not loaded: safe mode` | GRKU is in the safe mode, so no module loads. See [Report and safe mode](architecture.md#report-and-safe-mode). |
+| `not loaded: it needs a camera with a color sensor` | The module is `color_only`, and the camera is GR IV Monochrome. The GRKU section of MENU does not list it. |
 
 When no loaded module uses the effects, as on GR IV Monochrome without Film Look, each effect line says `not used: no loaded module uses effects`.
 

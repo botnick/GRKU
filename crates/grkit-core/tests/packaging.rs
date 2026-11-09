@@ -104,9 +104,9 @@ fn packages_ship_only_the_guide_the_licenses_and_checksums() {
         .collect();
     assert_eq!(
         documents,
-        ["GRKit Installation Guide.pdf", "LICENSES.md", "SHA256SUMS"]
+        ["GRKU Installation Guide.pdf", "LICENSES.md", "SHA256SUMS"]
     );
-    assert_eq!(files["GRKit Installation Guide.pdf"], PDF);
+    assert_eq!(files["GRKU Installation Guide.pdf"], PDF);
 }
 
 #[test]
@@ -145,7 +145,7 @@ fn corrupted_profiles_documents_manifests_and_sums_are_rejected() {
     let profile = original.keys().find(|name| name.ends_with(".GRF")).unwrap();
     for name in [
         profile.as_str(),
-        "GRKit Installation Guide.pdf",
+        "GRKU Installation Guide.pdf",
         "LICENSES.md",
         "SHA256SUMS",
     ] {
@@ -640,11 +640,11 @@ fn a_package_has_the_guide_of_its_language_only() {
     assert_eq!(
         Language::ALL.map(Language::guide_path),
         [
-            "GRKit Installation Guide.pdf",
-            "GRKit 安装指南.pdf",
-            "GRKit 安裝指南.pdf",
-            "GRKit インストールガイド.pdf",
-            "GRKit 설치 가이드.pdf",
+            "GRKU Installation Guide.pdf",
+            "GRKU 安装指南.pdf",
+            "GRKU 安裝指南.pdf",
+            "GRKU インストールガイド.pdf",
+            "GRKU 설치 가이드.pdf",
         ]
     );
     // The GR IV guide names both releases of GR IV; each has its own build.
@@ -666,10 +666,10 @@ fn a_package_has_exactly_one_pdf_guide() {
     two.insert(Language::SimplifiedChinese.guide_path(), PDF.to_vec());
     assert!(verify_package(&repack(&with_sums(two), CompressionMethod::Stored)).is_err());
     let mut none = files.clone();
-    none.remove("GRKit Installation Guide.pdf");
+    none.remove("GRKU Installation Guide.pdf");
     assert!(verify_package(&repack(&with_sums(none), CompressionMethod::Stored)).is_err());
     let mut text = files;
-    text.insert("GRKit Installation Guide.pdf".into(), b"# GRKit\n".to_vec());
+    text.insert("GRKU Installation Guide.pdf".into(), b"# GRKit\n".to_vec());
     assert!(verify_package(&repack(&with_sums(text), CompressionMethod::Stored)).is_err());
     let text_guide = Guide {
         language: Language::English,
@@ -727,7 +727,7 @@ fn a_gr4_package_has_its_modeset_file_guide_and_modules() {
     assert_eq!(verified.targets, ["gr4-1.11", "gr4-1.20", "gr4-1.20-0528"]);
     let files = unpack(&bytes);
     assert!(files.contains_key("SD_ROOT/00078560.636"));
-    assert_eq!(files["GRKit Installation Guide.pdf"], PDF);
+    assert_eq!(files["GRKU Installation Guide.pdf"], PDF);
     assert_eq!(
         String::from_utf8(installation_guide(&camera::GR4, Language::English)).unwrap(),
         include_str!("../../../resources/INSTALLATION-GR4.md").replace(
