@@ -8,7 +8,7 @@ import {
   type ChangeEvent,
   type ReactNode,
 } from 'react';
-import { Check, LoaderCircle, Lock, Plus, Search, Sparkles, TriangleAlert, Upload, X } from 'lucide-react';
+import { Check, KeyRound, LoaderCircle, Lock, Plus, Search, Sparkles, TriangleAlert, Upload, X } from 'lucide-react';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -542,15 +542,23 @@ export function Workbench({
                   ))}
                 </ul>
                 {plusKey && (
-                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted-foreground">
-                    <span className="font-mono tabular-nums">{t.plus.keyInUse(`${plusKey.slice(0, 4)}-•••-${plusKey.slice(-4)}`)}</span>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {/* The key in use, as a chip; the actions are buttons, so they read apart. */}
+                    <span
+                      className="inline-flex h-7 items-center gap-1.5 rounded-md border bg-background/60 px-2 font-mono text-xs tabular-nums text-muted-foreground"
+                      title={t.plus.keyInUse(plusKey)}
+                      aria-label={t.plus.keyInUse(`${plusKey.slice(0, 4)}-•••-${plusKey.slice(-4)}`)}
+                    >
+                      <KeyRound className="size-3.5" aria-hidden="true" />
+                      {`${plusKey.slice(0, 4)}-•••-${plusKey.slice(-4)}`}
+                    </span>
                     {onOtherKey && (
-                      <Button type="button" variant="link" size="sm" className="h-auto p-0 text-[13px]" onClick={onOtherKey}>
+                      <Button type="button" variant="outline" size="xs" className="h-7" onClick={onOtherKey}>
                         {t.plus.useOtherKey}
                       </Button>
                     )}
                     {onForgetKey && (
-                      <Button type="button" variant="link" size="sm" className="h-auto p-0 text-[13px] text-muted-foreground" onClick={onForgetKey}>
+                      <Button type="button" variant="ghost" size="xs" className="h-7 text-muted-foreground hover:text-destructive" onClick={onForgetKey}>
                         {t.plus.forget}
                       </Button>
                     )}
