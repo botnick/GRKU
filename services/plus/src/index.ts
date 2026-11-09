@@ -22,6 +22,11 @@ export interface Env {
   KEY_SECRET: string;
   RESEND_KEY?: string;
   MAIL_FROM: string;
+  /** The hosting mailbox that sends the mails over SMTP (STARTTLS, AUTH PLAIN); MAIL_PASS is a secret. */
+  MAIL_HOST: string;
+  MAIL_PORT: string;
+  MAIL_USER: string;
+  MAIL_PASS?: string;
 }
 
 /** The tiers and their prices in baht. The site shows the same table (web/src/plus.ts). */
@@ -401,13 +406,26 @@ export function crc16(text: string): string {
 // ---- Mail ----------------------------------------------------------------------------------------
 
 async function sendKeyMail(email: string, key: string, env: Env): Promise<void> {
-  if (!env.RESEND_KEY) return;
   const link = `${env.SITE_URL}/#plus=${key}`;
+  const subject = 'คีย์ GRKU Plus ของคุณ · Your GRKU Plus key';
   const html = `<p>ขอบคุณที่สนับสนุน GRKU</p><p>กดลิงก์นี้บนเครื่องที่ต้องการใช้ เพื่อปลดล็อกฟิล์มลุคของคุณ:</p><p><a href="${link}">${link}</a></p><p>หรือวางคีย์นี้ในหน้า "มีคีย์อยู่แล้ว" ของ GRKU Plus:</p><pre>${key}</pre><p>ลิงก์และคีย์ใช้ได้ทุกเครื่อง เก็บอีเมลฉบับนี้ไว้</p><hr><p>Thank you for supporting GRKU. Open the link on the device you use, or paste the key into "I have a key". They work on every device; keep this email.</p>`;
+  const text = `ขอบคุณที่สนับสนุน GRKU\n\nกดลิงก์นี้บนเครื่องที่ต้องการใช้ เพื่อปลดล็อกฟิล์มลุคของคุณ:\n${link}\n\nหรือวางคีย์นี้ในหน้า "มีคีย์อยู่แล้ว" ของ GRKU Plus:\n${key}\n\nลิงก์และคีย์ใช้ได้ทุกเครื่อง เก็บอีเมลฉบับนี้ไว้\n\n--\nThank you for supporting GRKU. Open the link on the device you use, or paste the key into "I have a key". They work on every device; keep this email.\n`;
+  if (env.MAIL_PASS) {
+    // The hosting mailbox: MAIL_FROM is "Name <address>".
+    const from = /^(.*?)\s*<([^>]+)>$/.exec(env.MAIL_FROM);
+    await sendMail(
+      { host: env.MAIL_HOST, port: Number(env.MAIL_PORT) || 587, user: env.MAIL_USER, pass: env.MAIL_PASS },
+      { from: { name: from?.[1] || 'GRKU', address: from?.[2] || env.MAIL_USER }, to: email, subject, html, text },
+    );
+    return;
+  }
+  if (!env.RESEND_KEY) return;
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${env.RESEND_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: env.MAIL_FROM, to: [email], subject: 'คีย์ GRKU Plus ของคุณ · Your GRKU Plus key', html }),
+    body: JSON.stringify({ from: env.MAIL_FROM, to: [email], subject, html }),
   });
   if (!response.ok) console.error('resend', response.status, await response.text());
 }
+import { sendMail } from './smtp';
+

@@ -21,5 +21,10 @@ RECEIVER_NAME = ""
 # slipok | easyslip | mock. `mock` accepts any slip for the amount of the order (development only).
 SLIP_PROVIDER = "easyslip"
 SLIPOK_BRANCH = ""
-MAIL_FROM = "GRKU <plus@grku.app>"
-# Secrets: KEY_SECRET (HMAC of the keys), SLIPOK_KEY or EASYSLIP_KEY, RESEND_KEY.
+MAIL_FROM = "GRKU <noreply@grku.app>"
+# The hosting mailbox that sends the mails (SMTP, STARTTLS). The host must be a name on the
+# server's certificate; mail.grku.app once DirectAdmin has a Let's Encrypt certificate for it.
+MAIL_HOST = "botnixk.com"
+MAIL_PORT = "587"
+MAIL_USER = "noreply@grku.app"
+# Secrets: KEY_SECRET (HMAC of the keys), SLIPOK_KEY or EASYSLIP_KEY, MAIL_PASS (or RESEND_KEY as the fallback mailer).
