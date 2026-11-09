@@ -1,5 +1,5 @@
-import init, { nativeLooks } from '../wasm/grkit_wasm.js';
-import wasmUrl from '../wasm/grkit_wasm_bg.wasm?url';
+import init, { nativeLooks } from '../wasm/grku_wasm.js';
+import wasmUrl from '../wasm/grku_wasm_bg.wasm?url';
 
 export interface NativeRequest {
   /** An official GR IV ZIP or the firmware file in it. */

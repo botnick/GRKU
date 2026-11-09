@@ -11,7 +11,7 @@ The `site` branch holds only deployed sites and shares no history with `main`. D
 
 The version is the `[workspace.package]` version in `Cargo.toml`. A release tag is `v` and the version, for example `v1.2.0`.
 
-The site holds no firmware bytes: `grkit site` leaves out the generated header of each runtime, and the release deletes the firmware after the build.
+The site holds no firmware bytes: `grku site` leaves out the generated header of each runtime, and the release deletes the firmware after the build.
 
 ## Set up
 

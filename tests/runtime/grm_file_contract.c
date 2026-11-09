@@ -1,4 +1,4 @@
-/* Reads a module file that grkit_core::grm wrote, links it as the installer
+/* Reads a module file that grku_core::grm wrote, links it as the installer
    does (runtime/module_link.h), and prints what it read: the header fields,
    then the linked code and data words. The Rust test compares them with the
    module that it encoded. Usage: grm_file_contract FILE */

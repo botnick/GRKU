@@ -1,5 +1,5 @@
-#ifndef GRKIT_INSTALL_PLAN_H
-#define GRKIT_INSTALL_PLAN_H
+#ifndef GRKU_INSTALL_PLAN_H
+#define GRKU_INSTALL_PLAN_H
 /* A part of the installer: the module list and the memory plan. installer.c
    includes it once, in its order, after the helpers and the state that this
    part uses.
@@ -20,7 +20,7 @@
 static const char modules_path[] = MODULES_PATH;
 static const char package_modules_path[] = PACKAGE_MODULES_PATH;
 _Static_assert(sizeof(package_modules_path) >= sizeof(modules_path), "The path buffer fits both folders");
-static char module_names[GRKIT_MODULES_MAX][CATALOG_NAME_SIZE];
+static char module_names[GRKU_MODULES_MAX][CATALOG_NAME_SIZE];
 /* The listed modules, the usable ones (bit i), and what they need: script
    words for their data, and code bytes after the tail. */
 static u32 module_count, module_usable, module_words, module_code_bytes;
@@ -39,33 +39,33 @@ static struct grm_module module;
 /* The settings of the usable modules in module order (runtime/setting_table.h):
    the full name, values, and flags of each, the first setting and the count
    of each module, and the used settings of each module. */
-static char setting_names[GRKIT_MODULE_SETTINGS_MAX][GRM_NAME];
-static u32 setting_values[GRKIT_MODULE_SETTINGS_MAX], setting_flags[GRKIT_MODULE_SETTINGS_MAX], setting_total;
-static u32 setting_defaults[GRKIT_MODULE_SETTINGS_MAX];
-static u32 module_first[GRKIT_MODULES_MAX], module_settings[GRKIT_MODULES_MAX], module_use_count[GRKIT_MODULES_MAX];
-/* The global index of tile 0 of each module (GRKIT_ICON_MODULE_TILE). */
-static u32 module_tile_first[GRKIT_MODULES_MAX];
-static char module_uses[GRKIT_MODULES_MAX][GRM_USES][GRM_NAME + 1];
+static char setting_names[GRKU_MODULE_SETTINGS_MAX][GRM_NAME];
+static u32 setting_values[GRKU_MODULE_SETTINGS_MAX], setting_flags[GRKU_MODULE_SETTINGS_MAX], setting_total;
+static u32 setting_defaults[GRKU_MODULE_SETTINGS_MAX];
+static u32 module_first[GRKU_MODULES_MAX], module_settings[GRKU_MODULES_MAX], module_use_count[GRKU_MODULES_MAX];
+/* The global index of tile 0 of each module (GRKU_ICON_MODULE_TILE). */
+static u32 module_tile_first[GRKU_MODULES_MAX];
+static char module_uses[GRKU_MODULES_MAX][GRM_USES][GRM_NAME + 1];
 /* The result of each listed module for REPORT.TXT and the Modules page: 0
    when it loads, also when it is Off, MANAGE_SAFE in safe mode, else a
    status (runtime/module_link.h), with the name of the missing import or
    setting of GRM_MISSING_IMPORT and GRM_MISSING_SETTING. */
-_Static_assert(GRKIT_MODULES_MAX == MANAGE_MODULES, "The Modules page lists each module");
-static u32 module_status[GRKIT_MODULES_MAX];
-static char module_detail[GRKIT_MODULES_MAX][GRM_NAME + 1];
-/* The choices of the GRKit section of MENU (runtime/manage.h): Off, the
+_Static_assert(GRKU_MODULES_MAX == MANAGE_MODULES, "The Modules page lists each module");
+static u32 module_status[GRKU_MODULES_MAX];
+static char module_detail[GRKU_MODULES_MAX][GRM_NAME + 1];
+/* The choices of the GRKU section of MENU (runtime/manage.h): Off, the
    position + 1 or 0, and the values that are off in ADJ of each module.
    INSTALL also notes the title texts and tile 0 of each module. */
-static u32 module_off[GRKIT_MODULES_MAX], module_position[GRKIT_MODULES_MAX], module_rows[GRKIT_MODULES_MAX];
-static u32 module_title[GRKIT_MODULES_MAX], module_tile[GRKIT_MODULES_MAX];
-/* The GRKit switch: 1 while it is Off, which stops each module as its own
+static u32 module_off[GRKU_MODULES_MAX], module_position[GRKU_MODULES_MAX], module_rows[GRKU_MODULES_MAX];
+static u32 module_title[GRKU_MODULES_MAX], module_tile[GRKU_MODULES_MAX];
+/* The GRKU switch: 1 while it is Off, which stops each module as its own
    Off does, and keeps the Enable of each. */
 static u32 all_off;
 /* Whether module i loads stopped: its Enable or the switch is Off. */
 static u32 module_stopped(u32 i) { return module_off[i] || all_off; }
 /* The code range and the used capabilities of each loaded module, for the
    soft Off of runtime/manage.h. */
-static u32 module_code_from[GRKIT_MODULES_MAX], module_code_to[GRKIT_MODULES_MAX], module_capabilities[GRKIT_MODULES_MAX];
+static u32 module_code_from[GRKU_MODULES_MAX], module_code_to[GRKU_MODULES_MAX], module_capabilities[GRKU_MODULES_MAX];
 /* The capabilities of the modules that run: not those of a module that is
    Off, which loads stopped (runtime/manage.h). */
 static u32 capabilities_running;
@@ -84,17 +84,17 @@ static u32 module_contexts, module_data_words;
 /* Saved values that no setting of this start takes, such as the settings of
    a module that is Off. The settings table keeps them, so the next save of
    the loader keeps them too. */
-static u32 kept_ids[GRKIT_MODULE_SETTINGS_MAX], kept_values[GRKIT_MODULE_SETTINGS_MAX], kept_count;
+static u32 kept_ids[GRKU_MODULE_SETTINGS_MAX], kept_values[GRKU_MODULE_SETTINGS_MAX], kept_count;
 /* Safe mode: 1 while the file GRKU/SAFE or SAFE.TXT exists. No module
    loads then (scan). */
 static u32 safe_mode;
 /* The development profile: 1 while the file GRKU/PROFILE or PROFILE.TXT
    exists (runtime/profile.h). */
 static u32 profile_mode;
-/* The capabilities that the loaded modules use (GRKIT_HOST_CAPABILITIES). */
+/* The capabilities that the loaded modules use (GRKU_HOST_CAPABILITIES). */
 static u32 capabilities_used;
 static void read_state(void);
-/* The words of the settings table and of the contexts (GrkitContext). */
+/* The words of the settings table and of the contexts (GrkuContext). */
 #define SETTINGS_WORDS(n) (2U + 3U * (n))
 #define CONTEXT_WORDS(uses) (3U + (uses))
 static void name_copy(char *to, const char *from, u32 n)
@@ -104,7 +104,7 @@ static void name_copy(char *to, const char *from, u32 n)
 }
 /* The order of each listed module, from the header of its file: its default
    place in ADJ and in MENU. A file that is not a module sorts last. */
-static u32 module_order[GRKIT_MODULES_MAX];
+static u32 module_order[GRKU_MODULES_MAX];
 #define ORDER_UNKNOWN (GRM_MAX_ORDER + 1U)
 /* Whether a module of `order_a` in file `a` goes after one of `order_b` in
    file `b`: by order, then by name. */
@@ -132,14 +132,14 @@ static u32 module_file_order(const char *name, u32 source)
 }
 /* A module file is <ID>.GRM. Keep the names in their default order, so SCAN
    and INSTALL take the modules in the same order. */
-/* The module files past GRKIT_MODULES_MAX, for REPORT.TXT. A full list keeps the
+/* The module files past GRKU_MODULES_MAX, for REPORT.TXT. A full list keeps the
    package modules, then the first other files in the default order, so the
    result does not depend on the directory order. */
 static u32 module_overflow;
 /* The folder of each listed module: 0 for the package folder, 1 for
    GRKU/MODULES. A module file of GRKU/MODULES replaces the package module
    with the same name. */
-static u32 module_source[GRKIT_MODULES_MAX];
+static u32 module_source[GRKU_MODULES_MAX];
 static void offer_module(const char *name, u32 n, void *context)
 {
     u32 source = context != 0;
@@ -161,12 +161,12 @@ static void offer_module(const char *name, u32 n, void *context)
             break;
         }
     u32 order = module_file_order(file, source);
-    if (module_count == GRKIT_MODULES_MAX) {
+    if (module_count == GRKU_MODULES_MAX) {
         /* The file that leaves: the last one of the person, else the last
            package file. A file of the person never takes the place of a
            package file. */
-        u32 out = GRKIT_MODULES_MAX - 1;
-        for (u32 k = GRKIT_MODULES_MAX; k-- > 0;)
+        u32 out = GRKU_MODULES_MAX - 1;
+        for (u32 k = GRKU_MODULES_MAX; k-- > 0;)
             if (module_source[k]) { out = k; break; }
         ++module_overflow;
         if (module_source[out] < source ||
@@ -227,8 +227,8 @@ static u32 manage_id(u32 i, const char *key)
     name[n] = 0;
     return grm_state_id(name);
 }
-/* Read the choices of the GRKit section. The list keeps the default order,
-   which the GRKit section of MENU shows. The core orders the GRKit root of
+/* Read the choices of the GRKU section. The list keeps the default order,
+   which the GRKU section of MENU shows. The core orders the GRKU root of
    ADJ by the positions (runtime/manage.h: manage_key). */
 static void order_modules(void)
 {
@@ -242,12 +242,12 @@ static void order_modules(void)
 }
 /* Whether a setting of this start takes the saved value of `id`: a
    capability that a usable module uses, a saved setting of a usable module,
-   or a choice of the GRKit section. The Fn adjustments are not kept. */
+   or a choice of the GRKU section. The Fn adjustments are not kept. */
 static int state_taken(u32 id)
 {
     static const u32 core_ids[] = {CORE_STATE_IDS};
     if (id >= PARAMETER_KEY_BASE) return 1;
-    for (u32 k = 0; k < GRKIT_CORE_SETTING_COUNT; ++k) {
+    for (u32 k = 0; k < GRKU_CORE_SETTING_COUNT; ++k) {
         if (core_ids[k] != id) continue;
         for (u32 i = 0; i < module_count; ++i) {
             if (!(module_usable >> i & 1)) continue;
@@ -289,7 +289,7 @@ static void plan_modules(void)
     all_off = 0;
     module_overflow = 0;
     module_contexts = module_data_words = 0;
-    for (u32 i = 0; i < GRKIT_MODULES_MAX; ++i) {
+    for (u32 i = 0; i < GRKU_MODULES_MAX; ++i) {
         module_status[i] = module_off[i] = module_position[i] = module_rows[i] = module_title[i] = 0;
         module_code_from[i] = module_code_to[i] = module_capabilities[i] = 0;
         module_detail[i][0] = 0;
@@ -308,7 +308,7 @@ static void plan_modules(void)
     }
     if (!module_count) return;
     order_modules();
-    /* The module array: the settings table with the choices of the GRKit
+    /* The module array: the settings table with the choices of the GRKU
        section of MENU and the kept values, the contexts, the module list,
        the effect list, the services, then the data of each module. The
        effects are listed later (discover), so the modules leave room for
@@ -325,10 +325,10 @@ static void plan_modules(void)
         int status = safe_mode ? (int)MANAGE_SAFE : read_module(i);
         if (!status) status = grm_settings(&module, module.code, 0, settings, &n, module_uses[i], &uses);
         if (!status) status = grm_tiles(&module, module.code, 0, &tile_data, &tiles);
-        if (!status && module_tiles + tiles > GRKIT_MODULE_TILES_MAX) status = GRM_NO_ROOM;
+        if (!status && module_tiles + tiles > GRKU_MODULE_TILES_MAX) status = GRM_NO_ROOM;
         u32 words = (module.data_size + module.bss_size) / 4;
-        if (!status && (setting_total + n + choices > GRKIT_MODULE_SETTINGS_MAX ||
-                        SETTINGS_WORDS(setting_total + n + choices) + contexts + CONTEXT_WORDS(uses) + list + data + words > GRKIT_MODULE_ARRAY_WORDS ||
+        if (!status && (setting_total + n + choices > GRKU_MODULE_SETTINGS_MAX ||
+                        SETTINGS_WORDS(setting_total + n + choices) + contexts + CONTEXT_WORDS(uses) + list + data + words > GRKU_MODULE_ARRAY_WORDS ||
                         module_code_bytes + module.code_size > MODULE_CODE_LIMIT)) status = GRM_NO_ROOM;
         if (status) {
             module_status[i] = (u32)status;
@@ -366,8 +366,8 @@ static void plan_array(void)
     u32 entries = setting_total + CHOICE_ENTRIES(module_count, listed_count);
     u32 fixed = SETTINGS_WORDS(entries) + module_contexts + MANAGE_WORDS(module_count) +
                 EFFECT_LIST_WORDS(listed_count) + SERVICES_WORDS + module_data_words;
-    u32 room = GRKIT_MODULE_SETTINGS_MAX - entries;
-    if (room > (GRKIT_MODULE_ARRAY_WORDS - fixed) / 3) room = (GRKIT_MODULE_ARRAY_WORDS - fixed) / 3;
+    u32 room = GRKU_MODULE_SETTINGS_MAX - entries;
+    if (room > (GRKU_MODULE_ARRAY_WORDS - fixed) / 3) room = (GRKU_MODULE_ARRAY_WORDS - fixed) / 3;
     plan_kept(room);
     module_words = fixed + 3 * kept_count;
 }

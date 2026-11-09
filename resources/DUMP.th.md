@@ -16,7 +16,7 @@
 
 ## รับเครื่องมือ
 
-ดาวน์โหลด `GRKU-<version>-dump.zip` จาก [รีลีสล่าสุด](https://github.com/botnick/GRKit/releases/latest) ลิงก์เครื่องมือ Firmware dump ที่ด้านล่างของ https://grku.app ให้ไฟล์เดียวกัน
+ดาวน์โหลด `GRKU-<version>-dump.zip` จาก [รีลีสล่าสุด](https://github.com/botnick/GRKU/releases/latest) ลิงก์เครื่องมือ Firmware dump ที่ด้านล่างของ https://grku.app ให้ไฟล์เดียวกัน
 
 ## ดัมพ์เฟิร์มแวร์
 
@@ -36,7 +36,7 @@
 ## ส่งไฟล์
 
 1. บีบอัดโฟลเดอร์ `SCRIPT/GRDUMP` เป็นไฟล์ ZIP
-2. แนบไฟล์ ZIP นั้นใน [GitHub issue](https://github.com/botnick/GRKit/issues) โดยระบุรุ่นกล้องและเวอร์ชันเฟิร์มแวร์
+2. แนบไฟล์ ZIP นั้นใน [GitHub issue](https://github.com/botnick/GRKU/issues) โดยระบุรุ่นกล้องและเวอร์ชันเฟิร์มแวร์
 
 หากนักพัฒนาขอไฟล์ dump ไว้ใน issue ใด ให้แนบไฟล์ ZIP ใน issue นั้น
 

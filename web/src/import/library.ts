@@ -2,11 +2,11 @@ import { GRADES, type Cover, type Grade, type ImportedEffect, type RestoredImpor
 import { loadWasm } from '../package';
 import { INPUTS, isTone, type Input } from './names';
 
-// The import library keeps each import of a browser in its packages (grkit-core `imports`), also
+// The import library keeps each import of a browser in its packages (grku-core `imports`), also
 // the imports that the package does not install. The camera does not read it. Another browser
 // restores the imports from it, with the details that the page shows of each.
 
-/** The import library in a package and on a card (grkit-core `card::IMPORTS_FILE`). */
+/** The import library in a package and on a card (grku-core `card::IMPORTS_FILE`). */
 export const IMPORTS_FILE = 'SCRIPT/GRKU/IMPORTS.BIN';
 
 /** What the library keeps of an import besides its effect file, which holds its name and icon. */

@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { marked } from 'marked';
 import { DOC_PATHS, LANGUAGE_PATHS } from '../src/languagePage.ts';
 
-const REPOSITORY = 'https://github.com/botnick/GRKit';
+const REPOSITORY = 'https://github.com/botnick/GRKU';
 
 const SITE = 'https://grku.app';
 const web = resolve(dirname(fileURLToPath(import.meta.url)), '..');

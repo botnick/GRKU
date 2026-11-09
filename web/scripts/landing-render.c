@@ -1,5 +1,5 @@
 /* Runs one plane-filter module on one picture, for the example images of the
-   site (build-landing.mjs). It builds like `grkit module test`, with this file
+   site (build-landing.mjs). It builds like `grku module test`, with this file
    in place of the module's test.c: the module sources, their generated
    descriptor, and the SDK host harness. One of RENDER_DATE, RENDER_GLOW,
    RENDER_LEAK, RENDER_DIFFUSION, or RENDER_BORDER selects the module.
@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "grkit_module.h"
+#include "grku_module.h"
 
 #if defined(RENDER_DATE)
 void date_apply(PictureSet *set, u32 style);
@@ -46,12 +46,12 @@ static void fill_plane(const Plane *p, const u8 *rgb)
             for (u32 k = 0; k < 2; ++k) {
                 const u8 *px = rgb + ((size_t)y * p->width + x + k) * 3;
                 int r = px[0], g = px[1], b = px[2];
-                GRKIT_BYTES(p->y + y * p->pitch + x + k)[0] = clamp8((77 * r + 150 * g + 29 * b + 128) >> 8);
+                GRKU_BYTES(p->y + y * p->pitch + x + k)[0] = clamp8((77 * r + 150 * g + 29 * b + 128) >> 8);
                 cb += -43 * r - 85 * g + 128 * b;
                 cr += 128 * r - 107 * g - 21 * b;
             }
-            GRKIT_BYTES(chroma_row(p, y) + x)[0] = clamp8(128 + ((cb / 2 + 128) >> 8));
-            GRKIT_BYTES(chroma_row(p, y) + x + 1)[0] = clamp8(128 + ((cr / 2 + 128) >> 8));
+            GRKU_BYTES(chroma_row(p, y) + x)[0] = clamp8(128 + ((cb / 2 + 128) >> 8));
+            GRKU_BYTES(chroma_row(p, y) + x + 1)[0] = clamp8(128 + ((cr / 2 + 128) >> 8));
         }
 }
 
@@ -60,10 +60,10 @@ static void read_plane(const Plane *p, u8 *rgb)
 {
     for (u32 y = 0; y < p->height; ++y)
         for (u32 x = 0; x < p->width; ++x) {
-            int luma = GRKIT_BYTES(p->y + y * p->pitch + x)[0];
+            int luma = GRKU_BYTES(p->y + y * p->pitch + x)[0];
             u32 q = x & ~1U;
-            int cb = (int)GRKIT_BYTES(chroma_row(p, y) + q)[0] - 128;
-            int cr = (int)GRKIT_BYTES(chroma_row(p, y) + q + 1)[0] - 128;
+            int cb = (int)GRKU_BYTES(chroma_row(p, y) + q)[0] - 128;
+            int cr = (int)GRKU_BYTES(chroma_row(p, y) + q + 1)[0] - 128;
             u8 *px = rgb + ((size_t)y * p->width + x) * 3;
             px[0] = clamp8(luma + ((359 * cr) >> 8));
             px[1] = clamp8(luma - ((88 * cb + 183 * cr) >> 8));
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
     double c = argc > 7 ? atof(argv[7]) : 0;
     size_t bytes = (size_t)w * h * 3;
     if (w % 2 || w < SCREENNAIL_WIDTH || h < SCREENNAIL_HEIGHT ||
-        (size_t)2 * ((size_t)w * h + SCREENNAIL_WIDTH * SCREENNAIL_HEIGHT) > GRKIT_TEST_PLANE_BYTES) {
+        (size_t)2 * ((size_t)w * h + SCREENNAIL_WIDTH * SCREENNAIL_HEIGHT) > GRKU_TEST_PLANE_BYTES) {
         fprintf(stderr, "The picture does not fit the planes of the harness.\n");
         return 2;
     }
@@ -116,8 +116,8 @@ int main(int argc, char **argv)
     if (!small) return 1;
 
     /* The main picture, then its screennail, as the camera encodes them. */
-    u32 s0 = GRKIT_TEST_PLANES + 2 * w * h;
-    Plane main_plane = {GRKIT_TEST_PLANES, GRKIT_TEST_PLANES + w * h, w, h, w, 0, 0, 0, w, h};
+    u32 s0 = GRKU_TEST_PLANES + 2 * w * h;
+    Plane main_plane = {GRKU_TEST_PLANES, GRKU_TEST_PLANES + w * h, w, h, w, 0, 0, 0, w, h};
     Plane small_plane = {s0, s0 + SCREENNAIL_WIDTH * SCREENNAIL_HEIGHT, SCREENNAIL_WIDTH, SCREENNAIL_HEIGHT,
                          SCREENNAIL_WIDTH, 0, 0, 0, SCREENNAIL_WIDTH, SCREENNAIL_HEIGHT};
     fill_plane(&main_plane, rgb);
@@ -127,13 +127,13 @@ int main(int argc, char **argv)
     set.planes[0] = main_plane;
     set.planes[1] = small_plane;
     set.count = 2;
-    set.scratch = grkit_test_scratch;
+    set.scratch = grku_test_scratch;
 
 #if defined(RENDER_DATE)
     unsigned year = 2024, month = 1, day = 1, hour = 0, minute = 0;
     const char *time = getenv("RENDER_TIME");
     if (time) sscanf(time, "%u %u %u %u %u", &year, &month, &day, &hour, &minute);
-    grkit_test_time = (GrkitDateTime){(u16)year, (u8)month, (u8)day, (u8)hour, (u8)minute, 0, 0};
+    grku_test_time = (GrkuDateTime){(u16)year, (u8)month, (u8)day, (u8)hour, (u8)minute, 0, 0};
     setting_set(SETTING_LOOK, b);
     setting_set(SETTING_POSITION, 0);
     date_apply(&set, a);
@@ -142,8 +142,8 @@ int main(int argc, char **argv)
     setting_set(SETTING_HALATION, b);
     setting_set(SETTING_HALATION_COLOR, 1); /* Orange, the default */
     if (argc > 7) {
-        grkit_test_shot.known = GRKIT_SHOT_EXPOSURE;
-        grkit_test_shot.scene_ev = (s32)(c * 256);
+        grku_test_shot.known = GRKU_SHOT_EXPOSURE;
+        grku_test_shot.scene_ev = (s32)(c * 256);
     }
     glow_apply(&set, a || b);
 #elif defined(RENDER_LEAK)

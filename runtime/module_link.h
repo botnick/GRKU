@@ -1,6 +1,6 @@
-#ifndef GRKIT_MODULE_LINK_H
-#define GRKIT_MODULE_LINK_H
-/* The installer side of the module format (crates/grkit-core/src/grm.rs).
+#ifndef GRKU_MODULE_LINK_H
+#define GRKU_MODULE_LINK_H
+/* The installer side of the module format (crates/grku-core/src/grm.rs).
    These functions read and link a module file in the memory of the installer.
    They do not access the RTOS, so host tests can run them. The includer
    defines u8 and u32.
@@ -12,14 +12,14 @@
 #define GRM_MAGIC 0x4d4b5247U
 #define GRM_FORMAT 1U
 #define GRM_HEADER 64U
-/* The header word of the order of the module (grkit_core::grm): its default
+/* The header word of the order of the module (grku_core::grm): its default
    place in ADJ and in MENU, at most GRM_MAX_ORDER. */
 #define GRM_ORDER 56U
 #define GRM_MAX_ORDER 0xffffU
 #define GRM_DATA_LINK 0x10000000U
 #define GRM_DATA_LOCATION 0x80000000U
 #define GRM_MAX_SEGMENT 0x10000U
-/* The ABI of the core (runtime/sdk/grkit.h). */
+/* The ABI of the core (runtime/sdk/grku.h). */
 #define GRM_ABI_MAJOR 2U
 #define GRM_ABI_MINOR 6U
 #define GRM_POINT_OVERLAY_LAYER 1U
@@ -27,7 +27,7 @@
 #define GRM_POINT_PICTURE_PLANE 3U
 #define GRM_POINT_EVENT 4U
 #define GRM_POINT_VIEWFINDER_INDICATOR 5U
-/* The events of a subscriber (GRKIT_EVENT_*). */
+/* The events of a subscriber (GRKU_EVENT_*). */
 #define GRM_EVENTS 3U
 #define GRM_PAGE_CHOICE 1U
 #define GRM_PAGE_SETTINGS 2U
@@ -54,16 +54,16 @@
    row. */
 #define GRM_SETTING_ROWS 5U
 #define GRM_SETTING_ROW_VALUES 8U
-/* The stages of plane filters (runtime/sdk/grkit.h). */
+/* The stages of plane filters (runtime/sdk/grku.h). */
 #define GRM_STAGE_FRAME 20U
 #define GRM_STAGE_MARK 30U
 /* The most registrations that one descriptor gives. */
 #define GRM_REGISTRATIONS 16U
 /* The descriptor: size, ABI, registrations and their count, settings and
    their count, used settings and their count, tiles and their count
-   (runtime/sdk/grkit.h). */
+   (runtime/sdk/grku.h). */
 #define GRM_DESCRIPTOR 40U
-/* The layout of each descriptor struct of runtime/sdk/grkit.h, as 32-bit ARM
+/* The layout of each descriptor struct of runtime/sdk/grku.h, as 32-bit ARM
    code has it (tests/runtime/layout_contract.c checks each against the
    struct). Word 0 of each is its size, which is at least GRM_<STRUCT>. */
 #define GRM_DESCRIPTOR_ABI_AT 4U
@@ -80,17 +80,17 @@
 #define GRM_DESCRIPTOR_FLAGS_AT 40U
 #define GRM_DESCRIPTOR_FLAGS 44U
 #define GRM_MODULE_COLOR_ONLY 1U
-/* GrkitRegistration (no size word). */
+/* GrkuRegistration (no size word). */
 #define GRM_REGISTRATION 8U
 #define GRM_REGISTRATION_IMPL_AT 4U
-/* GrkitSetting. */
+/* GrkuSetting. */
 #define GRM_SETTING 16U /* ABI 2.0 minimum */
 #define GRM_SETTING_DEFAULT 20U
 #define GRM_SETTING_KEY_AT 4U
 #define GRM_SETTING_VALUES_AT 8U
 #define GRM_SETTING_FLAGS_AT 12U
 #define GRM_SETTING_DEFAULT_AT 16U
-/* GrkitLayer. */
+/* GrkuLayer. */
 #define GRM_LAYER 20U /* ABI 2.0 minimum */
 #define GRM_LAYER_CONDITIONAL 28U
 #define GRM_LAYER_FLAGS_AT 4U
@@ -106,9 +106,9 @@
 #define GRM_ICON_FIRST_TILE_AT 12U
 #define GRM_ICON_TILE 1U
 #define GRM_ICON_TONE 2U
-/* A core live-view label, for a status-row indicator (GRKIT_ICON_LABEL), and
+/* A core live-view label, for a status-row indicator (GRKU_ICON_LABEL), and
    the number of core labels that a module can name
-   (GRKIT_MODULE_LABEL_COUNT). */
+   (GRKU_MODULE_LABEL_COUNT). */
 #define GRM_ICON_LABEL 3U
 #define GRM_LABELS 14U
 #define GRM_CONDITION 12U
@@ -127,7 +127,7 @@
 #define GRM_INDICATOR_NATIVE_SLOT 1U
 #define GRM_INDICATOR_STATUS_ROW 2U
 #define GRM_SLOT_IMAGE_CONTROL 1U
-/* GrkitPage. */
+/* GrkuPage. */
 #define GRM_PAGE 40U
 #define GRM_GROUP_PAGE 44U
 #define GRM_PAGE_CHILDREN_AT 40U
@@ -146,17 +146,17 @@
 #define GRM_PAGE_ROWS_AT 28U
 #define GRM_PAGE_SETTING_ROWS_AT 32U
 #define GRM_PAGE_SETTINGS_AT 36U
-/* GrkitSettingRow. */
+/* GrkuSettingRow. */
 #define GRM_ROW 16U
 #define GRM_ROW_SETTING_AT 4U
 #define GRM_ROW_LABEL_AT 8U
 #define GRM_ROW_VALUES_AT 12U
-/* GrkitPlaneFilter. */
+/* GrkuPlaneFilter. */
 #define GRM_FILTER 16U
 #define GRM_FILTER_STAGE_AT 4U
 #define GRM_FILTER_SETTING_AT 8U
 #define GRM_FILTER_APPLY_AT 12U
-/* GrkitSubscriber. */
+/* GrkuSubscriber. */
 #define GRM_SUBSCRIBER 12U
 #define GRM_SUBSCRIBER_EVENTS_AT 4U
 #define GRM_SUBSCRIBER_HANDLE_AT 8U
@@ -187,7 +187,7 @@
 #define GRM_NO_ROOM 54
 #define GRM_MISSING_SETTING 55
 /* A color-only module on a camera with a monochrome sensor. It is not an
-   error: the GRKit section of MENU does not list the module. */
+   error: the GRKU section of MENU does not list the module. */
 #define GRM_COLOR_ONLY 56
 
 struct grm_module {
@@ -338,7 +338,7 @@ struct grm_setting { char key[GRM_KEY]; u32 values, flags, default_value; };
 /* The flags of the descriptor of a module in `code` (its file code, or the
    linked copy): GRM_MODULE_COLOR_ONLY, or 0
    for a descriptor without flags. Return 0, or GRM_BAD_DESCRIPTOR for a flag
-   that this GRKit does not know. */
+   that this GRKU does not know. */
 static int grm_module_flags(const struct grm_module *m, const u8 *code, u32 *flags)
 {
     const u8 *d = code + m->descriptor;
@@ -721,7 +721,7 @@ static int grm_subscriber(const struct grm_module *m, const u8 *code, u32 base, 
 }
 
 /* The state file ID of the setting `name`, MODULE.KEY: the CRC-32 of the
-   name, modulo 10^9 (crates/grkit-core/src/grm.rs, state_id). An ID in the
+   name, modulo 10^9 (crates/grku-core/src/grm.rs, state_id). An ID in the
    range of the Fn adjustment entries (990000000 and up) moves below it, and
    0 becomes 1. */
 static u32 grm_state_id(const char *name)

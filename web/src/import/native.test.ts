@@ -36,7 +36,7 @@ describe('importsForCamera', () => {
 });
 
 describe('nativeProblem', () => {
-  it('maps the grkit-core messages', () => {
+  it('maps the grku-core messages', () => {
     const problem = (message: string) => nativeProblem(new Error(message));
     expect(problem('This is not a supported GR IV firmware file. Supported versions: 1.11, 1.20')).toBe(
       'unsupported',
@@ -50,16 +50,16 @@ describe('nativeProblem', () => {
   });
 });
 
-/** grkit-wasm, which the page builds before its checks (`pnpm wasm`). */
+/** grku-wasm, which the page builds before its checks (`pnpm wasm`). */
 async function loadWasm() {
-  const wasm = await import('../wasm/grkit_wasm.js');
+  const wasm = await import('../wasm/grku_wasm.js');
   await wasm.default({
-    module_or_path: readFileSync(resolve(import.meta.dirname, '../wasm/grkit_wasm_bg.wasm')),
+    module_or_path: readFileSync(resolve(import.meta.dirname, '../wasm/grku_wasm_bg.wasm')),
   });
   return wasm;
 }
 
-// The analytic stand-in of the grkit-wasm tests: any rising table works for these checks.
+// The analytic stand-in of the grku-wasm tests: any rising table works for these checks.
 const baseGamma = Uint16Array.from({ length: 256 }, (_, i) => Math.floor((i / 255) ** 0.45 * 16000));
 
 describe('nativeLooks errors', () => {
@@ -78,9 +78,9 @@ describe('nativeLooks errors', () => {
   });
 });
 
-// A check with an official GR IV ZIP, which the repository does not hold. Set GRKIT_TEST_GR4_ZIP to
+// A check with an official GR IV ZIP, which the repository does not hold. Set GRKU_TEST_GR4_ZIP to
 // its path to run it.
-const zip = process.env.GRKIT_TEST_GR4_ZIP;
+const zip = process.env.GRKU_TEST_GR4_ZIP;
 
 describe.skipIf(!zip)('nativeLooks with an official GR IV ZIP', () => {
   it('reads Cinema Yellow and Cinema Green', async () => {

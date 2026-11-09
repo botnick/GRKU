@@ -1,7 +1,7 @@
 import type { Cover } from '../catalog';
 import { EFFECT_ID_MAX, EFFECT_NAME_MAX } from '../generated/site';
 
-/** The input encodings of `grkit effects import --input`, in the order the page offers them. */
+/** The input encodings of `grku effects import --input`, in the order the page offers them. */
 export const INPUTS = ['standard', 'srgb', 'linear', 'vlog', 'flog', 'flog2', 'flog2c'] as const;
 export type Input = (typeof INPUTS)[number];
 
@@ -31,7 +31,7 @@ const MAX_ID = EFFECT_ID_MAX;
 
 /**
  * The name of the `.GRF` file of an effect in a package: the first 8 hex digits of
- * the SHA-256 of its ID (`grkit_core::effects::filename`).
+ * the SHA-256 of its ID (`grku_core::effects::filename`).
  */
 export async function effectFilename(id: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(id));
@@ -98,7 +98,7 @@ export const NATIVE_LOOK_IDS: readonly string[] = ['gr4-cinema-yellow', 'gr4-cin
 /** True for the effect ID of a native look. */
 export const isNativeLookId = (id: string): boolean => NATIVE_LOOK_IDS.includes(id);
 
-/** The number of values of tone curves (grkit-core `site::ToneCurves::VALUES`). */
+/** The number of values of tone curves (grku-core `site::ToneCurves::VALUES`). */
 const TONE_VALUES = 512;
 
 /** True for the tone curves of a native look: none (an empty array) or both curves. */

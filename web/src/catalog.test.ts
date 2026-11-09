@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const catalog = {
-  schema: 'grkit-site-effects-v1',
+  schema: 'grku-site-effects-v1',
   target: 'gr3-2.10',
   effects: [],
   preview: { input: 'linear-srgb16', shaper: 'srgb', order: 'rgb', size: 2, baseline: 'base.lut' },
@@ -9,7 +9,7 @@ const catalog = {
 
 beforeEach(() => {
   vi.resetModules();
-  vi.stubGlobal('document', { baseURI: 'https://grkit.test/' });
+  vi.stubGlobal('document', { baseURI: 'https://grku.test/' });
 });
 afterEach(() => {
   vi.unstubAllGlobals();

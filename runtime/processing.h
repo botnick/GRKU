@@ -18,20 +18,20 @@
 // The live view asks several times a frame. The active record, a record
 // whenever it is not 0, is the usual answer, and a pointer outside the
 // records, such as a native one, needs no scan.
-.if GRKIT_RECORD_SIZE != 17 << 8
+.if GRKU_RECORD_SIZE != 17 << 8
 .error "The record end is count x 17 x 256"
 .endif
 .Lowned_record:
     push {r0-r3, lr}
-    ldr r1, =GRKIT_HEADER_REFERENCE
-    ldr r3, [r1, #GRKIT_HOST_ACTIVE]
+    ldr r1, =GRKU_HEADER_REFERENCE
+    ldr r3, [r1, #GRKU_HOST_ACTIVE]
     cmp r3, #0
     beq owned_scan
     cmp r0, r3
     beq owned_done
 owned_scan:
-    ldr r2, [r1, #GRKIT_HOST_COUNT]
-    ldr r1, [r1, #GRKIT_HOST_RECORDS]
+    ldr r2, [r1, #GRKU_HOST_COUNT]
+    ldr r1, [r1, #GRKU_HOST_RECORDS]
     cmp r0, r1
     blo owned_no
     add r3, r2, r2, lsl #4
@@ -43,7 +43,7 @@ owned_scan:
 owned_loop:
     cmp r0, r1
     beq owned_done
-    add r1, r1, #GRKIT_RECORD_SIZE
+    add r1, r1, #GRKU_RECORD_SIZE
     subs r2, r2, #1
     bne owned_loop
 owned_no:
@@ -56,7 +56,7 @@ owned_done:
 // live-view frame, then flags the result (GAMMA_UPLOAD) for the table build.
 // For a private record the result depends only on the gamma object, the
 // record (only the installer writes its curves), the bypass byte of the packet
-// (+0x89), and the base curve. GRKIT_HOST_GAMMA_KEY keeps a hash of these
+// (+0x89), and the base curve. GRKU_HOST_GAMMA_KEY keeps a hash of these
 // inputs for the last composition of a private record.
 // r0 = gamma object, r1 = record, r2 = packet. Return Z=1 when the object
 // still holds the composition of these inputs: the key matches and the native
@@ -87,9 +87,9 @@ gamma_hash:
     ldr r0, [sp]
     add r0, r0, #(GAMMA_BUILT & ~0xff)
     ldr r0, [r0, #(GAMMA_BUILT & 0xff)]
-    ldr r1, =GRKIT_HEADER_REFERENCE
-    ldr r2, [r1, #GRKIT_HOST_GAMMA_KEY]
-    str r4, [r1, #GRKIT_HOST_GAMMA_KEY]
+    ldr r1, =GRKU_HEADER_REFERENCE
+    ldr r2, [r1, #GRKU_HOST_GAMMA_KEY]
+    str r4, [r1, #GRKU_HOST_GAMMA_KEY]
     cmp r0, #0
     cmpeq r2, r4
     pop {r0-r11, pc}
@@ -97,9 +97,9 @@ gamma_hash:
 // Forget the key: a native custom curve replaces the composition.
 .Lgamma_forget:
     push {r0, r1}
-    ldr r0, =GRKIT_HEADER_REFERENCE
+    ldr r0, =GRKU_HEADER_REFERENCE
     mov r1, #0
-    str r1, [r0, #GRKIT_HOST_GAMMA_KEY]
+    str r1, [r0, #GRKU_HOST_GAMMA_KEY]
     pop {r0, r1}
     bx lr
 
@@ -111,7 +111,7 @@ gamma_hash:
 // is cleared while the entry changes. FW_LEVEL is a static object whose second
 // word points to the electronic level, or holds 0 before the level exists.
 // Preserves all registers.
-.if GRKIT_SHOT_STRIDE != 1 << 4
+.if GRKU_SHOT_STRIDE != 1 << 4
 .error "The shot ring index shift assumes 16-byte entries"
 .endif
 .Lshot_store:
@@ -119,34 +119,34 @@ gamma_hash:
     ldrb r2, [PROCESSING_CONTEXT, #0x2ac]
     cmp r2, #1
     beq shot_done
-    ldr r1, =GRKIT_HEADER_REFERENCE
+    ldr r1, =GRKU_HEADER_REFERENCE
     // The shot ring is in the picture scratch, at the start of the tail.
-    ldr r3, [r1, #GRKIT_HOST_TAIL]
-    add r3, r3, #(GRKIT_SHOT_RING & ~0xff)
-    add r3, r3, #(GRKIT_SHOT_RING & 0xff)
+    ldr r3, [r1, #GRKU_HOST_TAIL]
+    add r3, r3, #(GRKU_SHOT_RING & ~0xff)
+    add r3, r3, #(GRKU_SHOT_RING & 0xff)
     ldr r2, [r3]
     add r12, r2, #1
     str r12, [r3]
-    and r2, r2, #(GRKIT_SHOT_ENTRIES - 1)
+    and r2, r2, #(GRKU_SHOT_ENTRIES - 1)
     add r2, r3, r2, lsl #4
     mov r12, #0
-    str r12, [r2, #(GRKIT_SHOT_ENTRY + GRKIT_SHOT_KEY)]
+    str r12, [r2, #(GRKU_SHOT_ENTRY + GRKU_SHOT_KEY)]
     dmb ish
-    str r0, [r2, #(GRKIT_SHOT_ENTRY + GRKIT_SHOT_RECORD)]
+    str r0, [r2, #(GRKU_SHOT_ENTRY + GRKU_SHOT_RECORD)]
     // Only still captures own the selected crop. RAW development and other
     // non-live-view tasks keep their recorded geometry instead.
     ldrb r12, [PROCESSING_CONTEXT, #0x2ac]
     cmp r12, #0
-    ldreq r12, [r1, #GRKIT_HOST_FRAME_CROP]
+    ldreq r12, [r1, #GRKU_HOST_FRAME_CROP]
     movne r12, #0
-    str r12, [r2, #(GRKIT_SHOT_ENTRY + GRKIT_SHOT_FRAME_CROP)]
+    str r12, [r2, #(GRKU_SHOT_ENTRY + GRKU_SHOT_FRAME_CROP)]
     ldr r1, =FW_LEVEL
     ldr r1, [r1, #4]
     cmp r1, #0
     ldrne r1, [r1, #LEVEL_POSTURE]
-    str r1, [r2, #(GRKIT_SHOT_ENTRY + GRKIT_SHOT_POSTURE)]
+    str r1, [r2, #(GRKU_SHOT_ENTRY + GRKU_SHOT_POSTURE)]
     dmb ish
-    str r7, [r2, #(GRKIT_SHOT_ENTRY + GRKIT_SHOT_KEY)]
+    str r7, [r2, #(GRKU_SHOT_ENTRY + GRKU_SHOT_KEY)]
 shot_done:
     pop {r0-r3, r12, pc}
 
@@ -156,15 +156,15 @@ shot_done:
 // private record.
 module_parameters:
     push {r0-r3, r12, lr}
-    ldr r0, =GRKIT_HEADER_REFERENCE
-    ldr r3, [r0, #GRKIT_HOST_PROCESSING_CALLS]
+    ldr r0, =GRKU_HEADER_REFERENCE
+    ldr r3, [r0, #GRKU_HOST_PROCESSING_CALLS]
     add r3, r3, #1
-    str r3, [r0, #GRKIT_HOST_PROCESSING_CALLS]
+    str r3, [r0, #GRKU_HOST_PROCESSING_CALLS]
     // Without a module that uses CORE.TONE, as after a soft Off of Film Look
     // (runtime/manage.h), the native processing runs.
-    ldr r3, [r0, #GRKIT_HOST_CAPABILITIES]
+    ldr r3, [r0, #GRKU_HOST_CAPABILITIES]
 #ifdef FW_DEVELOP_MODEL
-    // A RAW development applies its own effect (GRKIT_HOST_DEVELOP), not the
+    // A RAW development applies its own effect (GRKU_HOST_DEVELOP), not the
     // selected one: 1 is native processing.
     ldr r2, =FW_DEVELOP_GUARD
     ldr r2, [r2]
@@ -172,14 +172,14 @@ module_parameters:
     ldrne r2, =FW_DEVELOP_MODEL
     ldrbne r2, [r2, #DEVELOP_STATE]
     cmpne r2, #0
-    ldrne r0, [r0, #GRKIT_HOST_DEVELOP]
-    ldreq r0, [r0, #GRKIT_HOST_ACTIVE]
+    ldrne r0, [r0, #GRKU_HOST_DEVELOP]
+    ldreq r0, [r0, #GRKU_HOST_ACTIVE]
     cmp r0, #1
     moveq r0, #0
 #else
-    ldr r0, [r0, #GRKIT_HOST_ACTIVE]
+    ldr r0, [r0, #GRKU_HOST_ACTIVE]
 #endif
-    tst r3, #GRKIT_CORE_TONE_BIT
+    tst r3, #GRKU_CORE_TONE_BIT
     moveq r0, #0
     // Context 1 is the live view (ImageTuningLiveview); 0 is the still path.
     ldrb r2, [PROCESSING_CONTEXT, #0x2ac]
@@ -187,8 +187,8 @@ module_parameters:
     bhi parameters_stock
     // Menu previews change only the live view. Still captures keep the committed record.
     bne parameters_committed
-    ldr r3, =GRKIT_HEADER_REFERENCE
-    ldr r3, [r3, #GRKIT_HOST_PREVIEW]
+    ldr r3, =GRKU_HEADER_REFERENCE
+    ldr r3, [r3, #GRKU_HOST_PREVIEW]
     cmp r3, #0
     movne r0, r3
 parameters_committed:
@@ -205,8 +205,8 @@ parameters_committed:
     .word 0xeb000000 | (((.Lshot_store - . - 8) >> 2) & 0x00ffffff)
     // Fill the transient object like the native Standard branch, from the
     // adjustments of the record (r0), not from the native settings.
-    add r3, r0, #(GRKIT_RECORD_PARAMETERS & ~0xff)
-    add r3, r3, #(GRKIT_RECORD_PARAMETERS & 0xff)
+    add r3, r0, #(GRKU_RECORD_PARAMETERS & ~0xff)
+    add r3, r3, #(GRKU_RECORD_PARAMETERS & 0xff)
 #ifdef PROCESSING_KEPT_BYTE
     ldrb r2, [PROCESSING_OBJECT, #PROCESSING_KEPT_BYTE]
     push {r2}
@@ -226,7 +226,7 @@ parameters_fill:
     ldrb r2, [r3, r2]
     cmp r2, #8
     movhi r2, #0
-    ldrb lr, [lr, #(GRKIT_RECORD_FN_DEFAULTS - GRKIT_RECORD_PARAMETERS)]
+    ldrb lr, [lr, #(GRKU_RECORD_FN_DEFAULTS - GRKU_RECORD_PARAMETERS)]
     add r2, r2, lr
     add r2, r2, #4
     cmp r2, #9
@@ -244,10 +244,10 @@ parameters_store:
     // (runtime/develop.h). A value above 8 counts as neutral. r1 is at
     // +0x200, r3 at the adjustments of the record.
     push {r1, r3}
-    ldr r0, =GRKIT_HEADER_REFERENCE
-    ldr r2, [r0, #GRKIT_HOST_DEVELOP_FILLED]
-    sub r12, r3, #(GRKIT_RECORD_PARAMETERS & ~0xff)
-    sub r12, r12, #(GRKIT_RECORD_PARAMETERS & 0xff)
+    ldr r0, =GRKU_HEADER_REFERENCE
+    ldr r2, [r0, #GRKU_HOST_DEVELOP_FILLED]
+    sub r12, r3, #(GRKU_RECORD_PARAMETERS & ~0xff)
+    sub r12, r12, #(GRKU_RECORD_PARAMETERS & 0xff)
     cmp r2, r12
     bne develop_done
     ldr r2, =FW_DEVELOP_GUARD
@@ -278,8 +278,8 @@ develop_done:
 #ifdef NATIVE_SATURATION_BEFORE_CURVES
     // A native look applies saturation after the tone curves, as GR IV does:
     // picture_post applies it, and the native processing gets the neutral
-    // value. 0x20 is GRKIT_FEATURE_NATIVE_LOOK, and r1 is at +0x200.
-    ldr r2, [r3, #(GRKIT_RECORD_FEATURES - GRKIT_RECORD_PARAMETERS)]
+    // value. 0x20 is GRKU_FEATURE_NATIVE_LOOK, and r1 is at +0x200.
+    ldr r2, [r3, #(GRKU_RECORD_FEATURES - GRKU_RECORD_PARAMETERS)]
     tst r2, #0x20
     movne r2, #4
     strhne r2, [r1, #-0x20]
@@ -301,7 +301,7 @@ develop_done:
     strb r2, [PROCESSING_OBJECT, #PROCESSING_KEPT_BYTE]
 #endif
     pop {r0-r3, r12, pc}
-// Source per halfword at +0x1e0: an index of GRKIT_RECORD_PARAMETERS, or 0x10
+// Source per halfword at +0x1e0: an index of GRKU_RECORD_PARAMETERS, or 0x10
 // plus a constant. Saturation, hue, key, contrast, highlight, shadow, 1,
 // sharpness, 0, 0, shading, clarity, 0, 0, 0, 0.
 parameters_sources:

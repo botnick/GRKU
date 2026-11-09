@@ -3,7 +3,7 @@ import { DOC_PATHS, LANGUAGE_PATHS, type DocName } from './languagePage';
 
 export { DOC_PATHS, type DocName };
 
-export const REPOSITORY = 'https://github.com/botnick/GRKit';
+export const REPOSITORY = 'https://github.com/botnick/GRKU';
 /** The repository this fork comes from. */
 export const UPSTREAM = 'https://github.com/ahonn/GRKit';
 

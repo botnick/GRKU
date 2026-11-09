@@ -3,8 +3,8 @@
    with the crop as Surface.area. Without a frame, such as Off or a crop that
    the camera applies to the live view itself, the area is 0 and the layer
    draws nothing. */
-#include "grkit.h"
-#include "grkit_module.h"
+#include "grku.h"
+#include "grku_module.h"
 
 /* MASK: black at 50% alpha (0) or at 100% (1) outside the frame, or frame
    lines only (2), as the mask of Framing. Each full draw paints the mask, so

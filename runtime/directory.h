@@ -1,5 +1,5 @@
-#ifndef GRKIT_DIRECTORY_H
-#define GRKIT_DIRECTORY_H
+#ifndef GRKU_DIRECTORY_H
+#define GRKU_DIRECTORY_H
 /* Directory listing for the installer. The includer defines u8 and u32.
 
    The camera's exFAT driver returns an empty name for a name longer than 12

@@ -1,16 +1,16 @@
 import { siteUrl } from './catalog';
 import type { Language } from './i18n';
 export { LANDING_LOOKS, LANDING_PHOTOS } from './landing-data';
-import menuEn from '../../resources/images/grkit-menu.jpg';
-import menuJa from '../../resources/images/grkit-menu.ja.jpg';
-import menuKo from '../../resources/images/grkit-menu.ko.jpg';
-import menuZhHans from '../../resources/images/grkit-menu.zh-Hans.jpg';
-import menuZhHant from '../../resources/images/grkit-menu.zh-Hant.jpg';
-import rootEn from '../../resources/images/grkit-root.jpg';
-import rootJa from '../../resources/images/grkit-root.ja.jpg';
-import rootKo from '../../resources/images/grkit-root.ko.jpg';
-import rootZhHans from '../../resources/images/grkit-root.zh-Hans.jpg';
-import rootZhHant from '../../resources/images/grkit-root.zh-Hant.jpg';
+import menuEn from '../../resources/images/grku-menu.jpg';
+import menuJa from '../../resources/images/grku-menu.ja.jpg';
+import menuKo from '../../resources/images/grku-menu.ko.jpg';
+import menuZhHans from '../../resources/images/grku-menu.zh-Hans.jpg';
+import menuZhHant from '../../resources/images/grku-menu.zh-Hant.jpg';
+import rootEn from '../../resources/images/grku-root.jpg';
+import rootJa from '../../resources/images/grku-root.ja.jpg';
+import rootKo from '../../resources/images/grku-root.ko.jpg';
+import rootZhHans from '../../resources/images/grku-root.zh-Hans.jpg';
+import rootZhHant from '../../resources/images/grku-root.zh-Hant.jpg';
 
 /** The Framing ratios in the order of the camera menu, with their width over height. */
 export const LANDING_RATIOS = [

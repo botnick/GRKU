@@ -290,7 +290,7 @@ long syscall6(u32 number, u32 a, u32 b, u32 c, u32 d, u32 e, u32 f)
     }
 }
 
-extern int grkit_install_entry(u32 argc, char **argv);
+extern int grku_install_entry(u32 argc, char **argv);
 
 static void reset_files(void)
 {
@@ -326,7 +326,7 @@ static int run(const char *mode)
     reset_files();
     char name[] = "CORE.BIN";
     char *argv[2] = {name, (char *)mode};
-    int s = grkit_install_entry(2, argv);
+    int s = grku_install_entry(2, argv);
     reset_files();
     return s;
 }

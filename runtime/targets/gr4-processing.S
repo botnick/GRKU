@@ -2,7 +2,7 @@
 // (runtime/processing.S describes the GR III 2.10 version, and processing.h
 // has the parts that each family shares). The build header
 // gives the frame slot of the type table index (PROCESSING_INDEX_SLOT). The
-// comments name the sites of 1.11; crates/grkit-build/src/target has the sites
+// comments name the sites of 1.11; crates/grku-build/src/target has the sites
 // of each build.
 // The build places this code after the RTOS image. Local calls use BL words. The firmware addresses
 // are FIRMWARE() symbols (hooks.h), which the installer relocates.
@@ -52,7 +52,7 @@ module_record:
 // capture (the native flag in the frame slot PROCESSING_HIGHLIGHT_SLOT), the set
 // whose address is at RECORD_MULTIAXIAL + 4. Other records keep the set of the Standard index. r0 is
 // free after this store.
-.if GRKIT_RECORD_MULTIAXIAL != 0x740
+.if GRKU_RECORD_MULTIAXIAL != 0x740
 .error "Update the MultiAxial set offset"
 .endif
 module_multiaxial:
@@ -61,7 +61,7 @@ module_multiaxial:
     ldr r0, [r4, #8]
     .word 0xeb000000 | (((.Lowned_record - . - 8) >> 2) & 0x00ffffff)
     bne multiaxial_store
-    ldr r1, [r0, #GRKIT_RECORD_FEATURES]
+    ldr r1, [r0, #GRKU_RECORD_FEATURES]
     tst r1, #0x28
     beq multiaxial_store
     add r2, r0, #0x740
@@ -81,7 +81,7 @@ module_packet:
     ldr r0, [r4, #8]
     .word 0xeb000000 | (((.Lowned_record - . - 8) >> 2) & 0x00ffffff)
     bne packet_done
-    ldr r1, [r0, #GRKIT_RECORD_MONOCHROME]
+    ldr r1, [r0, #GRKU_RECORD_MONOCHROME]
     and r1, r1, #1
     strb r1, [r4, #0x79]
     mov r2, #0
@@ -115,11 +115,11 @@ module_gamma_curves:
     ldr r0, [r0, #8]
     .word 0xeb000000 | (((.Lowned_record - . - 8) >> 2) & 0x00ffffff)
     bne curves_stock
-    add r5, r0, #GRKIT_RECORD_CURVES
+    add r5, r0, #GRKU_RECORD_CURVES
     str r5, [r1]
-    add r5, r5, #GRKIT_RECORD_CURVE_SIZE
+    add r5, r5, #GRKU_RECORD_CURVE_SIZE
     str r5, [r2]
-    add r5, r5, #GRKIT_RECORD_CURVE_SIZE
+    add r5, r5, #GRKU_RECORD_CURVE_SIZE
     str r5, [r3]
     mov r1, r0
     ldr r0, [fp, #-0x50]

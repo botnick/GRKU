@@ -1,5 +1,5 @@
 {
-  "schema": "grkit-effect-v1",
+  "schema": "grku-effect-v1",
   "effect_id": "pd-delta-400-mono-v1",
   "name": "Delta 400",
   "flags": 1,

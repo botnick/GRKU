@@ -1,4 +1,4 @@
-"""Bake the spektrafilm LUTs that the GRKit effects are fitted from.
+"""Bake the spektrafilm LUTs that the GRKU effects are fitted from.
 
 Requirements: spektrafilm 0.3.4 (git 3bb2c2d2801ff68b92019cf1dbcbb133d60832bc) on Python 3.13.
 

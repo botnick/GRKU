@@ -1,6 +1,6 @@
-/* The host test of Diffusion (grkit module test): a light on a dark picture. */
+/* The host test of Diffusion (grku module test): a light on a dark picture. */
 #include <assert.h>
-#include "grkit_module.h"
+#include "grku_module.h"
 
 void diffusion_apply(PictureSet *set, u32 strength);
 u32 diffusion_grid_shift(u32 width, u32 height);
@@ -9,24 +9,24 @@ u32 diffusion_grid_shift(u32 width, u32 height);
    pitch, dark grey with a disc of colour (y, cb, cr) of radius r at (cx, cy). */
 static Plane scene(u32 w, u32 h, u32 cx, u32 cy, u32 r, u8 y, u8 cb, u8 cr)
 {
-    Plane p = {GRKIT_TEST_PLANES, GRKIT_TEST_PLANES + w * h, w, h, w, 0, 0, 0, w, h};
+    Plane p = {GRKU_TEST_PLANES, GRKU_TEST_PLANES + w * h, w, h, w, 0, 0, 0, w, h};
     for (u32 j = 0; j < h; ++j)
         for (u32 i = 0; i < w; ++i) {
             int dx = (int)i - (int)cx, dy = (int)j - (int)cy;
             u32 in = (u32)(dx * dx + dy * dy) <= r * r;
-            GRKIT_BYTES(p.y + j * w + i)[0] = in ? y : 20;
-            GRKIT_BYTES(p.c + j * w + (i & ~1U))[0] = in ? cb : 128;
-            GRKIT_BYTES(p.c + j * w + (i & ~1U) + 1)[0] = in ? cr : 128;
+            GRKU_BYTES(p.y + j * w + i)[0] = in ? y : 20;
+            GRKU_BYTES(p.c + j * w + (i & ~1U))[0] = in ? cb : 128;
+            GRKU_BYTES(p.c + j * w + (i & ~1U) + 1)[0] = in ? cr : 128;
         }
     return p;
 }
-static u32 luma(const Plane *p, u32 x, u32 y) { return GRKIT_BYTES(p->y + y * p->pitch + x)[0]; }
-static u32 cb_at(const Plane *p, u32 x, u32 y) { return GRKIT_BYTES(p->c + y * p->pitch + (x & ~1U))[0]; }
-static u32 cr_at(const Plane *p, u32 x, u32 y) { return GRKIT_BYTES(p->c + y * p->pitch + (x & ~1U) + 1)[0]; }
+static u32 luma(const Plane *p, u32 x, u32 y) { return GRKU_BYTES(p->y + y * p->pitch + x)[0]; }
+static u32 cb_at(const Plane *p, u32 x, u32 y) { return GRKU_BYTES(p->c + y * p->pitch + (x & ~1U))[0]; }
+static u32 cr_at(const Plane *p, u32 x, u32 y) { return GRKU_BYTES(p->c + y * p->pitch + (x & ~1U) + 1)[0]; }
 
 static PictureSet one(Plane p, u32 mono)
 {
-    PictureSet set = {{p}, 1, 0, mono, grkit_test_scratch, 0};
+    PictureSet set = {{p}, 1, 0, mono, grku_test_scratch, 0};
     return set;
 }
 
@@ -34,11 +34,11 @@ int main(void)
 {
     /* The descriptor: STRENGTH (4 values), MIST (3) and STREAK (3), a page
        with its settings rows, and one filter. */
-    assert(grkit_module.setting_count == 3 && grkit_module.settings[0].values == 4 &&
-           grkit_module.settings[1].values == 3 && grkit_module.settings[2].values == 3);
-    assert(grkit_module.registration_count == 2 && grkit_module.tile_count == 4);
-    assert(SETTING_STRENGTH == GRKIT_SETTING(0) && SETTING_MIST == GRKIT_SETTING(1) &&
-           SETTING_STREAK == GRKIT_SETTING(2));
+    assert(grku_module.setting_count == 3 && grku_module.settings[0].values == 4 &&
+           grku_module.settings[1].values == 3 && grku_module.settings[2].values == 3);
+    assert(grku_module.registration_count == 2 && grku_module.tile_count == 4);
+    assert(SETTING_STRENGTH == GRKU_SETTING(0) && SETTING_MIST == GRKU_SETTING(1) &&
+           SETTING_STREAK == GRKU_SETTING(2));
 
     /* The grids of the GR III pictures fit the scratch memory: 24 MP in cells
        of 32 pixels, the screennail in 16, the thumbnail in single pixels. */
@@ -76,11 +76,11 @@ int main(void)
     {
         Plane p = scene(600, 400, 300, 200, 6, 255, 128, 128);
         PictureSet set = one(p, 1);
-        grkit_test_settings[SETTING_STREAK] = 1;
+        grku_test_settings[SETTING_STREAK] = 1;
         diffusion_apply(&set, 2);
         assert(luma(&p, 320, 200) > 24);
         for (u32 x = 280; x < 340; ++x) assert(cb_at(&p, x, 200) == 128 && cr_at(&p, x, 200) == 128);
-        grkit_test_settings[SETTING_STREAK] = 0;
+        grku_test_settings[SETTING_STREAK] = 0;
     }
 
     /* Only the visible area changes. */
@@ -123,13 +123,13 @@ int main(void)
         for (u32 m = 0; m <= 2; ++m) {
             Plane p = scene(600, 400, 300, 200, 40, 200, 128, 128);
             PictureSet set = one(p, 0);
-            grkit_test_settings[SETTING_MIST] = m;
+            grku_test_settings[SETTING_MIST] = m;
             diffusion_apply(&set, 2);
             lift[m] = luma(&p, 40, 40);
             assert(cb_at(&p, 40, 40) == 128 && cr_at(&p, 40, 40) == 128);
         }
         assert(lift[0] == 20 && lift[1] > 20 && lift[2] > lift[1]);
-        grkit_test_settings[SETTING_MIST] = 0;
+        grku_test_settings[SETTING_MIST] = 0;
     }
 
     /* A small white light streaks sideways, not up or down; blue is blue and
@@ -137,26 +137,26 @@ int main(void)
     {
         Plane p = scene(1200, 400, 600, 200, 4, 255, 128, 128);
         PictureSet set = one(p, 0);
-        grkit_test_settings[SETTING_STREAK] = 1;
+        grku_test_settings[SETTING_STREAK] = 1;
         diffusion_apply(&set, 1);
         assert(luma(&p, 700, 200) > luma(&p, 600, 300) + 4);
         assert(cb_at(&p, 700, 200) > 130 && cr_at(&p, 700, 200) < 126);
         p = scene(1200, 400, 600, 200, 4, 255, 128, 128);
         set = one(p, 0);
-        grkit_test_settings[SETTING_STREAK] = 2;
+        grku_test_settings[SETTING_STREAK] = 2;
         diffusion_apply(&set, 1);
         assert(cb_at(&p, 700, 200) < 126 && cr_at(&p, 700, 200) > 130);
-        grkit_test_settings[SETTING_STREAK] = 0;
+        grku_test_settings[SETTING_STREAK] = 0;
     }
 
     /* A wide bright area makes no streak across the picture. */
     {
         Plane p = scene(1200, 400, 600, 200, 150, 255, 128, 128);
         PictureSet set = one(p, 0);
-        grkit_test_settings[SETTING_STREAK] = 1;
+        grku_test_settings[SETTING_STREAK] = 1;
         diffusion_apply(&set, 1);
         assert(cb_at(&p, 1150, 200) <= 130);
-        grkit_test_settings[SETTING_STREAK] = 0;
+        grku_test_settings[SETTING_STREAK] = 0;
     }
     return 0;
 }

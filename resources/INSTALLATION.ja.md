@@ -2,7 +2,7 @@
 
 RICOH GR III および GR III HDF ファームウェア 2.10 専用です。
 
-GRKU は試験的なソフトウェアで、保証はありません。GRKU に問題があると、カメラが起動中に止まることがあります。インストール前に[復旧ガイド](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md)をお読みください。GRKU をインストールした時点で、[利用規約](https://github.com/botnick/GRKit/blob/main/resources/TERMS.md)に同意したものとみなされます。
+GRKU は試験的なソフトウェアで、保証はありません。GRKU に問題があると、カメラが起動中に止まることがあります。インストール前に[復旧ガイド](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)をお読みください。GRKU をインストールした時点で、[利用規約](https://github.com/botnick/GRKU/blob/main/resources/TERMS.md)に同意したものとみなされます。
 
 ## インストール
 
@@ -23,7 +23,7 @@ GRKU は試験的なソフトウェアで、保証はありません。GRKU に�
 
 電源を入れて数秒後、撮影画面の上部に **GRKU** が表示されたら読み込み完了です。インストールやアップデート後の最初の起動では少し時間がかかります。読み込みが終わる前に撮った写真には、GRKU の効果は付きません。撮影モードで ADJ レバーを押し込み、6 番目の項目 GRKU を選びます。
 
-![GRKU のページに、モジュールの一覧と現在のエフェクトが表示されています。](images/grkit-root.jpg)
+![GRKU のページに、モジュールの一覧と現在のエフェクトが表示されています。](images/grku-root.jpg)
 
 写真：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)、[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)。
 
@@ -48,7 +48,7 @@ GRKU は試験的なソフトウェアで、保証はありません。GRKU に�
 3. 新しいパッケージの `SD_ROOT` にある `SCRIPT` フォルダーを SD カードのルートにコピーします。
 4. カメラを通常どおり起動します。MENU を押す必要はありません。
 
-設定とエフェクトは `GRKU` フォルダーに保存されるので、アップデート後も残ります。GRKit から GRKU へ移行する場合は、grku.app を使ってください。設定とエフェクトが引き継がれます。どちらも同じ `GRKU` フォルダーに保存するためです。
+設定とエフェクトは `GRKU` フォルダーに保存されるので、アップデート後も残ります。GRKU から GRKU へ移行する場合は、grku.app を使ってください。設定とエフェクトが引き継がれます。どちらも同じ `GRKU` フォルダーに保存するためです。
 
 ## トラブルシューティング
 
@@ -65,7 +65,7 @@ GRKU は試験的なソフトウェアで、保証はありません。GRKU に�
 
 1. 電源を入れて、撮影画面の上部に **GRKU** が表示されるまで数秒待ちます。
 2. カードのルートに `SCRIPT` フォルダーがあることを確認します。
-3. カードに `SCRIPT/GRKU/INSTALL.ERR` がある場合は、カメラのメニューで、パッケージがカメラのファームウェアのバージョンに合っていることを確認します。合っている場合は、`INSTALL.ERR`、`GRKU/REPORT.TXT`、`GRKU/BOOT.TXT`（ある場合）を添えて[デバイスレポート](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)を送ってください。
+3. カードに `SCRIPT/GRKU/INSTALL.ERR` がある場合は、カメラのメニューで、パッケージがカメラのファームウェアのバージョンに合っていることを確認します。合っている場合は、`INSTALL.ERR`、`GRKU/REPORT.TXT`、`GRKU/BOOT.TXT`（ある場合）を添えて[デバイスレポート](https://github.com/botnick/GRKU/issues/new?template=device-report.yml)を送ってください。
 4. GRKU は Ricoh の公式ファームウェアでのみ動作します。
 
 ### カードをフォーマットした後、GRKU が動かない
@@ -85,6 +85,6 @@ SD スクリプトの設定はオンのままです。オフにするには：
 3. カードを入れます。MENU ボタンを押したまま電源を入れ、電源が自動で切れるまで待ちます。
 4. カードのルートから `00078350.588` と `DEVELOP.MOD` を削除します。
 
-起動の途中でカメラが止まった場合は、[復旧ガイド](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md)を参照してください。
+起動の途中でカメラが止まった場合は、[復旧ガイド](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)を参照してください。
 
-GRKU は Ricoh と提携していません。ソースコードとライセンス：https://github.com/botnick/GRKit
+GRKU は Ricoh と提携していません。ソースコードとライセンス：https://github.com/botnick/GRKU

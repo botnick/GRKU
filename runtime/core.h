@@ -1,5 +1,5 @@
-#ifndef GRKIT_CORE_H
-#define GRKIT_CORE_H
+#ifndef GRKU_CORE_H
+#define GRKU_CORE_H
 /* The types and services that the components of the core share: the menu
    pages (runtime/modules.h), the overlay surface, and the planes of recorded
    pictures. It holds no firmware address: the components and the target
@@ -11,7 +11,7 @@ typedef unsigned short u16;
 typedef unsigned char u8;
 typedef short s16;
 /* A service or handler that a component or target may not use. */
-#define GRKIT_MAYBE_UNUSED __attribute__((unused))
+#define GRKU_MAYBE_UNUSED __attribute__((unused))
 
 /* Memory access. Host tests map these to their own buffers. */
 #ifndef WORD
@@ -26,26 +26,26 @@ typedef short s16;
 
 /* ---- menu.page ------------------------------------------------------------ */
 
-/* Private menu levels (GRKIT_HOST_MENU_LEVEL). */
+/* Private menu levels (GRKU_HOST_MENU_LEVEL). */
 #define MENU_ROOT 1U
 #define MENU_MODULE 2U
-/* Icon results of a page: Off, the GRKit tile of the ADJ toolbar, the icon of
-   effect n, or a module tile (GRKIT_ICON_MODULE_TILE). */
-#define GRKIT_ICON_OFF 0x7fffU
-#define GRKIT_ICON_GRKIT 0x7ffeU
-#define GRKIT_ICON_EFFECT(n) (0x8000U+(n))
-/* Core live-view label n in the status row (icon kind GRKIT_ICON_LABEL). */
-#define GRKIT_ICON_CORE_LABEL(n) (0x7f00U+(n))
+/* Icon results of a page: Off, the GRKU tile of the ADJ toolbar, the icon of
+   effect n, or a module tile (GRKU_ICON_MODULE_TILE). */
+#define GRKU_ICON_OFF 0x7fffU
+#define GRKU_ICON_GRKU 0x7ffeU
+#define GRKU_ICON_EFFECT(n) (0x8000U+(n))
+/* Core live-view label n in the status row (icon kind GRKU_ICON_LABEL). */
+#define GRKU_ICON_CORE_LABEL(n) (0x7f00U+(n))
 /* The Modules tile. The installer puts it after the Version tile, then the
-   Modules tile with a line through it (Enable GRKit Off). */
-#define GRKIT_ICON_MODULES 0x7ffcU
-#define GRKIT_ICON_MODULES_OFF 0x7ffbU
+   Modules tile with a line through it (Enable GRKU Off). */
+#define GRKU_ICON_MODULES 0x7ffcU
+#define GRKU_ICON_MODULES_OFF 0x7ffbU
 /* The Fn hint of a row where Fn turns a setting to its next value. The
    installer puts it after the Modules Off tile. */
-#define GRKIT_ICON_ROTATE 0x7ffaU
+#define GRKU_ICON_ROTATE 0x7ffaU
 
 /* One setting of a native settings page: its row label, its values (at most
-   SETTING_VALUES, grkit_core::runtime::NATIVE_SETTING_VALUES), the text of a
+   SETTING_VALUES, grku_core::runtime::NATIVE_SETTING_VALUES), the text of a
    value, and the stored value. */
 #define SETTING_VALUES 8U
 typedef struct {
@@ -64,7 +64,7 @@ typedef struct {
    for each listed module (runtime/manage.h). Its table entry has room for
    the controllers of five rows: a later row borrows the value page of
    another row (runtime/menu_settings.h: SETTINGS_ALIAS). */
-#define SUBMENU_ROWS GRKIT_SUBMENU_ROWS
+#define SUBMENU_ROWS GRKU_SUBMENU_ROWS
 _Static_assert(SETTING_ROWS<=SUBMENU_ROWS,"The submenu shows each row of a module");
 
 typedef struct {
@@ -95,13 +95,13 @@ typedef struct {
 
 /* Core services for pages. */
 /* One string of the menu text table in the menu language (runtime/abi.h). */
-GRKIT_MAYBE_UNUSED static const u16 *text(volatile u32 *h,u32 id);
+GRKU_MAYBE_UNUSED static const u16 *text(volatile u32 *h,u32 id);
 /* The Image Control summary of effect n in the menu language. */
-GRKIT_MAYBE_UNUSED static const u16 *effect_summary(volatile u32 *h,u32 n);
+GRKU_MAYBE_UNUSED static const u16 *effect_summary(volatile u32 *h,u32 n);
 /* ---- viewfinder.overlay --------------------------------------------------- */
 
 /* A 32-bit drawing surface of 720 x 480 pixels, red in the low byte and
-   alpha in the high byte (runtime/sdk/grkit.h). `area` is the capture
+   alpha in the high byte (runtime/sdk/grku.h). `area` is the capture
    area that the surface shows: 0 for the full 3:2 area, else the crop.
    `box` is its photo area {left, top, right, bottom}. */
 typedef struct {
@@ -110,9 +110,9 @@ typedef struct {
     u32 area;
     const u16 *box;
 } Surface;
-/* The module SDK (runtime/sdk/grkit.h) has the same Surface. A host test
+/* The module SDK (runtime/sdk/grku.h) has the same Surface. A host test
    that links module code into the core uses this one. */
-#define GRKIT_CORE_SURFACE 1
+#define GRKU_CORE_SURFACE 1
 /* The native live-view display that DISP selects. Full shows the top row
    of settings (effect and others), simple only the bottom row, no
    information neither, and display off turns the live view black. */
@@ -120,11 +120,11 @@ typedef struct {
 #define DISPLAY_SIMPLE 1U
 #define DISPLAY_NO_INFO 2U
 #define DISPLAY_OFF 3U
-GRKIT_MAYBE_UNUSED static u32 native_display(void);
-/* Live-view labels (GRKIT_LABELS): the load cue, then capture area n, then
-   the Date Imprint sign (LABEL_DATE in runtime/sdk/grkit.h), then the Date
+GRKU_MAYBE_UNUSED static u32 native_display(void);
+/* Live-view labels (GRKU_LABELS): the load cue, then capture area n, then
+   the Date Imprint sign (LABEL_DATE in runtime/sdk/grku.h), then the Date
    Imprint formats. */
-#define LABEL_GRKIT 0U
+#define LABEL_GRKU 0U
 /* The top of a label in the second row of the native live-view text. Its
    capitals then share the baseline of the focus distance, such as "2.5m". */
 #define LABEL_TOP 45U
@@ -134,7 +134,7 @@ GRKIT_MAYBE_UNUSED static u32 native_display(void);
 /* Draw a label with its top left at (left, top) in the style of the native
    live-view text: white Roboto Condensed Light with a black outline. A label
    that does not fit the surface draws nothing. */
-GRKIT_MAYBE_UNUSED static void overlay_label(const Surface *s,u32 label,u32 left,u32 top);
+GRKU_MAYBE_UNUSED static void overlay_label(const Surface *s,u32 label,u32 left,u32 top);
 #ifndef OVERLAY_PIXELS
 #define OVERLAY_PIXELS(address) ((volatile u32 *)(address))
 #endif
@@ -149,7 +149,7 @@ typedef struct { u32 y,c,width,height,pitch,half,left,top,right,bottom; } Plane;
 static inline u32 chroma_row(const Plane *p,u32 y) { return p->c+(p->half ? y>>1 : y)*p->pitch; }
 /* The deduplicated planes of one encode. `record` is the processing record of
    the shot, or 0 for native processing, and `mono` is set for a monochrome
-   record or a native monochrome Image Control type. `scratch` holds GRKIT_PICTURE_MASKS bytes for this call.
+   record or a native monochrome Image Control type. `scratch` holds GRKU_PICTURE_MASKS bytes for this call.
    `turns` is the quarter turns clockwise that show the picture upright.
    `shot` is the shot settings pointer of the encode (picture_shot); the SDK
    declares it as `reserved_shot`, which a module does not use. */
@@ -164,7 +164,7 @@ typedef struct {
 } PictureSet;
 /* Core services for the planes. */
 /* Unsigned division: the freestanding link has no division helper. */
-GRKIT_MAYBE_UNUSED static u32 core_divide(u32 n,u32 d);
+GRKU_MAYBE_UNUSED static u32 core_divide(u32 n,u32 d);
 /* The address of the scratch for direct access. Host tests remap it. */
 #ifndef PICTURE_MAP
 #define PICTURE_MAP(address) ((u8 *)(address))

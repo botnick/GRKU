@@ -54,14 +54,14 @@ picture_dng_rect:
 // Z=1 only for an owned record in r0. Preserves all registers.
 picture_owned:
     push {r0-r3, lr}
-    ldr r1, =GRKIT_HEADER_REFERENCE
-    ldr r2, [r1, #GRKIT_HOST_COUNT]
-    ldr r1, [r1, #GRKIT_HOST_RECORDS]
+    ldr r1, =GRKU_HEADER_REFERENCE
+    ldr r2, [r1, #GRKU_HOST_COUNT]
+    ldr r1, [r1, #GRKU_HOST_RECORDS]
     cmp r2, #0
     beq 2f
 1:  cmp r0, r1
     beq 3f
-    add r1, r1, #GRKIT_RECORD_SIZE
+    add r1, r1, #GRKU_RECORD_SIZE
     subs r2, r2, #1
     bne 1b
 2:  movs r3, #1
@@ -81,14 +81,14 @@ module_gamma_dirty:
     // saturation) and the YCbCr matrix (+7, the post matrix) on the next
     // update: their stages have already run. This hook runs only for
     // ImageTuningLiveview.
-    ldr r1, =GRKIT_HEADER_REFERENCE
-    ldr r2, [r1, #GRKIT_HOST_LIVE_RECORD]
-    str r0, [r1, #GRKIT_HOST_LIVE_RECORD]
+    ldr r1, =GRKU_HEADER_REFERENCE
+    ldr r2, [r1, #GRKU_HOST_LIVE_RECORD]
+    str r0, [r1, #GRKU_HOST_LIVE_RECORD]
     subs r2, r2, r0
     movne r2, #1
-    ldr r12, [r1, #GRKIT_HOST_PARAMETER_CHANGES]
-    ldr lr, [r1, #GRKIT_HOST_LIVE_PARAMETER_CHANGES]
-    str r12, [r1, #GRKIT_HOST_LIVE_PARAMETER_CHANGES]
+    ldr r12, [r1, #GRKU_HOST_PARAMETER_CHANGES]
+    ldr lr, [r1, #GRKU_HOST_LIVE_PARAMETER_CHANGES]
+    str r12, [r1, #GRKU_HOST_LIVE_PARAMETER_CHANGES]
     cmp r12, lr
     cmpne r0, #0
     movne r2, #1
@@ -121,7 +121,7 @@ dirty_resume:
    shot settings (r4 on GR IV, r5 on GR III); these hooks replace each load with
    the Grain level, and Off keeps the native value. The stage gate ignores grain
    for Standard, so the gate wrapper turns the stage on for any level. The gate
-   runs before the parameter build of the shot, so for a GRKit effect it reads
+   runs before the parameter build of the shot, so for a GRKU effect it reads
    the Shading and Clarity of the native type; the wrapper decides from the
    record instead (picture_gate_flag). Extra Strong (level 4) takes the native
    strong grain, and the amplitude hooks scale its tables by GRAIN_EXTRA / 256. */
@@ -134,11 +134,11 @@ dirty_resume:
 // CORE.GRAIN, as after a soft Off of Grain (runtime/manage.h), the level is
 // Off.
 grain_level:
-    ldr r3, =GRKIT_HEADER_REFERENCE
-    ldr r3, [r3, #GRKIT_HOST_CAPABILITIES]
-    tst r3, #GRKIT_CORE_GRAIN_BIT
-    ldrne r3, =GRKIT_HEADER_REFERENCE
-    ldrne r3, [r3, #GRKIT_HOST_GRAIN]
+    ldr r3, =GRKU_HEADER_REFERENCE
+    ldr r3, [r3, #GRKU_HOST_CAPABILITIES]
+    tst r3, #GRKU_CORE_GRAIN_BIT
+    ldrne r3, =GRKU_HEADER_REFERENCE
+    ldrne r3, [r3, #GRKU_HOST_GRAIN]
     subne r3, r3, #1
     mvneq r3, #0
     cmp r3, #3
@@ -173,8 +173,8 @@ grain_gate:
 // PipelineGrainSize applies only with a module that uses CORE.GRAIN_SIZE, so
 // the header word is set. Changes r1 and the flags.
 grain_size_of:
-    ldr r1, =GRKIT_HEADER_REFERENCE
-    ldr r1, [r1, #GRKIT_HOST_GRAIN_SIZE]
+    ldr r1, =GRKU_HEADER_REFERENCE
+    ldr r1, [r1, #GRKU_HOST_GRAIN_SIZE]
     sub r1, r1, #1
     cmp r1, #2
     movls r0, r1
@@ -272,8 +272,8 @@ grain_particle:
     ldr r0, [r5, #GRAIN_SV]
     bl grain_size_of
     add r0, r0, #1
-1:  ldr r1, =GRKIT_HEADER_REFERENCE
-    str r0, [r1, #GRKIT_HOST_GRAIN_SHOT]
+1:  ldr r1, =GRKU_HEADER_REFERENCE
+    str r0, [r1, #GRKU_HOST_GRAIN_SHOT]
 #endif
     bl grain_level
     ldrbhi r3, [r5, #0x795]
@@ -332,8 +332,8 @@ picture_capture_tone:
     ldreq pc, =HOOK_PICTURE_CAPTURE_TONE_TARGET
     mov r0, r1
     mov r1, #0
-    add r12, r12, #(GRKIT_RECORD_CODE & ~0xff)
-    ldrh r2, [r12, #(GRKIT_RECORD_CODE & 0xff)]
+    add r12, r12, #(GRKU_RECORD_CODE & ~0xff)
+    ldrh r2, [r12, #(GRKU_RECORD_CODE & 0xff)]
     ldr pc, =FW_IFD_SET_SHORT
 
 /* JPEG header setup of a write and of an in-camera rewrite: the BL to the
@@ -361,7 +361,7 @@ JPEG_HEADER_STUB picture_jpeg_header, HOOK_PICTURE_JPEG_HEADER_TARGET
 JPEG_HEADER_STUB picture_jpeg_rewrite, HOOK_PICTURE_JPEG_REWRITE_TARGET
 #endif
 
-/* Capture: the maker-note adjustments (tag 0x247) of a GRKit shot. Replaces
+/* Capture: the maker-note adjustments (tag 0x247) of a GRKU shot. Replaces
    the BL to the native fill: r0 = the setter + 8, r1 is the IFD entry, and r2
    the shot settings. The native fill runs first, and its result returns. */
 .global picture_capture_parameters

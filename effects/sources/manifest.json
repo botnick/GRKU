@@ -1,5 +1,5 @@
 {
- "schema": "grkit-effect-sources-v1",
+ "schema": "grku-effect-sources-v1",
  "generators": {
   "spektrafilm": {
    "repository": "https://github.com/andreavolpato/spektrafilm",
@@ -41,8 +41,8 @@
    "license_notice": "FOTUFILM_LICENSE.txt",
    "script": "bake_fotufilm.sh"
   },
-  "grkit": {
-   "repository": "https://github.com/botnick/GRKit",
+  "grku": {
+   "repository": "https://github.com/botnick/GRKU",
    "author": "GRKit contributors",
    "license": "MIT",
    "script": "make_positive_grii.py"
@@ -77,11 +77,11 @@
    "license": "upstream-changes"
   },
   "bake_spektrafilm.py": {
-   "sha256": "6237ca251e9b9362e108ee366b9ab6e74c48f305da0fb0bb0f92a1c0c53170b3",
+   "sha256": "5157349a211a4f906a9dc433590ee7e976c2d4a709b1bb43830b8de63cc0f39a",
    "license": "project"
   },
   "bake_spectral_film_lut.py": {
-   "sha256": "619fb336a7ff5595a2c354f24ecd45ebc753038be37801be1f9f54c24a602a39",
+   "sha256": "e99ec4c185ec3fbf17f306ac02c8b863cc41db3fbb9458630e80548228b89c26",
    "license": "project"
   },
   "PATDAVID_LICENSE.txt": {
@@ -93,7 +93,7 @@
    "sha256": "18ff77c7210e8eeb714f92d157b8abb3d948b42b6c20e7cd2198ead7ed822ecf"
   },
   "bake_fotufilm.sh": {
-   "sha256": "02fd2bba6525306cefac7fa91deace9959fa6ffb95d0eba6c774394173f3473b"
+   "sha256": "50e7afff95c9bea824478ff832baa2a386f6fdeadd3a8861f099b1813215751c"
   },
   "make_positive_grii.py": {
    "sha256": "b0037354d6e7ee13a23809b34fa92ca587de290a09e5e9173743b739c8f87bfb"
@@ -638,7 +638,7 @@
    "sha256": "b00d80ceb876c28912d619f2a6f6ad9dc1cf7d58cb0e729738039793174ba800"
   },
   "positive-film-grii-v1.png": {
-   "generator": "grkit",
+   "generator": "grku",
    "sha256": "0fa03747bb3f9a2f47147f0ce3267d43512c469b5a47438d333455a35d74e1e9",
    "script": "make_positive_grii.py"
   },

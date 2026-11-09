@@ -1,7 +1,7 @@
-/* The host test of Border (grkit module test): the edge of each style on a
+/* The host test of Border (grku module test): the edge of each style on a
    640 x 480 plane and on a cropped visible area. */
 #include <assert.h>
-#include "grkit_module.h"
+#include "grku_module.h"
 
 void border_apply(PictureSet *set, u32 style);
 u32 border_thickness(const Plane *p, u32 style);
@@ -11,31 +11,31 @@ u32 border_thickness(const Plane *p, u32 style);
 
 static Plane plane(void)
 {
-    Plane p = {GRKIT_TEST_PLANES, GRKIT_TEST_PLANES + W * H, W, H, W, 0, 0, 0, W, H};
+    Plane p = {GRKU_TEST_PLANES, GRKU_TEST_PLANES + W * H, W, H, W, 0, 0, 0, W, H};
     return p;
 }
 
 static void fill(u8 luma, u8 cb, u8 cr)
 {
-    for (u32 i = 0; i < W * H; ++i) *grkit_test_bytes(GRKIT_TEST_PLANES + i) = luma;
+    for (u32 i = 0; i < W * H; ++i) *grku_test_bytes(GRKU_TEST_PLANES + i) = luma;
     for (u32 i = 0; i < W * H; i += 2) {
-        *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + i) = cb;
-        *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + i + 1) = cr;
+        *grku_test_bytes(GRKU_TEST_PLANES + W * H + i) = cb;
+        *grku_test_bytes(GRKU_TEST_PLANES + W * H + i + 1) = cr;
     }
 }
 
-static u8 luma(u32 x, u32 y) { return *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x); }
-static u8 chroma(u32 x, u32 y, u32 k) { return *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + (x & ~1U) + k); }
+static u8 luma(u32 x, u32 y) { return *grku_test_bytes(GRKU_TEST_PLANES + y * W + x); }
+static u8 chroma(u32 x, u32 y, u32 k) { return *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + (x & ~1U) + k); }
 
 int main(void)
 {
     PictureSet set;
     /* The descriptor: STYLE with 5 values, a page, and one frame-stage filter. */
-    assert(grkit_module.setting_count == 1 && grkit_module.settings[0].values == 5);
-    assert(grkit_module.tile_count == 5 && SETTING_STYLE == GRKIT_SETTING(0));
-    assert(grkit_module.registration_count == 2);
+    assert(grku_module.setting_count == 1 && grku_module.settings[0].values == 5);
+    assert(grku_module.tile_count == 5 && SETTING_STYLE == GRKU_SETTING(0));
+    assert(grku_module.registration_count == 2);
 
-    set.count = 1; set.mono = 0; set.scratch = grkit_test_scratch; set.turns = 0;
+    set.count = 1; set.mono = 0; set.scratch = grku_test_scratch; set.turns = 0;
     set.planes[0] = plane();
     /* White, thin: 3% of 640 is 19 pixels, luma 255 and neutral chroma. */
     fill(100, 90, 160);

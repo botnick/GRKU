@@ -84,7 +84,7 @@ done:
         pop     {r4-r8, pc}
         .ltorg
 name:   .asciz FAST_PATH
-failed: .asciz "GRKit: the fast-boot file is not complete\n"
+failed: .asciz "GRKU: the fast-boot file is not complete\n"
         .balign 4
 /* The status word: SCAN or INSTALL writes its status here, in the script
    array, for the loader (runtime::FAST_STATUS_OFFSET). It keeps this value

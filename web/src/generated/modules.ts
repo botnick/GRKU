@@ -1,6 +1,6 @@
-// Generated from crates/grkit-core/src/modules.rs. Do not edit: change the
+// Generated from crates/grku-core/src/modules.rs. Do not edit: change the
 // list there, then run
-// GRKIT_UPDATE_GENERATED=1 cargo test -p grkit-core --test generated.
+// GRKU_UPDATE_GENERATED=1 cargo test -p grku-core --test generated.
 
 /** The official modules in menu order. `needsEffects`: the module shows only with effects. */
 export const OFFICIAL_MODULES = [

@@ -15,7 +15,7 @@ import {
   cardStarted,
   readCard,
   versionMarker,
-  removeGrkit,
+  removeGrku,
   removeModesetFiles,
   writeFiles,
   type CardDirectory,
@@ -166,7 +166,7 @@ describe('readCard', () => {
     });
   });
 
-  it('tells GRKit 1.2, no GRKit, and another folder apart', async () => {
+  it('tells GRKit 1.2, no GRKU, and another folder apart', async () => {
     const legacy = new Folder('NO NAME');
     await legacy.put('SCRIPT/PLUGINS/PLUGINS.TTL', 'old');
     await legacy.put('SCRIPT/STARTUP.TTL', 'old');
@@ -249,7 +249,7 @@ describe('planChanges', () => {
   it('compares the card with the selection', async () => {
     const state = await readCard(await current());
     expect(planChanges(state, '1.3.0', ['GUIDES'], effects(state, ['AAAAAAAA.GRF']))).toEqual({
-      grkit: 'same',
+      grku: 'same',
       scriptsOn: false,
       cleanLegacy: false,
       addModules: [],
@@ -260,7 +260,7 @@ describe('planChanges', () => {
     });
     const changes = planChanges(state, '1.3.1', ['DATE'], effects(state, ['CCCCCCCC.GRF']));
     expect(changes).toEqual({
-      grkit: 'update',
+      grku: 'update',
       scriptsOn: false,
       cleanLegacy: false,
       addModules: ['DATE'],
@@ -289,12 +289,12 @@ describe('planChanges', () => {
     expect(removed.updateEffects).toEqual([]);
   });
 
-  it('installs on a card without GRKit', async () => {
+  it('installs on a card without GRKU', async () => {
     const empty = new Folder('CARD');
     await empty.put('DCIM/100RICOH/R0000001.JPG', 'jpeg');
     const emptyState = await readCard(empty);
     expect(planChanges(emptyState, '1.3.0', ['GUIDES'], effects(emptyState, ['AAAAAAAA.GRF']))).toMatchObject({
-      grkit: 'install',
+      grku: 'install',
       addModules: ['GUIDES'],
       addEffects: ['AAAAAAAA.GRF'],
     });
@@ -308,7 +308,7 @@ describe('planChanges', () => {
     // Without PLUGINS.TXT, GRKit 1.2 installs each plugin.
     expect(cardModules(state)).toEqual(['FILMLOOK', 'FRAMING', 'GUIDES', 'DATE', 'GRAIN']);
     expect(planChanges(state, '1.3.0', ['FILMLOOK', 'GUIDES'], effects(state, ['CCCCCCCC.GRF']))).toEqual({
-      grkit: 'update',
+      grku: 'update',
       scriptsOn: false,
       cleanLegacy: false,
       addModules: [],
@@ -320,15 +320,15 @@ describe('planChanges', () => {
   });
 
   it('reads the version of the installer files before the first power-on', async () => {
-    expect(versionMarker(bytes('\0GRKit 1.3.0-test\0GRKit did not\0'))).toBe('1.3.0-test');
+    expect(versionMarker(bytes('\0GRKit 1.3.0-test\0GRKU did not\0'))).toBe('1.3.0-test');
     const card = await current();
     // A newer package, copied after the last power-on.
     await card.put('SCRIPT/GRKU/CORE.BIN', '\0GRKit 1.3.1\0');
     const state = await readCard(card);
     expect(state.version).toBe('1.3.1');
     expect(cardStarted(state)).toBe(false);
-    expect(planChanges(state, '1.3.1', ['GUIDES'], null).grkit).toBe('same');
-    expect(planChanges(state, '1.3.0', ['GUIDES'], null).grkit).toBe('update');
+    expect(planChanges(state, '1.3.1', ['GUIDES'], null).grku).toBe('same');
+    expect(planChanges(state, '1.3.0', ['GUIDES'], null).grku).toBe('update');
   });
 
   it('turns SD scripts back on, and deletes GRKit 1.2 after GRKit 1.3 moved its effects', async () => {
@@ -336,7 +336,7 @@ describe('planChanges', () => {
     await card.put('00078350.588', '[SCRIPT_EN_MODE DIS]\r\n');
     await card.put('SCRIPT/PLUGINS/EFFECTS/AAAAAAAA.GRF', 'a');
     const changes = planChanges(await readCard(card), '1.3.0', ['GUIDES'], null);
-    expect(changes).toMatchObject({ grkit: 'same', scriptsOn: true, cleanLegacy: true });
+    expect(changes).toMatchObject({ grku: 'same', scriptsOn: true, cleanLegacy: true });
     expect(hasChanges(changes)).toBe(true);
 
     // Before the first power-on of GRKit 1.3, the 1.2 folder stays for the migration.
@@ -439,7 +439,7 @@ describe('applyChanges', () => {
     expect(card.text('GRKU/EFFECTS/AAAAAAAA.GRF')).toBe('a');
   });
 
-  it('writes the ModeSet files on a card without GRKit', async () => {
+  it('writes the ModeSet files on a card without GRKU', async () => {
     const card = new Folder('CARD');
     await card.put('DCIM/100RICOH/R0000001.JPG', 'jpeg');
     card.log.length = 0;
@@ -451,13 +451,13 @@ describe('applyChanges', () => {
   });
 });
 
-describe('removeGrkit', () => {
-  it('removes GRKit and keeps the photos, the other scripts, and the settings', async () => {
+describe('removeGrku', () => {
+  it('removes GRKU and keeps the photos, the other scripts, and the settings', async () => {
     const card = await current();
     await card.put('SCRIPT/PLUGINS/PLUGINS.TTL', 'old');
     await card.put('SCRIPT/STARTUP.TTL', "include 'C:\\SCRIPT\\GRKU\\LOADER.TTL'\r\n");
     await card.put('SCRIPT/MINE.TTL', 'mine');
-    await removeGrkit(card, false);
+    await removeGrku(card, false);
     const tree = card.tree();
     const scripts = tree.filter((path) => path.startsWith('SCRIPT/') && path !== 'SCRIPT/');
     expect(scripts.filter((path) => !path.split('/').at(-1)!.startsWith('._'))).toEqual([
@@ -471,7 +471,7 @@ describe('removeGrkit', () => {
   it('removes an empty SCRIPT folder and, with the settings, the GRKU folder', async () => {
     const card = await current();
     await card.put('SCRIPT/STARTUP.TTL', "include 'C:\\SCRIPT\\PLUGINS\\PLUGINS.TTL'\r\n");
-    await removeGrkit(card, true);
+    await removeGrku(card, true);
     expect(card.tree().filter((path) => !path.split('/').at(-1)!.startsWith('._'))).toEqual([
       'DCIM/',
       'DCIM/100RICOH/',
@@ -479,10 +479,10 @@ describe('removeGrkit', () => {
     ]);
   });
 
-  it('keeps a STARTUP.TTL that is not the one of GRKit', async () => {
+  it('keeps a STARTUP.TTL that is not the one of GRKU', async () => {
     const card = await current();
     await card.put('SCRIPT/STARTUP.TTL', "include 'C:\\SCRIPT\\OTHER.TTL'\r\n");
-    await removeGrkit(card, false);
+    await removeGrku(card, false);
     expect(card.text('SCRIPT/STARTUP.TTL')).toContain('OTHER');
   });
 });
@@ -505,7 +505,7 @@ describe('the ModeSet files', () => {
 
 describe('the builds of the installers', () => {
   it('reads the build markers of GRKit 1.2 and 1.3 installers', async () => {
-    expect(buildMarkers(bytes('\0\0GRKIT_TARGET=gr4-1.20-0528\0x'))).toEqual(['gr4-1.20-0528']);
+    expect(buildMarkers(bytes('\0\0GRKU_TARGET=gr4-1.20-0528\0x'))).toEqual(['gr4-1.20-0528']);
     const legacy = new Folder('NO NAME');
     await legacy.put('SCRIPT/PLUGINS/PLUGINS.TTL', 'old');
     await legacy.put('SCRIPT/PLUGINS/INSTALL.BIN', '\0GRKIT_TARGET=gr4-1.11\0');
@@ -514,7 +514,7 @@ describe('the builds of the installers', () => {
     expect((await readCard(legacy)).builds).toEqual(['gr4-1.11', 'gr4-1.20']);
 
     const card = await current();
-    await card.put('SCRIPT/GRKU/CORE.BIN', '\0GRKIT_TARGET=gr3-2.10\0');
+    await card.put('SCRIPT/GRKU/CORE.BIN', '\0GRKU_TARGET=gr3-2.10\0');
     expect((await readCard(card)).builds).toEqual(['gr3-2.10']);
   });
 });
@@ -604,10 +604,10 @@ describe('a card of an earlier version, with SCRIPT/GRKIT and GRKIT', () => {
     });
     expect(state.report).toEqual({ version: '1.5.1', target: 'gr4-1.11' });
     expect(cardEffects(state)).toEqual(['GRKIT/EFFECTS/AAAAAAAA.GRF']);
-    expect(planChanges(state, '1.5.2', ['GUIDES'], null).grkit).toBe('update');
+    expect(planChanges(state, '1.5.2', ['GUIDES'], null).grku).toBe('update');
   });
 
-  it('a write puts the package in SCRIPT/GRKU, removes SCRIPT/GRKIT, and adds effects to that data folder', async () => {
+  it('a write puts the package in SCRIPT/GRKU, removes SCRIPT/GRKIT, and moves the data folder to GRKU', async () => {
     const card = await old();
     const state = await readCard(card);
     await applyChanges(card, state, packageFiles(['GUIDES'], ['AAAAAAAA.GRF']), {
@@ -618,13 +618,28 @@ describe('a card of an earlier version, with SCRIPT/GRKIT and GRKIT', () => {
     expect(tree).toContain('SCRIPT/GRKU/LOADER.TTL');
     expect(tree).toContain('SCRIPT/GRKU/MODULES/GUIDES.GRM');
     expect(tree.filter((path) => path.toUpperCase().startsWith('SCRIPT/GRKIT'))).toEqual([]);
-    expect(tree).toContain('GRKIT/EFFECTS/BBBBBBBB.GRF');
-    expect(tree).toContain('GRKIT/REPORT.TXT');
+    expect(tree).toContain('GRKU/EFFECTS/AAAAAAAA.GRF');
+    expect(tree).toContain('GRKU/EFFECTS/BBBBBBBB.GRF');
+    expect(tree).toContain('GRKU/REPORT.TXT');
+    expect(tree.filter((path) => path.toUpperCase().startsWith('GRKIT'))).toEqual([]);
   });
 
-  it('removeGrkit takes the old folders too', async () => {
+  it('a write removes a GRKIT next to a GRKU, and keeps GRKU as it is', async () => {
     const card = await old();
-    await removeGrkit(card, true);
+    await card.put('GRKU/EFFECTS/CCCCCCCC.GRF', 'c');
+    await card.put('GRKU/REPORT.TXT', 'GRKU 1.5.2 (gr4-1.11)\r\n');
+    const state = await readCard(card);
+    expect(state.dataFolder).toBe('GRKU');
+    await applyChanges(card, state, packageFiles(['GUIDES'], ['AAAAAAAA.GRF']), { add: [], remove: [] });
+    const tree = card.tree();
+    expect(tree).toContain('GRKU/EFFECTS/CCCCCCCC.GRF');
+    expect(tree).not.toContain('GRKU/EFFECTS/AAAAAAAA.GRF');
+    expect(tree.filter((path) => path.toUpperCase().startsWith('GRKIT'))).toEqual([]);
+  });
+
+  it('removeGrku takes the old folders too', async () => {
+    const card = await old();
+    await removeGrku(card, true);
     const tree = card.tree();
     expect(tree.filter((path) => /GRK/i.test(path) || path.startsWith('SCRIPT'))).toEqual([]);
     expect(tree).toContain('DCIM/100RICOH/R0000001.JPG');

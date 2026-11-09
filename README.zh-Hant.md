@@ -1,17 +1,17 @@
 # GRKU · BOTNICK edition
 
-GRKU 由 **BOTNICK** 製作，是 ahonn 的 [GRKit](https://github.com/ahonn/GRKit) 分支：內建 135 底片庫與擬真的底片盒圖示、Positive GRII 風格、彩色選單方塊、Border、Light Leak 與 Diffusion 模組、以英尺為單位的 Snap 對焦距離、載入更快的一次性啟動，且不使用快速啟動韌體。GRKU 只是記憶卡上的一個腳本：格式化記憶卡，相機就恢復原狀。
+GRKU 由 **BOTNICK** 製作，是 ahonn 的 [GRKU](https://github.com/ahonn/GRKit) 分支：內建 135 底片庫與擬真的底片盒圖示、Positive GRII 風格、彩色選單方塊、Border、Light Leak 與 Diffusion 模組、以英尺為單位的 Snap 對焦距離、載入更快的一次性啟動，且不使用快速啟動韌體。GRKU 只是記憶卡上的一個腳本：格式化記憶卡，相機就恢復原狀。
 
 [English](README.md) | [简体中文](README.zh-Hans.md) | 繁體中文 | [日本語](README.ja.md) | [한국어](README.ko.md) | [ไทย](README.th.md)
 
-[![Tests](https://github.com/botnick/GRKit/actions/workflows/tests.yml/badge.svg)](https://github.com/botnick/GRKit/actions/workflows/tests.yml)
+[![Tests](https://github.com/botnick/GRKU/actions/workflows/tests.yml/badge.svg)](https://github.com/botnick/GRKU/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 GRKU 為 RICOH GR III、GR IIIx 與 GR IV 加上底片風格、XPan 等裁切比例、日期戳記、光暈、漏光、柔光、顆粒與邊框。它從記憶卡執行，絕不寫入韌體。拔出記憶卡，相機就恢復原狀。
 
 <p>
-  <img src="resources/images/grkit-root.zh-Hant.jpg" alt="ADJ 選單中的 GRKU 頁面" width="49%">
-  <img src="resources/images/grkit-menu.zh-Hant.jpg" alt="MENU 自訂頁中的 GRKU 小節" width="49%">
+  <img src="resources/images/grku-root.zh-Hant.jpg" alt="ADJ 選單中的 GRKU 頁面" width="49%">
+  <img src="resources/images/grku-menu.zh-Hant.jpg" alt="MENU 自訂頁中的 GRKU 小節" width="49%">
 </p>
 
 照片：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)，[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)。
@@ -36,7 +36,7 @@ GRKU 為 RICOH GR III、GR IIIx 與 GR IV 加上底片風格、XPan 等裁切比
 
 開機後 GRKU 需要約 9 秒載入，安裝或更新後的第一次開機會更久。在這之前相機使用原本的設定。完整設定在 MENU 自訂頁最後的 GRKU 小節。想自己寫模組，請見 [Writing a module](docs/modules.md)。
 
-GRKU 沒有快速啟動韌體，未來也不會有：相機本身的韌體維持 Ricoh 出廠時的狀態，GRKU 只是記憶卡上的一支腳本，格式化記憶卡即可移除。這個分支的[單次啟動](docs/one-shot-start.md)機制，讓它在官方韌體上比 GRKit 載入得更快。
+GRKU 沒有快速啟動韌體，未來也不會有：相機本身的韌體維持 Ricoh 出廠時的狀態，GRKU 只是記憶卡上的一支腳本，格式化記憶卡即可移除。這個分支的[單次啟動](docs/one-shot-start.md)機制，讓它在官方韌體上比 GRKU 載入得更快。
 
 ## 支援機型
 
@@ -47,7 +47,7 @@ GRKU 沒有快速啟動韌體，未來也不會有：相機本身的韌體維持
 | GR IV、GR IV HDF | 1.11、1.20 | — |
 | GR IV Monochrome | 1.00 | 1.10 |
 
-此表來自 GRKit。此分支的修改已在韌體 1.11 的 GR IV 上執行過；GR III 與 GR IIIx 的安裝包由相同的程式碼建置，但尚未在這些相機上實際執行，而最新的模組（Light Leak、Diffusion、Border）與英尺標示也仍在等待首次實機測試。GR IV Monochrome 不含底片風格。其他機型與韌體版本目前不支援。如果 GRKU 在支援的相機上無法載入，請參考[韌體匯出指南](resources/DUMP.zh-Hant.md)。
+此表來自 GRKU。此分支的修改已在韌體 1.11 的 GR IV 上執行過；GR III 與 GR IIIx 的安裝包由相同的程式碼建置，但尚未在這些相機上實際執行，而最新的模組（Light Leak、Diffusion、Border）與英尺標示也仍在等待首次實機測試。GR IV Monochrome 不含底片風格。其他機型與韌體版本目前不支援。如果 GRKU 在支援的相機上無法載入，請參考[韌體匯出指南](resources/DUMP.zh-Hant.md)。
 
 > [!WARNING]
 > GRKU 仍是實驗性專案，使用風險請自行承擔。
@@ -64,29 +64,29 @@ GRKU 沒有快速啟動韌體，未來也不會有：相機本身的韌體維持
 
 只有第一次需要按住 MENU 開機。用 ZIP 更新時，替換卡中的 `SCRIPT` 資料夾即可，設定會保留在 `GRKU` 裡。格式化記憶卡會刪除 GRKU，格式化前請先把 `GRKU` 複製到電腦。
 
-GRKU 沒有出現時，請在 [issue](https://github.com/botnick/GRKit/issues/new) 中附上 `GRKU/REPORT.TXT`、`GRKU/BOOT.TXT` 和 `SCRIPT/GRKU/INSTALL.ERR`（如果有）。[這些檔案每一行的意義](docs/diagnostics.md)。
+GRKU 沒有出現時，請在 [issue](https://github.com/botnick/GRKU/issues/new) 中附上 `GRKU/REPORT.TXT`、`GRKU/BOOT.TXT` 和 `SCRIPT/GRKU/INSTALL.ERR`（如果有）。[這些檔案每一行的意義](docs/diagnostics.md)。
 
 ## 從原始碼建置
 
 需要 Rust 1.92 以上版本、支援 ARM 的 Clang 與 LLD，以及理光官方韌體檔案（儲存庫不含韌體）。
 
 ```sh
-cargo install --path crates/grkit-cli --locked
-grkit effects build --source effects --out build/effects
-grkit build --target gr3-2.10 --firmware firmware/fwdc239b.bin --out build/runtime
-for module in modules/*/; do grkit module build --dir "$module" --out "build/modules/$(basename "$module").GRM"; done
+cargo install --path crates/grku-cli --locked
+grku effects build --source effects --out build/effects
+grku build --target gr3-2.10 --firmware firmware/fwdc239b.bin --out build/runtime
+for module in modules/*/; do grku module build --dir "$module" --out "build/modules/$(basename "$module").GRM"; done
 sh .github/scripts/install-guide-tools.sh build/guide-tools
-sh .github/scripts/build-guides.sh grkit build/guide-tools build/guides
-grkit package --build build/runtime --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
+sh .github/scripts/build-guides.sh grku build/guide-tools build/guides
+grku package --build build/runtime --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
   --guide build/guides/gr3/en.pdf --out dist/GRKU-gr3.zip
-grkit verify dist/GRKU-gr3.zip
+grku verify dist/GRKU-gr3.zip
 ```
 
 `build/effects` 包含全部 135 種風格；一個安裝包最多只能放入 40 種，因此用 `python3 -I scripts/defaults.py build/effects build/effects-default` 從 `effects/defaults.txt` 選出 40 種作為 `--effects` 參數。GR IV 請建置 `gr4-1.11` 與 `gr4-1.20`，並以 `--camera gr4` 將兩者打包。其他機型、部分模組或其他語言的指南，請見 [Build packages](CONTRIBUTING.md#build-packages) 與 [HANDOFF.md](HANDOFF.md)。
 
 ## 參與貢獻
 
-請見 [CONTRIBUTING.md](CONTRIBUTING.md)。不論 GRKU 能不能用，都歡迎提交裝置回報，尤其是 GR III 與 GR IIIx，這個分支尚未在這些機型上執行過。遇到問題、有功能想法或疑問，請提交 [issues](https://github.com/botnick/GRKit/issues)。對 GRKit 本身有用的修改，請以 pull request 提交到上游。
+請見 [CONTRIBUTING.md](CONTRIBUTING.md)。不論 GRKU 能不能用，都歡迎提交裝置回報，尤其是 GR III 與 GR IIIx，這個分支尚未在這些機型上執行過。遇到問題、有功能想法或疑問，請提交 [issues](https://github.com/botnick/GRKU/issues)。對 GRKU 本身有用的修改，請以 pull request 提交到上游。
 
 ## 文件
 
@@ -97,14 +97,14 @@ grkit verify dist/GRKU-gr3.zip
 - [效果](effects/README.md)與預設 40 款背後的 [2026 年熱門底片](docs/popular-films-2026.md)
 - [網站](web/README.md)與[品牌規範](docs/brand.md)
 - 此分支的[路線圖](docs/roadmap.md)與[交接文件](HANDOFF.md)
-- 來自 GRKit：[快速啟動韌體](docs/fastboot.md)（GRKU 未使用）與[發布流程](docs/releasing.md)
+- 來自 GRKU：[快速啟動韌體](docs/fastboot.md)（GRKU 未使用）與[發布流程](docs/releasing.md)
 
 ## 授權
 
-程式碼採用 [MIT 授權條款](LICENSE)。GRKU 以 ahonn 的 [GRKit](https://github.com/ahonn/GRKit) 為基礎，同樣採用 MIT 授權，並保留其聲明。每個安裝包都附有 `LICENSES.md`，列出包內檔案的授權。
+程式碼採用 [MIT 授權條款](LICENSE)。GRKU 以 ahonn 的 [GRKU](https://github.com/ahonn/GRKit) 為基礎，同樣採用 MIT 授權，並保留其聲明。每個安裝包都附有 `LICENSES.md`，列出包內檔案的授權。
 
 - 效果採用 CC BY-SA 4.0、MIT 或 Apache-2.0 授權，詳見 [effects/NOTICE.md](effects/NOTICE.md)。
-- 選單與取景畫面的文字使用 [Roboto Condensed](https://github.com/googlefonts/roboto-classic) 字型，採用 [SIL Open Font License 1.1](crates/grkit-core/assets/RobotoCondensed-LICENSE.txt)。
-- 效果擬合方法移植自 [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods)，採用 [MIT 授權條款](crates/grkit-core/GR3_FILM_MODS_LICENSE.txt)。
+- 選單與取景畫面的文字使用 [Roboto Condensed](https://github.com/googlefonts/roboto-classic) 字型，採用 [SIL Open Font License 1.1](crates/grku-core/assets/RobotoCondensed-LICENSE.txt)。
+- 效果擬合方法移植自 [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods)，採用 [MIT 授權條款](crates/grku-core/GR3_FILM_MODS_LICENSE.txt)。
 
-RICOH 與 GR 是 Ricoh Company, Ltd. 的商標，底片名稱是各自所有者的商標。GRKU 是獨立專案，與理光、GRKit 作者及任何底片廠商皆無關聯。
+RICOH 與 GR 是 Ricoh Company, Ltd. 的商標，底片名稱是各自所有者的商標。GRKU 是獨立專案，與理光、GRKU 作者及任何底片廠商皆無關聯。

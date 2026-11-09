@@ -1,10 +1,10 @@
 # GRKU
 
-[English](https://github.com/botnick/GRKit/blob/main/README.md) | [日本語](https://github.com/botnick/GRKit/blob/main/README.ja.md) | 한국어
+[English](https://github.com/botnick/GRKU/blob/main/README.md) | [日本語](https://github.com/botnick/GRKU/blob/main/README.ja.md) | 한국어
 
 RICOH GR III 및 GR III HDF 펌웨어 2.10 전용입니다.
 
-GRKU는 실험적이며 보증이 없습니다. GRKU가 실패하면 카메라가 시작 중에 멈출 수 있습니다. 설치하기 전에 [복구 가이드](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md)를 읽어 주십시오. GRKU를 설치하면 [이용 약관](https://github.com/botnick/GRKit/blob/main/resources/TERMS.md)에 동의하는 것입니다.
+GRKU는 실험적이며 보증이 없습니다. GRKU가 실패하면 카메라가 시작 중에 멈출 수 있습니다. 설치하기 전에 [복구 가이드](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)를 읽어 주십시오. GRKU를 설치하면 [이용 약관](https://github.com/botnick/GRKU/blob/main/resources/TERMS.md)에 동의하는 것입니다.
 
 ## 설치
 
@@ -25,7 +25,7 @@ GRKU는 실험적이며 보증이 없습니다. GRKU가 실패하면 카메라�
 
 전원을 켜고 몇 초 뒤 촬영 화면 위쪽에 **GRKU**이 표시되면 불러오기가 끝난 것입니다. 설치나 업데이트 후 처음 켤 때는 조금 더 걸립니다. 불러오기가 끝나기 전에 찍은 사진에는 GRKU 효과가 적용되지 않습니다. 촬영 모드에서 ADJ 레버를 누르고 여섯 번째 항목인 GRKU을 선택합니다.
 
-![GRKU 페이지에 모듈 목록과 현재 효과가 표시되어 있습니다.](images/grkit-root.jpg)
+![GRKU 페이지에 모듈 목록과 현재 효과가 표시되어 있습니다.](images/grku-root.jpg)
 
 사진: [MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/), [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
@@ -50,7 +50,7 @@ GRKU는 실험적이며 보증이 없습니다. GRKU가 실패하면 카메라�
 3. 새 패키지의 `SD_ROOT`에 있는 `SCRIPT` 폴더를 SD 카드 최상위에 복사합니다.
 4. 평소처럼 전원을 켭니다. MENU 버튼을 누를 필요는 없습니다.
 
-설정과 효과는 `GRKU` 폴더에 저장되므로 업데이트 후에도 남습니다. GRKit에서 GRKU으로 옮기려면 grku.app을 사용하세요. 설정과 효과가 유지됩니다. 둘 다 같은 `GRKU` 폴더에 저장하기 때문입니다.
+설정과 효과는 `GRKU` 폴더에 저장되므로 업데이트 후에도 남습니다. GRKU에서 GRKU으로 옮기려면 grku.app을 사용하세요. 설정과 효과가 유지됩니다. 둘 다 같은 `GRKU` 폴더에 저장하기 때문입니다.
 
 ## 문제 해결
 
@@ -67,7 +67,7 @@ GRKU는 실험적이며 보증이 없습니다. GRKU가 실패하면 카메라�
 
 1. 전원을 켜고 촬영 화면 위쪽에 **GRKU**이 표시될 때까지 몇 초 기다립니다.
 2. 카드 최상위에 `SCRIPT` 폴더가 있는지 확인합니다.
-3. 카드에 `SCRIPT/GRKU/INSTALL.ERR`가 있으면 카메라 메뉴에서 패키지가 카메라의 펌웨어 버전에 맞는지 확인합니다. 맞다면 `INSTALL.ERR`, `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT`(있는 경우)를 첨부해 [기기 보고서](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)를 보내 주세요.
+3. 카드에 `SCRIPT/GRKU/INSTALL.ERR`가 있으면 카메라 메뉴에서 패키지가 카메라의 펌웨어 버전에 맞는지 확인합니다. 맞다면 `INSTALL.ERR`, `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT`(있는 경우)를 첨부해 [기기 보고서](https://github.com/botnick/GRKU/issues/new?template=device-report.yml)를 보내 주세요.
 4. GRKU은 Ricoh 공식 펌웨어에서만 작동합니다.
 
 ### 카드를 포맷한 뒤 GRKU이 작동하지 않습니다
@@ -87,6 +87,6 @@ SD 스크립트 설정은 켜진 상태로 유지됩니다. 이를 끄려면 다
 3. 카드를 삽입합니다. 카메라 전원을 켤 때 MENU 버튼을 누르고 있습니다. 카메라가 스스로 전원이 꺼질 때까지 기다립니다.
 4. 카드 루트에서 `00078350.588` 및 `DEVELOP.MOD`를 제거합니다.
 
-시작 중 카메라가 멈추면 [복구 가이드](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md)를 참조하십시오.
+시작 중 카메라가 멈추면 [복구 가이드](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)를 참조하십시오.
 
-GRKU는 Ricoh와 제휴하지 않았습니다. 소스 코드 및 라이선스: https://github.com/botnick/GRKit
+GRKU는 Ricoh와 제휴하지 않았습니다. 소스 코드 및 라이선스: https://github.com/botnick/GRKU

@@ -3,11 +3,11 @@
 These guidelines apply to the GRKU built-in icons. They state the design
 intent. The exact geometry, sizes, and colors are in the tile generator
 [scripts/menu-tiles.py](../scripts/menu-tiles.py) (the module tiles of
-`modules/*/tiles` and the host tiles of `crates/grkit-core/assets/tiles`), in
+`modules/*/tiles` and the host tiles of `crates/grku-core/assets/tiles`), in
 the film box generator [scripts/flap-icons.py](../scripts/flap-icons.py), and
-in the [core artwork](../crates/grkit-core/src/artwork.rs) for the text tiles.
+in the [core artwork](../crates/grku-core/src/artwork.rs) for the text tiles.
 The former monochrome tiles are what the
-[example generator](../crates/grkit-core/examples/module-icons.rs) draws. If
+[example generator](../crates/grku-core/examples/module-icons.rs) draws. If
 this page and the code disagree, the code is correct and this page needs an
 update.
 
@@ -121,8 +121,8 @@ icons.
 Run from the repository root:
 
 ```sh
-cargo run --locked -p grkit-core --example module-icons
-cargo test --locked -p grkit-core --test effects
+cargo run --locked -p grku-core --example module-icons
+cargo test --locked -p grku-core --test effects
 ```
 
 A second run of the generator does not change the files. Module PNGs that the

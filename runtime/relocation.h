@@ -1,5 +1,5 @@
 /* Finds the firmware addresses of the private code in the running build of the
-   firmware version (crates/grkit-build/src/relocation.rs gives the method).
+   firmware version (crates/grku-build/src/relocation.rs gives the method).
 
    The build gives windows of masked words from the pinned image, and for each
    symbol one or more sources: a window offset, the target of a branch in a
@@ -9,8 +9,8 @@
    sources of a symbol must agree.
 
    The includer defines u8, u16, and u32. */
-#ifndef GRKIT_RELOCATION_H
-#define GRKIT_RELOCATION_H
+#ifndef GRKU_RELOCATION_H
+#define GRKU_RELOCATION_H
 
 #define RELOCATION_RTOS_BASE 0x53000000U
 #define RELOCATION_DATA_START 0x55000000U

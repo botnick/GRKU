@@ -33,7 +33,7 @@ describe('resolveSelection', () => {
 /** A storage with one value, or one whose access fails. */
 function storage(value: string | null, fails = false) {
   const saved = new Map<string, string>();
-  if (value !== null) saved.set('grkit.selection', value);
+  if (value !== null) saved.set('grku.selection', value);
   return {
     saved,
     getItem: (key: string) => {

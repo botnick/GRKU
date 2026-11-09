@@ -1,5 +1,5 @@
-#ifndef GRKIT_INSTALL_TEXT_H
-#define GRKIT_INSTALL_TEXT_H
+#ifndef GRKU_INSTALL_TEXT_H
+#define GRKU_INSTALL_TEXT_H
 /* A part of the installer: text built in a buffer, for a line of the boot
    log, the report, and the failure file. installer.c includes it after
    install_io.h. Each function appends at *n in a buffer of `max` bytes,

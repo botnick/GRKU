@@ -19,9 +19,9 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 /* The values of module_payload.h that the parts use
-   (crates/grkit-build/src/loader.rs). The target has no Image Control, so
+   (crates/grku-build/src/loader.rs). The target has no Image Control, so
    discover lists no effect. */
-#define GRKIT_NO_IMAGE_CONTROL 1
+#define GRKU_NO_IMAGE_CONTROL 1
 #define MAX_COUNT 40U
 #define ICONS_PER_CHUNK 40U
 #define ICON_STRIDE 0x1908U
@@ -221,7 +221,7 @@ static void store(u32 p, u32 v) { *(volatile u32 *)at(p) = v; }
 #include "install_io.h"
 
 /* The rest of what installer.c gives the parts, in its order. */
-#define GRKIT_GRF_EMBEDDED
+#define GRKU_GRF_EMBEDDED
 #include "grf.c"
 #include "catalog.h"
 #include "state.h"
@@ -229,7 +229,7 @@ static void store(u32 p, u32 v) { *(volatile u32 *)at(p) = v; }
 static const char library_path[] = LIBRARY_PATH, inbox_path[] = INBOX_PATH, package_path[] = PACKAGE_PATH;
 static const char imported_path[] = IMPORTED_PATH, data_path[] = DATA_PATH;
 static const char legacy_effects_path[] = LEGACY_EFFECTS_PATH, state_path[] = STATE_PATH;
-static u8 profiles[MAX_COUNT + 1][GRKIT_GRF_MAX_SIZE], temporary[GRKIT_GRF_MAX_SIZE];
+static u8 profiles[MAX_COUNT + 1][GRKU_GRF_MAX_SIZE], temporary[GRKU_GRF_MAX_SIZE];
 static u8 directory_entries[4096];
 static u32 count;
 #define LISTED_HEAD 64U
@@ -261,7 +261,7 @@ static void read_state(void)
     state_parse(&saved_state, text, read_text(state_path, text, sizeof(text)));
 }
 
-/* A module file built by hand (crates/grkit-core/src/grm.rs; see
+/* A module file built by hand (crates/grku-core/src/grm.rs; see
    tests/runtime/module_link_contract.c). Each layer and filter has its own
    Thumb function. */
 #define SPEC_ITEMS 4U
@@ -533,7 +533,7 @@ static void modules_come_from_both_folders_in_header_order(void)
     static const u32 all_sources[] = {1, 0, 0, 1};
     expect_modules(all, all_sources, 4);
     assert(module_usable == 0xf && module_overflow == 0 && module_order[0] == 5);
-    assert(module_words > 0 && module_words <= GRKIT_MODULE_ARRAY_WORDS);
+    assert(module_words > 0 && module_words <= GRKU_MODULE_ARRAY_WORDS);
 
     /* With a package list, a package module loads only if the list names it. */
     add_text(PACKAGE_PATH, "B.GRM\r\nA.GRM\r\n");
@@ -547,15 +547,15 @@ static void more_modules_than_the_list_holds_are_counted(void)
     reset();
     /* The folder lists the files in the reverse of their order, so the list
        keeps the first files of the order, not of the folder. */
-    for (u32 i = GRKIT_MODULES_MAX + 2; i-- > 0;) {
+    for (u32 i = GRKU_MODULES_MAX + 2; i-- > 0;) {
         char id[8], file[16];
         snprintf(id, sizeof id, "M%u", i);
         snprintf(file, sizeof file, "M%u.GRM", i);
         add_module(PACKAGE_MODULES_PATH, file, &(struct spec){.id = id, .order = i});
     }
     scan();
-    assert(module_count == GRKIT_MODULES_MAX && module_overflow == 2);
-    for (u32 i = 0; i < GRKIT_MODULES_MAX; ++i) {
+    assert(module_count == GRKU_MODULES_MAX && module_overflow == 2);
+    for (u32 i = 0; i < GRKU_MODULES_MAX; ++i) {
         char file[16];
         snprintf(file, sizeof file, "M%u.GRM", i);
         assert(!strcmp(module_names[i], file) && module_status[i] == 0);
@@ -566,7 +566,7 @@ static void more_modules_than_the_list_holds_are_counted(void)
 static void a_full_list_keeps_the_package_modules(void)
 {
     reset();
-    for (u32 i = 0; i < GRKIT_MODULES_MAX - 1; ++i) {
+    for (u32 i = 0; i < GRKU_MODULES_MAX - 1; ++i) {
         char id[8], file[16];
         snprintf(id, sizeof id, "P%u", i);
         snprintf(file, sizeof file, "P%u.GRM", i);
@@ -576,16 +576,16 @@ static void a_full_list_keeps_the_package_modules(void)
     add_module(MODULES_PATH, "EARLY.GRM", &(struct spec){.id = "EARLY", .order = 0});
     add_module(MODULES_PATH, "NEXT.GRM", &(struct spec){.id = "NEXT", .order = 95});
     scan();
-    assert(module_count == GRKIT_MODULES_MAX && module_overflow == 2);
+    assert(module_count == GRKU_MODULES_MAX && module_overflow == 2);
     /* EARLY takes the place of LATE, and NEXT gets none. */
     assert(!strcmp(module_names[0], "EARLY.GRM") && module_source[0] == 1);
-    for (u32 i = 1; i < GRKIT_MODULES_MAX; ++i) assert(module_source[i] == 0);
+    for (u32 i = 1; i < GRKU_MODULES_MAX; ++i) assert(module_source[i] == 0);
     /* With a full list of package modules, EARLY gets no place. */
     add_module(PACKAGE_MODULES_PATH, "PLAST.GRM", &(struct spec){.id = "PLAST", .order = 99});
     scan();
-    assert(module_count == GRKIT_MODULES_MAX && module_overflow == 3);
-    for (u32 i = 0; i < GRKIT_MODULES_MAX; ++i) assert(module_source[i] == 0);
-    assert(!strcmp(module_names[GRKIT_MODULES_MAX - 1], "PLAST.GRM"));
+    assert(module_count == GRKU_MODULES_MAX && module_overflow == 3);
+    for (u32 i = 0; i < GRKU_MODULES_MAX; ++i) assert(module_source[i] == 0);
+    assert(!strcmp(module_names[GRKU_MODULES_MAX - 1], "PLAST.GRM"));
 }
 static void safe_mode_loads_no_module(void)
 {
@@ -673,7 +673,7 @@ static void the_budget_counts_the_services_block(void)
     const u32 big = 2 * GRM_MAX_SEGMENT / 4;
     const u32 others = SETTINGS_WORDS(CHOICE_ENTRIES(2, EFFECTS_LISTED)) + 2 * CONTEXT_WORDS(0) +
                        MANAGE_WORDS(2) + EFFECT_LIST_WORDS(EFFECTS_LISTED) + SERVICES_WORDS + big;
-    const u32 room = GRKIT_MODULE_ARRAY_WORDS - others;
+    const u32 room = GRKU_MODULE_ARRAY_WORDS - others;
     assert(room * 4 > GRM_MAX_SEGMENT && room * 4 < 2 * GRM_MAX_SEGMENT);
     for (u32 extra = 0; extra < 2; ++extra) {
         reset();
@@ -688,15 +688,15 @@ static void the_budget_counts_the_services_block(void)
         /* discover lists the most effects. */
         listed_count = EFFECTS_LISTED;
         plan_array();
-        assert(module_words <= GRKIT_MODULE_ARRAY_WORDS);
-        assert(extra || module_words == GRKIT_MODULE_ARRAY_WORDS);
+        assert(module_words <= GRKU_MODULE_ARRAY_WORDS);
+        assert(extra || module_words == GRKU_MODULE_ARRAY_WORDS);
     }
 }
 static const struct spec guides = {
     .id = "GUIDES", .order = 10, .data_bytes = 8, .bss_bytes = 4,
     .settings = {{"STYLE", 6, GRM_SETTING_SAVED | GRM_SETTING_PUBLIC}, {"COLOR", 3, GRM_SETTING_SAVED}, {"TEMP", 2, 0}},
     .uses = {"CORE.ASPECT", "?CORE.MISSING"},
-    .imports = {"grkit_self", "overlay_label"},
+    .imports = {"grku_self", "overlay_label"},
 };
 static const struct spec date = {
     .id = "DATE", .order = 20,
@@ -713,10 +713,10 @@ static void install_writes_the_settings_and_the_contexts(void)
         id_of("CORE.ROWS.DATE"), 5, 12345, 7, 23456, 0, id_of("CORE.ASPECT"), 3, id_of("CORE.GRAIN"), 1,
     };
     static const u32 core_ids[] = {CORE_STATE_IDS};
-    for (u32 k = 0; k < GRKIT_CORE_SETTING_COUNT; ++k) assert(core_ids[k] == id_of(core_setting_names[k]));
+    for (u32 k = 0; k < GRKU_CORE_SETTING_COUNT; ++k) assert(core_ids[k] == id_of(core_setting_names[k]));
     save_state(pairs, sizeof pairs / sizeof pairs[0] / 2);
     assert(install() == 0);
-    /* The settings of the modules, the choices of the GRKit section, the
+    /* The settings of the modules, the choices of the GRKU section, the
        switch, then the saved values that no setting takes: CORE.GRAIN,
        which no module uses, and unknown keys, including a value 0. */
     assert(word(ARRAY_AT) == 14 && word(ARRAY_AT + 4) == 0);
@@ -738,7 +738,7 @@ static void install_writes_the_settings_and_the_contexts(void)
        of each used setting. */
     u32 context = ARRAY_AT + 4 * SETTINGS_WORDS(14);
     assert(word(context) == 0 && word(context + 4) == 3 && word(context + 8) == 0);
-    assert(word(context + 12) == GRKIT_CORE_ASPECT && word(context + 16) == GRM_NO_SETTING);
+    assert(word(context + 12) == GRKU_CORE_ASPECT && word(context + 16) == GRM_NO_SETTING);
     u32 date_context = context + 4 * CONTEXT_WORDS(2);
     assert(word(date_context) == 3 && word(date_context + 4) == 1 && word(date_context + 12) == 0);
     /* The imports of GUIDES: its context and the export of the core. */
@@ -746,7 +746,7 @@ static void install_writes_the_settings_and_the_contexts(void)
     assert(word(CODE_AT + 4 * import_word(&guides, 1)) == OVERLAY_LABEL);
     assert(module_code_from[1] == CODE_AT + guides_code);
     /* The capability of a module that is Off counts as used, not as running. */
-    assert(capabilities_used == 1U << (GRKIT_CORE_ASPECT - GRKIT_CORE_SETTING_BASE));
+    assert(capabilities_used == 1U << (GRKU_CORE_ASPECT - GRKU_CORE_SETTING_BASE));
     assert(capabilities_running == capabilities_used);
     assert((needed_points & core_setting_points[1]) == core_setting_points[1]);
     assert(word(module_list + MANAGE_SETTINGS) == 4);
@@ -782,7 +782,7 @@ static void setting_defaults_and_saved_zero(void)
 static void framing_mode_state_survives_install_planning(void)
 {
     const struct spec framing = {.id = "FRAMING", .uses = {"CORE.ASPECT", "CORE.ASPECT_MODE"}};
-    const u32 capabilities = GRKIT_CORE_ASPECT_BIT | GRKIT_CORE_ASPECT_MODE_BIT;
+    const u32 capabilities = GRKU_CORE_ASPECT_BIT | GRKU_CORE_ASPECT_MODE_BIT;
     for (u32 scenario = 0; scenario < 3; ++scenario) {
         reset();
         add_module(PACKAGE_MODULES_PATH, "FRAMING.GRM", &framing);
@@ -795,13 +795,13 @@ static void framing_mode_state_survives_install_planning(void)
         assert(capabilities_used == capabilities);
         assert(capabilities_running == (scenario == 2 ? 0 : capabilities));
         u32 context = ARRAY_AT + 4 * SETTINGS_WORDS(word(ARRAY_AT));
-        assert(word(context + 12) == GRKIT_CORE_ASPECT);
-        assert(word(context + 16) == GRKIT_CORE_ASPECT_MODE);
+        assert(word(context + 12) == GRKU_CORE_ASPECT);
+        assert(word(context + 16) == GRKU_CORE_ASPECT_MODE);
         u32 value = 99;
         assert(state_value(&saved_state, pairs[0], &value) && value == 1);
         assert(state_value(&saved_state, pairs[2], &value) == (scenario != 0));
         if (scenario) assert(value == 1);
-        assert(state_setting_value(&saved_state, pairs[2], 0, GRKIT_CORE_ASPECT_MODE_VALUES) == (scenario != 0));
+        assert(state_setting_value(&saved_state, pairs[2], 0, GRKU_CORE_ASPECT_MODE_VALUES) == (scenario != 0));
         /* A stopped module still owns its core state. Its saved mode is
            not reclassified as an unknown setting or removed. */
         assert(state_taken(pairs[2]) && kept_count == 0);
@@ -858,7 +858,7 @@ static void a_color_only_module_needs_a_color_camera(void)
         assert(module_status[0] == (monochrome ? (u32)GRM_COLOR_ONLY : 0) && module_status[1] == 0);
         expect_listed(0, monochrome ? MANAGE_COLOR_ONLY : MANAGE_LOADED, monochrome ? "FILM (56)" : "FILM");
     }
-    /* A flag that this GRKit does not know. */
+    /* A flag that this GRKU does not know. */
     reset();
     add_module(PACKAGE_MODULES_PATH, "NEW.GRM", &(struct spec){.id = "NEW", .module_flags = 2});
     assert(install() == 0 && module_status[0] == GRM_BAD_DESCRIPTOR);
@@ -904,7 +904,7 @@ static void install_group_page(void)
     /* Each group takes three pages. The first module past the page limit
        loads with GRM_NO_ROOM; the others keep their pages. */
     reset();
-    u32 fit = GRKIT_MODULE_PAGES_MAX / 3;
+    u32 fit = GRKU_MODULE_PAGES_MAX / 3;
     for (u32 i = 0; i <= fit; ++i) {
         char id[] = "GROUP0", file[] = "GROUP0.GRM";
         id[5] += (char)i; file[5] += (char)i;
@@ -913,7 +913,7 @@ static void install_group_page(void)
     }
     assert(install() == 0 && module_page_count == fit * 3 && module_status[fit] == GRM_NO_ROOM);
 }
-/* The GRKit switch Off stops each module that loads, as its own Off does,
+/* The GRKU switch Off stops each module that loads, as its own Off does,
    and keeps the Enable of each. */
 static void the_switch_stops_each_module(void)
 {
@@ -934,8 +934,8 @@ static void the_switch_stops_each_module(void)
     assert(word(services_block + SERVICES_SUSPENDED + 4) == CODE_AT);
     assert(word(services_block + SERVICES_SUSPENDED + 16) == CODE_AT + first + second);
     assert(capabilities_running == 0);
-    assert(capabilities_used == (1U << (GRKIT_CORE_ASPECT - GRKIT_CORE_SETTING_BASE) |
-                                 1U << (GRKIT_CORE_GRAIN - GRKIT_CORE_SETTING_BASE)));
+    assert(capabilities_used == (1U << (GRKU_CORE_ASPECT - GRKU_CORE_SETTING_BASE) |
+                                 1U << (GRKU_CORE_GRAIN - GRKU_CORE_SETTING_BASE)));
     /* A switch that is On runs the modules whose Enable is On. */
     reset();
     add_module(PACKAGE_MODULES_PATH, "FIRST.GRM", &(struct spec){.id = "FIRST", .order = 1, .uses = {"CORE.ASPECT"}});
@@ -944,7 +944,7 @@ static void the_switch_stops_each_module(void)
     save_state(on, 2);
     assert(install() == 0);
     assert(!all_off && word(services_block + SERVICES_SUSPENDED) == 1);
-    assert(capabilities_running == 1U << (GRKIT_CORE_ASPECT - GRKIT_CORE_SETTING_BASE));
+    assert(capabilities_running == 1U << (GRKU_CORE_ASPECT - GRKU_CORE_SETTING_BASE));
 }
 /* Conditions in two descriptors can share one array. Relocation must read
    original local handles each time, not relocate an already global handle. */
@@ -1006,12 +1006,12 @@ static void layers_follow_their_order_and_filters_their_stage(void)
     assert((needed_points & (POINT_VIEWFINDER_OVERLAY | POINT_PICTURE_ENCODE)) ==
            (POINT_VIEWFINDER_OVERLAY | POINT_PICTURE_ENCODE));
 }
-/* The header holds GRKIT_MODULE_LAYERS_MAX layers and GRKIT_MODULE_FILTERS_MAX
+/* The header holds GRKU_MODULE_LAYERS_MAX layers and GRKU_MODULE_FILTERS_MAX
    filters of all modules. A module that needs more gets error 54. */
 static void the_layers_and_filters_fill_their_slots(void)
 {
     reset();
-    for (u32 i = 0; i < GRKIT_MODULES_MAX; ++i) {
+    for (u32 i = 0; i < GRKU_MODULES_MAX; ++i) {
         char id[8], file[16];
         snprintf(id, sizeof id, "M%u", i);
         snprintf(file, sizeof file, "M%u.GRM", i);
@@ -1021,9 +1021,9 @@ static void the_layers_and_filters_fill_their_slots(void)
             .filter_count = 1, .filters = {{GRM_STAGE_MARK, 0}}});
     }
     assert(install() == 0);
-    _Static_assert(GRKIT_MODULE_LAYERS_MAX == 16 && GRKIT_MODULE_FILTERS_MAX == 8, "Eight modules fill the slots");
-    for (u32 i = 0; i < GRKIT_MODULES_MAX; ++i) assert(module_status[i] == (i < 8 ? 0 : GRM_NO_ROOM));
-    assert(module_layer_count == GRKIT_MODULE_LAYERS_MAX && module_filter_count == GRKIT_MODULE_FILTERS_MAX);
+    _Static_assert(GRKU_MODULE_LAYERS_MAX == 16 && GRKU_MODULE_FILTERS_MAX == 8, "Eight modules fill the slots");
+    for (u32 i = 0; i < GRKU_MODULES_MAX; ++i) assert(module_status[i] == (i < 8 ? 0 : GRM_NO_ROOM));
+    assert(module_layer_count == GRKU_MODULE_LAYERS_MAX && module_filter_count == GRKU_MODULE_FILTERS_MAX);
 }
 static void the_module_list_shows_each_result(void)
 {
@@ -1048,14 +1048,14 @@ static void the_module_list_shows_each_result(void)
     assert(word(list_entry(0) + MANAGE_CODE) == CODE_AT && word(list_entry(0) + MANAGE_CODE_END) == CODE_AT + good);
     assert(word(list_entry(1) + MANAGE_CODE) == 0 && word(list_entry(1) + MANAGE_TILE) == MANAGE_NO_TILE);
     assert(word(list_entry(2) + MANAGE_CODE) == off_from && word(list_entry(2) + MANAGE_CODE_END) == off_from + off);
-    assert(word(list_entry(2) + MANAGE_USES) == 1U << (GRKIT_CORE_GRAIN - GRKIT_CORE_SETTING_BASE));
+    assert(word(list_entry(2) + MANAGE_USES) == 1U << (GRKU_CORE_GRAIN - GRKU_CORE_SETTING_BASE));
     /* The module that is Off loads stopped: the core calls no code in its
        range, and its capability does not run. */
     assert(word(services_block + SERVICES_SUSPENDED) == 1);
     assert(word(services_block + SERVICES_SUSPENDED + 4) == off_from);
     assert(word(services_block + SERVICES_SUSPENDED + 8) == off_from + off);
-    assert(capabilities_running == 1U << (GRKIT_CORE_ASPECT - GRKIT_CORE_SETTING_BASE));
-    assert(capabilities_used == (capabilities_running | 1U << (GRKIT_CORE_GRAIN - GRKIT_CORE_SETTING_BASE)));
+    assert(capabilities_running == 1U << (GRKU_CORE_ASPECT - GRKU_CORE_SETTING_BASE));
+    assert(capabilities_used == (capabilities_running | 1U << (GRKU_CORE_GRAIN - GRKU_CORE_SETTING_BASE)));
 }
 
 /* A settings row of a used setting gets the handle of that setting. A row of
@@ -1071,12 +1071,12 @@ static void settings_rows_of_used_settings(void)
     assert(install() == 0 && module_status[0] == 0 && module_page_count == 1);
     u32 page = module_pages[0], list = word(page + GRM_PAGE_SETTINGS_AT);
     assert(module_pages[1] == 0 && word(page + GRM_PAGE_SETTING_ROWS_AT) == 3);
-    static const u32 handles[] = {0, GRKIT_CORE_GRAIN, 1};
+    static const u32 handles[] = {0, GRKU_CORE_GRAIN, 1};
     for (u32 r = 0; r < 3; ++r) {
         assert(word(list + r * GRM_ROW) == GRM_ROW && word(list + r * GRM_ROW + GRM_ROW_SETTING_AT) == handles[r]);
         assert(word(list + r * GRM_ROW + GRM_ROW_LABEL_AT) == word(page + GRM_PAGE_TITLE_AT));
     }
-    assert(capabilities_used == 1U << (GRKIT_CORE_GRAIN - GRKIT_CORE_SETTING_BASE));
+    assert(capabilities_used == 1U << (GRKU_CORE_GRAIN - GRKU_CORE_SETTING_BASE));
     /* A row of a used setting that the module does not use is not valid. */
     reset();
     struct spec bad = grain;
@@ -1090,7 +1090,7 @@ static void settings_rows_of_used_settings(void)
    value. */
 static void the_fn_setting_of_a_page_gets_its_handle(void)
 {
-    static const u32 named[] = {1, GRM_USED | 1, GRM_USED | 0}, handles[] = {1, GRKIT_CORE_GRAIN, 0};
+    static const u32 named[] = {1, GRM_USED | 1, GRM_USED | 0}, handles[] = {1, GRKU_CORE_GRAIN, 0};
     for (u32 k = 0; k < 3; ++k) {
         reset();
         const struct spec grain = {.id = "GRAIN", .order = 1,
@@ -1228,7 +1228,7 @@ static void legacy_tone_icon_is_only_for_old_module_abi(void)
         .uses = {"CORE.TONE"}, .indicator_count = 1, .indicator_slot = GRM_SLOT_IMAGE_CONTROL,
         .condition_setting = GRM_USED, .icon_kind = GRM_ICON_TONE, .icon_setting = GRM_USED});
     assert(install() == 0 && module_status[0] == 0 && module_indicator_count == 1);
-    assert(word(word(module_indicators[0] + GRM_INDICATOR_ICON_AT) + GRM_ICON_SETTING_AT) == GRKIT_CORE_TONE);
+    assert(word(word(module_indicators[0] + GRM_INDICATOR_ICON_AT) + GRM_ICON_SETTING_AT) == GRKU_CORE_TONE);
 }
 
 static void *run(void *unused)

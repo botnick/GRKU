@@ -1,6 +1,6 @@
 /* The NEON parity test of the Glow kernels (glow_kernels.c). It is not a
    source of the module: the ignored test synthetic_glow_neon_parity
-   (crates/grkit-build/src/tests/modules.rs) builds it for 32-bit ARM Linux
+   (crates/grku-build/src/tests/modules.rs) builds it for 32-bit ARM Linux
    with glow_kernels.c twice, once with NEON and once with GLOW_SCALAR (C
    only, each kernel named scalar_<name>), and runs it with qemu-arm.
 

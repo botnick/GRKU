@@ -2,7 +2,7 @@
 
 For RICOH GR IV and GR IV HDF firmware 1.11 only.
 
-GRKU is experimental and has no warranty. If GRKU fails, the camera can stop during startup. Read the [recovery guide](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md) before you install. When you install GRKU, you accept the [terms of use](https://github.com/botnick/GRKit/blob/main/resources/TERMS.md).
+GRKU is experimental and has no warranty. If GRKU fails, the camera can stop during startup. Read the [recovery guide](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md) before you install. When you install GRKU, you accept the [terms of use](https://github.com/botnick/GRKU/blob/main/resources/TERMS.md).
 
 ## Install
 
@@ -61,7 +61,7 @@ The card root has a firmware file. Turn the camera off, remove each `.bin` file 
 
 1. Wait a few seconds after power-on, until the shooting screen shows **GRKU** at the top.
 2. Make sure that the card root has the `SCRIPT` folder.
-3. If the card has `SCRIPT/GRKU/INSTALL.ERR`, open the camera menu and make sure that the camera shows a supported firmware version. If it does, send a [device report](https://github.com/botnick/GRKit/issues/new?template=device-report.yml) with `INSTALL.ERR`, `GRKU/REPORT.TXT`, and `GRKU/BOOT.TXT` if the card has it.
+3. If the card has `SCRIPT/GRKU/INSTALL.ERR`, open the camera menu and make sure that the camera shows a supported firmware version. If it does, send a [device report](https://github.com/botnick/GRKU/issues/new?template=device-report.yml) with `INSTALL.ERR`, `GRKU/REPORT.TXT`, and `GRKU/BOOT.TXT` if the card has it.
 4. GRKU runs only on the official Ricoh firmware.
 
 ### GRKU stops working after you format the card
@@ -81,6 +81,6 @@ The SD script setting stays on. To turn it off:
 3. Insert the card. Hold MENU while you turn the camera on. Wait until the camera turns itself off.
 4. Remove `00078560.636` and `DEVELOP.MOD` from the card root.
 
-If the camera stops during startup, see the [recovery guide](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md).
+If the camera stops during startup, see the [recovery guide](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md).
 
-GRKU is not affiliated with Ricoh. Source code and licenses: https://github.com/botnick/GRKit
+GRKU is not affiliated with Ricoh. Source code and licenses: https://github.com/botnick/GRKU

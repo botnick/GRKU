@@ -21,7 +21,7 @@ export interface CardSession {
   /** The file on the card of each import that the card has, to find the changed ones. */
   contents?: ReadonlyMap<string, Uint8Array>;
   /**
-   * The page wrote the GRKit of this site to the card. The report shows the new version only
+   * The page wrote the GRKU of this site to the card. The report shows the new version only
    * after the next power-on.
    */
   written?: boolean;

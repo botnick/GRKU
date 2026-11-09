@@ -14,7 +14,7 @@ const SITE = 'https://grku.app';
 const web = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(web, 'dist');
 // Inside web/, so the Node build resolves react and the other packages from web/node_modules.
-const server = join(web, 'node_modules', '.cache', 'grkit-prerender');
+const server = join(web, 'node_modules', '.cache', 'grku-prerender');
 
 /** The `content` or text of an HTML attribute or element. */
 const escape = (text) =>
@@ -106,7 +106,7 @@ function structuredData(code) {
         image: `${SITE}/og.jpg`,
         isAccessibleForFree: true,
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-        sameAs: ['https://github.com/botnick/GRKit'],
+        sameAs: ['https://github.com/botnick/GRKU'],
       },
     ],
   };

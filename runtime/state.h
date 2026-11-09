@@ -1,6 +1,6 @@
-#ifndef GRKIT_STATE_H
-#define GRKIT_STATE_H
-/* The state file for the installer (crates/grkit-core/src/runtime/state.rs). The
+#ifndef GRKU_STATE_H
+#define GRKU_STATE_H
+/* The state file for the installer (crates/grku-core/src/runtime/state.rs). The
    includer defines u8 and u32.
 
    STATE.TXT holds two decimal lines for each value: the key ID, then the
@@ -10,7 +10,7 @@
    invalid line is skipped. A later pair of a key wins. */
 
 /* The most pairs that INSTALL keeps. The largest file of the loader has fewer
-   (grkit_core::runtime::worst_state_size). */
+   (grku_core::runtime::worst_state_size). */
 #define STATE_PAIRS 512U
 
 struct state {

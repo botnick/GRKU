@@ -14,7 +14,7 @@
    arguments, so on official firmware the array keeps its values. A script
    sets word 0 to 0, runs the command, and uses SYS_memovr only if word 0 is
    MAGIC. The build defines STRTOUL, TTL_TABLE, MAGIC, INTERFACE, PROJECT,
-   and FIRMWARE (crates/grkit-firmware). */
+   and FIRMWARE (crates/grku-firmware). */
         .syntax unified
         .arm
         .text

@@ -1,5 +1,5 @@
 blank_issues_enabled: true
 contact_links:
   - name: Recovery guide
-    url: https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md
+    url: https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md
     about: Read this guide first if the camera does not start.

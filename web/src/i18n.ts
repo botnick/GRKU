@@ -526,7 +526,7 @@ const en = {
   cardConnectError: "Can't read the card. Reinsert it and try again.",
   cardNotRoot: 'Select the card itself, not a folder on it.',
   cardName: 'Card',
-  cardGrkit: 'GRKU',
+  cardGrku: 'GRKU',
   cardNone: 'Not installed',
   cardLegacy: '1.2 or earlier',
   cardNotStarted: 'not started in the camera yet',
@@ -1068,7 +1068,7 @@ const zhHans: Strings = {
   cardConnectError: '无法读取存储卡，请重新插入后再试。',
   cardNotRoot: '请选择存储卡本身，不要选其中的文件夹。',
   cardName: '存储卡',
-  cardGrkit: 'GRKU',
+  cardGrku: 'GRKU',
   cardNone: '未安装',
   cardLegacy: '1.2 或更早',
   cardNotStarted: '尚未在相机上启动',
@@ -1598,7 +1598,7 @@ const zhHant: Strings = {
   cardConnectError: '無法讀取記憶卡，請重新插入後再試。',
   cardNotRoot: '請選擇記憶卡本身，不要選其中的資料夾。',
   cardName: '記憶卡',
-  cardGrkit: 'GRKU',
+  cardGrku: 'GRKU',
   cardNone: '未安裝',
   cardLegacy: '1.2 或更早',
   cardNotStarted: '尚未在相機上啟動',
@@ -2132,7 +2132,7 @@ const ja: Strings = {
   cardConnectError: 'カードを読み取れません。入れ直してもう一度お試しください。',
   cardNotRoot: 'カード内のフォルダーではなく、カードそのものを選んでください。',
   cardName: 'カード',
-  cardGrkit: 'GRKU',
+  cardGrku: 'GRKU',
   cardNone: '未インストール',
   cardLegacy: '1.2 以前',
   cardNotStarted: 'カメラでは未起動',
@@ -2680,7 +2680,7 @@ const ko: Strings = {
   cardConnectError: '카드를 읽을 수 없습니다. 다시 꽂고 시도하세요.',
   cardNotRoot: '카드 안의 폴더가 아니라 카드 자체를 선택하세요.',
   cardName: '카드',
-  cardGrkit: 'GRKU',
+  cardGrku: 'GRKU',
   cardNone: '설치되지 않음',
   cardLegacy: '1.2 이하',
   cardNotStarted: '아직 카메라에서 실행되지 않음',
@@ -3271,7 +3271,7 @@ const th: Strings = {
   cardConnectError: "อ่านการ์ดไม่ได้ ถอดแล้วเสียบใหม่ จากนั้นลองอีกครั้ง",
   cardNotRoot: 'เลือกที่ตัวการ์ดโดยตรง ไม่ใช่โฟลเดอร์ข้างใน',
   cardName: 'การ์ด',
-  cardGrkit: 'GRKU',
+  cardGrku: 'GRKU',
   cardNone: 'ยังไม่ได้ติดตั้ง',
   cardLegacy: '1.2 หรือเก่ากว่า',
   cardNotStarted: 'ยังไม่เคยเปิดใช้งานในกล้อง',
@@ -3368,7 +3368,7 @@ export const STRINGS: Readonly<Record<Language, Strings>> = {
 };
 
 /** Where the page kept the chosen language before each language had its own page. */
-const LEGACY_STORAGE_KEY = 'grkit.language';
+const LEGACY_STORAGE_KEY = 'grku.language';
 
 export { matchLanguage } from './languagePage';
 

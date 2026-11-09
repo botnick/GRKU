@@ -14,7 +14,7 @@
 
 ## ツールの入手
 
-[最新リリース](https://github.com/botnick/GRKit/releases/latest)から `GRKU-<バージョン>-dump.zip` をダウンロードします。https://grku.app の下部にある「ファームウェア書き出しツール」のリンクからも同じファイルを入手できます。
+[最新リリース](https://github.com/botnick/GRKU/releases/latest)から `GRKU-<バージョン>-dump.zip` をダウンロードします。https://grku.app の下部にある「ファームウェア書き出しツール」のリンクからも同じファイルを入手できます。
 
 ## ファームウェアを書き出す
 
@@ -34,7 +34,7 @@
 ## ファイルを送る
 
 1. `SCRIPT/GRDUMP` フォルダーを ZIP に圧縮します。
-2. ZIP を [GitHub issue](https://github.com/botnick/GRKit/issues) に添付します。カメラの機種とファームウェアのバージョンを書きます。
+2. ZIP を [GitHub issue](https://github.com/botnick/GRKU/issues) に添付します。カメラの機種とファームウェアのバージョンを書きます。
 
 開発者が issue で書き出しを依頼した場合は、その issue に ZIP を添付します。
 

@@ -1,17 +1,17 @@
 # Module reference
 
-This document describes the module interface of GRKU. The interface is experimental in GRKit 1.x: a minor release can change it, and its changelog then says so. [modules.md](modules.md) shows how to write, test, build, and install a module.
+This document describes the module interface of GRKU. The interface is experimental in GRKU 1.x: a minor release can change it, and its changelog then says so. [modules.md](modules.md) shows how to write, test, build, and install a module.
 
 The sources of each contract:
 
 | Contract | Source |
 | --- | --- |
-| C interface | `runtime/sdk/grkit.h` |
-| Host test harness | `runtime/sdk/grkit_test.h` |
-| Manifest and text | `crates/grkit-build/src/module.rs` |
-| File format | `crates/grkit-core/src/grm.rs` |
+| C interface | `runtime/sdk/grku.h` |
+| Host test harness | `runtime/sdk/grku_test.h` |
+| Manifest and text | `crates/grku-build/src/module.rs` |
+| File format | `crates/grku-core/src/grm.rs` |
 | Installer checks | `runtime/module_link.h`, `runtime/install_plan.h`, `runtime/install_modules.h` |
-| Capabilities | `crates/grkit-core/src/capabilities.rs` |
+| Capabilities | `crates/grku-core/src/capabilities.rs` |
 
 ## Module folder
 
@@ -20,7 +20,7 @@ The sources of each contract:
 | `module.toml` | yes | the manifest |
 | `text/<language>.toml` | with a page | the page text in one menu language: `en`, `zh-Hans`, `zh-Hant`, `ja`, `ko` |
 | C sources | no | the code that `sources` names. A module with only data has none. |
-| `test.c` | with C sources | the host test of `grkit module test` |
+| `test.c` | with C sources | the host test of `grku module test` |
 | tiles | with a choice page | the 40 x 40 PNG files that `tiles` names |
 
 The installer loads the modules of the package from `SCRIPT/GRKU/MODULES` and the modules that a person adds from `GRKU/MODULES`. A file in `GRKU/MODULES` replaces the package module with the same name.
@@ -68,8 +68,8 @@ A setting reference is a key of `settings`, or a name of `uses` without its `?`.
 | `kind` | string | `"choice"` | `"choice"` lists setting values. `"settings"` opens native settings directly. `"group"` lists children, each with its own list of values. |
 | `setting` | string | required for `choice` | The setting of a choice page. Omit it for `settings` and `group`. |
 | `off_row` | boolean | `false` | Row 0 shows the core Off icon instead of the Off icon of the page. |
-| `settings` | array of strings | `[]` | Up to 5 native settings rows (`GRKIT_SETTING_ROWS`). A choice page starts with its page setting. A settings page needs at least one row. |
-| `options` | boolean | `false` | The settings page of the module in the GRKU section of MENU has an Options row, which turns each value of the page on or off in ADJ, or each effect for a page of `CORE.TONE` (`GRKIT_CHOICE_OPTIONS`). A page of a setting with options needs `off_row` and at most 16 values. Without room on the settings page, its first rows leave it. |
+| `settings` | array of strings | `[]` | Up to 5 native settings rows (`GRKU_SETTING_ROWS`). A choice page starts with its page setting. A settings page needs at least one row. |
+| `options` | boolean | `false` | The settings page of the module in the GRKU section of MENU has an Options row, which turns each value of the page on or off in ADJ, or each effect for a page of `CORE.TONE` (`GRKU_CHOICE_OPTIONS`). A page of a setting with options needs `off_row` and at most 16 values. Without room on the settings page, its first rows leave it. |
 | `children` | array of tables | `[]` | A group page has 1 to 4 children, in display order. Other page kinds have none. |
 | `off_icon` | table | none | Optional [icon source](#icon-sources) of row 0 (Off) of a choice page without `off_row`. Without it, row 0 shows tile 0. The root row shows tile 0 while the setting is 0. Other page kinds have none. |
 | `fn_cycle` | table | none | `{ value = n, setting = "KEY" }`: in ADJ, Fn on the row of value `n` sets the setting to its next value, and to 0 after the last one. ADJ stays on the row, and the live view shows the change at once. Fn on the other rows opens the settings as before. `n` is a value of the page other than Off. The setting is a setting reference other than the page setting, with at least 2 values. Only a choice page whose rows come from the module has it. Needs ABI 2.5. |
@@ -109,7 +109,7 @@ icon = { setting = "HALATION", first_tile = 5 }
 
 The text files give `title`, `children.<KEY>.title`, and the label and values of each setting. A group has no choice `rows` or `summaries`. Tile 0 identifies the group. Without an explicit `icon`, tiles 1 to the child count identify its children in declaration order.
 
-The generator registers the group first, then its child settings pages. Each child has `GRKIT_PAGE_MENU_ONLY`, so only the group appears in the ADJ root. A group and its children consume one page slot each from the shared limit of 10 loaded pages.
+The generator registers the group first, then its child settings pages. Each child has `GRKU_PAGE_MENU_ONLY`, so only the group appears in the ADJ root. A group and its children consume one page slot each from the shared limit of 10 loaded pages.
 
 A page of `CORE.TONE` has no `off_row` and no `settings`, and it needs no tiles. Its text has only `title`. If tile 0 exists, the root row shows that tile while the setting is Off. Otherwise, the root row shows the Off icon.
 
@@ -243,11 +243,11 @@ A function names a setting by its handle, a `u32`.
 
 | Handle | Setting |
 | --- | --- |
-| `GRKIT_SETTING(n)` | setting n of this module |
-| `GRKIT_USED(n)` | used setting n, in the order of `uses` |
-| `SETTING_<KEY>` | `GRKIT_SETTING(n)` of the setting `<KEY>`, from the generated `grkit_module.h` |
-| `USED_<MODULE>_<KEY>` | `GRKIT_USED(n)` of the used setting `<MODULE>.<KEY>`, from the generated `grkit_module.h` |
-| `GRKIT_NO_SETTING` | an optional used setting that no loaded module has. `setting_get` returns 0. |
+| `GRKU_SETTING(n)` | setting n of this module |
+| `GRKU_USED(n)` | used setting n, in the order of `uses` |
+| `SETTING_<KEY>` | `GRKU_SETTING(n)` of the setting `<KEY>`, from the generated `grku_module.h` |
+| `USED_<MODULE>_<KEY>` | `GRKU_USED(n)` of the used setting `<MODULE>.<KEY>`, from the generated `grku_module.h` |
+| `GRKU_NO_SETTING` | an optional used setting that no loaded module has. `setting_get` returns 0. |
 
 ### Saved settings
 
@@ -263,7 +263,7 @@ The state file keeps a saved setting under a number that the core computes from 
 A module names each setting that it uses in `uses`, as `MODULE.KEY`. A used setting is a public setting of another loaded module, or a capability of the core, `CORE.<KEY>`.
 
 - If a required used setting is missing, the module does not load. The report gives error 55 with the name.
-- A name that starts with `?` is optional. If it is missing, its handle is `GRKIT_NO_SETTING`. The installer does not register a page, a layer, or a filter of that setting.
+- A name that starts with `?` is optional. If it is missing, its handle is `GRKU_NO_SETTING`. The installer does not register a page, a layer, or a filter of that setting.
 - A setting of a module that does not load is missing, also when that module comes later in the order. A module that is Off loads stopped, so its settings are not missing.
 
 ## Capabilities
@@ -294,16 +294,16 @@ A registration connects a part of the module to an extension point of the core. 
 
 | Point | Structure | Manifest |
 | --- | --- | --- |
-| `GRKIT_POINT_MENU_PAGE` (menu.page) | `GrkitPage` | `page` |
-| `GRKIT_POINT_OVERLAY_LAYER` (overlay.layer) | `GrkitLayer` | `layers` |
-| `GRKIT_POINT_VIEWFINDER_INDICATOR` (viewfinder.indicator) | `GrkitIndicator` | `indicators` |
-| `GRKIT_POINT_PICTURE_PLANE` (picture.plane) | `GrkitPlaneFilter` | `filters` |
+| `GRKU_POINT_MENU_PAGE` (menu.page) | `GrkuPage` | `page` |
+| `GRKU_POINT_OVERLAY_LAYER` (overlay.layer) | `GrkuLayer` | `layers` |
+| `GRKU_POINT_VIEWFINDER_INDICATOR` (viewfinder.indicator) | `GrkuIndicator` | `indicators` |
+| `GRKU_POINT_PICTURE_PLANE` (picture.plane) | `GrkuPlaneFilter` | `filters` |
 
 ### Pages
 
 A `choice` page lists one row for each value of its setting in ADJ. OK on a row sets the value. ADJ shows a choice page when it has at least two rows. ADJ Order in MENU sets the module order. The installer rejects a page whose number of rows is not the number of values of its setting.
 
-A page of a setting of the module can also give 2 to 5 rows of a native settings page (`GRKIT_SETTING_ROWS`), as `modules/date` does. The first row is the page setting, and the others are settings of the module or used settings, with at most 8 values each. The text of a used setting gives its `values`. INSTALL leaves out the row of an optional used setting that no module has. Fn in ADJ opens this page.
+A page of a setting of the module can also give 2 to 5 rows of a native settings page (`GRKU_SETTING_ROWS`), as `modules/date` does. The first row is the page setting, and the others are settings of the module or used settings, with at most 8 values each. The text of a used setting gives its `values`. INSTALL leaves out the row of an optional used setting that no module has. Fn in ADJ opens this page.
 
 A `settings` page shows one ADJ entry with its title and module tile. OK, Right, Fn, or a touch opens the native settings directly. Each row changes only its own setting. MENU shows Enable followed by the same rows.
 
@@ -313,7 +313,7 @@ Fn on a child opens the child's native settings page. Returning to ADJ restores 
 
 MENU shows the module's Enable row and one row for each child, with the value of the child's first setting. Each child row opens the same native settings page as ADJ. Returning from that page restores the module page. The module's Enable setting controls the whole module.
 
-Each module also has a row in the GRKU section of MENU. It opens Enable, then the rows of the settings page, or the row of the page setting for a page without settings rows. See [GRKU section of MENU](architecture.md#grkit-section-of-menu).
+Each module also has a row in the GRKU section of MENU. It opens Enable, then the rows of the settings page, or the row of the page setting for a page without settings rows. See [GRKU section of MENU](architecture.md#grku-section-of-menu).
 
 ### Layers
 
@@ -343,7 +343,7 @@ Layers paint in ascending `order`. A layer with the same order as another paints
 | 15 | the Crop mask |
 | 20 | Guides |
 
-The manifest keys `follow_disp`, `full_disp`, and `live_only` set the flags `GRKIT_LAYER_FOLLOW_DISP`, `GRKIT_LAYER_FULL_DISP`, and `GRKIT_LAYER_LIVE_ONLY`. While the page of a layer setting is open in ADJ, the core paints the layer with the highlighted value on the ADJ canvas.
+The manifest keys `follow_disp`, `full_disp`, and `live_only` set the flags `GRKU_LAYER_FOLLOW_DISP`, `GRKU_LAYER_FULL_DISP`, and `GRKU_LAYER_LIVE_ONLY`. While the page of a layer setting is open in ADJ, the core paints the layer with the highlighted value on the ADJ canvas.
 
 ### Plane filters
 
@@ -354,21 +354,21 @@ A plane filter changes the YCbCr planes of each recorded picture. The core calls
 | `PictureSet.planes` | the planes of one encode: the main picture, the screennail, and the thumbnail, without duplicates |
 | `PictureSet.count` | the number of planes |
 | `PictureSet.mono` | set for a monochrome picture |
-| `PictureSet.scratch` | `GRKIT_PLANE_SCRATCH` bytes of scratch memory for this call |
+| `PictureSet.scratch` | `GRKU_PLANE_SCRATCH` bytes of scratch memory for this call |
 | `PictureSet.turns` | the quarter turns clockwise that show the picture upright, from the posture of the camera at the shot: 0, 1, 2, or 3, as EXIF `Orientation` 1, 6, 3, or 8. The planes keep the landscape layout of the sensor. |
 | `Plane.y`, `Plane.c` | the addresses of the luma rows and of the interleaved CbCr rows |
 | `Plane.width`, `Plane.height`, `Plane.pitch` | the size, and the distance between rows in bytes |
 | `Plane.half` | set when there is one CbCr row for every second luma row. `chroma_row(p, y)` gives the CbCr row of luma row y. |
 | `Plane.left`, `top`, `right`, `bottom` | the visible area |
 
-Use `GRKIT_BYTES(address)` to address a byte of a plane.
+Use `GRKU_BYTES(address)` to address a byte of a plane.
 
 Filters run after the color of the effect, in ascending stage. In one stage, the filters run in the order of the modules.
 
 | Stage | Manifest | Use |
 | --- | --- | --- |
-| `GRKIT_STAGE_FRAME` (20) | `frame` | frames and borders |
-| `GRKIT_STAGE_MARK` (30) | `mark` | marks over the picture, such as the date |
+| `GRKU_STAGE_FRAME` (20) | `frame` | frames and borders |
+| `GRKU_STAGE_MARK` (30) | `mark` | marks over the picture, such as the date |
 
 ## Services
 
@@ -376,50 +376,50 @@ A module calls the core only through these functions. The installer links each c
 
 | Function | Description |
 | --- | --- |
-| `u32 setting_get(u32 handle)` | The value of a setting. 0 for `GRKIT_NO_SETTING`. |
+| `u32 setting_get(u32 handle)` | The value of a setting. 0 for `GRKU_NO_SETTING`. |
 | `void setting_set(u32 handle, u32 value)` | Set a setting. A value out of range does nothing. |
 | `void overlay_label(const Surface *s, u32 label, u32 left, u32 top)` | Draw a label of the core with its top left at (left, top), in the style of the native live-view text. A label that does not fit draws nothing. |
-| `void local_time(GrkitDateTime *out)` | The local time: year, month, day, hour, minute, and second. |
+| `void local_time(GrkuDateTime *out)` | The local time: year, month, day, hour, minute, and second. |
 | `u32 divide(u32 n, u32 d)` | n / d, rounded down, for d > 0. |
 | `void picture_white(const PictureSet *set, u8 white[3])` | The R, G, B white of the effect of a recorded picture: the levels that its brightest light reaches. 255 each without an effect. A color effect ends below 255. Since ABI 2.1. |
-| `void picture_shot(const PictureSet *set, GrkitShot *shot)` | The shooting data of a recorded picture, as its EXIF records it: the exposure (APEX values, the exposure value of the scene, the f-number, the ISO speed, the exposure time), the exposure compensation, the focal length, the program, the metering, the flash, and the capture time. Set `shot->size` to `sizeof(GrkitShot)` first. `known` has a bit for each group of fields that holds a value. Since ABI 2.1. |
+| `void picture_shot(const PictureSet *set, GrkuShot *shot)` | The shooting data of a recorded picture, as its EXIF records it: the exposure (APEX values, the exposure value of the scene, the f-number, the ISO speed, the exposure time), the exposure compensation, the focal length, the program, the metering, the flash, and the capture time. Set `shot->size` to `sizeof(GrkuShot)` first. `known` has a bit for each group of fields that holds a value. Since ABI 2.1. |
 | `u32 timer_start(u32 ms, void (*fire)(u32 arg), u32 arg)` | Call `fire(arg)` once, `ms` milliseconds later, in the App task. Returns a timer, or 0 when no timer is free or the caller is not in the App task. |
 | `void timer_cancel(u32 timer)` | Stop a timer that has not fired. |
-| `u32 ui_toast(GrkitText text, u32 ms)` | Show a message panel for `ms` milliseconds. See [UI](#ui). |
-| `u32 ui_message(GrkitText text, void (*done)(u32 arg), u32 arg)` | Show a message until OK or MENU. |
-| `u32 ui_confirm(GrkitText text, void (*done)(u32 executed, u32 arg), u32 arg)` | Ask Execute or Cancel. |
-| `u32 ui_progress_open(GrkitText text)` | Show a message with a progress bar. |
+| `u32 ui_toast(GrkuText text, u32 ms)` | Show a message panel for `ms` milliseconds. See [UI](#ui). |
+| `u32 ui_message(GrkuText text, void (*done)(u32 arg), u32 arg)` | Show a message until OK or MENU. |
+| `u32 ui_confirm(GrkuText text, void (*done)(u32 executed, u32 arg), u32 arg)` | Ask Execute or Cancel. |
+| `u32 ui_progress_open(GrkuText text)` | Show a message with a progress bar. |
 | `void ui_progress_set(u32 percent)` | Set the progress bar, 0 to 100. |
-| `void ui_progress_close(GrkitText text)` | Close the progress bar, and show `text` for 1.5 s, or close the box when `text` is 0. |
+| `void ui_progress_close(GrkuText text)` | Close the progress bar, and show `text` for 1.5 s, or close the box when `text` is 0. |
 | `u32 ui_open_native(u32 screen, void (*back)(u32 arg), u32 arg)` | Open a native screen of the camera, then return to the GRKU page and call `back(arg)`. See [UI](#ui). |
-| `u32 ui_slider(GrkitText text, u32 min, u32 max, u32 value, void (*changed)(u32 value, u32 arg), void (*done)(u32 committed, u32 value, u32 arg), u32 arg)` | Ask for a value from `min` to `max` with the native slider. See [UI](#ui). |
+| `u32 ui_slider(GrkuText text, u32 min, u32 max, u32 value, void (*changed)(u32 value, u32 arg), void (*done)(u32 committed, u32 value, u32 arg), u32 arg)` | Ask for a value from `min` to `max` with the native slider. See [UI](#ui). |
 
 `overlay_label` takes these labels:
 
 | Label | Text |
 | --- | --- |
-| `LABEL_GRKIT` | the GRKU cue |
+| `LABEL_GRKU` | the GRKU cue |
 | `LABEL_RATIO(area)` | the name of a capture area (`Surface.area`), such as "XPan" |
 | `LABEL_DATE` | "DATE", the sign that Date Imprint is on |
 
 `LABEL_TOP` is the top of a label in the second row of the native live-view text. `LABEL_LEFT` is the left edge that lines up with the native icons. A capture area label is at most 80 pixels wide, so a second label of the row starts at `LABEL_NEXT_LEFT` and never covers it.
 
-A module also imports `grkit_self`, its context, which `GRKIT_SETTING` and `GRKIT_USED` use. `grkit_core::grm::EXPORTS` lists the exported functions. A new service is an addition to that list and to `grkit.h`, and it raises the minor ABI version.
+A module also imports `grku_self`, its context, which `GRKU_SETTING` and `GRKU_USED` use. `grku_core::grm::EXPORTS` lists the exported functions. A new service is an addition to that list and to `grku.h`, and it raises the minor ABI version.
 
 ## Events
 
-A module subscribes to events with `[events]` in `module.toml` (`GrkitSubscriber`, registration point `GRKIT_POINT_EVENT`). The core calls the handler in the App task, which is the task of the camera UI. So a handler can call the timer and UI services.
+A module subscribes to events with `[events]` in `module.toml` (`GrkuSubscriber`, registration point `GRKU_POINT_EVENT`). The core calls the handler in the App task, which is the task of the camera UI. So a handler can call the timer and UI services.
 
 | Event | When | `a` | `b` |
 | --- | --- | --- | --- |
-| `GRKIT_EVENT_SYSTEM_READY` | once after each start, when the shooting screen first shows | 0 | 0 |
-| `GRKIT_EVENT_SETTING_CHANGED` | after a setting or a capability changes, in the GRKU menu or through `setting_set` | the handle | the new value |
+| `GRKU_EVENT_SYSTEM_READY` | once after each start, when the shooting screen first shows | 0 | 0 |
+| `GRKU_EVENT_SETTING_CHANGED` | after a setting or a capability changes, in the GRKU menu or through `setting_set` | the handle | the new value |
 
 A handler must return at once. A `setting_set` in a handler sends no second event, so a handler cannot loop. Layers and plane filters run in other tasks, where the timer and UI services refuse each call.
 
 ## UI
 
-The UI services show the native message box of the camera. A text is a `GrkitText`: one UTF-16 string for each menu language.
+The UI services show the native message box of the camera. A text is a `GrkuText`: one UTF-16 string for each menu language.
 
 - The box shows only while the GRKU page of ADJ is open. A call returns 1 when the box shows, else 0.
 - One box shows at a time. A toast closes when a new box opens. A message, a confirm, or a progress box takes each key until it closes.
@@ -429,42 +429,42 @@ The UI services show the native message box of the camera. A text is a `GrkitTex
 - `ui_message` closes on OK or MENU and calls `done(arg)`.
 - A progress box takes the keys until `ui_progress_close`. Use a timer to move the bar.
 - `ui_slider` shows the text and the native slider. Up and Down move it by one. Left and Right move it by a tenth of the range. Each move calls `changed(value, arg)`, for example to preview the value. OK calls `done(1, value, arg)`, MENU `done(0, start, arg)` with the value at the start. The range has at most 65536 values.
-- `ui_open_native` opens a native screen after the current event. MENU on the screen returns to ADJ, which opens the GRKU page that was open, and then the core calls `back(arg)` (`back` can be 0). The screens: `GRKIT_NATIVE_WHITE_BALANCE` (the white balance list of still mode) and `GRKIT_NATIVE_LCD` (the LCD settings). It returns 0 for an unknown screen, while a message, a confirm, or a progress box shows, or while another screen waits to open.
+- `ui_open_native` opens a native screen after the current event. MENU on the screen returns to ADJ, which opens the GRKU page that was open, and then the core calls `back(arg)` (`back` can be 0). The screens: `GRKU_NATIVE_WHITE_BALANCE` (the white balance list of still mode) and `GRKU_NATIVE_LCD` (the LCD settings). It returns 0 for an unknown screen, while a message, a confirm, or a progress box shows, or while another screen waits to open.
 
 The UI services work only in an event handler, a timer callback, or a UI callback, which the core calls in the App task. In other code they return 0.
 
 ## ABI and compatibility
 
-**ABI version.** `GRKIT_ABI` is 2.6: the major version in the high 16 bits, the minor version in the low 16 bits. The build writes it into the file header and into the descriptor. The installer loads a module whose major version equals that of the core and whose minor version is not larger. A minor version adds capabilities without changing existing contracts. A major version can change an existing layout.
+**ABI version.** `GRKU_ABI` is 2.6: the major version in the high 16 bits, the minor version in the low 16 bits. The build writes it into the file header and into the descriptor. The installer loads a module whose major version equals that of the core and whose minor version is not larger. A minor version adds capabilities without changing existing contracts. A major version can change an existing layout.
 
 In 2.0, each text list also has a Korean text. The installer rejects a module with ABI 1.0 (status 51). Build such a module again with a `text/ko.toml`.
 
-ABI 2.1 adds `picture_white`, `picture_shot`, setting defaults, and the settings and group page kinds. `GrkitSetting` appends `default_value`, and `GrkitPage` appends the group `children` pointer. The installer accepts older 16-byte settings and 40-byte pages. Older settings have default 0. A group needs the 44-byte page descriptor and registers each child separately.
+ABI 2.1 adds `picture_white`, `picture_shot`, setting defaults, and the settings and group page kinds. `GrkuSetting` appends `default_value`, and `GrkuPage` appends the group `children` pointer. The installer accepts older 16-byte settings and 40-byte pages. Older settings have default 0. A group needs the 44-byte page descriptor and registers each child separately.
 
-ABI 2.2 adds `GrkitIndicator`, `GrkitCondition`, and `GrkitIcon`. `GrkitPage` appends an optional `icon` pointer after `children`. The installer still accepts 40-byte and 44-byte pages. Their icons keep the existing tile rules. `GrkitLayer` and `Surface` keep their existing layouts.
+ABI 2.2 adds `GrkuIndicator`, `GrkuCondition`, and `GrkuIcon`. `GrkuPage` appends an optional `icon` pointer after `children`. The installer still accepts 40-byte and 44-byte pages. Their icons keep the existing tile rules. `GrkuLayer` and `Surface` keep their existing layouts.
 
-ABI 2.3 appends `condition_count` and `conditions` to `GrkitLayer`, increasing its descriptor from 20 to 28 bytes.
+ABI 2.3 appends `condition_count` and `conditions` to `GrkuLayer`, increasing its descriptor from 20 to 28 bytes.
 The installer still accepts 20-byte layers, which have no enabled conditions.
 A 28-byte layer without conditions has count zero and a null pointer.
-A conditional layer has 1 to 4 `GrkitCondition` entries.
+A conditional layer has 1 to 4 `GrkuCondition` entries.
 The installer rejects layer descriptors of 21 to 27 bytes.
 `Surface` keeps its existing layout.
 
 ABI 2.3 also moves the tiles out of the code. The header word at offset 60, which was reserved and 0, gives the number of tiles that follow the import names. The descriptor then gives `tile_count` and a null `tiles` pointer. The installer still accepts tiles in the code, through a `tiles` pointer and a header word of 0. It rejects tiles after the file of a module of ABI 2.2 or earlier, tiles in both places, and a `tile_count` that differs from the header.
 
-ABI 2.3 adds the icon kind `GRKIT_ICON_LABEL` (3) for status-row indicators: a core live-view label, `first_tile` + n for setting value n, or `first_tile` without a setting. The installer rejects it for pages and the Image Control slot, and when the labels of the setting values do not exist.
+ABI 2.3 adds the icon kind `GRKU_ICON_LABEL` (3) for status-row indicators: a core live-view label, `first_tile` + n for setting value n, or `first_tile` without a setting. The installer rejects it for pages and the Image Control slot, and when the labels of the setting values do not exist.
 
-ABI 2.4 adds the setting flag `GRKIT_SETTING_COLOR_ONLY` (4). The installer of an earlier core rejects a setting with this flag.
+ABI 2.4 adds the setting flag `GRKU_SETTING_COLOR_ONLY` (4). The installer of an earlier core rejects a setting with this flag.
 
-ABI 2.4 also appends `flags` to `GrkitModule`, increasing its descriptor from 40 to 44 bytes. The flag `GRKIT_MODULE_COLOR_ONLY` (1) makes a module color-only. The installer still accepts 40-byte descriptors, which have no flags, and rejects an unknown flag.
+ABI 2.4 also appends `flags` to `GrkuModule`, increasing its descriptor from 40 to 44 bytes. The flag `GRKU_MODULE_COLOR_ONLY` (1) makes a module color-only. The installer still accepts 40-byte descriptors, which have no flags, and rejects an unknown flag.
 
-ABI 2.5 appends the Fn value and setting of `fn_cycle` to `GrkitPage`, increasing its descriptor to 56 bytes.
+ABI 2.5 appends the Fn value and setting of `fn_cycle` to `GrkuPage`, increasing its descriptor to 56 bytes.
 
 ABI 2.6 adds the capabilities `CORE.CROP` and `CORE.CROP_MODE`. `Surface` keeps its layout.
 
-**File format.** A module file is GRM version 1 (`grkit_core::grm`): a header, the code, the data, the relocations, the imports, and the tiles. The build compiles each source as Thumb code for ARMv7-A with `-Os`. The installer only moves absolute 32-bit words and fills the imports by name hash. The build rejects other relocation types and each undefined symbol that is not a service or `grkit_self`.
+**File format.** A module file is GRM version 1 (`grku_core::grm`): a header, the code, the data, the relocations, the imports, and the tiles. The build compiles each source as Thumb code for ARMv7-A with `-Os`. The installer only moves absolute 32-bit words and fills the imports by name hash. The build rejects other relocation types and each undefined symbol that is not a service or `grku_self`.
 
-**Memory.** The code, with the constant data, goes after the RTOS image and is read-only. The tiles stay out of it: INSTALL copies them from the file to the icon slots. The data and BSS go into one script array that all modules share, and INSTALL clears the BSS. The installer runs no module code at power-on: it reads the constant descriptor `grkit_module`.
+**Memory.** The code, with the constant data, goes after the RTOS image and is read-only. The tiles stay out of it: INSTALL copies them from the file to the icon slots. The data and BSS go into one script array that all modules share, and INSTALL clears the BSS. The installer runs no module code at power-on: it reads the constant descriptor `grku_module`.
 
 **Stack.** Module code runs on the stacks of firmware tasks. The build rejects a function whose stack frame is larger than 1536 bytes. It does not check the total stack of nested calls.
 

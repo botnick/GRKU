@@ -1,9 +1,9 @@
 """Regenerate effects/golden.json from a compiled catalog: the SHA-256 of each GRF file and of
-each icon. Usage: python3 -I scripts/golden.py BUILD_DIR (the --out of `grkit effects build`)."""
+each icon. Usage: python3 -I scripts/golden.py BUILD_DIR (the --out of `grku effects build`)."""
 import hashlib, json, pathlib, sys
 repo = pathlib.Path(__file__).resolve().parent.parent
 build = pathlib.Path(sys.argv[1])
-GRF_ICON, ICON_SIZE = 1684, 6400  # runtime/abi.h GRKIT_GRF_ICON, GRKIT_GRF_ICON_SIZE
+GRF_ICON, ICON_SIZE = 1684, 6400  # runtime/abi.h GRKU_GRF_ICON, GRKU_GRF_ICON_SIZE
 golden = json.load(open(repo / 'effects/golden.json'))
 grf, icons = {}, {}
 for f in sorted(repo.glob('effects/*/effect.json')):

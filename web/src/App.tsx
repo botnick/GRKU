@@ -23,7 +23,7 @@ import {
   pickCard,
   planChanges,
   readFile,
-  removeGrkit,
+  removeGrku,
   removeModesetFiles,
   writeFiles,
   type CardChanges,
@@ -100,7 +100,7 @@ import { useCatalog } from './useCatalog';
 /** The Tally form for problems, feature ideas, and questions. A plain link, so the page loads nothing from Tally. */
 const FEEDBACK_FORM = `${REPOSITORY}/issues`;
 /** The release notes of the GRKU version that the site packages, on the releases page. */
-const RELEASE_URL = `${REPOSITORY}/releases#release-v${__GRKIT_VERSION__}`;
+const RELEASE_URL = `${REPOSITORY}/releases#release-v${__GRKU_VERSION__}`;
 
 /** The steps of a guide. */
 const STEPS = 'flex max-w-[72ch] list-decimal flex-col gap-3 pl-6 leading-relaxed';
@@ -502,7 +502,7 @@ export function App({
     removeAction(
       { kind: 'finishing' },
       async (session) => {
-        await removeGrkit(session.root, data);
+        await removeGrku(session.root, data);
         if (scriptsOff) await writeFiles(session.root, await scriptsOffCardFiles(camera.id));
         trackCardUninstall(camera, data, scriptsOff);
       },
@@ -547,13 +547,13 @@ export function App({
   function cardChanges(session: CardSession, checked: readonly string[]): CardChanges {
     const changes = planChanges(
       session.state,
-      __GRKIT_VERSION__,
+      __GRKU_VERSION__,
       plan.modules,
       plan.includeEffects
         ? { before: [...session.effects.keys()], after: checked, changed: [...changedImports(session, imported)] }
         : null,
     );
-    return session.written && changes.grkit === 'update' ? { ...changes, grkit: 'same' } : changes;
+    return session.written && changes.grku === 'update' ? { ...changes, grku: 'same' } : changes;
   }
 
   /** Writes the changes that the user confirmed, then reads the card again. */
@@ -598,7 +598,7 @@ export function App({
         lines: [
           t.cardDone,
           t.cardStepInsert,
-          ...(changes.grkit === 'install' ? [t.cardDoneFirst] : changes.scriptsOn ? [t.cardEnable] : []),
+          ...(changes.grku === 'install' ? [t.cardDoneFirst] : changes.scriptsOn ? [t.cardEnable] : []),
           t.steps[3]!.join(''),
         ],
       });
@@ -607,7 +607,7 @@ export function App({
         plan,
         plan.includeEffects ? checked.length : 0,
         language,
-        changes.grkit === 'same' ? 'change' : changes.grkit,
+        changes.grku === 'same' ? 'change' : changes.grku,
       );
     } catch (error) {
       console.error(error);
@@ -642,7 +642,7 @@ export function App({
         },
       );
       if (run === buildRun.current) {
-        save(blob, packageFilename(__GRKIT_VERSION__, camera.name, new Date()));
+        save(blob, packageFilename(__GRKU_VERSION__, camera.name, new Date()));
         trackDownload(camera, plan, effects.length, language);
         setBuild({ state: 'ready' });
       }
@@ -871,7 +871,7 @@ export function App({
           {appBrowser ? t.appBrowser : cardHintKind === 'computer' ? t.cardComputer : t.cardBrowser}
         </div>
       )}
-      <Masthead strings={t} language={language} onLanguage={chooseLanguage} version={__GRKIT_VERSION__} releaseUrl={RELEASE_URL} />
+      <Masthead strings={t} language={language} onLanguage={chooseLanguage} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} />
       <main id="top" className="mx-auto w-full max-w-[1280px] px-gutter pb-8">
         <Workbench
           strings={t}
@@ -1008,7 +1008,7 @@ export function App({
 
         <Faq strings={t} />
       </main>
-      <SiteFooter strings={t} language={language} version={__GRKIT_VERSION__} releaseUrl={RELEASE_URL} />
+      <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} />
       <PlusSheet
         open={plusOpen}
         onOpenChange={setPlusOpen}
@@ -1050,7 +1050,7 @@ function cardErrorLines(error: unknown, t: Strings, partial: boolean): string[] 
 /** The build when there is exactly one, else null. */
 const oneBuild = (builds: readonly string[]) => (builds.length === 1 ? builds[0]! : null);
 
-const MODE_KEY = 'grkit.installMode';
+const MODE_KEY = 'grku.installMode';
 
 /** The storage of this site, or null when the browser blocks it. */
 function browserStorage(): Storage | null {
@@ -1128,7 +1128,7 @@ function CardChangesSection({ strings: t, session, selection, imported, cardEffe
       strings={t}
       session={session}
       changes={changes(session, [...checked])}
-      version={__GRKIT_VERSION__}
+      version={__GRKU_VERSION__}
       releaseUrl={RELEASE_URL}
       effectCount={checked.size}
       moduleName={moduleName}

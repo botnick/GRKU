@@ -1,8 +1,8 @@
-#ifndef GRKIT_INSTALL_EFFECTS_H
-#define GRKIT_INSTALL_EFFECTS_H
+#ifndef GRKU_INSTALL_EFFECTS_H
+#define GRKU_INSTALL_EFFECTS_H
 /* A line of the boot log of a one-shot start (installer.c), or nothing. */
-#ifndef GRKIT_PHASE_LOG
-#define GRKIT_PHASE_LOG(step, status) ((void)0)
+#ifndef GRKU_PHASE_LOG
+#define GRKU_PHASE_LOG(step, status) ((void)0)
 #endif
 /* A part of the installer: the listed effects, their choices, and their
    records. installer.c includes it once, in its order, after the helpers and
@@ -81,13 +81,13 @@ static void choose_effects(void)
             listed_record[i] = count++;
         }
 }
-/* The effects of GRKU/EFFECTS: GRKit lists at most EFFECTS_LISTED, those
+/* The effects of GRKU/EFFECTS: GRKU lists at most EFFECTS_LISTED, those
    with the smallest IDs, and installs at most MAX_COUNT of them. */
 static int tone_used(void);
 static int discover(void)
 {
     count=0; listed_count=0; overflow_count=0;
-#ifdef GRKIT_NO_IMAGE_CONTROL
+#ifdef GRKU_NO_IMAGE_CONTROL
     /* Without Image Control, the target has no use for effect files. */
     return 0;
 #endif
@@ -103,7 +103,7 @@ static int discover(void)
         int status=directory_list(fd,directory_entries,sizeof(directory_entries),&calls,offer_effect,(void *)library_path);
         syscall6(6,fd,0,0,0,0,0);
         if(status) return status;
-        GRKIT_PHASE_LOG("listed",(int)listed_count);
+        GRKU_PHASE_LOG("listed",(int)listed_count);
     }
     for(u32 i=0;i<pending_count;++i) {
         char path[EFFECT_PATH_SIZE];
@@ -114,15 +114,15 @@ static int discover(void)
 }
 /* Photos record this code as their Image Control tag. It stays stable across
    catalogs and outside the native values 256..267. */
-#ifdef GRKIT_NATIVE_TONE_PAGE
+#ifdef GRKU_NATIVE_TONE_PAGE
 /* The target also records native values in this 256-value page. */
-#define NATIVE_CODE(code) ((code) >> 8 == GRKIT_NATIVE_TONE_PAGE)
+#define NATIVE_CODE(code) ((code) >> 8 == GRKU_NATIVE_TONE_PAGE)
 #else
 #define NATIVE_CODE(code) 0
 #endif
-#ifndef GRKIT_NO_IMAGE_CONTROL
+#ifndef GRKU_NO_IMAGE_CONTROL
 /* The MultiAxial parameter set of an effect with hue sectors (GRF feature 8,
-   grkit_core::hue), at RECORD_MULTIAXIAL. The firmware reads a set as six
+   grku_core::hue), at RECORD_MULTIAXIAL. The firmware reads a set as six
    pointers: bounds (16 u16, four descending ones per Cb/Cr quadrant), bank
    selectors (20 u8, five segments per quadrant), a matrix header whose word
    +0x10 points to 60 3x3 i32 Q10 matrices (12 banks x 5 levels), region values,
@@ -136,16 +136,16 @@ static int discover(void)
    (type 11). A native look (feature 32) gives its own bounds, selectors, all 21
    control fields, and the matrices of every bank and level (grf_native_matrix);
    a capture with highlight correction keeps that set. */
-static const u16 multiaxial_bounds[16] = GRKIT_HUE_BOUNDS;
-static const u8 multiaxial_banks[20] = GRKIT_HUE_SELECTORS;
-static const u16 multiaxial_levels[8] = GRKIT_HUE_LEVEL_CONTROL;
-static const u16 multiaxial_levels_halved[8] = GRKIT_HUE_LEVEL_CONTROL_HALVED;
+static const u16 multiaxial_bounds[16] = GRKU_HUE_BOUNDS;
+static const u8 multiaxial_banks[20] = GRKU_HUE_SELECTORS;
+static const u16 multiaxial_levels[8] = GRKU_HUE_LEVEL_CONTROL;
+static const u16 multiaxial_levels_halved[8] = GRKU_HUE_LEVEL_CONTROL_HALVED;
 static void multiaxial(u32 record, const u8 *profile)
 {
-    const u8 *sectors = profile + GRKIT_GRF_HUE;
-    int levels = (get32(profile + GRKIT_GRF_FEATURES) & GRKIT_FEATURE_HUE_LEVELS) != 0;
-    int native = (get32(profile + GRKIT_GRF_FEATURES) & GRKIT_FEATURE_NATIVE_LOOK) != 0;
-    u32 slot = record + GRKIT_RECORD_MULTIAXIAL, table = slot + 0x98;
+    const u8 *sectors = profile + GRKU_GRF_HUE;
+    int levels = (get32(profile + GRKU_GRF_FEATURES) & GRKU_FEATURE_HUE_LEVELS) != 0;
+    int native = (get32(profile + GRKU_GRF_FEATURES) & GRKU_FEATURE_NATIVE_LOOK) != 0;
+    u32 slot = record + GRKU_RECORD_MULTIAXIAL, table = slot + 0x98;
     u32 stock = word(TABLE_ADDRESS(1) + 11 * 4);
     store(slot, slot + 8);
     store(slot + 8, slot + 0x20);
@@ -154,12 +154,12 @@ static void multiaxial(u32 record, const u8 *profile)
     store(slot + 20, word(stock + 12));
     store(slot + 24, slot + 0x6c);
     store(slot + 28, word(stock + 20));
-    copy(at(slot + 0x20), native ? profile + GRKIT_NATIVE_BOUNDS : (const u8 *)multiaxial_bounds, sizeof multiaxial_bounds);
-    copy(at(slot + 0x40), native ? profile + GRKIT_NATIVE_SELECTORS : multiaxial_banks, sizeof multiaxial_banks);
+    copy(at(slot + 0x20), native ? profile + GRKU_NATIVE_BOUNDS : (const u8 *)multiaxial_bounds, sizeof multiaxial_bounds);
+    copy(at(slot + 0x40), native ? profile + GRKU_NATIVE_SELECTORS : multiaxial_banks, sizeof multiaxial_banks);
     for (u32 k = 0; k < 5; ++k) store(slot + 0x58 + k * 4, table);
     volatile u16 *control = (volatile u16 *)at(slot + 0x6c);
     if (native) {
-        const u8 *fields = profile + GRKIT_NATIVE_CONTROL;
+        const u8 *fields = profile + GRKU_NATIVE_CONTROL;
         for (u32 k = 0; k < 21; ++k) control[k] = (u16)(fields[k * 2] | fields[k * 2 + 1] << 8);
         for (u32 bank = 0; bank < 12; ++bank)
             for (u32 level = 0; level < 5; ++level) {
@@ -173,13 +173,13 @@ static void multiaxial(u32 record, const u8 *profile)
     control[0] = 0;
     for (u32 k = 1; k <= 8; ++k) control[k] = levels ? multiaxial_levels[k - 1] : 0xfff;
     control[9] = 0;
-    const u8 *fields = sectors + GRKIT_HUE_MATRICES;
+    const u8 *fields = sectors + GRKU_HUE_MATRICES;
     for (u32 k = 0; k < 11; ++k) control[10 + k] = (u16)(fields[k * 2] | fields[k * 2 + 1] << 8);
     for (u32 bank = 0; bank < 12; ++bank)
         for (u32 level = 0; level < 5; ++level) {
-            /* Levels 1 to 3 follow GRKIT_HUE_LEVEL_OFFSET; level 4 repeats level 3. */
+            /* Levels 1 to 3 follow GRKU_HUE_LEVEL_OFFSET; level 4 repeats level 3. */
             u32 from = levels ? (level < 4 ? level : 3) : 0;
-            const u8 *c = from ? profile + GRKIT_HUE_LEVEL_OFFSET + (from - 1) * GRKIT_HUE_MATRICES : sectors;
+            const u8 *c = from ? profile + GRKU_HUE_LEVEL_OFFSET + (from - 1) * GRKU_HUE_MATRICES : sectors;
             int m[9] = {1024, 0, 0, 0, 1024, 0, 0, 0, 1024};
             for (u32 r = 0; bank && r < 3; ++r) {
                 /* GRF validation keeps each diagonal within the 12-bit register. */

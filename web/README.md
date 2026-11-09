@@ -1,14 +1,14 @@
 # GRKU site
 
-The site lets a user select a camera, the modules, and the effects, preview the effects, and download `GRKU.zip` or write it to an SD card. The browser builds the package with `grkit-wasm`. The only server code is the Cloudflare Pages worker of the root page, which sends a visitor to the page of their language.
+The site lets a user select a camera, the modules, and the effects, preview the effects, and download `GRKU.zip` or write it to an SD card. The browser builds the package with `grku-wasm`. The only server code is the Cloudflare Pages worker of the root page, which sends a visitor to the page of their language.
 
 The site serves these files:
 
 | Path | Source |
 |---|---|
 | `index.html`, `zh-hans/`, `zh-hant/`, `ja/`, `ko/`, the `fastboot/` page of each, `404.html`, `sitemap.xml`, `robots.txt`, `_worker.js`, `_routes.json`, `assets/`, `_headers`, `THIRD_PARTY_LICENSES.txt` | `pnpm build` in this directory |
-| `runtime/<target>/` | `grkit site`, for each runtime build of `grkit release-plan` |
-| `effects/<target>/` | `grkit effects publish`, for each runtime build of `grkit release-plan` |
+| `runtime/<target>/` | `grku site`, for each runtime build of `grku release-plan` |
+| `effects/<target>/` | `grku effects publish`, for each runtime build of `grku release-plan` |
 
 Each language has its own page. `scripts/prerender.mjs` renders the first screen of each page into its HTML, with the canonical and hreflang links, so search engines read the text without the script. The worker (`src/edge.ts`) runs only for `/`. It sends the visitor to the language that they chose before, else to the browser language. The country of the IP address decides only when the browser sends no language.
 
@@ -25,16 +25,16 @@ The tools are Node.js 24, pnpm, the `wasm32-unknown-unknown` Rust target, and wa
 3. Make the site data from the repository root. The commands need the official firmware and the ARM toolchain. See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
    ```sh
-   grkit build --target gr3-2.10 --firmware fwdc239b.bin --out dist/runtime-local
-   grkit site --build dist/runtime-local --out dist/site-data
-   grkit effects publish --source effects --firmware fwdc239b.bin --out dist/site-data/effects/gr3-2.10
+   grku build --target gr3-2.10 --firmware fwdc239b.bin --out dist/runtime-local
+   grku site --build dist/runtime-local --out dist/site-data
+   grku effects publish --source effects --firmware fwdc239b.bin --out dist/site-data/effects/gr3-2.10
    sh .github/scripts/install-guide-tools.sh dist/guide-tools
-   sh .github/scripts/build-guides.sh grkit dist/guide-tools dist/site-data/guides
+   sh .github/scripts/build-guides.sh grku dist/guide-tools dist/site-data/guides
    ```
 
-   For GR IV, also build `gr4-1.11` from `fwdc248b.bin`, add it with `grkit site`, and publish its effects with `--target gr4-1.11`. Without them, only the GR III and GR IIIx packages work.
+   For GR IV, also build `gr4-1.11` from `fwdc248b.bin`, add it with `grku site`, and publish its effects with `--target gr4-1.11`. Without them, only the GR III and GR IIIx packages work.
 
-4. Start the development server: `pnpm dev`. The server reads the site data from `../dist/site-data`. To use another directory, set `GRKIT_SITE_DATA`.
+4. Start the development server: `pnpm dev`. The server reads the site data from `../dist/site-data`. To use another directory, set `GRKU_SITE_DATA`.
 
 To add Plausible analytics to a build, set `PLAUSIBLE_HOST` to the Plausible origin, for example `https://plausible.example.com`. The build then adds the script to `index.html` and allows it in the Content-Security-Policy of `_headers`. Release reads the repository variable `PLAUSIBLE_HOST`.
 
@@ -50,7 +50,7 @@ pnpm build
 
 ## Preview
 
-The page opens with a GR IIIx sample photo. A user can also select a DNG from any camera. A Worker decodes it with LibRaw into linear sRGB in the browser, and a second Worker applies the preview tables of `grkit effects publish`. Photos are not uploaded to a server.
+The page opens with a GR IIIx sample photo. A user can also select a DNG from any camera. A Worker decodes it with LibRaw into linear sRGB in the browser, and a second Worker applies the preview tables of `grku effects publish`. Photos are not uploaded to a server.
 
 The effects are fitted to the GR III, and LibRaw's color processing differs from the camera's. The previews are therefore approximations.
 
@@ -58,11 +58,11 @@ LibRaw is distributed under CDDL-1.0. `THIRD_PARTY_LICENSES.txt` includes its no
 
 ## Fast start
 
-The Fast start page (`/fastboot/` under each language page) makes the fast-boot firmware (`docs/fastboot.md`) from an official firmware update file that the user selects. `patchFirmware` of `grkit-wasm` refuses any other file and checks the result against its SHA-256. The file is not uploaded.
+The Fast start page (`/fastboot/` under each language page) makes the fast-boot firmware (`docs/fastboot.md`) from an official firmware update file that the user selects. `patchFirmware` of `grku-wasm` refuses any other file and checks the result against its SHA-256. The file is not uploaded.
 
 ## LUT import
 
-The Import a LUT row at the end of the effect list, and the link under the selection buttons, open a dialog. The dialog fits a `.cube` file or a LUT image into an effect. It uses the fit of `grkit effects import` ([Import a LUT](../effects/README.md#import-a-lut)). The page fits over the `base_gamma` of the `gr3-2.10` catalog. A catalog without it hides the row and the link.
+The Import a LUT row at the end of the effect list, and the link under the selection buttons, open a dialog. The dialog fits a `.cube` file or a LUT image into an effect. It uses the fit of `grku effects import` ([Import a LUT](../effects/README.md#import-a-lut)). The page fits over the `base_gamma` of the `gr3-2.10` catalog. A catalog without it hides the row and the link.
 
 1. The user selects a file. The dialog fills in the effect name and the icon from the file name.
 2. The Auto input is a guess from the LUT data. The dialog says what the guess cannot tell, so the user can select the input.
@@ -81,14 +81,14 @@ The first section of the page selects how to install: write to an SD card in a c
 
 A write (`applyChanges` in `src/card.ts`):
 
-- It writes the `SD_ROOT` files of the verified package (`Package.cardFiles`), only the ones that differ, as a merge copy of `SD_ROOT` does. It keeps `GRKU` and the `SCRIPT/PLUGINS` folder of GRKit 1.2, which the first power-on migrates. The ModeSet files go only on a card without GRKit.
+- It writes the `SD_ROOT` files of the verified package (`Package.cardFiles`), only the ones that differ, as a merge copy of `SD_ROOT` does. It keeps `GRKU` and the `SCRIPT/PLUGINS` folder of GRKit 1.2, which the first power-on migrates. The ModeSet files go only on a card without GRKU.
 - It writes `PACKAGE.TXT` and `SCRIPT/STARTUP.TTL` last, reads each file back, and deletes the `._` files that macOS adds for the files that it wrote.
 - It adds and removes effects in the library `GRKU/EFFECTS` when the library exists. SCAN migrates the effects of GRKit 1.2 only when it creates the library, so the page does not create it, and the effects of GRKit 1.2 cannot be removed before that power-on.
 - It deletes the package files that the new `PACKAGE.TXT` does not name. It never writes to `GRKU/MODULES`, because a file there replaces a newer package module.
 
 In card mode, Uninstall GRKU acts on the connected card. It shows only while the card has GRKU, or has the files that turn SD scripts off:
 
-- Uninstall (`removeGrkit`) deletes `SCRIPT/GRKU`, `SCRIPT/PLUGINS`, and `SCRIPT/STARTUP.TTL` when it runs one of them. Other files in `SCRIPT` stay. The data folder `GRKU` goes only when the user also selects the settings and effects. A dialog asks for a confirmation first, with the choices to delete the settings and effects too and to turn SD scripts off.
+- Uninstall (`removeGrku`) deletes `SCRIPT/GRKU`, `SCRIPT/PLUGINS`, and `SCRIPT/STARTUP.TTL` when it runs one of them. Other files in `SCRIPT` stay. The data folder `GRKU` goes only when the user also selects the settings and effects. A dialog asks for a confirmation first, with the choices to delete the settings and effects too and to turn SD scripts off.
 - Turn off SD scripts writes the ModeSet file with the disable command and `DEVELOP.MOD`. When the card has that ModeSet file, the page offers to delete the two files after the camera step.
 
 `src/card.test.ts` checks this logic against an in-memory card that behaves like a FAT card on macOS.

@@ -1,5 +1,5 @@
 """Copy the GRF files of the default effects (effects/defaults.txt) from a full effects build
-into the directory that `grkit package --effects` takes, and write OUT_DIR-INDEX.txt next to it
+into the directory that `grku package --effects` takes, and write OUT_DIR-INDEX.txt next to it
 (the package takes GRF files only).
 Usage: python3 -I scripts/defaults.py BUILD_DIR OUT_DIR"""
 import hashlib, json, pathlib, shutil, sys

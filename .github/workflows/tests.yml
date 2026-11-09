@@ -23,7 +23,7 @@ jobs:
       matrix:
         os: [ubuntu-24.04, macos-15]
     env:
-      GRKIT_REQUIRE_NATIVE_TESTS: '1'
+      GRKU_REQUIRE_NATIVE_TESTS: '1'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -54,35 +54,35 @@ jobs:
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - run: cargo test --workspace --locked
       - run: cargo build --workspace --locked
-      - run: cargo build -p grkit-wasm --target wasm32-unknown-unknown --release --locked
+      - run: cargo build -p grku-wasm --target wasm32-unknown-unknown --release --locked
       - if: runner.os == 'Linux'
-        run: GRKIT_CLANG=clang-21 GRKIT_LLD=ld.lld-21 cargo test -p grkit-build --locked -- --ignored synthetic_ dump_
+        run: GRKU_CLANG=clang-21 GRKU_LLD=ld.lld-21 cargo test -p grku-build --locked -- --ignored synthetic_ dump_
       - if: runner.os == 'Linux'
-        run: GRKIT_CLANG=clang-21 GRKIT_LLD=ld.lld-21 cargo test -p grkit-firmware --locked -- --ignored fastboot_code_
+        run: GRKU_CLANG=clang-21 GRKU_LLD=ld.lld-21 cargo test -p grku-firmware --locked -- --ignored fastboot_code_
       - if: runner.os == 'Linux'
         name: Check the Date Imprint ARM stack budget
         env:
-          GRKIT_CLANG: clang-21
-          GRKIT_LLD: ld.lld-21
+          GRKU_CLANG: clang-21
+          GRKU_LLD: ld.lld-21
         run: |
           test_name=tests::modules::date_blur_stays_within_stack_budget
-          cargo test -p grkit-build --locked --lib -- --ignored --exact "$test_name" --list \
+          cargo test -p grku-build --locked --lib -- --ignored --exact "$test_name" --list \
             | grep -Fx "$test_name: test"
-          cargo test -p grkit-build --locked --lib -- --ignored --exact "$test_name"
+          cargo test -p grku-build --locked --lib -- --ignored --exact "$test_name"
       - if: runner.os == 'Linux'
         name: Check native memory safety
         env:
-          GRKIT_SANITIZER_CC: clang-21
-          GRKIT_HOST_CC: ${{ github.workspace }}/.github/scripts/clang-sanitized.sh
+          GRKU_SANITIZER_CC: clang-21
+          GRKU_HOST_CC: ${{ github.workspace }}/.github/scripts/clang-sanitized.sh
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
         run: |
-          cargo run --locked -p grkit-cli -- module test --dir modules/glow --cc "$GRKIT_HOST_CC"
-          cargo run --locked -p grkit-cli -- module test --dir modules/diffusion --cc "$GRKIT_HOST_CC"
-          cargo run --locked -p grkit-cli -- module test --dir modules/date --cc "$GRKIT_HOST_CC"
-          cargo run --locked -p grkit-cli -- module test --dir modules/lightleak --cc "$GRKIT_HOST_CC"
-          cargo test --locked -p grkit-core --test native_contracts
-      - run: cargo build --release --locked -p grkit-cli
-      - run: target/release/grkit --help
+          cargo run --locked -p grku-cli -- module test --dir modules/glow --cc "$GRKU_HOST_CC"
+          cargo run --locked -p grku-cli -- module test --dir modules/diffusion --cc "$GRKU_HOST_CC"
+          cargo run --locked -p grku-cli -- module test --dir modules/date --cc "$GRKU_HOST_CC"
+          cargo run --locked -p grku-cli -- module test --dir modules/lightleak --cc "$GRKU_HOST_CC"
+          cargo test --locked -p grku-core --test native_contracts
+      - run: cargo build --release --locked -p grku-cli
+      - run: target/release/grku --help
   guides:
     runs-on: ubuntu-24.04
     steps:
@@ -91,11 +91,11 @@ jobs:
           ref: ${{ inputs.ref }}
       - run: rustup toolchain install 1.92.0 --profile minimal
       - run: rustup default 1.92.0
-      - run: cargo build --locked -p grkit-cli
+      - run: cargo build --locked -p grku-cli
       - name: Build the installation guides
         run: |
           sh .github/scripts/install-guide-tools.sh "$RUNNER_TEMP/guide-tools"
-          sh .github/scripts/build-guides.sh target/debug/grkit "$RUNNER_TEMP/guide-tools" "$RUNNER_TEMP/guides"
+          sh .github/scripts/build-guides.sh target/debug/grku "$RUNNER_TEMP/guide-tools" "$RUNNER_TEMP/guides"
   web:
     runs-on: ubuntu-24.04
     steps:

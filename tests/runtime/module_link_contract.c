@@ -5,7 +5,7 @@ typedef unsigned char u8;
 typedef unsigned int u32;
 #include "module_link.h"
 
-/* A module file built by hand (crates/grkit-core/src/grm.rs), with code
+/* A module file built by hand (crates/grku-core/src/grm.rs), with code
    words at these indexes: */
 enum {
     PAINT = 0,       /* Thumb code */
@@ -131,7 +131,7 @@ static void build(void)
     memset(p, 0xa5, file_tiles * GRM_TILE_BYTES); p += file_tiles * GRM_TILE_BYTES;
     file_size = (u32)(p - file);
 }
-/* Move the tiles out of the code, as grkit module build does since ABI 2.3:
+/* Move the tiles out of the code, as grku module build does since ABI 2.3:
    the descriptor has no tile address, and n tiles follow the file. */
 static void tiles_after_file(u32 n)
 {
@@ -333,7 +333,7 @@ int main(void)
     /* The same from the file itself, before the link. */
     assert(grm_settings(&m, m.code, 0, settings, &setting_count, uses, &use_count) == 0 && setting_count == 2);
     assert(grm_tiles(&m, m.code, 0, &tiles, &tile_count) == 0 && tile_count == 2);
-    /* The state ID is the one of grkit_core::grm::state_id. */
+    /* The state ID is the one of grku_core::grm::state_id. */
     assert(grm_state_id("GUIDES.STYLE") == 604351797U);
     assert(grm_state_id("PROBE.MODE") == 221689958U);
 

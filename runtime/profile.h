@@ -1,7 +1,7 @@
-#ifndef GRKIT_PROFILE_H
-#define GRKIT_PROFILE_H
+#ifndef GRKU_PROFILE_H
+#define GRKU_PROFILE_H
 /* The development profile. While the card has GRKU/PROFILE or PROFILE.TXT,
-   INSTALL sets GRKIT_HOST_PROFILE to the profile table (runtime/abi.h: GRKIT_PROFILE), and
+   INSTALL sets GRKU_HOST_PROFILE to the profile table (runtime/abi.h: GRKU_PROFILE), and
    the core counts the calls and the CPU cycles of its hook points and of each
    module. The resident loader writes the counts of each period to
    GRKU/PROFILE.LOG and clears them. Without the file, each point costs one
@@ -68,7 +68,7 @@ static inline u32 profile_core(void)
    the core in its low 2 bits. */
 static __attribute__((unused)) u32 profile_begin(volatile u32 *h)
 {
-    return h[GRKIT_HOST_PROFILE / 4] ? (PROFILE_START() & ~3U) | PROFILE_CORE() : 0;
+    return h[GRKU_HOST_PROFILE / 4] ? (PROFILE_START() & ~3U) | PROFILE_CORE() : 0;
 }
 /* The cycles since `start`, or PROFILE_DISCARD after a move to another core. */
 static u32 profile_since(u32 start)
@@ -81,8 +81,8 @@ static u32 profile_since(u32 start)
 static __attribute__((noinline, unused)) void profile_add(u32 table, u32 slot, u32 cycles)
 {
     volatile u32 *s;
-    if (cycles >= PROFILE_DISCARD || slot >= GRKIT_PROFILE_SLOT_COUNT) return;
-    s = PROFILE_MAP(table + GRKIT_PROFILE_SLOTS + slot * GRKIT_PROFILE_SLOT_SIZE);
+    if (cycles >= PROFILE_DISCARD || slot >= GRKU_PROFILE_SLOT_COUNT) return;
+    s = PROFILE_MAP(table + GRKU_PROFILE_SLOTS + slot * GRKU_PROFILE_SLOT_SIZE);
     ++s[0];
     s[1] += cycles;
     if (cycles > s[2]) s[2] = cycles;
@@ -90,20 +90,20 @@ static __attribute__((noinline, unused)) void profile_add(u32 table, u32 slot, u
 /* End a point that started at `start`. */
 static __attribute__((unused)) void profile_end(volatile u32 *h, u32 start, u32 slot)
 {
-    u32 table = h[GRKIT_HOST_PROFILE / 4];
+    u32 table = h[GRKU_HOST_PROFILE / 4];
     if (table) profile_add(table, slot, profile_since(start));
 }
-/* End a call of module code at `fn` of kind `kind` (GRKIT_PROFILE_PAINT,
+/* End a call of module code at `fn` of kind `kind` (GRKU_PROFILE_PAINT,
    FILTER, or CALL): the slot of the module whose code holds `fn`. */
 static __attribute__((noinline, unused)) void profile_end_module(volatile u32 *h, u32 start, u32 fn, u32 kind)
 {
-    u32 table = h[GRKIT_HOST_PROFILE / 4], cycles, i;
+    u32 table = h[GRKU_HOST_PROFILE / 4], cycles, i;
     if (!table) return;
     cycles = profile_since(start);
-    for (i = 0; i < GRKIT_PROFILE_MODULES; ++i) {
-        volatile u32 *m = PROFILE_MAP(table + i * GRKIT_PROFILE_MODULE_SIZE);
+    for (i = 0; i < GRKU_PROFILE_MODULES; ++i) {
+        volatile u32 *m = PROFILE_MAP(table + i * GRKU_PROFILE_MODULE_SIZE);
         if (fn >= m[0] && fn < m[1]) {
-            profile_add(table, GRKIT_PROFILE_MODULE_BASE + i * GRKIT_PROFILE_KINDS + kind, cycles);
+            profile_add(table, GRKU_PROFILE_MODULE_BASE + i * GRKU_PROFILE_KINDS + kind, cycles);
             return;
         }
     }

@@ -49,8 +49,8 @@ def write(args):
         script = card / 'SCRIPT'
         if script.exists():
             shutil.rmtree(script)
-        # The package folder of GRKit 1.3 to 1.5 and of GRKU before 2026-11-09 went with SCRIPT. The
-        # old data folder GRKIT stays: the first start renames it to GRKU, settings and effects included.
+        # The package folder of GRKit 1.3 to 1.5 and of GRKU before 2026-11-09 went with SCRIPT.
+        adopt_old_data(card)
         count = 0
         for name in files:
             rel = name[len('SD_ROOT/'):]
@@ -64,12 +64,27 @@ def write(args):
             count += 1
     for stale in ['SCRIPT/GRKU/INSTALL.ERR']:
         (card / stale).unlink(missing_ok=True)
-    flush()
+    flush(card)
     effects = card / 'SCRIPT' / 'GRKU' / 'EFFECTS'
     print(f'wrote {count} files to {card}; effects: {len(list(effects.glob("*.GRF"))) if effects.is_dir() else 0}; '
           f'settings folder GRKU {"kept" if (card / "GRKU").is_dir() else "absent (first start makes it)"}')
     print('package sha256', hashlib.sha256(pathlib.Path(args.package).read_bytes()).hexdigest())
     print('Now eject the card or the camera, then turn the camera on' + (' holding MENU' if args.first else '') + '.')
+
+
+def adopt_old_data(card):
+    """The data folder of GRKit 1.3 to 1.5 (GRKIT) becomes GRKU, settings and effects included, here
+    on the computer: a rename. Next to a GRKU it goes, since GRKU is the newer folder. (The camera
+    renames too, at its first start, for a card written by other means; it never deletes files.)"""
+    old, new = card / 'GRKIT', card / 'GRKU'
+    if not old.is_dir():
+        return
+    if new.is_dir():
+        shutil.rmtree(old)
+        print('removed the old settings folder GRKIT (GRKU holds the settings)')
+    else:
+        old.rename(new)
+        print('renamed the settings folder GRKIT to GRKU')
 
 
 def effects(args):
@@ -97,7 +112,7 @@ def effects(args):
             (folder / index[eid]).write_bytes(zf.read(f'EFFECTS/{index[eid]}'))
     # The installer compares the EFFECTS folder with GRKU/IMPORTED.TXT at each start and
     # copies what differs (runtime/install_library.h), so nothing else needs to change.
-    flush()
+    flush(card)
     print(f'{len(ids)} effects in {folder}. Eject, then turn the camera on; the first start installs them.')
 
 
@@ -115,7 +130,7 @@ def status(args):
     print('  effects:', len(list(effects.glob('*.GRF'))) if effects.is_dir() else 0)
     print('GRKU (settings)', 'present' if (card / 'GRKU').is_dir() else 'absent')
     if (card / 'GRKIT').is_dir():
-        print('GRKIT (old settings folder)', 'present: the next start renames it to GRKU')
+        print('GRKIT (old settings folder)', 'present: write renames it to GRKU, as does the camera at its next start')
     report = card / 'GRKU' / 'REPORT.TXT'
     if report.is_file():
         print('  REPORT.TXT:', report.read_text(errors='replace').strip().splitlines()[0][:100])
@@ -132,11 +147,15 @@ def feet(args):
     else:
         marker.unlink(missing_ok=True)
         print('feet off: the labels show meters again at the next power-on')
-    flush()
+    flush(card)
 
 
-def flush():
+def flush(card=None):
+    """Writes everything out. On macOS it also drops the `._` files that macOS leaves next to each
+    file it writes on an exFAT card: the camera lists them with the effects and modules."""
     if sys.platform == 'darwin':
+        if card is not None:
+            subprocess.run(['dot_clean', '-m', str(card)], check=False)
         subprocess.run(['sync'], check=False)
 
 

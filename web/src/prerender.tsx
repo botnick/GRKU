@@ -7,7 +7,7 @@ import type { Language } from './i18n';
 export { LANGUAGES, pageText, STRINGS } from './i18n';
 export { LANGUAGE_PATHS } from './languagePage';
 
-export const VERSION = __GRKIT_VERSION__;
+export const VERSION = __GRKU_VERSION__;
 
 /** The markup of the page in `language`, as a browser without a card or storage shows it first. */
 export function render(language: Language): string {

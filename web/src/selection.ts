@@ -28,7 +28,7 @@ export function resolveSelection(
   return new Set([...selection].filter((id) => known.has(id)));
 }
 
-const SELECTION_KEY = 'grkit.selection';
+const SELECTION_KEY = 'grku.selection';
 /** More IDs than a page can show: the catalog, the imports, and the effects of a card. */
 const MAX_SAVED = 256;
 

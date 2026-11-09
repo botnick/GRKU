@@ -1,10 +1,10 @@
-#ifndef GRKIT_INSTALL_STATUS_H
-#define GRKIT_INSTALL_STATUS_H
+#ifndef GRKU_INSTALL_STATUS_H
+#define GRKU_INSTALL_STATUS_H
 /* The exit status of CORE.BIN. A person sees it in INSTALL.ERR, in
    GRKU/REPORT.TXT, and after a module name on the Modules page, and reports
    it, so a value never changes meaning. 0 is success. The scripts of a
    package test STATUS_RELOCATION and STATUS_OTHER_BUILD
-   (grkit_core::runtime::package_runtime_files). */
+   (grku_core::runtime::package_runtime_files). */
 enum install_status {
     STATUS_OK = 0,
     /* /dev/mem does not open, or does not map. */
@@ -48,7 +48,7 @@ enum install_status {
     STATUS_SETTINGS_NOT_READY = 39,
     /* The command line names no known mode. */
     STATUS_USAGE = 40,
-    /* Diagnostic builds: no GRKit header, or no effect with the ID. */
+    /* Diagnostic builds: no GRKU header, or no effect with the ID. */
     STATUS_NO_HEADER = 41,
     STATUS_NO_EFFECT = 42,
     /* The firmware keeps data where the core goes. */
@@ -61,7 +61,7 @@ enum install_status {
     /* The loader stopped or waits: SCAN wrote no plan, the plan header is not
        valid, or INSTALL does not answer. The loader writes this status to
        INSTALL.ERR itself, with its attempts on the next line
-       (grkit_core::runtime::loader). */
+       (grku_core::runtime::loader). */
     STATUS_LOADER_NO_PLAN = 60,
     STATUS_LOADER_BAD_PLAN = 61,
     STATUS_LOADER_NO_INSTALL = 62,

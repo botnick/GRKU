@@ -1,7 +1,7 @@
 #!/bin/sh
 # Builds the installation guide of each camera in each language as
 # OUT/<camera>/<language>.pdf. OUT must not exist.
-# GRKU is the grkit binary, and TOOLS is the directory that
+# GRKU is the grku binary, and TOOLS is the directory that
 # install-guide-tools.sh fills.
 # Usage: sh .github/scripts/build-guides.sh GRKU TOOLS OUT
 set -eu
@@ -10,7 +10,7 @@ if [ "$#" -ne 3 ]; then
   echo "Usage: $0 GRKU TOOLS OUT" >&2
   exit 2
 fi
-grkit=$1
+grku=$1
 tools=$2
 out=$3
 if [ -e "$out" ]; then
@@ -20,7 +20,7 @@ fi
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
-"$grkit" guides --out "$work/source" >/dev/null
+"$grku" guides --out "$work/source" >/dev/null
 for source in "$work"/source/*/*; do
   camera=$(basename "$(dirname "$source")")
   language=$(basename "$source")

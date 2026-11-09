@@ -3,8 +3,8 @@
    pinned 2.10 image. Each is a FIRMWARE() symbol that the installer
    relocates, as on GR IV. gr3.h has the values that the shared runtime takes
    from each family. */
-#ifndef GRKIT_TARGET_H
-#define GRKIT_TARGET_H
+#ifndef GRKU_TARGET_H
+#define GRKU_TARGET_H
 
 #include "gr3.h"
 
@@ -114,7 +114,7 @@
 #define DETAIL_SET_KIND 0x199
 #define DETAIL_BASE_KIND 0x19a
 #define MODEL_SNAPSHOT 3
-/* The row kinds of the Standard adjustments, in GRKIT_RECORD_PARAMETERS order. */
+/* The row kinds of the Standard adjustments, in GRKU_RECORD_PARAMETERS order. */
 #define PARAMETER_KINDS {0,1,2,3,4,5,6,13,14}
 /* The last two of them, Shading and Clarity, for assembly (runtime/processing.h). */
 #define PARAMETER_KIND_SHADING 13
@@ -127,7 +127,7 @@
 #define PARAMETER_TONING_KIND 9
 /* The page event that opens another controller (0x2000015) from the page. */
 #define DETAIL_EV_SUBPAGE 0x88
-/* The native settings page of a GRKit root row (runtime/menu_settings.h). It borrows
+/* The native settings page of a GRKU root row (runtime/menu_settings.h). It borrows
    the MENU submenu Instant Review (controller 0x20000be, entry 10 of the
    submenu kind table), its three value pages (0x20000c3 Display Time,
    0x20000c4 Zoom Review, 0x20000c5), and two value pages of the MENU Setup
@@ -179,16 +179,16 @@
 #define ROW_LABEL_VIEW 0xec
 /* Rows of modules in the native MENU (runtime/menu_section.h). MENU builds its
    tabs at the first MENU of a start from the tab descriptors in the RAM
-   table FW_MENU_TABS; entry MENU_TAB_GRKIT is the Customize tab. A
+   table FW_MENU_TABS; entry MENU_TAB_GRKU is the Customize tab. A
    descriptor holds the row count (u8) at MENU_TAB_ROWS, then for each of
    MENU_TAB_MAX_ROWS rows its filler (a C++ member pointer), its target
    controller, and its predicate (a member pointer, 0 for a row that always
    shows). A filler gets the row view and sets its label view (+0xec) and
    value view with the row setters. */
-/* The MENU tab of the GRKit section (Customize, C), and the sections of a
+/* The MENU tab of the GRKU section (Customize, C), and the sections of a
    tab descriptor: their count, title text IDs, and first rows. The Setup
    tab has all MENU_TAB_MAX_SECTIONS sections; Customize has 3. */
-#define MENU_TAB_GRKIT 3
+#define MENU_TAB_GRKU 3
 #define MENU_TAB_SECTIONS 0x68
 #define MENU_TAB_TITLES 0x6a
 #define MENU_TAB_STARTS 0x80
@@ -219,7 +219,7 @@
 #define FW_CHANGE_CONTROLLER FIRMWARE(0x5316c9d8)
 /* The controller factory singleton, which holds one instance of each controller. */
 /* The camera information page (Setup tab, Firmware Info/Options), which
-   About GRKit opens: its controller, the text ID of its title, and its two
+   About GRKU opens: its controller, the text ID of its title, and its two
    lines, ASCII string views that the page update sets (menu_info_update)
    with FW_STRING_VIEW_SET_ASCII(view, text). */
 #define INFO_CONTROLLER 0x200011aU
@@ -281,7 +281,7 @@
 #define FW_PLAYBACK_METADATA FIRMWARE(0x5320b97c)
 #define METADATA_TONE 0x220
 #define FW_ICON_TABLE FIRMWARE(0x550020fc)
-/* The native Off icon, used until the installer provides the GRKit one. */
+/* The native Off icon, used until the installer provides the GRKU one. */
 #define NATIVE_OFF_ICON() WORD(FW_ICON_TABLE,0x166*4)
 /* RawDevelopmentModel: the guard of its static instance, and the instance.
    The family header gives its state (DEVELOP_STATE). */

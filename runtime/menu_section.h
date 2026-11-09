@@ -1,19 +1,19 @@
-#ifndef GRKIT_MENU_SECTION_H
-#define GRKIT_MENU_SECTION_H
-/* The GRKit section of the Customize tab of the native MENU (runtime/menu.c). */
-/* The GRKit section of the native MENU. MENU builds its tabs at the first
+#ifndef GRKU_MENU_SECTION_H
+#define GRKU_MENU_SECTION_H
+/* The GRKU section of the Customize tab of the native MENU (runtime/menu.c). */
+/* The GRKU section of the native MENU. MENU builds its tabs at the first
    MENU of a start, after a controller change. So the first controller
    change after INSTALL copies the Customize tab descriptor into the services
-   block (SERVICES_MENU), adds a section with the title GRKit and its rows,
+   block (SERVICES_MENU), adds a section with the title GRKU and its rows,
    and points the RAM tab table at the copy. A MENU that was built before
    INSTALL gives up its instance in the controller factory, so the next MENU
    builds its tabs again.
 
-   The rows: the GRKit switch, which turns each module off and on at once
+   The rows: the GRKU switch, which turns each module off and on at once
    (runtime/manage.h); a row for each listed module, which opens its Enable
    row, its Options row, and the settings of its module page; ADJ Order,
-   which orders the module pages in ADJ; then About GRKit, which shows the
-   GRKit version and the project address.
+   which orders the module pages in ADJ; then About GRKU, which shows the
+   GRKU version and the project address.
 
    A row targets MENU_ROW_TARGET + its slot, which no controller has: the
    controller change becomes a change to the borrowed settings submenu with
@@ -21,10 +21,10 @@
    gives the row the text IDs MENU_ROW_LABEL_TEXT and MENU_ROW_VALUE_TEXT,
    and the text hook gives the label and the value of the row for its
    views. The section title has the text ID MENU_ROW_LABEL_TEXT too, which no
-   native MENU row or title has: the text hook shows GRKit for it while no
+   native MENU row or title has: the text hook shows GRKU for it while no
    submenu or value page that borrows the ID shows. */
 #define MENU_ROW_TARGET 0x2000f00U
-#define MENU_ROW_GRKIT 1U
+#define MENU_ROW_GRKU 1U
 #define MENU_ROW_LISTED 2U
 #define MENU_ROW_ADJ 3U
 #define MENU_ROW_SWITCH 4U
@@ -51,11 +51,11 @@ _Static_assert(MENU_TAB_SIZE==MENU_ROWS_TAB_SIZE,"The services block holds a MEN
 static volatile u32 *menu_row(volatile u32 *h,u32 slot) {
     return services_word(h,SERVICES_MENU+MENU_ROWS_FIRST+slot*MENU_ROW_SIZE);
 }
-/* The page slot of listed module `module`, or GRKIT_MODULE_PAGES_MAX. */
+/* The page slot of listed module `module`, or GRKU_MODULE_PAGES_MAX. */
 static u32 listed_page(volatile u32 *h,u32 module) {
     u32 slot;
     for(slot=0;slot<module_pages(h);++slot) if(page_listed(h,slot)==module) return slot;
-    return GRKIT_MODULE_PAGES_MAX;
+    return GRKU_MODULE_PAGES_MAX;
 }
 /* The fillers of the rows (below). */
 static void (*const fillers[MENU_ROWS_SLOTS])(u32,u32);
@@ -71,11 +71,11 @@ static u32 menu_rows_add(volatile u32 *h,u32 copy,u32 *rows,u32 slots,u32 kind,u
     ++*rows;
     return slots+1;
 }
-/* The GRKit rows fit the Customize tab of each build: its stock rows
-   (MENU_TAB_STOCK_ROWS of the build header), then the GRKit switch, a row
-   for each listed module, ADJ Order, and About GRKit. */
-_Static_assert(MENU_ROWS_SLOTS==MANAGE_MODULES+3U,"A row slot for each GRKit row");
-_Static_assert(MENU_TAB_STOCK_ROWS+MENU_ROWS_SLOTS<=MENU_TAB_MAX_ROWS,"The Customize tab holds each GRKit row");
+/* The GRKU rows fit the Customize tab of each build: its stock rows
+   (MENU_TAB_STOCK_ROWS of the build header), then the GRKU switch, a row
+   for each listed module, ADJ Order, and About GRKU. */
+_Static_assert(MENU_ROWS_SLOTS==MANAGE_MODULES+3U,"A row slot for each GRKU row");
+_Static_assert(MENU_TAB_STOCK_ROWS+MENU_ROWS_SLOTS<=MENU_TAB_MAX_ROWS,"The Customize tab holds each GRKU row");
 static void menu_rows_install(volatile u32 *h) {
     volatile u32 *state=services_word(h,SERVICES_MENU);
     u32 copy=(u32)services_word(h,SERVICES_MENU+MENU_ROWS_TAB), stock, rows, sections, slots=0, i, top;
@@ -86,12 +86,12 @@ static void menu_rows_install(volatile u32 *h) {
     state[MENU_ROWS_DONE/4]=1;
     manage_adj_refresh(h);
     adj=manage_adj_count(h)>0;
-    stock=WORD(FW_MENU_TABS+4*MENU_TAB_GRKIT,0);
+    stock=WORD(FW_MENU_TABS+4*MENU_TAB_GRKU,0);
     if(!stock) return;
     for(i=0;i<MENU_TAB_SIZE/4;++i) WORD(copy,4*i)=WORD(stock,4*i);
     rows=BYTE(copy,MENU_TAB_ROWS);
     if(rows>=MENU_TAB_MAX_ROWS) return;
-    /* The section starts at the first GRKit row. A tab with all its sections
+    /* The section starts at the first GRKU row. A tab with all its sections
        gets the rows in its last section. */
     sections=BYTE(copy,MENU_TAB_SECTIONS);
     if(sections<MENU_TAB_MAX_SECTIONS) {
@@ -99,9 +99,9 @@ static void menu_rows_install(volatile u32 *h) {
         BYTE(copy,MENU_TAB_STARTS+sections)=(u8)rows;
         BYTE(copy,MENU_TAB_SECTIONS)=(u8)(sections+1);
     }
-    descriptor(services_word(h,SERVICES_MENU+MENU_ROWS_TITLE_AT),grkit_title);
+    descriptor(services_word(h,SERVICES_MENU+MENU_ROWS_TITLE_AT),grku_title);
     /* A build with more stock rows than its header gives, such as a build
-       that INSTALL relocates, keeps the switch, ADJ Order, and About GRKit:
+       that INSTALL relocates, keeps the switch, ADJ Order, and About GRKU:
        the last modules of the default order get no row. */
     if(rows+on+listed+adj+1U>MENU_TAB_MAX_ROWS)
         listed=MENU_TAB_MAX_ROWS>rows+on+adj+1U ? MENU_TAB_MAX_ROWS-rows-on-adj-1U : 0;
@@ -114,10 +114,10 @@ static void menu_rows_install(volatile u32 *h) {
         ++n;
     }
     if(adj) slots=menu_rows_add(h,copy,&rows,slots,MENU_ROW_ADJ,0);
-    slots=menu_rows_add(h,copy,&rows,slots,MENU_ROW_GRKIT,0);
+    slots=menu_rows_add(h,copy,&rows,slots,MENU_ROW_GRKU,0);
     state[MENU_ROWS_COUNT/4]=slots;
     BYTE(copy,MENU_TAB_ROWS)=(u8)rows;
-    WORD(FW_MENU_TABS+4*MENU_TAB_GRKIT,0)=copy;
+    WORD(FW_MENU_TABS+4*MENU_TAB_GRKU,0)=copy;
     /* A MENU that was built before this keeps its tabs. Without it in the
        factory, the next MENU builds a new one with the copy. */
     top=((u32 (*)(void))FW_CONTROLLER_FACTORY)();
@@ -125,33 +125,33 @@ static void menu_rows_install(volatile u32 *h) {
 }
 static u32 menu_rows_controller(volatile u32 *h,u32 id) {
     u32 slot=id-MENU_ROW_TARGET, kind, module;
-    if(!h[GRKIT_HOST_SERVICES/4]) return id;
+    if(!h[GRKU_HOST_SERVICES/4]) return id;
     menu_rows_install(h);
     /* Parent and child share one native submenu. MENU can therefore return
        to that same controller. Check the incoming target before translating
        a child link; a value page returning to the submenu is not a Back. */
     u32 self_back=id==SETTINGS_SUBMENU && services_word(h,SERVICES_MENU+MENU_ROWS_CURRENT)[0]==SETTINGS_SUBMENU;
-    if((id==menu_return(h) || self_back) && (h[GRKIT_HOST_SETTINGS/4]&SETTINGS_PARENT)) {
+    if((id==menu_return(h) || self_back) && (h[GRKU_HOST_SETTINGS/4]&SETTINGS_PARENT)) {
         settings_start(h,LISTED_PAGE);
         return SETTINGS_SUBMENU;
     }
-    if(self_back && (h[GRKIT_HOST_SETTINGS/4]&0xffffU)==LISTED_PAGE+1 &&
+    if(self_back && (h[GRKU_HOST_SETTINGS/4]&0xffffU)==LISTED_PAGE+1 &&
        listed_slot(h)<module_pages(h) && menu_page(h,listed_slot(h))==&group_module) return menu_return(h);
     if(id>=MENU_GROUP_TARGET && id<MENU_GROUP_TARGET+SETTING_ROWS && settings_page(h)==listed_settings) {
         u32 child=listed_child(h,id-MENU_GROUP_TARGET);
         if(child<module_pages(h)) {
             settings_start(h,child);
-            h[GRKIT_HOST_SETTINGS/4]|=SETTINGS_PARENT;
+            h[GRKU_HOST_SETTINGS/4]|=SETTINGS_PARENT;
             return SETTINGS_SUBMENU;
         }
     }
     /* The Fn adjustments row of the page of Image Control. Without a
        committed effect, it opens nothing. */
     if(id==MENU_FN_TARGET) {
-        if(!h[GRKIT_HOST_ACTIVE/4]) return SETTINGS_SUBMENU;
+        if(!h[GRKU_HOST_ACTIVE/4]) return SETTINGS_SUBMENU;
         menu_still_snapshot();
-        h[GRKIT_HOST_PARAMETERS/4]=h[GRKIT_HOST_ACTIVE/4]|1U;
-        h[GRKIT_HOST_SETTINGS/4]|=SETTINGS_FN;
+        h[GRKU_HOST_PARAMETERS/4]=h[GRKU_HOST_ACTIVE/4]|1U;
+        h[GRKU_HOST_SETTINGS/4]|=SETTINGS_FN;
         return IC_PARAMETERS_CONTROLLER;
     }
     if(slot>=services_word(h,SERVICES_MENU)[MENU_ROWS_COUNT/4]) return id;
@@ -161,7 +161,7 @@ static u32 menu_rows_controller(volatile u32 *h,u32 id) {
         settings_start(h,MANAGE_MODULE);
         return SETTINGS_SUBMENU;
     }
-    /* Enable GRKit opens its value page at once: On or Off. */
+    /* Enable GRKU opens its value page at once: On or Off. */
     if(kind==MENU_ROW_SWITCH) {
         settings_start(h,SWITCH_MODULE);
         return settings_pages[0];
@@ -172,14 +172,14 @@ static u32 menu_rows_controller(volatile u32 *h,u32 id) {
         settings_start(h,LISTED_PAGE);
         return SETTINGS_SUBMENU;
     }
-    /* About GRKit opens the camera information page (menu_info_fill). */
+    /* About GRKU opens the camera information page (menu_info_fill). */
     services_word(h,SERVICES_MENU+MENU_ROWS_ABOUT)[0]=1;
     return INFO_CONTROLLER;
 }
 static const u16 no_text[]={0};
-/* The value of the About GRKit row: safe mode, an effects choice for the
+/* The value of the About GRKU row: safe mode, an effects choice for the
    next start, or the version. */
-static const u16 *grkit_value(volatile u32 *h) {
+static const u16 *grku_value(volatile u32 *h) {
     if(manage_word(h,MANAGE_FLAGS)&MANAGE_SAFE_MODE) return text(h,TEXT_SAFE_MODE);
     if(effects_changed(h)) return text(h,TEXT_RESTART);
     return text(h,TEXT_ABOUT+2);
@@ -191,7 +191,7 @@ static void menu_row_fill(u32 slot,u32 row) {
     volatile u32 *h=menu_header(), *at=menu_row(h,slot);
     u32 kind, module, page;
     const u16 *label, *value;
-    if(!h[GRKIT_HOST_SERVICES/4] || slot>=services_word(h,SERVICES_MENU)[MENU_ROWS_COUNT/4]) return;
+    if(!h[GRKU_HOST_SERVICES/4] || slot>=services_word(h,SERVICES_MENU)[MENU_ROWS_COUNT/4]) return;
     /* The text hook finds a row by the address of its view, and a row view
        can move to another slot when the list scrolls: a view is in one slot. */
     {
@@ -221,7 +221,7 @@ static void menu_row_fill(u32 slot,u32 row) {
         }
         else { label=manage_name(h,module); value=on_off_text(h,manage_off(h,module)); }
     }
-    else { label=text(h,TEXT_ABOUT); value=grkit_value(h); }
+    else { label=text(h,TEXT_ABOUT); value=grku_value(h); }
     descriptor(at+MENU_ROW_LABEL_TEXT_AT/4,label);
     descriptor(at+MENU_ROW_VALUE_TEXT_AT/4,value);
     MENU_VIEW3(FW_STRING_VIEW_RESET,at[MENU_ROW_LABEL/4],0,0);
@@ -245,7 +245,7 @@ static void (*const fillers[MENU_ROWS_SLOTS])(u32,u32)={
 /* The text of a view of a MENU row or of the section title, or 0. */
 static u32 menu_rows_text(volatile u32 *h,u32 view,u32 id) {
     u32 slot, n;
-    if(!h[GRKIT_HOST_SERVICES/4]) return 0;
+    if(!h[GRKU_HOST_SERVICES/4]) return 0;
     n=services_word(h,SERVICES_MENU)[MENU_ROWS_COUNT/4];
     for(slot=0;slot<n && slot<MENU_ROWS_SLOTS;++slot) {
         volatile u32 *at=menu_row(h,slot);
@@ -256,4 +256,4 @@ static u32 menu_rows_text(volatile u32 *h,u32 view,u32 id) {
         return (u32)services_word(h,SERVICES_MENU+MENU_ROWS_TITLE_AT)|1U;
     return 0;
 }
-#endif /* GRKIT_MENU_SECTION_H */
+#endif /* GRKU_MENU_SECTION_H */

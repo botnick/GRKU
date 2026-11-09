@@ -1,5 +1,5 @@
 /**
- * Reads and writes GRKit on an SD card through the File System Access API.
+ * Reads and writes GRKU on an SD card through the File System Access API.
  *
  * The card layout is the one of `docs/architecture.md` (Card layout): the package in
  * `SCRIPT/GRKU`, the data folder `GRKU` at the card root. The page writes a package as a merge
@@ -7,7 +7,7 @@
  * GRKit 1.2, which the first power-on of 1.3 migrates.
  *
  * Chrome on macOS writes a `._` file next to each file and folder that it writes on a FAT or
- * exFAT card, for the extended attributes. GRKit ignores them, but the page deletes the ones of
+ * exFAT card, for the extended attributes. GRKU ignores them, but the page deletes the ones of
  * its own files. macOS deletes the `._` file of a file that the page deletes.
  */
 
@@ -69,7 +69,7 @@ const LAST = [PACKAGE_LIST, STARTUP];
 /** The number of files that a write sends at the same time. Chrome checks each file at its close. */
 const PARALLEL = 6;
 
-/** The first line of `GRKU/REPORT.TXT`: `GRKit <version> (<target>)`. */
+/** The first line of `GRKU/REPORT.TXT`: `GRKU <version> (<target>)`. */
 export interface CardReport {
   version: string;
   target: string;
@@ -80,7 +80,7 @@ export function parseReport(text: string): CardReport | null {
   return match ? { version: match[1]!, target: match[2]! } : null;
 }
 
-/** `none`: no GRKit. `legacy`: GRKit 1.2 or earlier in `SCRIPT/PLUGINS`. `current`: `SCRIPT/GRKU`. */
+/** `none`: no GRKU. `legacy`: GRKit 1.2 or earlier in `SCRIPT/PLUGINS`. `current`: `SCRIPT/GRKU`. */
 export type CardInstall = 'none' | 'legacy' | 'current';
 
 export interface CardState {
@@ -99,7 +99,7 @@ export interface CardState {
    */
   builds: readonly string[];
   /**
-   * The GRKit version of the installer files on the card, also before the first power-on, or null.
+   * The GRKU version of the installer files on the card, also before the first power-on, or null.
    * GRKit 1.2 does not hold its version.
    */
   version: string | null;
@@ -118,7 +118,10 @@ export interface CardState {
   legacyPlugins: readonly string[] | null;
   /** The module files that a person added in `GRKU/MODULES`. */
   userModules: readonly string[];
-  /** The data folder that the card has: `GRKU`, or `GRKIT` on a card of an earlier version. */
+  /**
+   * The data folder that the card has: `GRKU`, or `GRKIT` on a card of an earlier version, which a
+   * write moves to `GRKU`.
+   */
   dataFolder: string;
   /** The card has the package folder of an earlier version, `SCRIPT/GRKIT`, which a write removes. */
   oldPackage: boolean;
@@ -235,13 +238,13 @@ const INSTALLERS: readonly [string, RegExp][] = [
   ['SCRIPT/PLUGINS', /^INSTALL\d?\.BIN$/i],
 ];
 
-/** The build markers of a binary: `GRKIT_TARGET=` and the build (`grkit_core::packaging`). */
+/** The build markers of a binary: `GRKU_TARGET=` (or `GRKIT_TARGET=` of GRKit) and the build (`grku_core::packaging`). */
 export function buildMarkers(bytes: Uint8Array): string[] {
   const text = new TextDecoder('latin1').decode(bytes);
-  return [...text.matchAll(/GRKIT_TARGET=([a-z0-9][a-z0-9.-]*)/g)].map((match) => match[1]!);
+  return [...text.matchAll(/GRK(?:U|IT)_TARGET=([a-z0-9][a-z0-9.-]*)/g)].map((match) => match[1]!);
 }
 
-/** The GRKit version in an installer of GRKit 1.3, which its report and About show. */
+/** The GRKU version in an installer of GRKit 1.3, which its report and About show. */
 export function versionMarker(bytes: Uint8Array): string | null {
   const text = new TextDecoder('latin1').decode(bytes);
   return /GR(?:Kit|KU|ku) (\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?)/.exec(text)?.[1] ?? null;
@@ -420,9 +423,9 @@ export function cardModules(state: CardState): string[] {
 
 /** What a write changes on the card. */
 export interface CardChanges {
-  /** `install` on a card without GRKit, `update` from GRKit 1.2 or another version, else `same`. */
-  grkit: 'install' | 'update' | 'same';
-  /** The card has GRKit and the files that turned SD scripts off, so the write turns them on. */
+  /** `install` on a card without GRKU, `update` from GRKit 1.2 or another version, else `same`. */
+  grku: 'install' | 'update' | 'same';
+  /** The card has GRKU and the files that turned SD scripts off, so the write turns them on. */
   scriptsOn: boolean;
   /** GRKit 1.3 has started and moved the 1.2 effects, so the write deletes `SCRIPT/PLUGINS`. */
   cleanLegacy: boolean;
@@ -447,7 +450,7 @@ export function planChanges(
 ): CardChanges {
   const onCard = cardModules(state);
   return {
-    grkit:
+    grku:
       state.install === 'none'
         ? 'install'
         : state.install === 'current' && cardVersion(state) === version
@@ -465,12 +468,12 @@ export function planChanges(
   };
 }
 
-/** The GRKit version on the card: of its files, else of its last report. */
+/** The GRKU version on the card: of its files, else of its last report. */
 export function cardVersion(state: CardState): string | null {
   return state.version ?? state.report?.version ?? null;
 }
 
-/** The camera has started the GRKit files on the card. */
+/** The camera has started the GRKU files on the card. */
 export function cardStarted(state: CardState): boolean {
   return !!state.report && (state.version === null || state.report.version === state.version);
 }
@@ -481,7 +484,7 @@ const cleansLegacy = (state: CardState) =>
 
 export function hasChanges(changes: CardChanges): boolean {
   return (
-    changes.grkit !== 'same' ||
+    changes.grku !== 'same' ||
     changes.scriptsOn ||
     changes.cleanLegacy ||
     changes.addModules.length +
@@ -503,7 +506,7 @@ export interface ApplyProgress {
  * Makes the card hold `files`, the card files of the selected package, and changes the effects by
  * `library`: `add` gives effect files to put in the library, and `remove` gives the paths of the
  * effect files to delete (`cardEffects`). It writes only the files that differ. The ModeSet files
- * at the card root go only on a card without GRKit, because a card with GRKit has SD scripts on
+ * at the card root go only on a card without GRKU, because a card with GRKU has SD scripts on
  * already, or over the files that turned SD scripts off. Then it deletes the package files that
  * the new package list does not name, the removed effects, and the GRKit 1.2 folder once GRKit 1.3
  * has moved its effects.
@@ -515,12 +518,13 @@ export async function applyChanges(
   library: { add: readonly CardFile[]; remove: readonly string[] },
   onProgress: (progress: ApplyProgress) => void = () => {},
 ): Promise<void> {
-  // The ModeSet files go on a card without GRKit, and over the files that turned SD scripts off.
+  await adoptOldData(root);
+  // The ModeSet files go on a card without GRKU, and over the files that turned SD scripts off.
   const wanted = files.filter(
     (file) => file.path.includes('/') || state.install === 'none' || turnsScriptsOn(state),
   );
   if (state.library) {
-    wanted.push(...library.add.map((file) => ({ path: `${state.dataFolder}/EFFECTS/${file.path}`, bytes: file.bytes })));
+    wanted.push(...library.add.map((file) => ({ path: `${DATA}/EFFECTS/${file.path}`, bytes: file.bytes })));
   }
   const differ: CardFile[] = [];
   for (const file of wanted) {
@@ -542,7 +546,7 @@ export async function applyChanges(
       }
     }
   }
-  remove.push(...library.remove);
+  remove.push(...library.remove.map(inNewDataFolder));
   for (const path of remove) await removeFile(root, path);
   if (cleansLegacy(state)) {
     const scripts = await folder(root, 'SCRIPT');
@@ -554,6 +558,37 @@ export async function applyChanges(
     const scripts = await folder(root, 'SCRIPT');
     if (scripts) await removeTree(scripts, 'GRKIT');
     await removeCompanions(root, [OLD_PACKAGE]);
+  }
+}
+
+/** A path in the data folder of an earlier version (`GRKIT/...`), in the data folder of this one. */
+const inNewDataFolder = (path: string) =>
+  path.toUpperCase().startsWith(`${OLD_DATA}/`) ? `${DATA}${path.slice(OLD_DATA.length)}` : path;
+
+/**
+ * The data folder of GRKit 1.3 to 1.5, `GRKIT`, becomes `GRKU`, settings and effects included, here
+ * on the computer: a copy and a delete, since the browser does not rename a folder. Next to a
+ * `GRKU` it just goes, `GRKU` being the newer folder. The camera renames too, at its first start,
+ * for a card written by other means, but never deletes files: a delete of many files through its
+ * card file system made the starts that followed slow.
+ */
+async function adoptOldData(root: CardDirectory): Promise<void> {
+  const old = await folder(root, OLD_DATA);
+  if (!old) return;
+  if (!(await folder(root, DATA))) await copyTree(root, old, OLD_DATA);
+  await removeTree(root, OLD_DATA);
+  await removeCompanions(root, [OLD_DATA]);
+}
+
+/** Writes each visible file under `dir`, which is at `path` from the root, to the same place in `GRKU`. */
+async function copyTree(root: CardDirectory, dir: CardDirectory, path: string): Promise<void> {
+  for await (const [name, handle] of dir.entries()) {
+    if (!visible(name)) continue;
+    if (handle.kind === 'directory') await copyTree(root, await dir.getDirectoryHandle(name), `${path}/${name}`);
+    else {
+      const bytes = await readFile(root, `${path}/${name}`);
+      if (bytes) await writeOne(root, { path: inNewDataFolder(`${path}/${name}`), bytes });
+    }
   }
 }
 
@@ -584,15 +619,15 @@ function skipMissing(error: unknown) {
   if (!isNotFound(error)) throw error;
 }
 
-/** GRKit's own `STARTUP.TTL` runs the loader of GRKit 1.3 or the one of GRKit 1.2. */
+/** GRKU's own `STARTUP.TTL` runs the loader of GRKit 1.3 or the one of GRKit 1.2. */
 const isOwnStartup = (text: string) => /SCRIPT\\(GRKU|GRKIT|PLUGINS)\\/i.test(text);
 
 /**
- * Removes GRKit from the card: the package of GRKit 1.3, the folder of GRKit 1.2, and GRKit's own
+ * Removes GRKU from the card: the package of GRKit 1.3, the folder of GRKit 1.2, and GRKU's own
  * `STARTUP.TTL`. Other files in `SCRIPT` stay, and the folder goes only when it is empty. With
  * `data`, it also deletes the data folder `GRKU`, which holds the settings and the effects.
  */
-export async function removeGrkit(root: CardDirectory, data: boolean): Promise<void> {
+export async function removeGrku(root: CardDirectory, data: boolean): Promise<void> {
   const scripts = await folder(root, 'SCRIPT');
   if (scripts) {
     await removeTree(scripts, 'GRKU');
@@ -621,7 +656,7 @@ export async function pickCard(): Promise<CardDirectory> {
   const host = window as unknown as {
     showDirectoryPicker(options: { id: string; mode: 'readwrite' }): Promise<CardDirectory>;
   };
-  return host.showDirectoryPicker({ id: 'grkit-card', mode: 'readwrite' });
+  return host.showDirectoryPicker({ id: 'grku-card', mode: 'readwrite' });
 }
 
 export const canWriteCards = () => typeof window !== 'undefined' && 'showDirectoryPicker' in window;

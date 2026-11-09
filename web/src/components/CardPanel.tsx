@@ -123,7 +123,7 @@ export function CardConnect({
           <dl className={FACTS}>
             <dt className={FACT_LABEL}>{t.cardName}</dt>
             <dd className={FACT_VALUE}>{state.name || '—'}</dd>
-            <dt className={FACT_LABEL}>{t.cardGrkit}</dt>
+            <dt className={FACT_LABEL}>{t.cardGrku}</dt>
             <dd className={FACT_VALUE}>
               {state.install === 'none'
                 ? t.cardNone
@@ -226,7 +226,7 @@ export function CardChangesView({
   camera,
   firmware,
 }: ChangesProps) {
-  const fresh = changes.grkit !== 'same';
+  const fresh = changes.grku !== 'same';
   const any = hasChanges(changes);
   const state = session.state;
   // After a write, until the selection changes again, the page shows the next steps.
@@ -238,11 +238,11 @@ export function CardChangesView({
         <dd className={FACT_VALUE}>{camera}</dd>
         <dt className={FACT_LABEL}>{t.firmware}</dt>
         <dd className={FACT_VALUE}>{firmware}</dd>
-        <dt className={FACT_LABEL}>{t.cardGrkit}</dt>
+        <dt className={FACT_LABEL}>{t.cardGrku}</dt>
         <dd className={FACT_VALUE}>
-          {changes.grkit === 'install'
+          {changes.grku === 'install'
             ? t.changeInstall(version)
-            : changes.grkit === 'update'
+            : changes.grku === 'update'
               ? t.changeUpdate(version)
               : t.changeSame(version)}
           {fresh && (
@@ -311,9 +311,9 @@ export function CardChangesView({
               aria-busy={busy}
               onClick={onApply}
             >
-              {changes.grkit === 'install'
+              {changes.grku === 'install'
                 ? t.cardApplyInstall
-                : changes.grkit === 'update'
+                : changes.grku === 'update'
                   ? t.cardApplyUpdate
                   : t.cardApply}
             </Button>

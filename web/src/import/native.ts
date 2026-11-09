@@ -3,7 +3,7 @@ import { provideTable } from '../preview/render';
 import type { NativeRequest, NativeResponse } from './native.worker';
 import { base64 } from './names';
 
-/** grkit-core `gr4_looks::MAX_FILE_SIZE`. An official ZIP has about 35 MB. */
+/** grku-core `gr4_looks::MAX_FILE_SIZE`. An official ZIP has about 35 MB. */
 export const MAX_FIRMWARE_BYTES = 96 * 1024 * 1024;
 /** The read of an official ZIP takes a few seconds. */
 const READ_TIMEOUT = 60_000;
@@ -13,11 +13,11 @@ let tableCount = 0;
 /** Ricoh's GR IV support page, which shows the firmware with its license. */
 export const FIRMWARE_PAGE = 'https://www.ricoh-imaging.co.jp/english/support/digital/gr4_s.html';
 
-/** A cover of a native look. The icon that grkit-wasm draws has the same fields. */
+/** A cover of a native look. The icon that grku-wasm draws has the same fields. */
 const cinema = (number: string): Cover => ({ template: 'cine', brand: 'RICOH', name: 'CINEMA', number });
 
 /**
- * The native looks that `nativeLooks` reads (the offered looks of grkit-core
+ * The native looks that `nativeLooks` reads (the offered looks of grku-core
  * `gr4_looks::LOOKS`), in its order.
  */
 export const NATIVE_LOOKS: readonly { id: string; name: string; cover: Cover }[] = [
@@ -56,7 +56,7 @@ export const hasNativeLooks = (imported: readonly ImportedEffect[]): boolean =>
 /** Why a firmware file gave no looks, as the dialog explains it. */
 export type NativeProblem = 'unsupported' | 'notFirmware' | 'tooLarge' | 'failed';
 
-/** The problem of an error of `unlockNativeLooks`, from the English messages of grkit-core. */
+/** The problem of an error of `unlockNativeLooks`, from the English messages of grku-core. */
 export function nativeProblem(error: unknown): NativeProblem {
   const message = error instanceof Error ? error.message : String(error);
   if (message.includes('not a supported GR IV firmware file')) return 'unsupported';

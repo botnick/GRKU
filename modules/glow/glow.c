@@ -32,13 +32,13 @@
    The pixel kernels are in glow_kernels.c: NEON for whole blocks (an
    assembly part, because the camera objects build soft-float), C for the
    rest, with the same arithmetic. */
-#include "grkit.h"
-#include "grkit_module.h"
+#include "grku.h"
+#include "grku_module.h"
 #include "glow_kernels.h"
 
-#ifdef GRKIT_TEST_H
-#define WORDS(address) ((u32 *)(void *)grkit_test_bytes(address))
-#define BYTES(address) ((const u8 *)(const void *)grkit_test_bytes(address))
+#ifdef GRKU_TEST_H
+#define WORDS(address) ((u32 *)(void *)grku_test_bytes(address))
+#define BYTES(address) ((const u8 *)(const void *)grku_test_bytes(address))
 #else
 #define WORDS(address) ((u32 *)(address))
 #define BYTES(address) ((const u8 *)(address))
@@ -1790,18 +1790,18 @@ static u32 day_keep(const Fine *f, const Coarse *m, int ev, int gate)
 _Static_assert(((sizeof(Rows) + 3) & ~3U) + 2 * ((sizeof(Fine) + 3) & ~3U) + 2 * sizeof(GlowRow) + ALL_WORDS * 4U +
                (720U >> CLIP_SHIFT) * ((480U >> CLIP_SHIFT) + 1) + 4U +
                (720U / 14) * (480U / 14) * 7U + (720U / 13) * (480U / 13) * 5U + 32U <=
-               GRKIT_PLANE_SCRATCH, "both glow streams fit the screennail scratch");
+               GRKU_PLANE_SCRATCH, "both glow streams fit the screennail scratch");
 
 /* Look.gate: the strength (Q8) of local background rejection from the
    scene EV of the shot, and that EV (1/16 EV) when the shot has it. */
 static u32 shot_gate(const PictureSet *set, const Look *look, u32 *daylight, int *ev)
 {
-    GrkitShot shot;
+    GrkuShot shot;
     int from = (int)look->gate;
     *daylight = LOCAL_GATE_MIN;
     shot.size = sizeof shot;
     picture_shot(set, &shot);
-    if (!(shot.known & GRKIT_SHOT_EXPOSURE)) return 0;
+    if (!(shot.known & GRKU_SHOT_EXPOSURE)) return 0;
     *ev = shot.scene_ev >> 4;
     if (*ev >= from + (int)GATE_RANGE) *daylight = 256;
     else if (*ev > from) *daylight += divide((u32)(*ev - from) * (256 - LOCAL_GATE_MIN), GATE_RANGE);
@@ -1813,11 +1813,11 @@ static u32 shot_gate(const PictureSet *set, const Look *look, u32 *daylight, int
    LIFT_RANGE, and none when the shot has no EV. */
 static u32 lift_keep(const PictureSet *set)
 {
-    GrkitShot shot;
+    GrkuShot shot;
     int ev;
     shot.size = sizeof shot;
     picture_shot(set, &shot);
-    if (!(shot.known & GRKIT_SHOT_EXPOSURE)) return 0;
+    if (!(shot.known & GRKU_SHOT_EXPOSURE)) return 0;
     ev = shot.scene_ev >> 4;
     if (ev <= LIFT_FROM) return 256;
     if (ev >= LIFT_FROM + LIFT_RANGE) return 0;
@@ -1993,7 +1993,7 @@ void glow_apply(PictureSet *set, u32 value)
     if (!(b | h)) return;
     const Plane *src = source_plane(set);
     if (!src || src->right - src->left > MAX_SOURCE) return;
-    u8 *at = set->scratch, *end = at + GRKIT_PLANE_SCRATCH;
+    u8 *at = set->scratch, *end = at + GRKU_PLANE_SCRATCH;
     Rows *rw = (Rows *)(void *)at;
     at += (sizeof(Rows) + 3) & ~3U;
     Fine *f = (Fine *)(void *)at, *other = 0;

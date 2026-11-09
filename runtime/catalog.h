@@ -1,5 +1,5 @@
-#ifndef GRKIT_CATALOG_H
-#define GRKIT_CATALOG_H
+#ifndef GRKU_CATALOG_H
+#define GRKU_CATALOG_H
 /* Effect catalog selection for the installer. The includer defines u8 and u32.
    A file that cannot be used never prevents the other effects from loading. */
 #include "grf.h"
@@ -7,11 +7,11 @@
 /* An 8.3 file name and its terminator. */
 #define CATALOG_NAME_SIZE 13U
 /* The NUL-terminated effect ID in a GRF record. */
-#define CATALOG_ID GRKIT_GRF_ID
+#define CATALOG_ID GRKU_GRF_ID
 /* The effect name in a GRF record: at most CATALOG_EFFECT_NAME_MAX
    characters, then NULs. */
-#define CATALOG_EFFECT_NAME GRKIT_GRF_NAME
-#define CATALOG_EFFECT_NAME_MAX GRKIT_GRF_NAME_MAX
+#define CATALOG_EFFECT_NAME GRKU_GRF_NAME
+#define CATALOG_EFFECT_NAME_MAX GRKU_GRF_NAME_MAX
 
 static int catalog_compare(const u8 *a, const u8 *b)
 { while (*a && *a==*b) {++a; ++b;} return (int)*a-(int)*b; }

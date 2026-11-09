@@ -1,4 +1,4 @@
-"""Bake the Spectral Film LUT tables that the GRKit effects are fitted from.
+"""Bake the Spectral Film LUT tables that the GRKU effects are fitted from.
 
 Requirements: spectral_film_lut (git bcbcfc6, MIT, Jan Lohse) on Python 3.13.
 

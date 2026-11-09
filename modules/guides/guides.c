@@ -3,13 +3,13 @@
    layers with the style, and not at Off; guides_paint also not while DISP
    hides the native information (module.toml). Each paints only for its
    value of DISP. */
-#include "grkit.h"
-#include "grkit_module.h"
+#include "grku.h"
+#include "grku_module.h"
 
 /* The native grid guide (GridView) writes palette entry 16, black at 50%
    alpha, in 2-pixel lines: COLOR 0 and OPACITY 0. The other colors are white
    and the yellow of the native highlight (red ff, green e1, blue 00). A
-   pixel holds red in its low byte and alpha in its high byte (grkit.h);
+   pixel holds red in its low byte and alpha in its high byte (grku.h);
    with 50% alpha, straight and premultiplied alpha give the same black
    only, so the white and the yellow use straight alpha as the native
    palette does. */
@@ -22,14 +22,14 @@ static void guide_column(u32 data, u32 stride, u32 color, u32 x, u32 top, u32 bo
 {
     u32 at = data + top * stride * 4;
     for (u32 y = top; y < bottom; ++y, at += stride * 4) {
-        volatile u32 *row = GRKIT_PIXELS(at);
+        volatile u32 *row = GRKU_PIXELS(at);
         row[x - 1] = color;
         row[x] = color;
     }
 }
 static void guide_row(u32 data, u32 stride, u32 color, u32 y, u32 left, u32 right)
 {
-    volatile u32 *above = GRKIT_PIXELS(data + (y - 1) * stride * 4), *at = GRKIT_PIXELS(data + y * stride * 4);
+    volatile u32 *above = GRKU_PIXELS(data + (y - 1) * stride * 4), *at = GRKU_PIXELS(data + y * stride * 4);
     for (u32 x = left; x < right; ++x) {
         above[x] = color;
         at[x] = color;
@@ -65,12 +65,12 @@ static void guide_diagonals(u32 data, u32 stride, u32 color, const u16 *box)
 {
     int run = box[2] - box[0] - 1, rise = box[3] - box[1] - 2, error = 0;
     u32 y = box[1], mapped = y;
-    volatile u32 *top = GRKIT_PIXELS(data + y * stride * 4), *below = GRKIT_PIXELS(data + (y + 1) * stride * 4);
+    volatile u32 *top = GRKU_PIXELS(data + y * stride * 4), *below = GRKU_PIXELS(data + (y + 1) * stride * 4);
     for (u32 x = 0; x <= (u32)run; ++x) {
         if (mapped != y) {
             mapped = y;
-            top = GRKIT_PIXELS(data + y * stride * 4);
-            below = GRKIT_PIXELS(data + (y + 1) * stride * 4);
+            top = GRKU_PIXELS(data + y * stride * 4);
+            below = GRKU_PIXELS(data + (y + 1) * stride * 4);
         }
         top[box[0] + x] = color;
         below[box[0] + x] = color;
@@ -98,8 +98,8 @@ static void guide_symmetry(u32 data, u32 stride, u32 color, const u16 *box)
     u32 width = box[2] - box[0], height = box[3] - box[1], x = 0, error = 0;
     guide_diagonals(data, stride, color, box);
     for (u32 r = 0; r < height; ++r) {
-        volatile u32 *top = GRKIT_PIXELS(data + (box[1] + r) * stride * 4),
-                     *bottom = GRKIT_PIXELS(data + (box[3] - 1 - r) * stride * 4);
+        volatile u32 *top = GRKU_PIXELS(data + (box[1] + r) * stride * 4),
+                     *bottom = GRKU_PIXELS(data + (box[3] - 1 - r) * stride * 4);
         /* In a 1:1 area the reciprocals are the diagonals and reach the
            last column; the pair stays inside. */
         u32 across = x < width - 1 ? x : width - 2, left = box[0] + across, right = box[2] - 1 - across;
@@ -125,7 +125,7 @@ static void guide_dot(u32 data, u32 stride, u32 color, const u16 *box, u32 flip,
     if (flip & 2) y = box[1] + box[3] - y;
     for (int j = y - 1; j <= y; ++j) {
         if (j < box[1] || j >= box[3]) continue;
-        volatile u32 *row = GRKIT_PIXELS(data + (u32)j * stride * 4);
+        volatile u32 *row = GRKU_PIXELS(data + (u32)j * stride * 4);
         for (int i = x - 1; i <= x; ++i)
             if (i >= box[0] && i < box[2]) row[i] = color;
     }

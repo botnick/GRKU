@@ -14,8 +14,8 @@
    its own scale, so the thumbnail matches the main picture.
 
    Ported from the Overlay module of kkasemsa/GRKit (MIT). */
-#include "grkit.h"
-#include "grkit_module.h"
+#include "grku.h"
+#include "grku_module.h"
 
 #define LOOK_CUSTOM 1U
 #define LOOK_FADED 2U
@@ -23,7 +23,7 @@
 #define LOOK_LEAKY 4U
 #define LOOK_EXPIRED 5U
 
-#define BYTE(p,o) (GRKIT_BYTES((p)+(o))[0])
+#define BYTE(p,o) (GRKU_BYTES((p)+(o))[0])
 
 /* The strengths of the four artefacts, 0 to 3. */
 typedef struct { u32 vignette, dust, leak, scratch; } Strengths;

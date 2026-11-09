@@ -1,18 +1,18 @@
-#ifndef GRKIT_ABOUT_H
-#define GRKIT_ABOUT_H
+#ifndef GRKU_ABOUT_H
+#define GRKU_ABOUT_H
 /* About: the last root row, after the module pages. It is part of the core,
-   so it always shows. Its summary gives the GRKit version. It has no rows, so
+   so it always shows. Its summary gives the GRKU version. It has no rows, so
    OK on it opens no page. */
 #include "core.h"
 
-/* The About tile reads VER, so the GRKit root shows one GRK tile. It follows
-   the GRKit tile in chunk 0. */
-#define GRKIT_ICON_VERSION 0x7ffdU
+/* The About tile reads VER, so the GRKU root shows one GRK tile. It follows
+   the GRKU tile in chunk 0. */
+#define GRKU_ICON_VERSION 0x7ffdU
 
 static const u16 *about_text(volatile u32 *h) { return text(h,TEXT_VERSION); }
 static const u16 *about_label(volatile u32 *h,u32 row) { (void)row; return about_text(h); }
 static u32 about_none(volatile u32 *h) { (void)h; return 0; }
-static u32 about_icon(volatile u32 *h,u32 row) { (void)h; (void)row; return GRKIT_ICON_VERSION; }
+static u32 about_icon(volatile u32 *h,u32 row) { (void)h; (void)row; return GRKU_ICON_VERSION; }
 static u32 about_checked(volatile u32 *h,u32 row) { (void)h; (void)row; return 0; }
 static void about_apply(volatile u32 *h,u32 row) { (void)h; (void)row; }
 

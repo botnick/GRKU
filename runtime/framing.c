@@ -52,14 +52,14 @@ static u32 native_display(void) { return FRAMING_DISPLAY_MODE(); }
 #include "settings.h"
 #include "services.h"
 #include "viewfinder.h"
-/* The core exports these services to modules (runtime/sdk/grkit.h). INSTALL
-   links each module call to it by name (grkit_core::grm::EXPORTS). The menu
+/* The core exports these services to modules (runtime/sdk/grku.h). INSTALL
+   links each module call to it by name (grku_core::grm::EXPORTS). The menu
    component exports setting_set, because a setting of CORE.ASPECT changes
    the native aspect. */
-__attribute__((used)) void grkit_export_overlay_label(const Surface *s,u32 label,u32 left,u32 top) {
+__attribute__((used)) void grku_export_overlay_label(const Surface *s,u32 label,u32 left,u32 top) {
     overlay_label(s,label,left,top);
 }
-__attribute__((used)) u32 grkit_export_setting_get(u32 handle) { return setting_value(framing_header(),handle); }
+__attribute__((used)) u32 grku_export_setting_get(u32 handle) { return setting_value(framing_header(),handle); }
 
 /* The capture aspect id of the crop: 0 = 3:2, 1 = 4:3, 2 = 16:9. XPan and
    2.35:1 use id 2 with their own heights, and 5:4, 1:1, and 7:6 use id 1
@@ -81,7 +81,7 @@ u32 framing_capture_request(u32 request) {
    aspect differs from the Framing ratio, for example after a menu change. */
 static void capture_sync(u32 controller) {
     volatile u32 *h=framing_header();
-    if(CAPABILITY_USED(h,GRKIT_CORE_ASPECT) && BYTE(controller,LIVEVIEW_MOVIE)==0 &&
+    if(CAPABILITY_USED(h,GRKU_CORE_ASPECT) && BYTE(controller,LIVEVIEW_MOVIE)==0 &&
        FRAMING_NATIVE_ASPECT()==0 && FRAMING_CAPTURE_ASPECT()!=framing_capture_id(h))
         FRAMING_REQUEST_ASPECT();
 }
@@ -107,7 +107,7 @@ u32 framing_live_aspect(u32 property) {
    a Framing ratio records the id that it crops (16:9 for XPan and 2.35:1,
    4:3 for 5:4, 7:6, and 1:1). The development takes the size of its photo
    from the GetResolution hooks (runtime/framing.S), which read
-   GRKIT_HOST_FRAME_FILE in playback, so it sets that byte from the size of
+   GRKU_HOST_FRAME_FILE in playback, so it sets that byte from the size of
    the DNG, as the playback classifier does for a JPEG. */
 static const unsigned short develop_sizes[]={XPAN_SIZES,SCOPE_SIZES,
 #ifdef NARROW_SIZES
@@ -123,7 +123,7 @@ static u32 develop_size(void) {
     u32 width=HALF(data,METADATA_SIZE), height=HALF(data,METADATA_SIZE+4);
     return width<height ? height|width<<16 : width|height<<16;
 }
-/* GRKIT_HOST_FRAME_FILE for a photo size: 2 XPan, 3 2.35:1, 4 5:4, 5 7:6,
+/* GRKU_HOST_FRAME_FILE for a photo size: 2 XPan, 3 2.35:1, 4 5:4, 5 7:6,
    else 1. */
 static u32 develop_file(u32 size) {
     u32 i;
@@ -139,27 +139,27 @@ static u32 develop_file(u32 size) {
 u32 framing_develop_select(u32 model,u32 aspect) {
     u32 size=develop_size(), geometry=develop_file(size);
     (void)model;
-    ((volatile u8 *)framing_header())[GRKIT_HOST_FRAME_FILE]=(u8)geometry;
+    ((volatile u8 *)framing_header())[GRKU_HOST_FRAME_FILE]=(u8)geometry;
     if(geometry>1) return 0;
     if(aspect==1 && (size&0xffff)==size>>16) return DEVELOP_SQUARE;
     return aspect<4 && DEVELOP_NATIVE_ASPECTS>>aspect&1U ? (u32)-1 : 0;
 }
 /* Each time the development sends its aspect to the pipeline: a Framing
-   ratio of its aspect list (GRKIT_HOST_DEVELOP_RATIO) takes the geometry of
+   ratio of its aspect list (GRKU_HOST_DEVELOP_RATIO) takes the geometry of
    the ratio, the recorded aspect (0) the geometry of the DNG, and a native
    aspect that the user selects the stock sizes. */
 void framing_develop_geometry(u32 model,u32 value) {
     volatile u32 *h=framing_header();
-    u32 ratio=h[GRKIT_HOST_DEVELOP_RATIO/4];
+    u32 ratio=h[GRKU_HOST_DEVELOP_RATIO/4];
     (void)model;
-    ((volatile u8 *)h)[GRKIT_HOST_FRAME_FILE]=(u8)(ratio ? develop_file_of(ratio) : value ? 1 : develop_file(develop_size()));
+    ((volatile u8 *)h)[GRKU_HOST_FRAME_FILE]=(u8)(ratio ? develop_file_of(ratio) : value ? 1 : develop_file(develop_size()));
 }
 /* The capture aspect that the development sends for its aspect: the
    capture aspect of a Framing ratio, else the native conversion. The aspect
    list keeps a native value for a ratio (runtime/menu.c), which the native
    conversion accepts. */
 u32 framing_develop_capture(u32 capture) {
-    u32 ratio=framing_header()[GRKIT_HOST_DEVELOP_RATIO/4];
+    u32 ratio=framing_header()[GRKU_HOST_DEVELOP_RATIO/4];
     return ratio ? develop_capture(ratio) : capture;
 }
 #endif
@@ -170,7 +170,7 @@ u32 framing_develop_capture(u32 capture) {
    Framing size takes the stock size of its size class, the 16:9 size with
    its width or the 4:3 size with its height, so the camera resizes it. A
    resize target of that class then takes the Framing geometry of the photo
-   (GRKIT_HOST_FRAME_FILE, which the playback classifier sets) again. 1:1
+   (GRKU_HOST_FRAME_FILE, which the playback classifier sets) again. 1:1
    sizes are stock sizes. */
 static const unsigned short resize_wide[4][3]={{XPAN_HEIGHT_0},{XPAN_HEIGHT_1},{XPAN_HEIGHT_2},{XPAN_HEIGHT_3}};
 static const unsigned short resize_narrow[4][4]={{NARROW_WIDTH_0},{NARROW_WIDTH_1},{NARROW_WIDTH_2},{NARROW_WIDTH_3}};
@@ -192,7 +192,7 @@ void framing_resize_stock(u32 size) {
 #pragma clang attribute pop
 #endif
 void framing_resize_target(u32 size,u32 width,u32 height) {
-    u32 file=((volatile u8 *)framing_header())[GRKIT_HOST_FRAME_FILE], i;
+    u32 file=((volatile u8 *)framing_header())[GRKU_HOST_FRAME_FILE], i;
     for(i=0;i<4;++i) {
         if((file==2 || file==3) && width==RESIZE_WIDTH(i) && height==resize_wide[i][0]) height=resize_wide[i][file-1];
         if((file==4 || file==5) && height==RESIZE_HEIGHT(i) && width==resize_narrow[i][0]) width=resize_narrow[i][file==4 ? 1 : 3];
@@ -221,8 +221,8 @@ static void bind_canvas(volatile u32 *h,u32 controller) {
     /* Shooting: the capture sizes follow the crop that applies in the native
        aspect. A native aspect from the camera menu reads as Framing Off and
        keeps its stock sizes. */
-    ((volatile u8 *)h)[GRKIT_HOST_FRAME_FILE]=0;
-    h[GRKIT_HOST_FRAME_CROP/4]=capture_aspect_value(h);
+    ((volatile u8 *)h)[GRKU_HOST_FRAME_FILE]=0;
+    h[GRKU_HOST_FRAME_CROP/4]=capture_aspect_value(h);
     capture_sync(controller);
     /* The camera's crop factor follows CORE.CROP in the still live view. */
 #ifdef CROP_NATIVE_BITS
@@ -235,7 +235,7 @@ void framing_bind(u32 controller) {
     volatile u32 *h=framing_header();
     u32 start=profile_begin(h);
     bind_canvas(h,controller);
-    profile_end(h,start,GRKIT_PROFILE_FRAME_BIND);
+    profile_end(h,start,GRKU_PROFILE_FRAME_BIND);
 }
 void framing_leave(u32 controller) {
     viewfinder_leave(framing_header(),controller);
@@ -248,7 +248,7 @@ void framing_paint(u32 canvas,u32 bitmap) {
     volatile u32 *h=framing_header();
     u32 start=profile_begin(h);
     paint_canvas(h,canvas,bitmap);
-    profile_end(h,start,GRKIT_PROFILE_FRAME_PAINT);
+    profile_end(h,start,GRKU_PROFILE_FRAME_PAINT);
 }
 /* The paint after the native children of the canvas (runtime/framing.S). */
 void framing_paint_after(u32 canvas,u32 bitmap) { paint_after(framing_header(),canvas,bitmap); }
@@ -258,5 +258,5 @@ void framing_paint_after(u32 canvas,u32 bitmap) { paint_after(framing_header(),c
 /* The live-view crop badge of the camera (runtime/framing.S: crop_badge):
    0 hides it where the core draws its own (runtime/crop.h). */
 u32 crop_badge_native(void) {
-    return crop_badge_label(framing_header(),FRAMING_NATIVE_ASPECT())>=GRKIT_LABEL_COUNT;
+    return crop_badge_label(framing_header(),FRAMING_NATIVE_ASPECT())>=GRKU_LABEL_COUNT;
 }

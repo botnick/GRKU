@@ -2,7 +2,7 @@
 // the parts that each family shares. The header fields are those of abi.h.
 // The firmware addresses are FIRMWARE() symbols (hooks.h and
 // runtime/firmware.h), which the installer relocates.
-// Records are immutable, contiguous GRKIT_RECORD_SIZE allocations retained until reboot.
+// Records are immutable, contiguous GRKU_RECORD_SIZE allocations retained until reboot.
 // The live-view dirty hook lives in picture.S.
 #include "firmware.h"
 #include "abi.h"
@@ -34,9 +34,9 @@ module_processing:
     // this capture (the native flag at [fp - 0x30], which the function stored
     // before this hook), point it at the next word, the address of the set for
     // half the stage input.
-    ldr r0, [lr, #GRKIT_RECORD_FEATURES]
+    ldr r0, [lr, #GRKU_RECORD_FEATURES]
     tst r0, #0x28
-.if GRKIT_RECORD_MULTIAXIAL - 44 != 0x714
+.if GRKU_RECORD_MULTIAXIAL - 44 != 0x714
 .error "Update the MultiAxial set offset"
 .endif
     beq 1f
@@ -67,7 +67,7 @@ module_packet:
     ldr r0, [r4, #8]
     .word 0xeb000000 | (((.Lowned_record - . - 8) >> 2) & 0x00ffffff)
     bne packet_stock
-    ldr r1, [r0, #GRKIT_RECORD_MONOCHROME]
+    ldr r1, [r0, #GRKU_RECORD_MONOCHROME]
     and r1, r1, #1
     strb r1, [r4, #0x79]
     mov r2, #0
@@ -112,11 +112,11 @@ module_gamma_curves:
     ldr r0, [r4, #8]
     .word 0xeb000000 | (((.Lowned_record - . - 8) >> 2) & 0x00ffffff)
     bne curves_stock
-    add r5, r0, #GRKIT_RECORD_CURVES
+    add r5, r0, #GRKU_RECORD_CURVES
     str r5, [r1]
-    add r5, r5, #GRKIT_RECORD_CURVE_SIZE
+    add r5, r5, #GRKU_RECORD_CURVE_SIZE
     str r5, [r2]
-    add r5, r5, #GRKIT_RECORD_CURVE_SIZE
+    add r5, r5, #GRKU_RECORD_CURVE_SIZE
     str r5, [r3]
     mov r1, r0
     ldr r0, [fp, #-0x44]

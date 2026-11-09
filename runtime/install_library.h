@@ -1,5 +1,5 @@
-#ifndef GRKIT_INSTALL_LIBRARY_H
-#define GRKIT_INSTALL_LIBRARY_H
+#ifndef GRKU_INSTALL_LIBRARY_H
+#define GRKU_INSTALL_LIBRARY_H
 /* A part of the installer: the package list and the effects library.
    installer.c includes it once, in its order, after the helpers and the state
    that this part uses.
@@ -71,7 +71,7 @@ static int package_module(const char *name)
    this power-on. They install from the inbox. */
 static char pending[NAMES_MAX][CATALOG_NAME_SIZE];
 static u32 pending_count;
-static u8 existing[GRKIT_GRF_MAX_SIZE];
+static u8 existing[GRKU_GRF_MAX_SIZE];
 /* The names of the effect files to copy from one folder. */
 struct effect_names {
     char name[NAMES_MAX][CATALOG_NAME_SIZE];

@@ -1,5 +1,5 @@
 {
-  "schema": "grkit-effect-v1",
+  "schema": "grku-effect-v1",
   "effect_id": "pd-px-100uv-cold-v1",
   "name": "PX100UV Cold",
   "flags": 0,

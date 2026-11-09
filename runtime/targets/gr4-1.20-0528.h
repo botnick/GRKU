@@ -9,8 +9,8 @@
    types, and the processing slots are those of 1.11. The Fn hint IDs are one
    lower than on gr4-1.20, and the icon draw takes `bhs` at its limit. Not
    tested on a camera. */
-#ifndef GRKIT_TARGET_H
-#define GRKIT_TARGET_H
+#ifndef GRKU_TARGET_H
+#define GRKU_TARGET_H
 
 #include "gr4.h"
 

@@ -1,6 +1,6 @@
-#ifndef GRKIT_UI_H
-#define GRKIT_UI_H
-/* The timer and UI services (runtime/sdk/grkit.h), part of the menu, which
+#ifndef GRKU_UI_H
+#define GRKU_UI_H
+/* The timer and UI services (runtime/sdk/grku.h), part of the menu, which
    runs in the App task. The state is in the services block
    (runtime/services.h). The includer is runtime/menu.c.
 
@@ -8,7 +8,7 @@
    of its handler with the handler and the timer id, in the App task.
 
    The UI shows the native message box (view type 0x0e) on the ADJ canvas
-   of the GRKit page. Firmware view calls are valid only in the App task, so
+   of the GRKU page. Firmware view calls are valid only in the App task, so
    each service refuses a caller that is not module code in the App task
    (services_in_app).
    The view lifetime rules of the firmware:
@@ -48,7 +48,7 @@ static u32 ui_timer_start(u32 ms) {
 static void ui_timer_cancel(u32 id) {
     if(id) CALL2(FW_TIMER_CANCEL)(CALL0(FW_TIMER_SERVICE)(),id);
 }
-__attribute__((used)) u32 grkit_export_timer_start(u32 ms,void (*fire)(u32),u32 arg) {
+__attribute__((used)) u32 grku_export_timer_start(u32 ms,void (*fire)(u32),u32 arg) {
     volatile u32 *h=menu_header();
     u32 i;
     if(!services_in_app(h) || !fire) return 0;
@@ -61,7 +61,7 @@ __attribute__((used)) u32 grkit_export_timer_start(u32 ms,void (*fire)(u32),u32 
     }
     return 0;
 }
-__attribute__((used)) void grkit_export_timer_cancel(u32 timer) {
+__attribute__((used)) void grku_export_timer_cancel(u32 timer) {
     volatile u32 *h=menu_header();
     volatile u32 *slot;
     if(!services_in_app(h) || timer-1>=SERVICES_TIMER_SLOTS) return;
@@ -104,7 +104,7 @@ static void ui_remove(u32 parent,u32 view) {
 /* ---- The box -------------------------------------------------------------- */
 /* Close the box without a callback: ADJ exit, or a box that ends. */
 static void ui_close(volatile u32 *h) {
-    if(!h[GRKIT_HOST_SERVICES/4]) return;
+    if(!h[GRKU_HOST_SERVICES/4]) return;
     ui_timer_cancel(ui_word(h,UI_TIMER)[0]);
     ui_word(h,UI_TIMER)[0]=0;
     ui_remove(ui_word(h,UI_PARENT)[0],ui_word(h,UI_BAR)[0]);
@@ -114,7 +114,7 @@ static void ui_close(volatile u32 *h) {
 }
 /* The text of the box for the text hook, or 0. */
 static u32 ui_text_override(volatile u32 *h,u32 id) {
-    if(id!=SETTINGS_TITLE_TEXT || !h[GRKIT_HOST_SERVICES/4] || ui_word(h,UI_MODE)[0]==UI_NONE) return 0;
+    if(id!=SETTINGS_TITLE_TEXT || !h[GRKU_HOST_SERVICES/4] || ui_word(h,UI_MODE)[0]==UI_NONE) return 0;
     return (u32)ui_word(h,UI_DESCRIPTOR)|1U;
 }
 static void ui_set_text(volatile u32 *h,const u16 *const *text) {
@@ -122,12 +122,12 @@ static void ui_set_text(volatile u32 *h,const u16 *const *text) {
     descriptor(ui_word(h,UI_DESCRIPTOR),text[menu_language()]);
     CALL2(FW_MESSAGE_SET)(ui_word(h,UI_VIEW)[0],SETTINGS_TITLE_TEXT);
 }
-/* Open a box of `mode` on the ADJ canvas of the GRKit page: 1, or 0 when
-   the caller is not module code in the App task, GRKit is not open, or
+/* Open a box of `mode` on the ADJ canvas of the GRKU page: 1, or 0 when
+   the caller is not module code in the App task, GRKU is not open, or
    another box shows. */
 static u32 ui_open(volatile u32 *h,u32 mode,const u16 *const *text,u32 background) {
-    u32 controller=h[GRKIT_HOST_MENU_CONTROLLER/4], parent, view;
-    if(!services_in_app(h) || !text || !controller || !h[GRKIT_HOST_MENU_LEVEL/4]) return 0;
+    u32 controller=h[GRKU_HOST_MENU_CONTROLLER/4], parent, view;
+    if(!services_in_app(h) || !text || !controller || !h[GRKU_HOST_MENU_LEVEL/4]) return 0;
     if(ui_word(h,UI_MODE)[0]==UI_TOAST || ui_word(h,UI_MODE)[0]==UI_DONE_TEXT) ui_close(h);
     if(ui_word(h,UI_MODE)[0]!=UI_NONE) return 0;
     parent=WORD(controller,ADJ_CANVAS);
@@ -142,19 +142,19 @@ static u32 ui_open(volatile u32 *h,u32 mode,const u16 *const *text,u32 backgroun
     ui_attach(parent,view);
     return 1;
 }
-__attribute__((used)) u32 grkit_export_ui_toast(const u16 *const *text,u32 ms) {
+__attribute__((used)) u32 grku_export_ui_toast(const u16 *const *text,u32 ms) {
     volatile u32 *h=menu_header();
     if(!ui_open(h,UI_TOAST,text,1)) return 0;
     ui_word(h,UI_TIMER)[0]=ui_timer_start(ms ? ms : UI_DONE_MS);
     return 1;
 }
-__attribute__((used)) u32 grkit_export_ui_message(const u16 *const *text,void (*done)(u32),u32 arg) {
+__attribute__((used)) u32 grku_export_ui_message(const u16 *const *text,void (*done)(u32),u32 arg) {
     volatile u32 *h=menu_header();
     if(!ui_open(h,UI_MESSAGE,text,0)) return 0;
     ui_word(h,UI_DONE)[0]=(u32)done; ui_word(h,UI_ARG)[0]=arg;
     return 1;
 }
-__attribute__((used)) u32 grkit_export_ui_confirm(const u16 *const *text,void (*done)(u32,u32),u32 arg) {
+__attribute__((used)) u32 grku_export_ui_confirm(const u16 *const *text,void (*done)(u32,u32),u32 arg) {
     volatile u32 *h=menu_header();
     u32 view;
     if(!ui_open(h,UI_CONFIRM,text,0)) return 0;
@@ -165,7 +165,7 @@ __attribute__((used)) u32 grkit_export_ui_confirm(const u16 *const *text,void (*
     CALL3(FW_MESSAGE_ENABLE_BUTTONS)(view,1,1);
     return 1;
 }
-__attribute__((used)) u32 grkit_export_ui_progress_open(const u16 *const *text) {
+__attribute__((used)) u32 grku_export_ui_progress_open(const u16 *const *text) {
     volatile u32 *h=menu_header();
     u32 bar;
     if(!ui_open(h,UI_PROGRESS,text,0)) return 0;
@@ -177,12 +177,12 @@ __attribute__((used)) u32 grkit_export_ui_progress_open(const u16 *const *text) 
     ui_word(h,UI_BAR)[0]=bar;
     return 1;
 }
-__attribute__((used)) void grkit_export_ui_progress_set(u32 percent) {
+__attribute__((used)) void grku_export_ui_progress_set(u32 percent) {
     volatile u32 *h=menu_header();
     if(!services_in_app(h) || ui_word(h,UI_MODE)[0]!=UI_PROGRESS || !ui_word(h,UI_BAR)[0]) return;
     CALL2(FW_PROGRESS_PERCENT)(ui_word(h,UI_BAR)[0],percent<100 ? percent : 100);
 }
-__attribute__((used)) void grkit_export_ui_progress_close(const u16 *const *text) {
+__attribute__((used)) void grku_export_ui_progress_close(const u16 *const *text) {
     volatile u32 *h=menu_header();
     if(!services_in_app(h) || ui_word(h,UI_MODE)[0]!=UI_PROGRESS) return;
     if(!text) { ui_close(h); return; }
@@ -197,7 +197,7 @@ A32_ENTRY void ui_timer_fired(u32 handler,u32 id) {
     volatile u32 *h=menu_header();
     u32 i;
     (void)handler;
-    if(!h[GRKIT_HOST_SERVICES/4] || !id) return;
+    if(!h[GRKU_HOST_SERVICES/4] || !id) return;
     if(id==ui_word(h,UI_NATIVE_TIMER)[0]) {
         ui_word(h,UI_NATIVE_TIMER)[0]=0;
         ui_native_open(h);
@@ -246,7 +246,7 @@ static void ui_slider_show(volatile u32 *h) {
     CALL2(FW_SLIDER_FLAG)((u32)config,0);
     CALL2(FW_SLIDER_APPLY)(bar,(u32)config);
 }
-__attribute__((used)) u32 grkit_export_ui_slider(const u16 *const *text,u32 min,u32 max,u32 value,
+__attribute__((used)) u32 grku_export_ui_slider(const u16 *const *text,u32 min,u32 max,u32 value,
                                                  void (*changed)(u32,u32),void (*done)(u32,u32,u32),u32 arg) {
     volatile u32 *h=menu_header();
     u32 bar;
@@ -289,7 +289,7 @@ static void ui_slider_event(volatile u32 *h,u32 kind,u32 back) {
 /* The keys while a message, a confirm, a progress, or a slider box shows.
    The box takes each key. `back` is 1 for MENU (back_event). */
 static u32 ui_modal(volatile u32 *h) {
-    u32 mode=h[GRKIT_HOST_SERVICES/4] ? ui_word(h,UI_MODE)[0] : UI_NONE;
+    u32 mode=h[GRKU_HOST_SERVICES/4] ? ui_word(h,UI_MODE)[0] : UI_NONE;
     return mode==UI_MESSAGE || mode==UI_CONFIRM || mode==UI_PROGRESS || mode==UI_SLIDER;
 }
 static void ui_event(volatile u32 *h,u32 kind,u32 back) {
@@ -311,9 +311,9 @@ static void ui_event(volatile u32 *h,u32 kind,u32 back) {
 }
 
 /* ---- Native screens -------------------------------------------------------
-   ui_open_native leaves the GRKit page and changes the controller to the
+   ui_open_native leaves the GRKU page and changes the controller to the
    native screen, with ADJ as the screen to return to, as the parameter page
-   does (open_parameters). The return state brings ADJ back to the GRKit
+   does (open_parameters). The return state brings ADJ back to the GRKU
    page that was open (menu_refresh), and then the core calls back(arg).
 
    The call only records the screen: a 1 ms App timer opens it after the
@@ -330,10 +330,10 @@ static u32 ui_native_screen(u32 screen) {
     default: return 0;
     }
 }
-__attribute__((used)) u32 grkit_export_ui_open_native(u32 screen,void (*back)(u32),u32 arg) {
+__attribute__((used)) u32 grku_export_ui_open_native(u32 screen,void (*back)(u32),u32 arg) {
     volatile u32 *h=menu_header();
     u32 id=ui_native_screen(screen);
-    if(!services_in_app(h) || !id || !h[GRKIT_HOST_MENU_CONTROLLER/4] || !h[GRKIT_HOST_MENU_LEVEL/4] ||
+    if(!services_in_app(h) || !id || !h[GRKU_HOST_MENU_CONTROLLER/4] || !h[GRKU_HOST_MENU_LEVEL/4] ||
        ui_word(h,UI_NATIVE)[0] || ui_modal(h)) return 0;
     ui_word(h,UI_NATIVE_TIMER)[0]=ui_timer_start(1);
     if(!ui_word(h,UI_NATIVE_TIMER)[0]) return 0;
@@ -342,7 +342,7 @@ __attribute__((used)) u32 grkit_export_ui_open_native(u32 screen,void (*back)(u3
     return 1;
 }
 static void ui_native_open(volatile u32 *h) {
-    u32 id=ui_word(h,UI_NATIVE)[0], controller=h[GRKIT_HOST_MENU_CONTROLLER/4], root, back=ui_word(h,UI_BACK)[0];
+    u32 id=ui_word(h,UI_NATIVE)[0], controller=h[GRKU_HOST_MENU_CONTROLLER/4], root, back=ui_word(h,UI_BACK)[0];
     ui_word(h,UI_NATIVE)[0]=0;
     if(id==UI_NATIVE_BACK) {
         ui_word(h,UI_BACK)[0]=0;
@@ -350,29 +350,29 @@ static void ui_native_open(volatile u32 *h) {
         return;
     }
     /* ADJ closed before the timer: drop the request. */
-    if(!id || !controller || !h[GRKIT_HOST_MENU_LEVEL/4]) { ui_word(h,UI_BACK)[0]=0; return; }
+    if(!id || !controller || !h[GRKU_HOST_MENU_LEVEL/4]) { ui_word(h,UI_BACK)[0]=0; return; }
     ui_close(h);
     /* leave() clears the level, so read it first. */
-    root=h[GRKIT_HOST_MENU_LEVEL/4]==MENU_ROOT ? RETURN_ROOT : 0;
+    root=h[GRKU_HOST_MENU_LEVEL/4]==MENU_ROOT ? RETURN_ROOT : 0;
     leave(controller);
-    h[GRKIT_HOST_RETURN/4]=RETURN_OPENING|root;
+    h[GRKU_HOST_RETURN/4]=RETURN_OPENING|root;
     CALL3(FW_CHANGE_CONTROLLER)(controller,id,0x2000000);
 }
-/* Whether the UI needs the GRKit page to stay open: a box shows, or a
+/* Whether the UI needs the GRKU page to stay open: a box shows, or a
    native screen waits to open. OK on a page row then keeps ADJ open, so
    the module that the row changed can show its feedback (menu_event). */
 static u32 ui_holds_page(volatile u32 *h) {
-    return h[GRKIT_HOST_SERVICES/4] && (ui_word(h,UI_MODE)[0]!=UI_NONE || ui_word(h,UI_NATIVE)[0]);
+    return h[GRKU_HOST_SERVICES/4] && (ui_word(h,UI_MODE)[0]!=UI_NONE || ui_word(h,UI_NATIVE)[0]);
 }
 /* ADJ exit or destroy before the timer fires drops the request. */
 static void ui_native_cancel(volatile u32 *h) {
-    if(!h[GRKIT_HOST_SERVICES/4] || !ui_word(h,UI_NATIVE)[0]) return;
+    if(!h[GRKU_HOST_SERVICES/4] || !ui_word(h,UI_NATIVE)[0]) return;
     ui_timer_cancel(ui_word(h,UI_NATIVE_TIMER)[0]);
     ui_word(h,UI_NATIVE_TIMER)[0]=ui_word(h,UI_NATIVE)[0]=ui_word(h,UI_BACK)[0]=0;
 }
-/* The GRKit page shows again after a native screen (menu_refresh). */
+/* The GRKU page shows again after a native screen (menu_refresh). */
 static void ui_native_returned(volatile u32 *h) {
-    if(!h[GRKIT_HOST_SERVICES/4] || !ui_word(h,UI_BACK)[0] || ui_word(h,UI_NATIVE)[0]) return;
+    if(!h[GRKU_HOST_SERVICES/4] || !ui_word(h,UI_BACK)[0] || ui_word(h,UI_NATIVE)[0]) return;
     ui_word(h,UI_NATIVE_TIMER)[0]=ui_timer_start(1);
     if(ui_word(h,UI_NATIVE_TIMER)[0]) ui_word(h,UI_NATIVE)[0]=UI_NATIVE_BACK;
     else ui_word(h,UI_BACK)[0]=0;

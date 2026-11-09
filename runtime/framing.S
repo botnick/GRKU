@@ -17,7 +17,7 @@
 .global framing_header
 .type framing_header, %function
 framing_header:
-    ldr r0, =GRKIT_HEADER_REFERENCE
+    ldr r0, =GRKU_HEADER_REFERENCE
     bx lr
 #ifdef HOOK_FRAMING_CAPTURE_REQUEST_HOOK
 /* Replaces `ldrb r1, [r4]` in the still aspect property handler. r1 returns
@@ -84,19 +84,19 @@ framing_children:
 #if !defined(CLASSIFY_WIDTH) || !defined(CLASSIFY_CLASS) || !defined(CLASSIFY_RETURN)
 #error "The family header defines the classifier registers"
 #endif
-/* The id 2 geometry in r12: 0 = 16:9, 1 = XPan, 2 = 2.35:1. GRKIT_HOST_FRAME_FILE
+/* The id 2 geometry in r12: 0 = 16:9, 1 = XPan, 2 = 2.35:1. GRKU_HOST_FRAME_FILE
    is 0 while shooting, else 1 + the geometry of the photo that the classifier
-   saw last. Shooting follows GRKIT_HOST_FRAME_CROP, the crop that applies in
+   saw last. Shooting follows GRKU_HOST_FRAME_CROP, the crop that applies in
    the native aspect (runtime/framing.c). Clobbers only r12 and the flags. */
 wide_mode:
-    ldr r12, =GRKIT_HEADER_REFERENCE
-    ldrb r12, [r12, #GRKIT_HOST_FRAME_FILE]
+    ldr r12, =GRKU_HEADER_REFERENCE
+    ldrb r12, [r12, #GRKU_HOST_FRAME_FILE]
     cmp r12, #0
     beq 1f
     sub r12, r12, #1
     bx lr
-1:  ldr r12, =GRKIT_HEADER_REFERENCE
-    ldr r12, [r12, #GRKIT_HOST_FRAME_CROP]
+1:  ldr r12, =GRKU_HEADER_REFERENCE
+    ldr r12, [r12, #GRKU_HOST_FRAME_CROP]
     cmp r12, #1
     bxeq lr
     cmp r12, #4
@@ -150,13 +150,13 @@ INSET framing_thumbnail_inset, 16, 30, 26
 #error "The family header defines the 5:4, 1:1, and 7:6 sizes"
 #endif
 /* The id 1 geometry in r12: 0 = 4:3, 1 = 5:4, 2 = 1:1, 3 = 7:6. Shooting
-   follows GRKIT_HOST_FRAME_CROP (value 6 for 5:4, 5 for 1:1, 7 for 7:6), so
+   follows GRKU_HOST_FRAME_CROP (value 6 for 5:4, 5 for 1:1, 7 for 7:6), so
    the native 4:3 keeps its sizes,
-   playback the photo that the classifier saw last (GRKIT_HOST_FRAME_FILE 4
+   playback the photo that the classifier saw last (GRKU_HOST_FRAME_FILE 4
    for 5:4, 5 for 7:6). Clobbers only r12 and the flags. */
 narrow_mode:
-    ldr r12, =GRKIT_HEADER_REFERENCE
-    ldrb r12, [r12, #GRKIT_HOST_FRAME_FILE]
+    ldr r12, =GRKU_HEADER_REFERENCE
+    ldrb r12, [r12, #GRKU_HOST_FRAME_FILE]
     cmp r12, #0
     beq 1f
     cmp r12, #4
@@ -166,8 +166,8 @@ narrow_mode:
     moveq r12, #3
     movne r12, #0
     bx lr
-1:  ldr r12, =GRKIT_HEADER_REFERENCE
-    ldr r12, [r12, #GRKIT_HOST_FRAME_CROP]
+1:  ldr r12, =GRKU_HEADER_REFERENCE
+    ldr r12, [r12, #GRKU_HOST_FRAME_CROP]
     cmp r12, #6
     moveq r12, #1
     bxeq lr
@@ -283,26 +283,26 @@ wide_sizes:
 /* Replaces the aspect BL in the size classifier (GR III 0x532b3988: frame
    {r4-r7,fp,ip,lr,pc}, r7 = width, r4 = height, r6 = class pointer).
    A 65:24, 2.35:1, 5:4, or 7:6 size records its geometry
-   (GRKIT_HOST_FRAME_FILE 2, 3, 4, or 5), then returns its size class and success from the classifier.
+   (GRKU_HOST_FRAME_FILE 2, 3, 4, or 5), then returns its size class and success from the classifier.
    Other sizes record 1 and continue with the native aspect function. */
 .global framing_classify
 framing_classify:
     push {r0-r3,lr}
     bl wide_size
     pop {r0-r3,lr}
-    ldr r2, =GRKIT_HEADER_REFERENCE
+    ldr r2, =GRKU_HEADER_REFERENCE
     cmp r12, #0
     blt 5f
     mov r3, r12, lsr #2
     add r3, r3, #2
-    strb r3, [r2, #GRKIT_HOST_FRAME_FILE]
+    strb r3, [r2, #GRKU_HOST_FRAME_FILE]
     and r12, r12, #3
     cmp CLASSIFY_CLASS, #0
     strbne r12, [CLASSIFY_CLASS]
     mov r0, #1
     CLASSIFY_RETURN
 5:  mov r3, #1
-    strb r3, [r2, #GRKIT_HOST_FRAME_FILE]
+    strb r3, [r2, #GRKU_HOST_FRAME_FILE]
     mov r0, CLASSIFY_WIDTH
     mov r1, r4
     ldr pc, =HOOK_FRAMING_CLASSIFY_TARGET
@@ -526,7 +526,7 @@ crop_image_crop:
 #endif
 #ifdef HOOK_CROP_SHOT
 /* After the copy of the capture settings of a shot into the shot request
-   object (r4): the factor of a 70 or 90 mm crop (GRKIT_HOST_CROP_SHOT)
+   object (r4): the factor of a 70 or 90 mm crop (GRKU_HOST_CROP_SHOT)
    replaces the 50 mm factor of the live view in that copy, so that the
    window, the size, the Exif focal length, and the DNG crop of the shot
    follow it. Only while the still live view is bound, so a RAW development
@@ -535,11 +535,11 @@ crop_image_crop:
 .type crop_shot, %function
 crop_shot:
     push {r0-r3}
-    ldr r0, =GRKIT_HEADER_REFERENCE
-    ldr r1, [r0, #GRKIT_HOST_CROP_SHOT]
+    ldr r0, =GRKU_HEADER_REFERENCE
+    ldr r1, [r0, #GRKU_HOST_CROP_SHOT]
     cmp r1, #0
     beq 1f
-    ldr r2, [r0, #GRKIT_HOST_FRAME_OWNER]
+    ldr r2, [r0, #GRKU_HOST_FRAME_OWNER]
     cmp r2, #0
     beq 1f
     add r2, r4, #(CROP_SHOT_COPY & ~0xff)

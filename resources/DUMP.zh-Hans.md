@@ -14,7 +14,7 @@
 
 ## 获取工具
 
-从[最新版本](https://github.com/botnick/GRKit/releases/latest)下载 `GRKU-<版本>-dump.zip`。https://grku.app 页面底部的“固件导出工具”链接提供同一个文件。
+从[最新版本](https://github.com/botnick/GRKU/releases/latest)下载 `GRKU-<版本>-dump.zip`。https://grku.app 页面底部的“固件导出工具”链接提供同一个文件。
 
 ## 导出固件
 
@@ -34,7 +34,7 @@
 ## 发送文件
 
 1. 把 `SCRIPT/GRDUMP` 文件夹压缩成 ZIP。
-2. 把 ZIP 附加到一个 [GitHub issue](https://github.com/botnick/GRKit/issues) 中。写明相机型号和固件版本。
+2. 把 ZIP 附加到一个 [GitHub issue](https://github.com/botnick/GRKU/issues) 中。写明相机型号和固件版本。
 
 如果开发者在某个 issue 中请你导出，把 ZIP 附加到那个 issue。
 

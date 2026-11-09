@@ -1,12 +1,12 @@
-#ifndef GRKIT_DEVELOP_H
-#define GRKIT_DEVELOP_H
-/* The Fn adjustments of a GRKit effect in a RAW development.
+#ifndef GRKU_DEVELOP_H
+#define GRKU_DEVELOP_H
+/* The Fn adjustments of a GRKU effect in a RAW development.
 
    The development model has a parameter set for each Image Control, and the
    parameter page of the development (Fn in its Image Control list) edits the
    set of the selected one. An effect row is native Standard to the model
    (runtime/menu.c), so while an effect is chosen, the Standard set holds the
-   Fn adjustments of that effect (GRKIT_HOST_DEVELOP_FILLED), and the builds
+   Fn adjustments of that effect (GRKU_HOST_DEVELOP_FILLED), and the builds
    of the development read them there (module_parameters in
    runtime/processing.h, and develop_parameter). The Fn adjustments
    that the effect keeps for shooting do not change. When a native row is
@@ -22,14 +22,14 @@
 #define DEVELOP_SET(kind) BYTE(FW_DEVELOP_MODEL,DEVELOP_PARAMETERS+(kind))
 #endif
 static const u8 develop_kinds[]=PARAMETER_KINDS;
-_Static_assert(sizeof(develop_kinds)==9 && GRKIT_HOST_DEVELOP_NATIVE_WORDS*4>=9,
-               "GRKIT_RECORD_PARAMETERS holds nine adjustments");
+_Static_assert(sizeof(develop_kinds)==9 && GRKU_HOST_DEVELOP_NATIVE_WORDS*4>=9,
+               "GRKU_RECORD_PARAMETERS holds nine adjustments");
 /* Fn adjustment `index` (0..8, 4 neutral) of `record` in a build: from the
    Standard set while a development runs (`running`) and the set holds the
    adjustments of the record, else from the record. */
 static __attribute__((unused)) u32 develop_parameter(volatile u32 *h,u32 record,u32 index,u32 running) {
     u32 value;
-    if(!running || record<=1 || h[GRKIT_HOST_DEVELOP_FILLED/4]!=record) return record_parameter(record,index);
+    if(!running || record<=1 || h[GRKU_HOST_DEVELOP_FILLED/4]!=record) return record_parameter(record,index);
     value=DEVELOP_SET(develop_kinds[index]);
     return value>8 ? 4 : value;
 }
@@ -42,9 +42,9 @@ static __attribute__((unused)) u32 develop_parameter(volatile u32 *h,u32 record,
    a row passes the set of the row on to the processing, so call this before
    it. */
 static __attribute__((unused)) void develop_hold(volatile u32 *h,u32 record) {
-    volatile u8 *native=(volatile u8 *)(h+GRKIT_HOST_DEVELOP_NATIVE/4);
-    volatile u8 *changes=(volatile u8 *)(h+GRKIT_HOST_DEVELOP_CHANGES/4);
-    u32 filled=h[GRKIT_HOST_DEVELOP_FILLED/4], changed=0, i;
+    volatile u8 *native=(volatile u8 *)(h+GRKU_HOST_DEVELOP_NATIVE/4);
+    volatile u8 *changes=(volatile u8 *)(h+GRKU_HOST_DEVELOP_CHANGES/4);
+    u32 filled=h[GRKU_HOST_DEVELOP_FILLED/4], changed=0, i;
     if(record<=1) record=0;
     if(filled==record) return;
     for(i=0;i<sizeof(develop_kinds);++i) {
@@ -54,12 +54,12 @@ static __attribute__((unused)) void develop_hold(volatile u32 *h,u32 record) {
     }
     if(changed) {
         for(i=0;i<sizeof(develop_kinds);++i) changes[i]=DEVELOP_SET(develop_kinds[i]);
-        h[GRKIT_HOST_DEVELOP_CHANGED/4]=filled;
+        h[GRKU_HOST_DEVELOP_CHANGED/4]=filled;
     }
     for(i=0;i<sizeof(develop_kinds);++i)
         DEVELOP_SET(develop_kinds[i])=(u8)(!record ? native[i] :
-            h[GRKIT_HOST_DEVELOP_CHANGED/4]==record ? changes[i] : record_parameter(record,i));
-    h[GRKIT_HOST_DEVELOP_FILLED/4]=record;
+            h[GRKU_HOST_DEVELOP_CHANGED/4]==record ? changes[i] : record_parameter(record,i));
+    h[GRKU_HOST_DEVELOP_FILLED/4]=record;
 }
 #else
 #define develop_parameter(h,record,index,running) ((void)(h),(void)(running),record_parameter((record),(index)))

@@ -4,11 +4,11 @@ import { provideTable } from '../preview/render';
 import type { GuessRequest, ImportRequest, ImportResponse, RestoreRequest } from './lut.worker';
 import { base64, coverIcon, effectId, type CoverFields, type Input } from './names';
 
-/** grkit-wasm `MAX_LUT_SIZE`. */
+/** grku-wasm `MAX_LUT_SIZE`. */
 export const MAX_LUT_BYTES = 128 * 1024 * 1024;
 /** A level 16 HALD image takes the longest. The fit itself takes a few seconds. */
 const IMPORT_TIMEOUT = 180_000;
-/** The HALD level that `grkit effects hald` writes by default: a 1728 x 1728 image. */
+/** The HALD level that `grku effects hald` writes by default: a 1728 x 1728 image. */
 export const HALD_LEVEL = 12;
 /** Makes each preview table key new, so a later import with the same ID gets no cached preview. */
 let tableCount = 0;
@@ -50,7 +50,7 @@ function run<K extends WorkerRequest['kind']>(
   });
 }
 
-/** The bytes of a LUT file within the size limit of grkit-wasm. */
+/** The bytes of a LUT file within the size limit of grku-wasm. */
 async function readLut(file: File, signal: AbortSignal): Promise<ArrayBuffer> {
   if (file.size > MAX_LUT_BYTES) {
     throw new Error(`The LUT file is larger than ${MAX_LUT_BYTES >> 20} MB`);

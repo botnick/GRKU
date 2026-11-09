@@ -9,10 +9,10 @@ This document describes the parts and the approach. The source code and its comm
 ```text
  developer computer / browser            camera
  ────────────────────────────            ──────────────────────────────────────────
- grkit build    ──► runtime build        Linux:  loader script ──► INSTALL
- grkit module   ──► GRM modules                     │  checks firmware, links modules,
- grkit effects  ──► GRF effects                     │  writes records, icons, hooks
- grkit package  ──► GRKU.zip  ── SD card ──►       ▼
+ grku build    ──► runtime build        Linux:  loader script ──► INSTALL
+ grku module   ──► GRM modules                     │  checks firmware, links modules,
+ grku effects  ──► GRF effects                     │  writes records, icons, hooks
+ grku package  ──► GRKU.zip  ── SD card ──►       ▼
  site (wasm)    ──► GRKU.zip                RTOS:   hooks ──► core ──► modules
 ```
 
@@ -26,10 +26,10 @@ The core is per target. It owns the firmware hooks, the state of each capability
 
 | Path | Contents |
 | --- | --- |
-| `crates/grkit-core` | Formats, effect compilation, artwork, runtime templates, package assembly. No file or process access. |
-| `crates/grkit-build` | Firmware checks, patch generation, Clang and LLD invocation. |
-| `crates/grkit-cli` | The `grkit` command. It embeds `runtime/` and `resources/`, so it works outside the checkout. |
-| `crates/grkit-wasm` | Package assembly in the browser, with the same checks as the CLI. |
+| `crates/grku-core` | Formats, effect compilation, artwork, runtime templates, package assembly. No file or process access. |
+| `crates/grku-build` | Firmware checks, patch generation, Clang and LLD invocation. |
+| `crates/grku-cli` | The `grku` command. It embeds `runtime/` and `resources/`, so it works outside the checkout. |
+| `crates/grku-wasm` | Package assembly in the browser, with the same checks as the CLI. |
 | `runtime/` | Native C and assembly: the installer, the hooks, and the core. `runtime/sdk/` is the module SDK. |
 | `modules/` | The official modules. |
 | `effects/` | Built-in effect definitions. See [effects/README.md](../effects/README.md). |
@@ -134,13 +134,13 @@ Some cameras show a supported version but run another build of it. For each firm
 
 ## Porting
 
-If the code of a new firmware version moved only a little, the existing target runs on it: add the release to `camera.rs`. Otherwise, the version needs a new target in the family of the existing one. `grkit port` drafts it: it finds each address of the existing target in the new build. It cannot find an address whose code changed, and it does not check values that are not addresses.
+If the code of a new firmware version moved only a little, the existing target runs on it: add the release to `camera.rs`. Otherwise, the version needs a new target in the family of the existing one. `grku port` drafts it: it finds each address of the existing target in the new build. It cannot find an address whose code changed, and it does not check values that are not addresses.
 
-1. Run `grkit port --target <target> --firmware <its firmware> --to <new firmware> --out <directory>`. If the output gives `"relocatable": true`, add the release to the existing target instead.
+1. Run `grku port --target <target> --firmware <its firmware> --to <new firmware> --out <directory>`. If the output gives `"relocatable": true`, add the release to the existing target instead.
 2. Make the build header and the target module from the drafts. Resolve each `PORT` comment, and check each value that is not an address.
-3. Register the target in `crates/grkit-build/src/target.rs`, `runtime/firmware.h`, and `camera.rs`, then run `GRKIT_UPDATE_GENERATED=1 cargo test -p grkit-core --test generated`.
+3. Register the target in `crates/grku-build/src/target.rs`, `runtime/firmware.h`, and `camera.rs`, then run `GRKU_UPDATE_GENERATED=1 cargo test -p grku-core --test generated`.
 4. Add the firmware zip to the private firmware backup (`docs/releasing.md`).
-5. Run `grkit port` again with `--check <new target>`, then the tests.
+5. Run `grku port` again with `--check <new target>`, then the tests.
 
 ## Code areas
 
@@ -159,11 +159,11 @@ At installation, relocation finds the running image's end and aligns the tail ba
 
 The builder rejects address overflow, overlapping patches, and changed hook instructions. `build.json` reports each component's address and size. Its `code_memory` section reports the core span and remaining executable capacity before modules load.
 
-The writable script tail, `GRKIT_TAIL_SIZE`, is separate. It holds image scratch buffers, text, and Toning curves in heap memory. Code growth does not change that allocation.
+The writable script tail, `GRKU_TAIL_SIZE`, is separate. It holds image scratch buffers, text, and Toning curves in heap memory. Code growth does not change that allocation.
 
 ## Testing
 
 - Rust tests pin the formats, the artwork, the generated headers, and the loader scripts.
 - Host C tests compile parts of the runtime with a host compiler.
-- `grkit module test` runs the host test of a module against a fake core.
+- `grku module test` runs the host test of a module against a fake core.
 - `--ignored` tests build the runtime with an ARM toolchain. See [CONTRIBUTING.md](../CONTRIBUTING.md).

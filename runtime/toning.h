@@ -1,13 +1,13 @@
-#ifndef GRKIT_TONING_H
-#define GRKIT_TONING_H
+#ifndef GRKU_TONING_H
+#define GRKU_TONING_H
 /* The Toning of a native look whose red or blue curve differs from green, as
    GR IV Cinema has: the weight of a GR IV curve set moves the red and blue
    curves toward green. A Toning value t (-4..4, the stored byte of
-   GRKIT_RECORD_TONING) makes each of them green + (own - green) x (2 + t) / 2:
+   GRKU_RECORD_TONING) makes each of them green + (own - green) x (2 + t) / 2:
    0 is the look's own toning, -1 and +1 are the GR IV levels 1 and 3, -2
    makes the curves gray, and lower values turn the tint the other way. INSTALL
    keeps the look's own red and blue curves in a tail slot
-   (GRKIT_TONE_CURVES), and the record curves hold the toned ones. The
+   (GRKU_TONE_CURVES), and the record curves hold the toned ones. The
    includer defines u16 and u32. */
 
 /* The value -4..4 of a stored byte: (value) mod 9, and a byte above 8 counts as 0. */

@@ -45,20 +45,20 @@ describe('acceptedLanguages', () => {
 
 describe('cookieValue', () => {
   it('finds one cookie among others', () => {
-    expect(cookieValue('a=1; grkit_language=ja; b=2', 'grkit_language')).toBe('ja');
-    expect(cookieValue('a=1', 'grkit_language')).toBeNull();
+    expect(cookieValue('a=1; grku_language=ja; b=2', 'grku_language')).toBe('ja');
+    expect(cookieValue('a=1', 'grku_language')).toBeNull();
   });
 });
 
 describe('visitorLanguage', () => {
   it('keeps the language that the visitor chose', () => {
-    const chosen = visitor({ cookie: 'grkit_language=en', acceptLanguage: 'zh-TW', country: 'TW' });
+    const chosen = visitor({ cookie: 'grku_language=en', acceptLanguage: 'zh-TW', country: 'TW' });
     expect(visitorLanguage(chosen)).toBe('en');
-    expect(visitorLanguage(visitor({ cookie: 'grkit_language=ko', acceptLanguage: 'ja' }))).toBe('ko');
+    expect(visitorLanguage(visitor({ cookie: 'grku_language=ko', acceptLanguage: 'ja' }))).toBe('ko');
   });
 
   it('ignores a cookie with an unknown language', () => {
-    expect(visitorLanguage(visitor({ cookie: 'grkit_language=fr', acceptLanguage: 'ja' }))).toBe('ja');
+    expect(visitorLanguage(visitor({ cookie: 'grku_language=fr', acceptLanguage: 'ja' }))).toBe('ja');
   });
 
   it('follows the browser language before the country', () => {
@@ -82,7 +82,7 @@ describe('visitorLanguage', () => {
 });
 
 describe('edge worker', () => {
-  const page = '<!doctype html><title>GRKit</title>';
+  const page = '<!doctype html><title>GRKU</title>';
   const assets = { fetch: vi.fn(async () => new Response(page, { headers: { 'Content-Type': 'text/html' } })) };
   const request = (path: string, headers: Record<string, string>, country?: string) =>
     Object.assign(new Request(`https://grku.app${path}`, { headers }), { cf: country ? { country } : undefined });

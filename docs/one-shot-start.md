@@ -1,6 +1,6 @@
 # One-shot start
 
-This fork loads GRKU with one request to the camera's Linux at each power-on, instead of the two of GRKit 1.3 to 1.5 (SCAN, then INSTALL). GRKit still runs from the SD card only: it never writes to the firmware, and the SD script setting of the camera stays on until the disable package turns it off, as before.
+This fork loads GRKU with one request to the camera's Linux at each power-on, instead of the two of GRKit 1.3 to 1.5 (SCAN, then INSTALL). GRKU still runs from the SD card only: it never writes to the firmware, and the SD script setting of the camera stays on until the disable package turns it off, as before.
 
 ## Why the start was slow
 
@@ -54,11 +54,11 @@ The loader clears the words it reads before it sends the start. The start writes
 
 | Path | Contents |
 | --- | --- |
-| `/tmp/grkit-start.lck` | the lock of the start: `SCAN.SH` leaves at once while it exists |
-| `/tmp/grkit-core.pid` | the process of the start, which `INSTALL.SH` checks |
-| `/tmp/grkit-boot.log` | the boot log of the start, until the start writes it to `GRKU/BOOT.TXT` |
-| `/tmp/grkit-cache/` | the copies of the card files that the start read |
-| `/tmp/grkit-plan.bin` | the whole plan, as before |
+| `/tmp/grku-start.lck` | the lock of the start: `SCAN.SH` leaves at once while it exists |
+| `/tmp/grku-core.pid` | the process of the start, which `INSTALL.SH` checks |
+| `/tmp/grku-boot.log` | the boot log of the start, until the start writes it to `GRKU/BOOT.TXT` |
+| `/tmp/grku-cache/` | the copies of the card files that the start read |
+| `/tmp/grku-plan.bin` | the whole plan, as before |
 | `GRKU/DIAG` | while it exists, `SCAN.SH` writes `GRKU/DIAG.TXT` about 15 s after the start |
 
 RAM is empty at each power-on, so none of the `/tmp` files reaches another start.
@@ -105,7 +105,7 @@ GRKU 1.5.2 (`gr4-1.11`, the package of commit 1e683a4 with ten modules and 60 ef
 
 - The first start after the card was written read the module and effect files slowly: 17 s for the ten modules, 34 s for the effects, and it listed only 21 effects before it went on. The second start still took 16 s to list the effects; the third was at 11 s all in, with every file. The camera's `ipcufs` reads fresh files slowly (the RTOS side of the file system, see above); the `._*` AppleDouble files that macOS leaves beside each file add directory entries. Expect a slow first power-on after a write from a Mac, then about 11 s on GR IV. `DIAG.TXT`: Linux up at 14 s, the card mounted (`/media/storage1 ipcufs`), 65 MB free.
 - Linux 5.15.196 on a Socionext Milbeaut (ARMv7, one core at 80 BogoMIPS), 151 MB. The RTOS image, data, and core addresses matched the `gr4-1.11` target; 171 of 175 patches applied (the four others are the fast-boot points, not needed on the official firmware).
-- `REPORT.TXT` showed the bug of the round: Border and Grain were `not loaded: error 54, the modules need more memory than GRKU has` (GRM_NO_ROOM). The limit was the module page count (`GRKIT_MODULE_PAGES_MAX`, one per module), which a group page (Glow) exceeds by its two children: eight modules took ten pages. The limit is 16 since this test. Eight modules ran: Film Look, Framing, Crop, Guides, Date, Glow, Light Leak, Diffusion; the photos of the test show a film look and the GR1s date stamp recorded.
+- `REPORT.TXT` showed the bug of the round: Border and Grain were `not loaded: error 54, the modules need more memory than GRKU has` (GRM_NO_ROOM). The limit was the module page count (`GRKU_MODULE_PAGES_MAX`, one per module), which a group page (Glow) exceeds by its two children: eight modules took ten pages. The limit is 16 since this test. Eight modules ran: Film Look, Framing, Crop, Guides, Date, Glow, Light Leak, Diffusion; the photos of the test show a film look and the GR1s date stamp recorded.
 - The diagnostics read `CORE.BIN`, which a package of several builds does not have (`CORE1.BIN`, `CORE2.BIN`); `SCAN.SH` now reads the core that `GRKU/CORE.TXT` names, and shows the tail of `BOOT.TXT` where the RAM log is already flushed.
 
 ### Second test, same camera, the same day
@@ -114,7 +114,7 @@ The card was formatted (exFAT) and the package of commit c1446e2 (the page limit
 
 ## Next step: start before the camera mounts the card
 
-The one-shot start works after the mount, at 6 to 7 s. Linux runs commands from 4.2 s. The loader of 1.3.1 and 1.3.2 mounted `ipcufs` itself at 4.2 s, copied the package to RAM, released the mount, and ran SCAN from RAM, which loaded GRKit in 3 to 6 s. It was withdrawn in 1.3.3, because the camera's own mount failed while the loader held the card, and an unmount after that failure stopped Linux; a few cameras, new cards, and exFAT cards with macOS files hit this. Nothing about the firmware forbids it; the timing did.
+The one-shot start works after the mount, at 6 to 7 s. Linux runs commands from 4.2 s. The loader of 1.3.1 and 1.3.2 mounted `ipcufs` itself at 4.2 s, copied the package to RAM, released the mount, and ran SCAN from RAM, which loaded GRKU in 3 to 6 s. It was withdrawn in 1.3.3, because the camera's own mount failed while the loader held the card, and an unmount after that failure stopped Linux; a few cameras, new cards, and exFAT cards with macOS files hit this. Nothing about the firmware forbids it; the timing did.
 
 A later version of this fork can take that 2 to 3 s back on the official firmware, without a firmware change, if the measurements of `DIAG.TXT` say that the work fits before the camera's mount:
 

@@ -3,11 +3,11 @@
    defines the firmware addresses (FW_*) and the other values of its build,
    then includes this file. Comments here name no firmware address, because
    each build has its own; the build header gives them. */
-#ifndef GRKIT_GR3_H
-#define GRKIT_GR3_H
+#ifndef GRKU_GR3_H
+#define GRKU_GR3_H
 
 /* Icon slots hold an 8-byte descriptor, then 40 x 40 RGBA. */
-#define GRKIT_ICON_STRIDE 6408
+#define GRKU_ICON_STRIDE 6408
 
 /* Framing: the rows of every family (runtime/firmware.h). GR III has the
    native aspects 3:2 and 1:1. Framing captures each ratio through a hidden
@@ -83,7 +83,7 @@
    capture aspect in DEVELOP_ASPECT. */
 #define METADATA_SIZE 0x30
 /* The playback metadata also holds the time of that photo at METADATA_TIME
-   (build header), in the layout of GrkitDateTime (runtime/sdk/grkit.h).
+   (build header), in the layout of GrkuDateTime (runtime/sdk/grku.h).
    RawDevelopmentModel has its state at DEVELOP_STATE: 0 while no
    development runs. */
 #define DEVELOP_STATE 4
@@ -107,7 +107,7 @@
 #define SELECT_MENU_SIZE 0x1d4U
 /* The fewest row views of a SelectMenuController. Its constructor builds a
    view for each row of its longest kind (+0x199). The longest native kind has
-   21 rows, and no GRKit hook borrows it (2.10: kind table 0x53b3c6c0). The
+   21 rows, and no GRKU hook borrows it (2.10: kind table 0x53b3c6c0). The
    firmware can build the controller before INSTALL, so a value page on it
    shows at most these rows. A long value page shows on an own controller
    (runtime/menu_settings.h). */

@@ -1,6 +1,6 @@
 /* A fast-boot file: the head (head.S), the vector table, and the installer
    with backend.c, linked at the top of the RTOS code region, which the
-   firmware leaves unused; the GRKit core grows from the bottom. The head
+   firmware leaves unused; the GRKU core grows from the bottom. The head
    loads the bytes up to _edata, clears the rest up to _end, and calls the
    vector in its entry word, the last word of the head
    (runtime::FAST_ENTRY_OFFSET). */

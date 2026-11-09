@@ -1,6 +1,6 @@
 /* The NEON parity test of Date Imprint (stamp.c). It is not a source of the
    module: the ignored test synthetic_date_neon_parity
-   (crates/grkit-build/src/tests/modules.rs) builds it for 32-bit ARM Linux
+   (crates/grku-build/src/tests/modules.rs) builds it for 32-bit ARM Linux
    with stamp.c twice, once with NEON and once with DATE_SCALAR (C only,
    date_apply named scalar_date_apply), and runs it with qemu-arm.
 
@@ -10,18 +10,18 @@
    positions, each posture, color and monochrome. The planes must be equal
    byte for byte. Standard output names each case that differs, and the
    exit status is their number. */
-#include "grkit.h"
-#include "grkit_module.h"
+#include "grku.h"
+#include "grku_module.h"
 
 void date_apply(PictureSet *set, u32 style);
 void scalar_date_apply(PictureSet *set, u32 style);
 
 /* What the core gives the module. */
-const GrkitContext grkit_self = {0};
+const GrkuContext grku_self = {0};
 static u32 settings[8];
-static GrkitDateTime now;
+static GrkuDateTime now;
 u32 setting_get(u32 handle) { return settings[handle & 7U]; }
-void local_time(GrkitDateTime *out) { *out = now; }
+void local_time(GrkuDateTime *out) { *out = now; }
 u32 divide(u32 n, u32 d)
 {
     u32 q = 0, bit = 1;
@@ -89,7 +89,7 @@ static u32 below(u32 n) { return (u32)(((next() >> 16) * n) >> 16); }
 static const u32 sizes[3][2] = {{2400, 1600}, {720, 480}, {160, 120}};
 #define PLANE_BYTES (2400U * 1600U * 2U + 720U * 480U * 2U + 160U * 120U * 2U)
 static u8 memory[2][PLANE_BYTES];
-static u8 scratch[GRKIT_PLANE_SCRATCH];
+static u8 scratch[GRKU_PLANE_SCRATCH];
 
 static PictureSet planes(u8 *base, u32 half, u32 mono, u32 turns)
 {
@@ -136,7 +136,7 @@ int parity_main(void)
         u32 look = c % 3U, style = 1 + below(5), position = below(2), turns = below(4);
         u32 mono = below(4) == 0, half = below(3) == 0;
         for (u32 i = 0; i < PLANE_BYTES; ++i) memory[0][i] = memory[1][i] = (u8)next();
-        now = (GrkitDateTime){(u16)(2000 + below(60)), (u8)(1 + below(12)), (u8)(1 + below(28)),
+        now = (GrkuDateTime){(u16)(2000 + below(60)), (u8)(1 + below(12)), (u8)(1 + below(28)),
                               (u8)below(24), (u8)below(60), (u8)below(60), 0};
         settings[SETTING_STYLE & 7U] = style;
         settings[SETTING_LOOK & 7U] = look;

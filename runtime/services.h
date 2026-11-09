@@ -1,9 +1,9 @@
-#ifndef GRKIT_SERVICES_H
-#define GRKIT_SERVICES_H
+#ifndef GRKU_SERVICES_H
+#define GRKU_SERVICES_H
 #include "profile.h"
-/* The services of the core for modules (runtime/sdk/grkit.h): events, the
+/* The services of the core for modules (runtime/sdk/grku.h): events, the
    timer, and the UI. Their state is a block of the module array, which
-   INSTALL writes, and GRKIT_HOST_SERVICES holds its address. The includer
+   INSTALL writes, and GRKU_HOST_SERVICES holds its address. The includer
    defines u8, u16, u32, and the header fields.
 
    The block: the number of subscribers, then for each its handler and its
@@ -17,7 +17,7 @@
    code in another task, such as a layer or a plane filter. */
 #define SERVICES_SUBSCRIBER_COUNT 0U
 #define SERVICES_SUBSCRIBERS 4U
-#define SERVICES_SUBSCRIBERS_MAX GRKIT_MODULES_MAX
+#define SERVICES_SUBSCRIBERS_MAX GRKU_MODULES_MAX
 #define SERVICES_READY (SERVICES_SUBSCRIBERS + 8U * SERVICES_SUBSCRIBERS_MAX)
 #define SERVICES_DEPTH (SERVICES_READY + 4U)
 #define SERVICES_APP (SERVICES_DEPTH + 4U)
@@ -53,7 +53,7 @@
 #define UI_START 68U
 #define UI_CHANGED 72U
 #define UI_SIZE 76U
-/* The GRKit section of the native MENU (runtime/menu_section.h): whether the Customize
+/* The GRKU section of the native MENU (runtime/menu_section.h): whether the Customize
    tab has been patched, the number of rows, the controller of the last
    controller change,
    the listed module of the open module page and its page slot, whether ADJ
@@ -85,8 +85,8 @@
 #define MENU_VALUE_TEXT_AT 8U
 #define MENU_VALUE_TEXT 16U
 #define MENU_VALUE_SIZE (MENU_VALUE_TEXT + 2U * MENU_VALUE_UNITS)
-/* A row for the GRKit switch, each listed module, ADJ Order, and About
-   GRKit. */
+/* A row for the GRKU switch, each listed module, ADJ Order, and About
+   GRKU. */
 #define MENU_ROWS_SLOTS 13U
 #define MENU_ROW_MODULE 0U
 #define MENU_ROW_LABEL 4U
@@ -95,21 +95,22 @@
 #define MENU_ROW_VALUE_TEXT_AT 20U
 #define MENU_ROW_KIND 28U
 #define MENU_ROW_SIZE 32U
-/* Whether the camera information page shows About GRKit, the text
-   descriptors of its title and labels, and its ASCII lines. */
+/* Whether the camera information page shows About GRKU, the text
+   descriptors of its title and three labels, and its three ASCII lines
+   (runtime/menu_about.h). */
 #define MENU_ROWS_ABOUT (MENU_ROWS_VALUES + MENU_VALUES_MAX * MENU_VALUE_SIZE)
 #define MENU_ROWS_ABOUT_TEXTS (MENU_ROWS_ABOUT + 4U)
-#define MENU_ROWS_ABOUT_LINES (MENU_ROWS_ABOUT_TEXTS + 3U * 8U)
+#define MENU_ROWS_ABOUT_LINES (MENU_ROWS_ABOUT_TEXTS + 4U * 8U)
 #define MENU_ABOUT_LINE 40U
 /* The text descriptors of the title and of the OK and MENU guides of an
    options value page, then the text of its title. */
-#define MENU_ROWS_PAGE_TEXTS (MENU_ROWS_ABOUT_LINES + 2U * MENU_ABOUT_LINE)
+#define MENU_ROWS_PAGE_TEXTS (MENU_ROWS_ABOUT_LINES + 3U * MENU_ABOUT_LINE)
 #define MENU_PAGE_TITLE_UNITS 48U
 #define MENU_ROWS_PAGE_TITLE (MENU_ROWS_PAGE_TEXTS + 3U * 8U)
 #define MENU_ROWS_FIRST (MENU_ROWS_PAGE_TITLE + 2U * MENU_PAGE_TITLE_UNITS)
 #define MENU_ROWS_TAB (MENU_ROWS_FIRST + MENU_ROWS_SLOTS * MENU_ROW_SIZE)
 #define MENU_ROWS_TAB_SIZE 0x384U
-/* The MENU controller that the pages of the GRKit rows return to
+/* The MENU controller that the pages of the GRKU rows return to
    (runtime/menu_settings.h: menu_return), or 0 before the first change from
    one. */
 #define MENU_ROWS_RETURN (MENU_ROWS_TAB + MENU_ROWS_TAB_SIZE)
@@ -117,7 +118,7 @@
    (runtime/manage.h): their count, then the start and the end of the code of
    each. The core calls no module code in these ranges. */
 #define SERVICES_SUSPENDED (SERVICES_MENU + MENU_ROWS_RETURN + 4U)
-#define SERVICES_SUSPENDED_MAX GRKIT_MODULES_MAX
+#define SERVICES_SUSPENDED_MAX GRKU_MODULES_MAX
 /* The own SelectMenuControllers of the long value pages
    (runtime/menu_settings.h): the checkbox page of options pages, or 0 before
    the first one; the controller ID of the open long value page, or 0; while a
@@ -139,10 +140,10 @@
 #define CHECK_PAGE_RADIO 1U
 #define SERVICES_SIZE (SERVICES_CHECK + CHECK_LISTS + 2U * 8U)
 #define SERVICES_WORDS (SERVICES_SIZE / 4U)
-/* The events (GRKIT_EVENT_*). */
+/* The events (GRKU_EVENT_*). */
 #define SERVICE_EVENT_SYSTEM_READY 1U
 #define SERVICE_EVENT_SETTING_CHANGED 2U
-/* The native screens of ui_open_native (GRKIT_NATIVE_*). */
+/* The native screens of ui_open_native (GRKU_NATIVE_*). */
 #define SERVICE_NATIVE_WHITE_BALANCE 1U
 #define SERVICE_NATIVE_LCD 2U
 
@@ -151,17 +152,17 @@
 #define SERVICES_MAP(address) ((volatile u32 *)(address))
 #endif
 static __attribute__((unused)) volatile u32 *services_word(volatile u32 *h,u32 offset) {
-    return SERVICES_MAP(h[GRKIT_HOST_SERVICES/4]+offset);
+    return SERVICES_MAP(h[GRKU_HOST_SERVICES/4]+offset);
 }
 
 /* Whether module code that the core called in the App task runs now. */
 static __attribute__((unused)) u32 services_in_app(volatile u32 *h) {
-    return h[GRKIT_HOST_SERVICES/4] && services_word(h,SERVICES_APP)[0];
+    return h[GRKU_HOST_SERVICES/4] && services_word(h,SERVICES_APP)[0];
 }
 /* Whether `fn` is code of a module that a soft Off stopped. */
 static __attribute__((unused)) u32 services_suspended(volatile u32 *h,u32 fn) {
     u32 n, i;
-    if(!h[GRKIT_HOST_SERVICES/4]) return 0;
+    if(!h[GRKU_HOST_SERVICES/4]) return 0;
     n=services_word(h,SERVICES_SUSPENDED)[0];
     for(i=0;i<n && i<SERVICES_SUSPENDED_MAX;++i)
         if(fn>=services_word(h,SERVICES_SUSPENDED+4+8*i)[0] && fn<services_word(h,SERVICES_SUSPENDED+8+8*i)[0]) return 1;
@@ -175,7 +176,7 @@ static __attribute__((unused)) void services_call1(volatile u32 *h,u32 fn,u32 a)
     ++services_word(h,SERVICES_APP)[0];
     start=profile_begin(h);
     ((void (*)(u32))fn)(a);
-    profile_end_module(h,start,fn,GRKIT_PROFILE_CALL);
+    profile_end_module(h,start,fn,GRKU_PROFILE_CALL);
     --services_word(h,SERVICES_APP)[0];
 }
 static __attribute__((unused)) void services_call2(volatile u32 *h,u32 fn,u32 a,u32 b) {
@@ -184,7 +185,7 @@ static __attribute__((unused)) void services_call2(volatile u32 *h,u32 fn,u32 a,
     ++services_word(h,SERVICES_APP)[0];
     start=profile_begin(h);
     ((void (*)(u32,u32))fn)(a,b);
-    profile_end_module(h,start,fn,GRKIT_PROFILE_CALL);
+    profile_end_module(h,start,fn,GRKU_PROFILE_CALL);
     --services_word(h,SERVICES_APP)[0];
 }
 static __attribute__((unused)) void services_call3(volatile u32 *h,u32 fn,u32 a,u32 b,u32 c) {
@@ -193,7 +194,7 @@ static __attribute__((unused)) void services_call3(volatile u32 *h,u32 fn,u32 a,
     ++services_word(h,SERVICES_APP)[0];
     start=profile_begin(h);
     ((void (*)(u32,u32,u32))fn)(a,b,c);
-    profile_end_module(h,start,fn,GRKIT_PROFILE_CALL);
+    profile_end_module(h,start,fn,GRKU_PROFILE_CALL);
     --services_word(h,SERVICES_APP)[0];
 }
 
@@ -201,7 +202,7 @@ static __attribute__((unused)) void services_call3(volatile u32 *h,u32 fn,u32 a,
    setting sends no second event, so a handler cannot loop. */
 static __attribute__((unused)) void services_emit(volatile u32 *h,u32 event,u32 a,u32 b) {
     u32 n, i;
-    if(!h[GRKIT_HOST_SERVICES/4] || services_word(h,SERVICES_DEPTH)[0]) return;
+    if(!h[GRKU_HOST_SERVICES/4] || services_word(h,SERVICES_DEPTH)[0]) return;
     n=services_word(h,SERVICES_SUBSCRIBER_COUNT)[0];
     if(n>SERVICES_SUBSCRIBERS_MAX) return;
     services_word(h,SERVICES_DEPTH)[0]=1;
@@ -215,7 +216,7 @@ static __attribute__((unused)) void services_emit(volatile u32 *h,u32 event,u32 
 /* SYSTEM_READY, once after INSTALL: the core calls it when the shooting
    screen first shows (runtime/framing.c). */
 static __attribute__((unused)) void services_ready(volatile u32 *h) {
-    if(!h[GRKIT_HOST_SERVICES/4] || services_word(h,SERVICES_READY)[0]) return;
+    if(!h[GRKU_HOST_SERVICES/4] || services_word(h,SERVICES_READY)[0]) return;
     services_word(h,SERVICES_READY)[0]=1;
     services_emit(h,SERVICE_EVENT_SYSTEM_READY,0,0);
 }

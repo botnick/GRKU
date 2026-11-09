@@ -27,7 +27,7 @@ export const DOC_PATHS = {
 export type DocName = keyof typeof DOC_PATHS;
 
 /** The cookie that keeps the language that the visitor chose. The edge worker reads it. */
-export const LANGUAGE_COOKIE = 'grkit_language';
+export const LANGUAGE_COOKIE = 'grku_language';
 
 const CODES = Object.keys(LANGUAGE_PATHS) as Language[];
 

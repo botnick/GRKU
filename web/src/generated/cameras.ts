@@ -1,6 +1,6 @@
-// Generated from crates/grkit-core/src/camera.rs. Do not edit: change the
+// Generated from crates/grku-core/src/camera.rs. Do not edit: change the
 // cameras there, then run
-// GRKIT_UPDATE_GENERATED=1 cargo test -p grkit-core --test generated.
+// GRKU_UPDATE_GENERATED=1 cargo test -p grku-core --test generated.
 
 /** The ModeSet file of each camera, and the firmware releases that a
  * runtime build supports, oldest first. */

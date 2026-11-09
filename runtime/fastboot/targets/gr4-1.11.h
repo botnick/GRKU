@@ -1,7 +1,7 @@
 /* GR IV 1.11: the RTOS calls of the fast-boot loader. The file calls are those
    of the file-system task, which the RTOS serves for every task. */
-#ifndef GRKIT_FASTBOOT_TARGET_H
-#define GRKIT_FASTBOOT_TARGET_H
+#ifndef GRKU_FASTBOOT_TARGET_H
+#define GRKU_FASTBOOT_TARGET_H
 
 #define RT_PRINTF 0x538ec6b4  /* printf to the serial console */
 #define RT_LOG 0x538ec838  /* the RTOS log: (0, 0, 0, 0, format, ...) */

@@ -1,5 +1,5 @@
-#ifndef GRKIT_INSTALL_DIAG_H
-#define GRKIT_INSTALL_DIAG_H
+#ifndef GRKU_INSTALL_DIAG_H
+#define GRKU_INSTALL_DIAG_H
 /* A part of the installer: the details for a device report. installer.c
    includes it once, after install_report.h.
 
@@ -22,7 +22,7 @@
    report; everything comes from the state that the start kept. */
 static const char *diag_eol = "\r\n";
 __attribute__((noinline)) static void nl(void) { say(diag_eol); }
-static const char *target_name(void) { return target_marker + sizeof("GRKIT_TARGET=") - 1; }
+static const char *target_name(void) { return target_marker + sizeof("GRKU_TARGET=") - 1; }
 /* A failure reason of the relocation (runtime/relocation.h). */
 static const char *relocation_reason(u32 reason)
 {
@@ -116,7 +116,7 @@ static void say_modules_detail(void)
 {
     u32 usable = 0;
     for (u32 i = 0; i < module_count; ++i) usable += module_usable >> i & 1;
-    say("Modules: "); say_number(module_count); say(" listed, "); say_number(usable); say(" usable of "); say_number(GRKIT_MODULES_MAX);
+    say("Modules: "); say_number(module_count); say(" listed, "); say_number(usable); say(" usable of "); say_number(GRKU_MODULES_MAX);
     say(" at most; "); say_number(module_code_bytes); say(" bytes of code, "); say_number(module_words); say(" words of module array, ");
     say_number(setting_total); say(" settings, "); say_number(module_tiles); say(" tiles; capabilities used "); say_hex(capabilities_used);
     say(", running "); say_hex(capabilities_running); nl();
@@ -154,8 +154,8 @@ static void say_effects_detail(void)
     say("Effects: "); say_number(listed_count); say(" listed, "); say_number(count); say(" installed of "); say_number(MAX_COUNT);
     say(" at most, "); say_number(overflow_count); say(" past the list of "); say_number(EFFECTS_LISTED); nl();
     for (u32 i = 0; i < listed_count; ++i) {
-        char id[GRKIT_GRF_ID_MAX + 1]; u32 k = 0;
-        while (k < GRKIT_GRF_ID_MAX && listed[i][CATALOG_ID + k]) { id[k] = (char)listed[i][CATALOG_ID + k]; ++k; }
+        char id[GRKU_GRF_ID_MAX + 1]; u32 k = 0;
+        while (k < GRKU_GRF_ID_MAX && listed[i][CATALOG_ID + k]) { id[k] = (char)listed[i][CATALOG_ID + k]; ++k; }
         id[k] = 0;
         say("  "); say(names[i]); say(" id "); say(id);
         say(", status "); say_number(listed_status[i]); say(" "); say(effect_status_name(listed_status[i]));
@@ -173,7 +173,7 @@ static void say_state_detail(void)
     static const u32 ids[] = {CORE_STATE_IDS};
     u32 value;
     say("Core settings:");
-    for (u32 k = 0; k < GRKIT_CORE_SETTING_COUNT; ++k) {
+    for (u32 k = 0; k < GRKU_CORE_SETTING_COUNT; ++k) {
         say(" "); say(core_setting_names[k]); say("=");
         if (state_value(&saved_state, ids[k], &value)) say_number(value); else say("default");
     }
@@ -244,7 +244,7 @@ static void failure_details(long fd, int status)
     diag_eol = "\n";
     say("status "); say_number((u32)status); say(" "); say(status_name((u32)status)); say(": "); say(status_meaning((u32)status)); nl();
     say("step "); say(failed_step); nl();
-    say("run GRKU "); say(GRKIT_VERSION); say(" ("); say(target_name()); say("), "); say(run_mode);
+    say("run GRKU "); say(GRKU_VERSION); say(" ("); say(target_name()); say("), "); say(run_mode);
     if (install_retries) { say(", "); say_number(install_retries); say(" retries of a native state that the camera still initialized"); }
     nl();
     say_build();
@@ -258,7 +258,7 @@ static void failure_details(long fd, int status)
     say_hex(module_usable); say(", "); say_number(module_words); say(" module words, "); say_number(module_tiles); say(" tiles, ");
     say_number(icon_chunks); say(" icon chunks, registry "); say_number(size); say(" bytes"); nl();
     if (arrays_known) {
-        say("arrays: registry "); say_hex(installed_arrays.base); say(", tail "); say_hex(installed_arrays.tail); say(" ("); say_number(GRKIT_TAIL_SIZE); say(" bytes)");
+        say("arrays: registry "); say_hex(installed_arrays.base); say(", tail "); say_hex(installed_arrays.tail); say(" ("); say_number(GRKU_TAIL_SIZE); say(" bytes)");
         if (installed_arrays.module_array) { say(", module array "); say_hex(installed_arrays.module_array); }
         say(", icon chunks");
         for (u32 i = 0; i < icon_chunks && i < MAX_CHUNKS; ++i) { say(" "); say_hex(installed_arrays.icon_bases[i]); }
@@ -325,7 +325,7 @@ static void log_plan(void)
     text_add(text, &n, sizeof(text), " tiles="); text_dec(text, &n, sizeof(text), module_tiles);
     text_add(text, &n, sizeof(text), " chunks="); text_dec(text, &n, sizeof(text), icon_chunks);
     text_add(text, &n, sizeof(text), " registry="); text_dec(text, &n, sizeof(text), size);
-    text_add(text, &n, sizeof(text), " plan="); text_dec(text, &n, sizeof(text), get32(plan + GRKIT_PLAN_SIZE));
+    text_add(text, &n, sizeof(text), " plan="); text_dec(text, &n, sizeof(text), get32(plan + GRKU_PLAN_SIZE));
     log_text(text);
 }
 static void log_install(void)

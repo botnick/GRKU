@@ -116,7 +116,7 @@ export function NativeLookDialog({ strings: t, baseGamma, onImport, ref }: Props
     let file: File;
     try {
       const [handle] = await host.showOpenFilePicker({
-        id: 'grkit-firmware',
+        id: 'grku-firmware',
         startIn: 'downloads',
         types: [
           {

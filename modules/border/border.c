@@ -6,10 +6,10 @@
    thumbnail) gets the edge in its own scale, so the thumbnail matches. The
    edge follows the visible area of each plane, which a Framing crop sets.
    DNG files and the live view stay as they are. */
-#include "grkit.h"
-#include "grkit_module.h"
+#include "grku.h"
+#include "grku_module.h"
 
-#define BYTE(p,o) (GRKIT_BYTES((p)+(o))[0])
+#define BYTE(p,o) (GRKU_BYTES((p)+(o))[0])
 
 #define STYLE_WHITE_THIN 1U
 #define STYLE_WHITE_WIDE 2U

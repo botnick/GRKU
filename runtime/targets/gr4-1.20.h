@@ -7,8 +7,8 @@
    static settings object grew by 0x58 bytes before its UI fields, the capture
    property singleton by one word, 1.20 adds two monochrome Image Control
    types, and the menu text IDs move. Not tested on a camera. */
-#ifndef GRKIT_TARGET_H
-#define GRKIT_TARGET_H
+#ifndef GRKU_TARGET_H
+#define GRKU_TARGET_H
 
 #include "gr4.h"
 

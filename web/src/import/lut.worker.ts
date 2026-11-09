@@ -1,5 +1,5 @@
-import init, { effectLabel, effectPreview, guessInput, importLut } from '../wasm/grkit_wasm.js';
-import wasmUrl from '../wasm/grkit_wasm_bg.wasm?url';
+import init, { effectLabel, effectPreview, guessInput, importLut } from '../wasm/grku_wasm.js';
+import wasmUrl from '../wasm/grku_wasm_bg.wasm?url';
 import { GRADES, type Grade } from '../catalog';
 import { INPUTS, isLutImportId, isNativeLookId, type Input } from './names';
 
@@ -70,10 +70,10 @@ export type ImportResponse =
   | { kind: 'guess'; input: Input }
   | { kind: 'error'; message: string };
 
-/** `value` as one of `values`, which the TypeScript types of grkit-wasm do not give. */
+/** `value` as one of `values`, which the TypeScript types of grku-wasm do not give. */
 function oneOf<T extends string>(values: readonly T[], value: string): T {
   if (!(values as readonly string[]).includes(value)) {
-    throw new Error(`Unexpected value from grkit-wasm: ${value}`);
+    throw new Error(`Unexpected value from grku-wasm: ${value}`);
   }
   return value as T;
 }

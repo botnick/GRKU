@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     u32 size = (u32)fread(file, 1, sizeof file, in);
     fclose(in);
     int status = grm_parse(file, size, &m);
-    /* The core exports each import of a module that grkit module build
+    /* The core exports each import of a module that grku module build
        accepts. */
     for (u32 i = 0; !status && i < m.imports && i < sizeof symbols / sizeof symbols[0]; ++i) {
         symbols[i].hash = grm_word(m.import_entries + i * 8);

@@ -1,10 +1,10 @@
 # GRKU
 
-[English](https://github.com/botnick/GRKit/blob/main/README.md) | [繁體中文](https://github.com/botnick/GRKit/blob/main/README.zh-Hant.md) | 简体中文
+[English](https://github.com/botnick/GRKU/blob/main/README.md) | [繁體中文](https://github.com/botnick/GRKU/blob/main/README.zh-Hant.md) | 简体中文
 
 仅适用于 RICOH GR III 和 GR III HDF 固件 2.10。
 
-GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可能在启动时停止响应。请在安装前阅读[恢复指南](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md)。安装 GRKU 即表示你接受[使用条款](https://github.com/botnick/GRKit/blob/main/resources/TERMS.md)。
+GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可能在启动时停止响应。请在安装前阅读[恢复指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。安装 GRKU 即表示你接受[使用条款](https://github.com/botnick/GRKU/blob/main/resources/TERMS.md)。
 
 ## 安装
 
@@ -25,7 +25,7 @@ GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可
 
 开机几秒后，拍摄画面顶部显示 **GRKU**，表示 GRKU 加载完成。安装或更新后的第一次开机会久一些。在 GRKU 加载完成前拍的照片没有 GRKU 效果。在拍摄模式下按 ADJ 杆，选择第 6 项 GRKU。
 
-![GRKU 页面列出模块，并显示当前效果。](images/grkit-root.jpg)
+![GRKU 页面列出模块，并显示当前效果。](images/grku-root.jpg)
 
 照片：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)，[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)。
 
@@ -50,7 +50,7 @@ GRKU 是实验性软件，不提供任何担保。如果 GRKU 出错，相机可
 3. 把新安装包 `SD_ROOT` 中的 `SCRIPT` 文件夹复制到存储卡根目录。
 4. 正常开机，不需要按住 MENU。
 
-GRKU 把你的设置和效果保存在 `GRKU` 文件夹中，所以更新后仍在。要从 GRKit 转到 GRKU，请用 grku.app 更新，以保留设置和效果：两者都把设置和效果保存在同一个 `GRKU` 文件夹中。
+GRKU 把你的设置和效果保存在 `GRKU` 文件夹中，所以更新后仍在。要从 GRKU 转到 GRKU，请用 grku.app 更新，以保留设置和效果：两者都把设置和效果保存在同一个 `GRKU` 文件夹中。
 
 ## 故障排除
 
@@ -67,7 +67,7 @@ GRKU 把你的设置和效果保存在 `GRKU` 文件夹中，所以更新后仍�
 
 1. 开机后等待几秒，直到拍摄画面顶部显示 **GRKU**。
 2. 确认存储卡根目录中有 `SCRIPT` 文件夹。
-3. 如果存储卡中有 `SCRIPT/GRKU/INSTALL.ERR`，在相机菜单中确认安装包与相机的固件版本对应。版本正确时，请提交[设备报告](https://github.com/botnick/GRKit/issues/new?template=device-report.yml)，并附上 `INSTALL.ERR`、`GRKU/REPORT.TXT` 和 `GRKU/BOOT.TXT`（如果有）。
+3. 如果存储卡中有 `SCRIPT/GRKU/INSTALL.ERR`，在相机菜单中确认安装包与相机的固件版本对应。版本正确时，请提交[设备报告](https://github.com/botnick/GRKU/issues/new?template=device-report.yml)，并附上 `INSTALL.ERR`、`GRKU/REPORT.TXT` 和 `GRKU/BOOT.TXT`（如果有）。
 4. GRKU 只能在 Ricoh 官方固件上运行。
 
 ### 格式化存储卡后 GRKU 不工作
@@ -87,6 +87,6 @@ SD 脚本功能会保持打开。要关闭它：
 3. 插入存储卡。按住 MENU 按钮开机，等待相机自动关机。
 4. 从存储卡根目录删除 `00078350.588` 和 `DEVELOP.MOD`。
 
-相机在启动时停止响应时，请参阅[恢复指南](https://github.com/botnick/GRKit/blob/main/resources/RECOVERY.md)。
+相机在启动时停止响应时，请参阅[恢复指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。
 
-GRKU 与 Ricoh 无关。源代码和许可：https://github.com/botnick/GRKit
+GRKU 与 Ricoh 无关。源代码和许可：https://github.com/botnick/GRKU

@@ -55,7 +55,7 @@ describe('downloadErrorProps', () => {
   it('gives the HTTP status, and names the packager, effects, modules, and guides', () => {
     const props = (url: string) =>
       downloadErrorProps(camera('gr3'), 'card', false, new TransferError('status', url, 503));
-    expect(props('https://grku.app/assets/grkit_wasm_bg-10ISLFLn.wasm')).toMatchObject({
+    expect(props('https://grku.app/assets/grku_wasm_bg-10ISLFLn.wasm')).toMatchObject({
       mode: 'card',
       app: 'no',
       reason: '503',

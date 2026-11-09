@@ -1,7 +1,7 @@
 # Fast-boot firmware
 
-GRKit does not need this firmware. On the official firmware, GRKit loads from the SD card after the camera's Linux mounts the card, about 8 to 10 seconds after power-on.
-The fast-boot firmware is the official firmware with three small changes. With it, SD scripts can run code from the card at power-on, and GRKit loads before Linux mounts the card.
+GRKU does not need this firmware. On the official firmware, GRKU loads from the SD card after the camera's Linux mounts the card, about 8 to 10 seconds after power-on.
+The fast-boot firmware is the official firmware with three small changes. With it, SD scripts can run code from the card at power-on, and GRKU loads before Linux mounts the card.
 
 > [!WARNING]
 > The fast-boot firmware has been tested on a GR III camera only.
@@ -62,9 +62,9 @@ sendln 'SYS_memovr C:\SCRIPT\APP\CODE.BIN 0 call'
 
 A later interface has another version in word 1. A script that does not know the version must not use the commands.
 
-## How GRKit uses it
+## How GRKU uses it
 
-A GRKit package has two files for each release of its camera: the fast-boot file `SCRIPT/GRKU/F<project><version>.BIN` and its install file `SCRIPT/GRKU/I<project><version>.BIN`. The same package works on the official firmware.
+A GRKU package has two files for each release of its camera: the fast-boot file `SCRIPT/GRKU/F<project><version>.BIN` and its install file `SCRIPT/GRKU/I<project><version>.BIN`. The same package works on the official firmware.
 
 1. The loader script probes the firmware.
 2. On the fast-boot firmware, it reads the first 1 KB of the fast-boot file of the release and calls it. That head loads the whole file to the top of the RTOS code region and runs SCAN. SCAN writes the whole plan to the card.
@@ -84,19 +84,19 @@ When a start does not use the fast-boot files, or stops using them, the loader a
 
 STATUS is an installer status (`runtime/install_status.h`), 998 when the head did not run SCAN or INSTALL (the file is not complete), or 999 when the firmware did not read the file.
 
-The code of GRKit ends before the fast-boot file, which runs from 0x54c00000 (`runtime::FAST_BASE`).
+The code of GRKU ends before the fast-boot file, which runs from 0x54c00000 (`runtime::FAST_BASE`).
 
-`runtime/fastboot/` has the RTOS side of the installer and the head. `runtime::fastboot` in `grkit-core` names the files.
+`runtime/fastboot/` has the RTOS side of the installer and the head. `runtime::fastboot` in `grku-core` names the files.
 
 ## Make the fast-boot firmware
 
-A person who does not build GRKit uses the Fast start page of grkit.app (`/fastboot/`), which runs the same code in the browser, and the [fast start guide](../resources/FASTBOOT.md). The page takes the official ZIP from Ricoh and makes the latest release of each camera only (`LATEST` in `web/src/fastboot.ts`). The `grkit` command takes the official ZIP or its update file of any release in the table of releases.
+A person who does not build GRKU uses the Fast start page of grkit.app (`/fastboot/`), which runs the same code in the browser, and the [fast start guide](../resources/FASTBOOT.md). The page takes the official ZIP from Ricoh and makes the latest release of each camera only (`LATEST` in `web/src/fastboot.ts`). The `grku` command takes the official ZIP or its update file of any release in the table of releases.
 
 1. Download the official firmware of your camera and version from Ricoh.
-2. Run `grkit firmware patch` with the official ZIP or the update file in it:
+2. Run `grku firmware patch` with the official ZIP or the update file in it:
 
    ```sh
-   grkit firmware patch --firmware gr3_v220.zip --out patched/fwdc239b.bin
+   grku firmware patch --firmware gr3_v220.zip --out patched/fwdc239b.bin
    ```
 
    The command refuses any file that is not the official ZIP or update file of a release in the table. It checks the result against the SHA-256 of the release.
@@ -110,5 +110,5 @@ To go back to the official firmware, install the official update file of the sam
 
 1. Add `fastboot/releases/<camera>-<firmware>.json` with the hashes, the addresses of the functions that the handlers call, and the assembled handler code.
 2. Add `runtime/fastboot/targets/<camera>-<firmware>.h` with the RTOS calls of the installer.
-3. Run the tests. `fastboot_code_matches_its_source` assembles `fastboot/patch/` with the addresses of each table and compares the result with its code. `fastboot_official_files_patch_to_their_result` patches the official files in `GRKIT_TEST_FASTBOOT_FIRMWARE`.
-4. If a table has no result yet, run `grkit firmware patch` with the official file. The error gives the size and SHA-256 of the new file for `result`.
+3. Run the tests. `fastboot_code_matches_its_source` assembles `fastboot/patch/` with the addresses of each table and compares the result with its code. `fastboot_official_files_patch_to_their_result` patches the official files in `GRKU_TEST_FASTBOOT_FIRMWARE`.
+4. If a table has no result yet, run `grku firmware patch` with the official file. The error gives the size and SHA-256 of the new file for `result`.

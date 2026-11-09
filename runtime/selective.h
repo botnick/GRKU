@@ -1,18 +1,18 @@
-#ifndef GRKIT_SELECTIVE_H
-#define GRKIT_SELECTIVE_H
+#ifndef GRKU_SELECTIVE_H
+#define GRKU_SELECTIVE_H
 /* Selective color of the effects of CORE.TONE, a part of the color of a
    recorded picture (runtime/picture.c). The includer defines the memory
    access and core_divide (runtime/core.h). */
 
 /* ---- Recorded pictures: selective color ------------------------------------
-   An effect with GRKIT_FEATURE_SELECTIVE keeps the chroma of one hue range and
+   An effect with GRKU_FEATURE_SELECTIVE keeps the chroma of one hue range and
    removes it elsewhere. The hue is the angle of (Cb - 128, Cr - 128). Each side
    of the target hue has an inner and an outer half width: inside the inner one a
    pair keeps all of its chroma, outside the outer one none, and between them the
    weight falls linearly in tan(angle offset). Side 1 is toward larger angles. A
    chroma gate fades out pairs whose chroma along the target is low. Luma stays,
    so the rest of the picture keeps the luma of the effect's color rendering.
-   grkit_core::selective computes the same table for the site preview. */
+   grku_core::selective computes the same table for the site preview. */
 #define SELECTIVE_ALONG 182U /* the largest projection of a CbCr vector, plus one */
 #define SELECTIVE_SIDE 128U  /* table cells per axis: one per 2 x 2 (Cb, Cr) block */
 #define SELECTIVE_TABLE (SELECTIVE_SIDE*SELECTIVE_SIDE)
@@ -22,9 +22,9 @@ typedef struct { u32 angle[2][SELECTIVE_ALONG],gate; } SelectiveFactors;
 
 static void selective_load(u32 record,Selective *s) {
     u32 i;
-    s->hc=(s16)HALF(record,GRKIT_RECORD_SELECTIVE); s->hs=(s16)HALF(record,GRKIT_RECORD_SELECTIVE+2);
-    for(i=0;i<4;++i) s->t[i>>1][i&1]=HALF(record,GRKIT_RECORD_SELECTIVE+4+i*2);
-    s->c0=BYTE(record,GRKIT_RECORD_SELECTIVE+12); s->c1=BYTE(record,GRKIT_RECORD_SELECTIVE+13);
+    s->hc=(s16)HALF(record,GRKU_RECORD_SELECTIVE); s->hs=(s16)HALF(record,GRKU_RECORD_SELECTIVE+2);
+    for(i=0;i<4;++i) s->t[i>>1][i&1]=HALF(record,GRKU_RECORD_SELECTIVE+4+i*2);
+    s->c0=BYTE(record,GRKU_RECORD_SELECTIVE+12); s->c1=BYTE(record,GRKU_RECORD_SELECTIVE+13);
 }
 /* Keep weight of one pair, 0..256. The installer accepted inner < outer and c0 < c1. */
 static u32 selective_weight(const Selective *s,const SelectiveFactors *f,int u,int v) {
@@ -70,10 +70,10 @@ static void selective_plane(const Plane *p,const u8 *table) {
     }
 }
 
-/* A color record with GRKIT_FEATURE_SELECTIVE. */
+/* A color record with GRKU_FEATURE_SELECTIVE. */
 static u32 selective_wanted(const PictureSet *set) {
     return set->record && !set->mono &&
-        (WORD(set->record,GRKIT_RECORD_FEATURES)&GRKIT_FEATURE_SELECTIVE);
+        (WORD(set->record,GRKU_RECORD_FEATURES)&GRKU_FEATURE_SELECTIVE);
 }
 /* The table and its factors use the scratch, before the plane filters of
    the modules do. */

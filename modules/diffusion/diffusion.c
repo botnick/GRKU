@@ -24,8 +24,8 @@
 
    Ported from the HDF Glow module of MustafaCisse/GRKit (MIT), without its
    halation ring. */
-#include "grkit.h"
-#include "grkit_module.h"
+#include "grku.h"
+#include "grku_module.h"
 #include "diffusion_tables.h"
 
 void diffusion_apply(PictureSet *set, u32 strength);
@@ -97,7 +97,7 @@ u32 diffusion_grid_shift(u32 width, u32 height)
     u32 s;
     for (s = 0; s < 12U; ++s) {
         u32 cell = 1U << s, gw = (width + cell - 1U) >> s, gh = (height + cell - 1U) >> s;
-        if (gw <= MAX_GRID && gh <= MAX_GRID && grid_bytes(width, gw, gh) <= GRKIT_PLANE_SCRATCH)
+        if (gw <= MAX_GRID && gh <= MAX_GRID && grid_bytes(width, gw, gh) <= GRKU_PLANE_SCRATCH)
             return s;
     }
     return 32U;
@@ -184,8 +184,8 @@ static void gather(const Plane *p, const Grid *gr, u32 mono, u32 mist)
         crows += rows;
         qrows += rows;
         for (y = y0; y < y1; y += step) {
-            volatile u8 *luma = GRKIT_BYTES(p->y + y * p->pitch);
-            volatile u8 *crow = GRKIT_BYTES(chroma_row(p, y));
+            volatile u8 *luma = GRKU_BYTES(p->y + y * p->pitch);
+            volatile u8 *crow = GRKU_BYTES(chroma_row(p, y));
             u32 x;
             for (x = gr->left; x < right; x += step) {
                 int yv = luma[x], cb = 0, cr = 0;
@@ -348,8 +348,8 @@ static void decay(u16 *s, u32 n, u32 k)
    Returns 0 when the row has no light. */
 static u32 streak_row(const Plane *p, const Grid *gr, u32 y, u32 mono)
 {
-    volatile u8 *luma = GRKIT_BYTES(p->y + y * p->pitch);
-    volatile u8 *crow = GRKIT_BYTES(chroma_row(p, y));
+    volatile u8 *luma = GRKU_BYTES(p->y + y * p->pitch);
+    volatile u8 *crow = GRKU_BYTES(chroma_row(p, y));
     u32 right = gr->left + gr->w, step = 1U << gr->ss, inner = step > 2U ? 2U : 1U, i, any = 0;
     for (i = 0; i < gr->sn; ++i) {
         u32 x0 = gr->left + (i << gr->ss), x1 = min_u(x0 + step, right), x, best = 0;
@@ -391,8 +391,8 @@ static void blend(const Plane *p, const Grid *gr, u32 strength, u32 mist, u32 st
     u32 amount = AMOUNT[strength], veil = mist ? VEIL[strength] * mist : 0U;
     int scb = mono ? 0 : STREAK_CB[streak], scr = mono ? 0 : STREAK_CR[streak];
     for (y = gr->top; y < bottom; ++y) {
-        volatile u8 *luma = GRKIT_BYTES(p->y + y * p->pitch);
-        volatile u8 *crow = GRKIT_BYTES(chroma_row(p, y));
+        volatile u8 *luma = GRKU_BYTES(p->y + y * p->pitch);
+        volatile u8 *crow = GRKU_BYTES(chroma_row(p, y));
         u32 chroma = !mono && (!p->half || !(y & 1U)), any = 0, st = 0, x;
         Lerp ly = lerp(y - gr->top, gr->shift, gr->gh);
         const u16 *a = gr->g + ly.i0 * gr->gw, *b = gr->g + ly.i1 * gr->gw;

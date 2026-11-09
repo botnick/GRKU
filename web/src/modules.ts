@@ -4,7 +4,7 @@ import { OFFICIAL_MODULES, type ModuleKey } from './generated/modules';
  * The official modules of the ADJ menu and the package rules for them. The package holds the
  * module file of each selected module (`Package.addModule`), and the camera installs only those.
  * A module that needs effects (Image Control) shows nothing without them, so the package leaves
- * it out then. `generated/modules.ts` comes from `crates/grkit-core/src/modules.rs`.
+ * it out then. `generated/modules.ts` comes from `crates/grku-core/src/modules.rs`.
  */
 export const MODULES = OFFICIAL_MODULES;
 

@@ -4,7 +4,7 @@ import type { CardFile } from './card';
 import { effectUrl, siteUrl, type Effect, type PackageEffect } from './catalog';
 import { effectFilename } from './import/names';
 import { fetchFile, type Progress } from './transfer';
-import wasmUrl from './wasm/grkit_wasm_bg.wasm?url';
+import wasmUrl from './wasm/grku_wasm_bg.wasm?url';
 
 /** One file that the package needs. A download keeps its bytes for later packages. */
 interface Transfer extends Progress {
@@ -34,7 +34,7 @@ function transfer(url: string): Transfer {
   return item;
 }
 
-type Wasm = typeof import('./wasm/grkit_wasm.js');
+type Wasm = typeof import('./wasm/grku_wasm.js');
 let wasm: Promise<Wasm> | undefined;
 
 /**
@@ -44,7 +44,7 @@ let wasm: Promise<Wasm> | undefined;
 export function loadWasm(): Promise<Wasm> {
   wasm ??= (async () => {
     const [module, bytes] = await Promise.all([
-      import('./wasm/grkit_wasm.js'),
+      import('./wasm/grku_wasm.js'),
       transfer(wasmUrl).bytes,
     ]);
     await module.default({ module_or_path: bytes });
@@ -111,7 +111,7 @@ type Packager = InstanceType<Wasm['Package']>;
  * `camera` selects the ModeSet file. `modules` names the module files that the package holds.
  * `language` selects the installation guide, which the site publishes as `guides/<camera>/<language>.pdf`.
  * `imports` is the import library of the browser (`import/library.ts`), or null without imports.
- * grkit-wasm checks each runtime file against `build.json` and each effect's format.
+ * grku-wasm checks each runtime file against `build.json` and each effect's format.
  * `onProgress` receives the number of bytes of the files of this package that have arrived, and
  * whether a file of it waits for a new attempt.
  */

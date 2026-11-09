@@ -1,14 +1,14 @@
-#ifndef GRKIT_MENU_LISTED_H
-#define GRKIT_MENU_LISTED_H
-/* The settings of a module page in the GRKit section of MENU (runtime/menu.c):
+#ifndef GRKU_MENU_LISTED_H
+#define GRKU_MENU_LISTED_H
+/* The settings of a module page in the GRKU section of MENU (runtime/menu.c):
    Enable, Options, and the settings of the page, and the option list. The
    settings page code (runtime/menu_settings.h) reads them, so the includer
    includes this file inside that one. */
-/* The page of a listed module in the GRKit section of MENU
+/* The page of a listed module in the GRKU section of MENU
    (menu_rows_install, LISTED_PAGE), which
    shows an Enable row, then the settings of its module page. SERVICES_MENU +
    MENU_ROWS_LISTED holds the listed module, and MENU_ROWS_PAGE its page
-   slot, or GRKIT_MODULE_PAGES_MAX for a module without a loaded page. */
+   slot, or GRKU_MODULE_PAGES_MAX for a module without a loaded page. */
 #define LISTED_PAGE (MODULE_TOTAL+1U)
 
 /* The row of the Fn adjustments in the page of Image Control targets this
@@ -40,7 +40,7 @@ static const Setting tone_settings[2]={
 static const u16 *group_value(volatile u32 *h,u32 row) {
     u32 child=group_child_address(h,row), value=setting_value(h,group_setting(h,row));
     return MENU_TEXT(PAGE_WORD(PAGE_WORD(PAGE_WORD(child,PAGE_SETTING_LIST),ROW_VALUES),
-                               (value*GRKIT_TEXT_LANGUAGES+menu_language())*4));
+                               (value*GRKU_TEXT_LANGUAGES+menu_language())*4));
 }
 #define GROUP_SETTING(n) \
     static const u16 *group_label_##n(volatile u32 *h) { return group_label(h,n); } \
@@ -63,7 +63,7 @@ static const Setting *listed_base(volatile u32 *h,u32 *n) {
     if(page==&tone_module) {
         /* Without a committed effect, there are no Fn adjustments. */
         *n=1;
-        if(h[GRKIT_HOST_ACTIVE/4]) *n=2;
+        if(h[GRKU_HOST_ACTIVE/4]) *n=2;
         return tone_settings;
     }
     if(page->settings) {
@@ -228,4 +228,4 @@ static u32 settings_fn_row(volatile u32 *h,const Setting *page,u32 row) {
     const Setting *b;
     return page==listed_settings && listed_kind(h,row,&b)==1 && b==tone_settings;
 }
-#endif /* GRKIT_MENU_LISTED_H */
+#endif /* GRKU_MENU_LISTED_H */

@@ -14,7 +14,7 @@
 
 ## 取得工具
 
-從[最新版本](https://github.com/botnick/GRKit/releases/latest)下載 `GRKU-<版本>-dump.zip`。https://grku.app 頁面底部的「韌體匯出工具」連結提供同一個檔案。
+從[最新版本](https://github.com/botnick/GRKU/releases/latest)下載 `GRKU-<版本>-dump.zip`。https://grku.app 頁面底部的「韌體匯出工具」連結提供同一個檔案。
 
 ## 匯出韌體
 
@@ -34,7 +34,7 @@
 ## 傳送檔案
 
 1. 把 `SCRIPT/GRDUMP` 資料夾壓縮成 ZIP。
-2. 把 ZIP 附加到一個 [GitHub issue](https://github.com/botnick/GRKit/issues) 中。寫明相機型號和韌體版本。
+2. 把 ZIP 附加到一個 [GitHub issue](https://github.com/botnick/GRKU/issues) 中。寫明相機型號和韌體版本。
 
 如果開發者在某個 issue 中請你匯出，把 ZIP 附加到那個 issue。
 

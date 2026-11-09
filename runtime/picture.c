@@ -40,19 +40,19 @@ extern volatile u32 *framing_header(void);
 #define PICTURE_PHOTO_ORIENTATION() 1
 #endif
 #endif
-static u32 owned(volatile u32 *h,u32 record) { return record_index(h,record)<GRKIT_TEXT_RECORDS; }
+static u32 owned(volatile u32 *h,u32 record) { return record_index(h,record)<GRKU_TEXT_RECORDS; }
 /* Features of an owned record, or 0 for a native one. */
 static u32 record_features(volatile u32 *h,u32 record) {
-    return owned(h,record) ? WORD(record,GRKIT_RECORD_FEATURES) : 0;
+    return owned(h,record) ? WORD(record,GRKU_RECORD_FEATURES) : 0;
 }
 /* The record whose ImageTone code is `code`, or 0. The installer gives each
    record a distinct code with bit 15 set. */
 static u32 record_of_code(volatile u32 *h,u32 code) {
-    u32 n=h[GRKIT_HOST_COUNT/4], i, record;
-    if(!(code&0x8000U) || n>GRKIT_TEXT_RECORDS) return 0;
+    u32 n=h[GRKU_HOST_COUNT/4], i, record;
+    if(!(code&0x8000U) || n>GRKU_TEXT_RECORDS) return 0;
     for(i=0;i<n;++i) {
-        record=h[GRKIT_HOST_RECORDS/4]+i*GRKIT_RECORD_SIZE;
-        if(HALF(record,GRKIT_RECORD_CODE)==code) return record;
+        record=h[GRKU_HOST_RECORDS/4]+i*GRKU_RECORD_SIZE;
+        if(HALF(record,GRKU_RECORD_CODE)==code) return record;
     }
     return 0;
 }
@@ -92,15 +92,15 @@ static void post_matrix(volatile u32 *h,u32 object,u32 context,u32 settings) {
     int csp[9],post[9],sum;
     PICTURE_YCBCR_CALC(object,context);
     features=record_features(h,record);
-    if(features&GRKIT_FEATURE_POST) {
-        for(i=0;i<9;++i) post[i]=(s16)HALF(record,GRKIT_RECORD_POST+i*2);
+    if(features&GRKU_FEATURE_POST) {
+        for(i=0;i<9;++i) post[i]=(s16)HALF(record,GRKU_RECORD_POST+i*2);
         apply=1;
     }
 #ifdef NATIVE_SATURATION_BEFORE_CURVES
     /* A native look applies saturation after the tone curves and the post
        matrix, as GR IV does. module_parameters gives the native processing
        the neutral value. */
-    if((features&GRKIT_FEATURE_NATIVE_LOOK) && (i=develop_parameter(h,record,0,PICTURE_DEVELOPING()))!=4) {
+    if((features&GRKU_FEATURE_NATIVE_LOOK) && (i=develop_parameter(h,record,0,PICTURE_DEVELOPING()))!=4) {
         int saturation[9],product[9];
         picture_saturation(i,saturation);
         if(apply) {
@@ -124,14 +124,14 @@ static void post_matrix(volatile u32 *h,u32 object,u32 context,u32 settings) {
             WORD(object,(i*3+j)*4)=(u32)(sum<-256 ? -256 : sum>255 ? 255 : sum);
         }
     }
-    if((features&GRKIT_FEATURE_SELECTIVE) && BYTE(settings,PICTURE_LIVE_CONTEXT)==1)
+    if((features&GRKU_FEATURE_SELECTIVE) && BYTE(settings,PICTURE_LIVE_CONTEXT)==1)
         for(i=3;i<9;++i) WORD(object,i*4)=0;
 }
 void picture_post(u32 object,u32 context,u32 settings) {
     volatile u32 *h=framing_header();
     u32 start=profile_begin(h);
     post_matrix(h,object,context,settings);
-    profile_end(h,start,GRKIT_PROFILE_PICTURE_POST);
+    profile_end(h,start,GRKU_PROFILE_PICTURE_POST);
 }
 /* ---- Recorded pictures: the encode host -----------------------------------
    JpegEncodeMacroProcess::Execute (0x535047d4) calls picture_encode before it
@@ -171,7 +171,7 @@ static const u8 picture_area_ids[8]={0,4,2,1,5,3,6,7};
 #endif
 #ifndef PICTURE_SCRATCH
 /* Stamp masks after the header and the records, inside the loader's registry array. */
-#define PICTURE_SCRATCH(h) ((h)[GRKIT_HOST_TAIL/4])
+#define PICTURE_SCRATCH(h) ((h)[GRKU_HOST_TAIL/4])
 #endif
 #ifndef PICTURE_BARRIER
 #define PICTURE_BARRIER() __asm__ volatile("dmb ish" ::: "memory")
@@ -188,38 +188,38 @@ static u32 core_divide(u32 n,u32 d) {
     while(bit) { if(n>=d) { n-=d; q|=bit; } d>>=1; bit>>=1; }
     return q;
 }
-/* The core exports these services to modules (runtime/sdk/grkit.h). The local
+/* The core exports these services to modules (runtime/sdk/grku.h). The local
    time is the time of the picture: the clock for a shot, the time of the DNG
    for a RAW development, so that Date Imprint prints the day of the photo. */
-/* Whether a GrkitDateTime holds a date and a time that the camera can set. */
+/* Whether a GrkuDateTime holds a date and a time that the camera can set. */
 static u32 picture_time_valid(const u8 *t) {
     u32 year=t[0]|(u32)t[1]<<8;
     return year>=2000 && year<=2099 && t[2]>=1 && t[2]<=12 && t[3]>=1 && t[3]<=31 &&
            t[4]<24 && t[5]<60 && t[6]<60;
 }
-__attribute__((used)) void grkit_export_local_time(u8 *out) {
+__attribute__((used)) void grku_export_local_time(u8 *out) {
     if(PICTURE_DEVELOPING()) {
         PICTURE_PHOTO_TIME(out);
         if(picture_time_valid(out)) return;
     }
     PICTURE_DATE(out);
 }
-__attribute__((used)) u32 grkit_export_divide(u32 n,u32 d) { return core_divide(n,d); }
+__attribute__((used)) u32 grku_export_divide(u32 n,u32 d) { return core_divide(n,d); }
 /* The white of the effect of a recorded picture: input 255 of the curves of
    its record, after its post matrix, as R, G, B levels, and 255 each without
    a record. The Fn adjustments are not in it. runtime/level.h gives the luma
    of the same white to the live-view highlight warning. */
-__attribute__((used)) void grkit_export_picture_white(const PictureSet *set,u8 *white) {
+__attribute__((used)) void grku_export_picture_white(const PictureSet *set,u8 *white) {
     u32 record=set->record, post, k, c;
     int rgb[3], v;
     if(!record) { white[0]=white[1]=white[2]=255; return; }
-    post=WORD(record,GRKIT_RECORD_FEATURES)&GRKIT_FEATURE_POST;
-    for(c=0;c<3;++c) rgb[c]=(int)HALF(record,GRKIT_RECORD_CURVES+c*GRKIT_RECORD_CURVE_SIZE+255*2);
+    post=WORD(record,GRKU_RECORD_FEATURES)&GRKU_FEATURE_POST;
+    for(c=0;c<3;++c) rgb[c]=(int)HALF(record,GRKU_RECORD_CURVES+c*GRKU_RECORD_CURVE_SIZE+255*2);
     for(k=0;k<3;++k) {
         v=rgb[k];
         if(post) {
             v=0;
-            for(c=0;c<3;++c) v+=(s16)HALF(record,GRKIT_RECORD_POST+(k*3+c)*2)*rgb[c];
+            for(c=0;c<3;++c) v+=(s16)HALF(record,GRKU_RECORD_POST+(k*3+c)*2)*rgb[c];
             v=(v+4096)>>13;
         }
         v=v<0 ? 0 : v>16383 ? 16383 : v;
@@ -227,7 +227,7 @@ __attribute__((used)) void grkit_export_picture_white(const PictureSet *set,u8 *
     }
 }
 /* picture_shot: the shooting data of the shot of a plane set, in the
-   layout of GrkitShot (GRKIT_SHOT_INFO_* in abi.h). */
+   layout of GrkuShot (GRKU_SHOT_INFO_* in abi.h). */
 #define SHOT_INVALID ((int)0x80000000)
 /* An IEEE single in 1/256 units, rounded, or SHOT_INVALID when it is not
    finite or not below 2^23. */
@@ -274,11 +274,11 @@ static int shot_log2(u32 v) {
 }
 static void info_half(u8 *out,u32 at,u32 v) { out[at]=(u8)v; out[at+1]=(u8)(v>>8); }
 static void info_word(u8 *out,u32 at,u32 v) { info_half(out,at,v&0xffff); info_half(out,at+2,v>>16); }
-__attribute__((used)) void grkit_export_picture_shot(const PictureSet *set,u8 *out) {
+__attribute__((used)) void grku_export_picture_shot(const PictureSet *set,u8 *out) {
     static const u8 program[]={SHOT_PROGRAM_CODES}, metering[]={5,2,3};
-    u8 info[GRKIT_SHOT_INFO_BYTES];
+    u8 info[GRKU_SHOT_INFO_BYTES];
     u32 shot=set->shot, size=out[0]|out[1]<<8|out[2]<<16|(u32)out[3]<<24, known=0, i, v;
-    for(i=0;i<GRKIT_SHOT_INFO_BYTES;++i) info[i]=0;
+    for(i=0;i<GRKU_SHOT_INFO_BYTES;++i) info[i]=0;
     if(shot>=0x40000000U && shot<=0xbff00000U) {
         int av=shot_q8(WORD(shot,SHOT_APEX)), tv=shot_q8(WORD(shot,SHOT_APEX+4)), sv=shot_q8(WORD(shot,SHOT_APEX+8));
         int xv=shot_q8(WORD(shot,SHOT_APEX+12)), focal=shot_q8(WORD(shot,SHOT_FOCAL)), crop=shot_q8(WORD(shot,SHOT_CROP));
@@ -293,49 +293,49 @@ __attribute__((used)) void grkit_export_picture_shot(const PictureSet *set,u8 *o
         /* Av about -1 to 12, Tv -12 to 16, Sv 2 to 20: else no exposure. */
         if(av>-256 && av<12*256 && tv>-12*256 && tv<16*256 && sv>2*256 && sv<20*256) {
             if(!time) time=shot_exp2(1000000,-tv);
-            info_word(info,GRKIT_SHOT_INFO_AV,(u32)av);
-            info_word(info,GRKIT_SHOT_INFO_TV,(u32)tv);
-            info_word(info,GRKIT_SHOT_INFO_SV,(u32)sv);
-            info_word(info,GRKIT_SHOT_INFO_SCENE_EV,(u32)(av+tv-sv+5*256));
-            info_word(info,GRKIT_SHOT_INFO_EXPOSURE_US,time);
-            info_half(info,GRKIT_SHOT_INFO_F_NUMBER,shot_exp2(10,av>>1));
+            info_word(info,GRKU_SHOT_INFO_AV,(u32)av);
+            info_word(info,GRKU_SHOT_INFO_TV,(u32)tv);
+            info_word(info,GRKU_SHOT_INFO_SV,(u32)sv);
+            info_word(info,GRKU_SHOT_INFO_SCENE_EV,(u32)(av+tv-sv+5*256));
+            info_word(info,GRKU_SHOT_INFO_EXPOSURE_US,time);
+            info_half(info,GRKU_SHOT_INFO_F_NUMBER,shot_exp2(10,av>>1));
             v=shot_exp2(100,sv-5*256);
-            info_half(info,GRKIT_SHOT_INFO_ISO,v>65535 ? 65535 : v);
-            known|=GRKIT_SHOT_INFO_KNOWN_EXPOSURE;
+            info_half(info,GRKU_SHOT_INFO_ISO,v>65535 ? 65535 : v);
+            known|=GRKU_SHOT_INFO_KNOWN_EXPOSURE;
         }
-        if(xv>-16*256 && xv<16*256) { info_word(info,GRKIT_SHOT_INFO_COMPENSATION,(u32)xv); known|=GRKIT_SHOT_INFO_KNOWN_COMPENSATION; }
+        if(xv>-16*256 && xv<16*256) { info_word(info,GRKU_SHOT_INFO_COMPENSATION,(u32)xv); known|=GRKU_SHOT_INFO_KNOWN_COMPENSATION; }
         if(focal>0 && focal<1000*256) {
             /* In 1/10 mm, and as 35 mm film: times 1.5339 (Q16 100526) and the crop. */
-            info_half(info,GRKIT_SHOT_INFO_FOCAL,(u32)(focal*10+128)>>8);
-            if(crop>0 && crop<8*256) info_half(info,GRKIT_SHOT_INFO_FOCAL_35MM,(u32)((((unsigned long long)focal*100526U*(u32)crop>>16)+32768)>>16));
-            known|=GRKIT_SHOT_INFO_KNOWN_FOCAL;
+            info_half(info,GRKU_SHOT_INFO_FOCAL,(u32)(focal*10+128)>>8);
+            if(crop>0 && crop<8*256) info_half(info,GRKU_SHOT_INFO_FOCAL_35MM,(u32)((((unsigned long long)focal*100526U*(u32)crop>>16)+32768)>>16));
+            known|=GRKU_SHOT_INFO_KNOWN_FOCAL;
         }
         v=BYTE(shot,SHOT_PROGRAM);
-        if(v<sizeof(program)) { info[GRKIT_SHOT_INFO_PROGRAM]=program[v]; known|=GRKIT_SHOT_INFO_KNOWN_PROGRAM; }
+        if(v<sizeof(program)) { info[GRKU_SHOT_INFO_PROGRAM]=program[v]; known|=GRKU_SHOT_INFO_KNOWN_PROGRAM; }
         v=BYTE(shot,SHOT_METERING);
-        if(v<sizeof(metering)) { info[GRKIT_SHOT_INFO_METERING]=metering[v]; known|=GRKIT_SHOT_INFO_KNOWN_METERING; }
+        if(v<sizeof(metering)) { info[GRKU_SHOT_INFO_METERING]=metering[v]; known|=GRKU_SHOT_INFO_KNOWN_METERING; }
         /* EXIF Flash: off 0x10; on 8, with red-eye reduction 0x48; fired +1. */
         v=!BYTE(shot,SHOT_FLASH_ON) ? 0x10U : (BYTE(shot,SHOT_FLASH_MODE)|2)==3 ? 0x48U : 8U;
         if(v!=0x10U && BYTE(shot,SHOT_FLASH_FIRED)) v|=1;
-        info_half(info,GRKIT_SHOT_INFO_FLASH,v);
-        known|=GRKIT_SHOT_INFO_KNOWN_FLASH;
+        info_half(info,GRKU_SHOT_INFO_FLASH,v);
+        known|=GRKU_SHOT_INFO_KNOWN_FLASH;
         v=HALF(shot,SHOT_TAKEN);
         if(v>=2000 && v<2200 && BYTE(shot,SHOT_TAKEN+2)-1U<12U && BYTE(shot,SHOT_TAKEN+3)-1U<31U) {
-            info_half(info,GRKIT_SHOT_INFO_TAKEN,v);
-            info[GRKIT_SHOT_INFO_TAKEN+2]=BYTE(shot,SHOT_TAKEN+2);
-            info[GRKIT_SHOT_INFO_TAKEN+3]=BYTE(shot,SHOT_TAKEN+3);
-            info[GRKIT_SHOT_INFO_TAKEN+4]=BYTE(shot,SHOT_TAKEN+5);
-            info[GRKIT_SHOT_INFO_TAKEN+5]=BYTE(shot,SHOT_TAKEN+6);
-            info[GRKIT_SHOT_INFO_TAKEN+6]=BYTE(shot,SHOT_TAKEN+7);
-            known|=GRKIT_SHOT_INFO_KNOWN_TAKEN;
+            info_half(info,GRKU_SHOT_INFO_TAKEN,v);
+            info[GRKU_SHOT_INFO_TAKEN+2]=BYTE(shot,SHOT_TAKEN+2);
+            info[GRKU_SHOT_INFO_TAKEN+3]=BYTE(shot,SHOT_TAKEN+3);
+            info[GRKU_SHOT_INFO_TAKEN+4]=BYTE(shot,SHOT_TAKEN+5);
+            info[GRKU_SHOT_INFO_TAKEN+5]=BYTE(shot,SHOT_TAKEN+6);
+            info[GRKU_SHOT_INFO_TAKEN+6]=BYTE(shot,SHOT_TAKEN+7);
+            known|=GRKU_SHOT_INFO_KNOWN_TAKEN;
         }
     }
-    /* The fields that the module's GrkitShot has: its size, as the module
+    /* The fields that the module's GrkuShot has: its size, as the module
        set it, and the core's, the smaller. */
-    if(size>GRKIT_SHOT_INFO_BYTES) size=GRKIT_SHOT_INFO_BYTES;
+    if(size>GRKU_SHOT_INFO_BYTES) size=GRKU_SHOT_INFO_BYTES;
     if(size<8) return;
-    info_word(info,GRKIT_SHOT_INFO_SIZE,size);
-    info_word(info,GRKIT_SHOT_INFO_KNOWN,known);
+    info_word(info,GRKU_SHOT_INFO_SIZE,size);
+    info_word(info,GRKU_SHOT_INFO_KNOWN,known);
     for(i=0;i<size;++i) out[i]=info[i];
 }
 static void flush(const Plane *p) {
@@ -346,15 +346,15 @@ static void flush(const Plane *p) {
 static u32 aspect_native(void) { return PICTURE_NATIVE_ASPECT(); }
 #include "settings.h"
 #include "services.h"
-/* The module plane filters that INSTALL registered (GRKIT_HOST_MODULE_FILTERS),
+/* The module plane filters that INSTALL registered (GRKU_HOST_MODULE_FILTERS),
    or 0 for a count out of range. Each has two words: its apply function, and
    its setting handle with its stage in the high half. */
-#define MODULE_FILTER_MAX GRKIT_MODULE_FILTERS_MAX
+#define MODULE_FILTER_MAX GRKU_MODULE_FILTERS_MAX
 static u32 module_filters(volatile u32 *h) {
-    u32 n=h[GRKIT_HOST_MODULE_FILTER_COUNT/4];
+    u32 n=h[GRKU_HOST_MODULE_FILTER_COUNT/4];
     return n<=MODULE_FILTER_MAX ? n : 0;
 }
-#define MODULE_FILTER(h,i) ((h)+GRKIT_HOST_MODULE_FILTERS/4+(i)*2)
+#define MODULE_FILTER(h,i) ((h)+GRKU_HOST_MODULE_FILTERS/4+(i)*2)
 /* Apply a module filter. A host test maps the function address. */
 #ifndef MODULE_APPLY
 #define MODULE_APPLY(address,set,value) ((void (*)(PictureSet *,u32))(address))(set,value)
@@ -368,13 +368,13 @@ static u32 shot_area(volatile u32 *h) {
     return PICTURE_AREA_ID(PICTURE_NATIVE_ASPECT(),ratio);
 }
 /* The visible-area id of a RAW development, from the size of its main
-   picture: a Framing size (GRKIT_HOST_FRAME_FILE 2 to 5, runtime/framing.c),
+   picture: a Framing size (GRKU_HOST_FRAME_FILE 2 to 5, runtime/framing.c),
    else the nearest native aspect. The settings for shots do not apply. */
 static u32 developed_area(volatile u32 *h,const Plane *main) {
     static const u8 file_area[4]={4,5,6,7};
     /* Width x 100 / height of 3:2, 4:3, 16:9, and 1:1, in area id order. */
     static const u8 ratios[4]={150,133,178,100};
-    u32 file=((volatile u8 *)h)[GRKIT_HOST_FRAME_FILE], w=main->width, hh=main->height, ratio, best=0, i;
+    u32 file=((volatile u8 *)h)[GRKU_HOST_FRAME_FILE], w=main->width, hh=main->height, ratio, best=0, i;
     if(file>=2 && file<=5) return file_area[file-2];
     if(w<hh) { u32 t=w; w=hh; hh=t; }
     ratio=core_divide(w*100,hh);
@@ -416,21 +416,21 @@ static u32 plane_of(u32 image,u32 code,Plane *p) {
 __attribute__((target("thumb"),minsize))
 #endif
 static u32 shot_word(volatile u32 *h,u32 shot,u32 field,u32 *out) {
-    u32 ring=PICTURE_SCRATCH(h)+GRKIT_SHOT_RING, n=WORD(ring,0), i, entry, value;
-    for(i=1;shot && i<=GRKIT_SHOT_ENTRIES;++i) {
-        entry=ring+GRKIT_SHOT_ENTRY+((n-i)&(GRKIT_SHOT_ENTRIES-1))*GRKIT_SHOT_STRIDE;
-        if(WORD(entry,GRKIT_SHOT_KEY)!=shot) continue;
+    u32 ring=PICTURE_SCRATCH(h)+GRKU_SHOT_RING, n=WORD(ring,0), i, entry, value;
+    for(i=1;shot && i<=GRKU_SHOT_ENTRIES;++i) {
+        entry=ring+GRKU_SHOT_ENTRY+((n-i)&(GRKU_SHOT_ENTRIES-1))*GRKU_SHOT_STRIDE;
+        if(WORD(entry,GRKU_SHOT_KEY)!=shot) continue;
         PICTURE_BARRIER();
         value=WORD(entry,field);
         PICTURE_BARRIER();
-        if(WORD(entry,GRKIT_SHOT_KEY)==shot) { *out=value; return 1; }
+        if(WORD(entry,GRKU_SHOT_KEY)==shot) { *out=value; return 1; }
     }
     return 0;
 }
 /* The record that the still build of a shot applied, or 0. */
 static u32 shot_record(volatile u32 *h,u32 shot) {
     u32 record;
-    return shot_word(h,shot,GRKIT_SHOT_RECORD,&record) ? record : 0;
+    return shot_word(h,shot,GRKU_SHOT_RECORD,&record) ? record : 0;
 }
 
 /* The native sensor rectangle for this shot's digital crop and aspect 3:2.
@@ -452,7 +452,7 @@ __attribute__((target("thumb"),minsize))
 void picture_dng_crop(u32 setter,u32 entry,u32 size) {
     u32 shot=WORD(setter,DNG_SETTER_SHOT), crop, info, i;
     u16 rect[4];
-    if(HALF(entry,6)!=4 || WORD(entry,8)!=2 || !shot_word(framing_header(),shot,GRKIT_SHOT_FRAME_CROP,&crop) || !crop || crop>=8) return;
+    if(HALF(entry,6)!=4 || WORD(entry,8)!=2 || !shot_word(framing_header(),shot,GRKU_SHOT_FRAME_CROP,&crop) || !crop || crop>=8) return;
     PICTURE_DNG_RECT(shot,rect);
     info=WORD(setter,DNG_SETTER_INFO);
     for(i=0;i<2;++i) {
@@ -469,10 +469,10 @@ void picture_dng_crop(u32 setter,u32 entry,u32 size) {
    value out of range counts as 0. */
 static u32 picture_turns(volatile u32 *h,u32 shot) {
     static const u8 turns[4]={0,2,1,3};
-    u32 ring=PICTURE_SCRATCH(h)+GRKIT_SHOT_RING, last=WORD(ring,GRKIT_SHOT_LAST_TURNS), posture;
+    u32 ring=PICTURE_SCRATCH(h)+GRKU_SHOT_RING, last=WORD(ring,GRKU_SHOT_LAST_TURNS), posture;
     if(last>3) last=0;
-    if(!shot_word(h,shot,GRKIT_SHOT_POSTURE,&posture) || posture<1 || posture>4) return last;
-    WORD(ring,GRKIT_SHOT_LAST_TURNS)=turns[posture-1];
+    if(!shot_word(h,shot,GRKU_SHOT_POSTURE,&posture) || posture<1 || posture>4) return last;
+    WORD(ring,GRKU_SHOT_LAST_TURNS)=turns[posture-1];
     return turns[posture-1];
 }
 #ifdef FW_DEVELOP_MODEL
@@ -489,14 +489,14 @@ static u32 picture_turns(volatile u32 *h,u32 shot) {
 void picture_develop_start(void) {
     volatile u32 *h=framing_header();
     u32 value=PICTURE_PLAYBACK_TONE(), record;
-    h[GRKIT_HOST_DEVELOP_RATIO/4]=0;
-    h[GRKIT_HOST_DEVELOP/4]=1;
+    h[GRKU_HOST_DEVELOP_RATIO/4]=0;
+    h[GRKU_HOST_DEVELOP/4]=1;
     /* The model gives each parameter set its values after this, so the
        Standard set holds no effect's adjustments, and no effect keeps changed
        ones (runtime/develop.h). */
-    h[GRKIT_HOST_DEVELOP_FILLED/4]=0;
-    h[GRKIT_HOST_DEVELOP_CHANGED/4]=0;
-    if(value>>16==1 && (record=record_of_code(h,(value+0x100)&0xffffU))) h[GRKIT_HOST_DEVELOP/4]=record;
+    h[GRKU_HOST_DEVELOP_FILLED/4]=0;
+    h[GRKU_HOST_DEVELOP_CHANGED/4]=0;
+    if(value>>16==1 && (record=record_of_code(h,(value+0x100)&0xffffU))) h[GRKU_HOST_DEVELOP/4]=record;
 }
 #endif
 /* The quarter turns clockwise of an EXIF Orientation (1: 0, 6: 1, 3: 2, 8: 3). */
@@ -507,16 +507,16 @@ static u32 orientation_turns(u32 orientation) {
 u32 picture_capture_record(u32 shot) { return shot_record(framing_header(),shot); }
 /* For picture_capture_tone: the record whose code the picture records, or 0.
    A capture or a RAW development has the entry of its build in the shot
-   ring. A write without one in playback (GRKIT_HOST_FRAME_FILE is not 0
+   ring. A write without one in playback (GRKU_HOST_FRAME_FILE is not 0
    there, and 0 while shooting) is an edit of the photo shown, such as Resize,
-   which does not run Image Control: it keeps the GRKit effect that the photo
+   which does not run Image Control: it keeps the GRKU effect that the photo
    records. The native tag would record Standard. */
 u32 picture_capture_tone_record(u32 shot) {
     volatile u32 *h=framing_header();
     u32 record;
-    if(shot_word(h,shot,GRKIT_SHOT_RECORD,&record)) return record;
+    if(shot_word(h,shot,GRKU_SHOT_RECORD,&record)) return record;
 #ifdef FW_DEVELOP_MODEL
-    if(((volatile u8 *)h)[GRKIT_HOST_FRAME_FILE]) {
+    if(((volatile u8 *)h)[GRKU_HOST_FRAME_FILE]) {
         u32 value=PICTURE_PLAYBACK_TONE();
         if(value>>16==1) return record_of_code(h,(value+0x100)&0xffffU);
     }
@@ -527,7 +527,7 @@ u32 picture_capture_tone_record(u32 shot) {
 #define PICTURE_IFD_SET_SHORT(entry,index,value) (((void (*)(u32,u32,u32))FW_IFD_SET_SHORT)(entry,index,value))
 #endif
 /* For picture_capture_parameters: the maker-note adjustments (tag 0x247) of a
-   GRKit shot. The native fill reads the settings of the native Image Control
+   GRKU shot. The native fill reads the settings of the native Image Control
    type. The record's Fn adjustments replace the nine Standard elements:
    saturation, hue, key, contrast, highlight, shadow, sharpness, then shading
    and clarity. An element holds the shown value, the native value less 4
@@ -543,7 +543,7 @@ void picture_record_parameters(u32 entry,u32 shot) {
 /* For grain_gate (runtime/picture.S): the stage flag of the grain stage of a
    recorded picture. The stage gate runs before the parameter build of the
    shot, so it reads the Shading and Clarity of the native Image Control type.
-   A GRKit effect gets the rule of the native Standard type with the values of
+   A GRKU effect gets the rule of the native Standard type with the values of
    its record: the stage runs when Shading or Clarity (adjustments 7 and 8) is
    not neutral. The record is the one that the build takes (module_parameters
    in runtime/processing.h): the effect of a RAW development, or the
@@ -551,9 +551,9 @@ void picture_record_parameters(u32 entry,u32 shot) {
 u32 picture_gate_flag(u32 flag) {
     volatile u32 *h=framing_header();
     u32 record, running;
-    if(!(h[GRKIT_HOST_CAPABILITIES/4]&GRKIT_CORE_TONE_BIT)) return flag;
+    if(!(h[GRKU_HOST_CAPABILITIES/4]&GRKU_CORE_TONE_BIT)) return flag;
     running=PICTURE_DEVELOPING();
-    record=running ? h[GRKIT_HOST_DEVELOP/4] : h[GRKIT_HOST_ACTIVE/4];
+    record=running ? h[GRKU_HOST_DEVELOP/4] : h[GRKU_HOST_ACTIVE/4];
     if(!owned(h,record)) return flag;
     return develop_parameter(h,record,7,running)!=4 || develop_parameter(h,record,8,running)!=4;
 }
@@ -586,7 +586,7 @@ static void encode_shot(volatile u32 *h,u32 message) {
     set.shot=WORD(config,0x34);
     if(owned(h,record)) {
         set.record=record;
-        set.mono=WORD(record,GRKIT_RECORD_MONOCHROME)&1;
+        set.mono=WORD(record,GRKU_RECORD_MONOCHROME)&1;
     }
     else set.mono=native_monochrome(WORD(config,0x34));
     /* The color of the effect first: selective color of its record. */
@@ -621,7 +621,7 @@ static void encode_shot(volatile u32 *h,u32 message) {
     for(i=0;i<filters;++i) if(values[i]) {
         u32 start=profile_begin(h);
         MODULE_APPLY(MODULE_FILTER(h,i)[0],&set,values[i]);
-        profile_end_module(h,start,MODULE_FILTER(h,i)[0],GRKIT_PROFILE_FILTER);
+        profile_end_module(h,start,MODULE_FILTER(h,i)[0],GRKU_PROFILE_FILTER);
     }
     for(i=0;i<set.count;++i) flush(&set.planes[i]);
 }
@@ -631,13 +631,13 @@ void picture_encode(u32 process,u32 message) {
     u32 start=profile_begin(h);
     (void)process;
     encode_shot(h,message);
-    profile_end(h,start,GRKIT_PROFILE_PICTURE_ENCODE);
+    profile_end(h,start,GRKU_PROFILE_PICTURE_ENCODE);
 }
 
 #ifdef GRAIN_FILL_PITCH
 /* The noise of the GR III grain stage. The granulation blends one random
    byte into each Y sample, so its grain is one sample wide, and it averages
-   away when the picture shows smaller. For a GRKit shot this fill writes the
+   away when the picture shows smaller. For a GRKU shot this fill writes the
    random bytes itself: CORE.GRAIN_SIZE small keeps them, medium and large
    use blurred noise with the standard deviation of one random byte, so the
    grain is wider at the same strength (grain_tile). The fill seeds a
@@ -669,7 +669,7 @@ static u32 grain_counter(u32 *high) { *high=0; return 0; }
 #define GRAIN_COUNTER_MHZ SYSTEM_COUNTER_MHZ
 #endif
 #define GRAIN_ROW_MAX 8192U
-/* The camera build has no FPU (CAMERA_TARGET in crates/grkit-build), so the
+/* The camera build has no FPU (CAMERA_TARGET in crates/grku-build), so the
    camera runs the scalar code. The NEON code runs only in the host test on
    an ARM host (tests/runtime/picture_contract.c), which compares the noise
    with one reference, as it does for the scalar code on other hosts. */
@@ -904,7 +904,7 @@ static u32 grain_place(u32 p,u32 n) {
    one (runtime/profile.h). */
 void grain_noise(u32 buffer,u32 size,u32 pitch,u32 height) {
     volatile u32 *h=framing_header();
-    u32 shot=h[GRKIT_HOST_GRAIN_SHOT/4],table=h[GRKIT_HOST_PROFILE/4],high,low,block,y;
+    u32 shot=h[GRKU_HOST_GRAIN_SHOT/4],table=h[GRKU_HOST_PROFILE/4],high,low,block,y;
     GrainRandom r;
     if(!shot || shot>3 || !pitch || pitch%16 || pitch>GRAIN_ROW_MAX || pitch*height!=size || height<1) {
         GRAIN_NATIVE_FILL(buffer,size);
@@ -933,7 +933,7 @@ void grain_noise(u32 buffer,u32 size,u32 pitch,u32 height) {
         grain_layers(GRAIN_MAP(buffer),pitch,height,a,b,place_a,place_b);
         GRAIN_RELEASE(block);
     }
-    if(table) profile_add(table,GRKIT_PROFILE_PICTURE_GRAIN,core_divide(GRAIN_COUNTER(&high)-low,GRAIN_COUNTER_MHZ));
+    if(table) profile_add(table,GRKU_PROFILE_PICTURE_GRAIN,core_divide(GRAIN_COUNTER(&high)-low,GRAIN_COUNTER_MHZ));
 }
 #endif
 
@@ -949,12 +949,12 @@ void grain_noise(u32 buffer,u32 size,u32 pitch,u32 height) {
 #ifndef PICTURE_JPEG_MAP
 #define PICTURE_JPEG_MAP(address,size) ((volatile u8 *)(address))
 #endif
-#define XMP_NAME_UNITS ((GRKIT_RECORD_MONOCHROME-GRKIT_RECORD_NAME)/2)
+#define XMP_NAME_UNITS ((GRKU_RECORD_MONOCHROME-GRKU_RECORD_NAME)/2)
 /* For picture_jpeg_header and picture_jpeg_rewrite (runtime/picture.S),
    after the firmware set up the APP1 Exif segment: an XMP segment with the
    name of the look of the picture goes at +0x48, and +0x48 moves past it. The
    APP7 setup, the maker-note offset of APP7, and the place of the main image
-   all follow +0x48. No segment is written while no module runs (the GRKit
+   all follow +0x48. No segment is written while no module runs (the GRKU
    switch is Off, or safe mode), for a code without a name, or into a buffer
    without room for the largest APP7. */
 void picture_jpeg_xmp(u32 writer) {
@@ -962,10 +962,10 @@ void picture_jpeg_xmp(u32 writer) {
     u32 buffer=WORD(writer,JPEG_WRITER_BUFFER), size=WORD(writer,JPEG_WRITER_SIZE), at=WORD(writer,JPEG_WRITER_APP7);
     u32 code, record, segment, units=XMP_NAME_UNITS, i;
     u16 name[XMP_NATIVE_UNITS>XMP_NAME_UNITS ? XMP_NATIVE_UNITS : XMP_NAME_UNITS];
-    if(!h || !h[GRKIT_HOST_CAPABILITIES/4] || !buffer || at<=JPEG_TIFF || at>size || (at&(XMP_ALIGN-1))) return;
+    if(!h || !h[GRKU_HOST_CAPABILITIES/4] || !buffer || at<=JPEG_TIFF || at>size || (at&(XMP_ALIGN-1))) return;
     if(!xmp_tone_code(PICTURE_JPEG_MAP(buffer+JPEG_TIFF,at-JPEG_TIFF),at-JPEG_TIFF,&code)) return;
     if((record=record_of_code(h,code))) {
-        for(i=0;i<XMP_NAME_UNITS;++i) name[i]=HALF(record,GRKIT_RECORD_NAME+i*2);
+        for(i=0;i<XMP_NAME_UNITS;++i) name[i]=HALF(record,GRKU_RECORD_NAME+i*2);
     } else if(xmp_native_name(code,name,XMP_NATIVE_UNITS)) {
         units=XMP_NATIVE_UNITS;
     } else {

@@ -5,11 +5,11 @@
    build has its own; the build header gives them.
    A build that changes a value of this file defines it in its build header,
    and the value moves there for each build of the family. */
-#ifndef GRKIT_GR4_H
-#define GRKIT_GR4_H
+#ifndef GRKU_GR4_H
+#define GRKU_GR4_H
 
 /* Icon slots hold a 12-byte descriptor, then 40 x 40 RGBA. */
-#define GRKIT_ICON_STRIDE 6412
+#define GRKU_ICON_STRIDE 6412
 
 /* Camera settings (FW_SETTINGS) and the still aspect getter
    (FW_STILL_ASPECT_GET). The native ids are those of GR III: 0 = 3:2, 1 = 4:3,
@@ -96,7 +96,7 @@
    DEVELOP_ASPECT. */
 #define METADATA_SIZE 0x30
 /* The playback metadata also holds the time of that photo at METADATA_TIME
-   (build header), in the layout of GrkitDateTime (runtime/sdk/grkit.h).
+   (build header), in the layout of GrkuDateTime (runtime/sdk/grku.h).
    RawDevelopmentModel has its state at DEVELOP_STATE: 0 while no
    development runs. */
 #define DEVELOP_STATE 4
@@ -162,7 +162,7 @@
 #define PARAMETER_KIND_SHADING 14
 #define PARAMETER_KIND_CLARITY 15
 #define DETAIL_EV_SUBPAGE 0x8c
-/* The native settings page of a GRKit root row, as on GR III: the MENU
+/* The native settings page of a GRKU root row, as on GR III: the MENU
    submenu Instant Review (0x20000d4, entry 11 of FW_SUBMENU_KINDS), its three
    value pages (0x20000d9 Display Time, 0x20000da Zoom Review, 0x20000db), and
    two plain value pages of the MENU Setup tab (0x20000b5, 0x20000b6), whose
@@ -186,7 +186,7 @@
 #define SELECT_MENU_SIZE 0x1e4U
 /* The fewest row views of a SelectMenuController. Its constructor builds a
    view for each row of its longest kind (+0x1a5). The longest native kind has
-   21 rows on each build, and no GRKit hook borrows it (1.11: kind table
+   21 rows on each build, and no GRKU hook borrows it (1.11: kind table
    0x53da2d20). The firmware can build the controller before INSTALL, so a
    value page on it shows at most these rows. A long value page shows on an
    own controller (runtime/menu_settings.h). */
@@ -198,22 +198,23 @@
 #define ROW_LABEL_VIEW 0xec
 /* Rows of modules in the native MENU (runtime/menu_section.h). MENU builds its
    tabs at the first MENU of a start from the tab descriptors in the RAM
-   table FW_MENU_TABS of the build header; entry MENU_TAB_GRKIT is the
+   table FW_MENU_TABS of the build header; entry MENU_TAB_GRKU is the
    Customize tab. A descriptor holds the row count (u8) at MENU_TAB_ROWS, then for each of
    MENU_TAB_MAX_ROWS rows its filler (a C++ member pointer), its target
    controller, and its predicate (a member pointer, 0 for a row that always
    shows). A filler gets the row view and sets its label view (+0xec) and
    value view with the row setters. */
-/* The MENU tab of the GRKit section (Customize, C), and the sections of a
+/* The MENU tab of the GRKU section (Customize, C), and the sections of a
    tab descriptor: their count, title text IDs, and first rows. The Setup
    tab has all MENU_TAB_MAX_SECTIONS sections; Customize has 3. */
-#define MENU_TAB_GRKIT 3
+#define MENU_TAB_GRKU 3
 /* The camera information page (Setup tab, Camera Information), which About
-   GRKit opens: its controller, and three rows of a label (a text ID of the
+   GRKU opens: its controller, and three rows of a label (a text ID of the
    build, INFO_LABEL_TEXTS) and a value, an ASCII string view that the page
    update sets (menu_info_update) with FW_STRING_VIEW_SET_ASCII(view, text).
-   About GRKit shows the version and the project address in the first two
-   rows, and hides the third. */
+   About
+   GRKU shows the version, the website, and the number of film looks in
+   the three rows. */
 #define INFO_CONTROLLER 0x200010bU
 #define INFO_LABELS {0x164,0x16c,0x174}
 #define INFO_VALUES {0x168,0x170,0x178}
@@ -285,7 +286,7 @@
 #define TOOLBAR_CREATED(widget,icon) \
     (CALL1(FW_VIEW_INVALIDATE)(widget), CALL1(FW_VIEW_INVALIDATE)(icon))
 
-/* The installer always provides the GRKit Off icon. */
+/* The installer always provides the GRKU Off icon. */
 #define NATIVE_OFF_ICON() 0
 
 /* Playback metadata singleton (FW_PLAYBACK_METADATA): +0x228 holds key 0x25,

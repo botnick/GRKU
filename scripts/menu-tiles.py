@@ -1,5 +1,5 @@
-"""The menu tiles of GRKit: the module tiles of modules/*/tiles and the host tiles of
-crates/grkit-core/assets/tiles, 40 x 40 RGBA with binary alpha. A list tile keeps the frame of
+"""The menu tiles of GRKU: the module tiles of modules/*/tiles and the host tiles of
+crates/grku-core/assets/tiles, 40 x 40 RGBA with binary alpha. A list tile keeps the frame of
 the native list icons (38 x 36, gray rim, dark body) and shows a small color picture of what
 the row does: a film canister for Film Look, a landscape cropped to the ratio for Framing, the
 guide lines over a landscape for Guides, an orange date stamp for Date Imprint, a street lamp
@@ -10,14 +10,14 @@ a black outline, so they read over any live view.
     python3 scripts/menu-tiles.py write           # write the PNG files into the repository
 
 Needs Pillow (`python3 -m pip install pillow`). Text is Roboto Condensed Bold
-(crates/grkit-core/assets, SIL OFL 1.1), as the native menu text.
+(crates/grku-core/assets, SIL OFL 1.1), as the native menu text.
 """
 import pathlib, random, sys
 
 from PIL import Image, ImageDraw, ImageFont
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
-BOLD = str(REPO / 'crates' / 'grkit-core' / 'assets' / 'RobotoCondensed-Bold.ttf')
+BOLD = str(REPO / 'crates' / 'grku-core' / 'assets' / 'RobotoCondensed-Bold.ttf')
 SS = 4  # supersampling of the pictures
 
 BODY, RIM = (51, 51, 51), (128, 128, 128)
@@ -598,7 +598,7 @@ def grk_tile():
     d.ellipse([(cx + 1.5) * SS, (cy + 1.5) * SS, (cx + 4) * SS, (cy + 4) * SS], fill=(70, 100, 160, 255))
     paste(img, c, clip=(2, 2, 37, 37))
     d2 = ImageDraw.Draw(img)
-    f = ImageFont.truetype(str(REPO / 'crates' / 'grkit-core' / 'assets' / 'RobotoCondensed-Black.ttf'), 12)
+    f = ImageFont.truetype(str(REPO / 'crates' / 'grku-core' / 'assets' / 'RobotoCondensed-Black.ttf'), 12)
     left, t, right, bottom = d2.textbbox((0, 0), 'GRKU', font=f)
     d2.text((round((40 - (right - left)) / 2 - left), 25 - t), 'GRKU', font=f, fill=(255, 255, 255, 255))
     return binarize(img)
@@ -806,10 +806,10 @@ def all_tiles():
     if (REPO / 'modules/diffusion').is_dir():
         for level, name in enumerate(['0-module', '1-eighth', '2-quarter', '3-half']):
             tiles[f'modules/diffusion/tiles/{name}.png'] = diffusion_tile(level)
-    tiles['crates/grkit-core/assets/tiles/grk.png'] = grk_tile()
-    tiles['crates/grkit-core/assets/tiles/ver.png'] = version_tile()
-    tiles['crates/grkit-core/assets/tiles/mod.png'] = modules_tile()
-    tiles['crates/grkit-core/assets/tiles/mod-off.png'] = strike(dim(modules_tile()))
+    tiles['crates/grku-core/assets/tiles/grk.png'] = grk_tile()
+    tiles['crates/grku-core/assets/tiles/ver.png'] = version_tile()
+    tiles['crates/grku-core/assets/tiles/mod.png'] = modules_tile()
+    tiles['crates/grku-core/assets/tiles/mod-off.png'] = strike(dim(modules_tile()))
     return tiles
 
 

@@ -4,7 +4,7 @@
    parity test), C takes every pixel. */
 #ifndef GLOW_KERNELS_H
 #define GLOW_KERNELS_H
-#include "grkit.h"
+#include "grku.h"
 
 typedef signed short s16;
 

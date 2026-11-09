@@ -2,9 +2,9 @@
 # Bake the Fotufilm looks: render the HaldCLUT identity image through the fotufilm engine,
 # one film profile and print medium per effect, with the spatial effects off (grain, halation,
 # flare, and local tone), so the picture is a pure color lookup. Then
-# `grkit effects import --lut EFFECT.png --input srgb` fits each render.
+# `grku effects import --lut EFFECT.png --input srgb` fits each render.
 #
-#   grkit effects hald --level 8 --out hald8.png
+#   grku effects hald --level 8 --out hald8.png
 #   FOTUFILM=path/to/fotufilm-engine/.build/release/fotufilm sh bake_fotufilm.sh
 #
 # fotufilm-engine revision 042e6055ac5a8db8ed690f99490fc9a409be573b, built with Swift and Halide (HALIDE_ROOT).

@@ -1,9 +1,9 @@
-/* Host behavior tests for Glow (grkit module test). */
+/* Host behavior tests for Glow (grku module test). */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "grkit_module.h"
+#include "grku_module.h"
 
 void glow_apply(PictureSet *set, u32 enabled);
 
@@ -29,30 +29,30 @@ static void set_pair(u32 bloom, u32 halation)
 
 static Plane plane(void)
 {
-    Plane p = {GRKIT_TEST_PLANES, GRKIT_TEST_PLANES + W * H, W, H, W, 0, 0, 0, W, H};
+    Plane p = {GRKU_TEST_PLANES, GRKU_TEST_PLANES + W * H, W, H, W, 0, 0, 0, W, H};
     return p;
 }
 
 static void fill(u8 luma, u8 cb, u8 cr)
 {
-    for (u32 i = 0; i < W * H; ++i) *grkit_test_bytes(GRKIT_TEST_PLANES + i) = luma;
+    for (u32 i = 0; i < W * H; ++i) *grku_test_bytes(GRKU_TEST_PLANES + i) = luma;
     for (u32 i = 0; i < W * H; i += 2) {
-        *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + i) = cb;
-        *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + i + 1) = cr;
+        *grku_test_bytes(GRKU_TEST_PLANES + W * H + i) = cb;
+        *grku_test_bytes(GRKU_TEST_PLANES + W * H + i + 1) = cr;
     }
 }
 
-static u8 luma(u32 x, u32 y) { return *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x); }
-static u8 chroma(u32 x, u32 y, u32 k) { return *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + (x & ~1U) + k); }
+static u8 luma(u32 x, u32 y) { return *grku_test_bytes(GRKU_TEST_PLANES + y * W + x); }
+static u8 chroma(u32 x, u32 y, u32 k) { return *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + (x & ~1U) + k); }
 
 /* A 32 x 32 square of one color in the middle. */
 static void colored_square(u8 l, u8 cb, u8 cr)
 {
     for (u32 y = 224; y < 256; ++y)
         for (u32 x = 304; x < 336; ++x) {
-            *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x) = l;
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + (x & ~1U)) = cb;
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + (x & ~1U) + 1) = cr;
+            *grku_test_bytes(GRKU_TEST_PLANES + y * W + x) = l;
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + (x & ~1U)) = cb;
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + (x & ~1U) + 1) = cr;
         }
 }
 
@@ -62,7 +62,7 @@ static void patch(u32 left, u32 top, u32 size, u8 level)
 {
     for (u32 y = top; y < top + size; ++y)
         for (u32 x = left; x < left + size; ++x)
-            *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x) = level;
+            *grku_test_bytes(GRKU_TEST_PLANES + y * W + x) = level;
 }
 
 /* Measure the output outside the source, not its unchanged bright core.
@@ -105,10 +105,10 @@ static void test_off(PictureSet *set)
     for (u32 strength = 0; strength < 3; ++strength) {
         set_strength(strength);
         for (u32 i = 0; i < 2 * W * H; ++i)
-            *grkit_test_bytes(GRKIT_TEST_PLANES + i) = (u8)(i * 37U + i / W);
+            *grku_test_bytes(GRKU_TEST_PLANES + i) = (u8)(i * 37U + i / W);
         apply_look(set, 0);
         for (u32 i = 0; i < 2 * W * H; ++i)
-            assert(*grkit_test_bytes(GRKIT_TEST_PLANES + i) == (u8)(i * 37U + i / W));
+            assert(*grku_test_bytes(GRKU_TEST_PLANES + i) == (u8)(i * 37U + i / W));
     }
     set_strength(1);
 }
@@ -146,9 +146,9 @@ static u32 test_small_sources(PictureSet *set)
 static u32 test_separate_planes(void)
 {
     const u32 sw = W / 2, sh = H / 2;
-    const u32 sy = GRKIT_TEST_PLANES + 2 * W * H;
+    const u32 sy = GRKU_TEST_PLANES + 2 * W * H;
     Plane small = {sy, sy + sw * sh, sw, sh, sw, 0, 0, 0, sw, sh};
-    PictureSet set = {{plane()}, 2, 0, 0, grkit_test_scratch, 0};
+    PictureSet set = {{plane()}, 2, 0, 0, grku_test_scratch, 0};
     u32 failures = 0;
     set.planes[1] = small;
     for (u32 look = 1; look <= 2; ++look) {
@@ -166,8 +166,8 @@ static u32 test_separate_planes(void)
                 for (u32 x = 0; x < sw; ++x) {
                     u32 sum = luma(2 * x, 2 * y) + luma(2 * x + 1, 2 * y)
                             + luma(2 * x, 2 * y + 1) + luma(2 * x + 1, 2 * y + 1);
-                    *grkit_test_bytes(small.y + y * sw + x) = (u8)((sum + 2) / 4);
-                    *grkit_test_bytes(small.c + y * sw + x) = 128;
+                    *grku_test_bytes(small.y + y * sw + x) = (u8)((sum + 2) / 4);
+                    *grku_test_bytes(small.c + y * sw + x) = 128;
                 }
             apply_look(&set, look);
             energy[clipped] = halo_energy(312, 232, 8, 40);
@@ -298,14 +298,14 @@ static void test_halation_colors(PictureSet *set)
         setting_set(SETTING_HALATION_COLOR, 1);
         fill(40, 128, 128); square();
         apply_look(target, 2);
-        memcpy(orange, (const void *)grkit_test_bytes(GRKIT_TEST_PLANES), sizeof(orange));
+        memcpy(orange, (const void *)grku_test_bytes(GRKU_TEST_PLANES), sizeof(orange));
         const u32 colors[] = {0, 2, 3, 4, ~0U};
         for (u32 k = 0; k < 5; ++k) {
             if (!pass && k < 3) continue;
             setting_set(SETTING_HALATION_COLOR, colors[k]);
             fill(40, 128, 128); square();
             apply_look(target, 2);
-            assert(!memcmp(orange, (const void *)grkit_test_bytes(GRKIT_TEST_PLANES), sizeof(orange)));
+            assert(!memcmp(orange, (const void *)grku_test_bytes(GRKU_TEST_PLANES), sizeof(orange)));
         }
     }
     setting_set(SETTING_HALATION_COLOR, 1);
@@ -315,14 +315,14 @@ static void test_halation_colors(PictureSet *set)
 /* A fixed light map isolates output compositing from source detection. */
 static PictureSet composite_fixture(u8 y, u8 cb, u8 cr, u32 half)
 {
-    const u32 sw = W / 2, sh = H / 2, sy = GRKIT_TEST_PLANES + 2 * W * H;
-    PictureSet set = {{plane()}, 2, 0, 0, grkit_test_scratch, 0};
+    const u32 sw = W / 2, sh = H / 2, sy = GRKU_TEST_PLANES + 2 * W * H;
+    PictureSet set = {{plane()}, 2, 0, 0, grku_test_scratch, 0};
     Plane small = {sy, sy + sw * sh, sw, sh, sw, 0, 0, 0, sw, sh};
     fill(y, cb, cr);
     for (u32 row = 0; row < sh; ++row)
         for (u32 x = 0; x < sw; ++x) {
-            *grkit_test_bytes(small.y + row * sw + x) = x >= 150 && x < 170 && row >= 112 && row < 128 ? 255 : 40;
-            *grkit_test_bytes(small.c + row * sw + x) = 128;
+            *grku_test_bytes(small.y + row * sw + x) = x >= 150 && x < 170 && row >= 112 && row < 128 ? 255 : 40;
+            *grku_test_bytes(small.c + row * sw + x) = 128;
         }
     set.planes[0].half = half;
     set.planes[1] = small;
@@ -396,11 +396,11 @@ static void test_composite_protection(void)
 static void test_daylight_transition(PictureSet *set)
 {
     u32 first = 0, last = ~0U;
-    grkit_test_shot.known = GRKIT_SHOT_EXPOSURE;
+    grku_test_shot.known = GRKU_SHOT_EXPOSURE;
     /* A midtone surround exercises the gate. Very bright backgrounds
        already have no halo at night and cannot prove that this gate works. */
     for (u32 ev = 160; ev <= 184; ++ev) {
-        grkit_test_shot.scene_ev = (s32)(ev << 4);
+        grku_test_shot.scene_ev = (s32)(ev << 4);
         fill(128, 128, 128);
         square();
         apply_look(set, 2);
@@ -410,7 +410,7 @@ static void test_daylight_transition(PictureSet *set)
         last = energy;
     }
     assert(last > 0 && last < first);
-    grkit_test_shot.known = 0;
+    grku_test_shot.known = 0;
 }
 
 /* Local daylight rejection: a light inside a bright local surround (a
@@ -426,10 +426,10 @@ static u32 local_gate_energy(PictureSet *set, s32 ev)
     square();
     for (u32 y = 0; y < 160; ++y)
         for (u32 x = 0; x < 160; ++x) before[y][x] = luma(240 + x, 160 + y);
-    grkit_test_shot.known = GRKIT_SHOT_EXPOSURE;
-    grkit_test_shot.scene_ev = ev;
+    grku_test_shot.known = GRKU_SHOT_EXPOSURE;
+    grku_test_shot.scene_ev = ev;
     apply_look(set, 2);
-    grkit_test_shot.known = 0;
+    grku_test_shot.known = 0;
     for (u32 y = 0; y < 160; ++y)
         for (u32 x = 0; x < 160; ++x) {
             u8 now = luma(240 + x, 160 + y);
@@ -449,12 +449,12 @@ static void test_local_daylight_gate(PictureSet *set)
 /* The halo energy of a white square on `background` at a scene EV. */
 static u32 ev_energy(PictureSet *set, u32 look, s32 ev, u8 background)
 {
-    grkit_test_shot.known = GRKIT_SHOT_EXPOSURE;
-    grkit_test_shot.scene_ev = ev << 8;
+    grku_test_shot.known = GRKU_SHOT_EXPOSURE;
+    grku_test_shot.scene_ev = ev << 8;
     fill(background, 128, 128);
     square();
     apply_look(set, look);
-    grkit_test_shot.known = 0;
+    grku_test_shot.known = 0;
     return halo_energy(304, 224, 32, background);
 }
 
@@ -468,10 +468,10 @@ static void test_daylight_fade(PictureSet *set)
     /* Full daylight: no change at all. */
     fill(128, 128, 128);
     square();
-    grkit_test_shot.known = GRKIT_SHOT_EXPOSURE;
-    grkit_test_shot.scene_ev = 13 << 8;
+    grku_test_shot.known = GRKU_SHOT_EXPOSURE;
+    grku_test_shot.scene_ev = 13 << 8;
     apply_look(set, 2);
-    grkit_test_shot.known = 0;
+    grku_test_shot.known = 0;
     for (u32 y = 0; y < H; ++y)
         for (u32 x = 0; x < W; ++x) {
             u8 expected = x >= 304 && x < 336 && y >= 224 && y < 256 ? 255 : 128;
@@ -494,12 +494,12 @@ static void test_daylight_fade(PictureSet *set)
    without one when ev < 0. */
 static u32 shot_energy(PictureSet *set, u32 look, s32 ev, u8 background)
 {
-    grkit_test_shot.known = ev < 0 ? 0 : GRKIT_SHOT_EXPOSURE;
-    grkit_test_shot.scene_ev = ev;
+    grku_test_shot.known = ev < 0 ? 0 : GRKU_SHOT_EXPOSURE;
+    grku_test_shot.scene_ev = ev;
     fill(background, 128, 128);
     square();
     apply_look(set, look);
-    grkit_test_shot.known = 0;
+    grku_test_shot.known = 0;
     return halo_energy(304, 224, 32, background);
 }
 
@@ -523,13 +523,13 @@ static void test_strong_lift(PictureSet *set)
    to it, at a scene EV (1/256 EV), or without one when ev < 0. */
 static u32 veil_energy(PictureSet *set, u32 look, s32 ev)
 {
-    grkit_test_shot.known = ev < 0 ? 0 : GRKIT_SHOT_EXPOSURE;
-    grkit_test_shot.scene_ev = ev;
+    grku_test_shot.known = ev < 0 ? 0 : GRKU_SHOT_EXPOSURE;
+    grku_test_shot.scene_ev = ev;
     fill(30, 128, 128);
     for (u32 y = 0; y < H; ++y)
-        for (u32 x = 0; x < W / 2; ++x) *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x) = 255;
+        for (u32 x = 0; x < W / 2; ++x) *grku_test_bytes(GRKU_TEST_PLANES + y * W + x) = 255;
     apply_look(set, look);
-    grkit_test_shot.known = 0;
+    grku_test_shot.known = 0;
     u32 energy = 0;
     for (u32 y = 0; y < H; ++y)
         for (u32 x = W / 2; x < W / 2 + 96; ++x) energy += luma(x, y) - 30U;
@@ -556,9 +556,9 @@ static void test_bloom_rim_color(PictureSet *set)
     for (u32 y = 220; y < 260; ++y)
         for (u32 x = 300; x < 340; ++x) {
             /* R 230, G 120, B 40: bright, below the clip */
-            *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x) = 144;
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + (x & ~1U)) = 69;
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + (x & ~1U) + 1) = 190;
+            *grku_test_bytes(GRKU_TEST_PLANES + y * W + x) = 144;
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + (x & ~1U)) = 69;
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + (x & ~1U) + 1) = 190;
         }
     square();
     apply_look(set, 1);
@@ -575,15 +575,15 @@ static void test_bloom_rim_reach(PictureSet *set)
     fill(40, 128, 128);
     for (u32 y = 176; y < 304; ++y)
         for (u32 x = 152; x < 168; ++x) {
-            *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x) = 144;
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + (x & ~1U)) = 69;
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + (x & ~1U) + 1) = 190;
+            *grku_test_bytes(GRKU_TEST_PLANES + y * W + x) = 144;
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + (x & ~1U)) = 69;
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + (x & ~1U) + 1) = 190;
         }
     patch(168, 176, 128, 255);
     for (u32 y = 176; y < 304; ++y)
         for (u32 x = 168; x < 296; x += 2) {
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + x) = 128;
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + x + 1) = 128;
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + x) = 128;
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + x + 1) = 128;
         }
     apply_look(set, 1);
     /* Left of the fall-off: orange. Right of the white area, far from the
@@ -603,9 +603,9 @@ static void test_halation_no_rim(PictureSet *set)
     for (u32 y = 220; y < 260; ++y)
         for (u32 x = 300; x < 340; ++x) {
             /* R 40, G 60, B 230 */
-            *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x) = 69;
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + (x & ~1U)) = 217;
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + (x & ~1U) + 1) = 114;
+            *grku_test_bytes(GRKU_TEST_PLANES + y * W + x) = 69;
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + (x & ~1U)) = 217;
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + (x & ~1U) + 1) = 114;
         }
     square();
     apply_look(set, 2);
@@ -623,12 +623,12 @@ static u32 band_energy(PictureSet *set, u32 band)
 {
     fill(20, 128, 128);
     for (u32 y = 0; y < band; ++y)
-        for (u32 x = 0; x < W; ++x) *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x) = 128;
+        for (u32 x = 0; x < W; ++x) *grku_test_bytes(GRKU_TEST_PLANES + y * W + x) = 128;
     square();
-    grkit_test_shot.known = GRKIT_SHOT_EXPOSURE;
-    grkit_test_shot.scene_ev = 14 << 8;
+    grku_test_shot.known = GRKU_SHOT_EXPOSURE;
+    grku_test_shot.scene_ev = 14 << 8;
     apply_look(set, 2);
-    grkit_test_shot.known = 0;
+    grku_test_shot.known = 0;
     return halo_energy(304, 224, 32, 20);
 }
 
@@ -656,7 +656,7 @@ static void test_strength_range(PictureSet *set)
 #define MAIN_H 960U
 static void camera_planes(PictureSet *set)
 {
-    u32 at = GRKIT_TEST_PLANES, sizes[3][4] = {{MAIN_W, MAIN_H, 0, MAIN_H}, {720, 480, 0, 480}, {160, 120, 8, 112}};
+    u32 at = GRKU_TEST_PLANES, sizes[3][4] = {{MAIN_W, MAIN_H, 0, MAIN_H}, {720, 480, 0, 480}, {160, 120, 8, 112}};
     for (u32 k = 0; k < 3; ++k) {
         u32 w = sizes[k][0], h = sizes[k][1];
         Plane p = {at, at + w * h, w, h, w, 0, 0, sizes[k][2], w, sizes[k][3]};
@@ -665,8 +665,8 @@ static void camera_planes(PictureSet *set)
         for (u32 y = 0; y < h; ++y)
             for (u32 x = 0; x < w; ++x) {
                 u32 light = x >= w * 15 / 32 && x < w * 17 / 32 && y >= h * 15 / 32 && y < h * 17 / 32;
-                *grkit_test_bytes(p.y + y * w + x) = light ? 255 : 30;
-                *grkit_test_bytes(p.c + y * w + x) = 128;
+                *grku_test_bytes(p.y + y * w + x) = light ? 255 : 30;
+                *grku_test_bytes(p.c + y * w + x) = 128;
             }
         at += 2 * w * h;
     }
@@ -676,16 +676,16 @@ static void camera_planes(PictureSet *set)
 static u32 plane_sum(const Plane *p)
 {
     u32 s = 0;
-    for (u32 i = 0; i < 2 * p->width * p->height; ++i) s = s * 31 + *grkit_test_bytes(p->y + i);
+    for (u32 i = 0; i < 2 * p->width * p->height; ++i) s = s * 31 + *grku_test_bytes(p->y + i);
     return s;
 }
 
 static void test_camera_planes(void)
 {
     for (u32 look = 1; look <= 3; ++look) {
-        PictureSet set = {{plane()}, 1, 0, 0, grkit_test_scratch, 0};
+        PictureSet set = {{plane()}, 1, 0, 0, grku_test_scratch, 0};
         u32 clean[3], dirty[3];
-        for (u32 i = 0; i < GRKIT_PLANE_SCRATCH; ++i) grkit_test_scratch[i] = 0;
+        for (u32 i = 0; i < GRKU_PLANE_SCRATCH; ++i) grku_test_scratch[i] = 0;
         camera_planes(&set);
         apply_look(&set, look);
         for (u32 k = 0; k < 3; ++k) {
@@ -693,11 +693,11 @@ static void test_camera_planes(void)
             u32 cx = p->width / 2, cy = (p->top + p->bottom) / 2, edge = p->width * 15 / 32;
             clean[k] = plane_sum(p);
             /* Just left of the light it glows; at the left border, not. */
-            assert(*grkit_test_bytes(p->y + cy * p->pitch + edge - 2) > 30);
-            assert(*grkit_test_bytes(p->y + cy * p->pitch) == 30);
+            assert(*grku_test_bytes(p->y + cy * p->pitch + edge - 2) > 30);
+            assert(*grku_test_bytes(p->y + cy * p->pitch) == 30);
             (void)cx;
         }
-        for (u32 i = 0; i < GRKIT_PLANE_SCRATCH; ++i) grkit_test_scratch[i] = (u8)(0xa5 ^ i);
+        for (u32 i = 0; i < GRKU_PLANE_SCRATCH; ++i) grku_test_scratch[i] = (u8)(0xa5 ^ i);
         camera_planes(&set);
         apply_look(&set, look);
         for (u32 k = 0; k < 3; ++k) {
@@ -705,7 +705,7 @@ static void test_camera_planes(void)
             assert(dirty[k] == clean[k]);
         }
     }
-    for (u32 i = 0; i < GRKIT_PLANE_SCRATCH; ++i) grkit_test_scratch[i] = 0;
+    for (u32 i = 0; i < GRKU_PLANE_SCRATCH; ++i) grku_test_scratch[i] = 0;
 }
 
 static u32 test_highlight_continuity(PictureSet *set)
@@ -808,17 +808,17 @@ static void test_halation_film_white(void)
     for (u32 source = 0; source < 2; ++source)
         for (u32 half = 0; half < 2; ++half)
             for (u32 strength = 0; strength < 3; ++strength) {
-                PictureSet set = {{plane()}, 1, 0, 0, grkit_test_scratch, 0};
+                PictureSet set = {{plane()}, 1, 0, 0, grku_test_scratch, 0};
                 u32 red = 0;
                 set.planes[0].half = half;
                 set_strength(strength);
-                for (u32 k = 0; k < 3; ++k) grkit_test_white[k] = whites[source][k];
+                for (u32 k = 0; k < 3; ++k) grku_test_white[k] = whites[source][k];
                 fill(40, 128, 128);
                 patch(304, 224, 32, sources[source][0]);
                 for (u32 y = 224; y < 256; ++y)
                     for (u32 x = 304; x < 336; x += 2) {
-                        *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + (y >> half) * W + x) = sources[source][1];
-                        *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + (y >> half) * W + x + 1) = sources[source][2];
+                        *grku_test_bytes(GRKU_TEST_PLANES + W * H + (y >> half) * W + x) = sources[source][1];
+                        *grku_test_bytes(GRKU_TEST_PLANES + W * H + (y >> half) * W + x + 1) = sources[source][2];
                     }
                 apply_look(&set, 2);
                 for (u32 y = 224; y < 256; ++y)
@@ -835,7 +835,7 @@ static void test_halation_film_white(void)
                     }
                 assert(red > 0);
             }
-    for (u32 k = 0; k < 3; ++k) grkit_test_white[k] = 255;
+    for (u32 k = 0; k < 3; ++k) grku_test_white[k] = 255;
     set_strength(1);
 }
 
@@ -851,11 +851,11 @@ static void test_halation_half_core(void)
                 PictureSet set = composite_fixture(40, 128, 128, 1);
                 u32 row = 238 + swap;
                 set_strength(strength);
-                for (u32 k = 0; k < 3; ++k) grkit_test_white[k] = whites[source][k];
+                for (u32 k = 0; k < 3; ++k) grku_test_white[k] = whites[source][k];
                 for (u32 x = 300; x < 302; ++x)
-                    *grkit_test_bytes(set.planes[0].y + row * W + x) = sources[source][0];
-                *grkit_test_bytes(set.planes[0].c + 119 * W + 300) = sources[source][1];
-                *grkit_test_bytes(set.planes[0].c + 119 * W + 301) = sources[source][2];
+                    *grku_test_bytes(set.planes[0].y + row * W + x) = sources[source][0];
+                *grku_test_bytes(set.planes[0].c + 119 * W + 300) = sources[source][1];
+                *grku_test_bytes(set.planes[0].c + 119 * W + 301) = sources[source][2];
                 apply_look(&set, 2);
                 for (u32 x = 300; x < 302; ++x) assert(luma(x, row) == sources[source][0]);
                 assert(chroma(300, 119, 0) == sources[source][1]);
@@ -865,7 +865,7 @@ static void test_halation_half_core(void)
                 assert(luma(298, 238) > 40 && luma(298, 239) > 40);
                 assert(chroma(298, 119, 1) > 128);
             }
-    for (u32 k = 0; k < 3; ++k) grkit_test_white[k] = 255;
+    for (u32 k = 0; k < 3; ++k) grku_test_white[k] = 255;
     set_strength(1);
 
     /* A shared chroma row crossing a vertical crop boundary is outside
@@ -886,7 +886,7 @@ static void test_halation_half_core(void)
             row = p->bottom - 1;
             for (u32 y = source->bottom - 16; y < source->bottom; ++y)
                 for (u32 x = 150; x < 170; ++x)
-                    *grkit_test_bytes(source->y + y * source->pitch + x) = 255;
+                    *grku_test_bytes(source->y + y * source->pitch + x) = 255;
         }
         apply_look(&set, 2);
         assert(luma(310, row) > 40);
@@ -908,7 +908,7 @@ static void test_halation_half_core(void)
 static void test_combined_strengths(PictureSet *set)
 {
     u32 hashes[4][4], energy[4][4];
-    grkit_test_shot.known = 0;
+    grku_test_shot.known = 0;
     for (u32 b = 0; b <= 3; ++b)
         for (u32 h = 0; h <= 3; ++h) {
             fill(40, 128, 128);
@@ -954,15 +954,15 @@ static void test_combined_strengths(PictureSet *set)
    film white, and a dirty scratch. Guard bytes check the fixed budget. */
 static void test_combined_scratch(void)
 {
-    static _Alignas(8) u8 scratch[GRKIT_PLANE_SCRATCH + 32];
+    static _Alignas(8) u8 scratch[GRKU_PLANE_SCRATCH + 32];
     for (u32 mode = 0; mode < 8; ++mode) {
         PictureSet set = {{plane()}, 1, 0, mode & 1, scratch + 16, 0};
         Plane *p = &set.planes[0];
         p->half = (mode >> 1) & 1;
         if (mode & 4) { p->left = 3; p->top = 5; p->right -= 3; p->bottom -= 3; }
-        grkit_test_white[0] = mode & 4 ? 212 : 255;
-        grkit_test_white[1] = mode & 4 ? 216 : 255;
-        grkit_test_white[2] = mode & 4 ? 206 : 255;
+        grku_test_white[0] = mode & 4 ? 212 : 255;
+        grku_test_white[1] = mode & 4 ? 216 : 255;
+        grku_test_white[2] = mode & 4 ? 206 : 255;
         for (u32 b = 0; b <= 3; ++b)
             for (u32 h = 0; h <= 3; ++h) {
                 u32 expected = 0;
@@ -983,7 +983,7 @@ static void test_combined_scratch(void)
                 }
             }
     }
-    grkit_test_white[0] = grkit_test_white[1] = grkit_test_white[2] = 255;
+    grku_test_white[0] = grku_test_white[1] = grku_test_white[2] = 255;
 }
 
 /* Daylight eliminates Halation before the two streams meet. Enabling it
@@ -991,19 +991,19 @@ static void test_combined_scratch(void)
 static void test_empty_halation(void)
 {
     static u8 expected[W * H * 2];
-    grkit_test_shot.known = GRKIT_SHOT_EXPOSURE;
-    grkit_test_shot.scene_ev = 14 * 256;
+    grku_test_shot.known = GRKU_SHOT_EXPOSURE;
+    grku_test_shot.scene_ev = 14 * 256;
     for (u32 mode = 0; mode < 4; ++mode) {
-        PictureSet set = {{plane()}, 1, 0, mode & 1, grkit_test_scratch, 0};
+        PictureSet set = {{plane()}, 1, 0, mode & 1, grku_test_scratch, 0};
         set.planes[0].half = mode >> 1;
-        grkit_test_white[0] = 212; grkit_test_white[1] = 216; grkit_test_white[2] = 206;
+        grku_test_white[0] = 212; grku_test_white[1] = 216; grku_test_white[2] = 206;
         for (u32 b = 1; b <= 3; ++b) {
             for (u32 h = 0; h <= 3; ++h) {
                 fill(100, 128, 128); square();
                 set_pair(b, h);
                 glow_apply(&set, 1);
                 for (u32 i = 0; i < sizeof expected; ++i) {
-                    u8 actual = *grkit_test_bytes(GRKIT_TEST_PLANES + i);
+                    u8 actual = *grku_test_bytes(GRKU_TEST_PLANES + i);
                     if (!h) expected[i] = actual;
                     else assert(actual == expected[i]);
                 }
@@ -1012,15 +1012,15 @@ static void test_empty_halation(void)
         for (u32 h = 1; h <= 3; ++h) {
             fill(100, 128, 128); square();
             for (u32 i = 0; i < sizeof expected; ++i)
-                expected[i] = *grkit_test_bytes(GRKIT_TEST_PLANES + i);
+                expected[i] = *grku_test_bytes(GRKU_TEST_PLANES + i);
             set_pair(0, h);
             glow_apply(&set, 1);
             for (u32 i = 0; i < sizeof expected; ++i)
-                assert(expected[i] == *grkit_test_bytes(GRKIT_TEST_PLANES + i));
+                assert(expected[i] == *grku_test_bytes(GRKU_TEST_PLANES + i));
         }
     }
-    grkit_test_shot.known = 0;
-    grkit_test_white[0] = grkit_test_white[1] = grkit_test_white[2] = 255;
+    grku_test_shot.known = 0;
+    grku_test_white[0] = grku_test_white[1] = grku_test_white[2] = 255;
 }
 
 /* Separated light bands repeatedly reuse both fine-row buffers and the
@@ -1030,21 +1030,21 @@ static void test_sparse_glow_rows(void)
 {
     static const u32 bands[] = {32, 112, 208, 312, 416};
     static u8 expected[W * H * 2];
-    grkit_test_shot.known = 0;
+    grku_test_shot.known = 0;
     for (u32 mode = 0; mode < 4; ++mode) {
-        PictureSet set = {{plane()}, 1, 0, mode & 1, grkit_test_scratch, 0};
+        PictureSet set = {{plane()}, 1, 0, mode & 1, grku_test_scratch, 0};
         set.planes[0].half = mode >> 1;
-        grkit_test_white[0] = 212; grkit_test_white[1] = 216; grkit_test_white[2] = 206;
+        grku_test_white[0] = 212; grku_test_white[1] = 216; grku_test_white[2] = 206;
         for (u32 streams = 1; streams <= 3; ++streams) {
             set_pair(streams & 1 ? 2 : 0, streams & 2 ? 2 : 0);
             for (u32 phase = 0; phase <= 3; phase += 3) {
                 for (u32 reused = 0; reused < 2; ++reused) {
-                    if (!reused) memset(grkit_test_scratch, 0xa5, GRKIT_PLANE_SCRATCH);
+                    if (!reused) memset(grku_test_scratch, 0xa5, GRKU_PLANE_SCRATCH);
                     fill(40, 128, 128);
                     for (u32 b = 0; b < sizeof bands / sizeof bands[0]; ++b)
                         for (u32 y = bands[b] + phase; y < bands[b] + phase + 4; ++y)
                             for (u32 x = 304; x < 336; ++x)
-                                *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x) = 255;
+                                *grku_test_bytes(GRKU_TEST_PLANES + y * W + x) = 255;
                     glow_apply(&set, 1);
                     u32 halo = 0;
                     for (u32 y = 0; y < H; ++y) {
@@ -1065,7 +1065,7 @@ static void test_sparse_glow_rows(void)
                     }
                     assert(halo > 0);
                     for (u32 i = 0; i < sizeof expected; ++i) {
-                        u8 actual = *grkit_test_bytes(GRKIT_TEST_PLANES + i);
+                        u8 actual = *grku_test_bytes(GRKU_TEST_PLANES + i);
                         if (reused) assert(expected[i] == actual);
                         else expected[i] = actual;
                     }
@@ -1073,7 +1073,7 @@ static void test_sparse_glow_rows(void)
             }
         }
     }
-    grkit_test_white[0] = grkit_test_white[1] = grkit_test_white[2] = 255;
+    grku_test_white[0] = grku_test_white[1] = grku_test_white[2] = 255;
 }
 
 /* A smooth bright screen in a dark room under a film white below 255.
@@ -1098,14 +1098,14 @@ static u32 sky_change(PictureSet *set, u32 bloom, u32 halation, u8 *jump)
                 u32 tx = (x + k) % 128 < 64 ? (x + k) % 128 : 128 - (x + k) % 128, ty = y % 96 < 48 ? y % 96 : 96 - y % 96;
                 int c = (int)(2 * tx + 2 * ty + 24), v = 256 - (int)((y - SKY_TOP) * 64 / (SKY_BOTTOM - SKY_TOP));
                 int r = (110 + c * 100 / 255) * v >> 8, g = (175 + c * 70 / 255) * v >> 8, b = (222 + c * 33 / 255) * v >> 8;
-                *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x + k) = (u8)((77 * r + 150 * g + 29 * b + 128) >> 8);
+                *grku_test_bytes(GRKU_TEST_PLANES + y * W + x + k) = (u8)((77 * r + 150 * g + 29 * b + 128) >> 8);
                 cb += -43 * r - 85 * g + 128 * b;
                 cr += 128 * r - 107 * g - 21 * b;
             }
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + x) = (u8)(128 + ((cb / 2 + 128) >> 8));
-            *grkit_test_bytes(GRKIT_TEST_PLANES + W * H + y * W + x + 1) = (u8)(128 + ((cr / 2 + 128) >> 8));
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + x) = (u8)(128 + ((cb / 2 + 128) >> 8));
+            *grku_test_bytes(GRKU_TEST_PLANES + W * H + y * W + x + 1) = (u8)(128 + ((cr / 2 + 128) >> 8));
         }
-    for (u32 i = 0; i < sizeof before; ++i) before[i] = *grkit_test_bytes(GRKIT_TEST_PLANES + i);
+    for (u32 i = 0; i < sizeof before; ++i) before[i] = *grku_test_bytes(GRKU_TEST_PLANES + i);
     set_pair(bloom, halation);
     glow_apply(set, 1);
     u32 sum = 0;
@@ -1123,8 +1123,8 @@ static u32 sky_change(PictureSet *set, u32 bloom, u32 halation, u8 *jump)
 
 static void test_combined_film_white(PictureSet *set)
 {
-    grkit_test_shot.known = 0;
-    grkit_test_white[0] = 212; grkit_test_white[1] = 216; grkit_test_white[2] = 206;
+    grku_test_shot.known = 0;
+    grku_test_white[0] = 212; grku_test_white[1] = 216; grku_test_white[2] = 206;
     for (u32 strength = 1; strength <= 3; ++strength) {
         u8 bloom_jump, both_jump;
         u32 bloom = sky_change(set, strength, 0, &bloom_jump);
@@ -1133,15 +1133,15 @@ static void test_combined_film_white(PictureSet *set)
         assert(both_jump <= bloom_jump + 1);
         assert(both * 10 >= bloom * 9);
     }
-    grkit_test_white[0] = grkit_test_white[1] = grkit_test_white[2] = 255;
+    grku_test_white[0] = grku_test_white[1] = grku_test_white[2] = 255;
 }
 
 static void assert_setting_default(const char *key, u32 values, u32 initial)
 {
-    for (u32 i = 0; i < grkit_module.setting_count; ++i)
-        if (!strcmp(grkit_module.settings[i].key, key)) {
-            assert(grkit_module.settings[i].values == values);
-            assert(grkit_module.settings[i].default_value == initial);
+    for (u32 i = 0; i < grku_module.setting_count; ++i)
+        if (!strcmp(grku_module.settings[i].key, key)) {
+            assert(grku_module.settings[i].values == values);
+            assert(grku_module.settings[i].default_value == initial);
             return;
         }
     assert(!"missing setting");
@@ -1152,22 +1152,22 @@ static void assert_setting_default(const char *key, u32 values, u32 initial)
 static void test_filter_gate(PictureSet *set)
 {
     static u8 expected[W * H * 2];
-    for (u32 i = 0; i < grkit_module.setting_count; ++i)
-        setting_set(GRKIT_SETTING(i), grkit_module.settings[i].default_value);
+    for (u32 i = 0; i < grku_module.setting_count; ++i)
+        setting_set(GRKU_SETTING(i), grku_module.settings[i].default_value);
     for (u32 b = 0; b <= 3; ++b)
         for (u32 h = 0; h <= 3; ++h) {
             set_pair(b, h);
             fill(40, 128, 128); square();
             glow_apply(set, 1);
-            memcpy(expected, (const void *)grkit_test_bytes(GRKIT_TEST_PLANES), sizeof(expected));
+            memcpy(expected, (const void *)grku_test_bytes(GRKU_TEST_PLANES), sizeof(expected));
             fill(40, 128, 128); square();
             u32 active = 0, filters = 0;
-            for (u32 i = 0; i < grkit_module.registration_count; ++i) {
-                const GrkitRegistration *r = &grkit_module.registrations[i];
-                if (r->point != GRKIT_POINT_PICTURE_PLANE) continue;
-                const GrkitPlaneFilter *f = r->impl;
+            for (u32 i = 0; i < grku_module.registration_count; ++i) {
+                const GrkuRegistration *r = &grku_module.registrations[i];
+                if (r->point != GRKU_POINT_PICTURE_PLANE) continue;
+                const GrkuPlaneFilter *f = r->impl;
                 ++filters;
-                u32 value = setting_get(GRKIT_SETTING(f->setting));
+                u32 value = setting_get(GRKU_SETTING(f->setting));
                 if (value) {
                     ++active;
                     f->apply(set, value);
@@ -1177,7 +1177,7 @@ static void test_filter_gate(PictureSet *set)
                active filter. Both enabled must still apply the look once. */
             assert(active == (u32)(b != 0) + (u32)(h != 0));
             assert(filters == 2);
-            assert(!memcmp(expected, (const void *)grkit_test_bytes(GRKIT_TEST_PLANES), sizeof(expected)));
+            assert(!memcmp(expected, (const void *)grku_test_bytes(GRKU_TEST_PLANES), sizeof(expected)));
         }
 }
 
@@ -1185,7 +1185,7 @@ static void test_filter_gate(PictureSet *set)
    one effect off leaves the look of the other unchanged. */
 static void test_settings(PictureSet *set)
 {
-    assert(grkit_module.setting_count == 3);
+    assert(grku_module.setting_count == 3);
     assert_setting_default("BLOOM", 4, 0);
     assert_setting_default("HALATION", 4, 0);
     assert_setting_default("HALATION_COLOR", 4, 1);
@@ -1219,7 +1219,7 @@ static void test_settings(PictureSet *set)
 
 int main(void)
 {
-    PictureSet set = {{plane()}, 1, 0, 0, grkit_test_scratch, 0};
+    PictureSet set = {{plane()}, 1, 0, 0, grku_test_scratch, 0};
     test_filter_gate(&set);
     test_settings(&set);
     set_strength(1);
@@ -1283,13 +1283,13 @@ int main(void)
        alone. */
     {
         u32 night[3] = {luma(301, 240), chroma(301, 240, 0), chroma(301, 240, 1)};
-        grkit_test_shot.known = GRKIT_SHOT_EXPOSURE;
-        grkit_test_shot.scene_ev = 5 * 256;
+        grku_test_shot.known = GRKU_SHOT_EXPOSURE;
+        grku_test_shot.scene_ev = 5 * 256;
         fill(40, 128, 128);
         square();
         apply_look(&set, 2);
         assert(luma(301, 240) == night[0] && chroma(301, 240, 0) == night[1] && chroma(301, 240, 1) == night[2]);
-        grkit_test_shot.scene_ev = 11 * 256 + 128;
+        grku_test_shot.scene_ev = 11 * 256 + 128;
         fill(40, 128, 128);
         square();
         apply_look(&set, 2);
@@ -1298,7 +1298,7 @@ int main(void)
         square();
         apply_look(&set, 2);
         assert(luma(301, 240) <= 221 && chroma(301, 240, 1) <= 129);
-        grkit_test_shot.known = 0;
+        grku_test_shot.known = 0;
         fill(40, 128, 128);
         square();
         apply_look(&set, 2);
@@ -1326,12 +1326,12 @@ int main(void)
         colored_square(227, 128, 128);
         apply_look(&set, 2);
         below = luma(301, 240) - 40U;
-        grkit_test_white[0] = grkit_test_white[1] = grkit_test_white[2] = 227;
+        grku_test_white[0] = grku_test_white[1] = grku_test_white[2] = 227;
         fill(40, 128, 128);
         colored_square(227, 128, 128);
         apply_look(&set, 2);
         at_white = luma(301, 240) - 40U;
-        grkit_test_white[0] = grkit_test_white[1] = grkit_test_white[2] = 255;
+        grku_test_white[0] = grku_test_white[1] = grku_test_white[2] = 255;
         assert(at_white * 4 >= clipped * 3);
         assert(below * 2 < at_white);
     }
@@ -1341,17 +1341,17 @@ int main(void)
        keeps its rim. */
     {
         u32 rim, x, y;
-        grkit_test_white[0] = grkit_test_white[1] = grkit_test_white[2] = 227;
+        grku_test_white[0] = grku_test_white[1] = grku_test_white[2] = 227;
         fill(40, 128, 128);
         for (y = 80; y < 400; ++y)
-            for (x = 160; x < 480; ++x) *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x) = 200;
+            for (x = 160; x < 480; ++x) *grku_test_bytes(GRKU_TEST_PLANES + y * W + x) = 200;
         apply_look(&set, 2);
         assert(luma(320, 240) <= 202 && chroma(320, 240, 1) <= 130);
         fill(40, 128, 128);
         colored_square(227, 128, 128);
         apply_look(&set, 2);
         rim = luma(301, 240) - 40U;
-        grkit_test_white[0] = grkit_test_white[1] = grkit_test_white[2] = 255;
+        grku_test_white[0] = grku_test_white[1] = grku_test_white[2] = 255;
         assert(rim > 10);
     }
 
@@ -1359,12 +1359,12 @@ int main(void)
        barely depends on where its edge falls in the coarse cell grid. */
     {
         u32 s, x, y, low = 255, high = 0;
-        grkit_test_white[0] = grkit_test_white[1] = grkit_test_white[2] = 227;
+        grku_test_white[0] = grku_test_white[1] = grku_test_white[2] = 227;
         for (s = 0; s < 8; ++s) {
             u32 rim;
             fill(40, 128, 128);
             for (y = 80; y < 400; ++y)
-                for (x = 160 + s; x < 480; ++x) *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x) = 227;
+                for (x = 160 + s; x < 480; ++x) *grku_test_bytes(GRKU_TEST_PLANES + y * W + x) = 227;
             apply_look(&set, 2);
             rim = 0;
             for (x = 152 + s; x < 160 + s; ++x) rim += luma(x, 240) - 40U;
@@ -1372,7 +1372,7 @@ int main(void)
             low = rim < low ? rim : low;
             high = rim > high ? rim : high;
         }
-        grkit_test_white[0] = grkit_test_white[1] = grkit_test_white[2] = 255;
+        grku_test_white[0] = grku_test_white[1] = grku_test_white[2] = 255;
         /* One output code per pixel covers quantization of this eight-pixel rim. */
         assert(high * 2 < low * 3 + 16);
     }
@@ -1384,7 +1384,7 @@ int main(void)
         u32 lamp, hard, x, y;
         fill(30, 128, 128);
         for (y = 216; y < 264; ++y)
-            for (x = 296; x < 344; ++x) *grkit_test_bytes(GRKIT_TEST_PLANES + y * W + x) = 200;
+            for (x = 296; x < 344; ++x) *grku_test_bytes(GRKU_TEST_PLANES + y * W + x) = 200;
         square();
         apply_look(&set, 1);
         lamp = luma(294, 240) - 30U;

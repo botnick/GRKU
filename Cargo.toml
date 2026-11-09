@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/grkit-core", "crates/grkit-build", "crates/grkit-cli", "crates/grkit-wasm", "crates/grkit-firmware"]
+members = ["crates/grku-core", "crates/grku-build", "crates/grku-cli", "crates/grku-wasm", "crates/grku-firmware"]
 resolver = "2"
 
 [workspace.package]
@@ -8,7 +8,7 @@ edition = "2021"
 rust-version = "1.92"
 publish = false
 license = "MIT"
-repository = "https://github.com/botnick/GRKit"
+repository = "https://github.com/botnick/GRKU"
 
 [workspace.dependencies]
 ab_glyph = { version = "0.2.32", default-features = false, features = ["std"] }
@@ -27,9 +27,9 @@ toml = { version = "0.8", default-features = false, features = ["parse"] }
 # The site pins wasm-bindgen-cli to this exact version.
 wasm-bindgen = "=0.2.128"
 zip = { version = "9.0", default-features = false, features = ["deflate"] }
-grkit-core = { path = "crates/grkit-core" }
-grkit-build = { path = "crates/grkit-build" }
-grkit-firmware = { path = "crates/grkit-firmware" }
+grku-core = { path = "crates/grku-core" }
+grku-build = { path = "crates/grku-build" }
+grku-firmware = { path = "crates/grku-firmware" }
 
 [profile.release]
 lto = "thin"
@@ -37,5 +37,5 @@ strip = "debuginfo"
 
 # The LUT fit renders hundreds of thousands of colors per import, and its tests run about
 # five times slower without optimization.
-[profile.dev.package.grkit-core]
+[profile.dev.package.grku-core]
 opt-level = 2

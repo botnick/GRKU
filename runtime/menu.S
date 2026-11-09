@@ -21,14 +21,14 @@
 .global menu_header
 .type menu_header, %function
 menu_header:
-    ldr r0, =GRKIT_HEADER_REFERENCE
+    ldr r0, =GRKU_HEADER_REFERENCE
     bx lr
 .global menu_text_measure
 .type menu_text_measure, %function
 menu_text_measure:
     /* r7 is the text ID and r5 the view. A text that menu.c gives
        (menu_text_override) replaces the table entry: the effect name in the
-       title of a GRKit parameter page, or a settings page text. Bit 0 of the
+       title of a GRKU parameter page, or a settings page text. Bit 0 of the
        result asks for the font of the menu language. */
     push {r0-r3, r12, lr}
     mov r0, r5
@@ -48,19 +48,19 @@ measure_table:
     pop {r0-r3, r12, lr}
     ldr r7, [r3, r7, lsl #2]
     push {r0-r3, lr}
-    ldr r0, =GRKIT_HEADER_REFERENCE
-    ldr r1, [r0, #GRKIT_HOST_MENU_LEVEL]
+    ldr r0, =GRKU_HEADER_REFERENCE
+    ldr r1, [r0, #GRKU_HOST_MENU_LEVEL]
     cmp r1, #0
     beq measure_done
-    ldr r1, [r0, #GRKIT_HOST_MENU_CONTROLLER]
+    ldr r1, [r0, #GRKU_HOST_MENU_CONTROLLER]
     ldr r2, [r1, #ADJ_TITLE]
     cmp r5, r2
-    addeq r7, r0, #GRKIT_HOST_MENU_TITLE
+    addeq r7, r0, #GRKU_HOST_MENU_TITLE
     beq measure_language
     ldr r2, [r1, #ADJ_DETAIL]
     cmp r5, r2
     bne measure_done
-    add r7, r0, #GRKIT_HOST_MENU_DETAIL
+    add r7, r0, #GRKU_HOST_MENU_DETAIL
 measure_language:
     /* r9 is the language table index, which selects the font. menu.c picks
        the index of the text language. r12 may be live after the hook. */
@@ -97,19 +97,19 @@ draw_table:
     pop {r0-r3, r12, lr}
     ldr r3, [r3, r7, lsl #2]
     push {r1, r2, r12, lr}
-    ldr r12, =GRKIT_HEADER_REFERENCE
-    ldr r1, [r12, #GRKIT_HOST_MENU_LEVEL]
+    ldr r12, =GRKU_HEADER_REFERENCE
+    ldr r1, [r12, #GRKU_HOST_MENU_LEVEL]
     cmp r1, #0
     beq draw_done
-    ldr r1, [r12, #GRKIT_HOST_MENU_CONTROLLER]
+    ldr r1, [r12, #GRKU_HOST_MENU_CONTROLLER]
     ldr r2, [r1, #ADJ_TITLE]
     cmp r4, r2
-    addeq r3, r12, #GRKIT_HOST_MENU_TITLE
+    addeq r3, r12, #GRKU_HOST_MENU_TITLE
     beq draw_language
     ldr r2, [r1, #ADJ_DETAIL]
     cmp r4, r2
     bne draw_done
-    add r3, r12, #GRKIT_HOST_MENU_DETAIL
+    add r3, r12, #GRKU_HOST_MENU_DETAIL
 draw_language:
     /* r0 is the language table index, as at the measure hook. */
     push {r3, lr}
@@ -206,18 +206,18 @@ menu_icon_descriptor:
 
 #ifdef HOOK_MENU_NATIVE_ADJ_APPLY
 /* Native pages apply each highlighted Image Control immediately. Preview it in
-   the live view (GRKIT_HOST_PREVIEW = 1) and keep the private selection until a native OK. */
+   the live view (GRKU_HOST_PREVIEW = 1) and keep the private selection until a native OK. */
 .macro NATIVE_APPLY name, resume
 .global \name
 .type \name, %function
 \name:
     push {r0-r2, r12}
     mrs r12, cpsr
-    ldr r0, =GRKIT_HEADER_REFERENCE
-    ldr r1, [r0, #GRKIT_HOST_MENU_REBUILDING]
+    ldr r0, =GRKU_HEADER_REFERENCE
+    ldr r1, [r0, #GRKU_HOST_MENU_REBUILDING]
     cmp r1, #0
     moveq r2, #1
-    streq r2, [r0, #GRKIT_HOST_PREVIEW]
+    streq r2, [r0, #GRKU_HOST_PREVIEW]
     msr APSR_nzcvq, r12
     pop {r0-r2, r12}
     mov r12, sp
@@ -234,14 +234,14 @@ menu_native_page_event:
     push {r0, r2}
     ldrh r2, [r1]
     cmp r2, #EV_CONFIRM
-    ldr r0, =GRKIT_HEADER_REFERENCE
+    ldr r0, =GRKU_HEADER_REFERENCE
     moveq r2, #0
-    streq r2, [r0, #GRKIT_HOST_ACTIVE]
-    streq r2, [r0, #GRKIT_HOST_PREVIEW]
-    /* A change of the saved effect (GRKIT_STATE_CHANGED). */
-    ldreq r2, [r0, #GRKIT_HOST_STATE_CHANGES]
+    streq r2, [r0, #GRKU_HOST_ACTIVE]
+    streq r2, [r0, #GRKU_HOST_PREVIEW]
+    /* A change of the saved effect (GRKU_STATE_CHANGED). */
+    ldreq r2, [r0, #GRKU_HOST_STATE_CHANGES]
     addeq r2, r2, #1
-    streq r2, [r0, #GRKIT_HOST_STATE_CHANGES]
+    streq r2, [r0, #GRKU_HOST_STATE_CHANGES]
     pop {r0, r2}
     mov r12, sp
     ldr pc, =HOOK_MENU_NATIVE_PAGE_EVENT_RESUME
@@ -251,9 +251,9 @@ menu_native_page_event:
 .type menu_native_page_exit, %function
 menu_native_page_exit:
     push {r0}
-    ldr r12, =GRKIT_HEADER_REFERENCE
+    ldr r12, =GRKU_HEADER_REFERENCE
     mov r0, #0
-    str r0, [r12, #GRKIT_HOST_PREVIEW]
+    str r0, [r12, #GRKU_HOST_PREVIEW]
     pop {r0}
     mov r12, sp
     ldr pc, =HOOK_MENU_NATIVE_PAGE_EXIT_RESUME
@@ -277,10 +277,10 @@ menu_playback_icon:
 #endif
 
 #ifdef HOOK_MENU_PLAYBACK_DETAIL
-/* Playback detail: show a GRKit photo's recorded adjustments as Standard
+/* Playback detail: show a GRKU photo's recorded adjustments as Standard
    parameters. Replaces the BL to the type getter (r0 = metadata singleton,
    r1 = type byte), which fails for non-native tags. Key 0x25 at METADATA_TONE
-   holds such a tag as 0x10000 | (tag - 0x100). GRKit codes have bit 15 set. */
+   holds such a tag as 0x10000 | (tag - 0x100). GRKU codes have bit 15 set. */
 .global menu_playback_detail
 .type menu_playback_detail, %function
 menu_playback_detail:
@@ -337,7 +337,7 @@ menu_viewfinder_icon:
 
 #ifdef HOOK_MENU_ICON_LOOKUP
 /* GR IV icon lookup (id in r0, returns a descriptor). A private ID returns its
-   GRKit descriptor. Other IDs continue with the native lookup. */
+   GRKU descriptor. Other IDs continue with the native lookup. */
 .global menu_icon_lookup
 .type menu_icon_lookup, %function
 menu_icon_lookup:
@@ -375,7 +375,7 @@ menu_icon_limit:
 #endif
     ldr pc, =HOOK_MENU_ICON_LIMIT_RESUME
 /* GR IV icon draw: replaces `ldr r3, [r0, r7, lsl #2]` (table entry). A private
-   ID uses its GRKit descriptor, whose first byte is nonzero. */
+   ID uses its GRKU descriptor, whose first byte is nonzero. */
 .global menu_icon_entry
 .type menu_icon_entry, %function
 menu_icon_entry:
@@ -389,8 +389,8 @@ menu_icon_entry:
 .ltorg
 #endif
 
-/* The native parameter page edits the adjustments of a GRKit effect while
-   GRKIT_HOST_PARAMETERS holds its record (menu.c). Each hook replaces the
+/* The native parameter page edits the adjustments of a GRKU effect while
+   GRKU_HOST_PARAMETERS holds its record (menu.c). Each hook replaces the
    first instruction, `mov r12, sp`, of an Image Control model getter or setter
    of one Standard adjustment. Only the parameter page calls them. */
 .macro PARAMETER_GET index, resume
@@ -538,7 +538,7 @@ parameter_event_resume:
     ldr pc, =HOOK_MENU_PARAMETER_EVENT_RESUME
 .ltorg
 
-/* The native settings page of a GRKit root row (menu.c). ChangeController
+/* The native settings page of a GRKU root row (menu.c). ChangeController
    entry: r1 is the controller that opens. */
 .global menu_settings_change
 .type menu_settings_change, %function
@@ -643,7 +643,7 @@ menu_settings_kinds_r3_1:
     msr APSR_nzcvq, r1
     pop {r0-r3, r12, pc}
 /* The base in the draw, which has loaded its row list into r6: the C function
-   also fits the rows of a GRKit page to the views of the list. */
+   also fits the rows of a GRKU page to the views of the list. */
 .global menu_settings_kinds_r8
 .type menu_settings_kinds_r8, %function
 menu_settings_kinds_r8:
@@ -657,7 +657,7 @@ menu_settings_kinds_r8:
     msr APSR_nzcvq, r0
     pop {r0-r3, r12, pc}
 
-/* A submenu built after INSTALL has GRKIT_SUBMENU_ROWS row views instead of
+/* A submenu built after INSTALL has GRKU_SUBMENU_ROWS row views instead of
    five (core.h: SUBMENU_ROWS). Its constructor builds the list from five row types on the
    stack, and the stack guard follows at fp - 0x18: the stub replaces the
    store of the fifth and gives the list the types of menu_settings_types. */
@@ -665,7 +665,7 @@ menu_settings_kinds_r8:
 .type menu_settings_build, %function
 menu_settings_build:
     ldr r1, =menu_settings_types
-    mov r2, #GRKIT_SUBMENU_ROWS
+    mov r2, #GRKU_SUBMENU_ROWS
     bx lr
 .ltorg
 /* The draw hides the rows from the row count to the last view of its list
@@ -727,7 +727,7 @@ menu_settings_open:
 /* Each build stores type 0x22 for each of the five stack rows. */
 .section .rodata
 menu_settings_types:
-    .rept GRKIT_SUBMENU_ROWS
+    .rept GRKU_SUBMENU_ROWS
     .byte 0x22
     .endr
 .text

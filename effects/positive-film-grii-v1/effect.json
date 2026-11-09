@@ -1,5 +1,5 @@
 {
-  "schema": "grkit-effect-v1",
+  "schema": "grku-effect-v1",
   "effect_id": "positive-film-grii-v1",
   "name": "Positive GRII",
   "flags": 0,
@@ -28,7 +28,7 @@
     "origin": "cube-fit",
     "license": "MIT",
     "target": "The Positive Film image setting of the RICOH GR II, by eye",
-    "generator": "GRKit look (make_positive_grii.py)",
+    "generator": "GRKU look (make_positive_grii.py)",
     "source": "positive-film-grii-v1.png",
     "source_sha256": "0fa03747bb3f9a2f47147f0ce3267d43512c469b5a47438d333455a35d74e1e9",
     "input": "standard",

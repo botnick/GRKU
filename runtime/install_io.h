@@ -1,5 +1,5 @@
-#ifndef GRKIT_INSTALL_IO_H
-#define GRKIT_INSTALL_IO_H
+#ifndef GRKU_INSTALL_IO_H
+#define GRKU_INSTALL_IO_H
 /* A part of the installer: the file and memory helpers of the other parts.
    installer.c includes it once, after syscall6 (the Linux system call) and
    the mapping accessors at, word, and store. A host test includes it after
@@ -112,13 +112,13 @@ static long read_whole(const char *path, u8 *buffer, u32 max)
     }
     return n;
 }
-/* Reads an effect file of GRKIT_GRF_SIZE or GRKIT_GRF_MAX_SIZE bytes into a buffer
-   of GRKIT_GRF_MAX_SIZE bytes, zeros after a shorter file. Returns the file size,
+/* Reads an effect file of GRKU_GRF_SIZE or GRKU_GRF_MAX_SIZE bytes into a buffer
+   of GRKU_GRF_MAX_SIZE bytes, zeros after a shorter file. Returns the file size,
    or 0 for any other size or a read error. */
 static u32 read_effect(const char *path, u8 *buffer)
 {
-    zero(buffer, GRKIT_GRF_MAX_SIZE);
-    long have=read_whole(path,buffer,GRKIT_GRF_MAX_SIZE);
-    return (have==GRKIT_GRF_SIZE || have==GRKIT_GRF_MAX_SIZE) ? (u32)have : 0;
+    zero(buffer, GRKU_GRF_MAX_SIZE);
+    long have=read_whole(path,buffer,GRKU_GRF_MAX_SIZE);
+    return (have==GRKU_GRF_SIZE || have==GRKU_GRF_MAX_SIZE) ? (u32)have : 0;
 }
 #endif

@@ -1,10 +1,10 @@
 /* Date Imprint: the plane filter. It prints the local time on each
    recorded picture, as a film data back exposes it. */
-#include "grkit.h"
-#include "grkit_module.h"
+#include "grku.h"
+#include "grku_module.h"
 
 /* A byte of a plane. */
-#define BYTE(p,o) (GRKIT_BYTES((p)+(o))[0])
+#define BYTE(p,o) (GRKU_BYTES((p)+(o))[0])
 
 /* The row interpolation of the mask, and the light of the classic and
    monochrome stamps, run NEON on whole blocks (an assembly part, because
@@ -593,7 +593,7 @@ static u32 screen(u32 v,u32 l) { return v+((((255-v)*l)*257+32768)>>16); }
 static void light_pair(const Plane *p,u32 x,u32 y,const u32 *core,const u32 *halo,u32 mono,u32 chroma,u32 look) {
     /* A picture byte store may alias the plane and the light, so the pair
        reads them into locals first. A stamp lights thousands of pairs. */
-    volatile u8 *luma=GRKIT_BYTES(p->y+y*p->pitch+x), *crow=GRKIT_BYTES(chroma_row(p,y)+x);
+    volatile u8 *luma=GRKU_BYTES(p->y+y*p->pitch+x), *crow=GRKU_BYTES(chroma_row(p,y)+x);
     const u32 k[2]={core[0],core[1]}, h[2]={halo[0],halo[1]};
     u32 i,yv[2];
     int cb=(int)crow[0]-128, cr=(int)crow[1]-128, sb=0, sr=0;
@@ -694,9 +694,9 @@ static u32 stamp_mask(u8 *scratch,u32 width,u32 height,const char *text,u32 n,u3
         total=text_width(text,n,m,look);
         cw=total+1;
         mw=cw+2*pad; mh=m+2*pad;
-        if(mw<=BLUR_WIDTH && stamp_bytes(mw,mh,f,ss,turned)<=GRKIT_PLANE_SCRATCH) break;
+        if(mw<=BLUR_WIDTH && stamp_bytes(mw,mh,f,ss,turned)<=GRKU_PLANE_SCRATCH) break;
     }
-    if(mw>BLUR_WIDTH || mh>BLUR_WIDTH || stamp_bytes(mw,mh,f,ss,turned)>GRKIT_PLANE_SCRATCH) return 0;
+    if(mw>BLUR_WIDTH || mh>BLUR_WIDTH || stamp_bytes(mw,mh,f,ss,turned)>GRKU_PLANE_SCRATCH) return 0;
     look_margins(look,width<height ? width : height,size,&margin,&rise);
     if((((mw-pad)*f)>>(ss-1))+margin>width || (((mh-pad)*f)>>(ss-1))+rise>height) return 0;
     halo=core+mw*mh;
@@ -1074,7 +1074,7 @@ static void gr2_paint(const Plane *dst,const Plane *src,const char *text,u32 n,u
    not for Off. */
 void date_apply(PictureSet *set, u32 style)
 {
-    GrkitDateTime now;
+    GrkuDateTime now;
     const u8 *dt = (const u8 *)&now;
     u32 n, i, main = 0, look = setting_get(SETTING_LOOK);
     /* Upright: the stamp follows the posture of the camera. Film: it stays

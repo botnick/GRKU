@@ -1,6 +1,6 @@
-#ifndef GRKIT_CROP_H
-#define GRKIT_CROP_H
-/* The capability CORE.CROP (grkit_core::capabilities): a focal-length crop
+#ifndef GRKU_CROP_H
+#define GRKU_CROP_H
+/* The capability CORE.CROP (grku_core::capabilities): a focal-length crop
    of the lens. Its value is 0 for Off, then 35, 40, 50, 70, and 90 mm of a
    28 mm lens; GR IIIx has the same factors of its 40 mm lens. The live view
    shows the frame of the crop inside the layer area (runtime/viewfinder.h),
@@ -21,7 +21,7 @@
    The includer defines u16, u32, and the header fields (runtime/abi.h). */
 #ifndef CAPABILITY_USED
 /* Whether a loaded module uses the capability `handle`. */
-#define CAPABILITY_USED(h,handle) ((h)[GRKIT_HOST_CAPABILITIES/4]>>((handle)-GRKIT_CORE_SETTING_BASE)&1U)
+#define CAPABILITY_USED(h,handle) ((h)[GRKU_HOST_CAPABILITIES/4]>>((handle)-GRKU_CORE_SETTING_BASE)&1U)
 #endif
 
 /* The factor of each value as float bits, and the side of its frame as a
@@ -31,15 +31,15 @@
 #define CROP_FACTORS 0x3f800000,0x3fa00000,0x3fb6db6e,0x3fe49249,0x40200000,0x404db6db
 #define CROP_SCALES 65536,52429,45875,36700,26214,20389
 #endif
-static const u32 crop_factors[GRKIT_CORE_CROP_VALUES]={CROP_FACTORS};
-static const u32 crop_scales[GRKIT_CORE_CROP_VALUES]={CROP_SCALES};
+static const u32 crop_factors[GRKU_CORE_CROP_VALUES]={CROP_FACTORS};
+static const u32 crop_scales[GRKU_CORE_CROP_VALUES]={CROP_SCALES};
 #define CROP_SCALE_ONE 65536U
 /* A frame within this part of the view is the view itself: the live view
    already shows the crop. */
 #define CROP_SCALE_SAME (CROP_SCALE_ONE-256U)
 /* The value of the live-view factor of each crop: 35 and 40 mm their own,
    and 70 and 90 mm that of 50 mm. */
-static const u8 crop_live_values[GRKIT_CORE_CROP_VALUES]={0,1,2,3,3,3};
+static const u8 crop_live_values[GRKU_CORE_CROP_VALUES]={0,1,2,3,3,3};
 #define CROP_LONGEST_LIVE 3U
 
 /* GR IIIx shares the GR III runtime and has a 40 mm lens (runtime/targets).
@@ -49,13 +49,13 @@ static const u8 crop_live_values[GRKIT_CORE_CROP_VALUES]={0,1,2,3,3,3};
 #endif
 /* The selected crop, or 0 without a module that uses it. */
 static __attribute__((unused)) u32 crop_selection(volatile u32 *h) {
-    u32 value=h[GRKIT_HOST_CROP/4];
-    if(!CAPABILITY_USED(h,GRKIT_CORE_CROP)) return 0;
-    return value<GRKIT_CORE_CROP_VALUES ? value : 0;
+    u32 value=h[GRKU_HOST_CROP/4];
+    if(!CAPABILITY_USED(h,GRKU_CORE_CROP)) return 0;
+    return value<GRKU_CORE_CROP_VALUES ? value : 0;
 }
 /* A module that does not use CROP_MODE crops where the camera can. */
 static __attribute__((unused)) u32 crop_frame_only(volatile u32 *h) {
-    return CAPABILITY_USED(h,GRKIT_CORE_CROP_MODE) && h[GRKIT_HOST_CROP_MODE/4]==1;
+    return CAPABILITY_USED(h,GRKU_CORE_CROP_MODE) && h[GRKU_HOST_CROP_MODE/4]==1;
 }
 /* The crop that the camera applies to photos, or 0: a selected crop in
    Crop mode, in native 3:2 (`native_aspect` 0) without a Framing ratio. */
@@ -82,19 +82,19 @@ static __attribute__((unused)) u32 crop_scale(u32 crop,u32 native) {
 /* The crop badge of the live view: the camera shows its own for 35 and 50
    mm (GR IIIx 50 and 71 mm). For 40, 70, and 90 mm, the core hides it
    (runtime/framing.S: crop_badge) and draws its label LABEL_CROP + n
-   (grkit_core::artwork::OVERLAY_LABELS) in its place: n is 0 to 2 for 40,
+   (grku_core::artwork::OVERLAY_LABELS) in its place: n is 0 to 2 for 40,
    70, and 90 mm, and 3 to 5 for 57, 100, and 128 mm of GR IIIx. Returns
-   GRKIT_LABEL_COUNT without one. */
-#define LABEL_CROP GRKIT_MODULE_LABEL_COUNT
+   GRKU_LABEL_COUNT without one. */
+#define LABEL_CROP GRKU_MODULE_LABEL_COUNT
 #define CROP_BADGE_LEFT 662U
 #define CROP_BADGE_TOP 80U
 static __attribute__((unused)) u32 crop_badge_label(volatile u32 *h,u32 native_aspect) {
-    static const u8 badges[GRKIT_CORE_CROP_VALUES]={0xff,0xff,0,0xff,1,2};
+    static const u8 badges[GRKU_CORE_CROP_VALUES]={0xff,0xff,0,0xff,1,2};
     u32 badge=badges[crop_capture(h,native_aspect)];
-    if(badge==0xff) return GRKIT_LABEL_COUNT;
+    if(badge==0xff) return GRKU_LABEL_COUNT;
     return LABEL_CROP+badge+(CROP_LENS_40MM() ? 3U : 0U);
 }
-_Static_assert(LABEL_CROP+6U==GRKIT_LABEL_COUNT,"The crop badges end the labels");
+_Static_assert(LABEL_CROP+6U==GRKU_LABEL_COUNT,"The crop badges end the labels");
 
 /* The camera's own crop factor: its float bits, and its setter as the
    native menu calls it (runtime/framing.S, runtime/menu.S). */
@@ -111,17 +111,17 @@ void crop_native_set(u32 bits);
    the camera menu stays. The live view follows the factor. */
 static __attribute__((unused)) void crop_sync(volatile u32 *h,u32 native_aspect) {
     u32 crop=crop_capture(h,native_aspect), want=crop ? crop_factors[crop_live_values[crop]] : 0;
-    u32 owned=h[GRKIT_HOST_CROP_NATIVE/4], now;
-    h[GRKIT_HOST_CROP_SHOT/4]=crop>CROP_LONGEST_LIVE ? crop_factors[crop] : 0;
+    u32 owned=h[GRKU_HOST_CROP_NATIVE/4], now;
+    h[GRKU_HOST_CROP_SHOT/4]=crop>CROP_LONGEST_LIVE ? crop_factors[crop] : 0;
     if(!want && !owned) return;
     now=CROP_NATIVE_BITS();
     if(!want) {
         if(now==owned) CROP_NATIVE_SET(crop_factors[0]);
-        h[GRKIT_HOST_CROP_NATIVE/4]=0;
+        h[GRKU_HOST_CROP_NATIVE/4]=0;
         return;
     }
     if(now!=want) CROP_NATIVE_SET(want);
-    h[GRKIT_HOST_CROP_NATIVE/4]=want;
+    h[GRKU_HOST_CROP_NATIVE/4]=want;
 }
 #endif
 /* The frame of a crop in `outer` {left, top, right, bottom}: its center,

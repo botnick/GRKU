@@ -1,12 +1,12 @@
-#ifndef GRKIT_XMP_H
-#define GRKIT_XMP_H
+#ifndef GRKU_XMP_H
+#define GRKU_XMP_H
 /* The XMP packet that names the look of a JPEG: an APP1 segment after the
    APP1 Exif segment, with the look name as one keyword (dc:subject).
    Lightroom and other catalogs read keywords; they do not read the maker
    note.
 
    The name comes from the ImageTone code (maker-note tag 0x4f) in the Exif
-   block of the same header: the name of the GRKit effect with that code, or
+   block of the same header: the name of the GRKU effect with that code, or
    the name of a native look. The tone hook of the shot wrote the code
    (runtime/picture.S: picture_capture_tone), and a rewrite of the file in the
    camera copies it from the file. Thus the name always matches the code of
@@ -150,7 +150,7 @@ static __attribute__((unused)) void xmp_write_segment(volatile u8 *out, u32 size
 /* The names of the native looks, in the order of their ImageTone codes
    from XMP_NATIVE_FIRST, as the camera menu shows them. GR IV adds the two
    Cinema looks (types 18 and 19) after the looks of GR III. They take the
-   names of the GRKit effects that GR III gets from them, so one keyword finds
+   names of the GRKU effects that GR III gets from them, so one keyword finds
    both. */
 #define XMP_NATIVE_FIRST 0x100U
 static const char xmp_native_names[] =

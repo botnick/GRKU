@@ -1,17 +1,17 @@
 # GRKU · ฉบับ BOTNICK
 
-GRKU โดย **BOTNICK** แยกสายพัฒนาจาก [GRKit](https://github.com/ahonn/GRKit) ของ ahonn: คลังฟิล์ม 135 พร้อมไอคอนกล่องฟิล์มสมจริง, ฟิล์มลุค Positive GRII, ไทล์เมนูแบบสี, โมดูล Border, Light Leak และ Diffusion, ระยะโฟกัส Snap ในหน่วยฟุต, โหมดเปิดใช้งานครั้งเดียวที่โหลดเร็วขึ้น และไม่ต้องใช้เฟิร์มแวร์บูตเร็ว GRKU ยังคงเป็นเพียงสคริปต์บนการ์ด SD แค่ฟอร์แมตการ์ด กล้องก็กลับคืนสู่ค่าโรงงานทันที
+GRKU โดย **BOTNICK** แยกสายพัฒนาจาก [GRKU](https://github.com/ahonn/GRKit) ของ ahonn: คลังฟิล์ม 135 พร้อมไอคอนกล่องฟิล์มสมจริง, ฟิล์มลุค Positive GRII, ไทล์เมนูแบบสี, โมดูล Border, Light Leak และ Diffusion, ระยะโฟกัส Snap ในหน่วยฟุต, โหมดเปิดใช้งานครั้งเดียวที่โหลดเร็วขึ้น และไม่ต้องใช้เฟิร์มแวร์บูตเร็ว GRKU ยังคงเป็นเพียงสคริปต์บนการ์ด SD แค่ฟอร์แมตการ์ด กล้องก็กลับคืนสู่ค่าโรงงานทันที
 
 [English](README.md) | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | ไทย
 
-[![Tests](https://github.com/botnick/GRKit/actions/workflows/tests.yml/badge.svg)](https://github.com/botnick/GRKit/actions/workflows/tests.yml)
+[![Tests](https://github.com/botnick/GRKU/actions/workflows/tests.yml/badge.svg)](https://github.com/botnick/GRKU/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 GRKU เพิ่มฟิล์มลุค, สัดส่วนภาพแบบ XPan และแบบอื่นๆ, การพิมพ์วันที่ลงบนภาพ, เอฟเฟกต์แสงฟุ้ง (Glow), แสงรั่ว (Light Leak), แสงฟุ้งละมุน (Diffusion), เกรน และกรอบภาพ ให้กับกล้อง RICOH GR III, GR IIIx และ GR IV ตัวโปรแกรมทำงานจากการ์ด SD โดยตรงและไม่เขียนข้อมูลใดๆ ลงในเฟิร์มแวร์ เพียงถอดการ์ดออก กล้องก็กลับเป็นปกติเหมือนเดิมทุกประการ
 
 <p>
-  <img src="resources/images/grkit-root.jpg" alt="หน้า GRKU ในเมนู ADJ" width="49%">
-  <img src="resources/images/grkit-menu.jpg" alt="ส่วนของ GRKU ในแท็บ Customize ของ MENU" width="49%">
+  <img src="resources/images/grku-root.jpg" alt="หน้า GRKU ในเมนู ADJ" width="49%">
+  <img src="resources/images/grku-menu.jpg" alt="ส่วนของ GRKU ในแท็บ Customize ของ MENU" width="49%">
 </p>
 
 ภาพถ่ายโดย: [MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/), [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
@@ -36,7 +36,7 @@ GRKU เพิ่มฟิล์มลุค, สัดส่วนภาพแ�
 
 GRKU ใช้เวลาโหลดประมาณ 9 วินาทีหลังจากเปิดกล้อง และจะนานขึ้นในการเปิดเครื่องครั้งแรกหลังการติดตั้งหรืออัปเดต ซึ่งระหว่างที่ยังโหลดไม่เสร็จ กล้องจะใช้การตั้งค่าปกติของตัวกล้องไปก่อน การตั้งค่าทั้งหมดจะอยู่ในส่วน GRKU ท้ายแท็บ Customize ใน MENU หากต้องการเขียนโมดูลด้วยตัวเอง ดูได้ที่ [Writing a module](docs/modules.md)
 
-GRKU ไม่มีเฟิร์มแวร์บูตเร็วและจะไม่มีการทำขึ้นมา เฟิร์มแวร์ของกล้องยังคงเป็นเวอร์ชันเดิมที่ Ricoh แจกจ่ายมา GRKU เป็นเพียงสคริปต์บนการ์ด SD แค่ฟอร์แมตการ์ดก็ถูกลบออก โหมด[เปิดใช้งานครั้งเดียว](docs/one-shot-start.md)ของ fork นี้คือสิ่งที่ทำให้โหลดเร็วกว่า GRKit บนเฟิร์มแวร์ทางการ
+GRKU ไม่มีเฟิร์มแวร์บูตเร็วและจะไม่มีการทำขึ้นมา เฟิร์มแวร์ของกล้องยังคงเป็นเวอร์ชันเดิมที่ Ricoh แจกจ่ายมา GRKU เป็นเพียงสคริปต์บนการ์ด SD แค่ฟอร์แมตการ์ดก็ถูกลบออก โหมด[เปิดใช้งานครั้งเดียว](docs/one-shot-start.md)ของ fork นี้คือสิ่งที่ทำให้โหลดเร็วกว่า GRKU บนเฟิร์มแวร์ทางการ
 
 ## กล้องที่รองรับ
 
@@ -47,7 +47,7 @@ GRKU ไม่มีเฟิร์มแวร์บูตเร็วและ
 | GR IV, GR IV HDF | 1.11, 1.20 | — |
 | GR IV Monochrome | 1.00 | 1.10 |
 
-ตารางนี้เป็นของ GRKit ส่วนการเปลี่ยนแปลงของ fork นี้ได้ทดสอบบน GR IV กับเฟิร์มแวร์ 1.11 แล้ว แพ็กเกจสำหรับ GR III และ GR IIIx สร้างจากโค้ดชุดเดียวกันแต่ยังไม่เคยรันบนกล้องรุ่นเหล่านั้น และโมดูลใหม่ล่าสุด (Light Leak, Diffusion, Border) รวมถึงป้ายหน่วยฟุตยังรอการทดสอบบนกล้องจริงเป็นครั้งแรก GR IV Monochrome ไม่มีฟิล์มลุค ไม่รองรับกล้องรุ่นอื่นและเฟิร์มแวร์เวอร์ชันอื่นนอกเหนือจากนี้ หาก GRKU ไม่ทำงานบนกล้องที่รองรับ ให้ดู[คู่มือดัมพ์เฟิร์มแวร์](resources/DUMP.md)
+ตารางนี้เป็นของ GRKU ส่วนการเปลี่ยนแปลงของ fork นี้ได้ทดสอบบน GR IV กับเฟิร์มแวร์ 1.11 แล้ว แพ็กเกจสำหรับ GR III และ GR IIIx สร้างจากโค้ดชุดเดียวกันแต่ยังไม่เคยรันบนกล้องรุ่นเหล่านั้น และโมดูลใหม่ล่าสุด (Light Leak, Diffusion, Border) รวมถึงป้ายหน่วยฟุตยังรอการทดสอบบนกล้องจริงเป็นครั้งแรก GR IV Monochrome ไม่มีฟิล์มลุค ไม่รองรับกล้องรุ่นอื่นและเฟิร์มแวร์เวอร์ชันอื่นนอกเหนือจากนี้ หาก GRKU ไม่ทำงานบนกล้องที่รองรับ ให้ดู[คู่มือดัมพ์เฟิร์มแวร์](resources/DUMP.md)
 
 > [!WARNING]
 > GRKU ยังอยู่ในขั้นทดลอง ผู้ใช้ต้องรับความเสี่ยงด้วยตัวเอง
@@ -64,29 +64,29 @@ GRKU ไม่มีเฟิร์มแวร์บูตเร็วและ
 
 เฉพาะการใช้งานครั้งแรก ให้กดปุ่ม MENU ค้างไว้ขณะเปิดกล้อง หากต้องการอัปเดตจากไฟล์ ZIP ให้เขียนทับโฟลเดอร์ `SCRIPT` บนการ์ด การตั้งค่าของคุณจะยังคงอยู่ใน `GRKU` การฟอร์แมตการ์ดจะทำให้ GRKU ถูกลบออก ดังนั้นควรคัดลอกโฟลเดอร์ `GRKU` เก็บไว้ในคอมพิวเตอร์ก่อน
 
-หาก GRKU ไม่แสดงขึ้นมา ให้ส่งไฟล์ `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT` และ `SCRIPT/GRKU/INSTALL.ERR` (ถ้ามี) เข้ามาใน [issue](https://github.com/botnick/GRKit/issues/new) [ความหมายของแต่ละบรรทัดในไฟล์เหล่านั้น](docs/diagnostics.md)
+หาก GRKU ไม่แสดงขึ้นมา ให้ส่งไฟล์ `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT` และ `SCRIPT/GRKU/INSTALL.ERR` (ถ้ามี) เข้ามาใน [issue](https://github.com/botnick/GRKU/issues/new) [ความหมายของแต่ละบรรทัดในไฟล์เหล่านั้น](docs/diagnostics.md)
 
 ## การบิลด์จากซอร์สโค้ด
 
 คุณต้องมี Rust 1.92 หรือใหม่กว่า, Clang และ LLD ที่รองรับ ARM รวมถึงไฟล์เฟิร์มแวร์ทางการของ Ricoh ซึ่งไม่ได้รวมอยู่ในรีโพซิทอรีนี้
 
 ```sh
-cargo install --path crates/grkit-cli --locked
-grkit effects build --source effects --out build/effects
-grkit build --target gr3-2.10 --firmware firmware/fwdc239b.bin --out build/runtime
-for module in modules/*/; do grkit module build --dir "$module" --out "build/modules/$(basename "$module").GRM"; done
+cargo install --path crates/grku-cli --locked
+grku effects build --source effects --out build/effects
+grku build --target gr3-2.10 --firmware firmware/fwdc239b.bin --out build/runtime
+for module in modules/*/; do grku module build --dir "$module" --out "build/modules/$(basename "$module").GRM"; done
 sh .github/scripts/install-guide-tools.sh build/guide-tools
-sh .github/scripts/build-guides.sh grkit build/guide-tools build/guides
-grkit package --build build/runtime --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
+sh .github/scripts/build-guides.sh grku build/guide-tools build/guides
+grku package --build build/runtime --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
   --guide build/guides/gr3/en.pdf --out dist/GRKU-gr3.zip
-grkit verify dist/GRKU-gr3.zip
+grku verify dist/GRKU-gr3.zip
 ```
 
 `build/effects` จะเก็บลุคทั้งหมด 135 ลุคไว้ แต่แพ็กเกจหนึ่งใส่ได้สูงสุด 40 ลุค ดังนั้น `python3 -I scripts/defaults.py build/effects build/effects-default` จึงใช้เลือก 40 ลุคจาก `effects/defaults.txt` สำหรับอาร์กิวเมนต์ `--effects` สำหรับ GR IV ให้บิลด์ `gr4-1.11` และ `gr4-1.20` แล้วแพ็กเกจทั้งคู่ด้วย `--camera gr4` สำหรับกล้องรุ่นอื่น การเลือกใช้โมดูลที่น้อยลง หรือคู่มือในภาษาอื่น ดูที่ [Build packages](CONTRIBUTING.md#build-packages) และ [HANDOFF.md](HANDOFF.md)
 
 ## การมีส่วนร่วม
 
-ดูรายละเอียดได้ที่ [CONTRIBUTING.md](CONTRIBUTING.md) เรายินดีรับรายงานผลการใช้งานจากตัวกล้อง ไม่ว่า GRKU จะทำงานได้หรือไม่ก็ตาม โดยเฉพาะจากรุ่น GR III และ GR IIIx ซึ่ง fork นี้ยังไม่เคยถูกนำไปใช้งานจริง ส่งปัญหาที่พบ ไอเดีย และคำถามเข้ามาเป็น [issues](https://github.com/botnick/GRKit/issues) ส่วนการเปลี่ยนแปลงที่เป็นประโยชน์ต่อตัว GRKit เองจะถูกส่งกลับไปยังโปรเจกต์ต้นน้ำในรูปแบบของ pull request
+ดูรายละเอียดได้ที่ [CONTRIBUTING.md](CONTRIBUTING.md) เรายินดีรับรายงานผลการใช้งานจากตัวกล้อง ไม่ว่า GRKU จะทำงานได้หรือไม่ก็ตาม โดยเฉพาะจากรุ่น GR III และ GR IIIx ซึ่ง fork นี้ยังไม่เคยถูกนำไปใช้งานจริง ส่งปัญหาที่พบ ไอเดีย และคำถามเข้ามาเป็น [issues](https://github.com/botnick/GRKU/issues) ส่วนการเปลี่ยนแปลงที่เป็นประโยชน์ต่อตัว GRKU เองจะถูกส่งกลับไปยังโปรเจกต์ต้นน้ำในรูปแบบของ pull request
 
 ## เอกสารประกอบ
 
@@ -97,14 +97,14 @@ grkit verify dist/GRKU-gr3.zip
 - [เอฟเฟกต์](effects/README.md) และ[ฟิล์มยอดนิยมแห่งปี 2026](docs/popular-films-2026.md) ที่อยู่เบื้องหลังค่าเริ่มต้น 40 ลุค
 - [เว็บไซต์](web/README.md) และ[เอกสารแบรนด์](docs/brand.th.md)
 - [แผนงาน](docs/roadmap.md) และ[การส่งต่องาน](HANDOFF.md) ของ fork นี้
-- จาก GRKit: [เฟิร์มแวร์ Fast-boot](docs/fastboot.md) ซึ่ง GRKU ไม่ได้ใช้ และ[ขั้นตอนการปล่อยรุ่น](docs/releasing.md)
+- จาก GRKU: [เฟิร์มแวร์ Fast-boot](docs/fastboot.md) ซึ่ง GRKU ไม่ได้ใช้ และ[ขั้นตอนการปล่อยรุ่น](docs/releasing.md)
 
 ## สัญญาอนุญาต
 
-โค้ดอยู่ภายใต้ [MIT License](LICENSE) GRKU พัฒนาต่อยอดจาก [GRKit](https://github.com/ahonn/GRKit) โดย ahonn ซึ่งใช้สัญญาอนุญาต MIT เช่นกัน และยังคง保留ประกาศสิทธิ์เดิมไว้ แต่ละแพ็กเกจจะมีไฟล์ `LICENSES.md` ซึ่งระบุสัญญาอนุญาตของไฟล์ต่างๆ ภายในนั้น
+โค้ดอยู่ภายใต้ [MIT License](LICENSE) GRKU พัฒนาต่อยอดจาก [GRKU](https://github.com/ahonn/GRKit) โดย ahonn ซึ่งใช้สัญญาอนุญาต MIT เช่นกัน และยังคง保留ประกาศสิทธิ์เดิมไว้ แต่ละแพ็กเกจจะมีไฟล์ `LICENSES.md` ซึ่งระบุสัญญาอนุญาตของไฟล์ต่างๆ ภายในนั้น
 
 - เอฟเฟกต์ต่างๆ อยู่ภายใต้สัญญาอนุญาต CC BY-SA 4.0, MIT หรือ Apache-2.0 ดูรายละเอียดที่ [effects/NOTICE.md](effects/NOTICE.md)
-- ข้อความในเมนูและไลฟ์วิวใช้ฟอนต์ [Roboto Condensed](https://github.com/googlefonts/roboto-classic) ภายใต้ [SIL Open Font License 1.1](crates/grkit-core/assets/RobotoCondensed-LICENSE.txt)
-- การปรับเทียบเอฟเฟกต์พอร์ตมาจาก [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods) ภายใต้ [MIT License](crates/grkit-core/GR3_FILM_MODS_LICENSE.txt)
+- ข้อความในเมนูและไลฟ์วิวใช้ฟอนต์ [Roboto Condensed](https://github.com/googlefonts/roboto-classic) ภายใต้ [SIL Open Font License 1.1](crates/grku-core/assets/RobotoCondensed-LICENSE.txt)
+- การปรับเทียบเอฟเฟกต์พอร์ตมาจาก [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods) ภายใต้ [MIT License](crates/grku-core/GR3_FILM_MODS_LICENSE.txt)
 
-RICOH และ GR เป็นเครื่องหมายการค้าของ Ricoh Company, Ltd. ชื่อฟิล์มเป็นเครื่องหมายการค้าของเจ้าของผลิตภัณฑ์นั้นๆ GRKU เป็นโปรเจกต์อิสระและไม่มีส่วนเกี่ยวข้องกับ Ricoh, ผู้พัฒนา GRKit หรือผู้ผลิตฟิล์มรายใดๆ
+RICOH และ GR เป็นเครื่องหมายการค้าของ Ricoh Company, Ltd. ชื่อฟิล์มเป็นเครื่องหมายการค้าของเจ้าของผลิตภัณฑ์นั้นๆ GRKU เป็นโปรเจกต์อิสระและไม่มีส่วนเกี่ยวข้องกับ Ricoh, ผู้พัฒนา GRKU หรือผู้ผลิตฟิล์มรายใดๆ

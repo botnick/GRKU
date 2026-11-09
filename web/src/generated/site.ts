@@ -1,6 +1,6 @@
-// Generated from crates/grkit-core/src/site.rs. Do not edit: change the
+// Generated from crates/grku-core/src/site.rs. Do not edit: change the
 // constants there, then run
-// GRKIT_UPDATE_GENERATED=1 cargo test -p grkit-core --test generated.
+// GRKU_UPDATE_GENERATED=1 cargo test -p grku-core --test generated.
 
 /** The target whose effects and previews the site shows. */
 export const PREVIEW_TARGET = 'gr3-2.10';
@@ -9,7 +9,7 @@ export const PREVIEW_TARGET = 'gr3-2.10';
 export const MAX_EFFECTS = 40;
 
 /** The schema of the effect catalog of each target. */
-export const CATALOG_SCHEMA = 'grkit-site-effects-v1';
+export const CATALOG_SCHEMA = 'grku-site-effects-v1';
 
 /** The longest effect name and the longest effect ID (effects.rs). */
 export const EFFECT_NAME_MAX = 16;

@@ -1,26 +1,26 @@
-#ifndef GRKIT_LEVEL_H
-#define GRKIT_LEVEL_H
+#ifndef GRKU_LEVEL_H
+#define GRKU_LEVEL_H
 /* The live-view highlight warning, part of the framing component
    (runtime/framing.c), which includes this file once.
    The live view warns where the shown luma reaches the threshold that
    ScreenDevice::OnSetLevelAlarm gives the display: 0xfe00, luma 254 of 255.
-   The curves of a GRKit color effect end below that white, so the warning
+   The curves of a GRKU color effect end below that white, so the warning
    never showed. With an effect, the threshold is the luma of the effect's
    white, less 1: input 255 of its curves, after its post matrix, with the
    BT.601 luma weights. The Fn adjustments are not in it. runtime/menu.c sets
    the warning again after a change of the effect. */
 static u32 level_threshold(volatile u32 *h) {
     static const int luma[3]={77,150,29};
-    u32 record=h[GRKIT_HOST_ACTIVE/4], post, c, k, y8;
+    u32 record=h[GRKU_HOST_ACTIVE/4], post, c, k, y8;
     int rgb[3], sum, y=0;
-    if(!record || !(h[GRKIT_HOST_CAPABILITIES/4]&GRKIT_CORE_TONE_BIT)) return 0xfe00U;
-    post=WORD(record,GRKIT_RECORD_FEATURES)&GRKIT_FEATURE_POST;
-    for(c=0;c<3;++c) rgb[c]=(int)HALF(record,GRKIT_RECORD_CURVES+c*GRKIT_RECORD_CURVE_SIZE+255*2);
+    if(!record || !(h[GRKU_HOST_CAPABILITIES/4]&GRKU_CORE_TONE_BIT)) return 0xfe00U;
+    post=WORD(record,GRKU_RECORD_FEATURES)&GRKU_FEATURE_POST;
+    for(c=0;c<3;++c) rgb[c]=(int)HALF(record,GRKU_RECORD_CURVES+c*GRKU_RECORD_CURVE_SIZE+255*2);
     for(k=0;k<3;++k) {
         sum=rgb[k];
         if(post) {
             sum=0;
-            for(c=0;c<3;++c) sum+=(s16)HALF(record,GRKIT_RECORD_POST+(k*3+c)*2)*rgb[c];
+            for(c=0;c<3;++c) sum+=(s16)HALF(record,GRKU_RECORD_POST+(k*3+c)*2)*rgb[c];
             sum=(sum+4096)>>13;
         }
         y+=luma[k]*(sum<0 ? 0 : sum>16383 ? 16383 : sum);
@@ -51,8 +51,8 @@ void framing_histogram_remap(u32 *bins) {
 /* framing_level_mode: the screen and the mode of each warning setting. */
 void framing_level_record(u32 screen,u32 mode) {
     volatile u32 *h=framing_header();
-    h[GRKIT_HOST_LEVEL_SCREEN/4]=screen;
-    h[GRKIT_HOST_LEVEL_MODE/4]=mode;
+    h[GRKU_HOST_LEVEL_SCREEN/4]=screen;
+    h[GRKU_HOST_LEVEL_MODE/4]=mode;
 }
 /* The camera can set the warning before INSTALL installs the hooks, with
    the native threshold, because the live view starts first. The first live
@@ -65,8 +65,8 @@ void framing_level_record(u32 screen,u32 mode) {
 #define FRAMING_LEVEL_UPDATE(controller) (((void (*)(u32,u32))FW_LIVEVIEW_LEVEL_UPDATE)(controller,1))
 #endif
 static void level_boot(volatile u32 *h,u32 controller) {
-    if(h[GRKIT_HOST_LEVEL_SCREEN/4] || level_threshold(h)==0xfe00U) return;
-    h[GRKIT_HOST_LEVEL_SCREEN/4]=1;
+    if(h[GRKU_HOST_LEVEL_SCREEN/4] || level_threshold(h)==0xfe00U) return;
+    h[GRKU_HOST_LEVEL_SCREEN/4]=1;
     BYTE(controller,LIVEVIEW_LEVEL_PENDING)=1;
     FRAMING_LEVEL_UPDATE(controller);
 }

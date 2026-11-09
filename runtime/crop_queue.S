@@ -11,7 +11,7 @@
    crop_queue_start notes the shot, crop_queue_release runs the completion
    check of the back end when the camera would skip it, and crop_queue_post
    lets one completion through for that shot. The header words
-   GRKIT_HOST_CROP_QUEUE_OWNER and GRKIT_HOST_CROP_QUEUE_FLAGS hold the
+   GRKU_HOST_CROP_QUEUE_OWNER and GRKU_HOST_CROP_QUEUE_FLAGS hold the
    state of the last shot. */
 #define CROP_QUEUE_POSTED 1
 #define CROP_QUEUE_RECOVERED 2
@@ -29,11 +29,11 @@
 .type crop_queue_start, %function
 crop_queue_start:
     push {r0,r1}
-    ldr r0, =GRKIT_HEADER_REFERENCE
+    ldr r0, =GRKU_HEADER_REFERENCE
     ldr r1, [r5, #CROP_BACKEND_OWNER]
-    str r1, [r0, #GRKIT_HOST_CROP_QUEUE_OWNER]
+    str r1, [r0, #GRKU_HOST_CROP_QUEUE_OWNER]
     mov r1, #0
-    str r1, [r0, #GRKIT_HOST_CROP_QUEUE_FLAGS]
+    str r1, [r0, #GRKU_HOST_CROP_QUEUE_FLAGS]
     dmb ish
     pop {r0,r1}
     strb r3, [r5, #CROP_BACKEND_RELEASED]
@@ -50,11 +50,11 @@ crop_queue_post:
     cmp r1, #CROP_QUEUE_EVENT
     bne 3f
     push {r2-r5}
-    ldr r2, =GRKIT_HEADER_REFERENCE
-    ldr r3, [r2, #GRKIT_HOST_CROP_QUEUE_OWNER]
+    ldr r2, =GRKU_HEADER_REFERENCE
+    ldr r3, [r2, #GRKU_HOST_CROP_QUEUE_OWNER]
     cmp r0, r3
     bne 2f
-    ldr r3, =GRKIT_HOST_CROP_QUEUE_FLAGS
+    ldr r3, =GRKU_HOST_CROP_QUEUE_FLAGS
     add r2, r2, r3
 1:  ldrex r3, [r2]
     orr r4, r3, #CROP_QUEUE_POSTED
@@ -85,8 +85,8 @@ crop_queue_release:
     push {r0-r7,r12,lr}
     cmp r0, #0
     bne 9f
-    ldr r5, =GRKIT_HEADER_REFERENCE
-    ldr r0, [r5, #GRKIT_HOST_CROP_NATIVE]
+    ldr r5, =GRKU_HEADER_REFERENCE
+    ldr r0, [r5, #GRKU_HOST_CROP_NATIVE]
     cmp r0, #0
     beq 9f
     ldrb r0, [r4, #CROP_BACKEND_RELEASED]
@@ -95,11 +95,11 @@ crop_queue_release:
     ldrb r0, [r4, #CROP_BACKEND_HELD]
     cmp r0, #0
     bne 9f
-    ldr r0, [r5, #GRKIT_HOST_CROP_QUEUE_OWNER]
+    ldr r0, [r5, #GRKU_HOST_CROP_QUEUE_OWNER]
     ldr r1, [r4, #CROP_BACKEND_OWNER]
     cmp r0, r1
     bne 9f
-    ldr r0, [r5, #GRKIT_HOST_CROP_QUEUE_FLAGS]
+    ldr r0, [r5, #GRKU_HOST_CROP_QUEUE_FLAGS]
     tst r0, #(CROP_QUEUE_POSTED | CROP_QUEUE_RECOVERED)
     bne 9f
     ldr r6, [r4, #CROP_BACKEND_QUEUE]
@@ -166,7 +166,7 @@ crop_queue_release:
     blo 2b
     b 9f
     /* Mark the check unless a completion came first, then check. */
-5:  ldr r1, =GRKIT_HOST_CROP_QUEUE_FLAGS
+5:  ldr r1, =GRKU_HOST_CROP_QUEUE_FLAGS
     add r1, r5, r1
 6:  ldrex r0, [r1]
     tst r0, #(CROP_QUEUE_POSTED | CROP_QUEUE_RECOVERED)

@@ -1,11 +1,11 @@
 /* The probe module: a test module, not a feature. Each draw of the live view
    counts the draws, which shows that the module code runs, draws the count
-   and a green square, and draws the GRKit label of the core through an
+   and a green square, and draws the GRKU label of the core through an
    import.
 
    It also tests saved settings: the setting COUNT counts the draws of all
    boots. Each draw adds one to it, and the second row shows it. */
-#include "grkit.h"
+#include "grku.h"
 
 static u32 draws;
 
@@ -47,19 +47,19 @@ static void decimal(const Surface *s, u32 left, u32 top, u32 value)
 static void probe_paint(const Surface *s, u32 value)
 {
     (void)value;
-    u32 total = (setting_get(GRKIT_SETTING(0)) + 1) & 0xffffU;
+    u32 total = (setting_get(GRKU_SETTING(0)) + 1) & 0xffffU;
     ++draws;
-    setting_set(GRKIT_SETTING(0), total);
+    setting_set(GRKU_SETTING(0), total);
     /* Equal red and blue, so the color does not depend on the channel order
        of the overlay. */
     fill(s, 16, 120, 28, 28, 0xff000000U);
     fill(s, 18, 122, 24, 24, 0xff20c020U);
     decimal(s, 56, 124, draws);
     decimal(s, 56, 152, total);
-    overlay_label(s, LABEL_GRKIT, 16, 420);
+    overlay_label(s, LABEL_GRKU, 16, 420);
 }
 
-static const GrkitLayer layer = {sizeof(GrkitLayer), 0, probe_paint, GRKIT_NO_SETTING, 50};
-static const GrkitRegistration registrations[] = {{GRKIT_POINT_OVERLAY_LAYER, &layer}};
-static const GrkitSetting settings[] = {{sizeof(GrkitSetting), "COUNT", 65536, GRKIT_SETTING_SAVED}};
-GRKIT_MODULE(registrations, settings, 1, 0, 0, 0, 0);
+static const GrkuLayer layer = {sizeof(GrkuLayer), 0, probe_paint, GRKU_NO_SETTING, 50};
+static const GrkuRegistration registrations[] = {{GRKU_POINT_OVERLAY_LAYER, &layer}};
+static const GrkuSetting settings[] = {{sizeof(GrkuSetting), "COUNT", 65536, GRKU_SETTING_SAVED}};
+GRKU_MODULE(registrations, settings, 1, 0, 0, 0, 0);

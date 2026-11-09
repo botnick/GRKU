@@ -1,17 +1,17 @@
-#ifndef GRKIT_INSTALL_MODULES_H
-#define GRKIT_INSTALL_MODULES_H
+#ifndef GRKU_INSTALL_MODULES_H
+#define GRKU_INSTALL_MODULES_H
 _Static_assert(MANAGE_COLOR_ONLY == GRM_COLOR_ONLY, "MENU knows the status of a color-only module");
 /* A part of the installer: the link of the modules and the module array.
    installer.c includes it once, in its order, after the helpers and the state
    that this part uses. */
 /* The header entries of the module pages (runtime/abi.h): three words. */
-static u32 module_pages[GRKIT_MODULE_PAGES_MAX * 3], module_page_count;
-/* The plane filters in stage order (GRKIT_HOST_MODULE_FILTERS), two words
+static u32 module_pages[GRKU_MODULE_PAGES_MAX * 3], module_page_count;
+/* The plane filters in stage order (GRKU_HOST_MODULE_FILTERS), two words
    each. */
-static u32 module_filters[GRKIT_MODULE_FILTERS_MAX * 2], module_filter_count;
-static u32 module_layers[GRKIT_MODULE_LAYERS_MAX * 4], module_layer_count;
+static u32 module_filters[GRKU_MODULE_FILTERS_MAX * 2], module_filter_count;
+static u32 module_layers[GRKU_MODULE_LAYERS_MAX * 4], module_layer_count;
 /* Descriptor and tile-base pairs, in module and declaration order. */
-static u32 module_indicators[GRKIT_INDICATORS_MAX * 2], module_indicator_count;
+static u32 module_indicators[GRKU_INDICATORS_MAX * 2], module_indicator_count;
 static u32 module_status_icons, module_native_slots, module_legacy_tone_owner;
 static u8 module_code[GRM_MAX_SEGMENT], module_data[GRM_MAX_SEGMENT];
 /* Insert the `width`-word `entry` into `table`, which holds `*count` entries
@@ -38,26 +38,26 @@ static u32 handle_values(u32 handle)
     return handle < setting_total ? setting_values[handle] : 0;
 }
 /* The modules whose settings each loaded module uses, a bit each. */
-static u32 module_needs[GRKIT_MODULES_MAX];
-/* The module that has setting `k` of the table, or GRKIT_MODULES_MAX. */
+static u32 module_needs[GRKU_MODULES_MAX];
+/* The module that has setting `k` of the table, or GRKU_MODULES_MAX. */
 static u32 setting_module(u32 k)
 {
     for (u32 m = 0; m < module_count; ++m)
         if ((module_usable >> m & 1) && k - module_first[m] < module_settings[m]) return m;
-    return GRKIT_MODULES_MAX;
+    return GRKU_MODULES_MAX;
 }
 /* Validate the resolved setting of an icon before copying module code. */
-_Static_assert(GRM_LABELS == GRKIT_MODULE_LABEL_COUNT, "Module label icons name the core labels");
+_Static_assert(GRM_LABELS == GRKU_MODULE_LABEL_COUNT, "Module label icons name the core labels");
 static int module_icon_valid(u32 i, const u32 *uses, u32 base, u32 address, u32 tile_count)
 {
     const u8 *icon = grm_code_at(&module, module_code, base, address, GRM_ICON);
     u32 kind = grm_word(icon + GRM_ICON_KIND_AT), named = grm_word(icon + GRM_ICON_SETTING_AT);
     u32 handle = module_handle(i, uses, named), first = grm_word(icon + GRM_ICON_FIRST_TILE_AT);
-    if (kind == GRM_ICON_TONE) return handle == GRKIT_CORE_TONE;
+    if (kind == GRM_ICON_TONE) return handle == GRKU_CORE_TONE;
     if (named == GRM_NO_SETTING || handle == GRM_NO_SETTING) return 1;
-    u32 values = handle == GRKIT_CORE_TONE ? count + 1 : handle_values(handle);
+    u32 values = handle == GRKU_CORE_TONE ? count + 1 : handle_values(handle);
     /* A label needs one core label for each value of its setting. */
-    if (kind == GRM_ICON_LABEL) return values && first < GRKIT_MODULE_LABEL_COUNT && values <= GRKIT_MODULE_LABEL_COUNT - first;
+    if (kind == GRM_ICON_LABEL) return values && first < GRKU_MODULE_LABEL_COUNT && values <= GRKU_MODULE_LABEL_COUNT - first;
     return values && first < tile_count && values <= tile_count - first;
 }
 /* Validate and relocate shared enabled conditions from the unpatched copy. */
@@ -68,7 +68,7 @@ static int module_conditions_valid(u32 i, const u32 *uses, u32 base, u32 address
         const u8 *c = conditions + r * GRM_CONDITION;
         u32 handle = module_handle(i, uses, grm_word(c));
         if (handle == GRM_NO_SETTING) continue;
-        u32 values = handle == GRKIT_CORE_TONE ? count + 1 : handle_values(handle);
+        u32 values = handle == GRKU_CORE_TONE ? count + 1 : handle_values(handle);
         if (grm_word(c + GRM_CONDITION_VALUE_AT) >= values) return 0;
     }
     return 1;
@@ -100,11 +100,11 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
         symbols[n].hash = core_exports[n * 2];
         symbols[n].value = relocated[TAIL_SYMBOL] + core_exports[n * 2 + 1];
     }
-    /* grkit_self: the context of the module that links. */
+    /* grku_self: the context of the module that links. */
     u32 self = n++;
-    symbols[self].hash = fnv((const u8 *)"grkit_self", sizeof("grkit_self") - 1);
+    symbols[self].hash = fnv((const u8 *)"grku_self", sizeof("grku_self") - 1);
     /* The settings table. A saved setting has its state file ID; a second
-       setting with the same ID is not saved. The choices of the GRKit
+       setting with the same ID is not saved. The choices of the GRKU
        section, those of the effects, and the kept values follow the settings
        of the modules. */
     u32 choices = CHOICE_ENTRIES(module_count, listed_count), total = setting_total + choices + kept_count;
@@ -142,7 +142,7 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
         store(entry + 4, listed_choice[i]);
         store(entry + 8, EFFECT_CHOICE_VALUES);
     }
-    /* The GRKit switch follows the choices of the effects. */
+    /* The GRKU switch follows the choices of the effects. */
     u32 switch_handle = setting_total + choices - 1;
     {
         u32 entry = array + 4 * SETTINGS_ENTRY(switch_handle);
@@ -200,19 +200,19 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
             const char *name = module_uses[i][u];
             int optional = name[0] == '?';
             u32 handle = GRM_NO_SETTING;
-            for (u32 k = 0; k < GRKIT_CORE_SETTING_COUNT && handle == GRM_NO_SETTING; ++k)
+            for (u32 k = 0; k < GRKU_CORE_SETTING_COUNT && handle == GRM_NO_SETTING; ++k)
                 if (text_equal(core_setting_names[k], name + optional)) {
-                    handle = GRKIT_CORE_SETTING_BASE + k;
+                    handle = GRKU_CORE_SETTING_BASE + k;
                     points |= core_setting_points[k];
                     capabilities |= 1U << k;
                 }
             for (u32 k = 0; k < setting_total && handle == GRM_NO_SETTING; ++k) {
                 u32 owner = setting_module(k);
-                if (owner < GRKIT_MODULES_MAX && (broken >> owner & 1)) continue;
+                if (owner < GRKU_MODULES_MAX && (broken >> owner & 1)) continue;
                 if (text_equal(setting_names[k], name + optional) &&
                     ((setting_flags[k] & GRM_SETTING_PUBLIC) || owner == i)) {
                     handle = k;
-                    if (owner != i && owner < GRKIT_MODULES_MAX) module_needs[i] |= 1U << owner;
+                    if (owner != i && owner < GRKU_MODULES_MAX) module_needs[i] |= 1U << owner;
                 }
             }
             if (handle == GRM_NO_SETTING && !optional) { status = GRM_MISSING_SETTING; failed = u; }
@@ -260,7 +260,7 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
             u32 core_rows = pages[k].flags & GRM_CHOICE_CORE_ROWS;
             /* The rows do not fit the setting: the page is not valid. */
             if (pages[k].setting != GRM_NO_SETTING &&
-                (core_rows ? pages[k].setting != GRKIT_CORE_TONE : handle_values(pages[k].setting) != pages[k].rows))
+                (core_rows ? pages[k].setting != GRKU_CORE_TONE : handle_values(pages[k].setting) != pages[k].rows))
                 status = GRM_BAD_DESCRIPTOR;
             /* A settings row of a used setting needs a value text for each
                value of that setting. */
@@ -298,11 +298,11 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
             filters[k].setting = module_handle(i, use_handles, filters[k].setting);
             if (filters[k].setting == GRM_NO_SETTING) filters[k].apply = 0;
         }
-        if (!status && (module_layer_count + layer_count > GRKIT_MODULE_LAYERS_MAX ||
-                        module_page_count + page_count > GRKIT_MODULE_PAGES_MAX ||
-                        module_filter_count + filter_count > GRKIT_MODULE_FILTERS_MAX ||
-                        module_indicator_count + indicator_count > GRKIT_INDICATORS_MAX ||
-                        module_status_icons + status_icons > GRKIT_STATUS_ICONS_MAX)) status = GRM_NO_ROOM;
+        if (!status && (module_layer_count + layer_count > GRKU_MODULE_LAYERS_MAX ||
+                        module_page_count + page_count > GRKU_MODULE_PAGES_MAX ||
+                        module_filter_count + filter_count > GRKU_MODULE_FILTERS_MAX ||
+                        module_indicator_count + indicator_count > GRKU_INDICATORS_MAX ||
+                        module_status_icons + status_icons > GRKU_STATUS_ICONS_MAX)) status = GRM_NO_ROOM;
         if (status) {
             module_status[i] = (u32)status;
             module_needs[i] = 0;
@@ -406,7 +406,7 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
         module_status_icons += status_icons;
         module_native_slots |= native_slots;
         if (indicator_count) points |= POINT_VIEWFINDER_OVERLAY;
-        if (native_slots) points |= core_setting_points[CORE_SETTING(GRKIT_CORE_TONE)];
+        if (native_slots) points |= core_setting_points[CORE_SETTING(GRKU_CORE_TONE)];
         /* The event subscriber: SYSTEM_READY needs the hook of the
            shooting screen. */
         struct grm_subscriber subscriber;
@@ -417,7 +417,7 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
             store(services + SERVICES_SUBSCRIBER_COUNT, ++subscribers);
             if (subscriber.events & SERVICE_EVENT_SYSTEM_READY) points |= POINT_VIEWFINDER_OVERLAY;
         }
-        if ((module.abi & 0xffffU) < 2 && (capabilities & GRKIT_CORE_TONE_BIT) && !module_legacy_tone_owner)
+        if ((module.abi & 0xffffU) < 2 && (capabilities & GRKU_CORE_TONE_BIT) && !module_legacy_tone_owner)
             module_legacy_tone_owner = code_base;
         /* The patches of the used capabilities and of the menu. */
         needed_points |= points;
@@ -471,7 +471,7 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
         }
         store(services + SERVICES_SUSPENDED, stopped);
     }
-    /* The effect list of the GRKit section of MENU, with the record of each
+    /* The effect list of the GRKU section of MENU, with the record of each
        installed effect. */
     effect_list = listed_count ? effects_list : 0;
     store(effects_list + EFFECTS_COUNT, listed_count);

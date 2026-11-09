@@ -1,5 +1,5 @@
 {
-  "schema": "grkit-effect-v1",
+  "schema": "grku-effect-v1",
   "effect_id": "pd-tmax-3200-mono-v1",
   "name": "T-Max 3200",
   "flags": 1,

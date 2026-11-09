@@ -57,7 +57,7 @@ function javascriptPackages() {
   return [...found.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** The crates that grkit-wasm links for the browser. Procedural macros run only in the compiler. */
+/** The crates that grku-wasm links for the browser. Procedural macros run only in the compiler. */
 function rustCrates() {
   const output = execFileSync(
     'cargo',
@@ -76,7 +76,7 @@ function rustCrates() {
   const nodes = new Map(metadata.resolve.nodes.map((node) => [node.id, node]));
   const workspace = new Set(metadata.workspace_members);
   const root = metadata.packages.find(
-    (entry) => entry.name === 'grkit-wasm' && workspace.has(entry.id),
+    (entry) => entry.name === 'grku-wasm' && workspace.has(entry.id),
   );
   const seen = new Set();
   const pending = [root.id];
@@ -119,9 +119,9 @@ function section(title, entries) {
 const javascript = javascriptPackages();
 const rust = rustCrates();
 const text = [
-  'GRKit site: third-party licenses\n',
-  'The GRKit site contains the third-party software and fonts below.',
-  'The GRKit code is licensed under the MIT License. See LICENSE in https://github.com/ahonn/grkit.\n',
+  'GRKU site: third-party licenses\n',
+  'The GRKU site contains the third-party software and fonts below.',
+  'The GRKU code is licensed under the MIT License. See LICENSE in https://github.com/ahonn/grku.\n',
   section('JavaScript packages and fonts', javascript),
   section('Rust crates in the WebAssembly module', rust),
   '=== LibRaw in the RAW decoder WebAssembly module ===\n',
@@ -135,10 +135,10 @@ const text = [
   'Source: https://www.flickr.com/photos/aukirk/53383031689/',
   'License: https://creativecommons.org/licenses/by/2.0/',
   'The JPEG was converted to estimated linear sRGB, resized, and gzip compressed.',
-  'The preview shows it with the film effects of GRKit.',
+  'The preview shows it with the film effects of GRKU.',
   'See samples/electric-wheels.json for the source hash, processing settings, and output hash.\n',
   '=== Landing page photos ===\n',
-  'The landing page shows these photos, resized and cropped, with the film effects and the modules of GRKit.',
+  'The landing page shows these photos, resized and cropped, with the film effects and the modules of GRKU.',
   'scripts/build-landing.mjs makes the images from them.\n',
   'Electric Wheels in Fort Lauderdale, Florida by Austin Kirk, taken with a RICOH GR IIIx. CC BY 2.0.',
   'Source: https://www.flickr.com/photos/aukirk/53383031689/',

@@ -4,8 +4,8 @@
    build. Cameras also run other 1.11 builds, so each address is a FIRMWARE()
    symbol that the installer relocates. Data that no firmware code loads
    directly is an offset from an address that it does load. */
-#ifndef GRKIT_TARGET_H
-#define GRKIT_TARGET_H
+#ifndef GRKU_TARGET_H
+#define GRKU_TARGET_H
 
 #include "gr4.h"
 

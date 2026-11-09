@@ -5,7 +5,7 @@
 #     default: patch
 #     ---
 #
-#     What changed, written for people who use GRKit.
+#     What changed, written for people who use GRKU.
 #
 # Below 1.0, `major` bumps the minor version and `minor` bumps the patch.
 # The Release PR workflow runs `prepare-release`. Merging that PR tags the
@@ -14,11 +14,11 @@
 [package]
 versioned_files = [
     "Cargo.toml",
-    { path = "Cargo.lock", dependency = "grkit-build" },
-    { path = "Cargo.lock", dependency = "grkit-cli" },
-    { path = "Cargo.lock", dependency = "grkit-core" },
-    { path = "Cargo.lock", dependency = "grkit-firmware" },
-    { path = "Cargo.lock", dependency = "grkit-wasm" },
+    { path = "Cargo.lock", dependency = "grku-build" },
+    { path = "Cargo.lock", dependency = "grku-cli" },
+    { path = "Cargo.lock", dependency = "grku-core" },
+    { path = "Cargo.lock", dependency = "grku-firmware" },
+    { path = "Cargo.lock", dependency = "grku-wasm" },
 ]
 changelog = "CHANGELOG.md"
 

@@ -7,7 +7,7 @@ import { defineConfig, type Plugin, type PreviewServer, type ViteDevServer } fro
 import { addPlausible, allowPlausible, plausibleOrigin } from './plausible.ts';
 
 /**
- * The GRKit version from the workspace Cargo.toml. The Release workflow builds the site
+ * The GRKU version from the workspace Cargo.toml. The Release workflow builds the site
  * and the runtimes from one commit, so the site shows the version of the runtime that it packages.
  */
 function workspaceVersion(): string {
@@ -28,7 +28,7 @@ function siteData(directory: string): Plugin {
   const root = resolve(directory);
   const serve = (server: ViteDevServer | PreviewServer) => {
     if (!existsSync(root)) {
-      server.config.logger.warn(`No site data at ${root}. Set GRKIT_SITE_DATA. See web/README.md.`);
+      server.config.logger.warn(`No site data at ${root}. Set GRKU_SITE_DATA. See web/README.md.`);
       return;
     }
     server.middlewares.use((request, response, next) => {
@@ -48,7 +48,7 @@ function siteData(directory: string): Plugin {
       createReadStream(file).pipe(response);
     });
   };
-  return { name: 'grkit-site-data', configureServer: serve, configurePreviewServer: serve };
+  return { name: 'grku-site-data', configureServer: serve, configurePreviewServer: serve };
 }
 
 /**
@@ -57,7 +57,7 @@ function siteData(directory: string): Plugin {
  */
 function woff2Only(): Plugin {
   return {
-    name: 'grkit-woff2-only',
+    name: 'grku-woff2-only',
     enforce: 'pre',
     transform(code, id) {
       if (!id.includes('/@fontsource/') || !id.endsWith('.css')) return;
@@ -76,7 +76,7 @@ const FIRST_SCREEN_FONTS = /^assets\/(inter-latin-(400|500|700)|jetbrains-mono-l
 /** Preloads the fonts of the first screen, so they download with the script and the styles. */
 function preloadFonts(): Plugin {
   return {
-    name: 'grkit-preload-fonts',
+    name: 'grku-preload-fonts',
     apply: 'build',
     transformIndexHtml: {
       order: 'post',
@@ -102,7 +102,7 @@ function plausible(host: string | undefined): Plugin {
   const origin = host ? plausibleOrigin(host) : undefined;
   let outDir = '';
   return {
-    name: 'grkit-plausible',
+    name: 'grku-plausible',
     apply: 'build',
     configResolved(config) {
       // The Node build of scripts/prerender.mjs writes no page and no `_headers`.
@@ -125,10 +125,10 @@ export default defineConfig({
     react(),
     woff2Only(),
     preloadFonts(),
-    siteData(process.env.GRKIT_SITE_DATA ?? '../dist/site-data'),
+    siteData(process.env.GRKU_SITE_DATA ?? '../dist/site-data'),
     plausible(process.env.PLAUSIBLE_HOST || undefined),
   ],
-  define: { __GRKIT_VERSION__: JSON.stringify(workspaceVersion()) },
+  define: { __GRKU_VERSION__: JSON.stringify(workspaceVersion()) },
   // The landing page shows the camera screens of the README from resources/images.
   server: { fs: { allow: ['.', '../resources/images'] } },
   build: {

@@ -18,7 +18,7 @@
    (probe.S) before it uses it. The build defines the addresses of the
    firmware release: STRTOUL, TTL_TABLE (the script array table, two words
    for each array: the word count, the address), BF_STAT, BF_OPEN, BF_READ,
-   and BF_CLOSE (crates/grkit-firmware). */
+   and BF_CLOSE (crates/grku-firmware). */
         .syntax unified
         .arm
         .text

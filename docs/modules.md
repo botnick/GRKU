@@ -19,7 +19,7 @@ The official modules in `modules/` are complete examples:
 
 ## Prerequisites
 
-- Rust 1.92 or later, to build the `grkit` command.
+- Rust 1.92 or later, to build the `grku` command.
 - Clang with ARM support. Apple Clang works. The build does not need an ARM libc or sysroot.
 - LLD as `ld.lld`. The Rust toolchain has one at `$(rustc --print sysroot)/lib/rustlib/<host>/bin/gcc-ld/ld.lld`.
 - A host C compiler as `cc`, for the host tests.
@@ -27,18 +27,18 @@ The official modules in `modules/` are complete examples:
 Install the command, then check the ARM toolchain:
 
 ```sh
-cargo install --path crates/grkit-cli --locked
-grkit doctor            # add --lld <path> if ld.lld is not on PATH
+cargo install --path crates/grku-cli --locked
+grku doctor            # add --lld <path> if ld.lld is not on PATH
 ```
 
-If you give `--lld` or `--clang` to `grkit doctor`, give the same option to `grkit module build`.
+If you give `--lld` or `--clang` to `grku doctor`, give the same option to `grku module build`.
 
 ## Create a module folder
 
 A module ID has 1 to 8 characters: `A`-`Z`, `0`-`9`, or `_`. The ID is also the file name. Select an ID that no other module on the card has.
 
 ```sh
-grkit module new --id HELLO --out hello
+grku module new --id HELLO --out hello
 ```
 
 The new folder holds a working module. It has a setting `MODE` (Off, On), a choice page for it, and a layer that draws a white square while `MODE` is On. It has the manifest `module.toml`, the C source and its test, the page text in each menu language, and the tiles. Change it one part at a time, and run the test after each change.
@@ -121,11 +121,11 @@ The tiles are 40 x 40 PNG files. Tile n shows value n of the page setting, and t
 
 ## Write the C code
 
-A module source includes only `grkit.h`, the module SDK in `runtime/sdk/`, and the generated `grkit_module.h`. `grkit_module.h` defines a handle for each setting: `SETTING_<KEY>`, and `USED_<MODULE>_<KEY>` for each used setting.
+A module source includes only `grku.h`, the module SDK in `runtime/sdk/`, and the generated `grku_module.h`. `grku_module.h` defines a handle for each setting: `SETTING_<KEY>`, and `USED_<MODULE>_<KEY>` for each used setting.
 
 ```c
-#include "grkit.h"
-#include "grkit_module.h"
+#include "grku.h"
+#include "grku_module.h"
 
 /* A layer: called for each draw of the live view with the value of its setting. */
 void hello_paint(const Surface *s, u32 value);
@@ -137,7 +137,7 @@ The core does not call a layer or a filter while the value of its setting is 0. 
 
 The build or the installer rejects a module that breaks these rules:
 
-- Call only the services that `grkit.h` declares. Do not name a firmware address or symbol: the same file runs on each camera.
+- Call only the services that `grku.h` declares. Do not name a firmware address or symbol: the same file runs on each camera.
 - Do not divide by a variable with `/` or `%`, and do not clear or copy a large array in one statement. The compiler calls helpers for them, which the core does not export. Use `divide(n, d)` and loops.
 - Keep each stack frame at 1536 bytes or less. Module code runs on the stacks of firmware tasks.
 
@@ -153,10 +153,10 @@ The handler runs in the App task, so it can start a timer and show a message box
 
 ## Test the module on the computer
 
-`grkit module test` compiles the module with the host compiler and runs `test.c` against a harness that stands in for the core. `runtime/sdk/grkit_test.h` declares the harness: a test surface, plane memory, the settings, the time, the timers, and the UI calls.
+`grku module test` compiles the module with the host compiler and runs `test.c` against a harness that stands in for the core. `runtime/sdk/grku_test.h` declares the harness: a test surface, plane memory, the settings, the time, the timers, and the UI calls.
 
 ```sh
-grkit module test --dir hello
+grku module test --dir hello
 ```
 
 The command prints `"test": "passed"`, or the failed assertion and exit status 1. A module without C sources has no test, and the command checks only the manifest and the text. A host test checks the logic and the pixels, not the behavior on a camera.
@@ -164,13 +164,13 @@ The command prints `"test": "passed"`, or the failed assertion and exit status 1
 ## Build the module file
 
 ```sh
-grkit module build --dir hello --out HELLO.GRM      # add --lld <path> if needed
+grku module build --dir hello --out HELLO.GRM      # add --lld <path> if needed
 ```
 
 The output file and the objects folder (`HELLO.objects`) must not exist. The build stops with a message for each rule that the module breaks, for example:
 
 ```text
-grkit: The module uses __aeabi_uidiv, which the core does not export (runtime/sdk/grkit.h)
+grku: The module uses __aeabi_uidiv, which the core does not export (runtime/sdk/grku.h)
 ```
 
 The installer loads a file only if its name is `<ID>.GRM`.

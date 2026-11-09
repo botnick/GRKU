@@ -1,5 +1,5 @@
 /* Prints the selective color weight table of picture.c for one parameter set, so
-   the Rust test can compare it with grkit_core::selective. argv[1] is the 14
+   the Rust test can compare it with grku_core::selective. argv[1] is the 14
    extension bytes in hex, as a GRF stores them at offset 106. */
 #include <assert.h>
 #include <stdint.h>
@@ -23,7 +23,7 @@ static void *mapped(uint32_t address, uint32_t bytes)
 #define PICTURE_DNG_RECT(shot,rect) assert(!"DNG metadata is outside this test")
 #include "picture.c"
 
-static volatile u32 header[GRKIT_HOST_HEADER_SIZE / 4];
+static volatile u32 header[GRKU_HOST_HEADER_SIZE / 4];
 volatile u32 *framing_header(void) { return header; }
 
 int main(int argc, char **argv)
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     for (u32 i = 0; i < 14; ++i) {
         unsigned value;
         assert(sscanf(argv[1] + i * 2, "%2x", &value) == 1);
-        BYTE(record, GRKIT_RECORD_SELECTIVE + i) = (u8)value;
+        BYTE(record, GRKU_RECORD_SELECTIVE + i) = (u8)value;
     }
     selective_table(record, table, &factors);
     fwrite(table, 1, sizeof table, stdout);

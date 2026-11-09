@@ -2,7 +2,7 @@
 
 Surveyed 2026-11-07/08 by a research agent of this fork; every license was read from the source. Only REDISTRIBUTABLE rows may become effects (see `effects/README.md` and `effects/NOTICE.md`).
 
-**Method.** Every license below was read from the source's own LICENSE/README/zip (via GitHub raw/API, curl, or page fetch), not inferred. Where a page states nothing, it is marked UNCLEAR. RawPedia's Film_Simulation page is currently 404 (the host now serves a bare autoindex), so I read the archived 2023 copy via the Wayback CDX API. GRKit's own `effects/NOTICE.md` already uses spektrafilm (CC BY-SA 4.0), Spectral Film LUT (MIT), t3mujinpack (MIT, HP5 only) and the gr3-film-mods fit method (MIT).
+**Method.** Every license below was read from the source's own LICENSE/README/zip (via GitHub raw/API, curl, or page fetch), not inferred. Where a page states nothing, it is marked UNCLEAR. RawPedia's Film_Simulation page is currently 404 (the host now serves a bare autoindex), so I read the archived 2023 copy via the Wayback CDX API. GRKU's own `effects/NOTICE.md` already uses spektrafilm (CC BY-SA 4.0), Spectral Film LUT (MIT), t3mujinpack (MIT, HP5 only) and the gr3-film-mods fit method (MIT).
 
 ## Master table (sorted by license-friendliness)
 
@@ -46,16 +46,16 @@ Surveyed 2026-11-07/08 by a research agent of this fork; every license was read 
 ## Recommended import set (clearly redistributable)
 
 1. **Fotufilm profiles (CC BY-SA 4.0)** — imported 2026-11-08 (15 effects, `ff-*`, from the `fotufilm` CLI on the level 8 HaldCLUT, grain/halation/flare/local tone off, `--input srgb`; recipe in `effects/sources/bake_fotufilm.sh`; Eterna 500, Reala 500D grade D and Infrared Color left out) — the biggest gap-filler: B&W (Acros 100, Delta 3200, FP4+, HP5+, T-Max 100, Tri-X, Double-X), CineStill 800T/400D, Lomochrome ×3, Lomocolor, Instax Mini/Wide, Kodachrome 25/200, Phoenix 200, Agfachrome, Reala, Superia 200/400, Aerochrome, print media incl. 2383/2393. Needs a HaldCLUT bake through its CLI; attribution text is prescribed (see table).
-2. **spektrafilm — remaining profiles** not yet in GRKit: Portra 160, Portra 800 (normal/push1), Vision3 50D/200T, Verita 200D, and 2393/Ektacolor Edge print variants. Also **natcelian/spektrafilm.exe** extras (Vision2, Tri-X, Double-X) under the same CC BY-SA 4.0.
+2. **spektrafilm — remaining profiles** not yet in GRKU: Portra 160, Portra 800 (normal/push1), Vision3 50D/200T, Verita 200D, and 2393/Ektacolor Edge print variants. Also **natcelian/spektrafilm.exe** extras (Vision2, Tri-X, Double-X) under the same CC BY-SA 4.0.
 3. **Spectral Film LUT — remaining stocks**: Vision3 5203/5213, classic cine 5247/5248/5293, Superia Reala/X-Tra, Natura 1600, Pro 160C/160S, Vericolor III, Agfa Vista 100, Velvia 50, FP-100C, Ektachrome 100D, Aerochrome III, Technicolor IV/V, Kodachrome 64, Eterna 500 Vivid, B&W print papers.
 4. **t3mujinpack — the other 50 HaldCLUTs (MIT)**: cheap wins for Ilford Delta/FP4/XP2, Agfa APX/Vista, Neopan, Fortia, Sensia, Elite Chrome, Portra NC/VC/UC variants.
 5. **Pat David RT/G'MIC sets (CC BY-SA 4.0)** for instant/Polaroid, Lomography, Rollei, Agfa, HIE/BW400CN — take only the Pat David folders (via gmic.eu or NatronGitHub/clut), label them as hand-made approximations, skip `various`/CreativePack, `picturefx`, `print`.
-6. Optional cross-check: judgem00/gr3-look-editor's 132 pre-fitted spektrafilm looks (CC BY-SA 4.0) — same camera model as GRKit.
+6. Optional cross-check: judgem00/gr3-look-editor's 132 pre-fitted spektrafilm looks (CC BY-SA 4.0) — same camera model as GRKU.
 7. Conditional/low fidelity: EmulsionPresets bakes (MIT) via open-fuji's `bake_emulsion.py` (17³, drops local ops) — only if you want Foma/ORWO/Adox/Ferrania names.
 
 ## Excluded (with reason)
 
-- **abpy/FujifilmCameraProfiles** — CC BY-NC-SA 4.0 (non-commercial). Consequence for GRKit: do **not** import gr3-film-mods' Classic Neg fit (it is abpy-derived and NC); the MIT fit method is fine.
+- **abpy/FujifilmCameraProfiles** — CC BY-NC-SA 4.0 (non-commercial). Consequence for GRKU: do **not** import gr3-film-mods' Classic Neg fit (it is abpy-derived and NC); the MIT fit method is fine.
 - **Fujifilm official LUTs** and anything built on them (kubot64/filmsim, AlynxZhou/S-Log3-Film-Simulation, V-Log-Alchemy's Fuji looks) — proprietary, no redistribution license.
 - **Stuart Sowerby** — no license stated anywhere (page or zip), plus derived from Fujifilm's RAW File Converter output; third-party "GPL-3.0" labels are not his. Ask him directly if wanted.
 - **Juan Melara PFE** — free download, no license text; **PictureFX** — no license, now commercial on itch.io.

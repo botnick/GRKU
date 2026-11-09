@@ -14,7 +14,7 @@ For RICOH GR III, GR IIIx, GR IV, and their HDF models. One ZIP serves each came
 
 ## Get the tool
 
-Download `GRKU-<version>-dump.zip` from the [latest release](https://github.com/botnick/GRKit/releases/latest). The Firmware dump tool link at the bottom of https://grku.app gives the same file.
+Download `GRKU-<version>-dump.zip` from the [latest release](https://github.com/botnick/GRKU/releases/latest). The Firmware dump tool link at the bottom of https://grku.app gives the same file.
 
 ## Dump the firmware
 
@@ -34,7 +34,7 @@ If the folder has neither file, the camera did not run the tool. Make sure that 
 ## Send the files
 
 1. Zip the `SCRIPT/GRDUMP` folder.
-2. Attach the ZIP to a [GitHub issue](https://github.com/botnick/GRKit/issues). Give the camera model and the firmware version.
+2. Attach the ZIP to a [GitHub issue](https://github.com/botnick/GRKU/issues). Give the camera model and the firmware version.
 
 If the developer asked for the dump in an issue, attach the ZIP to that issue.
 

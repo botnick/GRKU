@@ -4,7 +4,7 @@
 // PHOTOS holds the JPEGs of SOURCES under their `file` names. EFFECTS is the site effects folder
 // of the preview target (catalog.json and preview/). The film looks use the preview tables, as
 // the effects section does. Date Imprint and Glow run the module code on the full-size photo,
-// built for this computer like `grkit module test` (it needs cargo and a C compiler). Grain comes
+// built for this computer like `grku module test` (it needs cargo and a C compiler). Grain comes
 // from the camera's own grain stage, so GRAIN holds pictures that GR III firmware 2.10 recorded of
 // the tram photo (Tramway by MIKI Yoshihito) at ISO 100, with Film Look Tri-X 400 and each Grain strength (GRAIN_FILES).
 import { execFileSync } from 'node:child_process';
@@ -72,7 +72,7 @@ console.log(`Looks: ${image.width} x ${image.height}, baseline difference ${mean
 // the module code on the full photo; Framing, Crop, and Guides are geometry, done here.
 const OUT_W = 1200;
 const OUT_H = 800;
-const work = mkdtempSync(join(tmpdir(), 'grkit-landing-'));
+const work = mkdtempSync(join(tmpdir(), 'grku-landing-'));
 try {
   const decoded = (key) => jpeg.decode(photo(key), { useTArray: true, formatAsRGBA: false, maxMemoryUsageInMB: 1024 });
   /** RGB pixels of a part of a picture, kept from `left`, `top`, `width` x `height`. */
@@ -146,7 +146,7 @@ try {
   /** The renderer of a module: its sources, its generated descriptor, the harness, and landing-render.c. */
   function renderer(module, define) {
     const objects = join(work, module);
-    execFileSync('cargo', ['run', '-q', '-p', 'grkit-cli', '--', 'module', 'test', '--dir', join(ROOT, 'modules', module), '--objects', objects], {
+    execFileSync('cargo', ['run', '-q', '-p', 'grku-cli', '--', 'module', 'test', '--dir', join(ROOT, 'modules', module), '--objects', objects], {
       cwd: ROOT,
       stdio: ['ignore', 'ignore', 'inherit'],
     });
@@ -155,9 +155,9 @@ try {
     const sdk = join(ROOT, 'runtime', 'sdk');
     const executable = join(work, `render-${module}`);
     execFileSync('cc', [
-      '-std=c11', '-O2', '-Wall', '-Wno-unused-function', '-DGRKIT_TEST_PLANE_BYTES=(64U<<20)', `-D${define}`,
-      '-include', join(sdk, 'grkit_test.h'), '-I', sdk, '-I', objects,
-      join(objects, 'grkit_module.c'), ...sources, fileURLToPath(new URL('landing-render.c', import.meta.url)), join(sdk, 'grkit_test.c'),
+      '-std=c11', '-O2', '-Wall', '-Wno-unused-function', '-DGRKU_TEST_PLANE_BYTES=(64U<<20)', `-D${define}`,
+      '-include', join(sdk, 'grku_test.h'), '-I', sdk, '-I', objects,
+      join(objects, 'grku_module.c'), ...sources, fileURLToPath(new URL('landing-render.c', import.meta.url)), join(sdk, 'grku_test.c'),
       '-o', executable,
     ], { stdio: ['ignore', 'ignore', 'inherit'] });
     return (picture, args, env = {}) => {

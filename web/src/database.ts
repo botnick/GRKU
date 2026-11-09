@@ -2,7 +2,7 @@
  * The page's database in this browser (IndexedDB): the imported effects and the last connected
  * card. It is a convenience for this browser only, so each caller fails quietly without it.
  */
-const DATABASE = 'grkit';
+const DATABASE = 'grku';
 const VERSION = 2;
 
 export const IMPORTS = 'imports';

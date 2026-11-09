@@ -2,8 +2,8 @@
    gives this CORE.ASPECT layer the composition area in Surface.area and
    Surface.box, including in Guides Only mode. Off or an unavailable framing
    area has area 0, so the layer draws nothing. */
-#include "grkit.h"
-#include "grkit_module.h"
+#include "grku.h"
+#include "grku_module.h"
 
 /* MASK: black at 50% alpha (0) or at 100% (1) outside the photo area, or
    frame lines only (2). Each full draw paints the mask, so the loops write

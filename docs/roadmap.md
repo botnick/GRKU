@@ -1,8 +1,8 @@
 # Roadmap of this fork
 
-This fork of [ahonn/GRKit](https://github.com/ahonn/GRKit) keeps the one rule of GRKit that matters to us: **the camera's firmware is never flashed.** Everything loads from the SD card through the camera's SD script setting, which is turned on once (hold MENU at power-on with the activation files) and stays on until the disable package turns it off. The optional fast-boot firmware of upstream 1.5 is not part of our plan.
+This fork of [ahonn/GRKit](https://github.com/ahonn/GRKit) keeps the one rule of GRKU that matters to us: **the camera's firmware is never flashed.** Everything loads from the SD card through the camera's SD script setting, which is turned on once (hold MENU at power-on with the activation files) and stays on until the disable package turns it off. The optional fast-boot firmware of upstream 1.5 is not part of our plan.
 
-The goal is a GRKit that loads sooner, has every feature that [GRLife Pro](https://grlife.app/) and the GRKit community asked for, and ships a film library as wide as the open-source LUT world allows. This document is the plan. [docs/one-shot-start.md](one-shot-start.md) is the first delivered piece. [HANDOFF.md](../HANDOFF.md) says how to work on the repository.
+The goal is a GRKU that loads sooner, has every feature that [GRLife Pro](https://grlife.app/) and the GRKU community asked for, and ships a film library as wide as the open-source LUT world allows. This document is the plan. [docs/one-shot-start.md](one-shot-start.md) is the first delivered piece. [HANDOFF.md](../HANDOFF.md) says how to work on the repository.
 
 ## 1. Load time
 
@@ -20,9 +20,9 @@ Measurement protocol, each time: three cold power-ons, `GRKU/BOOT.TXT` lines `lo
 
 Everything in GRLife runs inside a patched firmware. Each row says how the same thing is done from the card. "Module" means a `.GRM` module of the existing module system (`docs/modules.md`), which needs no firmware knowledge. "Core hook" means a new extension point in `runtime/` at a firmware address, which needs reverse engineering of the RTOS image (`firmware/gr3-2.10/fwdc239b.bin` decoded, see HANDOFF.md, with REA and Ghidra).
 
-| GRLife feature | GRKit today | Plan | How | Effort |
+| GRLife feature | GRKU today | Plan | How | Effort |
 | --- | --- | --- | --- | --- |
-| 64 films on 13 shelves (Kodak, Fuji, CineStill, Ilford, Agfa, Polaroid, Hasselblad, Pentax, Leica, Ricoh, Creative) | **104 looks** since 2026-11-08 (83 from Pat David and t3mujinpack, see `docs/lut-sources.md`); a package carries 40, `GRKit-film-library.zip` the rest | Next: the spektrafilm and Spectral Film LUT stocks that are still missing (Vision3 50D/200T, Portra 160/800 from measured data, Superia Reala, Velvia 50, cine stocks), Fotufilm's 47 profiles, and shelves on the site | `effects/`, `grkit effects import`, `web/src/catalog.ts` | medium, mostly curation |
+| 64 films on 13 shelves (Kodak, Fuji, CineStill, Ilford, Agfa, Polaroid, Hasselblad, Pentax, Leica, Ricoh, Creative) | **104 looks** since 2026-11-08 (83 from Pat David and t3mujinpack, see `docs/lut-sources.md`); a package carries 40, `GRKU-film-library.zip` the rest | Next: the spektrafilm and Spectral Film LUT stocks that are still missing (Vision3 50D/200T, Portra 160/800 from measured data, Superia Reala, Velvia 50, cine stocks), Fotufilm's 47 profiles, and shelves on the site | `effects/`, `grku effects import`, `web/src/catalog.ts` | medium, mostly curation |
 | Hue-sector colour per film, custom `.cube` LUT | have (GRF hue feature, site import) | keep | | |
 | Film for video and in-camera RAW development | RAW development: have (1.4/1.5). Video: no | video needs the video pipeline hook | core hook | hard |
 | Grain fine / coarse / classic, Low / Med / High | 4 strengths, 4 sizes (camera's own grain) | add Pattern (moment-derived seed vs fixed seed) and Boost from the jakeds fork, as options of `modules/grain` | module | small |
@@ -51,20 +51,20 @@ From the survey of all 26 forks and 23 issues on 2026-11-08 (details in [docs/co
 | Ask | Where | Plan |
 | --- | --- | --- |
 | Recipes / native Image Control presets with WB shift | #27, kkasemsa and iceboerg00 forks, upstream `feat/recipes` | section 2, recipes row |
-| Remember GRKit settings per U1 / U2 / U3 | #19, four people | a core hook on the mode dial change plus three state files; medium |
+| Remember GRKU settings per U1 / U2 / U3 | #19, four people | a core hook on the mode dial change plus three state files; medium |
 | Custom icons and film box end-flap icon set | #38 | **Done in the compiler** (`icon: {"png": ...}`, `scripts/flap-icons.py` draws the flaps in color for every look); the site's upload control is still to do |
 | Border on JPEGs (3 % and 6 %) | #18 | module `border`: a plane filter that paints the edge; small |
 | Crop Zoom 35 / 40 / 50 mm | MustafaCisse `feat/crop-zoom-module` (camera-tested on GR III) | port as an official module; small |
 | Onion Skin (ghost of the last shot), Palette Card | kkasemsa `feature/film-packs-recipes` | port after a camera check of live-view smoothness; medium |
 | Browser effect editor, JSON upload | #62, #68 | site; medium |
-| GR World import fails with GRKit on the card | #63, open | reproduce on GR IV with `SCRIPT` present and absent; unknown cause |
+| GR World import fails with GRKU on the card | #63, open | reproduce on GR IV with `SCRIPT` present and absent; unknown cause |
 | Error 37 on the fast-boot firmware | #70, open | not our path (no firmware flashing), but the one-shot start changes the plan flow: re-test the fast-boot package anyway |
 
 ## 4. Film library
 
-The rule stays the upstream rule: an effect ships only if its source license permits redistribution of derived data (CC BY-SA 4.0 and MIT so far). The survey of open-source film LUT sources is in [docs/lut-sources.md](lut-sources.md) with each license. Import with `grkit effects import` (see `effects/README.md`), keep the attribution in `effects/NOTICE.md`, and group the site by shelf.
+The rule stays the upstream rule: an effect ships only if its source license permits redistribution of derived data (CC BY-SA 4.0 and MIT so far). The survey of open-source film LUT sources is in [docs/lut-sources.md](lut-sources.md) with each license. Import with `grku effects import` (see `effects/README.md`), keep the attribution in `effects/NOTICE.md`, and group the site by shelf.
 
-State on 2026-11-09: 134 effects (upstream 21, Pat David and t3mujinpack 83, spektrafilm and Spectral Film LUT 18, Fotufilm 15, GRKit's own Positive GRII), every one with a film box icon in the colors of the real box. The 40 of the release packages are `effects/defaults.txt`, chosen from the popularity research in [docs/popular-films-2026.md](popular-films-2026.md); the other 93 ship in `GRKit-film-library.zip`.
+State on 2026-11-09: 134 effects (upstream 21, Pat David and t3mujinpack 83, spektrafilm and Spectral Film LUT 18, Fotufilm 15, GRKU's own Positive GRII), every one with a film box icon in the colors of the real box. The 40 of the release packages are `effects/defaults.txt`, chosen from the popularity research in [docs/popular-films-2026.md](popular-films-2026.md); the other 93 ship in `GRKU-film-library.zip`.
 
 ## 5. Order of work
 

@@ -25,7 +25,7 @@ interface EffectFields {
   monochrome: boolean;
 }
 
-/** One effect of `effects/<target>/catalog.json`, which `grkit effects publish` writes. */
+/** One effect of `effects/<target>/catalog.json`, which `grku effects publish` writes. */
 export interface CatalogEffect extends EffectFields {
   look: string;
   origin: string;
@@ -92,7 +92,7 @@ export interface LutImport extends ImportData {
   grade: Grade;
   /** The input encoding that the fit used: the user's choice or the guess. */
   input: Input;
-  /** Conditions to check before using the effect, in English, as grkit-wasm gives them. */
+  /** Conditions to check before using the effect, in English, as grku-wasm gives them. */
   warnings: readonly string[];
   /** The LUT file name. */
   source: string;

@@ -7,7 +7,7 @@ import { isTone } from './names';
 // firmware file in the browser, so a later visit has them without a new import. Each call fails
 // quietly, and the page works without it.
 
-/** The start of each compiled effect (`grkit_core::effects::MAGIC`). */
+/** The start of each compiled effect (`grku_core::effects::MAGIC`). */
 const MAGIC = 'GRFX0001';
 
 interface Stored extends ImportedEffect {

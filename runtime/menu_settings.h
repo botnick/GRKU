@@ -1,10 +1,10 @@
-#ifndef GRKIT_MENU_SETTINGS_H
-#define GRKIT_MENU_SETTINGS_H
+#ifndef GRKU_MENU_SETTINGS_H
+#define GRKU_MENU_SETTINGS_H
 /* The native settings page: a borrowed MENU submenu and its value pages,
    which show the settings of a module page (runtime/menu.c). */
-/* The native settings page of a root row (MenuPage::settings). GRKit opens the
+/* The native settings page of a root row (MenuPage::settings). GRKU opens the
    MENU submenu SETTINGS_SUBMENU from ADJ, as the Fn page opens. While
-   GRKIT_HOST_SETTINGS holds the module + 1, the submenu reads a private copy
+   GRKU_HOST_SETTINGS holds the module + 1, the submenu reads a private copy
    of its kind table entry with the rows of the module (1 to SUBMENU_ROWS),
    and the value pages of the rows show and set the settings of the module.
    Row i opens the borrowed value page SETTINGS_PAGES[i], whose title is the
@@ -13,13 +13,13 @@
    of a row past the labels of the entry, shows the text ID
    SETTINGS_TITLE_TEXT, so that the text hooks find the view.
 
-   The settings block (GRKIT_TEXT_SETTINGS): the entry and the value methods
+   The settings block (GRKU_TEXT_SETTINGS): the entry and the value methods
    of its rows, the descriptors of the title and of the row labels, then for
    each view the view and its descriptor: the submenu value of each row, the
    value page rows, then the labels past those of the entry.
 
    The return to ADJ is a controller change, which ends the page. ADJ
-   refreshes also while GRKit opens the page (leave), so its refresh must not
+   refreshes also while GRKU opens the page (leave), so its refresh must not
    end the page. */
 #ifndef SETTINGS_MAP
 #define SETTINGS_MAP(address) ((volatile u32 *)MENU_TEXT(address))
@@ -33,7 +33,7 @@
 #define SETTINGS_LABEL_SLOT(row) (SUBMENU_ROWS+SETTING_VALUES+(row)-SETTINGS_LABEL_ROWS)
 #define SETTINGS_VIEW_SLOTS SETTINGS_LABEL_SLOT(SUBMENU_ROWS)
 _Static_assert(SUBMENU_KIND_SIZE<=SETTINGS_LABELS &&
-               SETTINGS_VIEWS+SETTINGS_VIEW_SLOTS*12<=GRKIT_TEXT_PARAMETER_TITLE-GRKIT_TEXT_SETTINGS,
+               SETTINGS_VIEWS+SETTINGS_VIEW_SLOTS*12<=GRKU_TEXT_PARAMETER_TITLE-GRKU_TEXT_SETTINGS,
                "The settings page fits its block");
 /* The kind table entry has room for the labels of SETTINGS_LABEL_ROWS rows
    and the controllers of SETTINGS_BORROWED rows: a later label shows in a
@@ -56,8 +56,8 @@ static u32 settings_shows(u32 current) {
     for(i=0;i<SETTINGS_BORROWED;++i) if(current==settings_pages[i]) return 1;
     return 0;
 }
-static volatile u32 *settings_block(volatile u32 *h) { return SETTINGS_MAP(GRKIT_TEXT(h)+GRKIT_TEXT_SETTINGS); }
-/* GRKIT_HOST_SETTINGS: the module + 1, SETTINGS_ONE for the one value page
+static volatile u32 *settings_block(volatile u32 *h) { return SETTINGS_MAP(GRKU_TEXT(h)+GRKU_TEXT_SETTINGS); }
+/* GRKU_HOST_SETTINGS: the module + 1, SETTINGS_ONE for the one value page
    of a page setting (choice_one), and SETTINGS_FN while the Fn adjustments
    that a row of the page opened show (menu_settings_controller). */
 #define SETTINGS_ONE 0x10000U
@@ -71,7 +71,7 @@ static volatile u32 *settings_block(volatile u32 *h) { return SETTINGS_MAP(GRKIT
    MENU_RETURN_CONTROLLER, the one of GR III, serves until a change from a
    page of MENU. */
 static u32 menu_return(volatile u32 *h) {
-    u32 id=h[GRKIT_HOST_SERVICES/4] ? services_word(h,SERVICES_MENU+MENU_ROWS_RETURN)[0] : 0;
+    u32 id=h[GRKU_HOST_SERVICES/4] ? services_word(h,SERVICES_MENU+MENU_ROWS_RETURN)[0] : 0;
     return id ? id : MENU_RETURN_CONTROLLER;
 }
 /* BaseController fields shared by the four supported firmware builds. Back
@@ -94,7 +94,7 @@ static const Setting *settings_of(volatile u32 *h,u32 module,u32 one) {
 }
 /* The settings of the open page, or 0. */
 static const Setting *settings_page(volatile u32 *h) {
-    return settings_of(h,(h[GRKIT_HOST_SETTINGS/4]&0xffffU)-1,h[GRKIT_HOST_SETTINGS/4]&SETTINGS_ONE);
+    return settings_of(h,(h[GRKU_HOST_SETTINGS/4]&0xffffU)-1,h[GRKU_HOST_SETTINGS/4]&SETTINGS_ONE);
 }
 /* The rows of the open page: the row count of the private entry. */
 static u32 settings_rows(volatile u32 *h) { return ((volatile u8 *)settings_block(h))[SUBMENU_KIND_ROWS]; }
@@ -110,7 +110,7 @@ static void settings_open(volatile u32 *h,u32 module,u32 one);
 /* The row of the value page of borrowed page `page`: a later row after it
    opened the page of SETTINGS_ALIAS. */
 static u32 settings_alias(volatile u32 *h,u32 page) {
-    u32 open=h[GRKIT_HOST_SETTINGS/4]>>SETTINGS_OPEN_ROW;
+    u32 open=h[GRKU_HOST_SETTINGS/4]>>SETTINGS_OPEN_ROW;
     return page==SETTINGS_ALIAS && open ? open : page;
 }
 /* The borrowed page that shows the value page of row `row`. */
@@ -120,7 +120,7 @@ static u32 settings_borrowed(u32 row) { return row<SETTINGS_BORROWED ? row : SET
    row is long, and a row with more values than the value slots, such as Film
    Stock. A long value page shows on an own controller with a row view for
    each value (menu_check_controller). */
-_Static_assert(GRKIT_TEXT_RECORDS+1<=MENU_VALUES_MAX,"Film Stock shows Off and each effect");
+_Static_assert(GRKU_TEXT_RECORDS+1<=MENU_VALUES_MAX,"Film Stock shows Off and each effect");
 static u32 settings_options(volatile u32 *h,const Setting *page,u32 setting) {
     const Setting *b;
     return page==listed_settings && listed_kind(h,setting,&b)==LISTED_OPTIONS;
@@ -144,7 +144,7 @@ static u32 check_row(u32 line) { return line && MENU_OBJECT_WORD(line,0)==CHECK_
    page that shows it, or the rows of the shared controller. */
 static u32 settings_long_rows(volatile u32 *h,u32 setting) {
     u32 which;
-    if(!h[GRKIT_HOST_SERVICES/4] || !check_word(h,CHECK_ID)[0] || check_word(h,CHECK_SETTING)[0]!=setting)
+    if(!h[GRKU_HOST_SERVICES/4] || !check_word(h,CHECK_ID)[0] || check_word(h,CHECK_SETTING)[0]!=setting)
         return SELECT_MENU_ROWS;
     which=settings_options(h,settings_page(h),setting) ? CHECK_PAGE_CHECKBOX : CHECK_PAGE_RADIO;
     return check_word(h,which==CHECK_PAGE_RADIO ? CHECK_RADIO : CHECK_PAGE)[0] ? check_list(h,which)[1] : SELECT_MENU_ROWS;
@@ -179,7 +179,7 @@ A32_ENTRY u32 menu_check_controller(u32 factory,u32 id) {
     u32 which,setting,controller;
     volatile u32 *slot;
     (void)factory;
-    if(!h[GRKIT_HOST_SERVICES/4] || !id || id!=check_word(h,CHECK_ID)[0]) return 0;
+    if(!h[GRKU_HOST_SERVICES/4] || !id || id!=check_word(h,CHECK_ID)[0]) return 0;
     page=settings_page(h);
     setting=check_word(h,CHECK_SETTING)[0];
     if(!page || setting>=settings_rows(h)) return 0;
@@ -202,7 +202,7 @@ A32_ENTRY u32 menu_check_controller(u32 factory,u32 id) {
    page. */
 A32_ENTRY void menu_check_lines(u32 list,u32 types,u32 count,u32 height) {
     volatile u32 *h=menu_header();
-    u32 i,build=h[GRKIT_HOST_SERVICES/4] ? check_word(h,CHECK_BUILD)[0] : 0;
+    u32 i,build=h[GRKU_HOST_SERVICES/4] ? check_word(h,CHECK_BUILD)[0] : 0;
     if(build) {
         volatile u32 *at=check_list(h,build-1);
         if(build-1==CHECK_PAGE_CHECKBOX)
@@ -227,7 +227,7 @@ A32_ENTRY u32 menu_settings_controller(u32 id) {
     volatile u32 *h=menu_header();
     u32 i;
     /* OK on an option: the value page stays, so the change does not happen. */
-    if(h[GRKIT_HOST_SERVICES/4] && services_word(h,SERVICES_MENU+MENU_ROWS_STAY)[0]) {
+    if(h[GRKU_HOST_SERVICES/4] && services_word(h,SERVICES_MENU+MENU_ROWS_STAY)[0]) {
         services_word(h,SERVICES_MENU+MENU_ROWS_STAY)[0]=0;
         return 0;
     }
@@ -237,7 +237,7 @@ A32_ENTRY u32 menu_settings_controller(u32 id) {
        the settings page keeps it, as the submenu finds the row to put its
        cursor on from the page that returns. Any other controller gets the
        native one. */
-    if(h[GRKIT_HOST_SERVICES/4] && id!=SETTINGS_SUBMENU) {
+    if(h[GRKU_HOST_SERVICES/4] && id!=SETTINGS_SUBMENU) {
         check_word(h,CHECK_ID)[0]=0;
         for(i=0;i<SETTINGS_BORROWED;++i)
             if(id==settings_pages[i] && settings_page(h) && settings_alias(h,i)<settings_rows(h) &&
@@ -247,28 +247,28 @@ A32_ENTRY u32 menu_settings_controller(u32 id) {
             }
     }
     /* The section title of MENU needs the controller that shows. The camera
-       information page shows About GRKit only after the About GRKit row. */
-    if(h[GRKIT_HOST_SERVICES/4]) {
+       information page shows About GRKU only after the About GRKU row. */
+    if(h[GRKU_HOST_SERVICES/4]) {
         services_word(h,SERVICES_MENU+MENU_ROWS_CURRENT)[0]=id;
         if(id!=INFO_CONTROLLER) services_word(h,SERVICES_MENU+MENU_ROWS_ABOUT)[0]=0;
     }
     if(id==SETTINGS_SUBMENU) {
-        h[GRKIT_HOST_SETTINGS/4]&=~(SETTINGS_FN|SETTINGS_OPEN_ROWS);
+        h[GRKU_HOST_SETTINGS/4]&=~(SETTINGS_FN|SETTINGS_OPEN_ROWS);
         if(settings_page(h)) settings_forget_all(h);
         /* The page shows its rows and labels again on each start, as a value
            page can change them: Film Stock adds Parameters once an effect is
            committed, and an ADJ Order choice moves the modules. */
         if(settings_page(h)) {
-            u32 parent=h[GRKIT_HOST_SETTINGS/4]&SETTINGS_PARENT;
-            settings_open(h,(h[GRKIT_HOST_SETTINGS/4]&0xffffU)-1,h[GRKIT_HOST_SETTINGS/4]&SETTINGS_ONE);
-            h[GRKIT_HOST_SETTINGS/4]|=parent;
+            u32 parent=h[GRKU_HOST_SETTINGS/4]&SETTINGS_PARENT;
+            settings_open(h,(h[GRKU_HOST_SETTINGS/4]&0xffffU)-1,h[GRKU_HOST_SETTINGS/4]&SETTINGS_ONE);
+            h[GRKU_HOST_SETTINGS/4]|=parent;
         }
         return id;
     }
     for(i=0;i<SETTINGS_BORROWED;++i) if(id==settings_pages[i]) {
         if(settings_page(h)) settings_forget_all(h);
         /* An options page starts with its cursor on the first option. */
-        if(h[GRKIT_HOST_SERVICES/4] && settings_page(h) && settings_alias(h,i)<settings_rows(h) &&
+        if(h[GRKU_HOST_SERVICES/4] && settings_page(h) && settings_alias(h,i)<settings_rows(h) &&
            settings_long(h,settings_page(h),settings_alias(h,i)))
             services_word(h,SERVICES_MENU+MENU_ROWS_STAY_ROW)[0]=0;
         return id;
@@ -276,14 +276,14 @@ A32_ENTRY u32 menu_settings_controller(u32 id) {
     /* The Fn adjustments that a row of the page opened return to the page,
        also after a half-press, which shows the shooting screen over them. */
     if((id==IC_PARAMETERS_CONTROLLER || (id==SHOOTING_CONTROLLER && menu_parameter_session())) &&
-       h[GRKIT_HOST_SETTINGS/4]&SETTINGS_FN) return id;
-    h[GRKIT_HOST_SETTINGS/4]=0;
-    /* A native page that GRKit opened from ADJ returns to GRKit at the next
+       h[GRKU_HOST_SETTINGS/4]&SETTINGS_FN) return id;
+    h[GRKU_HOST_SETTINGS/4]=0;
+    /* A native page that GRKU opened from ADJ returns to GRKU at the next
        ADJ (RETURN_PARAMETERS). The page, the shooting screen of a half-press,
        and ADJ keep that return. Any other screen, such as playback or MENU,
        ends it, so the next ADJ opens as a native ADJ does and its Fn works. */
-    if(RETURN_STATE(h[GRKIT_HOST_RETURN/4])==RETURN_PARAMETERS && id!=ADJ_CONTROLLER &&
-       id!=IC_PARAMETERS_CONTROLLER && id!=SHOOTING_CONTROLLER) h[GRKIT_HOST_RETURN/4]=0;
+    if(RETURN_STATE(h[GRKU_HOST_RETURN/4])==RETURN_PARAMETERS && id!=ADJ_CONTROLLER &&
+       id!=IC_PARAMETERS_CONTROLLER && id!=SHOOTING_CONTROLLER) h[GRKU_HOST_RETURN/4]=0;
     return id;
 }
 /* A MENU group and its child reuse the same SubMenuController instance.
@@ -295,12 +295,12 @@ A32_ENTRY u32 menu_settings_controller(u32 id) {
    controller that the submenu returns to (menu_return). A page that ADJ
    opened returns to ADJ, and a child to its parent, which is the submenu. */
 static void settings_note_return(volatile u32 *h,u32 controller) {
-    u32 module=h[GRKIT_HOST_SETTINGS/4]&0xffffU, target;
-    if(!controller || !h[GRKIT_HOST_SERVICES/4] ||
+    u32 module=h[GRKU_HOST_SETTINGS/4]&0xffffU, target;
+    if(!controller || !h[GRKU_HOST_SERVICES/4] ||
        services_word(h,SERVICES_MENU+MENU_ROWS_CURRENT)[0]!=SETTINGS_SUBMENU) return;
-    if(module!=LISTED_PAGE+1 && !(h[GRKIT_HOST_SETTINGS/4]&SETTINGS_PARENT)) return;
+    if(module!=LISTED_PAGE+1 && !(h[GRKU_HOST_SETTINGS/4]&SETTINGS_PARENT)) return;
     target=MENU_OBJECT_WORD(controller,SETTINGS_RETURN_TARGET);
-    /* The targets of GRKit rows (0x2000f00 and later) are no controller. */
+    /* The targets of GRKU rows (0x2000f00 and later) are no controller. */
     if(target>>12!=SETTINGS_SUBMENU>>12 || (target&0xf00U)==0xf00U || settings_shows(target) ||
        target==ADJ_CONTROLLER || target==IC_PARAMETERS_CONTROLLER) return;
     services_word(h,SERVICES_MENU+MENU_ROWS_RETURN)[0]=target;
@@ -309,9 +309,9 @@ A32_ENTRY u32 menu_settings_transition(u32 controller,u32 id) {
     volatile u32 *h=menu_header();
     u32 parent_back;
     settings_note_return(h,controller);
-    parent_back=controller && h[GRKIT_HOST_SERVICES/4] &&
+    parent_back=controller && h[GRKU_HOST_SERVICES/4] &&
         (id==SETTINGS_SUBMENU || id==menu_return(h)) &&
-        (h[GRKIT_HOST_SETTINGS/4]&SETTINGS_PARENT) &&
+        (h[GRKU_HOST_SETTINGS/4]&SETTINGS_PARENT) &&
         services_word(h,SERVICES_MENU+MENU_ROWS_CURRENT)[0]==SETTINGS_SUBMENU &&
         MENU_OBJECT_BYTE(controller,SETTINGS_BACK_PENDING);
     id=menu_settings_controller(id);
@@ -331,7 +331,7 @@ A32_ENTRY u32 menu_settings_kinds(void) {
 /* The title view of a submenu page, before the page sets its title
    (menu.S: menu_settings_kinds_r3_1). The title setter sets the text ID of
    its string view (SUBMENU_TITLE_STRING), which measures its text only when
-   the ID changes. Each GRKit page has the title ID of the borrowed entry
+   the ID changes. Each GRKU page has the title ID of the borrowed entry
    (SETTINGS_TITLE_TEXT), so a longer title was cut to the width of the title
    before it. Reset the string view, as the Fn page does with its title
    (runtime/menu.c: menu_parameter_page_kinds). */
@@ -361,7 +361,7 @@ static void settings_forget(volatile u32 *h,u32 view) {
     volatile u32 *block=settings_block(h);
     u32 i;
     for(i=0;i<SETTINGS_VIEW_SLOTS;++i) if(block[SETTINGS_VIEWS/4+i*3]==view) block[SETTINGS_VIEWS/4+i*3]=0;
-    if(h[GRKIT_HOST_SERVICES/4])
+    if(h[GRKU_HOST_SERVICES/4])
         for(i=0;i<MENU_VALUES_MAX;++i)
             if(value_entry(h,i)[MENU_VALUE_VIEW/4]==view) value_entry(h,i)[MENU_VALUE_ROW/4]=value_entry(h,i)[MENU_VALUE_VIEW/4]=0;
 }
@@ -369,7 +369,7 @@ static void settings_forget_all(volatile u32 *h) {
     volatile u32 *block=settings_block(h);
     u32 i;
     for(i=0;i<SETTINGS_VIEW_SLOTS;++i) block[SETTINGS_VIEWS/4+i*3]=0;
-    if(h[GRKIT_HOST_SERVICES/4])
+    if(h[GRKU_HOST_SERVICES/4])
         for(i=0;i<MENU_VALUES_MAX;++i) value_entry(h,i)[MENU_VALUE_ROW/4]=value_entry(h,i)[MENU_VALUE_VIEW/4]=0;
 }
 /* Show `name` in `view` of value slot `slot`. Reset the text ID first: the
@@ -389,9 +389,9 @@ A32_ENTRY u32 menu_settings_row_controller(u32 native,u32 row) {
     volatile u32 *h=menu_header();
     const Setting *page=settings_page(h);
     if(!page) return native;
-    h[GRKIT_HOST_SETTINGS/4]&=~SETTINGS_OPEN_ROWS;
+    h[GRKU_HOST_SETTINGS/4]&=~SETTINGS_OPEN_ROWS;
     if(row<SETTINGS_BORROWED || row>=settings_rows(h)) return native;
-    h[GRKIT_HOST_SETTINGS/4]|=row<<SETTINGS_OPEN_ROW;
+    h[GRKU_HOST_SETTINGS/4]|=row<<SETTINGS_OPEN_ROW;
     return settings_fn_row(h,page,row) ? MENU_FN_TARGET : settings_pages[SETTINGS_ALIAS];
 }
 /* The label text ID of row `row` of the submenu, whose row view is `line`:
@@ -443,7 +443,7 @@ static u32 settings_text(volatile u32 *h,u32 view,u32 id) {
     const Setting *page=settings_page(h);
     u32 i;
     if(!page) return 0;
-    if(h[GRKIT_HOST_SERVICES/4]) {
+    if(h[GRKU_HOST_SERVICES/4]) {
         u32 row=settings_value_row(h);
         /* The values of an open long value page. */
         if(id==SETTINGS_TITLE_TEXT && row<settings_rows(h) && settings_long(h,page,row))
@@ -613,9 +613,9 @@ static void settings_open(volatile u32 *h,u32 module,u32 one) {
                    manage_name(h,listed(h)));
     else
     descriptor(block+SETTINGS_LABELS/4,module==MANAGE_MODULE ? manage_title(h) :
-               module==SWITCH_MODULE ? grkit_title : menu_page(h,module)->title(h));
+               module==SWITCH_MODULE ? grku_title : menu_page(h,module)->title(h));
     for(i=0;i<SETTINGS_VIEW_SLOTS*3;++i) block[SETTINGS_VIEWS/4+i]=0;
-    h[GRKIT_HOST_SETTINGS/4]=(module+1)|(one ? SETTINGS_ONE : 0);
+    h[GRKU_HOST_SETTINGS/4]=(module+1)|(one ? SETTINGS_ONE : 0);
 }
 static void settings_start(volatile u32 *h,u32 module) { settings_open(h,module,0); }
-#endif /* GRKIT_MENU_SETTINGS_H */
+#endif /* GRKU_MENU_SETTINGS_H */

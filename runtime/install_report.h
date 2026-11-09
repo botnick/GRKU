@@ -1,5 +1,5 @@
-#ifndef GRKIT_INSTALL_REPORT_H
-#define GRKIT_INSTALL_REPORT_H
+#ifndef GRKU_INSTALL_REPORT_H
+#define GRKU_INSTALL_REPORT_H
 /* A part of the installer: GRKU/REPORT.TXT. installer.c includes it once, in
    its order, after the helpers and the state that this part uses.
 
@@ -128,7 +128,7 @@ static void say_details(int status);
 static void write_report(int status)
 {
     report_length = 0;
-    say("GRKU "); say(GRKIT_VERSION); say(" ("); say(target_marker + sizeof("GRKIT_TARGET=") - 1); say(")\r\n");
+    say("GRKU "); say(GRKU_VERSION); say(" ("); say(target_marker + sizeof("GRKU_TARGET=") - 1); say(")\r\n");
     if (status) {
         say("\r\nGRKU did not install: error "); say_number((u32)status); say(" ("); say(status_name((u32)status));
         say("): "); say(status_meaning((u32)status)); say(".\r\n");
@@ -153,7 +153,7 @@ static void write_report(int status)
     }
     if (module_overflow) {
         say_number(module_overflow);
-        say(" more module files are not loaded. GRKU loads at most "); say_number(GRKIT_MODULES_MAX); say(" modules.\r\n");
+        say(" more module files are not loaded. GRKU loads at most "); say_number(GRKU_MODULES_MAX); say(" modules.\r\n");
     }
     say("\r\nEffects (GRKU\\EFFECTS):\r\n");
     if (!listed_count) say(tone_used() ? "none\r\n" : "none: no module uses them\r\n");
@@ -165,7 +165,7 @@ static void write_report(int status)
         if (listed_status[i] == EFFECT_LOADED)
             /* After INSTALL, the effects are of no use without a loaded
                module that uses them, such as Film Look on GR IV Monochrome. */
-            say(status || (capabilities_used & GRKIT_CORE_TONE_BIT) ? "  loaded\r\n" : "  not used: no loaded module uses effects\r\n");
+            say(status || (capabilities_used & GRKU_CORE_TONE_BIT) ? "  loaded\r\n" : "  not used: no loaded module uses effects\r\n");
         else if (listed_status[i] == EFFECT_OFF && listed_record[i] != EFFECTS_NO_RECORD)
             say("  loaded, hidden: Off in the GRKU section of MENU\r\n");
         else if (listed_status[i] == EFFECT_OFF) say("  not loaded: Off in the GRKU section of MENU\r\n");

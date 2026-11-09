@@ -1,7 +1,7 @@
 """Film box icons for the Film Look effects: 40 x 40 RGBA with binary alpha, rows 2 to 37
 opaque like the native list frames, drawn after the real boxes: the brand band in the brand
 colors, the body in the colors of the box of that film, the name in Roboto Condensed Bold and
-the speed in Roboto Condensed Black (the fonts of crates/grkit-core/assets, SIL OFL 1.1), and a
+the speed in Roboto Condensed Black (the fonts of crates/grku-core/assets, SIL OFL 1.1), and a
 film type stripe at the bottom: orange negative, sky blue slide, gray black-and-white, teal
 motion picture, rose instant.
 
@@ -19,7 +19,7 @@ import base64, io, json, pathlib, sys
 from PIL import Image, ImageDraw, ImageFont
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
-ASSETS = REPO / 'crates' / 'grkit-core' / 'assets'
+ASSETS = REPO / 'crates' / 'grku-core' / 'assets'
 BOLD = str(ASSETS / 'RobotoCondensed-Bold.ttf')
 BLACK_FONT = str(ASSETS / 'RobotoCondensed-Black.ttf')
 

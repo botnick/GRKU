@@ -10,7 +10,7 @@ The compiler writes self-contained GRFX0001 files with a 40 x 40 icon. `golden.j
 
 | Field | Required | Value |
 |---|---|---|
-| `schema` | Yes | `grkit-effect-v1` |
+| `schema` | Yes | `grku-effect-v1` |
 | `effect_id` | Yes | The stable ID, the same as the directory name |
 | `name` | Yes | 1 to 16 printable ASCII characters |
 | `flags` | Yes | 0, or 1 for monochrome |
@@ -19,9 +19,9 @@ The compiler writes self-contained GRFX0001 files with a 40 x 40 icon. `golden.j
 | `icon` | Yes | A label tile, a film box, or a motion picture film label. See [Icons](#icons). |
 | `attribution` | Yes | The origin, source, and license |
 | `post_matrix` | No | Nine signed Q13 coefficients, row-major, after the tone curves |
-| `selective_color` | No | Keeps the chroma of one hue range. `crates/grkit-core/src/selective.rs` defines the fields. |
-| `hue_sectors` | No | The camera's hue-sector stage. `crates/grkit-core/src/hue.rs` defines the fields. |
-| `native_look` | No | The hue-sector set and tone offsets of a look from camera firmware. It excludes `hue_sectors`. `crates/grkit-core/src/native_look.rs` defines the fields. |
+| `selective_color` | No | Keeps the chroma of one hue range. `crates/grku-core/src/selective.rs` defines the fields. |
+| `hue_sectors` | No | The camera's hue-sector stage. `crates/grku-core/src/hue.rs` defines the fields. |
+| `native_look` | No | The hue-sector set and tone offsets of a look from camera firmware. It excludes `hue_sectors`. `crates/grku-core/src/native_look.rs` defines the fields. |
 
 A monochrome effect cannot have `post_matrix`, `selective_color`, `hue_sectors`, or `native_look`.
 
@@ -48,20 +48,20 @@ To refit an effect:
 
 1. Bake its LUT with the script and the generator revision in `sources/manifest.json`. For a HaldCLUT, download the file at its `upstream` path.
 2. Compare the SHA-256 with the manifest. Floating-point results can differ on another platform.
-3. Run `grkit effects import` with the `input` and `exposure` of the old `attribution`.
+3. Run `grku effects import` with the `input` and `exposure` of the old `attribution`.
 4. Restore `icon` and the `license`, `target`, and `generator` of `attribution`. Then update `golden.json`.
 
 ## Import a LUT
 
-`grkit effects import` fits a `.cube` LUT or a HaldCLUT image (PNG or TIFF) to the effect model and writes `OUT/ID/effect.json`. The fit needs the Standard base gamma, which the command reads from your copy of the official GR III 2.10 firmware. The repository contains no firmware data.
+`grku effects import` fits a `.cube` LUT or a HaldCLUT image (PNG or TIFF) to the effect model and writes `OUT/ID/effect.json`. The fit needs the Standard base gamma, which the command reads from your copy of the official GR III 2.10 firmware. The repository contains no firmware data.
 
 ```sh
-grkit effects import --lut look.cube --firmware fwdc239b.bin --input standard \
+grku effects import --lut look.cube --firmware fwdc239b.bin --input standard \
   --id my-look-v1 --name "My Look" --label FV --shape film --out effects
 ```
 
-`--input` selects the encoding of the LUT input: `standard` (a GR JPEG in Standard), `srgb`, `linear`, `vlog`, `flog`, `flog2`, or `flog2c`. The default, `auto`, guesses Standard or a log from the data. `--exposure` shifts the scene light before the LUT. `grkit effects import --help` lists every option.
+`--input` selects the encoding of the LUT input: `standard` (a GR JPEG in Standard), `srgb`, `linear`, `vlog`, `flog`, `flog2`, or `flog2c`. The default, `auto`, guesses Standard or a log from the data. `--exposure` shifts the scene light before the LUT. `grku effects import --help` lists every option.
 
 Check the grade and the warnings before you use an imported effect, then add the license of the LUT to `attribution`. The site runs the same fit in the browser. See [LUT import](../web/README.md#lut-import).
 
-The fit follows [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods) ([MIT](../crates/grkit-core/GR3_FILM_MODS_LICENSE.txt)). `crates/grkit-core/src/fit/` describes the model.
+The fit follows [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods) ([MIT](../crates/grku-core/GR3_FILM_MODS_LICENSE.txt)). `crates/grku-core/src/fit/` describes the model.
