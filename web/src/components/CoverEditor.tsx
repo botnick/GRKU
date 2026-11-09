@@ -63,14 +63,13 @@ export function CoverFieldset({ strings: t, editor, disabled }: Props) {
   const edit = <K extends keyof CoverFields>(key: K, value: CoverFields[K]) =>
     void editor.show({ ...cover, [key]: value });
   return (
-    <fieldset className="flex flex-col gap-3 rounded-xl border border-border p-4 disabled:opacity-60" disabled={disabled}>
-      <legend className="px-1 text-sm font-medium">{t.iconHeading}</legend>
-      <div className="flex items-center justify-center rounded-lg bg-muted p-4">
-        <CoverIcon cover={coverIcon(cover)} className="size-20" />
-      </div>
-      <details className="group" open>
-        <summary className="cursor-pointer text-sm text-muted-foreground">{t.iconEdit}</summary>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+    <fieldset className="flex flex-col gap-2 disabled:opacity-60" disabled={disabled}>
+      <legend className="mb-2 text-sm font-medium">{t.iconHeading}</legend>
+      <div className="flex flex-col gap-4 rounded-xl border bg-card p-4 sm:flex-row sm:items-start">
+        <div className="flex shrink-0 items-center justify-center rounded-lg bg-muted p-3">
+          <CoverIcon cover={coverIcon(cover)} className="size-20" />
+        </div>
+        <div className="grid flex-1 gap-3 sm:grid-cols-3">
           {(
             [
               ['brand', t.iconBrand, true],
@@ -100,7 +99,7 @@ export function CoverFieldset({ strings: t, editor, disabled }: Props) {
           </div>
           {!validCover(cover) && <p className="text-sm text-destructive sm:col-span-3">{t.iconNote}</p>}
         </div>
-      </details>
+      </div>
       {error && <p className="text-sm text-destructive">{t.iconTooWide}</p>}
     </fieldset>
   );

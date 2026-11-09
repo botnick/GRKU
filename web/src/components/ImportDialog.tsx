@@ -9,7 +9,9 @@ import {
 } from 'react';
 import { Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -222,16 +224,10 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
         if (!next) close();
       }}
     >
-      <DialogContent
-        showCloseButton={false}
-        aria-describedby={undefined}
-        className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg"
-      >
-        <DialogHeader className="flex-row items-center justify-between gap-4 text-left">
-          <DialogTitle>{t.importTitle}</DialogTitle>
-          <Button type="button" variant="outline" size="sm" onClick={close}>
-            {t.close}
-          </Button>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg">
+        <DialogHeader className="text-left">
+          <DialogTitle className="text-xl">{t.importTitle}</DialogTitle>
+          <DialogDescription>{t.importNote}</DialogDescription>
         </DialogHeader>
 
         {done ? (
@@ -268,23 +264,23 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
           </div>
         ) : (
           <form className="flex flex-col gap-5" onSubmit={submit}>
-            <p className="text-sm text-muted-foreground">{t.importNote}</p>
-
             <div className="flex flex-col gap-1.5">
-              <Button
-                asChild
-                variant="outline"
+              <label
+                htmlFor={`${ids}-file`}
+                aria-disabled={importing}
                 className={cn(
-                  'h-auto min-h-11 w-full justify-start font-normal whitespace-normal',
+                  'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-input bg-card/60 px-4 py-6 text-center transition-colors hover:border-foreground/40 hover:bg-accent/40',
                   FILE_FOCUS,
+                  file && 'border-solid border-foreground/40',
                   importing && 'pointer-events-none opacity-50',
                 )}
               >
-                <label htmlFor={`${ids}-file`} aria-disabled={importing}>
-                  <Upload aria-hidden="true" />
-                  <span className="min-w-0 truncate">{file?.name ?? t.importFile}</span>
-                </label>
-              </Button>
+                <span className="flex size-10 items-center justify-center rounded-full bg-muted text-foreground" aria-hidden="true">
+                  <Upload className="size-4" />
+                </span>
+                <span className="max-w-full truncate text-sm font-medium">{file?.name ?? t.importFile}</span>
+                {file && <span className="text-xs text-muted-foreground">{t.importFile}</span>}
+              </label>
               <input
                 key={fileKey}
                 id={`${ids}-file`}
@@ -344,30 +340,23 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
 
             <CoverFieldset strings={t} editor={coverEditor} disabled={importing} />
 
-            <details className="rounded-lg border border-border px-4 py-3 text-sm">
-              <summary className="font-medium">{t.haldSummary}</summary>
-              <p className="mt-2 text-muted-foreground">{t.haldNote}</p>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="mt-3"
-                onClick={() => void saveHaldImage().then(trackHaldImage)}
-              >
-                {t.haldDownload}
-              </Button>
-            </details>
+            <Accordion type="single" collapsible className="rounded-xl border px-4">
+              <AccordionItem value="hald" className="border-b-0">
+                <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">{t.haldSummary}</AccordionTrigger>
+                <AccordionContent className="flex flex-col items-start gap-3 text-sm text-muted-foreground">
+                  <p>{t.haldNote}</p>
+                  <Button type="button" variant="outline" size="sm" onClick={() => void saveHaldImage().then(trackHaldImage)}>
+                    {t.haldDownload}
+                  </Button>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
             <div aria-live="polite">
               {status.state === 'importing' && (
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <p>{t.importing}</p>
-                  <progress
-                    className="h-2 min-w-0 flex-1 appearance-none overflow-hidden rounded-full bg-muted [&::-moz-progress-bar]:bg-foreground [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-foreground"
-                    max={1}
-                    value={status.fraction}
-                    aria-label={t.importing}
-                  />
+                  <p className="shrink-0">{t.importing}</p>
+                  <Progress value={status.fraction * 100} className="h-1.5 flex-1" aria-label={t.importing} />
                   <span className="tabular-nums">{Math.round(status.fraction * 100)}%</span>
                 </div>
               )}
@@ -379,12 +368,15 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
             </div>
 
             <DialogFooter>
+              <Button type="button" variant="outline" onClick={close}>
+                {t.cancel}
+              </Button>
               <Button type="submit" variant="brand" disabled={!ready} aria-busy={importing}>
                 {t.importButton}
               </Button>
             </DialogFooter>
 
-            <div className="flex flex-col gap-2 border-t border-border pt-4 text-sm text-muted-foreground">
+            <div className="flex flex-col gap-2 rounded-xl bg-muted/50 p-4 text-[13px] leading-relaxed text-muted-foreground">
               <p>
                 <strong className="font-semibold text-foreground">{t.importHowTitle}</strong> {t.importHow}
               </p>

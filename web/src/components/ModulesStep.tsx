@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { Strings } from '../i18n';
@@ -74,32 +74,27 @@ export function ModulesStep({
   return (
     <div className="flex flex-col gap-10">
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-        <div role="group" aria-label={t.modules} className="grid gap-3 sm:grid-cols-2">
+        <ul role="group" aria-label={t.modules} className="divide-y divide-border overflow-hidden rounded-xl border bg-card">
           {modules.map((module) => {
             const on = enabled.has(module.key);
             return (
-              <Label
-                key={module.key}
-                htmlFor={`module-${module.key}`}
-                className={cn(
-                  'flex cursor-pointer items-start gap-3 rounded-xl border bg-card p-4 text-left text-base leading-normal font-normal transition-colors hover:border-input',
-                  on && 'border-foreground/60',
-                )}
-              >
-                <Checkbox id={`module-${module.key}`} className="mt-1" checked={on} onCheckedChange={() => onToggle(module.key)} />
-                <img src={TILES[module.key]} alt="" width="40" height="40" className="mt-0.5 size-9 rounded-[3px] [image-rendering:pixelated]" />
-                <span className="flex min-w-0 flex-1 flex-col gap-1">
-                  <span className="flex flex-wrap items-center gap-2 font-semibold">
-                    {t.moduleNames[module.key]}
-                    {installed && <ChangeBadge on={installed.includes(module.id)} checked={planned.includes(module.id)} strings={t} />}
-                  </span>
-                  <span className="text-sm leading-relaxed text-muted-foreground">{t.modulesText[module.key]}</span>
-                  {module.key === 'filmLook' && emptyLooks && <span className="text-sm text-destructive">{t.filmLookEmpty}</span>}
-                </span>
-              </Label>
+              <li key={module.key} className={cn('flex items-start gap-4 p-4 transition-opacity', !on && 'opacity-60')}>
+                <img src={TILES[module.key]} alt="" width="40" height="40" className="mt-0.5 size-10 shrink-0 rounded-[3px] [image-rendering:pixelated]" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-4">
+                    <Label htmlFor={`module-${module.key}`} className="flex cursor-pointer flex-wrap items-center gap-2 text-[15px] font-semibold">
+                      {t.moduleNames[module.key]}
+                      {installed && <ChangeBadge on={installed.includes(module.id)} checked={planned.includes(module.id)} strings={t} />}
+                    </Label>
+                    <Switch id={`module-${module.key}`} checked={on} onCheckedChange={() => onToggle(module.key)} aria-label={t.moduleNames[module.key]} />
+                  </div>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t.modulesText[module.key]}</p>
+                  {module.key === 'filmLook' && emptyLooks && <p className="mt-1 text-sm text-destructive">{t.filmLookEmpty}</p>}
+                </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
 
         <Card
           className="gap-0 rounded-2xl border-input bg-[#0c0c0c] py-0 shadow-[0_24px_60px_rgba(0,0,0,0.5)] lg:sticky lg:top-20"

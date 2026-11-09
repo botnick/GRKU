@@ -8,17 +8,16 @@ import {
   type ChangeEvent,
   type ReactNode,
 } from 'react';
-import { Check, LoaderCircle, Lock, Plus, Search, Sparkles, Upload } from 'lucide-react';
+import { Check, LoaderCircle, Lock, Plus, Search, Sparkles, TriangleAlert, Upload, X } from 'lucide-react';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { CAMERAS, PREVIEW_TARGET } from '../cameras';
 import { effectUrl, MAX_EFFECTS, previewTable, type CardEffect, type Catalog, type Effect, type ImportedEffect } from '../catalog';
@@ -26,7 +25,7 @@ import { brandOf, FILM_KINDS, filmKind, type FilmKind } from '../filmKind';
 import { sentences, type Strings } from '../i18n';
 import { editable } from '../import/edit';
 import { LANDING_HERO, LANDING_PHOTOS, landingImage } from '../landing';
-import { slotsOf, takesSlot, usedSlots, type Entitlement } from '../plus';
+import { PRICES, slotsOf, takesSlot, usedSlots, type Entitlement } from '../plus';
 import { PhotoLoader } from '../preview/raw';
 import { forget, prefetchTable, preview, type PreviewEffect, type Source } from '../preview/render';
 import { DEFAULT_SAMPLE } from '../preview/samples';
@@ -312,10 +311,10 @@ export function Workbench({
         size={size}
         className="shrink-0"
         aria-pressed={requestedOn}
-        disabled={!requestedOn && !canAdd(requested)}
+        disabled={!requestedOn && checked.size >= MAX_EFFECTS}
         onClick={() => (requestedOn || canAdd(requested) ? toggle(requested) : onPlus())}
       >
-        {requestedOn ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}
+        {requestedOn ? <Check aria-hidden="true" /> : canAdd(requested) ? <Plus aria-hidden="true" /> : <Lock aria-hidden="true" />}
         {requestedOn ? t.onCard : t.addToCard}
       </Button>
     );
@@ -334,7 +333,7 @@ export function Workbench({
       ref={ownPhoto}
     >
       {/* The headline. */}
-      <div id={LANDING_HERO} className="pt-[clamp(28px,6vh,72px)] lg:col-start-1 lg:row-start-1">
+      <div id={LANDING_HERO} className="min-w-0 pt-[clamp(28px,6vh,72px)] lg:col-start-1 lg:row-start-1">
         <h1 className="text-balance text-[clamp(38px,4.6vw,60px)] leading-[1.06] font-bold tracking-[-0.025em]">{t.lead[0]}</h1>
         <p className="mt-4 max-w-[30em] text-[clamp(16px,1.3vw,19px)] leading-relaxed text-muted-foreground">{t.lead[1]}</p>
         <div className="mt-7 flex flex-wrap items-center gap-3">
@@ -348,11 +347,15 @@ export function Workbench({
         <p className="mt-5 max-w-[40em] text-sm leading-relaxed text-muted-foreground">
           {sentences(t.landing.supports(SUPPORTED_CAMERAS), canWrite ? t.landing.installNote : t.landing.installNoteZip)}
         </p>
+        <p className="mt-3 flex items-start gap-2 text-sm font-medium">
+          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden="true" />
+          {t.riskShort}
+        </p>
       </div>
 
       {/* The photograph, which stays in view while the shelf scrolls. */}
       <aside
-        className="sticky top-14 z-20 -mx-gutter bg-background px-gutter pt-3 pb-3 lg:top-[72px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:self-start lg:px-0 lg:pt-[clamp(28px,6vh,72px)] lg:pb-0"
+        className="sticky top-14 z-20 -mx-gutter min-w-0 bg-background px-gutter pt-3 pb-3 lg:top-[72px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:self-start lg:px-0 lg:pt-[clamp(28px,6vh,72px)] lg:pb-0"
         aria-label={t.preview}
       >
         <div className="relative">
@@ -432,7 +435,7 @@ export function Workbench({
       </aside>
 
       {/* The shelf. */}
-      <div id="looks" className="scroll-mt-20 lg:col-start-1 lg:row-start-2">
+      <div id="looks" className="min-w-0 scroll-mt-20 lg:col-start-1 lg:row-start-2">
         <StepHeading
           id="looks-title"
           number={t.step(1)}
@@ -448,15 +451,35 @@ export function Workbench({
                 </span>
               </div>
               {!owned.plus && (
-                <Button type="button" variant="outline" size="sm" onClick={onPlus}>
-                  <Sparkles aria-hidden="true" className="text-brand" />
+                <Button type="button" variant="brand" size="sm" onClick={onPlus}>
+                  <Sparkles aria-hidden="true" />
                   {t.plus.getMore}
                 </Button>
               )}
             </>
           }
         />
-        <p className="mb-4 text-sm text-muted-foreground">{t.freeIncludes(slotsOf({ ...owned, plus: false, slots: owned.slots }))}</p>
+        {!owned.plus && (
+          <div className="mb-4 flex flex-col gap-3 rounded-xl border border-brand/40 bg-brand/[0.08] p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="flex items-center gap-2 font-semibold">
+                <Sparkles className="size-4 text-brand" aria-hidden="true" />
+                {t.plus.title}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{t.plus.lead}</p>
+              <p className="mt-1.5 text-[13px] text-muted-foreground tabular-nums">
+                {t.plus.tierAll} <b className="font-semibold text-foreground">฿{PRICES.plus}</b> · {t.plus.tierSlots}{' '}
+                <b className="font-semibold text-foreground">฿{PRICES.slots25}</b> · {t.plus.tierPack}{' '}
+                <b className="font-semibold text-foreground">฿{PRICES['pack:kodak']}</b>
+              </p>
+            </div>
+            <Button type="button" variant="brand" className="shrink-0" onClick={onPlus}>
+              <Sparkles aria-hidden="true" />
+              {t.plus.getMore}
+            </Button>
+          </div>
+        )}
+        <p className="mb-4 text-[13px] text-muted-foreground">{t.freeIncludes(slotsOf({ ...owned, plus: false, slots: owned.slots }))}</p>
 
         {notice && (
           <Alert className="mb-4">
@@ -504,39 +527,26 @@ export function Workbench({
               </SelectContent>
             </Select>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              size="sm"
-              spacing={2}
-              className="flex-wrap"
+          {/* The kinds of film on one line, the chosen one underlined; the line scrolls on a phone. */}
+          <Tabs value={kind} onValueChange={(value) => setKind(value as FilmKind | 'all')} className="-mx-gutter min-w-0 px-gutter lg:mx-0 lg:px-0">
+            <TabsList
+              variant="line"
+              className="h-auto w-full max-w-full justify-start gap-0 overflow-x-auto border-b border-border p-0 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               aria-label={t.searchEffects}
-              value={kind}
-              onValueChange={(value) => {
-                if (value) setKind(value as FilmKind | 'all');
-              }}
             >
-              <ToggleGroupItem value="all" className="bg-card">
+              <TabsTrigger value="all" className="h-8 flex-none px-3 text-[13px]">
                 {t.filterAll}
-              </ToggleGroupItem>
+              </TabsTrigger>
               {kinds.map((item) => (
-                <ToggleGroupItem key={item} value={item} className="bg-card">
+                <TabsTrigger key={item} value={item} className="h-8 flex-none px-3 text-[13px]">
                   {kindLabel(item, t)}
-                </ToggleGroupItem>
+                </TabsTrigger>
               ))}
-            </ToggleGroup>
-          </div>
+            </TabsList>
+          </Tabs>
           <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-muted-foreground tabular-nums">
             <span>{catalog ? t.shownOf(visible.length, listed.length) : error ? t.loadError : t.loading}</span>
-            <span className="flex items-center gap-3">
-              <span>{t.previewFree}</span>
-              {checked.size > 0 && (
-                <Button type="button" variant="ghost" size="xs" onClick={() => onSelectionChange(new Set())}>
-                  {t.clear}
-                </Button>
-              )}
-            </span>
+            <span>{t.previewFree}</span>
           </div>
           {error && (
             <Button type="button" variant="outline" size="sm" className="self-start" onClick={retry}>
@@ -544,6 +554,46 @@ export function Workbench({
             </Button>
           )}
         </div>
+
+        {checked.size > 0 && (
+          <div className="mt-4 rounded-xl border bg-card/60 p-3">
+            <div className="mb-2 flex items-center justify-between gap-3 text-[13px]">
+              <span className="font-medium">
+                {t.onCard} · <span className="tabular-nums">{checked.size}</span>
+              </span>
+              <Button type="button" variant="ghost" size="xs" onClick={() => onSelectionChange(new Set())}>
+                {t.clear}
+              </Button>
+            </div>
+            <ul className="flex gap-2.5 overflow-x-auto pt-1 pr-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={t.onCard}>
+              {listed
+                .filter((effect) => checked.has(effect.id))
+                .map((effect) => (
+                  <li key={effect.id} className="relative shrink-0">
+                    <button
+                      type="button"
+                      className={cn('block rounded-md p-0.5', effect.id === requested?.id && 'ring-2 ring-brand/70', RING)}
+                      aria-label={t.previewOf(effect.name)}
+                      title={effect.name}
+                      onClick={() => {
+                        if (!effect.card) showEffect(effect);
+                      }}
+                    >
+                      <EffectIcon effect={effect} className="size-11" />
+                    </button>
+                    <button
+                      type="button"
+                      className={cn('absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-foreground text-background ring-2 ring-background hover:bg-brand hover:text-white', RING)}
+                      aria-label={t.removeOf(effect.name)}
+                      onClick={() => toggle(effect)}
+                    >
+                      <X className="size-2.5" strokeWidth={3} aria-hidden="true" />
+                    </button>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        )}
 
         <ul className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-6 xl:grid-cols-7" aria-label={t.effects}>
           {!catalog &&
@@ -558,7 +608,6 @@ export function Workbench({
             const isChecked = checked.has(effect.id);
             const isPreviewed = effect.id === requested?.id;
             const stock = STOCKS[effect.id];
-            const locked = !isChecked && !canAdd(effect) && checked.size < MAX_EFFECTS;
             // The box and one line of name: the preview pane tells the rest. The stock and the
             // kind are in the tooltip of the card.
             const detail = [effect.card ? t.cardOnlyEffect : effect.monochrome ? t.mono : t.color, stock ? stockText(stock, t) : null]
@@ -582,23 +631,13 @@ export function Workbench({
                 data-checked={isChecked || undefined}
                 data-previewed={isPreviewed || undefined}
               >
-                {locked ? (
-                  <button
-                    type="button"
-                    className={cn('absolute top-1 left-1 z-10 flex size-4 items-center justify-center rounded-[4px] border border-input bg-card text-muted-foreground hover:text-foreground', RING)}
-                    aria-label={t.plus.lockedTitle}
-                    onClick={onPlus}
+                {isChecked && (
+                  <span
+                    className="absolute -top-1.5 -right-1.5 z-10 flex size-[18px] items-center justify-center rounded-full bg-foreground text-background ring-2 ring-background"
+                    aria-hidden="true"
                   >
-                    <Lock className="size-2.5" aria-hidden="true" />
-                  </button>
-                ) : (
-                  <Checkbox
-                    className="absolute top-1 left-1 z-10 size-4 bg-card"
-                    checked={isChecked}
-                    disabled={!isChecked && checked.size >= MAX_EFFECTS}
-                    aria-label={isChecked ? `${effect.name}: ${t.onCard}` : `${effect.name}: ${t.addToCard}`}
-                    onCheckedChange={() => toggle(effect)}
-                  />
+                    <Check className="size-3" strokeWidth={3} />
+                  </span>
                 )}
                 {effect.card ? (
                   <div className="flex w-full flex-1 flex-col items-center gap-1.5 pt-0.5 text-center">{body}</div>
@@ -607,7 +646,7 @@ export function Workbench({
                     type="button"
                     className={cn('flex w-full flex-1 flex-col items-center gap-1.5 rounded-md pt-0.5 text-center', RING)}
                     aria-pressed={isPreviewed}
-                    aria-label={t.previewOf(effect.name)}
+                    aria-label={isChecked ? `${t.previewOf(effect.name)} · ${t.onCard}` : t.previewOf(effect.name)}
                     onPointerEnter={() => prefetch(effect)}
                     onFocus={() => prefetch(effect)}
                     onPointerDown={() => startPreview(effect)}
@@ -617,7 +656,7 @@ export function Workbench({
                   </button>
                 )}
                 {onCard && (
-                  <span className="absolute -top-1.5 -right-1.5 scale-90">
+                  <span className="absolute -top-1.5 -left-1.5 scale-90">
                     <ChangeBadge on={onCard.has(effect.id)} checked={isChecked} changed={changedOnCard?.has(effect.id)} strings={t} />
                   </span>
                 )}

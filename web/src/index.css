@@ -34,6 +34,10 @@
   --brand-foreground: #ffffff;
   --gutter: clamp(16px, 4vw, 56px);
   --font-language: 'Inter';
+  /* The typeface of the page: Inter, with the font of the page language beside it. A Thai page
+     is set in IBM Plex Sans Thai throughout, Latin letters included, so a headline that mixes
+     scripts keeps one weight and one rhythm. */
+  --font-page: 'Inter', var(--font-language), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* The font of the page language, beside Inter. fonts.ts loads its files. */
@@ -51,6 +55,7 @@
 }
 :root[lang='th'] {
   --font-language: 'IBM Plex Sans Thai';
+  --font-page: 'IBM Plex Sans Thai', 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
 @theme inline {
@@ -79,7 +84,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
-  --font-sans: 'Inter', var(--font-language), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-page);
   --font-mono: 'JetBrains Mono', var(--font-language), ui-monospace, monospace;
   --spacing-gutter: var(--gutter);
 }
@@ -102,6 +107,10 @@
   :root[lang='th'] :is(h1, h2, h3) {
     line-height: 1.3;
     letter-spacing: 0;
+  }
+  /* The 700 file of IBM Plex Sans Thai draws a stray mark over an R that a Thai word follows. */
+  :root[lang='th'] h1 {
+    font-weight: 600;
   }
 }
 

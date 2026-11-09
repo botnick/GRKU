@@ -63,6 +63,7 @@ export function SiteFooter({
           </ul>
         </div>
         <div className="flex flex-col gap-2 border-t border-border pt-6 text-[13px] text-muted-foreground">
+          <p className="font-medium text-foreground">{t.riskShort}</p>
           <p className="max-w-[80ch]">{t.trademarks}</p>
           <p>
             <b className="font-semibold text-foreground">GRKU {t.landing.edition}</b> — {t.landing.fork[0]}

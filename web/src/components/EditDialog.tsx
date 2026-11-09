@@ -85,16 +85,9 @@ export function EditDialog({ strings: t, onSave, ref }: Props) {
         if (!next) close();
       }}
     >
-      <DialogContent
-        showCloseButton={false}
-        aria-describedby={undefined}
-        className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md"
-      >
-        <DialogHeader className="flex-row items-center justify-between gap-4 text-left">
-          <DialogTitle>{t.editTitle}</DialogTitle>
-          <Button type="button" variant="outline" size="sm" onClick={close}>
-            {t.close}
-          </Button>
+      <DialogContent aria-describedby={undefined} className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md">
+        <DialogHeader className="text-left">
+          <DialogTitle className="text-xl">{t.editTitle}</DialogTitle>
         </DialogHeader>
         {effect && (
           <form className="flex flex-col gap-5" onSubmit={submit}>
@@ -128,6 +121,9 @@ export function EditDialog({ strings: t, onSave, ref }: Props) {
             )}
             <div aria-live="polite">{failed && <p className="text-sm text-destructive">{t.editError}</p>}</div>
             <DialogFooter>
+              <Button type="button" variant="outline" onClick={close}>
+                {t.cancel}
+              </Button>
               <Button type="submit" variant="brand" disabled={!ready} aria-busy={saving}>
                 {t.editSave}
               </Button>

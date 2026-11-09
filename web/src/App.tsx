@@ -1,4 +1,6 @@
 import { Suspense, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { TriangleAlert } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -972,6 +974,11 @@ export function App({
         </Step>
 
         <Step id="install" number={t.step(4)} title={t.install} description={canWrite ? t.landing.installNote : t.landing.installNoteZip}>
+          <Alert className="mb-8 border-destructive/50 bg-destructive/10">
+            <TriangleAlert className="text-destructive" aria-hidden="true" />
+            <AlertTitle className="text-base font-semibold text-destructive">{t.riskTitle}</AlertTitle>
+            <AlertDescription className="max-w-[80ch] text-foreground/85">{t.riskText}</AlertDescription>
+          </Alert>
           <dl className="mb-8 grid gap-5 sm:grid-cols-3">
             {t.landing.facts.map(([title, text]) => (
               <div key={title} className="flex flex-col gap-1 border-l-2 border-brand/70 pl-4">
