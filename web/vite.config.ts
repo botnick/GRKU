@@ -71,8 +71,7 @@ function woff2Only(): Plugin {
  * preload the browser finds these fonts late, paints a system font first, and the text moves
  * when they arrive.
  */
-const FIRST_SCREEN_FONTS =
-  /^assets\/ibm-plex-(sans-latin-(400|500|600)|sans-condensed-latin-700|mono-latin-400)-normal-[\w-]+\.woff2$/;
+const FIRST_SCREEN_FONTS = /^assets\/(inter-latin-(400|500|700)|jetbrains-mono-latin-400)-normal-[\w-]+\.woff2$/;
 
 /** Preloads the fonts of the first screen, so they download with the script and the styles. */
 function preloadFonts(): Plugin {

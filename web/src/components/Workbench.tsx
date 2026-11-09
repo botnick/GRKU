@@ -1,0 +1,746 @@
+import {
+  Suspense,
+  use,
+  useCallback,
+  useRef,
+  useState,
+  useTransition,
+  type ChangeEvent,
+  type ReactNode,
+} from 'react';
+import { Check, LoaderCircle, Lock, Plus, Search, Sparkles, Upload } from 'lucide-react';
+import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
+import { useReactCompareSlider } from 'react-compare-slider/hooks';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { cn } from '@/lib/utils';
+import { CAMERAS, PREVIEW_TARGET } from '../cameras';
+import { effectUrl, MAX_EFFECTS, previewTable, type CardEffect, type Catalog, type Effect, type ImportedEffect } from '../catalog';
+import { brandOf, FILM_KINDS, filmKind, type FilmKind } from '../filmKind';
+import { sentences, type Strings } from '../i18n';
+import { editable } from '../import/edit';
+import { LANDING_HERO, LANDING_PHOTOS, landingImage } from '../landing';
+import { slotsOf, takesSlot, usedSlots, type Entitlement } from '../plus';
+import { PhotoLoader } from '../preview/raw';
+import { forget, prefetchTable, preview, type PreviewEffect, type Source } from '../preview/render';
+import { DEFAULT_SAMPLE } from '../preview/samples';
+import { importFit, resolveSelection, selectImport, type Selection } from '../selection';
+import { STOCKS } from '../stocks';
+import { useCatalog } from '../useCatalog';
+import { EditDialog, type EditDialogHandle } from './EditDialog';
+import { EffectIcon } from './EffectIcon';
+import { ErrorBoundary } from './ErrorBoundary';
+import { ImportDialog, type ImportDialogHandle } from './ImportDialog';
+import { StepHeading } from './Step';
+
+/** The look of this fork, which the page shows first. */
+const FIRST_LOOK = 'positive-film-grii-v1';
+
+/** The cameras that GRKU supports, by the names of the installer. */
+const SUPPORTED_CAMERAS = CAMERAS.filter((camera) => camera.support)
+  .map((camera) => camera.name)
+  .join(' · ');
+
+/** The name of a kind of film in the filters. */
+function kindLabel(kind: FilmKind, t: Strings): string {
+  switch (kind) {
+    case 'negative': return t.kindNegative;
+    case 'slide': return t.kindSlide;
+    case 'mono': return t.kindMono;
+    case 'cine': return t.kindCine;
+    case 'instant': return t.kindInstant;
+    case 'camera': return t.kindCamera;
+    case 'imported': return t.kindImported;
+  }
+}
+
+/** The film number, then the print film of a cine look: "5219 · 2393 print". */
+function stockText(stock: (typeof STOCKS)[string] & {}, t: Strings): string {
+  return stock.print ? `${stock.film} · ${t.printFilm(stock.print)}` : stock.film;
+}
+
+/** The change badge of an effect or a module: what a write to the card does with it. */
+export function ChangeBadge({
+  on,
+  checked,
+  changed = false,
+  strings: t,
+}: {
+  on: boolean;
+  checked: boolean;
+  /** The file on the card differs from the effect of the page. */
+  changed?: boolean;
+  strings: Strings;
+}) {
+  if (checked && !on) return <Badge variant="outline">{t.changeAdds}</Badge>;
+  if (!checked && on)
+    return (
+      <Badge variant="outline" className="border-destructive text-destructive">
+        {t.changeRemoves}
+      </Badge>
+    );
+  if (checked && changed) return <Badge variant="outline">{t.changeUpdates}</Badge>;
+  return null;
+}
+
+interface Props {
+  strings: Strings;
+  selection: Selection;
+  onSelectionChange: (selection: ReadonlySet<string>) => void;
+  /** The effects that this page imported for the selected camera, after the catalog effects. */
+  imported: readonly ImportedEffect[];
+  /** Adds an import, in place of an earlier one with the same ID. */
+  onImport: (effect: ImportedEffect) => void;
+  onRemove: (effect: ImportedEffect) => void;
+  /** Keeps an import with a new name or icon in its place. */
+  onEdit: (effect: ImportedEffect) => void;
+  /** The effect files on the connected card that the catalog and the imports do not have. */
+  cardEffects: readonly CardEffect[];
+  /** The IDs of the effects on the connected card, or null without a card. */
+  onCard: ReadonlySet<string> | null;
+  /** The IDs of the imports whose file on the card differs, such as after a new name. */
+  changedOnCard?: ReadonlySet<string>;
+  /** Whether this browser writes to a card, which the line under the headline tells. */
+  canWrite: boolean;
+  /** What the visitor owns of GRKU Plus. */
+  owned: Entitlement;
+  /** Opens GRKU Plus. */
+  onPlus: () => void;
+  /** A line above the grid when the package takes no film looks: Film Look is off, or the camera has none. */
+  notice?: string | null;
+}
+
+const RING = 'outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50';
+/** The ring of a file button whose hidden input has the keyboard focus. */
+const FILE_FOCUS =
+  '[&:has(+input:focus-visible)]:border-ring [&:has(+input:focus-visible)]:ring-[3px] [&:has(+input:focus-visible)]:ring-ring/50';
+
+/**
+ * The first screen and the first step in one: the headline, the photograph that renders the
+ * picked look live (it stays in view while the shelf scrolls), and the shelf of every look with
+ * its search and filters. A press on a box shows the look; the checkbox puts it on the card.
+ */
+export function Workbench({
+  strings: t,
+  selection,
+  onSelectionChange,
+  imported,
+  onImport,
+  onRemove,
+  onEdit,
+  cardEffects,
+  onCard,
+  changedOnCard,
+  canWrite,
+  owned,
+  onPlus,
+  notice,
+}: Props) {
+  const { catalog, error, retry } = useCatalog(PREVIEW_TARGET);
+  const effects: readonly Effect[] = catalog ? [...catalog.effects, ...imported] : imported;
+  const checked = resolveSelection(
+    selection,
+    catalog?.effects.map((effect) => effect.id) ?? [],
+    [...imported, ...cardEffects].map((effect) => effect.id),
+  );
+  const taken = new Set([...effects, ...cardEffects].map((effect) => effect.id));
+  const listed = [...effects, ...cardEffects];
+  const used = usedSlots(listed, checked, owned);
+  const slots = slotsOf(owned);
+  const full = used >= slots;
+  // The effect that the frame shows, which changes in a transition when its preview is ready, and
+  // the effect that the user pressed last, which the boxes and the text show at once.
+  const [previewId, setPreviewId] = useState(FIRST_LOOK);
+  const [requestedId, setRequestedId] = useState(FIRST_LOOK);
+  const [source, setSource] = useState<Source>(DEFAULT_SAMPLE);
+  const photo = useRef<Source | null>(null);
+  const importer = useRef<ImportDialogHandle>(null);
+  const editor = useRef<EditDialogHandle>(null);
+  const [loader] = useState(() => new PhotoLoader());
+  const [decoding, setDecoding] = useState(false);
+  const ownPhoto = useCallback(
+    () => () => {
+      loader.cancel();
+      if (photo.current) forget(photo.current);
+      photo.current = null;
+    },
+    [loader],
+  );
+  const [photoError, setPhotoError] = useState(false);
+  const [previewAttempt, setPreviewAttempt] = useState(0);
+  const [isPending, startTransition] = useTransition();
+  const photoCount = useRef(0);
+  // The filters of the shelf: a search, a kind of film, a brand.
+  const [query, setQuery] = useState('');
+  const [kind, setKind] = useState<FilmKind | 'all'>('all');
+  const [brand, setBrand] = useState('all');
+  const kinds = FILM_KINDS.filter((item) => listed.some((effect) => filmKind(effect) === item));
+  const brands = [...new Set(listed.map(brandOf).filter(Boolean))].sort();
+  const needle = query.trim().toLowerCase();
+  const visible = listed.filter(
+    (effect) =>
+      (kind === 'all' || filmKind(effect) === kind) &&
+      (brand === 'all' || brandOf(effect) === brand) &&
+      (!needle ||
+        [effect.name, brandOf(effect), effect.cover?.name, effect.cover?.number, 'look' in effect ? effect.look : '']
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase()
+          .includes(needle)),
+  );
+
+  const shown = effects.find((effect) => effect.id === previewId) ?? effects[0] ?? null;
+  const requested = effects.find((effect) => effect.id === requestedId) ?? shown;
+  const previewOf = (effect: Effect, loaded: Catalog): PreviewEffect => ({
+    id: effect.id,
+    table: previewTable(loaded.target, effect),
+    size: loaded.lutSize,
+    baseline: effectUrl(loaded.target, loaded.baseline),
+  });
+  const previewed = shown && catalog ? previewOf(shown, catalog) : null;
+  // The target look of the pressed effect: the catalog text, the LUT and the fit of an import.
+  const look = !requested
+    ? ''
+    : requested.imported?.kind === 'native'
+      ? t.nativeFrom(requested.imported.version)
+      : requested.imported?.kind === 'restored'
+        ? t.restoredFrom(requested.imported.source)
+        : requested.imported
+          ? `${requested.imported.source} · ${t.fitText[requested.imported.grade]}`
+          : (t.looks[requested.id] ?? requested.look);
+  const waiting = decoding ? t.decodingPhoto : isPending && requested ? t.previewRendering(requested.name) : null;
+
+  function toggle(effect: Effect | CardEffect) {
+    const next = new Set(checked);
+    if (next.has(effect.id)) {
+      next.delete(effect.id);
+    } else if (next.size < MAX_EFFECTS) {
+      next.add(effect.id);
+    }
+    onSelectionChange(next);
+  }
+
+  /** Whether one more look may go on the card: room on the card, and a slot if the look takes one. */
+  function canAdd(effect: Effect | CardEffect): boolean {
+    if (checked.has(effect.id)) return true;
+    if (checked.size >= MAX_EFFECTS) return false;
+    return !(takesSlot(effect, owned) && full);
+  }
+
+  function showEffect(effect: Effect) {
+    setRequestedId(effect.id);
+    startTransition(() => setPreviewId(effect.id));
+  }
+
+  /** Downloads the preview table of an effect that the pointer or the focus reaches. */
+  function prefetch(effect: Effect) {
+    if (catalog) prefetchTable(previewTable(catalog.target, effect));
+  }
+
+  /** Starts the preview at the press, before the click, which comes at the release. */
+  function startPreview(effect: Effect) {
+    if (catalog) preview(source, previewOf(effect, catalog)).catch(() => undefined);
+  }
+
+  /** Adds imports of one source and checks them if they follow it closely and the package has
+   * room. Returns true when the package had no room for one of them. */
+  function importEffects(added: readonly ImportedEffect[]): boolean {
+    const first = added[0];
+    if (!first) return false;
+    for (const effect of added) onImport(effect);
+    const { selection: next, full: noRoom } = selectImport(
+      checked,
+      added.map((effect) => effect.id),
+      importFit(first.imported),
+    );
+    if (next !== checked) onSelectionChange(next);
+    showEffect(first);
+    return noRoom;
+  }
+
+  function showSample() {
+    loader.cancel();
+    setDecoding(false);
+    setPhotoError(false);
+    startTransition(() => setSource(DEFAULT_SAMPLE));
+    if (photo.current) forget(photo.current);
+    photo.current = null;
+  }
+
+  async function openPhoto(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setPhotoError(false);
+    setDecoding(true);
+    try {
+      const image = await loader.open(file);
+      // A replacement, sample selection, or unmount cancelled this request.
+      if (!image) return;
+      const next: Source = { key: `photo-${++photoCount.current}`, load: async () => image };
+      const previous = photo.current;
+      photo.current = next;
+      startTransition(() => setSource(next));
+      if (previous) forget(previous);
+      setDecoding(false);
+    } catch {
+      setPhotoError(true);
+      setDecoding(false);
+    }
+  }
+
+  const sourceLabel = source === DEFAULT_SAMPLE ? t.samplePhoto : t.yourPhoto;
+  const requestedOn = !!requested && checked.has(requested.id);
+  const credit = LANDING_PHOTOS.wheels;
+
+  function retryPreview() {
+    forget(source);
+    setPreviewAttempt((attempt) => attempt + 1);
+  }
+
+  const addButton = (size: 'sm' | 'default') =>
+    requested && (
+      <Button
+        type="button"
+        variant={requestedOn ? 'secondary' : 'brand'}
+        size={size}
+        className="shrink-0"
+        aria-pressed={requestedOn}
+        disabled={!requestedOn && !canAdd(requested)}
+        onClick={() => (requestedOn || canAdd(requested) ? toggle(requested) : onPlus())}
+      >
+        {requestedOn ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}
+        {requestedOn ? t.onCard : t.addToCard}
+      </Button>
+    );
+
+  const still = (
+    <Frame>
+      <img src={landingImage('looks/standard.jpg')} alt={`${t.samplePhoto} — ${t.original}`} className="absolute inset-0 size-full object-cover" />
+      <LookName>{t.original}</LookName>
+    </Frame>
+  );
+
+  return (
+    <section
+      className="grid gap-x-10 gap-y-6 lg:grid-cols-2 lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-x-14"
+      aria-labelledby="looks-title"
+      ref={ownPhoto}
+    >
+      {/* The headline. */}
+      <div id={LANDING_HERO} className="pt-[clamp(28px,6vh,72px)] lg:col-start-1 lg:row-start-1">
+        <h1 className="text-balance text-[clamp(38px,4.6vw,60px)] leading-[1.06] font-bold tracking-[-0.025em]">{t.lead[0]}</h1>
+        <p className="mt-4 max-w-[30em] text-[clamp(16px,1.3vw,19px)] leading-relaxed text-muted-foreground">{t.lead[1]}</p>
+        <div className="mt-7 flex flex-wrap items-center gap-3">
+          <Button asChild variant="brand" size="lg" className="h-11 px-6 text-[15px]">
+            <a href="#looks">{t.chooseLooks}</a>
+          </Button>
+          <Button asChild variant="outline" size="lg" className="h-11 px-6 text-[15px]">
+            <a href="#install">{t.install}</a>
+          </Button>
+        </div>
+        <p className="mt-5 max-w-[40em] text-sm leading-relaxed text-muted-foreground">
+          {sentences(t.landing.supports(SUPPORTED_CAMERAS), canWrite ? t.landing.installNote : t.landing.installNoteZip)}
+        </p>
+      </div>
+
+      {/* The photograph, which stays in view while the shelf scrolls. */}
+      <aside
+        className="sticky top-14 z-20 -mx-gutter bg-background px-gutter pt-3 pb-3 lg:top-[72px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:self-start lg:px-0 lg:pt-[clamp(28px,6vh,72px)] lg:pb-0"
+        aria-label={t.preview}
+      >
+        <div className="relative">
+        {shown && previewed ? (
+          <ErrorBoundary
+            resetKey={`${source.key}\n${shown.id}\n${previewAttempt}`}
+            fallback={
+              <Frame>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-center text-sm">
+                  <p>{t.previewError}</p>
+                  <Button type="button" variant="outline" size="sm" onClick={retryPreview}>
+                    {t.retryPreview}
+                  </Button>
+                </div>
+              </Frame>
+            }
+          >
+            <Suspense fallback={<Placeholder text={sourceLabel} busy />}>
+              <PreviewFrame
+                source={source}
+                effect={previewed}
+                compareLabel={t.compare}
+                busy={isPending || decoding}
+                status={waiting}
+                originalLabel={t.original}
+                originalAlt={sourceLabel}
+                effectName={shown.name}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        ) : (
+          still
+        )}
+        {/* On a phone the name and the button lie over the photo, so the sticky block stays short. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] flex items-end justify-between gap-3 rounded-b-2xl bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 lg:hidden">
+          <span className="min-w-0 truncate text-[15px] font-semibold text-white drop-shadow">{requested?.name ?? t.original}</span>
+          <span className="pointer-events-auto">{addButton('sm')}</span>
+        </div>
+        </div>
+        <div className="mt-5 hidden items-start justify-between gap-4 lg:flex">
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">{t.previewing}</p>
+            <h2 className="truncate text-xl font-semibold">{requested?.name ?? t.original}</h2>
+            {requested && STOCKS[requested.id] && (
+              <p className="font-mono text-[13px] text-muted-foreground">{stockText(STOCKS[requested.id]!, t)}</p>
+            )}
+            {look && <p className="mt-0.5 text-sm text-muted-foreground">{look}</p>}
+          </div>
+          {addButton('default')}
+        </div>
+        <div className="mt-2 hidden flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted-foreground lg:flex">
+          <Button asChild variant="ghost" size="sm" className={cn('-ml-2.5 text-[13px]', FILE_FOCUS)}>
+            <label htmlFor="photo-input">
+              <Upload aria-hidden="true" />
+              <span>{t.upload}</span>
+            </label>
+          </Button>
+          <input id="photo-input" className="sr-only" type="file" accept=".dng,image/x-adobe-dng" onChange={openPhoto} />
+          {source !== DEFAULT_SAMPLE && (
+            <Button type="button" variant="ghost" size="sm" className="text-[13px]" onClick={showSample}>
+              {t.useSample}
+            </Button>
+          )}
+          {photoError ? (
+            <span role="alert" className="text-destructive">
+              {t.photoError}
+            </span>
+          ) : source === DEFAULT_SAMPLE ? (
+            <a href={credit.source} target="_blank" rel="noreferrer" className="hover:text-foreground">
+              {credit.author} · {credit.license} · {credit.camera}
+            </a>
+          ) : (
+            <span>{t.uploadNote}</span>
+          )}
+        </div>
+        <p className="mt-1 hidden text-[13px] text-muted-foreground/80 lg:block">{t.previewNote}</p>
+      </aside>
+
+      {/* The shelf. */}
+      <div id="looks" className="scroll-mt-20 lg:col-start-1 lg:row-start-2">
+        <StepHeading
+          id="looks-title"
+          number={t.step(1)}
+          title={t.effects}
+          className="mb-5"
+          aside={
+            <>
+              <div className="flex items-center gap-3">
+                <Progress value={Math.min(100, (used / Math.max(slots, 1)) * 100)} className="w-20 [&>div]:bg-brand" aria-hidden="true" />
+                <span className="text-sm tabular-nums">
+                  <b className="font-semibold">{used}</b>
+                  <span className="text-muted-foreground"> / {slots}</span>
+                </span>
+              </div>
+              {!owned.plus && (
+                <Button type="button" variant="outline" size="sm" onClick={onPlus}>
+                  <Sparkles aria-hidden="true" className="text-brand" />
+                  {t.plus.getMore}
+                </Button>
+              )}
+            </>
+          }
+        />
+        <p className="mb-4 text-sm text-muted-foreground">{t.freeIncludes(slotsOf({ ...owned, plus: false, slots: owned.slots }))}</p>
+
+        {notice && (
+          <Alert className="mb-4">
+            <AlertDescription>{notice}</AlertDescription>
+          </Alert>
+        )}
+        {full && !owned.plus && (
+          <Alert className="mb-4 border-brand/40">
+            <Lock aria-hidden="true" />
+            <AlertTitle>{t.plus.lockedTitle}</AlertTitle>
+            <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span>{t.plus.lockedText(slots)}</span>
+              <Button type="button" variant="brand" size="sm" onClick={onPlus}>
+                <Sparkles aria-hidden="true" />
+                {t.plus.getMore}
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <Input
+                type="search"
+                className="h-10 bg-card pl-10 text-[15px]"
+                placeholder={t.searchEffects}
+                aria-label={t.searchEffects}
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+            </div>
+            <Select value={brand} onValueChange={setBrand}>
+              <SelectTrigger className="h-10 w-36 shrink-0 bg-card data-[size=default]:h-10" aria-label={t.allBrands}>
+                <SelectValue>{brand === 'all' ? t.allBrands : brand}</SelectValue>
+              </SelectTrigger>
+              <SelectContent position="popper" align="end">
+                <SelectItem value="all">{t.allBrands}</SelectItem>
+                {brands.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {item}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              size="sm"
+              spacing={2}
+              className="flex-wrap"
+              aria-label={t.searchEffects}
+              value={kind}
+              onValueChange={(value) => {
+                if (value) setKind(value as FilmKind | 'all');
+              }}
+            >
+              <ToggleGroupItem value="all" className="bg-card">
+                {t.filterAll}
+              </ToggleGroupItem>
+              {kinds.map((item) => (
+                <ToggleGroupItem key={item} value={item} className="bg-card">
+                  {kindLabel(item, t)}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-muted-foreground tabular-nums">
+            <span>{catalog ? t.shownOf(visible.length, listed.length) : error ? t.loadError : t.loading}</span>
+            <span className="flex items-center gap-3">
+              <span>{t.previewFree}</span>
+              {checked.size > 0 && (
+                <Button type="button" variant="ghost" size="xs" onClick={() => onSelectionChange(new Set())}>
+                  {t.clear}
+                </Button>
+              )}
+            </span>
+          </div>
+          {error && (
+            <Button type="button" variant="outline" size="sm" className="self-start" onClick={retry}>
+              {t.retryLoad}
+            </Button>
+          )}
+        </div>
+
+        <ul className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-2.5 xl:grid-cols-5" aria-label={t.effects}>
+          {!catalog &&
+            !error &&
+            Array.from({ length: 15 }, (_, index) => (
+              <li key={index} className="aspect-[4/5] animate-pulse rounded-xl border bg-card" aria-hidden="true" />
+            ))}
+          {catalog && visible.length === 0 && (
+            <li className="col-span-full py-10 text-center text-muted-foreground">{t.noMatches}</li>
+          )}
+          {visible.map((effect) => {
+            const isChecked = checked.has(effect.id);
+            const isPreviewed = effect.id === requested?.id;
+            const stock = STOCKS[effect.id];
+            const locked = !isChecked && !canAdd(effect) && checked.size < MAX_EFFECTS;
+            const body = (
+              <>
+                <EffectIcon effect={effect} className="size-[68px] sm:size-20" />
+                <span className="flex w-full min-w-0 flex-col items-center gap-0.5">
+                  <span className="text-[13px] leading-[1.3] font-semibold">{effect.name}</span>
+                  {(effect.card || effect.monochrome || stock) && (
+                    <span className="max-w-full truncate text-[11px] text-muted-foreground">
+                      {[effect.card ? t.cardOnlyEffect : effect.monochrome ? t.mono : null, stock ? stockText(stock, t) : null]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
+                  )}
+                </span>
+              </>
+            );
+            return (
+              <li
+                key={effect.id}
+                className={cn(
+                  'relative flex flex-col rounded-xl border bg-card p-2 pt-3 transition-colors hover:border-input',
+                  isChecked && 'border-foreground/60 hover:border-foreground/60',
+                  isPreviewed && 'border-brand ring-2 ring-brand/70 hover:border-brand',
+                )}
+                data-checked={isChecked || undefined}
+                data-previewed={isPreviewed || undefined}
+              >
+                {locked ? (
+                  <button
+                    type="button"
+                    className={cn('absolute top-2 left-2 z-10 flex size-[18px] items-center justify-center rounded-[4px] border border-input bg-card text-muted-foreground hover:text-foreground', RING)}
+                    aria-label={t.plus.lockedTitle}
+                    onClick={onPlus}
+                  >
+                    <Lock className="size-3" aria-hidden="true" />
+                  </button>
+                ) : (
+                  <Checkbox
+                    className="absolute top-2 left-2 z-10 size-[18px] bg-card"
+                    checked={isChecked}
+                    disabled={!isChecked && checked.size >= MAX_EFFECTS}
+                    aria-label={isChecked ? `${effect.name}: ${t.onCard}` : `${effect.name}: ${t.addToCard}`}
+                    onCheckedChange={() => toggle(effect)}
+                  />
+                )}
+                {effect.card ? (
+                  <div className="flex w-full flex-1 flex-col items-center gap-2 pt-1.5 pb-1 text-center">{body}</div>
+                ) : (
+                  <button
+                    type="button"
+                    className={cn('flex w-full flex-1 flex-col items-center gap-2 rounded-lg pt-1.5 pb-1 text-center', RING)}
+                    aria-pressed={isPreviewed}
+                    aria-label={t.previewOf(effect.name)}
+                    onPointerEnter={() => prefetch(effect)}
+                    onFocus={() => prefetch(effect)}
+                    onPointerDown={() => startPreview(effect)}
+                    onClick={() => showEffect(effect)}
+                  >
+                    {body}
+                  </button>
+                )}
+                {onCard && (
+                  <span className="absolute top-2 right-2">
+                    <ChangeBadge on={onCard.has(effect.id)} checked={isChecked} changed={changedOnCard?.has(effect.id)} strings={t} />
+                  </span>
+                )}
+                {effect.imported && (
+                  <span className="flex justify-center gap-1">
+                    {editable(effect) && (
+                      <Button type="button" variant="ghost" size="xs" aria-label={t.editOf(effect.name)} onClick={() => editor.current?.open(effect)}>
+                        {t.editEffect}
+                      </Button>
+                    )}
+                    <Button type="button" variant="ghost" size="xs" aria-label={t.removeOf(effect.name)} onClick={() => onRemove(effect)}>
+                      {t.removeEffect}
+                    </Button>
+                  </span>
+                )}
+              </li>
+            );
+          })}
+          {catalog?.baseGamma && (
+            <li className="flex flex-col rounded-xl border border-dashed p-2 pt-3">
+              <button
+                type="button"
+                className={cn('flex w-full flex-1 flex-col items-center justify-center gap-2 rounded-lg pt-1.5 pb-1 text-center text-muted-foreground hover:text-foreground', RING)}
+                onClick={() => importer.current?.open()}
+              >
+                <span className="flex size-10 items-center justify-center rounded-full border" aria-hidden="true">
+                  <Plus className="size-5" />
+                </span>
+                <span className="text-[13px] leading-[1.3] font-semibold">{t.importOpen}</span>
+              </button>
+            </li>
+          )}
+        </ul>
+        <p className="mt-4 text-[13px] text-muted-foreground">
+          {t.countLimit(MAX_EFFECTS)}
+          {onCard && ` ${t.effectsCardNote}`}
+        </p>
+
+        {catalog?.baseGamma && (
+          <ImportDialog ref={importer} strings={t} baseGamma={catalog.baseGamma} taken={taken} onImport={(effect) => importEffects([effect])} />
+        )}
+        <EditDialog ref={editor} strings={t} onSave={onEdit} />
+      </div>
+    </section>
+  );
+}
+
+/** The frame of the photograph: a 3:2 picture over the dark, which clips what it holds. */
+function Frame({ busy = false, children }: { busy?: boolean; children: ReactNode }) {
+  return (
+    <div
+      className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-black shadow-[0_30px_80px_rgba(0,0,0,0.55)] ring-1 ring-white/[0.06]"
+      aria-busy={busy}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** The name of the look over the frame. */
+function LookName({ children }: { children: ReactNode }) {
+  return (
+    <Badge className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/75 px-2 py-1 font-mono text-xs font-medium text-foreground">
+      {children}
+    </Badge>
+  );
+}
+
+interface FrameProps {
+  source: Source;
+  effect: PreviewEffect;
+  compareLabel: string;
+  busy: boolean;
+  /** The text over the frame while a new preview is on its way. */
+  status: string | null;
+  originalLabel: string;
+  originalAlt: string;
+  effectName: string;
+}
+
+/** The baseline development on the left and the effect on the right, under a handle. */
+function PreviewFrame({ source, effect, compareLabel, busy, status, originalLabel, originalAlt, effectName }: FrameProps) {
+  const result = use(preview(source, effect));
+  const comparison = useReactCompareSlider({ clip: 'itemTwo' });
+  return (
+    <Frame busy={busy}>
+      <Provider {...comparison}>
+        <Root className="image-comparison">
+          <Item item="itemOne">
+            <img src={result.original} alt={`${originalAlt} — ${originalLabel}`} />
+          </Item>
+          <Item item="itemTwo" className="comparison-effect">
+            <img src={result.processed} alt={`${originalAlt} — ${effectName}`} />
+          </Item>
+          <HandleRoot aria-label={compareLabel}>
+            <Handle buttonStyle={{ width: 32, height: 32, gap: '0.2rem' }} />
+          </HandleRoot>
+        </Root>
+      </Provider>
+      <LookName>{effectName}</LookName>
+      {status && (
+        <span
+          className="pointer-events-none absolute bottom-4 left-1/2 z-[3] inline-flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 rounded-md bg-black/80 px-3.5 py-2 text-[13px] whitespace-nowrap text-foreground"
+          role="status"
+        >
+          <LoaderCircle className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
+          <span className="truncate">{status}</span>
+        </span>
+      )}
+    </Frame>
+  );
+}
+
+function Placeholder({ text, busy = false }: { text: string; busy?: boolean }) {
+  return (
+    <Frame busy={busy}>
+      <span className="absolute inset-0 flex items-center justify-center gap-2.5 font-mono text-[13px] text-muted-foreground">
+        {busy && <LoaderCircle className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />}
+        {text}
+      </span>
+    </Frame>
+  );
+}

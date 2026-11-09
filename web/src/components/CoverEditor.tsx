@@ -65,8 +65,8 @@ export function CoverFieldset({ strings: t, editor, disabled }: Props) {
   return (
     <fieldset className="flex flex-col gap-3 rounded-xl border border-border p-4 disabled:opacity-60" disabled={disabled}>
       <legend className="px-1 text-sm font-medium">{t.iconHeading}</legend>
-      <div className="cover-preview flex items-center justify-center rounded-lg bg-muted p-4">
-        <CoverIcon cover={coverIcon(cover)} />
+      <div className="flex items-center justify-center rounded-lg bg-muted p-4">
+        <CoverIcon cover={coverIcon(cover)} className="size-20" />
       </div>
       <details className="group" open>
         <summary className="cursor-pointer text-sm text-muted-foreground">{t.iconEdit}</summary>

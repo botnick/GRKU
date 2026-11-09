@@ -236,8 +236,8 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
 
         {done ? (
           <div className="flex flex-col gap-5">
-            <div className="cover-preview flex items-center gap-4">
-              <CoverIcon cover={done.effect.cover} />
+            <div className="flex items-center gap-4">
+              <CoverIcon cover={done.effect.cover} className="size-20" />
               <div className="flex min-w-0 flex-col gap-1 text-sm text-muted-foreground">
                 <p className="text-base font-semibold text-foreground">{done.effect.name}</p>
                 <p>{t.fitText[done.effect.imported.grade]}</p>

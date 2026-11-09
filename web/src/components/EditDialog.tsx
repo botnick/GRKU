@@ -121,8 +121,8 @@ export function EditDialog({ strings: t, onSave, ref }: Props) {
             ) : (
               <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium">{t.iconHeading}</span>
-                <div className="cover-preview flex items-center justify-center rounded-lg bg-muted p-4">
-                  <EffectIcon effect={effect} />
+                <div className="flex items-center justify-center rounded-lg bg-muted p-4">
+                  <EffectIcon effect={effect} className="size-20" />
                 </div>
               </div>
             )}

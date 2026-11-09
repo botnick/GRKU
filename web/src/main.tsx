@@ -15,11 +15,8 @@ import '@fontsource/inter/700.css';
 import '@fontsource/inter/800.css';
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/ibm-plex-sans-condensed/700.css';
 import './index.css';
-import './styles.css';
-import './theme.css';
-import './landing.css';
-import './desk.css';
 
 const language = pageLanguage();
 // A visitor who chose a language before each language had its own page goes to that page once.
@@ -29,8 +26,6 @@ if (legacy !== null && legacy !== language && location.pathname === '/') {
 }
 showLanguage(language, false);
 loadFonts(language);
-
-// The fast-boot firmware page needs no imports and no card.
 
 /** The result of `task`, or `fallback` when the store is slow, so it does not hold the page back. */
 const soon = <T,>(task: Promise<T>, fallback: T) =>

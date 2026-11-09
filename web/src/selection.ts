@@ -1,10 +1,11 @@
 import { MAX_EFFECTS, type Grade, type Imported } from './catalog';
+import { DEFAULT_LOOKS, FREE_SLOTS } from './plus';
 import { EFFECT_ID_MAX } from './generated/site';
 
 /**
- * The effects that the user checked, or `null` before the first change. The page then checks
- * every catalog effect, up to the package limit. The site serves the catalog of the latest
- * release, so the default comes from the loaded catalog, not from a list in the page.
+ * The effects that the user checked, or `null` before the first change. The page then checks the
+ * default looks (plus.ts DEFAULT_LOOKS) that the catalog has, or the first free slots of a catalog
+ * without them.
  */
 export type Selection = ReadonlySet<string> | null;
 
@@ -19,7 +20,10 @@ export function resolveSelection(
   catalog: readonly string[],
   others: readonly string[] = [],
 ): ReadonlySet<string> {
-  if (!selection) return new Set(catalog.slice(0, MAX_EFFECTS));
+  if (!selection) {
+    const defaults = DEFAULT_LOOKS.filter((id) => catalog.includes(id));
+    return new Set(defaults.length > 0 ? defaults : catalog.slice(0, FREE_SLOTS));
+  }
   const known = new Set([...catalog, ...others]);
   return new Set([...selection].filter((id) => known.has(id)));
 }

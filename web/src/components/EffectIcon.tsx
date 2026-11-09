@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { siteUrl, type Cover, type Effect } from '../catalog';
+import { cn } from '@/lib/utils';
 
 const SIZE = 40;
 
@@ -72,12 +73,15 @@ const LIGHT = 'rgb(214 214 214)';
 const DARK = 'rgb(40 40 40)';
 const BODY = 'rgb(51 51 51)';
 
+/** The default size of an icon: larger than the camera's 40 pixels, so the cover text reads. */
+const ICON = 'block size-12 shrink-0';
+
 /**
  * A film cover in the layout of the camera icon: the brand on a light band, then the film name
  * and a large number on a dark body. A professional film box has a light band at the bottom, and
  * a motion picture film label has three light stripes.
  */
-export function CoverIcon({ cover }: { cover: Cover }) {
+export function CoverIcon({ cover, className }: { cover: Cover; className?: string }) {
   const stripes = cover.template === 'cine';
   const band = cover.template === 'box' && cover.band;
   // The number sits higher above the stripes, so that it keeps a gap to the first one.
@@ -85,19 +89,19 @@ export function CoverIcon({ cover }: { cover: Cover }) {
   // The body runs from row 12 to the bottom band, the stripes, or row 37.
   const center = (12 + (stripes ? 32 : band ? 34 : 37)) / 2;
   return (
-    <svg className="effect-icon" viewBox="0 0 40 40" aria-hidden="true">
+    <svg className={cn(ICON, className)} viewBox="0 0 40 40" aria-hidden="true">
       <rect x="0" y="3" width="40" height="34" fill={BODY} />
       <rect x="0" y="3" width="40" height="9" fill={LIGHT} />
       {band && <rect x="0" y="34" width="40" height="3" fill={LIGHT} />}
       {stripes &&
         [32, 34, 36].map((y) => <rect key={y} x="0" y={y} width="40" height="1" fill={LIGHT} />)}
       {/* A key per text measures it again when it changes, as in the import dialog. */}
-      <text key={cover.brand} ref={fit} data-width="34" x="20" y="10.4" className="cover-brand" fill={DARK}>
+      <text key={cover.brand} ref={fit} data-width="34" x="20" y="10.4" className="cover-text cover-brand" fill={DARK}>
         {cover.brand}
       </text>
       {cover.number ? (
         <>
-          <text key={cover.name} ref={fit} data-width="38" x="20" y="19" className="cover-name" fill="#fff">
+          <text key={cover.name} ref={fit} data-width="38" x="20" y="19" className="cover-text cover-name" fill="#fff">
             {cover.name}
           </text>
           <text
@@ -106,7 +110,7 @@ export function CoverIcon({ cover }: { cover: Cover }) {
             data-width="36"
             x="20"
             y={baseline}
-            className="cover-number"
+            className="cover-text cover-number"
             fill="#fff"
           >
             {cover.number}
@@ -121,7 +125,7 @@ export function CoverIcon({ cover }: { cover: Cover }) {
           data-center={center}
           x="20"
           y={center + 4}
-          className="cover-name-large"
+          className="cover-text cover-name-large"
           fill="#fff"
         >
           {cover.name}
@@ -135,16 +139,22 @@ export function CoverIcon({ cover }: { cover: Cover }) {
  * The icon of an effect. An effect of the catalog has its box drawn sharp at four times the
  * camera size (`web/public/boxes/<id>.png`, from `scripts/flap-icons.py boxes`), which shows at
  * any size. An imported effect, or a box that does not load, draws with the camera pixels, or
- * with web fonts from its cover fields.
+ * with web fonts from its cover fields. `className` sets the size (`size-12` by default).
  */
-export function EffectIcon({ effect }: { effect: Pick<Effect, 'icon' | 'cover'> & { id?: string } }) {
+export function EffectIcon({
+  effect,
+  className,
+}: {
+  effect: Pick<Effect, 'icon' | 'cover'> & { id?: string };
+  className?: string;
+}) {
   const { id, icon, cover } = effect;
   const [boxFailed, setBoxFailed] = useState(false);
   const draw = useCallback((canvas: HTMLCanvasElement | null) => paint(canvas, icon), [icon]);
   if (id && !boxFailed) {
     return (
       <img
-        className="effect-icon box"
+        className={cn(ICON, 'object-contain', className)}
         src={siteUrl(`boxes/${id}.png`)}
         alt=""
         width={SIZE}
@@ -156,7 +166,15 @@ export function EffectIcon({ effect }: { effect: Pick<Effect, 'icon' | 'cover'> 
     );
   }
   if (cover) {
-    return <CoverIcon cover={cover} />;
+    return <CoverIcon cover={cover} className={className} />;
   }
-  return <canvas ref={draw} className="effect-icon pixels" width={SIZE} height={SIZE} aria-hidden="true" />;
+  return (
+    <canvas
+      ref={draw}
+      className={cn(ICON, '[image-rendering:pixelated]', className)}
+      width={SIZE}
+      height={SIZE}
+      aria-hidden="true"
+    />
+  );
 }

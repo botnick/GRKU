@@ -1,10 +1,9 @@
-import { Suspense, use, useCallback, useRef, useState, type ReactNode } from 'react';
-import { Minus, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Suspense, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   trackCardUninstall,
   trackCardWrite,
@@ -46,36 +45,39 @@ import {
   PREVIEW_TARGET,
   type Camera,
 } from './cameras';
-import { loadCatalog, siteUrl, type Catalog, type CardEffect, type ImportedEffect, type PackageEffect } from './catalog';
+import { loadCatalog, type Catalog, type CardEffect, type ImportedEffect, type PackageEffect } from './catalog';
 import {
   CardChangesView,
+  CardConnect,
   CardUninstall,
   FACT_LABEL,
   FACT_VALUE,
   FACTS,
-  StartSection,
-  UninstallSection,
   type CardMessage,
   type CardTask,
   type InstallMode,
 } from './components/CardPanel';
 import { AppPromo } from './components/AppPromo';
 import { ChoiceCard } from './components/ChoiceCard';
-import { ChangeBadge, EffectsSection } from './components/EffectsSection';
-import { PackageOpen, type PackageStatus } from './components/PackageOpen';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { Landing } from './components/Landing';
+import { Faq } from './components/Faq';
+import { Masthead } from './components/Masthead';
+import { ModulesStep } from './components/ModulesStep';
+import { PackageOpen, type PackageStatus } from './components/PackageOpen';
+import { PlusSheet } from './components/PlusSheet';
 import { RichText } from './components/RichText';
-import { Section } from './components/Section';
+import { SiteFooter } from './components/SiteFooter';
+import { Step } from './components/Step';
 import { TermsNote } from './components/TermsNote';
-import { guideUrl, REPOSITORY, UPSTREAM } from './links';
+import { Workbench } from './components/Workbench';
+import { guideUrl, REPOSITORY } from './links';
 import { loadFonts } from './fonts';
 import { encodeLibrary, IMPORTS_FILE, nativeTone, readLibrary, withDetails, type LibraryDetails } from './import/library';
 import { restoreImports } from './import/lut';
 import { importsForCamera, NATIVE_LOOKS } from './import/native';
 import { isLutImportId } from './import/names';
 import { deleteImport, saveImport, updateImport } from './import/store';
-import { applyLanguage, LANGUAGES, sentences, STRINGS, type Language, type Strings } from './i18n';
+import { applyLanguage, STRINGS, type Language, type Strings } from './i18n';
 import { ALL_MODULES, MODULES, planModules, type ModuleKey } from './modules';
 import {
   buildCardFiles,
@@ -88,16 +90,16 @@ import {
   scriptsOffCardFiles,
 } from './package';
 import { packageCard } from './packageCard';
+import { fetchEntitlement, forgetKey, FREE, loadKey, packCounts, PlusError, saveKey, takeKeyFromHash, type Entitlement } from './plus';
 import { loadSelection, resolveSelection, saveSelection, type Selection } from './selection';
 import { TransferError } from './transfer';
+import { useCatalog } from './useCatalog';
 
 /** The Tally form for problems, feature ideas, and questions. A plain link, so the page loads nothing from Tally. */
 const FEEDBACK_FORM = `${REPOSITORY}/issues`;
 /** The release notes of the GRKU version that the site packages, on the releases page. */
 const RELEASE_URL = `${REPOSITORY}/releases#release-v${__GRKIT_VERSION__}`;
 
-/** The content of the desk is as wide as the page above it: the page width less its gutters. */
-const DESK_INNER = 'mx-auto w-full max-w-[calc(1280px_-_2_*_var(--gutter))]';
 /** The steps of a guide. */
 const STEPS = 'flex max-w-[72ch] list-decimal flex-col gap-3 pl-6 leading-relaxed';
 /** A note under a control, and a status line. */
@@ -651,6 +653,56 @@ export function App({
     }
   }
 
+  // GRKU Plus: the key of this browser and what it owns. The key of a mail link comes first.
+  const [plusKey, setPlusKey] = useState<string | null>(() => takeKeyFromHash() ?? loadKey());
+  const [owned, setOwned] = useState<Entitlement>(FREE);
+  const [plusOpen, setPlusOpen] = useState(false);
+  useEffect(() => {
+    if (!plusKey) return;
+    let live = true;
+    fetchEntitlement(plusKey)
+      .then((result) => {
+        if (live) setOwned(result.entitlement);
+      })
+      .catch((failure: unknown) => {
+        // A key that the service rejects is gone. A service that does not answer keeps the key for later.
+        if (live && failure instanceof PlusError && failure.status === 401) {
+          forgetKey();
+          setPlusKey(null);
+          setOwned(FREE);
+        }
+      });
+    return () => {
+      live = false;
+    };
+  }, [plusKey]);
+
+  function adoptKey(key: string, entitlement: Entitlement) {
+    saveKey(key);
+    setPlusKey(key);
+    setOwned(entitlement);
+  }
+
+  function dropKey() {
+    forgetKey();
+    setPlusKey(null);
+    setOwned(FREE);
+  }
+
+  // The catalog of the preview target, for the counts of the page. The workbench loads the same one.
+  const { catalog: previewCatalog } = useCatalog(PREVIEW_TARGET);
+  const checkedCount = previewCatalog
+    ? resolveSelection(
+        selection,
+        previewCatalog.effects.map((effect) => effect.id),
+        [...imported, ...(active ? cardExtra : [])].map((effect) => effect.id),
+      ).size
+    : null;
+  const effectCount = plan.includeEffects ? checkedCount : 0;
+  const canWrite = canWriteCards();
+  const offered = MODULES.filter((module) => available.includes(module.key));
+  const moduleNames = MODULES.filter((module) => plan.visible.includes(module.key)).map((module) => t.moduleNames[module.key]);
+
   const packageLinks = (
     <ul className="flex flex-wrap gap-2">
       <li>
@@ -661,494 +713,305 @@ export function App({
     </ul>
   );
 
-  const languageLabel = LANGUAGES.find((item) => item.code === language)?.label ?? language;
+  /** The steps of a guide as an entry of the accordion under the download. */
+  const guide = (value: string, title: string, steps: readonly (readonly string[])[], extra?: ReactNode) => (
+    <AccordionItem value={value}>
+      <AccordionTrigger className="text-[15px] font-medium hover:no-underline">{title}</AccordionTrigger>
+      <AccordionContent className="flex flex-col gap-4">
+        <ol className={STEPS}>
+          {steps.map((parts, index) => (
+            <li key={index}>
+              <RichText parts={parts.map((part) => (part === MODESET_TOKEN ? `\`${support?.modeset ?? ''}` : part))} />
+            </li>
+          ))}
+        </ol>
+        {extra}
+      </AccordionContent>
+    </AccordionItem>
+  );
+
+  const zipFlow = (
+    <div className="flex flex-col gap-6">
+      {packageOpen}
+      <dl className={FACTS}>
+        <dt className={FACT_LABEL}>{t.camera}</dt>
+        <dd className={FACT_VALUE}>{camera.name}</dd>
+        <dt className={FACT_LABEL}>{t.firmware}</dt>
+        <dd className={FACT_VALUE}>{support?.firmware ?? '—'}</dd>
+        <dt className={FACT_LABEL}>{t.effectCount}</dt>
+        <dd className={FACT_VALUE}>{effectCount ?? '—'}</dd>
+        <dt className={FACT_LABEL}>{t.modules}</dt>
+        <dd className={FACT_VALUE}>{moduleNames.length > 0 ? moduleNames.join(t.listSeparator) : '—'}</dd>
+      </dl>
+      <div className="flex flex-col items-start gap-3">
+        <Button
+          type="button"
+          variant="brand"
+          size="lg"
+          className="h-11 px-6 text-[15px]"
+          disabled={!targets || plan.visible.length === 0 || build.state === 'building'}
+          aria-busy={build.state === 'building'}
+          onClick={download}
+          onPointerEnter={prefetch}
+          onFocus={prefetch}
+        >
+          {t.download}
+        </Button>
+        <TermsNote text={t.termsNote} href={guideUrl('TERMS', language)} />
+        <div aria-live="polite" className="flex flex-col gap-1">
+          {plan.visible.length === 0 && <p className={ERROR}>{t.noModules}</p>}
+          {build.state === 'building' && (
+            <p className={STATUS}>
+              {build.retrying ? t.retrying : build.received > 0 ? t.downloading(megabytes(build.received)) : t.building}
+            </p>
+          )}
+          {build.state === 'ready' && <p className={STATUS}>{t.ready}</p>}
+          {build.state === 'failed' && <p className={ERROR}>{t.buildError}</p>}
+        </div>
+        {build.state === 'ready' && packageLinks}
+      </div>
+      <Accordion type="single" collapsible className="w-full border-t border-border">
+        {guide('install', t.install, t.steps)}
+        {guide('update', t.update, t.updateSteps)}
+        {guide(
+          'remove',
+          t.remove,
+          t.removeSteps,
+          <div className="flex flex-col items-start gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!support || scriptsOff === 'building'}
+              aria-busy={scriptsOff === 'building'}
+              onClick={downloadScriptsOff}
+            >
+              {t.scriptsOff(camera.name)}
+            </Button>
+            <div aria-live="polite">{scriptsOff === 'failed' && <p className={ERROR}>{t.scriptsOffError}</p>}</div>
+          </div>,
+        )}
+      </Accordion>
+    </div>
+  );
+
+  const cardFlow = (
+    <div className="flex flex-col gap-8">
+      <CardConnect
+        strings={t}
+        session={card}
+        otherCamera={!!card && !!support && cardBuilds(card.state).some((build) => !support.targets.includes(build))}
+        busy={cardTask.kind !== 'idle'}
+        reading={cardTask.kind === 'reading'}
+        message={connectMessage}
+        lastCard={lastCard?.name ?? null}
+        onConnect={connectCard}
+        onReconnect={reconnectCard}
+        onDisconnect={disconnectCard}
+      />
+      {card && (
+        <ErrorBoundary
+          resetKey={String(catalogAttempt)}
+          fallback={
+            <div className="flex flex-col items-start gap-3">
+              <p className={ERROR}>{t.loadError}</p>
+              <Button type="button" variant="outline" size="sm" onClick={() => setCatalogAttempt((attempt) => attempt + 1)}>
+                {t.retryLoad}
+              </Button>
+            </div>
+          }
+        >
+          <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
+            <CardChangesSection
+              strings={t}
+              session={card}
+              selection={selection}
+              imported={imported}
+              cardEffects={cardExtra}
+              changes={cardChanges}
+              modules={moduleNames}
+              canWrite={!!targets && plan.visible.length > 0}
+              busy={cardTask.kind !== 'idle'}
+              task={taskArea === 'apply' ? cardTask : IDLE}
+              message={applyMessage}
+              onApply={applyCard}
+              links={packageLinks}
+              termsUrl={guideUrl('TERMS', language)}
+              camera={camera.name}
+              firmware={support?.firmware ?? '—'}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {card && plan.visible.length === 0 && <p className={ERROR}>{t.noModules}</p>}
+      {showUninstall && (
+        <div className="flex flex-col gap-4 border-t border-border pt-8">
+          <h3 className="text-lg font-semibold">{t.remove}</h3>
+          <CardUninstall
+            strings={t}
+            session={card!}
+            busy={cardTask.kind !== 'idle'}
+            task={taskArea === 'remove' ? cardTask : IDLE}
+            message={removeMessage}
+            onUninstall={uninstallCard}
+            onScriptsOff={scriptsOffCard}
+            onCleanModeset={cleanModeset}
+          />
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <>
       {(appBrowser || cardHintKind) && (
-        <div
-          className="browser-banner bg-[var(--ink)] px-[var(--gutter)] py-3 text-center text-sm leading-normal text-[var(--paper)] text-balance"
-          role="note"
-        >
+        <div className="bg-foreground px-gutter py-2.5 text-center text-[13px] leading-snug text-balance text-background" role="note">
           {appBrowser ? t.appBrowser : cardHintKind === 'computer' ? t.cardComputer : t.cardBrowser}
         </div>
       )}
-      <div className="page">
-        <header className="masthead pb-10">
-          {/* One row: the name on the left, the links and the language on the right. */}
-          <div className="masthead-top flex items-center justify-between gap-4">
-            <div className="masthead-title flex items-start gap-1.5">
-              <h1 className="m-0 text-[28px] leading-none font-extrabold tracking-tight">
-                GRKU<span className="dot">.</span>
-              </h1>
-              <a
-                className="masthead-version border border-[var(--line-2)] px-1.5 py-px font-mono text-[11px] no-underline"
-                href={RELEASE_URL}
-              >
-                v{__GRKIT_VERSION__}
-              </a>
-            </div>
-            <div className="languages flex items-center justify-end gap-3">
-              <nav className="masthead-nav hidden gap-6 text-[15px] md:flex" aria-label="GRKU">
-                <a href="#effects-label">{t.effects}</a>
-                <a href="#modules-label">{t.modules}</a>
-                <a href="#faq-label">{t.faqTitle}</a>
-              </nav>
-              <a
-                className="github inline-flex size-11 items-center justify-center"
-                href={REPOSITORY}
-                aria-label="GitHub"
-                title="GitHub"
-              >
-                <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true" focusable="false">
-                  <path
-                    fill="currentColor"
-                    d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
-                  />
-                </svg>
-              </a>
-              <Select value={language} onValueChange={(next) => chooseLanguage(next as Language)}>
-                <SelectTrigger size="sm" aria-label={t.language}>
-                  <SelectValue>{languageLabel}</SelectValue>
-                </SelectTrigger>
-                <SelectContent position="popper" align="end">
-                  {LANGUAGES.map((item) => (
-                    <SelectItem key={item.code} value={item.code} lang={item.code}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </header>
+      <Masthead strings={t} language={language} onLanguage={chooseLanguage} version={__GRKIT_VERSION__} releaseUrl={RELEASE_URL} />
+      <main id="top" className="mx-auto w-full max-w-[1280px] px-gutter pb-8">
+        <Workbench
+          strings={t}
+          selection={selection}
+          onSelectionChange={changeSelection}
+          imported={imported}
+          onImport={addImported}
+          onRemove={removeImported}
+          onEdit={editImported}
+          cardEffects={active ? cardExtra : []}
+          onCard={active && active.state.install !== 'none' ? new Set(active.effects.keys()) : null}
+          changedOnCard={active ? changedImports(active, imported) : undefined}
+          canWrite={canWrite}
+          owned={owned}
+          onPlus={() => setPlusOpen(true)}
+          notice={!available.includes('filmLook') ? t.effectsUnavailable(camera.name) : !plan.includeEffects ? t.effectsOff : null}
+        />
 
-        <Landing strings={t} language={language} canWrite={canWriteCards()} />
+        <Step id="modules" number={t.step(2)} title={t.modules} description={t.landing.moduleListText} ref={prefetchInView} className="mt-14">
+          <ModulesStep
+            strings={t}
+            modules={offered}
+            enabled={enabled}
+            onToggle={toggleModule}
+            installed={active && active.state.install !== 'none' ? cardModules(active.state) : null}
+            planned={plan.modules}
+            emptyLooks={enabled.has('filmLook') && selection?.size === 0}
+            lookCount={effectCount ?? '…'}
+          />
+        </Step>
 
-        <main>
-          <div className={DESK_INNER}>
-            {canWriteCards() && (
-              <StartSection
-                strings={t}
-                mode={mode}
-                onMode={chooseMode}
-                session={card}
-                cardCamera={cardCamera}
-                onCamera={(next) => chooseCamera(next.key)}
-                otherCamera={
-                  !!card && !!support && cardBuilds(card.state).some((build) => !support.targets.includes(build))
-                }
-                busy={cardTask.kind !== 'idle'}
-                reading={cardTask.kind === 'reading'}
-                message={connectMessage}
-                lastCard={lastCard?.name ?? null}
-                onConnect={connectCard}
-                onReconnect={reconnectCard}
-                onDisconnect={disconnectCard}
-                zip={packageOpen}
-                next={
-                  card && (
-                    <ErrorBoundary resetKey={String(catalogAttempt)} fallback={null}>
-                      <Suspense fallback={null}>
-                        <CardNext
-                          strings={t}
-                          session={card}
-                          selection={selection}
-                          imported={imported}
-                          cardEffects={cardExtra}
-                          changes={cardChanges}
-                        />
-                      </Suspense>
-                    </ErrorBoundary>
-                  )
-                }
-              />
-            )}
-
-            {!cardCamera && (
-              <Section id="camera-label" title={t.camera}>
-                {/* Without the mode section, the ZIP is the only mode, and this is the first section. */}
-                {!canWriteCards() && packageOpen}
-                <RadioGroup
-                  name="camera"
-                  value={camera.key}
-                  aria-labelledby="camera-label"
-                  className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
-                  onValueChange={(next) => chooseCamera(next as Camera['key'])}
-                >
-                  {CAMERAS.map((item) => (
-                    <ChoiceCard
-                      key={item.key}
-                      htmlFor={`camera-${item.key}`}
-                      control={
-                        <RadioGroupItem
-                          id={`camera-${item.key}`}
-                          value={item.key}
-                          className="mt-1"
-                          disabled={!item.support || (!!lockedCameras && !lockedCameras.includes(item))}
-                        />
-                      }
-                    >
-                      <span className="font-semibold">{item.name}</span>
-                      {item.support && (
-                        <span className="text-sm text-muted-foreground">
-                          {t.firmware} {item.support.firmware}
-                        </span>
-                      )}
-                      {/* A badge marks only a camera that GRKU does not support yet. */}
-                      {!item.support && (
-                        <Badge variant="outline" className="w-fit">
-                          {t.planned}
-                        </Badge>
-                      )}
-                      {item.support?.noEffects && <span className="text-sm text-muted-foreground">{t.noEffects}</span>}
-                    </ChoiceCard>
-                  ))}
-                </RadioGroup>
-                <p className={NOTE}>{t.firmwareNote}</p>
-              </Section>
-            )}
-
-            <Section id="modules-label" title={t.modules}>
-              <p className={NOTE}>{t.modulesNote}</p>
-              <div role="group" aria-labelledby="modules-label" className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {MODULES.filter((module) => available.includes(module.key)).map((module) => (
-                  <ChoiceCard
-                    key={module.key}
-                    htmlFor={`module-${module.key}`}
-                    control={
-                      <Checkbox
-                        id={`module-${module.key}`}
-                        className="mt-1"
-                        checked={enabled.has(module.key)}
-                        onCheckedChange={() => toggleModule(module.key)}
-                      />
-                    }
-                  >
-                    <span className="flex flex-wrap items-center gap-2 font-semibold">
-                      {t.moduleNames[module.key]}
-                      {active && active.state.install !== 'none' && (
-                        <ChangeBadge
-                          on={cardModules(active.state).includes(module.id)}
-                          checked={plan.modules.includes(module.id)}
-                          strings={t}
-                        />
-                      )}
-                    </span>
-                    <span className="text-sm text-muted-foreground">{t.modulesText[module.key]}</span>
-                    {module.key === 'filmLook' && enabled.has('filmLook') && selection?.size === 0 && (
-                      <span className="text-sm text-destructive">{t.filmLookEmpty}</span>
-                    )}
-                  </ChoiceCard>
-                ))}
-              </div>
-            </Section>
-
-            <Section id="effects-label" title={t.effects} ref={prefetchInView}>
-              {!available.includes('filmLook') ? (
-                <p className={STATUS}>{t.effectsUnavailable(camera.name)}</p>
-              ) : plan.includeEffects ? (
-                <ErrorBoundary
-                  resetKey={String(catalogAttempt)}
-                  fallback={
-                    <div className="flex flex-col items-start gap-3">
-                      <p className={ERROR}>{t.loadError}</p>
+        <Step id="camera" number={t.step(3)} title={t.camera} description={cardCamera ? undefined : t.firmwareNote}>
+          {cardCamera ? (
+            <dl className={FACTS}>
+              <dt className={FACT_LABEL}>{t.camera}</dt>
+              <dd className={FACT_VALUE}>
+                {cardCamera.options.length > 1 ? (
+                  <span className="inline-flex flex-wrap gap-2" role="group" aria-label={t.camera}>
+                    {cardCamera.options.map((option) => (
                       <Button
+                        key={option.key}
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => setCatalogAttempt((attempt) => attempt + 1)}
+                        className="aria-pressed:border-foreground aria-pressed:bg-secondary"
+                        aria-pressed={option === cardCamera.selected}
+                        disabled={cardTask.kind !== 'idle'}
+                        onClick={() => chooseCamera(option.key)}
                       >
-                        {t.retryLoad}
+                        {option.name}
                       </Button>
-                    </div>
+                    ))}
+                  </span>
+                ) : (
+                  cardCamera.selected.name
+                )}
+              </dd>
+              <dt className={FACT_LABEL}>{t.firmware}</dt>
+              <dd className={FACT_VALUE}>{cardCamera.firmware}</dd>
+              <dt className={FACT_LABEL}>{t.cardName}</dt>
+              <dd className={FACT_VALUE}>{card?.state.name || '—'}</dd>
+            </dl>
+          ) : (
+            <RadioGroup
+              name="camera"
+              value={camera.key}
+              aria-labelledby="camera-title"
+              className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+              onValueChange={(next) => chooseCamera(next as Camera['key'])}
+            >
+              {CAMERAS.map((item) => (
+                <ChoiceCard
+                  key={item.key}
+                  htmlFor={`camera-${item.key}`}
+                  control={
+                    <RadioGroupItem
+                      id={`camera-${item.key}`}
+                      value={item.key}
+                      className="mt-1"
+                      disabled={!item.support || (!!lockedCameras && !lockedCameras.includes(item))}
+                    />
                   }
                 >
-                  <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
-                    <EffectsSection
-                      strings={t}
-                      language={language}
-                      selection={selection}
-                      onSelectionChange={changeSelection}
-                      imported={imported}
-                      onImport={addImported}
-                      onRemove={removeImported}
-                      onEdit={editImported}
-                      // GRKU never asks for a firmware file, so the GR IV looks that need one are not offered.
-                      nativeLooks={false}
-                      cardEffects={active ? cardExtra : []}
-                      onCard={active && active.state.install !== 'none' ? new Set(active.effects.keys()) : null}
-                      changedOnCard={active ? changedImports(active, imported) : undefined}
-                    />
-                  </Suspense>
-                </ErrorBoundary>
-              ) : (
-                <p className={STATUS}>{t.effectsOff}</p>
-              )}
-            </Section>
+                  <span className="font-semibold">{item.name}</span>
+                  {item.support && (
+                    <span className="text-sm text-muted-foreground">
+                      {t.firmware} {item.support.firmware}
+                    </span>
+                  )}
+                  {!item.support && (
+                    <Badge variant="outline" className="w-fit">
+                      {t.planned}
+                    </Badge>
+                  )}
+                  {item.support?.noEffects && <span className="text-sm text-muted-foreground">{t.noEffects}</span>}
+                </ChoiceCard>
+              ))}
+            </RadioGroup>
+          )}
+        </Step>
 
-            <Section id="package-label" title={mode === 'card' ? t.install : t.package}>
-              {mode === 'card' && !card ? (
-                <div className="flex flex-col items-start gap-3">
-                  <Button
-                    type="button"
-                    variant="brand"
-                    size="lg"
-                    disabled={cardTask.kind !== 'idle'}
-                    onClick={lastCard ? reconnectCard : connectCard}
-                  >
-                    {lastCard ? t.cardReconnect(lastCard.name) : t.cardConnect}
-                  </Button>
-                  <p className={NOTE}>{t.cardConnectNext}</p>
-                </div>
-              ) : mode === 'card' && card ? (
-                <>
-                  <ErrorBoundary resetKey={String(catalogAttempt)} fallback={<p className={ERROR}>{t.loadError}</p>}>
-                    <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
-                      <CardChangesSection
-                        strings={t}
-                        session={card}
-                        selection={selection}
-                        imported={imported}
-                        cardEffects={cardExtra}
-                        changes={cardChanges}
-                        modules={MODULES.filter((module) => plan.visible.includes(module.key)).map(
-                          (module) => t.moduleNames[module.key],
-                        )}
-                        canWrite={!!targets && plan.visible.length > 0}
-                        busy={cardTask.kind !== 'idle'}
-                        task={taskArea === 'apply' ? cardTask : IDLE}
-                        message={applyMessage}
-                        onApply={applyCard}
-                        links={packageLinks}
-                        termsUrl={guideUrl('TERMS', language)}
-                        camera={camera.name}
-                        firmware={support?.firmware ?? '—'}
-                      />
-                    </Suspense>
-                  </ErrorBoundary>
-                  {plan.visible.length === 0 && <p className={ERROR}>{t.noModules}</p>}
-                </>
-              ) : (
-                <>
-                  <dl className={FACTS}>
-                    <dt className={FACT_LABEL}>{t.camera}</dt>
-                    <dd className={FACT_VALUE}>{camera.name}</dd>
-                    <dt className={FACT_LABEL}>{t.firmware}</dt>
-                    <dd className={FACT_VALUE}>{support?.firmware ?? '—'}</dd>
-                    <dt className={FACT_LABEL}>{t.effectCount}</dt>
-                    <dd className={FACT_VALUE}>
-                      {plan.includeEffects ? (
-                        <ErrorBoundary resetKey={String(catalogAttempt)} fallback="—">
-                          <Suspense fallback="—">
-                            <CheckedCount
-                              selection={selection}
-                              others={[...imported, ...(active ? cardExtra : [])].map((effect) => effect.id)}
-                            />
-                          </Suspense>
-                        </ErrorBoundary>
-                      ) : (
-                        0
-                      )}
-                    </dd>
-                    <dt className={FACT_LABEL}>{t.modules}</dt>
-                    <dd className={FACT_VALUE}>
-                      {plan.visible.length > 0
-                        ? MODULES.filter((module) => plan.visible.includes(module.key))
-                            .map((module) => t.moduleNames[module.key])
-                            .join(t.listSeparator)
-                        : '—'}
-                    </dd>
-                  </dl>
-                  <div className="flex flex-col items-start gap-3">
-                    <Button
-                      type="button"
-                      variant="brand"
-                      size="lg"
-                      disabled={!targets || plan.visible.length === 0 || build.state === 'building'}
-                      aria-busy={build.state === 'building'}
-                      onClick={download}
-                      onPointerEnter={prefetch}
-                      onFocus={prefetch}
-                    >
-                      {t.download}
-                    </Button>
-                    <TermsNote text={t.termsNote} href={guideUrl('TERMS', language)} />
-                    <div aria-live="polite" className="flex flex-col gap-1">
-                      {plan.visible.length === 0 && <p className={ERROR}>{t.noModules}</p>}
-                      {build.state === 'building' && (
-                        <p className={STATUS}>
-                          {build.retrying
-                            ? t.retrying
-                            : build.received > 0
-                              ? t.downloading(megabytes(build.received))
-                              : t.building}
-                        </p>
-                      )}
-                      {build.state === 'ready' && <p className={STATUS}>{t.ready}</p>}
-                      {build.state === 'failed' && <p className={ERROR}>{t.buildError}</p>}
-                    </div>
-                    {build.state === 'ready' && packageLinks}
-                  </div>
-                </>
-              )}
-            </Section>
-
-            {mode === 'zip' && (
-              <Section id="install-label" title={t.install}>
-                <ol className={STEPS}>
-                  {t.steps.map((parts, index) => (
-                    <li key={index}>
-                      <RichText
-                        parts={parts.map((part) =>
-                          part === MODESET_TOKEN ? `\`${support?.modeset ?? ''}` : part,
-                        )}
-                      />
-                    </li>
-                  ))}
-                </ol>
-              </Section>
-            )}
-
-            {showUninstall && (
-              <UninstallSection title={t.remove}>
-                <CardUninstall
-                  strings={t}
-                  session={card!}
-                  busy={cardTask.kind !== 'idle'}
-                  task={taskArea === 'remove' ? cardTask : IDLE}
-                  message={removeMessage}
-                  onUninstall={uninstallCard}
-                  onScriptsOff={scriptsOffCard}
-                  onCleanModeset={cleanModeset}
-                />
-              </UninstallSection>
-            )}
-
-            {mode === 'zip' && (
-              <Section id="update-label" title={t.update}>
-                <ol className={STEPS}>
-                  {t.updateSteps.map((parts, index) => (
-                    <li key={index}>
-                      <RichText parts={parts} />
-                    </li>
-                  ))}
-                </ol>
-              </Section>
-            )}
-
-            {mode === 'zip' && (
-              <Section id="remove-label" title={t.remove}>
-                <ol className={STEPS}>
-                  {t.removeSteps.map((parts, index) => (
-                    <li key={index}>
-                      <RichText
-                        parts={parts.map((part) =>
-                          part === MODESET_TOKEN ? `\`${support?.modeset ?? ''}` : part,
-                        )}
-                      />
-                    </li>
-                  ))}
-                </ol>
-                <div className="flex flex-col items-start gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    disabled={!support || scriptsOff === 'building'}
-                    aria-busy={scriptsOff === 'building'}
-                    onClick={downloadScriptsOff}
-                  >
-                    {t.scriptsOff(camera.name)}
-                  </Button>
-                  <div aria-live="polite">
-                    {scriptsOff === 'failed' && <p className={ERROR}>{t.scriptsOffError}</p>}
-                  </div>
-                </div>
-              </Section>
-            )}
-
-            <Section id="faq-label" title={t.faqTitle}>
-              <div className="flex max-w-[760px] flex-col">
-                {t.faq.map((item) => (
-                  <details key={item.q} className="group border-b border-border">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3.5 font-semibold leading-normal [&::-webkit-details-marker]:hidden">
-                      {item.q}
-                      <Plus className="size-4 shrink-0 text-muted-foreground group-open:hidden" aria-hidden="true" />
-                      <Minus className="hidden size-4 shrink-0 text-muted-foreground group-open:block" aria-hidden="true" />
-                    </summary>
-                    <p className="pb-4 text-[15px] leading-relaxed">
-                      <RichText parts={item.a} link="" />
-                    </p>
-                  </details>
-                ))}
+        <Step id="install" number={t.step(4)} title={t.install} description={canWrite ? t.landing.installNote : t.landing.installNoteZip}>
+          <dl className="mb-8 grid gap-5 sm:grid-cols-3">
+            {t.landing.facts.map(([title, text]) => (
+              <div key={title} className="flex flex-col gap-1 border-l-2 border-brand/70 pl-4">
+                <dt className="font-medium">{title}</dt>
+                <dd className="text-sm leading-relaxed text-muted-foreground">{text}</dd>
               </div>
-            </Section>
-          </div>
-        </main>
+            ))}
+          </dl>
+          {canWrite ? (
+            <Tabs value={mode} onValueChange={(value) => chooseMode(value as InstallMode)}>
+              <TabsList className="mb-2 h-10">
+                <TabsTrigger value="card" className="px-4">
+                  {t.modeCard}
+                </TabsTrigger>
+                <TabsTrigger value="zip" className="px-4">
+                  {t.modeZip}
+                </TabsTrigger>
+              </TabsList>
+              <p className={`${NOTE} mb-6`}>{mode === 'card' ? t.modeCardText : t.modeZipText}</p>
+              <TabsContent value="card">{cardFlow}</TabsContent>
+              <TabsContent value="zip">{zipFlow}</TabsContent>
+            </Tabs>
+          ) : (
+            zipFlow
+          )}
+        </Step>
 
-        <footer className="footer">
-          <div className={`${DESK_INNER} flex flex-col gap-6 text-sm text-muted-foreground`}>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <ul className="flex flex-col gap-2">
-                <li>
-                  <a className="hover:text-foreground hover:underline underline-offset-4" href={guideUrl('RECOVERY', language)}>
-                    {t.recovery}
-                  </a>
-                </li>
-                <li>
-                  <a className="hover:text-foreground hover:underline underline-offset-4" href={guideUrl('DUMP', language)}>
-                    {t.firmwareDump}
-                  </a>
-                </li>
-              </ul>
-              <ul className="flex flex-col gap-2">
-                <li>
-                  <a className="hover:text-foreground hover:underline underline-offset-4" href={FEEDBACK_FORM}>
-                    {t.feedback}
-                  </a>
-                </li>
-              </ul>
-              <ul className="flex flex-col gap-2">
-                <li>
-                  <a
-                    className="hover:text-foreground hover:underline underline-offset-4"
-                    href={`${REPOSITORY}/blob/main/effects/NOTICE.md`}
-                  >
-                    {t.licenses}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className="hover:text-foreground hover:underline underline-offset-4"
-                    href={siteUrl('THIRD_PARTY_LICENSES.txt')}
-                  >
-                    {t.thirdParty}
-                  </a>
-                </li>
-                <li>
-                  <a className="hover:text-foreground hover:underline underline-offset-4" href={guideUrl('TERMS', language)}>
-                    {t.terms}
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className="flex flex-col gap-2 border-t border-border pt-4 text-[13px]">
-              <p>{t.trademarks}</p>
-              <p>
-                <b className="font-semibold text-foreground">GRKU {t.landing.edition}</b> — {t.landing.fork[0]}
-                <a className="underline underline-offset-4 hover:text-foreground" href={UPSTREAM}>
-                  {t.landing.fork[1]}
-                </a>
-                {t.landing.fork[2]}
-              </p>
-              <a className="w-fit hover:text-foreground hover:underline underline-offset-4" href={RELEASE_URL}>
-                GRKU {__GRKIT_VERSION__}
-              </a>
-            </div>
-          </div>
-        </footer>
-      </div>
+        <Faq strings={t} />
+      </main>
+      <SiteFooter strings={t} language={language} version={__GRKIT_VERSION__} releaseUrl={RELEASE_URL} />
+      <PlusSheet
+        open={plusOpen}
+        onOpenChange={setPlusOpen}
+        strings={t}
+        owned={owned}
+        hasKey={!!plusKey}
+        onKey={adoptKey}
+        onForget={dropKey}
+        packCounts={previewCatalog ? packCounts(previewCatalog.effects) : null}
+      />
       <AppPromo strings={t} />
     </>
   );
@@ -1244,46 +1107,6 @@ function useChecked(selection: Selection, others: readonly { id: string }[]) {
   };
 }
 
-/**
- * The next step after a card connects: what a write would do, with a link down to the changes
- * and the write button, so a returning user does not scroll past every section to find them.
- */
-function CardNext({
-  strings: t,
-  session,
-  selection,
-  imported,
-  cardEffects,
-  changes,
-}: Pick<ChangesSectionProps, 'strings' | 'session' | 'selection' | 'imported' | 'cardEffects' | 'changes'>) {
-  const { checked } = useChecked(selection, [...imported, ...cardEffects]);
-  const next = changes(session, [...checked]);
-  const count =
-    next.addModules.length +
-    next.removeModules.length +
-    next.addEffects.length +
-    next.removeEffects.length +
-    next.updateEffects.length +
-    (next.scriptsOn ? 1 : 0) +
-    (next.cleanLegacy ? 1 : 0);
-  const lines =
-    next.grkit === 'install'
-      ? [t.cardNextInstall(__GRKIT_VERSION__)]
-      : [
-          ...(next.grkit === 'update' ? [t.cardNextUpdate(__GRKIT_VERSION__)] : []),
-          ...(count > 0 ? [t.cardNextChanges(count)] : []),
-        ];
-  if (lines.length === 0) return <p className={STATUS}>{t.cardNextNone}</p>;
-  return (
-    <p className={STATUS}>
-      {sentences(...lines)}{' '}
-      <a href="#package-label" className="text-foreground underline underline-offset-4 hover:text-brand">
-        {t.cardNextReview}
-      </a>
-    </p>
-  );
-}
-
 /** The changes from the card to the selection. Before the first change, it needs the catalog. */
 function CardChangesSection({ strings: t, session, selection, imported, cardEffects, changes, ...rest }: ChangesSectionProps) {
   const { catalog, checked } = useChecked(selection, [...imported, ...cardEffects]);
@@ -1308,12 +1131,3 @@ function CardChangesSection({ strings: t, session, selection, imported, cardEffe
   );
 }
 
-/** The number of checked effects. Before the first change, it needs the catalog. */
-function CheckedCount({ selection, others }: { selection: Selection; others: readonly string[] }) {
-  const catalog = use(loadCatalog(PREVIEW_TARGET));
-  return resolveSelection(
-    selection,
-    catalog.effects.map((effect) => effect.id),
-    others,
-  ).size;
-}

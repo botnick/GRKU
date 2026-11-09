@@ -70,7 +70,7 @@ function PromoBar({ strings, onClose }: { strings: Strings; onClose: () => void 
       {/* Keeps the end of the page clear of the fixed bar. */}
       <div className="h-20" aria-hidden="true" />
       <aside
-        className="promo-bar fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-card px-4 py-3 text-card-foreground shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
+        className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-card px-4 py-3 text-card-foreground shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
         aria-label="GR Snap"
       >
         <img src="/gr-snap.png" alt="" width="40" height="40" className="size-10 rounded-lg" />

@@ -1,16 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { MAX_EFFECTS } from './catalog';
+import { DEFAULT_LOOKS, FREE_SLOTS } from './plus';
 import { importFit, loadSelection, resolveSelection, saveSelection, selectImport } from './selection';
 
 const ids = (count: number) => Array.from({ length: count }, (_, index) => `effect-${index}`);
 
 describe('resolveSelection', () => {
-  it('checks every catalog effect before the first change', () => {
-    expect([...resolveSelection(null, ids(18))]).toEqual(ids(18));
+  it('checks the default looks that the catalog has before the first change', () => {
+    const catalog = [...ids(18), ...DEFAULT_LOOKS.slice(0, 4)];
+    expect([...resolveSelection(null, catalog)]).toEqual(DEFAULT_LOOKS.slice(0, 4));
   });
 
-  it('checks at most the package limit by default', () => {
-    expect(resolveSelection(null, ids(MAX_EFFECTS + 5)).size).toBe(MAX_EFFECTS);
+  it('checks the first free slots of a catalog without the default looks', () => {
+    expect(resolveSelection(null, ids(18)).size).toBe(FREE_SLOTS);
   });
 
   it('keeps the choice of the user, also an empty one', () => {

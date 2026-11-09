@@ -1,38 +1,17 @@
-/* Tailwind for the shadcn/ui components: the theme and the utilities, without the preflight,
-   which the hand-written styles of the page do not expect while they are being replaced. The
-   shadcn variables carry the GRKU brand: paper and ink for the desk, ink and paper under .dark
-   for the darkroom of the landing, and one red. */
-@layer theme, base, components, utilities;
-@import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/utilities.css' layer(utilities);
+/* GRKU: the one stylesheet. Tailwind, with the shadcn/ui tokens in the brand: a darkroom (the
+   black of the brand, paper-white text, gray for what matters less, one red for the one action
+   on a screen), Inter for Latin text with the font of the page language beside it, JetBrains
+   Mono for file names and values. The color of the page is in the film boxes and in the
+   photographs, nowhere else. The components say the rest in classes; the rules at the end are
+   the few that classes cannot reach: the third-party comparison slider and the cover text of a
+   film icon drawn from its fields. */
+@import 'tailwindcss';
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  color-scheme: dark;
   --radius: 0.625rem;
-  --background: #f7f7f2;
-  --foreground: #171717;
-  --card: #ffffff;
-  --card-foreground: #171717;
-  --popover: #ffffff;
-  --popover-foreground: #171717;
-  --primary: #171717;
-  --primary-foreground: #f7f7f2;
-  --secondary: #ecece7;
-  --secondary-foreground: #171717;
-  --muted: #ecece7;
-  --muted-foreground: #6e6e6e;
-  --accent: #ecece7;
-  --accent-foreground: #171717;
-  --destructive: #b8352b;
-  --border: #dededa;
-  --input: #c9c9c4;
-  --ring: #d94135;
-  --brand: #d94135;
-  --brand-foreground: #ffffff;
-}
-
-.dark {
   --background: #171717;
   --foreground: #f7f7f2;
   --card: #1f1f1f;
@@ -51,6 +30,27 @@
   --border: #2c2c2c;
   --input: #3a3a3a;
   --ring: #d94135;
+  --brand: #d94135;
+  --brand-foreground: #ffffff;
+  --gutter: clamp(16px, 4vw, 56px);
+  --font-language: 'Inter';
+}
+
+/* The font of the page language, beside Inter. fonts.ts loads its files. */
+:root[lang='zh-Hans'] {
+  --font-language: 'Noto Sans SC';
+}
+:root[lang='zh-Hant'] {
+  --font-language: 'Noto Sans TC';
+}
+:root[lang='ja'] {
+  --font-language: 'Noto Sans JP';
+}
+:root[lang='ko'] {
+  --font-language: 'Noto Sans KR';
+}
+:root[lang='th'] {
+  --font-language: 'IBM Plex Sans Thai';
 }
 
 @theme inline {
@@ -78,6 +78,100 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: 'Inter', 'IBM Plex Sans Thai', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --radius-2xl: calc(var(--radius) + 8px);
+  --font-sans: 'Inter', var(--font-language), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', var(--font-language), ui-monospace, monospace;
+  --spacing-gutter: var(--gutter);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply bg-background;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  /* Thai script is taller than Latin: more leading everywhere, most in the headings. */
+  :root[lang='th'] body {
+    line-height: 1.65;
+  }
+  :root[lang='th'] :is(h1, h2, h3) {
+    line-height: 1.3;
+    letter-spacing: 0;
+  }
+}
+
+@layer components {
+  /* The cover text of a film icon drawn from its fields (EffectIcon), in viewBox units. */
+  .cover-text {
+    font-family: 'IBM Plex Sans Condensed', 'Inter', sans-serif;
+    font-weight: 700;
+    text-anchor: middle;
+  }
+  .cover-brand {
+    font-size: 8px;
+  }
+  .cover-name {
+    font-size: 6.6px;
+    letter-spacing: 0.2px;
+  }
+  .cover-number {
+    font-size: 14px;
+    letter-spacing: -0.3px;
+  }
+  .cover-name-large {
+    font-size: 12px;
+    letter-spacing: -0.2px;
+  }
+
+  /* The comparison slider (react-compare-slider) in a preview frame. Its markup is the
+     library's, so these rules reach into it. */
+  .image-comparison {
+    width: 100%;
+    height: 100%;
+  }
+  .image-comparison img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* react-compare-slider 4.0.0 gives the first item z-index 1 for each clip mode, so with clip
+     'itemTwo' the original would cover the effect. The same z-index puts the effect above the
+     original and below the handle, in document order. */
+  .comparison-effect {
+    z-index: 1;
+    transition: opacity 120ms;
+  }
+  [aria-busy='true'] > .image-comparison {
+    filter: brightness(0.7);
+    transition: filter 120ms;
+  }
+  [aria-busy='true'] .comparison-effect {
+    opacity: 0.6;
+  }
+  .image-comparison .__rcs-handle-button,
+  .image-comparison .__rcs-handle-line {
+    color: var(--foreground);
+  }
+  /* The arrows of the handle, in proportion to its small button. The library sets their size
+     inline, so only !important overrides it. */
+  .image-comparison .__rcs-handle-arrow {
+    width: 0.5rem !important;
+    height: 0.5rem !important;
+  }
+  /* Keyboard focus shows on the round button. The focused handle is as tall as the image, which
+     the frame clips, so a ring on it would not show. */
+  .image-comparison [data-rcs='handle-root']:focus-visible {
+    outline: none;
+  }
+  .image-comparison [data-rcs='handle-root']:focus-visible .__rcs-handle-button {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
 }

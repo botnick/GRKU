@@ -1,16 +1,11 @@
 import { useId, useState, type ReactNode } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cardStarted, cardVersion, hasChanges, type CardChanges } from '../card';
 import type { CardSession } from '../cardSession';
-import type { Camera } from '../cameras';
 import { sentences, type Strings } from '../i18n';
-import { ChoiceCard } from './ChoiceCard';
-import { Section } from './Section';
 import { TermsNote } from './TermsNote';
 
 /** What the card panels are doing. Each task disables the card buttons until it ends. */
@@ -65,19 +60,11 @@ function Status({ task, message, strings: t }: { task: CardTask; message: CardMe
 /** How the user installs GRKU: write to a connected card, or download GRKU.zip. */
 export type InstallMode = 'card' | 'zip';
 
-interface StartProps {
+interface ConnectProps {
   strings: Strings;
-  mode: InstallMode;
-  onMode: (mode: InstallMode) => void;
   session: CardSession | null;
   /** The card's GRKU is for another camera than the selected one. */
   otherCamera: boolean;
-  /**
-   * The camera of the card's GRKU, which the page then shows here instead of the camera section.
-   * `options` has two entries when one build runs on both, such as GR IV and GR IV Monochrome.
-   */
-  cardCamera: { options: readonly Camera[]; selected: Camera; firmware: string } | null;
-  onCamera: (camera: Camera) => void;
   /** Any card task runs. */
   busy: boolean;
   reading: boolean;
@@ -87,24 +74,16 @@ interface StartProps {
   onConnect: () => void;
   onReconnect: () => void;
   onDisconnect: () => void;
-  /** What the ZIP mode shows under the modes, such as the open of an earlier GRKU.zip. */
-  zip?: ReactNode;
-  /** The next step with a connected card: what a write would do. */
-  next?: ReactNode;
 }
 
 /**
- * The first section: the install mode, and in card mode the connected card. The page shows it only
- * in a browser that can write to a card.
+ * The connected card: the buttons that connect one, then its name, its GRKU, and the notes
+ * about it. The page shows it only in a browser that can write to a card.
  */
-export function StartSection({
+export function CardConnect({
   strings: t,
-  mode,
-  onMode,
   session,
   otherCamera,
-  cardCamera,
-  onCamera,
   busy,
   reading,
   message,
@@ -112,133 +91,73 @@ export function StartSection({
   onConnect,
   onReconnect,
   onDisconnect,
-  zip,
-  next,
-}: StartProps) {
-  const ids = useId();
+}: ConnectProps) {
   const state = session?.state;
   return (
-    <Section id="start-label" title={t.card}>
-      <RadioGroup
-        name="mode"
-        value={mode}
-        disabled={busy}
-        aria-labelledby="start-label"
-        className="grid gap-3 sm:grid-cols-2"
-        onValueChange={(value) => onMode(value as InstallMode)}
-      >
-        <ChoiceCard htmlFor={`${ids}-card`} control={<RadioGroupItem id={`${ids}-card`} value="card" className="mt-1" />}>
-          <span className="flex flex-wrap items-center gap-2 font-semibold">
-            {t.modeCard}
-            <Badge variant="outline" className="border-brand text-brand">
-              {t.recommended}
-            </Badge>
-          </span>
-          <span className="text-sm text-muted-foreground">{t.modeCardText}</span>
-        </ChoiceCard>
-        <ChoiceCard htmlFor={`${ids}-zip`} control={<RadioGroupItem id={`${ids}-zip`} value="zip" className="mt-1" />}>
-          <span className="font-semibold">{t.modeZip}</span>
-          <span className="text-sm text-muted-foreground">{t.modeZipText}</span>
-        </ChoiceCard>
-      </RadioGroup>
-
-      {mode === 'zip' && zip}
-
-      {mode === 'card' &&
-        (!session || !state ? (
-          <>
-            <div className="flex flex-wrap gap-2">
-              {lastCard ? (
-                <>
-                  <Button type="button" variant="brand" size="lg" disabled={busy} onClick={onReconnect}>
-                    {t.cardReconnect(lastCard)}
-                  </Button>
-                  <Button type="button" variant="outline" size="lg" disabled={busy} onClick={onConnect}>
-                    {t.cardConnectAnother}
-                  </Button>
-                </>
-              ) : (
-                <Button type="button" variant="brand" size="lg" disabled={busy} onClick={onConnect}>
-                  {t.cardConnect}
+    <div className="flex flex-col gap-4">
+      {!session || !state ? (
+        <>
+          <div className="flex flex-wrap gap-2">
+            {lastCard ? (
+              <>
+                <Button type="button" variant="brand" size="lg" disabled={busy} onClick={onReconnect}>
+                  {t.cardReconnect(lastCard)}
                 </Button>
-              )}
-            </div>
+                <Button type="button" variant="outline" size="lg" disabled={busy} onClick={onConnect}>
+                  {t.cardConnectAnother}
+                </Button>
+              </>
+            ) : (
+              <Button type="button" variant="brand" size="lg" disabled={busy} onClick={onConnect}>
+                {t.cardConnect}
+              </Button>
+            )}
+          </div>
+          <p className={NOTE}>
+            {lastCard ? sentences(t.cardReconnectNote, t.cardReader) : sentences(t.cardReader, t.cardPickNote)}
+          </p>
+          <p className={NOTE}>{t.cardConnectNext}</p>
+        </>
+      ) : (
+        <>
+          <dl className={FACTS}>
+            <dt className={FACT_LABEL}>{t.cardName}</dt>
+            <dd className={FACT_VALUE}>{state.name || '—'}</dd>
+            <dt className={FACT_LABEL}>{t.cardGrkit}</dt>
+            <dd className={FACT_VALUE}>
+              {state.install === 'none'
+                ? t.cardNone
+                : state.install === 'legacy'
+                  ? t.cardLegacy
+                  : [cardVersion(state), !cardStarted(state) && t.cardNotStarted]
+                      .filter(Boolean)
+                      .join(' · ')}
+            </dd>
+          </dl>
+          {!state.isCardRoot && <p className={WARNING}>{t.cardNotRoot}</p>}
+          {otherCamera && <p className={WARNING}>{t.cardOtherCamera}</p>}
+          {state.install === 'legacy' && <p className={NOTE}>{t.cardLegacyNote}</p>}
+          {/* Right after a write, the result of the write shows this step. */}
+          {state.install === 'current' && !cardStarted(state) && !session.written && (
+            <p className={NOTE}>{t.cardDoneFirst}</p>
+          )}
+          {state.userModules.length > 0 && (
             <p className={NOTE}>
-              {lastCard ? sentences(t.cardReconnectNote, t.cardReader) : sentences(t.cardReader, t.cardPickNote)}
+              {t.cardUserModules} {state.userModules.map((name) => name.replace(/\.GRM$/i, '')).join(t.listSeparator)}
             </p>
-          </>
-        ) : (
-          <>
-            <dl className={FACTS}>
-              <dt className={FACT_LABEL}>{t.cardName}</dt>
-              <dd className={FACT_VALUE}>{state.name || '—'}</dd>
-              {cardCamera && (
-                <>
-                  <dt className={FACT_LABEL}>{t.camera}</dt>
-                  <dd className={FACT_VALUE}>
-                    {cardCamera.options.length > 1 ? (
-                      <span className="inline-flex flex-wrap gap-2" role="group" aria-label={t.camera}>
-                        {cardCamera.options.map((option) => (
-                          <Button
-                            key={option.key}
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="aria-pressed:border-foreground aria-pressed:bg-secondary"
-                            aria-pressed={option === cardCamera.selected}
-                            disabled={busy}
-                            onClick={() => onCamera(option)}
-                          >
-                            {option.name}
-                          </Button>
-                        ))}
-                      </span>
-                    ) : (
-                      cardCamera.selected.name
-                    )}
-                  </dd>
-                  <dt className={FACT_LABEL}>{t.firmware}</dt>
-                  <dd className={FACT_VALUE}>{cardCamera.firmware}</dd>
-                </>
-              )}
-              <dt className={FACT_LABEL}>{t.cardGrkit}</dt>
-              <dd className={FACT_VALUE}>
-                {state.install === 'none'
-                  ? t.cardNone
-                  : state.install === 'legacy'
-                    ? t.cardLegacy
-                    : [cardVersion(state), !cardStarted(state) && t.cardNotStarted]
-                        .filter(Boolean)
-                        .join(' · ')}
-              </dd>
-            </dl>
-            {!state.isCardRoot && <p className={WARNING}>{t.cardNotRoot}</p>}
-            {otherCamera && <p className={WARNING}>{t.cardOtherCamera}</p>}
-            {state.install === 'legacy' && <p className={NOTE}>{t.cardLegacyNote}</p>}
-            {/* Right after a write, the result of the write shows this step. */}
-            {state.install === 'current' && !cardStarted(state) && !session.written && (
-              <p className={NOTE}>{t.cardDoneFirst}</p>
-            )}
-            {next}
-            {state.userModules.length > 0 && (
-              <p className={NOTE}>
-                {t.cardUserModules} {state.userModules.map((name) => name.replace(/\.GRM$/i, '')).join(t.listSeparator)}
-              </p>
-            )}
-            <div className="flex flex-wrap gap-2">
-              <Button type="button" variant="outline" disabled={busy} onClick={onConnect}>
-                {t.cardConnectOther}
-              </Button>
-              <Button type="button" variant="outline" disabled={busy} onClick={onDisconnect}>
-                {t.cardDisconnect}
-              </Button>
-            </div>
-          </>
-        ))}
-      {mode === 'card' && (
-        <Status task={reading ? { kind: 'reading' } : { kind: 'idle' }} message={message} strings={t} />
+          )}
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" size="sm" disabled={busy} onClick={onConnect}>
+              {t.cardConnectOther}
+            </Button>
+            <Button type="button" variant="outline" size="sm" disabled={busy} onClick={onDisconnect}>
+              {t.cardDisconnect}
+            </Button>
+          </div>
+        </>
       )}
-    </Section>
+      <Status task={reading ? { kind: 'reading' } : { kind: 'idle' }} message={message} strings={t} />
+    </div>
   );
 }
 
@@ -423,15 +342,6 @@ interface RemoveProps {
   onUninstall: (data: boolean, scriptsOff: boolean) => void;
   onScriptsOff: () => void;
   onCleanModeset: () => void;
-}
-
-/** The Uninstall section with a card. */
-export function UninstallSection({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <Section id="uninstall-label" title={title}>
-      {children}
-    </Section>
-  );
 }
 
 /**
