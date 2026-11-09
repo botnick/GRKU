@@ -2826,7 +2826,7 @@ static void about_grku_shows_the_version_the_website_and_the_looks(void)
         /* The table of the harness has version 0.0.0: alone in a value row (GR IV),
            after GRKU in a line of the page (GR III). */
 #ifdef INFO_LINES
-        assert(!strcmp(lines, "GRKU 0.0.0"));
+        assert(!strncmp(lines, "GRKU 0.0.0 - ", 13) && strstr(lines, " looks"));
 #else
         assert(!strcmp(lines, "0.0.0"));
 #endif

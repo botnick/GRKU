@@ -76,6 +76,9 @@ pub const EXPORTS: &[(&str, &str)] = &[
 /// The import that the installer fills with the context of each module
 /// (`GrkuContext` in `runtime/sdk/grku.h`).
 pub const CONTEXT: &str = "grku_self";
+/// The name of the same import in a module built with the SDK of GRKit, which the installer
+/// also fills (runtime/install_modules.h).
+pub const OLD_CONTEXT: &str = "grkit_self";
 /// The smallest module descriptor: `GrkuModule` before ABI 2.4.
 pub const DESCRIPTOR_SIZE: u32 = 40;
 /// The size of a descriptor with the module flags (ABI 2.4), which the
@@ -84,7 +87,7 @@ pub const DESCRIPTOR_FLAGS_SIZE: u32 = 44;
 
 /// Whether a module can import `name`.
 pub fn importable(name: &str) -> bool {
-    name == CONTEXT || EXPORTS.iter().any(|&(export, _)| export == name)
+    name == CONTEXT || name == OLD_CONTEXT || EXPORTS.iter().any(|&(export, _)| export == name)
 }
 
 /// The folder of the package modules in the SD tree. A person adds a module

@@ -535,9 +535,9 @@ export function Workbench({
                   {brand === 'all' ? (
                     t.allBrands
                   ) : (
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center">
                       <BrandMark brand={brand} />
-                      {brand}
+                      <span className="sr-only">{brand}</span>
                     </span>
                   )}
                 </SelectValue>
@@ -545,9 +545,9 @@ export function Workbench({
               <SelectContent position="popper" align="end">
                 <SelectItem value="all">{t.allBrands}</SelectItem>
                 {brands.map((item) => (
-                  <SelectItem key={item} value={item}>
+                  <SelectItem key={item} value={item} className="py-2">
                     <BrandMark brand={item} />
-                    {item}
+                    <span className="sr-only">{item}</span>
                   </SelectItem>
                 ))}
               </SelectContent>

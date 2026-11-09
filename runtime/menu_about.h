@@ -2,7 +2,8 @@
 #define GRKU_MENU_ABOUT_H
 /* About GRKU on the native camera information page (INFO_CONTROLLER,
    runtime/menu.c). The build header gives the lines of the page that show
-   the version and the website (INFO_LINES, two lines), or the text IDs of
+   the version with the number of effects and the website (INFO_LINES,
+   two lines), or the text IDs of
    its labels (INFO_LABEL_TEXTS, three rows of a label and a value): then the
    rows read Version, Website, and Film Look, whose value is the number of
    effects in the list of this start. */
@@ -35,6 +36,8 @@ static u32 ascii_decimal(volatile char *to,u32 at,u32 value,u32 room) {
 }
 #ifdef INFO_LINES
 static const u16 about_prefix[]={'G','R','K','U',' ',0};
+static const u16 about_looks[]={' ','l','o','o','k','s',0};
+static const u16 about_dash[]={' ','-',' ',0};
 #endif
 /* The update of the page ended (menu.S: menu_info_update): show the version,
    the website, and the number of film looks in its lines. */
@@ -50,7 +53,11 @@ A32_ENTRY void menu_info_fill(u32 controller) {
 #ifdef INFO_LINES
     {
         static const u16 lines[2]=INFO_LINES;
-        ascii_add(version,ascii_add(version,0,about_prefix,MENU_ABOUT_LINE),text(h,TEXT_ABOUT+2),MENU_ABOUT_LINE);
+        u32 at=ascii_add(version,ascii_add(version,0,about_prefix,MENU_ABOUT_LINE),text(h,TEXT_ABOUT+2),MENU_ABOUT_LINE);
+        /* The first line: "GRKU 1.5.2 - 40 looks". */
+        at=ascii_add(version,at,about_dash,MENU_ABOUT_LINE);
+        at=ascii_decimal(version,at,effects_count(h),MENU_ABOUT_LINE);
+        ascii_add(version,at,about_looks,MENU_ABOUT_LINE);
         MENU_VIEW2(FW_STRING_VIEW_SET_ASCII,MENU_OBJECT_WORD(controller,lines[0]),(u32)version);
         MENU_VIEW2(FW_STRING_VIEW_SET_ASCII,MENU_OBJECT_WORD(controller,lines[1]),(u32)website);
     }

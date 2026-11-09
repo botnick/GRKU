@@ -518,7 +518,9 @@ export async function applyChanges(
   library: { add: readonly CardFile[]; remove: readonly string[] },
   onProgress: (progress: ApplyProgress) => void = () => {},
 ): Promise<void> {
-  await adoptOldData(root);
+  // Whether the old data folder is the only one before this write: then its files move to GRKU
+  // at the end, under what the write puts there.
+  const adopt = await adoption(root);
   // The ModeSet files go on a card without GRKU, and over the files that turned SD scripts off.
   const wanted = files.filter(
     (file) => file.path.includes('/') || state.install === 'none' || turnsScriptsOn(state),
@@ -548,6 +550,9 @@ export async function applyChanges(
   }
   remove.push(...library.remove.map(inNewDataFolder));
   for (const path of remove) await removeFile(root, path);
+  // The old data folder moves once the new package is on the card, so an interrupted write
+  // leaves the card with one runtime and its data.
+  await adoptOldData(root, adopt);
   if (cleansLegacy(state)) {
     const scripts = await folder(root, 'SCRIPT');
     if (scripts) await removeTree(scripts, 'PLUGINS');
@@ -568,14 +573,23 @@ const inNewDataFolder = (path: string) =>
 /**
  * The data folder of GRKit 1.3 to 1.5, `GRKIT`, becomes `GRKU`, settings and effects included, here
  * on the computer: a copy and a delete, since the browser does not rename a folder. Next to a
- * `GRKU` it just goes, `GRKU` being the newer folder. The camera renames too, at its first start,
+ * `GRKU` it just goes, `GRKU` being the newer folder; a file that `GRKU` has stays as it is. The camera renames too, at its first start,
  * for a card written by other means, but never deletes files: a delete of many files through its
  * card file system made the starts that followed slow.
  */
-async function adoptOldData(root: CardDirectory): Promise<void> {
+type Adoption = 'none' | 'copy' | 'remove';
+
+/** What a write does with the old data folder: nothing, a copy to `GRKU` and a delete, or a delete. */
+async function adoption(root: CardDirectory): Promise<Adoption> {
+  if (!(await folder(root, OLD_DATA))) return 'none';
+  return (await folder(root, DATA)) ? 'remove' : 'copy';
+}
+
+async function adoptOldData(root: CardDirectory, adopt: Adoption): Promise<void> {
+  if (adopt === 'none') return;
   const old = await folder(root, OLD_DATA);
   if (!old) return;
-  if (!(await folder(root, DATA))) await copyTree(root, old, OLD_DATA);
+  if (adopt === 'copy') await copyTree(root, old, OLD_DATA);
   await removeTree(root, OLD_DATA);
   await removeCompanions(root, [OLD_DATA]);
 }
@@ -586,8 +600,10 @@ async function copyTree(root: CardDirectory, dir: CardDirectory, path: string): 
     if (!visible(name)) continue;
     if (handle.kind === 'directory') await copyTree(root, await dir.getDirectoryHandle(name), `${path}/${name}`);
     else {
+      const target = inNewDataFolder(`${path}/${name}`);
+      if ((await readFile(root, target)) !== null) continue;
       const bytes = await readFile(root, `${path}/${name}`);
-      if (bytes) await writeOne(root, { path: inNewDataFolder(`${path}/${name}`), bytes });
+      if (bytes) await writeOne(root, { path: target, bytes });
     }
   }
 }

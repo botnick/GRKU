@@ -94,15 +94,17 @@ static void module_icon_patch(u32 i, const u32 *uses, u32 base, u32 address)
    missing. */
 static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, u32 broken)
 {
-    struct grm_symbol symbols[CORE_EXPORT_COUNT + 1];
+    struct grm_symbol symbols[CORE_EXPORT_COUNT + 2];
     u32 n = 0, code_at = code;
     for (; n < CORE_EXPORT_COUNT; ++n) {
         symbols[n].hash = core_exports[n * 2];
         symbols[n].value = relocated[TAIL_SYMBOL] + core_exports[n * 2 + 1];
     }
-    /* grku_self: the context of the module that links. */
-    u32 self = n++;
+    /* grku_self: the context of the module that links. A module built with
+       the SDK of GRKit imports it as grkit_self: the same value. */
+    u32 self = n++, old_self = n++;
     symbols[self].hash = fnv((const u8 *)"grku_self", sizeof("grku_self") - 1);
+    symbols[old_self].hash = fnv((const u8 *)"grkit_self", sizeof("grkit_self") - 1);
     /* The settings table. A saved setting has its state file ID; a second
        setting with the same ID is not saved. The choices of the GRKU
        section, those of the effects, and the kept values follow the settings
@@ -220,7 +222,7 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
             store(context + 12 + u * 4, handle);
         }
         if (!sync_alias(context, 4 * CONTEXT_WORDS(module_use_count[i]))) return STATUS_SYNC;
-        symbols[self].value = context;
+        symbols[self].value = symbols[old_self].value = context;
         u32 module_flags = 0;
         /* The file itself: module_code gets the code of this module at its link. */
         if (!status) status = grm_module_flags(&module, module.code, &module_flags);
