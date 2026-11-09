@@ -26,6 +26,11 @@ function licenseTexts(directory) {
 /** The packages that the page bundles. A dependency without bundled code is added from its directory. */
 function javascriptPackages() {
   const listed = JSON.parse(readFileSync(viteLicenses, 'utf8'));
+  // A bundled package that ships no license file (react-remove-scroll-bar, behind Radix UI) has
+  // only the identifier of its package.json, which the report keeps.
+  for (const entry of listed) {
+    if (!entry.text) entry.text = `${entry.identifier ?? 'See package.json'}. The package ships no license file.`;
+  }
   const found = new Map(listed.map((entry) => [entry.name, entry]));
   const manifest = JSON.parse(readFileSync(join(web, 'package.json'), 'utf8'));
   const directories = Object.keys(manifest.dependencies ?? {}).map((name) =>
