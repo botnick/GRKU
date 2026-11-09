@@ -57,7 +57,7 @@ export function loadWasm(): Promise<Wasm> {
 }
 
 const buildUrl = (target: string) => siteUrl(`runtime/${target}/build.json`);
-const guideUrl = (camera: string, language: string) => siteUrl(`guides/${camera}/${guideLanguage(language as Language)}.pdf`);
+export const guideUrl = (camera: string, language: string) => siteUrl(`guides/${camera}/${guideLanguage(language as Language)}.pdf`);
 const runtimeUrl = (target: string, path: string) => siteUrl(`runtime/${target}/sd/${path}`);
 /** The site file of an official module. The release publishes each one once, for every camera. */
 const moduleUrl = (id: string) => siteUrl(`modules/${id}.GRM`);

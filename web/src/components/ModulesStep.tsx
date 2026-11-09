@@ -145,6 +145,7 @@ export function ModulesStep({
             <span className="text-muted-foreground"> / {MODULES_MAX}</span>
           </span>
         </div>
+        {full && <p className="m-0 text-right text-[13px] text-muted-foreground">{t.modulesFull(MODULES_MAX)}</p>}
         <ul role="group" aria-label={t.modules} className="divide-y divide-border overflow-hidden rounded-xl border bg-card">
           {modules.map((module) => {
             const on = enabled.has(module.key);
@@ -160,6 +161,7 @@ export function ModulesStep({
                     <Switch id={`module-${module.key}`} checked={on} disabled={!on && full} onCheckedChange={() => onToggle(module.key)} aria-label={t.moduleNames[module.key]} />
                   </div>
                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t.modulesText[module.key]}</p>
+                  {!on && full && <p className="mt-1 text-[13px] font-medium text-foreground/80">{t.modulesFullHint}</p>}
                   {module.key === 'filmLook' && emptyLooks && <p className="mt-1 text-sm text-destructive">{t.filmLookEmpty}</p>}
                 </div>
               </li>

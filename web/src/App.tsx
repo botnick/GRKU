@@ -94,10 +94,12 @@ import {
   effectLabel,
   prefetchPackage,
   packageFilename,
+  guideUrl as guidePdfUrl,
   save,
   scriptsOffCardFiles,
 } from './package';
 import { packageCard } from './packageCard';
+import { cn } from '@/lib/utils';
 import { fetchEntitlement, forgetKey, FREE, loadKey, packCounts, PlusError, saveKey, takeKeyFromHash, takeOrderFromHash, type Entitlement } from './plus';
 import { loadSelection, resolveSelection, saveSelection, type Selection } from './selection';
 import { TransferError } from './transfer';
@@ -839,6 +841,21 @@ export function App({
           {build.state === 'failed' && <p className={ERROR}>{t.buildError}</p>}
         </div>
         {build.state === 'ready' && packageLinks}
+        {/* What to do with the ZIP, in plain steps; it stands out once the ZIP is ready. */}
+        <div className={cn('w-full max-w-xl rounded-xl border bg-card p-4', build.state === 'ready' && 'border-brand/60 bg-brand/[0.06]')}>
+          <p className="m-0 text-[15px] font-semibold">{t.zipNextTitle}</p>
+          <ol className="m-0 mt-2 flex list-none flex-col gap-2 p-0 text-sm leading-relaxed">
+            {[t.zipNext1, t.zipNext2, t.zipNext3, t.zipNext4].map((step, index) => (
+              <li key={step} className="flex gap-3">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-brand-foreground">{index + 1}</span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+          <a className="mt-3 inline-block text-sm font-medium underline underline-offset-4" href={guidePdfUrl(camera.id, language)} target="_blank" rel="noreferrer">
+            {t.zipNextGuide}
+          </a>
+        </div>
       </div>
       <Accordion type="single" collapsible className="w-full border-t border-border">
         {guide('install', t.install, t.steps)}
