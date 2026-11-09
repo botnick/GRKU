@@ -252,7 +252,7 @@ export function RecipesPanel({
                 <button type="button" className="relative size-16 shrink-0 overflow-hidden rounded-lg ring-1 ring-black/20 ring-inset" style={{ background: recipeSwatch(recipe) }} aria-label={name} onClick={() => setShown(recipe)} />
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <div className="flex items-start justify-between gap-2">
-                    <button type="button" className="min-w-0 text-left hover:underline" onClick={() => setShown(recipe)}>
+                    <button type="button" className="min-w-0 text-left transition-colors hover:text-brand" onClick={() => setShown(recipe)}>
                       <span className="block truncate text-[15px] font-semibold">{name}</span>
                       {preset?.author && <span className="block truncate text-xs text-muted-foreground">{r.by(preset.author)}</span>}
                     </button>
