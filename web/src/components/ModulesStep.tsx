@@ -36,10 +36,17 @@ type Photo = keyof typeof LANDING_PHOTOS;
 
 /** The example photos of the modules: the image in public/landing/, the module, the setting, the photo. */
 const EXAMPLES: readonly { image: string; module: ModuleKey; detail: (t: Strings) => string; photo: Photo }[] = [
+  { image: 'framing-xpan.jpg', module: 'framing', detail: () => 'XPan 65:24', photo: 'achensee' },
+  { image: 'crop-50.jpg', module: 'crop', detail: () => '50mm', photo: 'tram' },
+  { image: 'guides-thirds.jpg', module: 'guides', detail: (t) => t.landing.guideRows[1] ?? '', photo: 'clouds' },
   { image: 'date-gr2.jpg', module: 'dateStamp', detail: (t) => t.landing.dateLooks[2] ?? '', photo: 'wakkanai' },
   { image: 'date-gr1s.jpg', module: 'dateStamp', detail: (t) => t.landing.dateLooks[1] ?? '', photo: 'wakkanai' },
   { image: 'bloom.jpg', module: 'glow', detail: (t) => t.landing.glowKinds[1] ?? '', photo: 'hokkaido' },
   { image: 'halation.jpg', module: 'glow', detail: (t) => t.landing.glowKinds[2] ?? '', photo: 'hokkaido' },
+  { image: 'leak-leaky.jpg', module: 'lightLeak', detail: () => 'Leaky', photo: 'beach' },
+  { image: 'leak-dusty.jpg', module: 'lightLeak', detail: () => 'Dusty', photo: 'nathans' },
+  { image: 'diffusion-half.jpg', module: 'diffusion', detail: () => '1/2 · Streak', photo: 'neon' },
+  { image: 'border-white.jpg', module: 'border', detail: () => 'White 3%', photo: 'temple' },
   { image: 'grain-2.jpg', module: 'grain', detail: (t) => t.landing.grainLevels[1] ?? '', photo: 'tram' },
   { image: 'grain-4.jpg', module: 'grain', detail: (t) => t.landing.grainLevels[3] ?? '', photo: 'tram' },
 ];
@@ -136,17 +143,17 @@ export function ModulesStep({
                 <img
                   src={landingImage(example.image)}
                   alt={`${title} — ${detail}`}
-                  width="800"
-                  height="600"
+                  width="1200"
+                  height="800"
                   loading="lazy"
-                  className="block aspect-[4/3] h-auto w-full rounded-lg bg-black object-cover"
+                  className="block aspect-[3/2] h-auto w-full rounded-lg bg-black object-cover"
                 />
                 <figcaption className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-2.5 text-sm text-muted-foreground">
                   <span className="font-mono text-xs text-muted-foreground/70">{String(index + 1).padStart(2, '0')}</span>
                   <b className="font-semibold text-foreground">{title}</b>
                   <span>{detail}</span>
                   <a className="w-full text-xs text-muted-foreground/70 hover:text-foreground" href={credit.source} target="_blank" rel="noreferrer">
-                    {credit.author} · {credit.license}
+                    {credit.author} · {credit.license} · {credit.camera}
                   </a>
                 </figcaption>
               </figure>

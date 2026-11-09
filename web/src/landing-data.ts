@@ -49,4 +49,40 @@ export const LANDING_PHOTOS = {
     camera: 'RICOH GR IIIx',
     source: 'https://www.flickr.com/photos/mujitra/53731862585/',
   },
+  achensee: {
+    author: 'Stephan van Helden',
+    license: 'CC BY-SA 4.0',
+    camera: 'RICOH GR III',
+    source: 'https://commons.wikimedia.org/wiki/File:Achensee_n%C3%B6rdlich_von_Pertisau.jpg',
+  },
+  clouds: {
+    author: 'Stephan van Helden',
+    license: 'CC BY-SA 4.0',
+    camera: 'RICOH GR IV',
+    source: 'https://commons.wikimedia.org/wiki/File:Blick_vom_Riebersgrund_auf_LB-01298_(2).jpg',
+  },
+  beach: {
+    author: 'Matthias Ripp',
+    license: 'CC BY 2.0',
+    camera: 'RICOH GR IIIx',
+    source: 'https://commons.wikimedia.org/wiki/File:Paradise_found_-_Flickr_-_matthias.ripp.jpg',
+  },
+  nathans: {
+    author: 'Andrzej Barabasz (Chepry)',
+    license: 'CC BY-SA 4.0',
+    camera: 'RICOH GR IIIx',
+    source: 'https://commons.wikimedia.org/wiki/File:Nathan%27s_Famous_(Coney_Island)_AB.jpg',
+  },
+  neon: {
+    author: 'Sergiy Galyonkin',
+    license: 'CC BY-SA 4.0',
+    camera: 'RICOH GR IV',
+    source: 'https://commons.wikimedia.org/wiki/File:Chicken_sandwiches_in_Vegas.jpg',
+  },
+  temple: {
+    author: 'Mobnoboka',
+    license: 'CC BY-SA 4.0',
+    camera: 'RICOH GR II',
+    source: 'https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg',
+  },
 } as const;

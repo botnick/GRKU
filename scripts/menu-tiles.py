@@ -273,6 +273,60 @@ def framing_ratio(label, w, h):
     return binarize(img)
 
 
+# ---- Crop ----------------------------------------------------------------------------------
+
+# The crops of the 28 mm lens, with the share of the width that each keeps.
+CROPS = [('1-35', '35', 28 / 35), ('2-40', '40', 28 / 40), ('3-50', '50', 28 / 50), ('4-70', '70', 28 / 70), ('5-90', '90', 28 / 90)]
+
+
+def crop_frame(img, x0, y0, x1, y1):
+    """Corner brackets of the crop, white over a black shadow, as the live-view frame lines."""
+    arm = max(3, min(7, (x1 - x0) // 4))
+    for (x, y, dx, dy) in [(x0, y0, 1, 1), (x1, y0, -1, 1), (x0, y1, 1, -1), (x1, y1, -1, -1)]:
+        hline(img, min(x, x + arm * dx), max(x, x + arm * dx), y + dy, BLACK)
+        vline(img, x + dx, min(y, y + arm * dy), max(y, y + arm * dy), BLACK)
+        hline(img, min(x, x + arm * dx), max(x, x + arm * dx), y, WHITE)
+        vline(img, x, min(y, y + arm * dy), max(y, y + arm * dy), WHITE)
+
+
+def crop_module():
+    """The module tile: the landscape with the 50 mm field marked, the outside dimmed."""
+    img = frame()
+    c = canvas()
+    landscape(c, 3, 4, 36, 35)
+    paste(img, c)
+    px = img.load()
+    fx0, fy0, fx1, fy1 = 10, 10, 29, 29
+    for y in range(4, 36):
+        for x in range(3, 37):
+            if not (fx0 <= x <= fx1 and fy0 <= y <= fy1):
+                r, g, b, a = px[x, y]
+                px[x, y] = lerp((r, g, b), BLACK, 0.55) + (255,)
+    crop_frame(img, fx0, fy0, fx1, fy1)
+    return binarize(img)
+
+
+def crop_option(label, share):
+    """A crop: the landscape, the field of the crop as a bright frame in the middle, the rest
+    dimmed, and the focal length below."""
+    img = frame()
+    c = canvas()
+    landscape(c, 3, 4, 36, 25)
+    paste(img, c)
+    px = img.load()
+    w = max(8, round(34 * share)); h = max(6, round(22 * share))
+    fx0 = 20 - w // 2; fx1 = fx0 + w - 1
+    fy0 = 15 - h // 2; fy1 = fy0 + h - 1
+    for y in range(4, 26):
+        for x in range(3, 37):
+            if not (fx0 <= x <= fx1 and fy0 <= y <= fy1):
+                r, g, b, a = px[x, y]
+                px[x, y] = lerp((r, g, b), BLACK, 0.55) + (255,)
+    crop_frame(img, fx0, fy0, fx1, fy1)
+    text(img, label + 'mm', 27, 9)
+    return binarize(img)
+
+
 # ---- Guides --------------------------------------------------------------------------------
 
 def guide_lines(img, kind, x0, y0, x1, y1, color=WHITE):
@@ -721,6 +775,10 @@ def all_tiles():
     tiles['modules/framing/tiles/0-module.png'] = framing_module()
     for file, label, w, h in RATIOS:
         tiles[f'modules/framing/tiles/{file}.png'] = framing_ratio(label, w, h)
+    if (REPO / 'modules/crop').is_dir():
+        tiles['modules/crop/tiles/0-module.png'] = crop_module()
+        for file, label, share in CROPS:
+            tiles[f'modules/crop/tiles/{file}.png'] = crop_option(label, share)
     tiles['modules/guides/tiles/0-module.png'] = guides_module()
     for file, label, kind in GUIDES:
         tiles[f'modules/guides/tiles/{file}.png'] = guides_option(label, kind)

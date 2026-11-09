@@ -1,26 +1,36 @@
-/* Runs the Date Imprint or the Glow module on one picture, for the landing
-   page images (build-landing.mjs). It builds like `grkit module test`, with
-   this file in place of the module's test.c: the module sources, their
-   generated descriptor, and the SDK host harness.
+/* Runs one plane-filter module on one picture, for the example images of the
+   site (build-landing.mjs). It builds like `grkit module test`, with this file
+   in place of the module's test.c: the module sources, their generated
+   descriptor, and the SDK host harness. One of RENDER_DATE, RENDER_GLOW,
+   RENDER_LEAK, RENDER_DIFFUSION, or RENDER_BORDER selects the module.
 
-   landing-render IN.rgb WIDTH HEIGHT OUT.rgb A B [SCENE_EV]
+   landing-render IN.rgb WIDTH HEIGHT OUT.rgb A [B [C]]
    IN and OUT hold 8-bit RGB pixels, row by row.
-   Date (RENDER_DATE): A = STYLE, B = LOOK. The time comes from RENDER_TIME,
-   "YYYY M D H MM".
-   Glow: A = Bloom, B = Halation, each 0 Off or 1 to 3 Weak to Strong.
-   SCENE_EV is the scene EV at ISO 100 of the shot. */
+   Date: A = STYLE, B = LOOK. The time comes from RENDER_TIME, "YYYY M D H MM".
+   Glow: A = Bloom, B = Halation (0 Off, 1 to 3), C = the scene EV at ISO 100.
+   Light Leak: A = LOOK (1 Custom, 2 Faded, 3 Dusty, 4 Leaky, 5 Expired).
+   Diffusion: A = STRENGTH (1 to 3), B = MIST (0 to 2), C = STREAK (0 to 2).
+   Border: A = STYLE (1 white 3%, 2 white 6%, 3 black 3%, 4 black 6%). */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "grkit_module.h"
 
-#ifdef RENDER_DATE
+#if defined(RENDER_DATE)
 void date_apply(PictureSet *set, u32 style);
-#else
+#elif defined(RENDER_GLOW)
 void glow_apply(PictureSet *set, u32 value);
+#elif defined(RENDER_LEAK)
+void leak_apply(PictureSet *set, u32 look);
+#elif defined(RENDER_DIFFUSION)
+void diffusion_apply(PictureSet *set, u32 strength);
+#elif defined(RENDER_BORDER)
+void border_apply(PictureSet *set, u32 style);
+#else
+#error "Define the module to render"
 #endif
 
-/* The screennail of a GR III picture. Glow finds the lights on it. */
+/* The screennail of a GR III picture. Glow and Diffusion find the lights on it. */
 #define SCREENNAIL_WIDTH 720U
 #define SCREENNAIL_HEIGHT 480U
 
@@ -82,11 +92,13 @@ static u8 *screennail(const u8 *rgb, u32 w, u32 h)
 
 int main(int argc, char **argv)
 {
-    if (argc != 7 && argc != 8) {
-        fprintf(stderr, "usage: landing-render IN.rgb WIDTH HEIGHT OUT.rgb A B [SCENE_EV]\n");
+    if (argc < 6 || argc > 8) {
+        fprintf(stderr, "usage: landing-render IN.rgb WIDTH HEIGHT OUT.rgb A [B [C]]\n");
         return 2;
     }
-    u32 w = (u32)atoi(argv[2]), h = (u32)atoi(argv[3]), a = (u32)atoi(argv[5]), b = (u32)atoi(argv[6]);
+    u32 w = (u32)atoi(argv[2]), h = (u32)atoi(argv[3]);
+    u32 a = (u32)atoi(argv[5]), b = argc > 6 ? (u32)atoi(argv[6]) : 0;
+    double c = argc > 7 ? atof(argv[7]) : 0;
     size_t bytes = (size_t)w * h * 3;
     if (w % 2 || w < SCREENNAIL_WIDTH || h < SCREENNAIL_HEIGHT ||
         (size_t)2 * ((size_t)w * h + SCREENNAIL_WIDTH * SCREENNAIL_HEIGHT) > GRKIT_TEST_PLANE_BYTES) {
@@ -117,7 +129,7 @@ int main(int argc, char **argv)
     set.count = 2;
     set.scratch = grkit_test_scratch;
 
-#ifdef RENDER_DATE
+#if defined(RENDER_DATE)
     unsigned year = 2024, month = 1, day = 1, hour = 0, minute = 0;
     const char *time = getenv("RENDER_TIME");
     if (time) sscanf(time, "%u %u %u %u %u", &year, &month, &day, &hour, &minute);
@@ -125,15 +137,26 @@ int main(int argc, char **argv)
     setting_set(SETTING_LOOK, b);
     setting_set(SETTING_POSITION, 0);
     date_apply(&set, a);
-#else
+#elif defined(RENDER_GLOW)
     setting_set(SETTING_BLOOM, a);
     setting_set(SETTING_HALATION, b);
     setting_set(SETTING_HALATION_COLOR, 1); /* Orange, the default */
-    if (argc == 8) {
+    if (argc > 7) {
         grkit_test_shot.known = GRKIT_SHOT_EXPOSURE;
-        grkit_test_shot.scene_ev = (s32)(atof(argv[7]) * 256);
+        grkit_test_shot.scene_ev = (s32)(c * 256);
     }
     glow_apply(&set, a || b);
+#elif defined(RENDER_LEAK)
+    setting_set(SETTING_LOOK, a);
+    leak_apply(&set, a);
+#elif defined(RENDER_DIFFUSION)
+    setting_set(SETTING_STRENGTH, a);
+    setting_set(SETTING_MIST, b);
+    setting_set(SETTING_STREAK, (u32)c);
+    diffusion_apply(&set, a);
+#elif defined(RENDER_BORDER)
+    setting_set(SETTING_STYLE, a);
+    border_apply(&set, a);
 #endif
 
     read_plane(&main_plane, rgb);

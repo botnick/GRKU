@@ -33,6 +33,7 @@ import { importFit, resolveSelection, selectImport, type Selection } from '../se
 import { STOCKS } from '../stocks';
 import { useCatalog } from '../useCatalog';
 import { EditDialog, type EditDialogHandle } from './EditDialog';
+import { BrandMark } from './BrandMark';
 import { EffectIcon } from './EffectIcon';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ImportDialog, type ImportDialogHandle } from './ImportDialog';
@@ -515,12 +516,22 @@ export function Workbench({
             </div>
             <Select value={brand} onValueChange={setBrand}>
               <SelectTrigger className="h-10 w-36 shrink-0 bg-card data-[size=default]:h-10" aria-label={t.allBrands}>
-                <SelectValue>{brand === 'all' ? t.allBrands : brand}</SelectValue>
+                <SelectValue>
+                  {brand === 'all' ? (
+                    t.allBrands
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <BrandMark brand={brand} />
+                      {brand}
+                    </span>
+                  )}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent position="popper" align="end">
                 <SelectItem value="all">{t.allBrands}</SelectItem>
                 {brands.map((item) => (
                   <SelectItem key={item} value={item}>
+                    <BrandMark brand={item} />
                     {item}
                   </SelectItem>
                 ))}

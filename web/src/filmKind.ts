@@ -50,3 +50,20 @@ export function brandOf(effect: Classified): string {
   const code = effect.cover?.brand;
   return code ? (BRANDS[code] ?? code) : '';
 }
+
+/**
+ * The colours of the brand band of the film boxes (scripts/flap-icons.py BANDS), for the small
+ * brand mark of the filters: the band, then its text. Polaroid's band is white with the rainbow.
+ */
+export const BRAND_STYLE: Readonly<Record<string, { band: string; text: string; rainbow?: boolean }>> = {
+  Kodak: { band: '#fac800', text: '#d2141e' },
+  Fujifilm: { band: '#008c46', text: '#ffffff' },
+  Ilford: { band: '#000000', text: '#ffffff' },
+  Agfa: { band: '#d2141e', text: '#ffffff' },
+  Polaroid: { band: '#ffffff', text: '#000000', rainbow: true },
+  Lomography: { band: '#000000', text: '#ffffff' },
+  Rollei: { band: '#14285a', text: '#ffffff' },
+  CineStill: { band: '#000000', text: '#ffffff' },
+  Harman: { band: '#000000', text: '#f08c00' },
+  Ricoh: { band: '#282828', text: '#ffffff' },
+};
