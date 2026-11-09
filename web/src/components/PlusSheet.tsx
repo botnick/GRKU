@@ -448,31 +448,35 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
             {(() => {
               const who = email.trim() || t.plus.email;
               const locale = language === 'th' ? 'th-TH' : language;
-              const stamp = new Date().toLocaleString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+              const stamp = new Date().toLocaleString(locale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
               const minutes = Math.max(1, Math.round((order.expires - Date.now()) / 60000));
-              const mark = `${who} · ${order.order.toUpperCase()}`;
-              const [baht, satang] = order.amount.toFixed(2).split('.');
+              const mark = `grku.app  ${who}  #${order.order.toUpperCase()}  ${stamp}`;
+              const NAVY = '#0f3d6e';
               return (
-                <div className="relative overflow-hidden rounded-2xl bg-white text-neutral-900">
-                  {/* A faint watermark of the buyer and the order: a copy of the card tells whose it is. */}
-                  <div className="pointer-events-none absolute -inset-x-1/2 inset-y-0 z-0 -rotate-[24deg] select-none" aria-hidden="true">
-                    {Array.from({ length: 8 }, (_, row) => (
-                      <p key={row} className="m-0 truncate text-[10px] leading-[64px] whitespace-nowrap text-neutral-900/[0.045]" style={{ paddingLeft: (row % 2) * 110 }}>
-                        {`${mark}          `.repeat(5)}
-                      </p>
-                    ))}
-                  </div>
-                  <div className="relative z-[1] flex items-center justify-between px-5 pt-4">
-                    <span className="font-sans text-[17px] font-extrabold tracking-tight">
-                      GRKU<span className="text-brand">.</span>
+                // A card in the layout of the Thai QR Payment standard: whose money it is, how much, and
+                // a watermark with the buyer and the order across it, so a forwarded copy tells on itself.
+                <div className="relative overflow-hidden rounded-xl bg-white text-neutral-900 shadow-sm">
+                  <div className="relative z-[1] flex items-center gap-3 px-4 py-3" style={{ background: NAVY }}>
+                    <span className="flex size-12 shrink-0 items-center justify-center rounded-md bg-white/15">
+                      <span className="flex size-9 items-center justify-center rounded bg-[#171717] font-sans text-[15px] font-extrabold text-white">G<span className="text-brand">.</span></span>
                     </span>
-                    <span className="rounded-full bg-[#113566] px-2.5 py-0.5 text-[11px] font-semibold text-white">PromptPay</span>
+                    <span className="font-sans text-[22px] leading-[1.05] font-extrabold tracking-wide text-white">THAI QR<br />PAYMENT</span>
                   </div>
-                  <div className="relative z-[1] flex flex-col items-center px-5 pt-2 pb-4">
-                    <span className="text-[13px] text-neutral-500">
-                      {choice === 'pack' ? `${t.plus.tierPack} · ${t.plus.packs[pack]}` : choice === 'slots25' ? t.plus.tierSlots : t.plus.tierAll}
+                  <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+                    <div className="absolute -inset-x-1/2 top-0 bottom-0 -rotate-[24deg]">
+                      {Array.from({ length: 14 }, (_, row) => (
+                        <p key={row} className="m-0 truncate font-sans text-[13px] font-semibold leading-[38px] whitespace-nowrap text-neutral-900/[0.07]" style={{ paddingLeft: (row % 3) * 70 }}>
+                          {`${mark}      `.repeat(4)}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="relative z-[1] flex flex-col items-center px-4 pt-5 pb-4">
+                    <span className="flex items-baseline rounded-sm border-2 px-2 py-0.5 font-sans leading-none" style={{ borderColor: NAVY, color: NAVY }}>
+                      <span className="text-[17px] font-semibold">Prompt</span>
+                      <span className="text-[21px] font-extrabold">Pay</span>
                     </span>
-                    <div className="relative my-3 rounded-xl border border-neutral-200 bg-white p-2">
+                    <div className="relative my-4">
                       {qr ? (
                         <img src={qr} alt="PromptPay QR" width="232" height="232" className="block size-52 sm:size-56" />
                       ) : (
@@ -486,21 +490,32 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                         </span>
                       )}
                     </div>
-                    <p className="m-0 font-sans tabular-nums">
-                      <span className="text-[40px] leading-none font-bold tracking-tight">฿{baht}</span>
-                      <span className="text-[22px] font-semibold text-neutral-500">.{satang}</span>
-                    </p>
-                    {order.receiver && (
-                      <p className="mt-2 mb-0 text-center text-[14px]">
-                        <span className="font-medium">{order.receiver.name}</span>
-                        <span className="text-neutral-500"> · {order.receiver.account}</span>
-                      </p>
-                    )}
+                    <div className="flex w-full items-end justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="m-0 truncate text-[16px] font-semibold">{order.receiver?.name ?? 'GRKU'}</p>
+                        <p className="m-0 text-[12px] text-neutral-500">{order.receiver?.account}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="m-0 font-sans text-[34px] leading-none font-bold tabular-nums">{order.amount.toFixed(2)}</p>
+                        <p className="m-0 mt-1 text-[12px] text-neutral-500">{t.plus.baht} (BAHT)</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="relative z-[1] border-t border-dashed border-neutral-200 bg-neutral-50 px-5 py-3 text-center text-[12px] leading-relaxed text-neutral-500">
-                    <p className="m-0 font-medium text-neutral-700">{t.plus.issuedTo(who)}</p>
+                  <div className="relative z-[1] flex items-center gap-3 px-4 py-3 text-white" style={{ background: NAVY }}>
+                    <span className="font-sans text-[15px] font-bold">QR Payment</span>
+                    <span className="text-[13px] leading-snug text-white/85">
+                      {t.plus.bankLine1}
+                      <br />
+                      {t.plus.bankLine2}
+                    </span>
+                  </div>
+                  <div className="relative z-[1] bg-neutral-100 px-4 py-2.5 text-center text-[12.5px] leading-snug text-neutral-700">
+                    <p className="m-0 font-semibold">{t.plus.issuedTo(who)}</p>
                     <p className="m-0">
-                      {t.plus.orderRef} {order.order.toUpperCase()} · {stamp} · {t.plus.singleUse(minutes)}
+                      {order.amount.toFixed(2)} {t.plus.baht} · {t.plus.orderRef} {order.order.toUpperCase()}
+                    </p>
+                    <p className="m-0">
+                      {stamp} · {t.plus.singleUse(minutes)}
                     </p>
                   </div>
                 </div>
