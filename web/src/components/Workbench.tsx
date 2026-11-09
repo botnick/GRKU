@@ -476,23 +476,51 @@ export function Workbench({
           }
         />
         {!owned.plus && (
-          <div className="mb-4 flex flex-col gap-3 rounded-xl border border-brand/40 bg-brand/[0.08] p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <p className="flex items-center gap-2 font-semibold">
-                <Sparkles className="size-4 text-brand" aria-hidden="true" />
-                {t.plus.title}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">{t.plus.lead}</p>
-              <p className="mt-1.5 text-[13px] text-muted-foreground tabular-nums">
-                {t.plus.tierAll} <b className="font-semibold text-foreground">฿{PRICES.plus}</b> · {t.plus.tierSlots}{' '}
-                <b className="font-semibold text-foreground">฿{PRICES.slots25}</b> · {t.plus.tierPack}{' '}
-                <b className="font-semibold text-foreground">฿{PRICES['pack:kodak']}</b>
-              </p>
+          <div className="mb-4 overflow-hidden rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/[0.16] via-card to-card">
+            <div className="flex flex-col gap-4 p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+                    <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground">
+                      <Sparkles className="size-4" aria-hidden="true" />
+                    </span>
+                    {t.plus.title}
+                  </p>
+                  <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-muted-foreground">{t.plus.lead}</p>
+                </div>
+                <Button type="button" variant="brand" className="hidden shrink-0 sm:inline-flex" onClick={onPlus}>
+                  <Sparkles aria-hidden="true" />
+                  {t.plus.getMore}
+                </Button>
+              </div>
+              {/* The three tiers at a glance; each opens GRKU Plus. */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                {(
+                  [
+                    [t.plus.tierAll, PRICES.plus, true],
+                    [t.plus.tierSlots, PRICES.slots25, false],
+                    [t.plus.tierPack, PRICES['pack:kodak'], false],
+                  ] as const
+                ).map(([name, price, featured]) => (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={onPlus}
+                    className={cn(
+                      'flex flex-col items-start gap-1 rounded-xl border bg-background/60 px-3 py-3 text-left transition-colors hover:border-brand/60 hover:bg-background',
+                      featured ? 'border-brand shadow-[0_0_0_1px_var(--brand)]' : 'border-border',
+                    )}
+                  >
+                    <span className="text-xs text-muted-foreground">{name}</span>
+                    <span className={cn('text-xl font-semibold tabular-nums tracking-tight', featured && 'text-brand')}>฿{price}</span>
+                  </button>
+                ))}
+              </div>
+              <Button type="button" variant="brand" size="lg" className="sm:hidden" onClick={onPlus}>
+                <Sparkles aria-hidden="true" />
+                {t.plus.getMore}
+              </Button>
             </div>
-            <Button type="button" variant="brand" className="shrink-0" onClick={onPlus}>
-              <Sparkles aria-hidden="true" />
-              {t.plus.getMore}
-            </Button>
           </div>
         )}
         <p className="mb-4 text-[13px] text-muted-foreground">{t.freeIncludes(slotsOf({ ...owned, plus: false, slots: owned.slots }))}</p>
