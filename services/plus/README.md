@@ -13,7 +13,7 @@ npx wrangler d1 create grku-plus            # put the database_id into wrangler.
 npx wrangler d1 execute grku-plus --remote --file schema.sql
 npx wrangler secret put KEY_SECRET          # a long random string
 npx wrangler secret put PROMPTPAY_ID        # the phone, ID, or e-wallet that receives the money
-npx wrangler secret put SLIPOK_KEY          # or EASYSLIP_KEY; set SLIP_PROVIDER in wrangler.toml
+npx wrangler secret put EASYSLIP_KEY        # EasySlip API v2 key (or SLIPOK_KEY with SLIP_PROVIDER = "slipok")
 npx wrangler secret put RESEND_KEY          # optional: the key emails and the magic links
 npx wrangler deploy
 ```

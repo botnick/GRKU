@@ -230,29 +230,38 @@ async function verifySlip(file: File | null, payload: string, amount: number, en
     };
   }
   if (env.SLIP_PROVIDER === 'easyslip') {
+    // EasySlip API v2: https://document.easyslip.com/en/v2/ — one request for a QR payload or an
+    // image, Bearer key, { success, data, message }. matchAmount makes EasySlip compare the amount
+    // itself; checkDuplicate marks a slip that was verified before (our own payments table is the
+    // final check, so a duplicate here is only logged).
     if (!env.EASYSLIP_KEY) throw new HttpError(503, 'EasySlip is not set up');
+    const url = 'https://api.easyslip.com/v2/verify/bank';
     const headers: Record<string, string> = { Authorization: `Bearer ${env.EASYSLIP_KEY}` };
     let response: Response;
     if (file) {
       const body = new FormData();
-      body.append('file', file, file.name || 'slip.jpg');
-      response = await fetch('https://developer.easyslip.com/api/v1/verify', { method: 'POST', headers, body });
+      body.append('image', file, file.name || 'slip.jpg');
+      body.append('matchAmount', String(amount));
+      body.append('checkDuplicate', 'true');
+      response = await fetch(url, { method: 'POST', headers, body });
     } else {
-      response = await fetch(`https://developer.easyslip.com/api/v1/verify?payload=${encodeURIComponent(payload)}`, { headers });
+      response = await fetch(url, { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ payload, matchAmount: amount, checkDuplicate: true }) });
     }
-    const result = (await response.json().catch(() => null)) as { status?: number; data?: Record<string, unknown>; message?: string } | null;
-    if (result?.status !== 200 || !result.data) {
-      console.warn('easyslip', response.status, result?.message);
+    const result = (await response.json().catch(() => null)) as { success?: boolean; data?: Record<string, unknown>; message?: string; code?: string } | null;
+    if (!result?.success || !result.data) {
+      console.warn('easyslip', response.status, result?.code, result?.message);
       return null;
     }
     const d = result.data;
-    const amount = d.amount as { amount?: number } | undefined;
-    const receiver = d.receiver as { account?: { name?: { th?: string; en?: string } } } | undefined;
-    const sender = d.sender as { account?: { name?: { th?: string; en?: string } } } | undefined;
+    const raw = (d.rawSlip ?? d) as Record<string, unknown>;
+    const slipAmount = raw.amount as { amount?: number } | undefined;
+    const receiver = raw.receiver as { account?: { name?: { th?: string; en?: string } } } | undefined;
+    const sender = raw.sender as { account?: { name?: { th?: string; en?: string } } } | undefined;
+    if (d.isDuplicate) console.warn('easyslip duplicate', raw.transRef);
     return {
-      ref: String(d.transRef ?? ''),
-      amount: Number(amount?.amount ?? 0),
-      time: d.date ? Date.parse(String(d.date)) : 0,
+      ref: String(raw.transRef ?? ''),
+      amount: Number(d.amountInSlip ?? slipAmount?.amount ?? 0),
+      time: raw.date ? Date.parse(String(raw.date)) : 0,
       receiver: `${receiver?.account?.name?.th ?? ''} ${receiver?.account?.name?.en ?? ''}`.trim(),
       payer: `${sender?.account?.name?.th ?? ''} ${sender?.account?.name?.en ?? ''}`.trim(),
     };
