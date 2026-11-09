@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS orders (
   owner TEXT NOT NULL,            -- an email in lower case, or anon:<id>
   tier TEXT NOT NULL,             -- plus | slots25 | pack:<pack>
   amount INTEGER NOT NULL,        -- baht due for this order, after the credit of earlier purchases
+  cents INTEGER NOT NULL DEFAULT 0, -- the satang of this order (1-99), so its exact amount names it
   status TEXT NOT NULL DEFAULT 'open',
   created INTEGER NOT NULL,
   paid_at INTEGER,

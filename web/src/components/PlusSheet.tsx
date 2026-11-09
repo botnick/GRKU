@@ -494,7 +494,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                         )}
                       </div>
                       <div className="text-right">
-                        <p className="font-mono text-4xl leading-none font-semibold tabular-nums">฿{order.amount}</p>
+                        <p className="font-mono text-4xl leading-none font-semibold tabular-nums">฿{order.amount.toFixed(2)}</p>
                         <p className="mt-1 text-[11px] text-neutral-500">THB</p>
                       </div>
                     </div>

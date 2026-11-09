@@ -146,10 +146,18 @@ async function order(request: Request, env: Env): Promise<Response> {
   const amount = Math.max(MIN_AMOUNT, price - credit);
   const id = randomId();
   const now = Date.now();
-  await env.DB.prepare('INSERT INTO orders (id, owner, tier, amount, status, created) VALUES (?, ?, ?, ?, ?, ?)')
-    .bind(id, owner, tier, amount, 'open', now)
+  // Satang that no other open order of this amount has: the exact amount names this order, so a
+  // slip cannot pay the wrong one.
+  const taken = await env.DB.prepare('SELECT cents FROM orders WHERE amount = ? AND status = ? AND created > ?').bind(amount, 'open', now - ORDER_TTL).all<{ cents: number }>();
+  const used = new Set((taken.results ?? []).map((r) => r.cents));
+  const free = Array.from({ length: 99 }, (_, i) => i + 1).filter((c) => !used.has(c));
+  if (free.length === 0) throw new HttpError(503, 'too many open orders, try again in a minute');
+  const cents = free[crypto.getRandomValues(new Uint32Array(1))[0]! % free.length]!;
+  await env.DB.prepare('INSERT INTO orders (id, owner, tier, amount, cents, status, created) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .bind(id, owner, tier, amount, cents, 'open', now)
     .run();
-  return json({ order: id, tier, amount, promptpay: promptPayPayload(env.PROMPTPAY_ID, amount), expires: now + ORDER_TTL, receiver: receiverOf(env), angpao: !!env.TRUEMONEY_PHONE && env.TRUEMONEY_LINKS === 'on' });
+  const exact = exactAmount(amount, cents);
+  return json({ order: id, tier, amount: exact, promptpay: promptPayPayload(env.PROMPTPAY_ID, exact), expires: now + ORDER_TTL, receiver: receiverOf(env), angpao: !!env.TRUEMONEY_PHONE && env.TRUEMONEY_LINKS === 'on' });
 }
 
 /** Whether a Turnstile token from the page stands: Cloudflare's siteverify with our secret. */
@@ -167,6 +175,11 @@ async function humanToken(token: string, request: Request, env: Env): Promise<bo
   return result?.success === true && result.action === 'plus-order' && (result.hostname === site || result.hostname === `www.${site}`);
 }
 
+/** The amount to pay for an order: its baht and its satang. */
+function exactAmount(baht: number, cents: number): number {
+  return Math.round(baht * 100 + (cents ?? 0)) / 100;
+}
+
 /** The receiver as the page shows it: the name, and the PromptPay with only its last digits. */
 function receiverOf(env: Env): { name: string; account: string } {
   return { name: env.RECEIVER_DISPLAY || env.RECEIVER_NAME || 'GRKU', account: `PromptPay ${'•'.repeat(4)}${env.PROMPTPAY_ID.slice(-4)}` };
@@ -179,12 +192,13 @@ function receiverOf(env: Env): { name: string; account: string } {
  */
 async function orderStatus(id: string, env: Env): Promise<Response> {
   const row = await env.DB.prepare('SELECT * FROM orders WHERE id = ?').bind(id).first<{
-    id: string; owner: string; tier: string; amount: number; status: string; created: number;
+    id: string; owner: string; tier: string; amount: number; cents: number; status: string; created: number;
   }>();
   if (!row || !/^[a-z0-9]{10,20}$/.test(id)) throw new HttpError(404, 'no such order');
-  if (row.status === 'paid') return json({ status: 'paid', tier: row.tier, amount: row.amount, ...(await paidResponse(row.owner, env)) });
-  if (Date.now() - row.created > ORDER_TTL) return json({ status: 'expired', tier: row.tier, amount: row.amount });
-  return json({ status: 'open', tier: row.tier, amount: row.amount, promptpay: promptPayPayload(env.PROMPTPAY_ID, row.amount), expires: row.created + ORDER_TTL, receiver: receiverOf(env) });
+  const exact = exactAmount(row.amount, row.cents);
+  if (row.status === 'paid') return json({ status: 'paid', tier: row.tier, amount: exact, ...(await paidResponse(row.owner, env)) });
+  if (Date.now() - row.created > ORDER_TTL) return json({ status: 'expired', tier: row.tier, amount: exact });
+  return json({ status: 'open', tier: row.tier, amount: exact, promptpay: promptPayPayload(env.PROMPTPAY_ID, exact), expires: row.created + ORDER_TTL, receiver: receiverOf(env) });
 }
 
 // ---- Slips --------------------------------------------------------------------------------------
@@ -207,14 +221,16 @@ async function slip(request: Request, env: Env): Promise<Response> {
   const file = form.get('file');
   const payload = String(form.get('payload') ?? '');
   const row = await env.DB.prepare('SELECT * FROM orders WHERE id = ?').bind(orderId).first<{
-    id: string; owner: string; tier: string; amount: number; status: string; created: number;
+    id: string; owner: string; tier: string; amount: number; cents: number; status: string; created: number;
   }>();
   if (!row) throw new HttpError(404, 'no such order');
   if (row.status === 'paid') return json(await paidResponse(row.owner, env));
   if (Date.now() - row.created > ORDER_TTL) throw new HttpError(410, 'order expired');
-  const verified = await verifySlip(file instanceof File ? file : null, payload, row.amount, env);
+  const exact = exactAmount(row.amount, row.cents);
+  const verified = await verifySlip(file instanceof File ? file : null, payload, exact, env);
   if (!verified) throw new HttpError(422, 'slip not readable');
-  if (Math.round(verified.amount) !== row.amount) throw new HttpError(422, `amount ${verified.amount} is not ${row.amount}`);
+  // To the satang: the exact amount is this order's own.
+  if (Math.round(verified.amount * 100) !== Math.round(exact * 100)) throw new HttpError(422, `amount ${verified.amount.toFixed(2)} is not ${exact.toFixed(2)}`);
   if (verified.time && verified.time < row.created - 10 * 60 * 1000) throw new HttpError(422, 'slip is older than the order');
   if (env.RECEIVER_NAME && !verified.receiver.toLowerCase().includes(env.RECEIVER_NAME.toLowerCase()))
     throw new HttpError(422, 'the money did not come to GRKU');
