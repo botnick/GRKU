@@ -407,32 +407,45 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
 
         {view === 'pay' && order && (
           <div className="flex flex-col gap-5 px-4 pb-6">
-            {/* The payment card: what a bank's QR card shows, so the payer knows who gets the money. */}
-            <div className="overflow-hidden rounded-2xl bg-white text-neutral-900">
-              <div className="flex items-center justify-between px-4 pt-3 text-[11px] font-semibold tracking-[0.12em] text-neutral-500 uppercase">
-                <span>PromptPay</span>
-                <span className="font-mono tracking-normal normal-case">{t.plus.orderRef} {order.order.slice(0, 6).toUpperCase()}</span>
+            {/* The payment card, as a bank's Thai QR card: who is paid, how much, and the order. */}
+            <div className="overflow-hidden rounded-2xl bg-white text-neutral-900 shadow-[0_1px_0_rgba(0,0,0,0.3)]">
+              <div className="flex items-center justify-between bg-[#1a4b7a] px-4 py-2.5 text-white">
+                <span className="font-sans text-[15px] font-extrabold tracking-tight">
+                  GRKU<span className="text-brand">.</span> <span className="font-semibold tracking-normal text-white/80">Plus</span>
+                </span>
+                <span className="text-[11px] font-semibold tracking-[0.14em] uppercase">PromptPay</span>
               </div>
-              <div className="mx-auto w-fit p-3">
-                {qr ? (
-                  <img src={qr} alt="PromptPay QR" width="256" height="256" className="block size-56 sm:size-64" />
-                ) : (
-                  <div className="flex size-56 items-center justify-center sm:size-64">
-                    <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
-                  </div>
+              <div className="flex flex-col items-center px-4 pt-4">
+                <span className="rounded-full bg-neutral-100 px-3 py-1 text-[12px] font-medium text-neutral-600">
+                  {choice === 'pack' ? `${t.plus.tierPack} · ${t.plus.packs[pack]}` : choice === 'slots25' ? t.plus.tierSlots : t.plus.tierAll}
+                </span>
+                <div className="my-3">
+                  {qr ? (
+                    <img src={qr} alt="PromptPay QR" width="240" height="240" className="block size-52 sm:size-60" />
+                  ) : (
+                    <div className="flex size-52 items-center justify-center sm:size-60">
+                      <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
+                    </div>
+                  )}
+                </div>
+                <p className="font-mono text-4xl font-semibold tabular-nums">฿{order.amount}</p>
+                <p className="mt-1 mb-3 text-center text-[13px] text-neutral-500">{t.plus.scan(order.amount)}</p>
+              </div>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 border-t border-dashed border-neutral-300 px-4 py-3 text-[13px]">
+                {order.receiver && (
+                  <>
+                    <dt className="text-neutral-500">{t.plus.receiver}</dt>
+                    <dd className="m-0 text-right font-medium">{order.receiver.name}</dd>
+                    <dt className="text-neutral-500"></dt>
+                    <dd className="m-0 text-right font-mono text-neutral-600">{order.receiver.account}</dd>
+                  </>
                 )}
-              </div>
-              <p className="text-center font-mono text-3xl font-semibold tabular-nums">฿{order.amount}</p>
-              {order.receiver && (
-                <dl className="mx-4 mt-3 mb-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 border-t border-neutral-200 pt-3 text-sm">
-                  <dt className="text-neutral-500">{t.plus.receiver}</dt>
-                  <dd className="m-0 font-medium">{order.receiver.name}</dd>
-                  <dt className="text-neutral-500"></dt>
-                  <dd className="m-0 font-mono text-[13px] text-neutral-600">{order.receiver.account}</dd>
-                </dl>
-              )}
+                <dt className="text-neutral-500">{t.plus.orderRef}</dt>
+                <dd className="m-0 text-right font-mono text-neutral-600">{order.order.toUpperCase()}</dd>
+                <dt className="text-neutral-500">{t.plus.email}</dt>
+                <dd className="m-0 truncate text-right text-neutral-600">{email.trim() || '—'}</dd>
+              </dl>
             </div>
-            <p className="text-sm">{t.plus.scan(order.amount)}</p>
 
             <div className="flex flex-col gap-2">
               {phoneMode && qr && (

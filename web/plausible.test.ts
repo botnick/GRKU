@@ -29,7 +29,7 @@ describe('Plausible', () => {
     const queue = /<script>(.*)<\/script>/.exec(addPlausible('<head></head>', origin))![1]!;
     const hash = createHash('sha256').update(queue).digest('base64');
     expect(directive('script-src')).toBe(`script-src 'self' 'wasm-unsafe-eval' ${origin} 'sha256-${hash}'`);
-    expect(directive('connect-src')).toBe(`connect-src 'self' ${origin}`);
+    expect(directive('connect-src')).toBe(`connect-src 'self' https://grku-plus.botnick.workers.dev ${origin}`);
     expect(directive('default-src')).toBe("default-src 'self'");
     expect(policy).not.toContain('unsafe-inline');
   });
