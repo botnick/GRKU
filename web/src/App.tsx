@@ -1,5 +1,5 @@
 import { Suspense, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { TriangleAlert } from 'lucide-react';
+import { FileText, TriangleAlert } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -830,31 +830,32 @@ export function App({
           </li>
         ))}
       </ol>
-      {/* The card after step 2, then the camera in steps 3 and 4. */}
-      <div className="mt-4 flex flex-col gap-3">
-        <figure className="relative m-0">
-          <StepNumber n={2} className="absolute -top-2 -left-2 z-10 ring-2 ring-card" />
-          <img src={CARD_IMAGES[camera.key] ?? CARD_IMAGES.gr4} alt="" width="600" height="178" className="mx-auto h-auto w-full max-w-lg" />
-        </figure>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {([[3, cameraMenuImage], [4, cameraAdjImage]] as const).map(([n, src]) => (
-            <figure key={n} className="relative m-0">
-              <StepNumber n={n} className="absolute -top-2 -left-2 z-10 ring-2 ring-card" />
-              <img src={src} alt="" width="580" height="318" className="h-auto w-full" />
-            </figure>
-          ))}
-        </div>
+      {/* The card after step 2 and the camera in steps 3 and 4, in one row. */}
+      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {([[2, CARD_IMAGES[camera.key] ?? CARD_IMAGES.gr4, 340, 178], [3, cameraMenuImage, 580, 318], [4, cameraAdjImage, 580, 318]] as const).map(([n, src, w, h]) => (
+          <figure key={n} className="relative m-0">
+            <StepNumber n={n} className="absolute -top-2 -left-2 z-10 ring-2 ring-card" />
+            <img src={src} alt="" width={w} height={h} className="h-auto w-full rounded-lg" />
+          </figure>
+        ))}
+        {/* The full guide fills the fourth cell. */}
+        <a
+          href={guidePdfUrl(camera.id, language)}
+          target="_blank"
+          rel="noreferrer"
+          className={cn('flex min-h-24 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border text-sm font-medium transition-colors hover:border-brand/60 hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-ring')}
+        >
+          <FileText className="size-6 text-muted-foreground" aria-hidden="true" />
+          {t.zipGuideButton}
+        </a>
       </div>
-      <a className="mt-4 inline-block text-sm font-medium underline underline-offset-4" href={guidePdfUrl(camera.id, language)} target="_blank" rel="noreferrer">
-        {t.zipNextGuide}
-      </a>
     </div>
   );
 
   const zipFlow = (
     <div className="flex flex-col gap-6">
-      <div className="grid items-start gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr]">
-      <div className="flex flex-col gap-6 lg:col-start-1 lg:row-start-1">
+      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6">
       {packageOpen}
       <dl className={FACTS}>
         <dt className={FACT_LABEL}>{t.camera}</dt>
@@ -894,8 +895,8 @@ export function App({
         {build.state === 'ready' && packageLinks}
       </div>
       </div>
-      <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">{zipSteps}</div>
-      <div className="lg:col-start-1 lg:row-start-2">
+      <div className="lg:hidden">{zipSteps}</div>
+      <div>
       <Accordion type="single" collapsible className="w-full border-t border-border">
         {guide('install', t.install, t.steps)}
         {guide('update', t.update, t.updateSteps)}
@@ -1157,6 +1158,8 @@ export function App({
               </div>
             ))}
           </dl>
+          <div className={cn('grid items-start gap-x-10 gap-y-6', (!canWrite || mode === 'zip') && 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]')}>
+          <div className="min-w-0">
           {canWrite ? (
             <Tabs value={mode} onValueChange={(value) => chooseMode(value as InstallMode)}>
               <TabsList className="mb-2 h-10">
@@ -1174,6 +1177,9 @@ export function App({
           ) : (
             zipFlow
           )}
+          </div>
+          {(!canWrite || mode === 'zip') && <div className="hidden lg:block">{zipSteps}</div>}
+          </div>
         </Step>
 
         <Faq strings={t} />
