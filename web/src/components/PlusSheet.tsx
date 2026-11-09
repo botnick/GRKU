@@ -460,9 +460,9 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                   </div>
                   {/* The watermark: the buyer and the order, repeated across the card. */}
                   <div className="pointer-events-none absolute inset-x-[-40%] top-10 bottom-0 z-[1] -rotate-[28deg] select-none" aria-hidden="true">
-                    {Array.from({ length: 14 }, (_, row) => (
-                      <p key={row} className="m-0 truncate font-mono text-[11px] leading-[26px] whitespace-nowrap text-neutral-900/[0.09]" style={{ paddingLeft: (row % 3) * 60 }}>
-                        {`${mark}   `.repeat(6)}
+                    {Array.from({ length: 9 }, (_, row) => (
+                      <p key={row} className="m-0 truncate font-mono text-[10px] leading-[44px] whitespace-nowrap text-neutral-900/[0.055]" style={{ paddingLeft: (row % 3) * 80 }}>
+                        {`${mark}      `.repeat(5)}
                       </p>
                     ))}
                   </div>
@@ -479,13 +479,10 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                         </div>
                       )}
                       {qr && (
-                        <span className="absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg bg-white shadow-[0_0_0_3px_#fff]" aria-hidden="true">
-                          <span className="flex size-9 items-center justify-center rounded-md bg-[#171717] font-sans text-[15px] font-extrabold text-white">G<span className="text-brand">.</span></span>
+                        <span className="absolute top-1/2 left-1/2 flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg bg-white" aria-hidden="true">
+                          <span className="flex size-8 items-center justify-center rounded-md bg-[#171717] font-sans text-[13px] font-extrabold text-white">G<span className="text-brand">.</span></span>
                         </span>
                       )}
-                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
-                        <span className="-rotate-[28deg] font-sans text-[13px] font-extrabold tracking-wide whitespace-nowrap text-brand/35">{who}</span>
-                      </span>
                     </div>
                     <div className="flex w-full items-end justify-between gap-3 pb-3">
                       <div className="min-w-0">
@@ -502,12 +499,11 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                       </div>
                     </div>
                   </div>
-                  <div className="relative z-[2] border-t border-dashed border-neutral-300 bg-neutral-50 px-4 py-3 text-[12px] leading-relaxed text-neutral-600">
-                    <p className="m-0 font-medium text-neutral-800">{t.plus.issuedTo(who)}</p>
-                    <p className="m-0">
-                      ฿{order.amount} · {t.plus.orderRef} {order.order.toUpperCase()} · {stamp}
+                  <div className="relative z-[2] border-t border-dashed border-neutral-300 bg-neutral-50 px-4 py-2.5 text-[11.5px] leading-snug text-neutral-500">
+                    <p className="m-0 font-medium text-neutral-700">{t.plus.issuedTo(who)}</p>
+                    <p className="m-0 font-mono">
+                      {t.plus.orderRef} {order.order.toUpperCase()} · {stamp} · {t.plus.singleUse(minutes)}
                     </p>
-                    <p className="m-0">{t.plus.singleUse(minutes)} {t.plus.anyBank}</p>
                   </div>
                 </div>
               );
