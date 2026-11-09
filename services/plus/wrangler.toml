@@ -25,7 +25,7 @@ RECEIVER_DISPLAY = "นาย ธนวัฒน์ ช่างไม้"
 # TrueMoney gift links (อั่งเปา) on the page: "on" or "off". TrueMoney's redeem endpoint answers
 # Workers with a 403 bot-protection page, so the Worker redeems through a proxy on a Thai home line
 # (ANGPAO_PROXY, with the secret ANGPAO_PROXY_KEY). /angpao/probe shows whether that path answers.
-TRUEMONEY_LINKS = "off"
+TRUEMONEY_LINKS = "on"
 ANGPAO_PROXY = "https://tw-angpao.nuxe.dev"
 # slipok | easyslip | mock. `mock` accepts any slip for the amount of the order (development only).
 SLIP_PROVIDER = "easyslip"

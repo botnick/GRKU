@@ -5,7 +5,7 @@ name: Plus
 # Workers KV edit for the account) and the service's own secrets, which the deploy writes
 # into the Worker: KEY_SECRET (HMAC of the keys), MAIL_PASS (the noreply mailbox),
 # EASYSLIP_KEY (slip verification), TURNSTILE_SECRET (the bot check of the order form),
-# TRUEMONEY_PHONE (the wallet that receives gift links). wrangler-action fails on a listed secret
+# TRUEMONEY_PHONE (the wallet that receives gift links), ANGPAO_PROXY_KEY (the gift proxy). wrangler-action fails on a listed secret
 # that the repository lacks. PROMPTPAY_ID and RECEIVER_NAME are plain vars in
 # wrangler.toml: buyers see the PromptPay ID in the QR anyway.
 # The D1 database is created once by hand (`wrangler d1 create grku-plus`) and its id is in
@@ -63,9 +63,11 @@ jobs:
             EASYSLIP_KEY
             TURNSTILE_SECRET
             TRUEMONEY_PHONE
+            ANGPAO_PROXY_KEY
         env:
           KEY_SECRET: ${{ secrets.KEY_SECRET }}
           MAIL_PASS: ${{ secrets.MAIL_PASS }}
           EASYSLIP_KEY: ${{ secrets.EASYSLIP_KEY }}
           TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
           TRUEMONEY_PHONE: ${{ secrets.TRUEMONEY_PHONE }}
+          ANGPAO_PROXY_KEY: ${{ secrets.ANGPAO_PROXY_KEY }}
