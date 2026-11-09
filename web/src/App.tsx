@@ -61,7 +61,7 @@ import { guideUrl, REPOSITORY, UPSTREAM } from './links';
 import { loadFonts } from './fonts';
 import { encodeLibrary, IMPORTS_FILE, nativeTone, readLibrary, withDetails, type LibraryDetails } from './import/library';
 import { restoreImports } from './import/lut';
-import { importsForCamera, NATIVE_LOOKS, takesNativeLooks } from './import/native';
+import { importsForCamera, NATIVE_LOOKS } from './import/native';
 import { isLutImportId } from './import/names';
 import { deleteImport, saveImport, updateImport } from './import/store';
 import { applyLanguage, LANGUAGES, sentences, STRINGS, type Language, type Strings } from './i18n';
@@ -844,7 +844,8 @@ export function App({
                   onImport={addImported}
                   onRemove={removeImported}
                   onEdit={editImported}
-                  nativeLooks={takesNativeLooks(camera.key)}
+                  // GRKU never asks for a firmware file, so the GR IV looks that need one are not offered.
+                  nativeLooks={false}
                   cardEffects={active ? cardExtra : []}
                   onCard={active && active.state.install !== 'none' ? new Set(active.effects.keys()) : null}
                   changedOnCard={active ? changedImports(active, imported) : undefined}
