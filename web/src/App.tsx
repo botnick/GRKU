@@ -974,10 +974,10 @@ export function App({
         </Step>
 
         <Step id="install" number={t.step(4)} title={t.install} description={canWrite ? t.landing.installNote : t.landing.installNoteZip}>
-          <Alert className="mb-8 border-destructive/50 bg-destructive/10">
-            <TriangleAlert className="text-destructive" aria-hidden="true" />
-            <AlertTitle className="text-base font-semibold text-destructive">{t.riskTitle}</AlertTitle>
-            <AlertDescription className="max-w-[80ch] text-foreground/85">{t.riskText}</AlertDescription>
+          <Alert className="mb-8 border-2 border-destructive bg-destructive/15 px-5 py-5 shadow-[inset_6px_0_0_0_var(--destructive)] sm:px-6 has-[>svg]:grid-cols-[calc(var(--spacing)*7)_1fr] has-[>svg]:gap-x-4 [&>svg]:size-7 [&>svg]:translate-y-0">
+            <TriangleAlert className="text-destructive" strokeWidth={2.5} aria-hidden="true" />
+            <AlertTitle className="text-xl font-bold tracking-tight text-destructive sm:text-2xl">{t.riskTitle}</AlertTitle>
+            <AlertDescription className="mt-1 max-w-[80ch] text-base leading-relaxed text-foreground">{t.riskText}</AlertDescription>
           </Alert>
           <dl className="mb-8 grid gap-5 sm:grid-cols-3">
             {t.landing.facts.map(([title, text]) => (
