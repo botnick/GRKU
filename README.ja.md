@@ -1,70 +1,91 @@
-# GRKU · BOTNICK edition
+# GRKU.
 
-GRKU は **BOTNICK** による、ahonn 氏の [GRKU](https://github.com/ahonn/GRKit) のフォークです。135 フィルムのライブラリとリアルなフィルム箱のアイコン、Positive GRII ルック、色付きのメニュータイル、Border モジュール・Light Leak モジュール・Diffusion モジュール、フィート単位の Snap 距離、より早く読み込まれるワンショット起動を備え、高速起動ファームウェアは使用しません。GRKU は SD カード上のスクリプトのまま動作します。カードをフォーマットすれば、カメラは元の状態に戻ります。
+**GR のあなたの、お気に入りのスタイルで** — SD カードから動作する、RICOH GR III・GR IIIx・GR IV 向けのフィルムルックです。ファームウェアの書き換えは行いません。カメラはカード上のスクリプトを実行し、カードがなければリコーが出荷した状態のカメラのままです。
 
-[English](README.md) | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md) | 日本語 | [한국어](README.ko.md) | [ไทย](README.th.md)
+[ไทย](README.th.md) | [English](README.md) | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md) | 日本語 | [한국어](README.ko.md)
 
 [![Tests](https://github.com/botnick/GRKU/actions/workflows/tests.yml/badge.svg)](https://github.com/botnick/GRKU/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![grku.app](https://img.shields.io/badge/site-grku.app-d94135)](https://grku.app)
 
-GRKU は、RICOH GR III・GR IIIx・GR IV に、フィルム風の色、XPan などの比率、日付写し込み、グロー、ライトリーク、ディフュージョン、粒状感、ボーダーを追加するツールです。SD カードから動作し、ファームウェアには一切書き込みません。カードを抜けば、カメラは元の状態に戻ります。
+GRKU は、ahonn 氏の [GRKit](https://github.com/ahonn/GRKit) をもとに開発されています。GRKit は SD カードから GR 上でコードを実行する方法を発見し、最初のフィルムルック、モジュール、ウェブインストーラーを構築しました。GRKU はその成果を受け継ぎ、まずタイの GR ユーザーへ、そして世界中のすべての人へ向けたプロダクトとして仕上げました。リアルなフィルム箱のアイコンを備えたより大きなフィルムライブラリ、レシピ、さらなるモジュール、ワンショット起動、カードへの書き込みや追加ルックの購入ができるサイト、そしてタイ語のトーンを備えています。[GRKU が GRKit に追加したもの](#what-grku-adds-to-grkit)のセクションにすべての変更点を掲載しています。
 
 <p>
-  <img src="resources/images/grku-root.ja.jpg" alt="ADJ メニューの GRKU ページ" width="49%">
-  <img src="resources/images/grku-menu.ja.jpg" alt="MENU のカスタマイズタブにある GRKU" width="49%">
+  <img src="resources/images/grku-root.jpg" alt="ADJ メニューの GRKU ページ" width="49%">
+  <img src="resources/images/grku-menu.jpg" alt="MENU のカスタマイズタブにある GRKU" width="49%">
 </p>
 
-写真：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)、[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+写真：[MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/)、[CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)。
 
 ## 機能
 
-撮影中に ADJ レバーを押し、6 番目の項目「GRKU」を選びます。
+撮影中に ADJ レバーを押し、6 番目の項目「GRK」を選びます。GRKU のすべての機能はそこにあり、MENU の GRKU セクションにもあります。
 
-- **フィルムルック**：135 種類のルック。そのうち 40 種類はパッケージに、残りはフィルムライブラリに収録されています。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman、GR II を再現した Positive GRII ルックなど、それぞれにライブプレビューと専用のフィルムボックスのアイコンが付いています。[grku.app](https://grku.app) で手持ちの `.cube` LUT や Lightroom プリセットも読み込めます。各ルックはオープンソースのフィルム LUT をもとに近似したもので、元の LUT に近いものの、まったく同じではありません（[出典](effects/NOTICE.md)）。
-- **フレーミング**：XPan、2.35:1、16:9、4:3、5:4、7:6、1:1。JPEG の切り抜きと構図ガイドのみを選べ、マスクか枠線で表示します。どちらのモードでも、比率を選ぶとカメラ側が 3:2 になります。オフにするとカメラ側の現在の比率がそのまま保たれます。
-
-  RAW の初期表示範囲はカメラ本来の 3:2 を保ち、カメラのデジタルクロップ設定も保持します。埋め込みプレビューには、選んだ構図が表示されることがあります。
-
+- **フィルムルック**：実在するフィルムの 135 種類のルックで、カードには一度に 40 種類を保存できます。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman、Rollei に加え、GR II のポジフィルムを再現した GRKU 独自の Positive GRII も収録しています。各ルックには実物のパッケージの色を模したフィルム箱のアイコンが付いています。Fn でルックを微調整でき、サイトから手持ちの LUT を読み込むこともできます。
+- **レシピ**：カメラ全体のルックに名前を付けて保存したり、サイトから人気のレシピを取り込んだりして、フィルムルックまたは Image Control、粒状感、グロー、ホワイトバランス、補正、露出をアンドゥ付きで一度に切り替えます。モードダイヤルの U1、U2、U3 にレシピを割り当てることもできます。
+- **フレーミング**：XPan、2.35:1、16:9、4:3、5:4、7:6、1:1。JPEG の切り抜きまたは構図枠線のみで表示します。**クロップ**：35、40、50、70、90 mm をライブビューで確認できます。
 - **構図ガイド**：9 分割、画面中央、黄金比、対角線、黄金螺旋、ダイナミックシンメトリー。
-- **日付入れ撮影**：クラシック、GR1s のドット、GR II の書体で写真に日付を入れます。
-- **グロー**：ブルームはライトやハイライトの周囲に柔らかな光を広げます。ハレーションは明るい光源の周囲に赤橙色のにじみを加え、映画用フィルムのような効果を再現します。それぞれ有効・無効と強度を個別に設定でき、同時に使用できます。
-- **光漏れ**：写真にフィルム特有のアーティファクトを加えます。ビネット、ホコリや毛、光漏れ、傷があり、それぞれオフ・弱・中・強から選べるほか、Faded、Dusty、Leaky、Expired のプリセットもあります。1 枚ごとに現れ方が変わります。
-- **ディフュージョン**：Black Pro-Mist ディフュージョンフィルターの 1/8、1/4、1/2 の柔らかな光を再現します。Black Mist はフィルターのベールをシャドウ部にかけ、Streak はアナモルフィックレンズのような、点光源からの青または琥珀色の水平フレアを加えます。JPEG のみに対応します。
-- **粒状感**：強度は 4 段階、粒の大きさは 4 種類（自動・小・中・大）から選べます。
-- **ボーダー**：写真の周囲に白または黒のプリント枠を付けます。幅は写真の横幅の 3% または 6% です。
-- **フィート表示**：カードに `GRKU/FEET.TXT` ファイルを置くと、Snap Focus Distance の設定がメートルではなく 1'、3'、5'、7'、8'、16' の表示になります。
+- **日付写し込み**：クラシック、GR1s のドットマトリクス、GR II の書体で写真に日付を入れます。
+- **グロー**：ライトやハイライトの周囲に広がるブルーム、映画用フィルムのような赤橙色のにじみを加えるハレーション。
+- **光漏れ**：ビネット、ホコリや毛、光漏れ、傷のほか、Faded、Dusty、Leaky、Expired のプリセット。1 枚ごとに現れ方が変わります。
+- **ディフュージョン**：Black Pro-Mist フィルターの 1/8、1/4、1/2、シャドウ部を覆う Black Mist のベール、点光源からのアナモルフィックレンズのような光条。
+- **粒状感**：強度は 4 段階、大きさは 4 種類。
+- **ボーダー**：写真の周囲に白または黒のプリント枠を付けます。幅は横幅の 3% または 6% です。
+- **起動時の有効化**：電源を入れるたびに、GRKU をオン、オフ、または前回の状態のままにします。
+- **フィート表示**：カードに `GRKU/FEET.TXT` を置くと、Snap 撮影距離がフィート表示になります。
 
-GRKU の読み込みには、電源を入れてから約 9 秒かかり、インストール・アップデート後の最初の起動ではもう少しかかります。それまではカメラ本来の設定で撮影されます。すべての設定は MENU のカスタマイズタブの最後にある GRKU にあります。モジュールを自作する場合は [Writing a module](docs/modules.md) をご覧ください。
-
-GRKU には高速起動ファームウェアはなく、今後も作られません。カメラのファームウェアはリコーが出荷した状態のままで、GRKU はカード上のスクリプトにすぎず、フォーマットすれば消えます。このフォークの[ワンショット起動](docs/one-shot-start.md)により、公式ファームウェア上で GRKU よりも速く読み込まれます。
+GRKU の表示には、電源を入れてから約 9 秒かかります（インストール後の最初の起動ではもう少しかかります）。それまではカメラ本来の設定で動作します。設定した内容はすべてカードの `GRKU` フォルダーに保存されます。
 
 ## 対応カメラ
 
 | カメラ | 実機で確認済み | 対応 |
 | --- | --- | --- |
-| GR III、GR III HDF | 2.10、2.20 | — |
-| GR IIIx、GR IIIx HDF | 1.60、1.70 | — |
-| GR IV、GR IV HDF | 1.11、1.20 | — |
-| GR IV Monochrome | 1.00 | 1.10 |
+| GR III、GR III HDF | — | 2.10、2.20 |
+| GR IIIx、GR IIIx HDF | — | 1.60、1.70 |
+| GR IV、GR IV HDF | 1.11 | 1.11、1.20 |
+| GR IV Monochrome | — | 1.00、1.10 |
 
-この表は GRKU のものです。本フォークによる変更点は、ファームウェア 1.11 の GR IV で動作しています。GR III および GR IIIx 用のパッケージは同じコードからビルドされていますが、まだそれらのカメラでは実行されておらず、最新のモジュール（Light Leak、Diffusion、Border）およびフィートのラベルも、最初のカメラでのテストを待っている状態です。GR IV Monochrome ではフィルムルックは使えません。ほかの機種やファームウェアには対応していません。対応カメラで GRKU が読み込まれない場合は、[ファームウェア書き出しガイド](resources/DUMP.ja.md)をご覧ください。
+GRKU 独自の変更点は、ファームウェア 1.11 の GR IV で動作しています。GR III および GR IIIx 用のパッケージは同じコードと GRKit のテストからビルドされていますが、まだ誰もそれらのカメラで GRKU を実行していません。実行された場合は、動作したかどうかにかかわらず [issue](https://github.com/botnick/GRKU/issues) でお知らせください。
 
 > [!WARNING]
 > GRKU は試験的なプロジェクトです。ご利用は自己責任でお願いします。
-> インストールするとカメラの SD スクリプト設定がオンになり、オフにするまでそのままです。GRKU に問題があるとカメラが起動中に止まることがあるため、インストール前に[復旧ガイド](resources/RECOVERY.ja.md)をお読みください。
+> インストールするとカメラの SD スクリプト設定がオンになり、オフにするまでそのままです。GRKU に問題があると、カメラが起動中に止まることがあります。あらかじめ[復旧ガイド](resources/RECOVERY.md)をお読みください。
 
 ## インストール
 
-このフォークのサイト [grku.app](https://grku.app) でカメラ、モジュール、エフェクトを選び、次のどちらかでインストールします。
+[grku.app](https://grku.app) でカメラ、モジュール、フィルムルックを選び、次のどちらかを行います。
 
-- パソコンの Chrome か Edge で **SD カードに直接書き込む**。このサイトでは GRKU のアップデートやアンインストール、モジュールやエフェクトの追加・削除もできます。
-- **ZIP をダウンロード**（`GRKU-gr3.zip`、`GRKU-gr3x.zip`、または `GRKU-gr4.zip`）し、中の PDF ガイドの手順に従います（[GR III と GR IIIx](resources/INSTALLATION.ja.md)、[GR IV](resources/INSTALLATION-GR4.ja.md)）。
+- Chrome か Edge から **SD カードに書き込む**（このサイトではアップデート、ルックの追加・削除、アンインストールも可能です）。
+- **ZIP をダウンロード**（`GRKU-gr3.zip`、`GRKU-gr3x.zip`、または `GRKU-gr4.zip`）し、中の PDF ガイドの手順に従う（[GR III と GR IIIx](resources/INSTALLATION.md)、[GR IV](resources/INSTALLATION-GR4.md)）。
 
-または、このリポジトリからパッケージをビルドし（後述）、リーダーに入れたカードへ `python3 -I scripts/card.py write dist/GRKU-gr4.zip` で書き込みます。同じスクリプトでフィートのラベルのオン・オフ（`feet on`、`feet off`）の切り替えや、カードの状態の確認（`status`）ができます。
+MENU ボタンを押しながら電源を入れるのは初回だけです。ZIP からアップデートするときは、カードの `SCRIPT` フォルダーを入れ替えてください。設定は `GRKU` に残ります。カードをフォーマットすると GRKU は消去されます。
 
-MENU ボタンを押しながら電源を入れるのは初回だけです。ZIP からアップデートするときは、カードの `SCRIPT` フォルダーを入れ替えてください。設定は `GRKU` に残ります。カードをフォーマットすると GRKU も消えるので、先に `GRKU` をパソコンにコピーしておいてください。
+GRKit から移行する場合：サイトを利用すると、設定とルックが `GRKIT` フォルダーから `GRKU` に移動されます。手動でファイルをコピーする場合は、初回起動前にカードのルートにある `GRKIT` の名前を `GRKU` に変更するか、削除してください。
 
-GRKU が表示されない場合は、`GRKU/REPORT.TXT`、`GRKU/BOOT.TXT`、`SCRIPT/GRKU/INSTALL.ERR`（ある場合）を添えて [issue](https://github.com/botnick/GRKU/issues/new) を送信してください。[これらのファイルの各行の意味](docs/diagnostics.md)。
+GRKU が表示されない場合は、`GRKU/REPORT.TXT`、`GRKU/BOOT.TXT`、`SCRIPT/GRKU/INSTALL.ERR`（存在する場合）を添えて [issue](https://github.com/botnick/GRKU/issues/new) を送信してください。[各行の意味について](docs/diagnostics.md)。
+
+## GRKU Plus
+
+無料のサイトでは、任意の 10 種類のルックをカードに書き込めます。GRKU Plus は PromptPay による 1 回限りの支払いで、25 スロット、ブランドパック、またはすべて（40 スロットとすべてのルック）のロックを解除します。キーはメールで届き、すべてのデバイスで使用できます。このサービスは `services/plus` で動作し、カードを見ることは一切ありません。
+
+## GRKU が GRKit に追加した機能
+
+GRKU は GRKit 1.5.2 からスタートし、GRKit の `feat/recipes` ブランチをマージしました。GRKit の高速起動ファームウェアは意図的に除外されています。以下に挙げるすべてが、GRKit のランタイム、モジュールシステム、ウェブインストーラー、テストの上で構築された GRKU による追加要素です。
+
+| 領域 | GRKit | GRKU | 実装方法 |
+| --- | --- | --- | --- |
+| フィルムライブラリ | 21 種類のルック | 135 種類のルック、カードあたり 40 種類。すべてのルックを収録したフィルムライブラリ ZIP | Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT、Fotufilm のオープンなフィルムプリセットからフィッティングを行い、`docs/popular-films-2026.md` における 2026 年の人気度調査に基づいてデフォルトの 40 種類を選定 |
+| アイコン | フラットなタイル | すべてのルックに実物のパッケージ色を模したフィルム箱、メニュー用のカラータイル、独自の PNG アイコンを持つエフェクト | `scripts/flap-icons.py` が箱を描画。エフェクトコンパイラが `icon: {"png": ...}` を処理 |
+| レシピ | 未マージのブランチ | マージ済み。タイ語に配慮した解説、ricohcookbook.com の人気レシピ、3 ステップのエディター、作例写真、カメラ風の設定シートを搭載 | `modules/recipes`、`web/src/components/Recipe*.tsx` |
+| モジュール | Film Look、Framing、Guides、Date、Glow、Grain | 加えて Crop、Light Leak、Diffusion、Border、Recipes、Enable at Start、フィート表示ラベル、黄金螺旋およびダイナミックシンメトリーのガイド | MustafaCisse および kkasemsa のフォークから移植し、新規作成。1 つのパッケージに 10 個のモジュールを収録可能 |
+| 起動 | 電源を入れるたびに複数回のカードリクエスト | 1 回のリクエスト：コアがスキャン、インストール、レポートを 1 つのプロセスで行い、進行状況を RAM 上のローダーに送信 | `docs/one-shot-start.md` |
+| 高速起動 | オプションのパッチ適用ファームウェア | 方針として一切なし：GRKU はカード上のスクリプトのまま動作 | `docs/fastboot.md` を記録として保持 |
+| サイト | 英語、中国語、日本語、韓国語 | タイ語ファースト、6 言語、shadcn/ui で構築されたダーク調の 1 ページ構成インストーラー、6 枚のサンプル写真でのライブプレビュー、GRKU Plus、SEO およびリンクプレビュー | `web/`、`services/plus` |
+| カード | `GRKIT` フォルダー | `GRKU` フォルダー。サイトおよび `scripts/card.py` が古い `GRKIT` フォルダーを移動し、カメラ側は触れません | `web/src/card.ts`、`scripts/card.py` |
+| ブランド | GRKit | GRKU：赤いピリオドが付いたワードマーク、タイのトーン、`docs/brand.md` | |
+| リリース | GitHub Actions から grkit.app へ | grku.app 用の同一パイプライン：プッシュによりリリースのプルリクエストが作成され、マージすると公式ファームウェアからビルドして Cloudflare Pages 経由でサイトをデプロイ。Plus サービスは `services/plus` からデプロイ | `.github/workflows`、`docs/releasing.md` |
+
+GRKU は GRKit のモジュール ABI を維持しており（GRKit SDK でビルドされたモジュールも引き続き読み込まれます）、そのライセンスも保持し、適用可能な修正は GRKit に送り返されます。
 
 ## ソースからのビルド
 
@@ -73,38 +94,38 @@ Rust 1.92 以降、ARM 対応の Clang と LLD、リコー公式のファーム�
 ```sh
 cargo install --path crates/grku-cli --locked
 grku effects build --source effects --out build/effects
-grku build --target gr3-2.10 --firmware firmware/fwdc239b.bin --out build/runtime
+grku build --target gr4-1.11 --firmware firmware/fwdc248b.bin --out build/runtime
 for module in modules/*/; do grku module build --dir "$module" --out "build/modules/$(basename "$module").GRM"; done
 sh .github/scripts/install-guide-tools.sh build/guide-tools
 sh .github/scripts/build-guides.sh grku build/guide-tools build/guides
-grku package --build build/runtime --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
-  --guide build/guides/gr3/en.pdf --out dist/GRKU-gr3.zip
-grku verify dist/GRKU-gr3.zip
+grku package --build build/runtime --camera gr4 --effects build/effects-default \
+  $(for m in build/modules/*.GRM; do case $m in *BORDER*) ;; *) printf -- '--module %s ' "$m";; esac; done) \
+  --guide build/guides/gr4/en.pdf --out dist/GRKU-gr4.zip
+grku verify dist/GRKU-gr4.zip
 ```
 
-`build/effects` には 135 種類すべてのルックが入ります。パッケージには最大 40 種類しか入らないため、`python3 -I scripts/defaults.py build/effects build/effects-default` で `effects/defaults.txt` にある 40 種類を選び、`--effects` 引数に使います。GR IV では `gr4-1.11` と `gr4-1.20` をビルドし、両方を `--camera gr4` でパッケージします。ほかのカメラ、一部のモジュールだけのパッケージ、ほかの言語のガイドについては [Build packages](CONTRIBUTING.md#build-packages) と [HANDOFF.md](HANDOFF.md) をご覧ください。
+`build/effects` には 135 種類すべてのルックが入ります。パッケージには最大 40 種類しか入らないため、`python3 -I scripts/defaults.py build/effects build/effects-default` で `effects/defaults.txt` の 40 種類を選びます。パッケージには 10 個のモジュールを収録できるため、1 つを除外します（リリース版では Border を除外しています）。GR III の場合は、`fwdc239b.bin` から `gr3-2.10` をビルドし、`--camera gr3` でパッケージします。その後、`python3 -I scripts/card.py write dist/GRKU-gr4.zip` でリーダーに入れたカードへパッケージを書き込みます。
 
 ## 貢献
 
-[CONTRIBUTING.md](CONTRIBUTING.md) をご覧ください。GRKU が動作したかどうかにかかわらず、デバイスのレポートを歓迎します。特に、このフォークがまだ実行されていない GR III および GR IIIx からのレポートを歓迎します。問題、アイデア、質問は [issues](https://github.com/botnick/GRKU/issues) としてお送りください。GRKU 自体にとって有用な変更は、プルリクエストとして上流に送られます。
+[CONTRIBUTING.md](CONTRIBUTING.md) をご覧ください。カメラからのレポートは、特にお寄せいただきたい情報であり、とりわけ GR III または GR IIIx からのレポートを歓迎します。問題、アイデア、質問は [issues](https://github.com/botnick/GRKU/issues) へお送りください。
 
 ## ドキュメント（英語）
 
-- [アーキテクチャ](docs/architecture.md)
+- [アーキテクチャ](docs/architecture.md)と[ワンショット起動](docs/one-shot-start.md)
 - [モジュールの作り方](docs/modules.md)と[モジュールリファレンス](docs/module-reference.md)
-- [デバイスレポートの 3 つのファイル](docs/diagnostics.md)：`BOOT.TXT`、`REPORT.TXT`、`INSTALL.ERR` を 1 行ずつ解説
-- [ワンショット起動](docs/one-shot-start.md)：公式ファームウェアで GRKU がより早く読み込まれる仕組み
-- [エフェクト](effects/README.md)と、デフォルトの 40 種のもとになった [2026 年の人気フィルム](docs/popular-films-2026.md)
-- [ウェブサイト](web/README.md)と[ブランドシート](docs/brand.md)
-- このフォークの[ロードマップ](docs/roadmap.md)と[引き継ぎ](HANDOFF.md)
-- GRKU より：GRKU では使用しない[高速起動ファームウェア](docs/fastboot.md)と、[リリース手順](docs/releasing.md)
+- [デバイスレポート](docs/diagnostics.md)：`BOOT.TXT`、`REPORT.TXT`、`INSTALL.ERR` を 1 行ずつ解説
+- [エフェクト](effects/README.md)、[LUT の出典](docs/lut-sources.md)、[2026 年の人気フィルム](docs/popular-films-2026.md)
+- [ウェブサイト](web/README.md)、[ブランド](docs/brand.md)、[プロダクトノート](docs/PRODUCT.md)
+- [ロードマップ](docs/roadmap.md)、[コミュニティアンケート](docs/community-survey.md)、[引き継ぎノート](HANDOFF.md)
+- [リリース手順](docs/releasing.md)；GRKit より、GRKU では使用しない[高速起動ファームウェア](docs/fastboot.md)
 
 ## ライセンス
 
-コードは [MIT ライセンス](LICENSE)です。GRKU は、同じく MIT ライセンスである ahonn 氏の [GRKU](https://github.com/ahonn/GRKit) をもとにしており、その表記を保持しています。各パッケージには、収録ファイルのライセンスをまとめた `LICENSES.md` が入っています。
+コードは [MIT ライセンス](LICENSE)です。GRKU は、同じく MIT である ahonn 氏の [GRKit](https://github.com/ahonn/GRKit) をもとにしており、その表記を保持しています。各パッケージには、収録ファイルのライセンスをまとめた `LICENSES.md` が入っています。
 
-- エフェクトのライセンスは CC BY-SA 4.0、MIT、または Apache-2.0 です。詳しくは [effects/NOTICE.md](effects/NOTICE.md) をご覧ください。
-- メニューと撮影画面の文字には [Roboto Condensed](https://github.com/googlefonts/roboto-classic) を [SIL Open Font License 1.1](crates/grku-core/assets/RobotoCondensed-LICENSE.txt) のもとで使用しています。
-- エフェクトのフィッティング手法は [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods) から [MIT ライセンス](crates/grku-core/GR3_FILM_MODS_LICENSE.txt)のもとで移植しました。
+- エフェクトのライセンスは CC BY-SA 4.0、MIT、または Apache-2.0 です。[effects/NOTICE.md](effects/NOTICE.md) をご覧ください。
+- メニューとライブビューの文字には [Roboto Condensed](https://github.com/googlefonts/roboto-classic) を [SIL Open Font License 1.1](crates/grku-core/assets/RobotoCondensed-LICENSE.txt) のもとで使用しています。
+- エフェクトのフィッティングは [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods) から [MIT ライセンス](crates/grku-core/GR3_FILM_MODS_LICENSE.txt)のもとで移植しました。
 
-RICOH および GR は Ricoh Company, Ltd. の商標です。フィルム名はそれぞれの所有者の商標です。GRKU は独立したプロジェクトであり、リコーや GRKU の作者、フィルムメーカーとは関係ありません。
+RICOH および GR は Ricoh Company, Ltd. の商標です。フィルム名はそれぞれの所有者の商標です。GRKU は [BOTNICK](https://github.com/botnick) による独立したプロジェクトであり、リコー、GRKit の作者、またはいかなるフィルムメーカーとも関係ありません。
