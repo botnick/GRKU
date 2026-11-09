@@ -81,6 +81,19 @@ const en = {
     newLooks: 'New looks every month',
     lifetime: 'One payment, for ever',
     includesFree: 'Everything free stays free',
+    phoneTitle: 'Pay from your phone',
+    phoneHint: 'Scan this with your phone: it opens this order there, where you pay and upload the slip. This page unlocks by itself.',
+    phoneWaiting: 'Waiting for the slip from your phone…',
+    receiver: 'Receiver',
+    orderRef: 'Order',
+    saveQr: 'Save the QR',
+    angpaoTitle: 'Or pay with a TrueMoney gift link',
+    angpaoHint: 'Open TrueMoney Wallet, make a gift (อั่งเปา) of the exact amount, copy its link and paste it here.',
+    angpaoPlaceholder: 'https://gift.truemoney.com/campaign/?v=…',
+    angpaoUse: 'Redeem',
+    angpaoShort: (got: number, missing: number) => `The gift was ฿${got}, so ฿${missing} is still missing. The gift is kept as credit on this order.`,
+    angpaoFailed: 'TrueMoney did not accept this link. Check that it is unused and not expired.',
+    changeTier: 'Change the plan',
   },
   riskTitle: 'Use it at your own risk',
   riskText: 'GRKU is an unofficial, experimental add-on with no warranty. It loads from the SD card and never writes the firmware, but Ricoh does not support it, and what you put on your camera is your own responsibility.',
@@ -688,6 +701,32 @@ const zhHans: Strings = {
     newLooks: '每月新增风格',
     lifetime: '一次付费，永久使用',
     includesFree: '所有免费内容保持免费',
+    // TODO(gemini): translate
+    phoneTitle: 'Pay from your phone',
+    // TODO(gemini): translate
+    phoneHint: 'Scan this with your phone: it opens this order there, where you pay and upload the slip. This page unlocks by itself.',
+    // TODO(gemini): translate
+    phoneWaiting: 'Waiting for the slip from your phone…',
+    // TODO(gemini): translate
+    receiver: 'Receiver',
+    // TODO(gemini): translate
+    orderRef: 'Order',
+    // TODO(gemini): translate
+    saveQr: 'Save the QR',
+    // TODO(gemini): translate
+    angpaoTitle: 'Or pay with a TrueMoney gift link',
+    // TODO(gemini): translate
+    angpaoHint: 'Open TrueMoney Wallet, make a gift (อั่งเปา) of the exact amount, copy its link and paste it here.',
+    // TODO(gemini): translate
+    angpaoPlaceholder: 'https://gift.truemoney.com/campaign/?v=…',
+    // TODO(gemini): translate
+    angpaoUse: 'Redeem',
+    // TODO(gemini): translate
+    angpaoShort: (got: number, missing: number) => `The gift was ฿${got}, so ฿${missing} is still missing. The gift is kept as credit on this order.`,
+    // TODO(gemini): translate
+    angpaoFailed: 'TrueMoney did not accept this link. Check that it is unused and not expired.',
+    // TODO(gemini): translate
+    changeTier: 'Change the plan',
   },
   riskTitle: '使用风险自负',
   riskText: 'GRKU 是非官方的实验性附加组件，无任何担保。它从 SD 卡加载，从不写入固件，但 Ricoh 不提供支持，您在相机上安装的内容由您自行负责。',
@@ -1222,6 +1261,32 @@ const zhHant: Strings = {
     newLooks: '每月新增風格',
     lifetime: '一次付款，永久使用',
     includesFree: '免費功能維持免費',
+    // TODO(gemini): translate
+    phoneTitle: 'Pay from your phone',
+    // TODO(gemini): translate
+    phoneHint: 'Scan this with your phone: it opens this order there, where you pay and upload the slip. This page unlocks by itself.',
+    // TODO(gemini): translate
+    phoneWaiting: 'Waiting for the slip from your phone…',
+    // TODO(gemini): translate
+    receiver: 'Receiver',
+    // TODO(gemini): translate
+    orderRef: 'Order',
+    // TODO(gemini): translate
+    saveQr: 'Save the QR',
+    // TODO(gemini): translate
+    angpaoTitle: 'Or pay with a TrueMoney gift link',
+    // TODO(gemini): translate
+    angpaoHint: 'Open TrueMoney Wallet, make a gift (อั่งเปา) of the exact amount, copy its link and paste it here.',
+    // TODO(gemini): translate
+    angpaoPlaceholder: 'https://gift.truemoney.com/campaign/?v=…',
+    // TODO(gemini): translate
+    angpaoUse: 'Redeem',
+    // TODO(gemini): translate
+    angpaoShort: (got: number, missing: number) => `The gift was ฿${got}, so ฿${missing} is still missing. The gift is kept as credit on this order.`,
+    // TODO(gemini): translate
+    angpaoFailed: 'TrueMoney did not accept this link. Check that it is unused and not expired.',
+    // TODO(gemini): translate
+    changeTier: 'Change the plan',
   },
   riskTitle: '請自行承擔使用風險',
   riskText: 'GRKU 為非官方的實驗性附加元件，不提供任何保固。它由 SD 卡載入，絕不會寫入韌體，但 Ricoh 並不支援此產品，您在相機上安裝的內容須自行負責。',
@@ -1756,6 +1821,32 @@ const ja: Strings = {
     newLooks: '毎月新しいルック',
     lifetime: '1回のお支払いで永久に',
     includesFree: '無料のものはすべて無料のまま',
+    // TODO(gemini): translate
+    phoneTitle: 'Pay from your phone',
+    // TODO(gemini): translate
+    phoneHint: 'Scan this with your phone: it opens this order there, where you pay and upload the slip. This page unlocks by itself.',
+    // TODO(gemini): translate
+    phoneWaiting: 'Waiting for the slip from your phone…',
+    // TODO(gemini): translate
+    receiver: 'Receiver',
+    // TODO(gemini): translate
+    orderRef: 'Order',
+    // TODO(gemini): translate
+    saveQr: 'Save the QR',
+    // TODO(gemini): translate
+    angpaoTitle: 'Or pay with a TrueMoney gift link',
+    // TODO(gemini): translate
+    angpaoHint: 'Open TrueMoney Wallet, make a gift (อั่งเปา) of the exact amount, copy its link and paste it here.',
+    // TODO(gemini): translate
+    angpaoPlaceholder: 'https://gift.truemoney.com/campaign/?v=…',
+    // TODO(gemini): translate
+    angpaoUse: 'Redeem',
+    // TODO(gemini): translate
+    angpaoShort: (got: number, missing: number) => `The gift was ฿${got}, so ฿${missing} is still missing. The gift is kept as credit on this order.`,
+    // TODO(gemini): translate
+    angpaoFailed: 'TrueMoney did not accept this link. Check that it is unused and not expired.',
+    // TODO(gemini): translate
+    changeTier: 'Change the plan',
   },
   riskTitle: '自己責任でご利用ください',
   riskText: 'GRKUは非公式の実験的なアドオンであり、保証はありません。SDカードから読み込まれ、ファームウェアには書き込みませんが、Ricohのサポート対象外です。カメラに入れるものはご自身の責任となります。',
@@ -2294,6 +2385,32 @@ const ko: Strings = {
     newLooks: '매달 새로운 룩',
     lifetime: '한 번 결제, 영구 사용',
     includesFree: '무료는 계속 무료입니다',
+    // TODO(gemini): translate
+    phoneTitle: 'Pay from your phone',
+    // TODO(gemini): translate
+    phoneHint: 'Scan this with your phone: it opens this order there, where you pay and upload the slip. This page unlocks by itself.',
+    // TODO(gemini): translate
+    phoneWaiting: 'Waiting for the slip from your phone…',
+    // TODO(gemini): translate
+    receiver: 'Receiver',
+    // TODO(gemini): translate
+    orderRef: 'Order',
+    // TODO(gemini): translate
+    saveQr: 'Save the QR',
+    // TODO(gemini): translate
+    angpaoTitle: 'Or pay with a TrueMoney gift link',
+    // TODO(gemini): translate
+    angpaoHint: 'Open TrueMoney Wallet, make a gift (อั่งเปา) of the exact amount, copy its link and paste it here.',
+    // TODO(gemini): translate
+    angpaoPlaceholder: 'https://gift.truemoney.com/campaign/?v=…',
+    // TODO(gemini): translate
+    angpaoUse: 'Redeem',
+    // TODO(gemini): translate
+    angpaoShort: (got: number, missing: number) => `The gift was ฿${got}, so ฿${missing} is still missing. The gift is kept as credit on this order.`,
+    // TODO(gemini): translate
+    angpaoFailed: 'TrueMoney did not accept this link. Check that it is unused and not expired.',
+    // TODO(gemini): translate
+    changeTier: 'Change the plan',
   },
   riskTitle: '사용자 책임 하에 사용',
   riskText: 'GRKU는 보증 없는 비공식 실험적 애드온입니다. SD 카드에서 로드되며 펌웨어를 쓰지 않지만, Ricoh가 지원하지 않으며 카메라에 설치하는 것은 사용자 본인의 책임입니다.',
@@ -2846,6 +2963,32 @@ const th: Strings = {
     newLooks: 'ลุคใหม่ทุกเดือน',
     lifetime: 'จ่ายครั้งเดียว ใช้ตลอดไป',
     includesFree: 'ของฟรีทั้งหมดยังคงฟรี',
+    // TODO(gemini): translate
+    phoneTitle: 'Pay from your phone',
+    // TODO(gemini): translate
+    phoneHint: 'Scan this with your phone: it opens this order there, where you pay and upload the slip. This page unlocks by itself.',
+    // TODO(gemini): translate
+    phoneWaiting: 'Waiting for the slip from your phone…',
+    // TODO(gemini): translate
+    receiver: 'Receiver',
+    // TODO(gemini): translate
+    orderRef: 'Order',
+    // TODO(gemini): translate
+    saveQr: 'Save the QR',
+    // TODO(gemini): translate
+    angpaoTitle: 'Or pay with a TrueMoney gift link',
+    // TODO(gemini): translate
+    angpaoHint: 'Open TrueMoney Wallet, make a gift (อั่งเปา) of the exact amount, copy its link and paste it here.',
+    // TODO(gemini): translate
+    angpaoPlaceholder: 'https://gift.truemoney.com/campaign/?v=…',
+    // TODO(gemini): translate
+    angpaoUse: 'Redeem',
+    // TODO(gemini): translate
+    angpaoShort: (got: number, missing: number) => `The gift was ฿${got}, so ฿${missing} is still missing. The gift is kept as credit on this order.`,
+    // TODO(gemini): translate
+    angpaoFailed: 'TrueMoney did not accept this link. Check that it is unused and not expired.',
+    // TODO(gemini): translate
+    changeTier: 'Change the plan',
   },
   riskTitle: 'ใช้งานด้วยความเสี่ยงของคุณเอง',
   riskText: 'GRKU เป็นส่วนเสริมที่ไม่เป็นทางการและอยู่ในขั้นทดลอง ไม่มีการรับประกัน โหลดจากการ์ด SD และไม่เขียนเฟิร์มแวร์ แต่ Ricoh ไม่รองรับ และสิ่งที่คุณติดตั้งลงในกล้องเป็นความรับผิดชอบของคุณเอง',

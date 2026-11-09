@@ -98,7 +98,7 @@ import {
   scriptsOffCardFiles,
 } from './package';
 import { packageCard } from './packageCard';
-import { fetchEntitlement, forgetKey, FREE, loadKey, packCounts, PlusError, saveKey, takeKeyFromHash, type Entitlement } from './plus';
+import { fetchEntitlement, forgetKey, FREE, loadKey, packCounts, PlusError, saveKey, takeKeyFromHash, takeOrderFromHash, type Entitlement } from './plus';
 import { loadSelection, resolveSelection, saveSelection, type Selection } from './selection';
 import { TransferError } from './transfer';
 import { useCatalog } from './useCatalog';
@@ -724,7 +724,9 @@ export function App({
   // GRKU Plus: the key of this browser and what it owns. The key of a mail link comes first.
   const [plusKey, setPlusKey] = useState<string | null>(() => takeKeyFromHash() ?? loadKey());
   const [owned, setOwned] = useState<Entitlement>(FREE);
-  const [plusOpen, setPlusOpen] = useState(false);
+  // A phone that scanned the pay QR of another page opens this page with the order to pay.
+  const [payOrder] = useState<string | null>(() => takeOrderFromHash());
+  const [plusOpen, setPlusOpen] = useState(() => payOrder !== null);
   useEffect(() => {
     if (!plusKey) return;
     let live = true;
@@ -1128,6 +1130,7 @@ export function App({
         onKey={adoptKey}
         onForget={dropKey}
         packCounts={previewCatalog ? packCounts(previewCatalog.effects) : null}
+        payOrder={payOrder}
       />
       <AppPromo strings={t} />
     </>

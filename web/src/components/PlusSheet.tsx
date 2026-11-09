@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { Check, Copy, LoaderCircle, Upload } from 'lucide-react';
+import { Check, Copy, Download, LoaderCircle, Smartphone, Upload } from 'lucide-react';
 import QRCode from 'qrcode';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +26,10 @@ import {
   type Entitlement,
   type Order,
   type Pack,
+  giftShort,
+  orderStatus,
+  payLink,
+  redeemAngpao,
   type Paid,
   type Tier,
 } from '../plus';
@@ -47,13 +51,15 @@ interface Props {
   onForget: () => void;
   /** How many looks each pack holds, or null until the catalog is here. */
   packCounts: Record<Pack, number> | null;
+  /** An order to pay, from a phone that scanned the QR of the page (`#pay=<order>`). */
+  payOrder?: string | null;
 }
 
 /**
  * GRKU Plus: the tiers, the PromptPay QR for the chosen one, the slip, and the key. Everything
  * runs in this panel; the page behind it unlocks as soon as the slip is accepted.
  */
-export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, packCounts }: Props) {
+export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, packCounts, payOrder = null }: Props) {
   const ids = useId();
   const [view, setView] = useState<View>('tiers');
   const [choice, setChoice] = useState<Choice>('plus');
@@ -67,6 +73,10 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
   const [copied, setCopied] = useState(false);
   const [pasted, setPasted] = useState('');
   const [linkSent, setLinkSent] = useState(false);
+  const [phoneQr, setPhoneQr] = useState<string | null>(null);
+  const [gift, setGift] = useState('');
+  /** The sheet opened from a phone that scanned the QR of this order: it pays, the other page waits. */
+  const [phoneMode, setPhoneMode] = useState(false);
 
   const tier: Tier = choice === 'pack' ? `pack:${pack}` : choice;
   const due = amountDue(tier, owned);
@@ -91,6 +101,73 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
     };
   }, [order]);
 
+  // The QR a phone scans to pay this order there (not on the phone itself).
+  useEffect(() => {
+    if (!order || phoneMode) {
+      setPhoneQr(null);
+      return;
+    }
+    let live = true;
+    QRCode.toDataURL(payLink(order.order), { margin: 1, width: 320, errorCorrectionLevel: 'M' })
+      .then((url) => {
+        if (live) setPhoneQr(url);
+      })
+      .catch(() => {
+        if (live) setPhoneQr(null);
+      });
+    return () => {
+      live = false;
+    };
+  }, [order, phoneMode]);
+
+  // While the QR shows, ask the service every few seconds whether a phone has paid.
+  useEffect(() => {
+    if (view !== 'pay' || !order || phoneMode) return;
+    let live = true;
+    const timer = setInterval(() => {
+      orderStatus(order.order)
+        .then((state) => {
+          if (!live || state.status !== 'paid') return;
+          setPaid(state);
+          onKey(state.key, state.entitlement);
+          setView('done');
+        })
+        .catch(() => undefined);
+    }, 4000);
+    return () => {
+      live = false;
+      clearInterval(timer);
+    };
+  }, [view, order, phoneMode, onKey]);
+
+  // A phone that opened #pay=<order>: load the order and show the pay view.
+  useEffect(() => {
+    if (!payOrder) return;
+    let live = true;
+    orderStatus(payOrder)
+      .then((state) => {
+        if (!live) return;
+        if (state.status === 'open') {
+          setOrder(state);
+          setPhoneMode(true);
+          setView('pay');
+        } else if (state.status === 'paid') {
+          setPaid(state);
+          onKey(state.key, state.entitlement);
+          setView('done');
+        } else {
+          setError(t.plus.orderExpired);
+        }
+      })
+      .catch((failure) => {
+        if (live) fail(failure);
+      });
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [payOrder]);
+
   function reset() {
     setView('tiers');
     setOrder(null);
@@ -98,6 +175,8 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
     setBusy(false);
     setLinkSent(false);
     setCopied(false);
+    setGift('');
+    setPhoneMode(false);
   }
 
   function change(next: boolean) {
@@ -132,6 +211,28 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
       setView('done');
     } catch (failure) {
       fail(failure);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendGift() {
+    const link = gift.trim();
+    if (!link || !order) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await redeemAngpao(order.order, link);
+      setPaid(result);
+      onKey(result.key, result.entitlement);
+      setView('done');
+    } catch (failure) {
+      const short = giftShort(failure);
+      if (short) {
+        setOrder({ ...order, amount: short.missing });
+        setGift('');
+        setError(t.plus.angpaoShort(short.got, short.missing));
+      } else fail(failure);
     } finally {
       setBusy(false);
     }
@@ -306,19 +407,42 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
 
         {view === 'pay' && order && (
           <div className="flex flex-col gap-5 px-4 pb-6">
-            <p className="text-sm">{t.plus.scan(order.amount)}</p>
-            <div className="mx-auto w-fit rounded-2xl bg-white p-3">
-              {qr ? (
-                <img src={qr} alt="PromptPay QR" width="256" height="256" className="block size-64" />
-              ) : (
-                <div className="flex size-64 items-center justify-center text-black">
-                  <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
-                </div>
+            {/* The payment card: what a bank's QR card shows, so the payer knows who gets the money. */}
+            <div className="overflow-hidden rounded-2xl bg-white text-neutral-900">
+              <div className="flex items-center justify-between px-4 pt-3 text-[11px] font-semibold tracking-[0.12em] text-neutral-500 uppercase">
+                <span>PromptPay</span>
+                <span className="font-mono tracking-normal normal-case">{t.plus.orderRef} {order.order.slice(0, 6).toUpperCase()}</span>
+              </div>
+              <div className="mx-auto w-fit p-3">
+                {qr ? (
+                  <img src={qr} alt="PromptPay QR" width="256" height="256" className="block size-56 sm:size-64" />
+                ) : (
+                  <div className="flex size-56 items-center justify-center sm:size-64">
+                    <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
+                  </div>
+                )}
+              </div>
+              <p className="text-center font-mono text-3xl font-semibold tabular-nums">฿{order.amount}</p>
+              {order.receiver && (
+                <dl className="mx-4 mt-3 mb-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 border-t border-neutral-200 pt-3 text-sm">
+                  <dt className="text-neutral-500">{t.plus.receiver}</dt>
+                  <dd className="m-0 font-medium">{order.receiver.name}</dd>
+                  <dt className="text-neutral-500"></dt>
+                  <dd className="m-0 font-mono text-[13px] text-neutral-600">{order.receiver.account}</dd>
+                </dl>
               )}
             </div>
-            <p className="text-center font-mono text-3xl font-semibold tabular-nums">฿{order.amount}</p>
-            <Separator />
+            <p className="text-sm">{t.plus.scan(order.amount)}</p>
+
             <div className="flex flex-col gap-2">
+              {phoneMode && qr && (
+                <Button asChild variant="outline" size="lg" className="h-11 text-[15px]">
+                  <a href={qr} download={`grku-plus-${order.order}.png`}>
+                    <Download aria-hidden="true" />
+                    {t.plus.saveQr}
+                  </a>
+                </Button>
+              )}
               <Button asChild variant="brand" size="lg" className={cn('h-11 text-[15px]', busy && 'pointer-events-none opacity-60')}>
                 <label htmlFor={`${ids}-slip`}>
                   {busy ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Upload aria-hidden="true" />}
@@ -339,14 +463,59 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
               />
               <p className="text-[13px] text-muted-foreground">{t.plus.slipNote}</p>
             </div>
+
+            {!phoneMode && (
+              <div className="flex items-center gap-4 rounded-xl border bg-card p-3">
+                <div className="shrink-0 overflow-hidden rounded-lg bg-white p-1.5">
+                  {phoneQr ? <img src={phoneQr} alt="" width="96" height="96" className="block size-24" /> : <div className="size-24" />}
+                </div>
+                <div className="flex min-w-0 flex-col gap-1">
+                  <p className="flex items-center gap-1.5 text-sm font-semibold">
+                    <Smartphone className="size-4 text-muted-foreground" aria-hidden="true" />
+                    {t.plus.phoneTitle}
+                  </p>
+                  <p className="text-[13px] leading-relaxed text-muted-foreground">{t.plus.phoneHint}</p>
+                  <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+                    <span className="inline-block size-2 animate-pulse rounded-full bg-amber-400" aria-hidden="true" />
+                    {t.plus.phoneWaiting}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {order.angpao && (
+              <div className="flex flex-col gap-2">
+                <Separator />
+                <p className="text-sm font-semibold">{t.plus.angpaoTitle}</p>
+                <p className="text-[13px] text-muted-foreground">{t.plus.angpaoHint}</p>
+                <div className="flex gap-2">
+                  <Input
+                    value={gift}
+                    onChange={(event) => setGift(event.target.value)}
+                    placeholder={t.plus.angpaoPlaceholder}
+                    inputMode="url"
+                    spellCheck={false}
+                    autoCapitalize="off"
+                    className="font-mono text-xs"
+                    aria-label={t.plus.angpaoTitle}
+                  />
+                  <Button type="button" variant="outline" disabled={busy || !gift.trim()} onClick={sendGift}>
+                    {t.plus.angpaoUse}
+                  </Button>
+                </div>
+              </div>
+            )}
+
             {error && (
               <p role="alert" className="text-sm text-destructive">
                 {error}
               </p>
             )}
-            <Button type="button" variant="ghost" size="sm" className="self-start" disabled={busy} onClick={reset}>
-              {t.plus.back}
-            </Button>
+            {!phoneMode && (
+              <Button type="button" variant="outline" size="sm" className="self-start" disabled={busy} onClick={reset}>
+                {t.plus.changeTier}
+              </Button>
+            )}
           </div>
         )}
 

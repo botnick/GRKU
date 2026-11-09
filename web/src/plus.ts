@@ -208,7 +208,17 @@ export interface Order {
   /** The EMVCo payload of the PromptPay QR for the amount. */
   promptpay: string;
   expires: number;
+  /** Who receives the money, as the page shows it next to the QR. */
+  receiver?: { name: string; account: string };
+  /** Whether the service takes TrueMoney อั่งเปา links too. */
+  angpao?: boolean;
 }
+
+/** The state of an order, for the page that waits while a phone pays. */
+export type OrderStatus =
+  | ({ status: 'open' } & Order)
+  | ({ status: 'paid'; tier: Tier; amount: number } & Paid)
+  | { status: 'expired'; tier: Tier; amount: number };
 
 export interface Paid {
   key: string;
@@ -222,6 +232,33 @@ export const fetchEntitlement = (key: string) =>
 export const createOrder = (tier: Tier, email: string, key: string | null) =>
   call<Order>('/order', json({ tier, email, key: key ?? undefined }));
 
+export const orderStatus = (order: string) => call<OrderStatus>(`/order/${encodeURIComponent(order)}`);
+
+/**
+ * Pays an order with a TrueMoney อั่งเปา link. A gift too small for the order fails with the code
+ * `gift SHORT <got> <missing>`: the gift stays as credit and the order now asks for the rest.
+ */
+export const redeemAngpao = (order: string, link: string) => call<Paid>('/angpao', json({ order, link }));
+
+/** The amounts of a `gift SHORT` error, or null for another error. */
+export function giftShort(error: unknown): { got: number; missing: number } | null {
+  if (!(error instanceof PlusError)) return null;
+  const match = /^gift SHORT (\d+) (\d+)$/.exec(error.code);
+  return match ? { got: Number(match[1]), missing: Number(match[2]) } : null;
+}
+
+/** The address a phone opens to pay an order: the page with the order in its hash. */
+export const payLink = (order: string) => `${location.origin}${location.pathname}#pay=${order}`;
+
+/** The order in the page address (`#pay=<order>`), taken out of the address. Null when the address has none. */
+export function takeOrderFromHash(): string | null {
+  if (typeof location === 'undefined') return null;
+  const match = /^#pay=([a-z0-9]{10,20})$/.exec(location.hash);
+  if (!match) return null;
+  history.replaceState(null, '', location.pathname + location.search);
+  return match[1]!;
+}
+
 export function submitSlip(order: string, file: File): Promise<Paid> {
   const body = new FormData();
   body.append('order', order);
@@ -234,13 +271,14 @@ export const requestKey = (email: string) => call<{ sent: boolean }>('/magic', j
 /** Which text of `strings.plus` tells the visitor about `error`. */
 export function errorKind(
   error: unknown,
-): 'unavailable' | 'orderExpired' | 'slipMismatch' | 'slipUsed' | 'slipUnreadable' | 'badKey' | 'networkError' {
+): 'unavailable' | 'orderExpired' | 'slipMismatch' | 'slipUsed' | 'slipUnreadable' | 'badKey' | 'networkError' | 'angpaoFailed' {
   if (!(error instanceof PlusError)) return 'networkError';
   if (error.status === 503) return 'unavailable';
   if (error.status === 410) return 'orderExpired';
   if (error.status === 401) return 'badKey';
-  if (error.code === 'slip already used') return 'slipUsed';
+  if (error.code === 'slip already used' || error.code === 'angpao already used') return 'slipUsed';
   if (error.code === 'slip not readable') return 'slipUnreadable';
+  if (error.code.startsWith('gift ')) return 'angpaoFailed';
   if (error.status === 422) return 'slipMismatch';
   return 'networkError';
 }
