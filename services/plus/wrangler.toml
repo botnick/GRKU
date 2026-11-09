@@ -1,0 +1,25 @@
+name = "grku-plus"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+# The orders, the slips that paid them, and what each buyer owns.
+[[d1_databases]]
+binding = "DB"
+database_name = "grku-plus"
+database_id = "REPLACE_AFTER_wrangler_d1_create"
+
+[vars]
+# The site that the magic links and the CORS allow.
+SITE_URL = "https://grku.app"
+EXTRA_ORIGINS = "http://localhost:8787,http://localhost:5173,http://localhost:4173"
+# The PromptPay that receives the money: a phone (0812345678), a national ID (13 digits), or an
+# e-wallet ID (15 digits). Set as a secret in production: `wrangler secret put PROMPTPAY_ID`.
+PROMPTPAY_ID = ""
+# A part of the receiver's name as the bank shows it on a slip, to check that the money came to
+# us (optional; empty skips the check).
+RECEIVER_NAME = ""
+# slipok | easyslip | mock. `mock` accepts any slip for the amount of the order (development only).
+SLIP_PROVIDER = "mock"
+SLIPOK_BRANCH = ""
+MAIL_FROM = "GRKU <plus@grku.app>"
+# Secrets: KEY_SECRET (HMAC of the keys), SLIPOK_KEY or EASYSLIP_KEY, RESEND_KEY.
