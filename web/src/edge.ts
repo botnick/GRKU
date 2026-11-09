@@ -21,7 +21,9 @@ export default {
         acceptLanguage: request.headers.get('Accept-Language'),
         country: request.cf?.country ?? null,
       });
-      if (language !== 'en') {
+      // The root page is the page of one language (Thai); every other language has its own path.
+      // A visitor of that language gets the root page itself; a redirect to '/' would loop.
+      if (LANGUAGE_PATHS[language] !== '/') {
         url.pathname = LANGUAGE_PATHS[language];
         return new Response(null, {
           status: 302,
