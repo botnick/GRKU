@@ -46,7 +46,7 @@ describe('downloadProps', () => {
 
 describe('downloadErrorProps', () => {
   it('gives the reason and the kind of the file that did not arrive, without its URL', () => {
-    const error = new TransferError('stall', 'https://grkit.app/runtime/gr4-1.20/sd/SCRIPT/GRKIT/CORE.BIN');
+    const error = new TransferError('stall', 'https://grku.app/runtime/gr4-1.20/sd/SCRIPT/GRKIT/CORE.BIN');
     const props = downloadErrorProps(camera('gr4'), 'zip', true, error);
     expect(props).toEqual({ camera: 'gr4', mode: 'zip', app: 'yes', reason: 'stall', file: 'runtime' });
   });
@@ -54,15 +54,15 @@ describe('downloadErrorProps', () => {
   it('gives the HTTP status, and names the packager, effects, modules, and guides', () => {
     const props = (url: string) =>
       downloadErrorProps(camera('gr3'), 'card', false, new TransferError('status', url, 503));
-    expect(props('https://grkit.app/assets/grkit_wasm_bg-10ISLFLn.wasm')).toMatchObject({
+    expect(props('https://grku.app/assets/grkit_wasm_bg-10ISLFLn.wasm')).toMatchObject({
       mode: 'card',
       app: 'no',
       reason: '503',
       file: 'packager',
     });
-    expect(props('https://grkit.app/effects/gr3-2.10/A98CE47F.GRF').file).toBe('effect');
-    expect(props('https://grkit.app/modules/FILMLOOK.GRM').file).toBe('module');
-    expect(props('https://grkit.app/guides/gr3/zh-Hans.pdf').file).toBe('guide');
+    expect(props('https://grku.app/effects/gr3-2.10/A98CE47F.GRF').file).toBe('effect');
+    expect(props('https://grku.app/modules/FILMLOOK.GRM').file).toBe('module');
+    expect(props('https://grku.app/guides/gr3/zh-Hans.pdf').file).toBe('guide');
   });
 
   it('tells a checksum mismatch from other errors', () => {

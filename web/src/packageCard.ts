@@ -1,7 +1,7 @@
 import type { CardDirectory, CardFile, CardFileHandle } from './card';
 import { loadWasm } from './package';
 
-/** A GRKit.zip has a few MB. `packaging::MAX_TOTAL_SIZE` limits its contents to 32 MB. */
+/** A GRKU.zip has a few MB. `packaging::MAX_TOTAL_SIZE` limits its contents to 32 MB. */
 export const MAX_PACKAGE_BYTES = 64 * 1024 * 1024;
 
 const error = (name: string) => Object.assign(new Error(name), { name });
@@ -70,7 +70,7 @@ export function readOnlyCard(files: readonly CardFile[], name = ''): CardDirecto
 }
 
 /**
- * The card that a GRKit.zip makes when the user copies it: the files of its `SD_ROOT`. A ZIP of
+ * The card that a GRKU.zip makes when the user copies it: the files of its `SD_ROOT`. A ZIP of
  * an older release works too. It fails for a file that is not a ZIP within the package limits.
  */
 export async function packageCard(zip: File): Promise<CardDirectory> {

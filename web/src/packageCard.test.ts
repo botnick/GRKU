@@ -10,11 +10,11 @@ describe('readOnlyCard', () => {
       { path: 'SCRIPT/GRKIT/PACKAGE.TXT', bytes: bytes('CORE.GRM\n') },
       { path: 'SCRIPT/STARTUP.TTL', bytes: bytes('ttl') },
     ],
-    'GRKit.zip',
+    'GRKU.zip',
   );
 
   it('reads files by their paths, ignoring case as a FAT card does', async () => {
-    expect(card.name).toBe('GRKit.zip');
+    expect(card.name).toBe('GRKU.zip');
     expect(new TextDecoder().decode((await readFile(card, 'script/grkit/package.txt'))!)).toBe('CORE.GRM\n');
     expect(await readFile(card, 'SCRIPT/GRKIT/MISSING.TXT')).toBeNull();
     const names: string[] = [];

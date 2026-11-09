@@ -5,7 +5,7 @@ import { LANDING_HERO } from '../landing';
 
 /** GR Snap on the App Store. GR Snap is an iOS app by the same author as GRKU. */
 const APP_URL = 'https://apps.apple.com/app/gr-snap-ricoh-gr-wireless/id6768040383';
-const CLOSED_KEY = 'grkit.appPromo';
+const CLOSED_KEY = 'grku.appPromo';
 
 /** Shown on an iPhone or an iPad until the user closes it. */
 function initiallyShown(): boolean {

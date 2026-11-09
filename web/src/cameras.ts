@@ -97,7 +97,7 @@ export const CAMERAS: readonly Camera[] = [
 export const MODESET_TOKEN = '`{modeset}';
 
 /**
- * The camera entries that fit a card with GRKit: `builds` are the runtime builds of its GRKit, and
+ * The camera entries that fit a card with GRKU: `builds` are the runtime builds of its GRKU, and
  * `rootNames` are the names at the card root, which can hold the ModeSet file of a camera. An
  * entry fits when it runs each build. One build can run on two entries, such as GR III and
  * GR IIIx, so the result can have more than one. It is null when the card tells nothing: no build

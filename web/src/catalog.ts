@@ -116,7 +116,7 @@ export interface NativeImport extends ImportData {
 }
 
 /**
- * A LUT import that the page read back from a GRKit.zip, for a browser that lost its imports. The
+ * A LUT import that the page read back from a GRKU.zip, for a browser that lost its imports. The
  * file keeps the effect, its name, and its icon, but not the fit details of the import.
  */
 export interface RestoredImport extends ImportData {

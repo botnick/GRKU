@@ -11,7 +11,7 @@ const restored = (): ImportedEffect<RestoredImport> => ({
   cover: undefined,
   monochrome: false,
   preview: 'restored/lut-vision/1',
-  imported: { kind: 'restored', blob: new Uint8Array([1]), table: new Uint8Array([2]), source: 'GRKit.zip' },
+  imported: { kind: 'restored', blob: new Uint8Array([1]), table: new Uint8Array([2]), source: 'GRKU.zip' },
 });
 
 describe('import library details', () => {

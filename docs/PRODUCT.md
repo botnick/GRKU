@@ -10,9 +10,9 @@ Owners of RICOH GR III, GR IIIx, and GR IV cameras, including the HDF and Monoch
 
 ## Product Purpose
 
-grkit.app makes a GRKit package for one camera and puts it on the SD card. In Chrome and Edge it writes the card directly: install, update, add or remove modules and effects, and uninstall. Other browsers download a ZIP with an install guide. The effects section lets a person preview each film look on a sample photo or on their own DNG, and import their own LUT.
+grku.app makes a GRKU package for one camera and puts it on the SD card. In Chrome and Edge it writes the card directly: install, update, add or remove modules and effects, and uninstall. Other browsers download a ZIP with an install guide. The effects section lets a person preview each film look on a sample photo or on their own DNG, and import their own LUT.
 
-Success: a first-time user installs GRKit without reading the guide twice, and a returning user updates the card in a few clicks.
+Success: a first-time user installs GRKU without reading the guide twice, and a returning user updates the card in a few clicks.
 
 ## Brand Personality
 

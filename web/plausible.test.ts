@@ -16,7 +16,7 @@ describe('Plausible', () => {
   it('adds the script and the queue to the head', () => {
     const html = addPlausible('<html><head><title>GRKit</title></head><body></body></html>', origin);
     expect(html).toContain(
-      `<script defer data-domain="grkit.app" src="${origin}/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js"></script>`,
+      `<script defer data-domain="grku.app" src="${origin}/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js"></script>`,
     );
     expect(html.indexOf('window.plausible')).toBeLessThan(html.indexOf('</head>'));
   });

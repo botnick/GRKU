@@ -431,7 +431,7 @@ const en = {
   appPromoMaker: 'By the maker of GRKU',
   appPromoOpen: 'View',
   appPromoClose: 'Close',
-  appBrowser: 'An app may not save GRKU.zip. Open this page in your browser from the app menu (usually at the top right), or open grkit.app on a computer.',
+  appBrowser: 'An app may not save GRKU.zip. Open this page in your browser from the app menu (usually at the top right), or open grku.app on a computer.',
   recommended: 'Recommended',
   cardStepInsert: 'Insert the card in the camera.',
   cardReader: "Use a card reader. The camera's USB connection won't work.",
@@ -890,7 +890,7 @@ const zhHans: Strings = {
   appPromoMaker: 'GRKU 作者开发',
   appPromoOpen: '查看',
   appPromoClose: '关闭',
-  appBrowser: '在 App 内打开的页面可能无法保存 GRKU.zip。请从 App 菜单（通常在右上角）选择在浏览器中打开，或在电脑上访问 grkit.app。',
+  appBrowser: '在 App 内打开的页面可能无法保存 GRKU.zip。请从 App 菜单（通常在右上角）选择在浏览器中打开，或在电脑上访问 grku.app。',
   recommended: '推荐',
   cardStepInsert: '把存储卡插入相机。',
   cardReader: '请使用读卡器，相机的 USB 连接不可用。',
@@ -1337,7 +1337,7 @@ const zhHant: Strings = {
   appPromoMaker: 'GRKU 作者開發',
   appPromoOpen: '查看',
   appPromoClose: '關閉',
-  appBrowser: '在 App 內開啟的頁面可能無法儲存 GRKU.zip。請從 App 選單（通常在右上角）選擇在瀏覽器中開啟，或在電腦上前往 grkit.app。',
+  appBrowser: '在 App 內開啟的頁面可能無法儲存 GRKU.zip。請從 App 選單（通常在右上角）選擇在瀏覽器中開啟，或在電腦上前往 grku.app。',
   recommended: '推薦',
   cardStepInsert: '把記憶卡插入相機。',
   cardReader: '請使用讀卡機，相機的 USB 連線無法使用。',
@@ -1788,7 +1788,7 @@ const ja: Strings = {
   appPromoMaker: 'GRKU の作者が開発',
   appPromoOpen: '見る',
   appPromoClose: '閉じる',
-  appBrowser: 'アプリ内のブラウザーでは GRKU.zip を保存できないことがあります。アプリのメニュー（多くは右上）からブラウザーで開くか、パソコンで grkit.app を開いてください。',
+  appBrowser: 'アプリ内のブラウザーでは GRKU.zip を保存できないことがあります。アプリのメニュー（多くは右上）からブラウザーで開くか、パソコンで grku.app を開いてください。',
   recommended: 'おすすめ',
   cardStepInsert: 'カードをカメラに入れます。',
   cardReader: 'カードリーダーを使ってください。カメラの USB 接続は使えません。',
@@ -2253,7 +2253,7 @@ const ko: Strings = {
   appPromoMaker: 'GRKU 개발자가 만든 앱',
   appPromoOpen: '보기',
   appPromoClose: '닫기',
-  appBrowser: '앱 안의 브라우저에서는 GRKU.zip이 저장되지 않을 수 있습니다. 앱 메뉴(보통 오른쪽 위)에서 브라우저로 열거나 컴퓨터에서 grkit.app에 접속하세요.',
+  appBrowser: '앱 안의 브라우저에서는 GRKU.zip이 저장되지 않을 수 있습니다. 앱 메뉴(보통 오른쪽 위)에서 브라우저로 열거나 컴퓨터에서 grku.app에 접속하세요.',
   recommended: '추천',
   cardStepInsert: '카드를 카메라에 넣습니다.',
   cardReader: '카드 리더를 사용하세요. 카메라의 USB 연결로는 기록할 수 없습니다.',
@@ -2761,7 +2761,7 @@ const th: Strings = {
   appPromoMaker: 'โดยผู้สร้าง GRKU',
   appPromoOpen: 'View',
   appPromoClose: 'Close',
-  appBrowser: 'แอปอาจบันทึกไฟล์ GRKU.zip ไม่ได้ ให้เปิดหน้านี้ในเบราว์เซอร์จากเมนูของแอป (ปกติจะอยู่มุมขวาบน) หรือเปิด grkit.app บนคอมพิวเตอร์',
+  appBrowser: 'แอปอาจบันทึกไฟล์ GRKU.zip ไม่ได้ ให้เปิดหน้านี้ในเบราว์เซอร์จากเมนูของแอป (ปกติจะอยู่มุมขวาบน) หรือเปิด grku.app บนคอมพิวเตอร์',
   recommended: 'Recommended',
   cardStepInsert: 'ใส่การ์ดในกล้อง',
   cardReader: "ใช้การ์ดรีดเดอร์ การเชื่อมต่อกล้องผ่านสาย USB จะใช้งานไม่ได้",
@@ -2917,7 +2917,7 @@ export function showLanguage(language: Language, fastboot = false): void {
   document.documentElement.lang = language;
   document.title = page.title;
   document.querySelector('meta[name="description"]')?.setAttribute('content', page.description);
-  // The canonical address stays on grkit.app, also for a preview deployment of the site.
+  // The canonical address stays on grku.app, also for a preview deployment of the site.
   const canonical = document.querySelector('link[rel="canonical"]');
   if (canonical) {
     canonical.setAttribute('href', new URL(page.path, canonical.getAttribute('href') ?? location.href).href);

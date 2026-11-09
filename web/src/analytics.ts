@@ -50,7 +50,7 @@ export function trackDownload(
 
 /** The kind of site file of `url`, by its first folder: runtime, effect, module, guide, or packager. */
 function fileKind(url: string): string {
-  const path = new URL(url, 'https://grkit.app/').pathname;
+  const path = new URL(url, 'https://grku.app/').pathname;
   if (path.endsWith('.wasm')) return 'packager';
   const folder = path.split('/').find((part) => part !== '') ?? '';
   return { runtime: 'runtime', effects: 'effect', modules: 'module', guides: 'guide' }[folder] ?? 'other';

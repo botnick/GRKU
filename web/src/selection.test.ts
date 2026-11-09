@@ -103,7 +103,7 @@ describe('selectImport', () => {
 describe('importFit', () => {
   it('checks a restored effect as a native look, since it is the effect of the earlier package', () => {
     const data = { blob: new Uint8Array(), table: new Uint8Array() };
-    expect(importFit({ ...data, kind: 'restored', source: 'GRKit.zip' })).toBe('exact');
+    expect(importFit({ ...data, kind: 'restored', source: 'GRKU.zip' })).toBe('exact');
     expect(importFit({ ...data, kind: 'native', version: '1.20', source: 'gr4.zip' })).toBe('exact');
     expect(
       importFit({ ...data, kind: 'lut', grade: 'C', input: 'standard', warnings: [], source: 'a.cube' }),

@@ -49,7 +49,7 @@ jobs:
             "repos/$GITHUB_REPOSITORY/contents/web/src/generated/cameras.ts?ref=$GITHUB_SHA" 2>/dev/null \
             | grep -o "target: '[^']*'" | cut -d "'" -f 2 | sort -u || true)
           # Releases before 1.2.0 name the site site.tar.gz.
-          archive="GRKit-${tag#v}-site.tar.gz"
+          archive="GRKU-${tag#v}-site.tar.gz"
           mkdir -p "$RUNNER_TEMP/release-check"
           if ! gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$archive" --dir "$RUNNER_TEMP/release-check"; then
             archive=site.tar.gz
@@ -138,7 +138,7 @@ jobs:
         run: |
           set -euo pipefail
           # Releases before 1.2.0 name the site site.tar.gz.
-          archive="GRKit-${TAG#v}-site.tar.gz"
+          archive="GRKU-${TAG#v}-site.tar.gz"
           if ! gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$archive" --dir "$RUNNER_TEMP"; then
             archive=site.tar.gz
             gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$archive" --dir "$RUNNER_TEMP"

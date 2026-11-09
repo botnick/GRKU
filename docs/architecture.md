@@ -12,8 +12,8 @@ This document describes the parts and the approach. The source code and its comm
  grkit build    ──► runtime build        Linux:  loader script ──► INSTALL
  grkit module   ──► GRM modules                     │  checks firmware, links modules,
  grkit effects  ──► GRF effects                     │  writes records, icons, hooks
- grkit package  ──► GRKit.zip  ── SD card ──►       ▼
- site (wasm)    ──► GRKit.zip                RTOS:   hooks ──► core ──► modules
+ grkit package  ──► GRKU.zip  ── SD card ──►       ▼
+ site (wasm)    ──► GRKU.zip                RTOS:   hooks ──► core ──► modules
 ```
 
 There are three execution domains:

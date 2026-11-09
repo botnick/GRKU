@@ -57,7 +57,7 @@ jobs:
           IFS=$'\t' read -r draft author assets <<< "$release"
           # Releases before 1.2.0 name the site site.tar.gz.
           site=
-          for name in "GRKit-${TAG#v}-site.tar.gz" site.tar.gz; do
+          for name in "GRKU-${TAG#v}-site.tar.gz" site.tar.gz; do
             case "/$assets/" in */"$name"/*) site="$name"; break ;; esac
           done
           echo "Release $TAG: draft $draft, author $author, site ${site:-none}"

@@ -60,9 +60,9 @@ describe('storedImport', () => {
     const restored = {
       ...legacy(),
       cover: undefined,
-      imported: { kind: 'restored', blob: blob(), table: new Uint8Array(3), source: 'GRKit.zip' },
+      imported: { kind: 'restored', blob: blob(), table: new Uint8Array(3), source: 'GRKU.zip' },
     };
-    expect(storedImport(restored)?.imported).toMatchObject({ kind: 'restored', source: 'GRKit.zip' });
+    expect(storedImport(restored)?.imported).toMatchObject({ kind: 'restored', source: 'GRKU.zip' });
     expect(storedImport({ ...legacy(), cover: undefined })).toBeNull();
     expect(storedImport({ ...restored, imported: { ...restored.imported, source: 1 } })).toBeNull();
   });

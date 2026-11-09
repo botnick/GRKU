@@ -179,5 +179,5 @@ export async function restoreImports(
 export async function saveHaldImage(): Promise<void> {
   const { haldImage } = await loadWasm();
   const png = haldImage(HALD_LEVEL);
-  save(new Blob([png as Uint8Array<ArrayBuffer>], { type: 'image/png' }), `GRKit-HALD-${HALD_LEVEL}.png`);
+  save(new Blob([png as Uint8Array<ArrayBuffer>], { type: 'image/png' }), `GRKU-HALD-${HALD_LEVEL}.png`);
 }

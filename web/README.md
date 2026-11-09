@@ -1,6 +1,6 @@
-# GRKit site
+# GRKU site
 
-The site lets a user select a camera, the modules, and the effects, preview the effects, and download `GRKit.zip` or write it to an SD card. The browser builds the package with `grkit-wasm`. The only server code is the Cloudflare Pages worker of the root page, which sends a visitor to the page of their language.
+The site lets a user select a camera, the modules, and the effects, preview the effects, and download `GRKU.zip` or write it to an SD card. The browser builds the package with `grkit-wasm`. The only server code is the Cloudflare Pages worker of the root page, which sends a visitor to the page of their language.
 
 The site serves these files:
 
@@ -73,7 +73,7 @@ The page checks every catalog effect until the user changes the selection. A use
 
 ## SD card
 
-The first section of the page selects how to install: write to an SD card in a card reader, through the File System Access API, or download `GRKit.zip`. The section shows only in a browser that can write to a card, Chrome and Edge on a computer, where the card mode is the default. In other browsers, the page has only the download. The page remembers the choice in `localStorage`.
+The first section of the page selects how to install: write to an SD card in a card reader, through the File System Access API, or download `GRKU.zip`. The section shows only in a browser that can write to a card, Chrome and Edge on a computer, where the card mode is the default. In other browsers, the page has only the download. The page remembers the choice in `localStorage`.
 
 1. The page reads the card. The first line of `GRKIT/REPORT.TXT` gives the version and selects the camera. The modules of `PACKAGE.TXT` and the effects of the library become the selection. An effect file that the catalog does not have shows as an extra row.
 2. The user changes the selection. Badges show what a write adds or removes.
@@ -86,7 +86,7 @@ A write (`applyChanges` in `src/card.ts`):
 - It adds and removes effects in the library `GRKIT/EFFECTS` when the library exists. SCAN migrates the effects of GRKit 1.2 only when it creates the library, so the page does not create it, and the effects of GRKit 1.2 cannot be removed before that power-on.
 - It deletes the package files that the new `PACKAGE.TXT` does not name. It never writes to `GRKIT/MODULES`, because a file there replaces a newer package module.
 
-In card mode, Uninstall GRKit acts on the connected card. It shows only while the card has GRKit, or has the files that turn SD scripts off:
+In card mode, Uninstall GRKU acts on the connected card. It shows only while the card has GRKU, or has the files that turn SD scripts off:
 
 - Uninstall (`removeGrkit`) deletes `SCRIPT/GRKIT`, `SCRIPT/PLUGINS`, and `SCRIPT/STARTUP.TTL` when it runs one of them. Other files in `SCRIPT` stay. The data folder `GRKIT` goes only when the user also selects the settings and effects. A dialog asks for a confirmation first, with the choices to delete the settings and effects too and to turn SD scripts off.
 - Turn off SD scripts writes the ModeSet file with the disable command and `DEVELOP.MOD`. When the card has that ModeSet file, the page offers to delete the two files after the camera step.

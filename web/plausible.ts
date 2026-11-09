@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 const SCRIPT =
   '/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js';
 /** The site in Plausible. */
-const DOMAIN = 'grkit.app';
+const DOMAIN = 'grku.app';
 /** Queues the events that the page sends before the script loads. */
 const QUEUE =
   'window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }';

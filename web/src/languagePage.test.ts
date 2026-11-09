@@ -85,7 +85,7 @@ describe('edge worker', () => {
   const page = '<!doctype html><title>GRKit</title>';
   const assets = { fetch: vi.fn(async () => new Response(page, { headers: { 'Content-Type': 'text/html' } })) };
   const request = (path: string, headers: Record<string, string>, country?: string) =>
-    Object.assign(new Request(`https://grkit.app${path}`, { headers }), { cf: country ? { country } : undefined });
+    Object.assign(new Request(`https://grku.app${path}`, { headers }), { cf: country ? { country } : undefined });
 
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -95,7 +95,7 @@ describe('edge worker', () => {
   it('sends a visitor of the root page to the page of their language', async () => {
     const response = await edge.fetch(request('/?ref=x', { 'Accept-Language': 'zh-TW' }), { ASSETS: assets });
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('https://grkit.app/zh-hant/?ref=x');
+    expect(response.headers.get('Location')).toBe('https://grku.app/zh-hant/?ref=x');
     expect(assets.fetch).not.toHaveBeenCalled();
   });
 
