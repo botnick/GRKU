@@ -15,6 +15,10 @@ export interface Env {
   EXTRA_ORIGINS: string;
   PROMPTPAY_ID: string;
   RECEIVER_NAME: string;
+  /** The receiver as the page shows it next to the QR: the account holder's name. */
+  RECEIVER_DISPLAY: string;
+  /** The TrueMoney Wallet phone that receives gift links (อั่งเปา); a secret. Unset: no TrueMoney. */
+  TRUEMONEY_PHONE?: string;
   SLIP_PROVIDER: 'slipok' | 'easyslip' | 'mock';
   SLIPOK_BRANCH: string;
   SLIPOK_KEY?: string;
@@ -103,9 +107,11 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 async function route(request: Request, url: URL, env: Env): Promise<Response> {
   const path = url.pathname.replace(/\/+$/, '') || '/';
   if (request.method === 'GET' && path === '/') return json({ service: 'grku-plus', prices: PRICES, free_slots: FREE_SLOTS });
-  if (request.method === 'GET' && path === '/prices') return json({ prices: PRICES, free_slots: FREE_SLOTS, min_amount: MIN_AMOUNT });
+  if (request.method === 'GET' && path === '/prices') return json({ prices: PRICES, free_slots: FREE_SLOTS, min_amount: MIN_AMOUNT, methods: { promptpay: !!env.PROMPTPAY_ID, truemoney: !!env.TRUEMONEY_PHONE } });
   if (request.method === 'POST' && path === '/order') return order(request, env);
+  if (request.method === 'GET' && path.startsWith('/order/')) return orderStatus(path.slice('/order/'.length), env);
   if (request.method === 'POST' && path === '/slip') return slip(request, env);
+  if (request.method === 'POST' && path === '/angpao') return angpao(request, env);
   if (request.method === 'POST' && path === '/magic') return magic(request, env);
   if (request.method === 'GET' && path === '/me') return me(url, env);
   throw new HttpError(404, 'not found');
@@ -135,7 +141,27 @@ async function order(request: Request, env: Env): Promise<Response> {
   await env.DB.prepare('INSERT INTO orders (id, owner, tier, amount, status, created) VALUES (?, ?, ?, ?, ?, ?)')
     .bind(id, owner, tier, amount, 'open', now)
     .run();
-  return json({ order: id, tier, amount, promptpay: promptPayPayload(env.PROMPTPAY_ID, amount), expires: now + ORDER_TTL });
+  return json({ order: id, tier, amount, promptpay: promptPayPayload(env.PROMPTPAY_ID, amount), expires: now + ORDER_TTL, receiver: receiverOf(env), angpao: !!env.TRUEMONEY_PHONE });
+}
+
+/** The receiver as the page shows it: the name, and the PromptPay with only its last digits. */
+function receiverOf(env: Env): { name: string; account: string } {
+  return { name: env.RECEIVER_DISPLAY || env.RECEIVER_NAME || 'GRKU', account: `PromptPay ${'•'.repeat(4)}${env.PROMPTPAY_ID.slice(-4)}` };
+}
+
+/**
+ * The state of an order, for the page that waits while a phone uploads the slip: `open` with
+ * the amount, `paid` with the key (the order id is the 14-character secret of that page), or
+ * `expired`.
+ */
+async function orderStatus(id: string, env: Env): Promise<Response> {
+  const row = await env.DB.prepare('SELECT * FROM orders WHERE id = ?').bind(id).first<{
+    id: string; owner: string; tier: string; amount: number; status: string; created: number;
+  }>();
+  if (!row || !/^[a-z0-9]{10,20}$/.test(id)) throw new HttpError(404, 'no such order');
+  if (row.status === 'paid') return json({ status: 'paid', tier: row.tier, amount: row.amount, ...(await paidResponse(row.owner, env)) });
+  if (Date.now() - row.created > ORDER_TTL) return json({ status: 'expired', tier: row.tier, amount: row.amount });
+  return json({ status: 'open', tier: row.tier, amount: row.amount, promptpay: promptPayPayload(env.PROMPTPAY_ID, row.amount), expires: row.created + ORDER_TTL, receiver: receiverOf(env) });
 }
 
 // ---- Slips --------------------------------------------------------------------------------------
@@ -288,6 +314,71 @@ function slipokTime(date: string, time: string): number {
   const iso = `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}T${/^\d{2}:\d{2}(:\d{2})?$/.test(time) ? time : '00:00:00'}+07:00`;
   const parsed = Date.parse(iso);
   return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+// ---- TrueMoney gift links (อั่งเปา) ----------------------------------------------------------------
+
+/**
+ * Redeems a TrueMoney Wallet gift link to GRKU's wallet and pays the order with it. TrueMoney has
+ * no "look before you take" call, so the gift is redeemed first: a gift of at least the amount pays
+ * the order; a smaller one is kept as credit on the owner (`paid`), and the answer says how much
+ * is still missing. The gift API is the one the TrueMoney app itself calls; it is not documented.
+ */
+async function angpao(request: Request, env: Env): Promise<Response> {
+  if (!env.TRUEMONEY_PHONE) throw new HttpError(503, 'truemoney is not set up');
+  const body = (await request.json().catch(() => ({}))) as { order?: string; link?: string };
+  const orderId = String(body.order ?? '');
+  const code = /(?:[?&]v=)?([A-Za-z0-9]{10,64})\s*$/.exec(String(body.link ?? '').trim())?.[1];
+  if (!code) throw new HttpError(400, 'not a gift link');
+  const row = await env.DB.prepare('SELECT * FROM orders WHERE id = ?').bind(orderId).first<{
+    id: string; owner: string; tier: string; amount: number; status: string; created: number;
+  }>();
+  if (!row) throw new HttpError(404, 'no such order');
+  if (row.status === 'paid') return json(await paidResponse(row.owner, env));
+  if (Date.now() - row.created > ORDER_TTL) throw new HttpError(410, 'order expired');
+  const ref = `tmn:${code}`;
+  if (await env.DB.prepare('SELECT ref FROM slips WHERE ref = ?').bind(ref).first()) throw new HttpError(409, 'slip already used');
+  const response = await fetch(`https://gift.truemoney.com/campaign/vouchers/${code}/redeem`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mobile: env.TRUEMONEY_PHONE, voucher_hash: code }),
+  });
+  const result = (await response.json().catch(() => null)) as
+    | { status?: { code?: string; message?: string }; data?: { voucher?: { redeemed_amount_baht?: string; amount_baht?: string }; my_ticket?: { amount_baht?: string }; owner_profile?: { full_name?: string } } }
+    | null;
+  const status = result?.status?.code ?? 'NO_ANSWER';
+  if (status !== 'SUCCESS') {
+    console.warn('truemoney', status, result?.status?.message);
+    throw new HttpError(422, `gift ${status}`);
+  }
+  const got = Number(result?.data?.my_ticket?.amount_baht ?? result?.data?.voucher?.redeemed_amount_baht ?? 0);
+  if (!(got > 0)) throw new HttpError(422, 'gift NO_AMOUNT');
+  const now = Date.now();
+  const owned = await entitlementOf(row.owner, env);
+  const payer = result?.data?.owner_profile?.full_name ?? 'truemoney';
+  if (got + 0.001 < row.amount) {
+    // Too small: keep it as credit and ask for the rest.
+    const next = { ...owned, paid: owned.paid + Math.round(got) };
+    await env.DB.batch([
+      env.DB.prepare('INSERT INTO slips (ref, order_id, amount, payer, created) VALUES (?, ?, ?, ?, ?)').bind(ref, row.id, Math.round(got), payer, now),
+      env.DB.prepare(
+        'INSERT INTO entitlements (owner, packs, slots, plus, paid, updated) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(owner) DO UPDATE SET paid = excluded.paid, updated = excluded.updated',
+      ).bind(row.owner, JSON.stringify(next.packs), next.slots, next.plus ? 1 : 0, next.paid, now),
+      env.DB.prepare('UPDATE orders SET amount = ? WHERE id = ?').bind(row.amount - Math.round(got), row.id),
+    ]);
+    throw new HttpError(422, `gift SHORT ${Math.round(got)} ${row.amount - Math.round(got)}`);
+  }
+  const next = grant(owned, row.tier, Math.round(got));
+  await env.DB.batch([
+    env.DB.prepare('INSERT INTO slips (ref, order_id, amount, payer, created) VALUES (?, ?, ?, ?, ?)').bind(ref, row.id, Math.round(got), payer, now),
+    env.DB.prepare("UPDATE orders SET status = 'paid', paid_at = ?, slip_ref = ? WHERE id = ?").bind(now, ref, row.id),
+    env.DB.prepare(
+      'INSERT INTO entitlements (owner, packs, slots, plus, paid, updated) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(owner) DO UPDATE SET packs = excluded.packs, slots = excluded.slots, plus = excluded.plus, paid = excluded.paid, updated = excluded.updated',
+    ).bind(row.owner, JSON.stringify(next.packs), next.slots, next.plus ? 1 : 0, next.paid, now),
+  ]);
+  const result2 = await paidResponse(row.owner, env);
+  if (!row.owner.startsWith('anon:')) await sendKeyMail(row.owner, result2.key, env).catch((e) => console.error(e));
+  return json(result2);
 }
 
 // ---- Keys and owners ---------------------------------------------------------------------------
