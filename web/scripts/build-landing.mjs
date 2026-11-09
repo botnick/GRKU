@@ -24,7 +24,7 @@ const QUALITY = 80;
 
 /** The source photos. The page credits each one; src/landing-data.ts holds the credits. */
 const SOURCES = {
-  fox: { file: 'fox.jpg', sha256: 'd96a3d0c44cd637d5af3aa4ecbef53d7a1dc799bf698db12274aeb0cac7fa413' },
+  wheels: { file: 'wheels.jpg', sha256: 'adad224ecc0a4b2b92823e6b55adc7834a544384f4ef4abf7fe3a8e3cb415618' },
   wakkanai: { file: 'wakkanai.jpg', sha256: '38c22eec21cf023199e6efe076b7c3b8376e310e4a3398e0c08ca60827b2f65b' },
   hokkaido: { file: 'hokkaido.jpg', sha256: 'c645e9b007fda23366487816c0ea966a008e116943379ec66b0411077a0825a7' },
 };
@@ -45,7 +45,7 @@ mkdirSync(join(OUTPUT, 'looks'), { recursive: true });
 
 // 1. The film looks: the Standard development and each look of the hero.
 const catalog = JSON.parse(readFileSync(join(effects, 'catalog.json'), 'utf8'));
-const { image, meanError } = linearSample(photo('fox'), readFileSync(join(effects, 'preview/standard.lut')));
+const { image, meanError } = linearSample(photo('wheels'), readFileSync(join(effects, 'preview/standard.lut')));
 const tables = [['Standard', 'standard', 'preview/standard.lut']];
 // The looks of the hero (landing-data.ts), by their catalog names.
 for (const { name, image } of LANDING_LOOKS) {

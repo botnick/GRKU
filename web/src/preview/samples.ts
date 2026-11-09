@@ -3,14 +3,14 @@ import { decodeLinear, MAX_EDGE } from './linear';
 import type { Source } from './render';
 
 /**
- * Strolling fox, a GR IIIx JPEG by Ryo FUKAsawa (CC BY 2.0): a fox crossing a snowy street at night.
- * scripts/build-sample.mjs estimates its linear pixels by inverting the Standard development of the
- * preview (web/samples/strolling-fox.json).
+ * Electric Wheels in Fort Lauderdale, a GR IIIx JPEG by Austin Kirk (CC BY 2.0): rental bikes by the
+ * beach in daylight. scripts/build-sample.mjs estimates its linear pixels by inverting the Standard
+ * development of the preview (web/samples/electric-wheels.json).
  */
 export const DEFAULT_SAMPLE: Source = {
-  key: 'gr-iiix-strolling-fox-v1',
+  key: 'gr-iiix-electric-wheels-v1',
   load: async () => {
-    const response = await fetch(siteUrl('samples/strolling-fox.grlinear'));
+    const response = await fetch(siteUrl('samples/electric-wheels.grlinear'));
     if (!response.ok || !response.body) throw new Error('Cannot load sample photo');
     const reader = response.body.pipeThrough(new DecompressionStream('gzip')).getReader();
     const chunks: Uint8Array[] = [];

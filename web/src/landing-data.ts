@@ -25,11 +25,11 @@ export const LANDING_LOOKS = [
 
 /** The photos of the landing page, credited where they show, with a link to their source page. */
 export const LANDING_PHOTOS = {
-  fox: {
-    author: 'Ryo FUKAsawa',
+  wheels: {
+    author: 'Austin Kirk',
     license: 'CC BY 2.0',
     camera: 'RICOH GR IIIx',
-    source: 'https://www.flickr.com/photos/fukapon/51847773171/',
+    source: 'https://www.flickr.com/photos/aukirk/53383031689/',
   },
   wakkanai: {
     author: 'Ryo FUKAsawa',

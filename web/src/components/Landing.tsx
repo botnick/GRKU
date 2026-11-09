@@ -94,7 +94,7 @@ export function Landing({ strings, canWrite }: Props) {
           <div className="hero-visual" ref={frame}>
             <HeroPreview catalog={catalog} look={look} strings={strings} />
             <p className="looks-note">
-              {look?.name ?? ''} · {t.lookNote} <Credit photo="fox" camera />
+              {look?.name ?? ''} · {t.lookNote} <Credit photo="wheels" camera />
             </p>
           </div>
         </div>

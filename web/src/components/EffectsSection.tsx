@@ -22,6 +22,7 @@ import {
 import { sentences, type Language, type Strings } from '../i18n';
 import { forget, prefetchTable, preview, type PreviewEffect, type Source } from '../preview/render';
 import { DEFAULT_SAMPLE } from '../preview/samples';
+import { brandOf, FILM_KINDS, filmKind, type FilmKind } from '../filmKind';
 import { PhotoLoader } from '../preview/raw';
 import { editable } from '../import/edit';
 import { missingNativeLooks } from '../import/native';
@@ -34,6 +35,19 @@ import { ImportDialog, type ImportDialogHandle } from './ImportDialog';
 import { NativeLookDialog, type NativeLookDialogHandle } from './NativeLookDialog';
 
 const DEFAULT_PREVIEW = 'portra-400-endura-v1';
+
+/** The name of a kind of film in the filters. */
+function kindLabel(kind: FilmKind, t: Strings): string {
+  switch (kind) {
+    case 'negative': return t.kindNegative;
+    case 'slide': return t.kindSlide;
+    case 'mono': return t.kindMono;
+    case 'cine': return t.kindCine;
+    case 'instant': return t.kindInstant;
+    case 'camera': return t.kindCamera;
+    case 'imported': return t.kindImported;
+  }
+}
 
 /** The film number, then the print film of a cine look: "5219 · 2393 print". */
 function stockText(stock: (typeof STOCKS)[string] & {}, t: Strings): string {
@@ -130,6 +144,25 @@ export function EffectsSection({
   const [previewAttempt, setPreviewAttempt] = useState(0);
   const [isPending, startTransition] = useTransition();
   const photoCount = useRef(0);
+  // The filters of the list: a search, a kind of film, a brand.
+  const [query, setQuery] = useState('');
+  const [kind, setKind] = useState<FilmKind | 'all'>('all');
+  const [brand, setBrand] = useState('all');
+  const listedEffects = [...effects, ...cardEffects];
+  const kinds = FILM_KINDS.filter((item) => listedEffects.some((effect) => filmKind(effect) === item));
+  const brands = [...new Set(listedEffects.map(brandOf).filter(Boolean))].sort();
+  const needle = query.trim().toLowerCase();
+  const visible = listedEffects.filter(
+    (effect) =>
+      (kind === 'all' || filmKind(effect) === kind) &&
+      (brand === 'all' || brandOf(effect) === brand) &&
+      (!needle ||
+        [effect.name, brandOf(effect), effect.cover?.name, effect.cover?.number, 'look' in effect ? effect.look : '']
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase()
+          .includes(needle)),
+  );
 
   const shown = effects.find((effect) => effect.id === previewId) ?? effects[0];
   const requested = effects.find((effect) => effect.id === requestedId) ?? shown;
@@ -384,8 +417,39 @@ export function EffectsSection({
           {onCard && <p className="note">{t.effectsCardNote}</p>}
         </div>
 
+        <div className="effects-filter">
+          <input
+            type="search"
+            className="effects-search"
+            placeholder={t.searchEffects}
+            aria-label={t.searchEffects}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+          <div className="chips" role="group" aria-label={t.searchEffects}>
+            <button type="button" className="chip" aria-pressed={kind === 'all'} onClick={() => setKind('all')}>
+              {t.filterAll}
+            </button>
+            {kinds.map((item) => (
+              <button type="button" className="chip" key={item} aria-pressed={kind === item} onClick={() => setKind(item)}>
+                {kindLabel(item, t)}
+              </button>
+            ))}
+          </div>
+          <select className="effects-brand" aria-label={t.allBrands} value={brand} onChange={(event) => setBrand(event.target.value)}>
+            <option value="all">{t.allBrands}</option>
+            {brands.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+          <span className="effects-shown">{t.shownOf(visible.length, listedEffects.length)}</span>
+        </div>
+
         <ul className="effects-list" aria-label={t.effects}>
-          {[...effects, ...cardEffects].map((effect) => {
+          {visible.length === 0 && <li className="effects-empty">{t.noMatches}</li>}
+          {visible.map((effect) => {
             const isChecked = checked.has(effect.id);
             const previewed = effect.id === requested?.id;
             const stock = STOCKS[effect.id];
