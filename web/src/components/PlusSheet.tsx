@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Turnstile } from './Turnstile';
 import { cn } from '@/lib/utils';
-import type { Strings } from '../i18n';
+import type { Language, Strings } from '../i18n';
 import {
   amountDue,
   createOrder,
@@ -42,6 +42,8 @@ type View = 'tiers' | 'pay' | 'done' | 'key';
 type Choice = 'plus' | 'slots25' | 'pack';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** The Turnstile language tag of each page language. */
+const TURNSTILE_LANGUAGES: Readonly<Record<Language, string>> = { th: 'th', en: 'en', ja: 'ja', ko: 'ko', 'zh-Hans': 'zh-cn', 'zh-Hant': 'zh-tw' };
 
 interface Props {
   open: boolean;
@@ -59,13 +61,15 @@ interface Props {
   payOrder?: string | null;
   /** The terms page of the language, which the buyer accepts. */
   termsHref: string;
+  /** The language of the page, for the Turnstile widget's own words. */
+  language: Language;
 }
 
 /**
  * GRKU Plus: the tiers, the PromptPay QR for the chosen one, the slip, and the key. Everything
  * runs in this panel; the page behind it unlocks as soon as the slip is accepted.
  */
-export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, packCounts, payOrder = null, termsHref }: Props) {
+export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, packCounts, payOrder = null, termsHref, language }: Props) {
   const ids = useId();
   const [view, setView] = useState<View>('tiers');
   const [choice, setChoice] = useState<Choice>('plus');
@@ -412,7 +416,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
             </p>
             {TURNSTILE_SITEKEY && (
               <div className="flex flex-col gap-1">
-                <Turnstile siteKey={TURNSTILE_SITEKEY} action="plus-order" onToken={setHuman} resetKey={humanReset} />
+                <Turnstile siteKey={TURNSTILE_SITEKEY} action="plus-order" onToken={setHuman} resetKey={humanReset} language={TURNSTILE_LANGUAGES[language]} />
                 {!human && <p className="text-[12px] text-muted-foreground">{t.plus.humanCheck}</p>}
               </div>
             )}

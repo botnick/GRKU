@@ -34,7 +34,7 @@ function load(): Promise<void> {
  * Cloudflare Turnstile, rendered explicitly so the token reaches React: `onToken` gets a token, or
  * null when it expires or fails. `resetKey` changes after a submission, so a new token is issued.
  */
-export function Turnstile({ siteKey, action, onToken, resetKey, theme = 'dark' }: { siteKey: string; action: string; onToken: (token: string | null) => void; resetKey: number; theme?: 'light' | 'dark' | 'auto' }) {
+export function Turnstile({ siteKey, action, onToken, resetKey, theme = 'dark', language = 'auto' }: { siteKey: string; action: string; onToken: (token: string | null) => void; resetKey: number; theme?: 'light' | 'dark' | 'auto'; /** A Turnstile language tag such as th, ja, ko, zh-cn, zh-tw, en, or auto. */ language?: string }) {
   const box = useRef<HTMLDivElement>(null);
   const widget = useRef<string | null>(null);
   const latest = useRef(onToken);
@@ -49,6 +49,7 @@ export function Turnstile({ siteKey, action, onToken, resetKey, theme = 'dark' }
           sitekey: siteKey,
           action,
           theme,
+          language,
           size: 'flexible',
           callback: (token: string) => latest.current(token),
           'expired-callback': () => latest.current(null),
@@ -61,7 +62,7 @@ export function Turnstile({ siteKey, action, onToken, resetKey, theme = 'dark' }
       if (widget.current && window.turnstile) window.turnstile.remove(widget.current);
       widget.current = null;
     };
-  }, [siteKey, action, theme]);
+  }, [siteKey, action, theme, language]);
 
   useEffect(() => {
     if (resetKey > 0 && widget.current && window.turnstile) {

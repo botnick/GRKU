@@ -1133,6 +1133,7 @@ export function App({
         packCounts={previewCatalog ? packCounts(previewCatalog.effects) : null}
         payOrder={payOrder}
         termsHref={`${LANGUAGE_PATHS[language]}${DOC_PATHS.TERMS}`}
+        language={language}
       />
       <AppPromo strings={t} />
     </>
