@@ -2,7 +2,7 @@ import type { Language } from './i18n';
 
 export const REPOSITORY = 'https://github.com/botnick/GRKit';
 /** The repository this fork comes from. */
-export const UPSTREAM = 'https://github.com/ahonn/grkit';
+export const UPSTREAM = 'https://github.com/ahonn/GRKit';
 
 /** A guide in `resources/` in the page language, or in English. */
 /** The languages that have their own guides in `resources/`; the others read the English ones. */

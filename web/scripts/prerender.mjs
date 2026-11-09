@@ -106,7 +106,7 @@ function structuredData(code) {
         image: `${SITE}/og.jpg`,
         isAccessibleForFree: true,
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-        sameAs: ['https://github.com/ahonn/grkit'],
+        sameAs: ['https://github.com/botnick/GRKit'],
       },
     ],
   };

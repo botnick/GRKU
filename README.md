@@ -1,6 +1,6 @@
 # GRKU · BOTNICK edition
 
-A fork of [ahonn/GRKit](https://github.com/ahonn/GRKit) by **BOTNICK**: a 135-film library with realistic film-box icons, the Positive GRII look, color menu tiles, the Border, Light Leak, and Diffusion modules, snap focus distances in feet, the one-shot start that loads sooner, and no fast-boot firmware. GRKU stays a script on the SD card: format the card and the camera is back to stock.
+GRKU by **BOTNICK**, a fork of [GRKit](https://github.com/ahonn/GRKit) by ahonn: a 135-film library with realistic film-box icons, the Positive GRII look, color menu tiles, the Border, Light Leak, and Diffusion modules, snap focus distances in feet, the one-shot start that loads sooner, and no fast-boot firmware. GRKU stays a script on the SD card: format the card and the camera is back to stock.
 
 English | [简体中文](README.zh-Hans.md) | [繁體中文](README.zh-Hant.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [ไทย](README.th.md)
 
@@ -86,7 +86,7 @@ grkit verify dist/GRKU-gr3.zip
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Device reports are welcome whether GRKU worked or not, especially from the GR III and GR IIIx, which this fork has not been run on yet. Send problems, ideas, and questions as [issues](https://github.com/botnick/GRKit/issues). Changes that are useful to GRKit itself go upstream as pull requests to [ahonn/GRKit](https://github.com/ahonn/GRKit), whose author you can support by [buying him a coffee](https://buymeacoffee.com/yuexunjiang).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Device reports are welcome whether GRKU worked or not, especially from the GR III and GR IIIx, which this fork has not been run on yet. Send problems, ideas, and questions as [issues](https://github.com/botnick/GRKit/issues). Changes that are useful to GRKit itself go upstream as pull requests.
 
 ## Documentation
 
@@ -101,7 +101,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Device reports are welcome whether GRKU 
 
 ## License
 
-The code is under the [MIT License](LICENSE). Each package includes `LICENSES.md` with the licenses of its files.
+The code is under the [MIT License](LICENSE). GRKU builds on [GRKit](https://github.com/ahonn/GRKit) by ahonn, also MIT, and keeps its notices. Each package includes `LICENSES.md` with the licenses of its files.
 
 - The effects are under CC BY-SA 4.0, MIT, or Apache-2.0. See [effects/NOTICE.md](effects/NOTICE.md).
 - The menu and live view text uses [Roboto Condensed](https://github.com/googlefonts/roboto-classic) under the [SIL Open Font License 1.1](crates/grkit-core/assets/RobotoCondensed-LICENSE.txt).

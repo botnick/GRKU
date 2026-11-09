@@ -377,10 +377,10 @@ mod tests {
 
     #[test]
     fn links_to_the_recovery_guide_point_to_the_appendix() {
-        let text = "See the [recovery guide](https://example.com/RECOVERY.md). Code: https://github.com/ahonn/grkit\n";
+        let text = "See the [recovery guide](https://example.com/RECOVERY.md). Code: https://github.com/botnick/GRKit\n";
         assert_eq!(
             markdown(text, None).unwrap(),
-            "See the #link(<recovery>)[recovery guide]. Code: https://github.com/ahonn/grkit\n"
+            "See the #link(<recovery>)[recovery guide]. Code: https://github.com/botnick/GRKit\n"
         );
     }
 
