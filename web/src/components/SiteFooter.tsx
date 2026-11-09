@@ -1,6 +1,6 @@
 import { siteUrl } from '../catalog';
 import type { Language, Strings } from '../i18n';
-import { guideUrl, REPOSITORY, UPSTREAM } from '../links';
+import { docUrl, guideUrl, REPOSITORY, UPSTREAM } from '../links';
 
 const LINK = 'text-muted-foreground hover:text-foreground hover:underline underline-offset-4';
 
@@ -46,7 +46,7 @@ export function SiteFooter({
           </ul>
           <ul className="flex flex-col gap-2">
             <li>
-              <a className={LINK} href={`${REPOSITORY}/blob/main/effects/NOTICE.md`}>
+              <a className={LINK} href={docUrl('LICENSES', language)}>
                 {t.licenses}
               </a>
             </li>

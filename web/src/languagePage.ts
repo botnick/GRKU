@@ -12,6 +12,20 @@ export const LANGUAGE_PATHS: Readonly<Record<Language, string>> = {
   ko: '/ko/',
 };
 
+/**
+ * The pages that scripts/build-docs.mjs renders from the Markdown of the repository, under each
+ * language path: `resources/TERMS.md` is `/terms/` on the Thai page and `/en/terms/` on the
+ * English one. A page shows the Markdown of its language, or the English one.
+ */
+export const DOC_PATHS = {
+  TERMS: 'terms/',
+  RECOVERY: 'recovery/',
+  DUMP: 'firmware-dump/',
+  LICENSES: 'licenses/',
+} as const;
+
+export type DocName = keyof typeof DOC_PATHS;
+
 /** The cookie that keeps the language that the visitor chose. The edge worker reads it. */
 export const LANGUAGE_COOKIE = 'grkit_language';
 

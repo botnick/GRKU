@@ -1,0 +1,209 @@
+/* The document pages (scripts/build-docs.mjs): the terms, the guides, and the licenses, rendered
+   from the Markdown of the repository. The page loads the site stylesheet for its tokens and
+   fonts, and this file sets the type of a long text. */
+.doc-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-page);
+  -webkit-font-smoothing: antialiased;
+}
+.doc-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--background) 85%, transparent);
+  backdrop-filter: blur(12px);
+}
+.doc-header-inner,
+.doc-main,
+.doc-footer-inner {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  box-sizing: border-box;
+}
+.doc-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 56px;
+}
+.doc-brand {
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  color: var(--foreground);
+  text-decoration: none;
+}
+.doc-brand span {
+  color: var(--brand);
+}
+.doc-nav {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.doc-nav a {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+.doc-nav a:hover {
+  color: var(--foreground);
+  background: var(--accent);
+}
+.doc-nav a[aria-current='page'] {
+  color: var(--foreground);
+  background: var(--secondary);
+}
+.doc-main {
+  flex: 1;
+  padding-top: clamp(32px, 6vh, 64px);
+  padding-bottom: 64px;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.doc-main h1 {
+  margin: 0 0 24px;
+  font-size: clamp(30px, 4vw, 40px);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.doc-main h2 {
+  margin: 40px 0 12px;
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.doc-main h3 {
+  margin: 28px 0 8px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.doc-main p,
+.doc-main ul,
+.doc-main ol {
+  margin: 0 0 16px;
+}
+.doc-main ul,
+.doc-main ol {
+  padding-left: 24px;
+}
+.doc-main li {
+  margin: 6px 0;
+}
+.doc-main li::marker {
+  color: var(--muted-foreground);
+}
+.doc-main a {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--input);
+}
+.doc-main a:hover {
+  text-decoration-color: var(--brand);
+}
+.doc-main code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.9em;
+  background: var(--muted);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.doc-main pre {
+  overflow-x: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.doc-main pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+.doc-main blockquote {
+  margin: 0 0 16px;
+  padding: 2px 16px;
+  border-left: 2px solid var(--brand);
+  color: var(--muted-foreground);
+}
+.doc-main hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+.doc-main table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+.doc-main th,
+.doc-main td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.doc-main th {
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+.doc-main img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+.doc-lang-note {
+  margin: 0 0 24px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+.doc-footer {
+  border-top: 1px solid var(--border);
+}
+.doc-footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding-top: 20px;
+  padding-bottom: 28px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+.doc-footer a {
+  color: inherit;
+  text-decoration: none;
+}
+.doc-footer a:hover {
+  color: var(--foreground);
+}
+:root[lang='th'] .doc-main {
+  line-height: 1.8;
+}
+:root[lang='th'] .doc-main :is(h1, h2, h3) {
+  line-height: 1.35;
+  letter-spacing: 0;
+}
