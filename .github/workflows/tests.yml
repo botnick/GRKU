@@ -21,7 +21,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-24.04, macos-15]
+        # Linux only: it runs the ARM builds, the sanitizers and qemu. GRKit also tested on
+        # macOS runners, which wait in long queues on a free account; the maintainer builds on
+        # a Mac by hand anyway.
+        os: [ubuntu-24.04]
     env:
       GRKU_REQUIRE_NATIVE_TESTS: '1'
     steps:
