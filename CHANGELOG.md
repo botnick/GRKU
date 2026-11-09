@@ -10,7 +10,7 @@
 - The film library has 104 looks: 83 new ones fitted from the film emulation presets of Pat David (CC BY-SA 4.0) and from t3mujinpack (MIT), with Ilford, Agfa, Polaroid, Fuji instant, Lomography, and Rollei films, the Kodak and Fuji slide and negative films that were missing, and black-and-white films. A package carries 40 of them; `GRKU-film-library.zip` has every effect file to copy into `GRKU/EFFECTS` on the card.
 - Light Leak, a new module: a vignette, dust and hairs, a light leak, and scratches on JPEG photos, each Off, Light, Medium, or Strong, or the presets Faded, Dusty, Leaky, and Expired. They fall differently on every shot and follow the upright picture. Ported from the Overlay module of the kkasemsa fork.
 - U1, U2, and U3 of the mode dial can keep your GRKU settings, framing included, apply a recipe, or turn GRKU off, and your own settings come back when you turn away; set them up in MENU or on the site.
-- This fork ships no fast-boot firmware: the Fast start page, its links and FAQ entries leave the site, and packages carry only the card scripts. GRKU stays a script on the SD card.
+- GRKU ships no fast-boot firmware: the Fast start page, its links and FAQ entries leave the site, and packages carry only the card scripts. GRKU stays a script on the SD card.
 - GRKU loads with one request to the camera's Linux at each power-on: the core scans, installs, and reports in one process, reads each module and effect file once, and posts its progress to the loader in RAM, so the start makes about half the card requests of before. The boot log in `GRKU/BOOT.TXT` keeps its lines, and an empty `GRKU/DIAG` file writes `GRKU/DIAG.TXT` with the Linux side of the camera and the speed of the card at the next start.
 - An effect can bring its own 40 x 40 icon as a PNG in its definition (`icon: {"png": ...}`), in color, as ahonn/GRKit#38 proposed. Every look in the catalog now shows a film box end flap in the colors of its brand.
 - Every Film Look icon is now a film box in the colors of the real box, with the brand band, the name, and the speed in Roboto Condensed, and the menu tiles are small color pictures: a film canister for Film Look, a landscape cropped to each ratio for Framing, the guide lines for Guides, an orange date stamp for Date Imprint, a lamp at night for Glow, a grainy picture for Grain, and GRK on a strip of color film in the ADJ toolbar. Each box icon carries a film type stripe (orange negative, blue slide, gray black-and-white, teal motion picture, rose instant). The library has 135 looks: GR2 Positive from the Imprint repository (Apache-2.0), Positive GRII, a look of GRKU itself after the Positive Film setting of the GR II, and 15 new ones from the Fotufilm film profiles (CC BY-SA 4.0), with CineStill 800T and 400D, Harman Phoenix 200, the LomoChrome films, instax, Agfachrome, Kodacolor 100, Pro 160NS, and F-64D. The 40 effects of a package follow the 2026 popularity research in `docs/popular-films-2026.md`.
@@ -18,7 +18,7 @@
 
 ### Fixes
 
-- Guides adds the Golden Spiral and Dynamic Symmetry of GRKit 1.5.2, with color tiles; the About row names this fork's repository.
+- Guides adds the Golden Spiral and Dynamic Symmetry of GRKit 1.5.2, with color tiles; the About row names GRKU's own site.
 
 ## 1.5.2 (2026-11-08)
 
