@@ -1,3 +1,10 @@
+## 1.8.4 (2026-11-10)
+
+### Fixes
+
+- The site and `scripts/card.py` write the part of the start script that saves your settings before the start script itself, so a write that stops halfway cannot leave a card that starts GRKU but no longer saves.
+- The site describes each FUJIFILM look in plain words, such as "Classic Chrome, a film simulation of the FUJIFILM cameras", instead of the technical note of its source.
+
 ## 1.8.3 (2026-11-10)
 
 ### Fixes
