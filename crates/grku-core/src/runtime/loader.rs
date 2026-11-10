@@ -355,7 +355,15 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
         "goto install".into(),
         ":installed".into(),
         format!("filedelete '{failed}'"),
-        "goto resident".into(),
+        // The resident part is a file of its own: the interpreter reads a
+        // whole file when it includes it, and a loader of about 36 KB stopped
+        // the start of a GR IV 1.11 with "mem error" before its first line
+        // (GRKU 1.8.2). Without the file, GRKU stays installed but saves no
+        // selection.
+        format!("filesearch '{}'", core_path(RESIDENT_NAME)),
+        "if result = 0 end".into(),
+        format!("include '{}'", core_path(RESIDENT_NAME)),
+        "end".into(),
         // The start stopped: its status, from the mailbox, replaces the
         // status of the step in INSTALL.ERR.
         ":start_failed".into(),
@@ -388,8 +396,6 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
             "goto linux".into(),
         ]);
     }
-    lines.extend(state_script());
-    lines.extend(profile_script());
     lines.extend([
         ":reject_close".into(),
         "fileclose fh".into(),
@@ -474,6 +480,19 @@ pub fn loader_with(icon_stride: usize, fast: &[FastRelease]) -> Vec<u8> {
     if !fast.is_empty() {
         lines.extend(fast_log_script());
     }
+    (lines.join("\r\n") + "\r\n").into_bytes()
+}
+
+/// The name of the resident part of the loader in the package folder.
+pub const RESIDENT_NAME: &str = "RESIDENT.TTL";
+
+/// The resident part of the loader (`RESIDENT_NAME`), which `loader_with`
+/// includes after INSTALL: it restores and saves the selections
+/// (`state_script`) and writes the development profile (`profile_script`).
+/// It jumps only to its own labels, and it is the same for each build.
+pub fn resident() -> Vec<u8> {
+    let mut lines = state_script();
+    lines.extend(profile_script());
     (lines.join("\r\n") + "\r\n").into_bytes()
 }
 
@@ -1671,11 +1690,76 @@ mod tests {
                 "failure = 60",
                 "call write_error",
                 "goto linux",
-                ":resident",
+                ":reject_close",
             ]
         );
         // The fallback is reachable only through its labels.
         assert_eq!(lines[not_run - 1], "goto reject");
+    }
+
+    /// The camera's script interpreter reads a whole file when it includes
+    /// it, and a file that is too large stops the start with "mem error"
+    /// before its first line: GRKU 1.8.2 shipped a loader of 36,533 bytes,
+    /// which a GR IV 1.11 refused, where the 35,916 bytes of 1.7.0 ran. So
+    /// the loader holds only the steps up to INSTALL, the resident part is
+    /// its own file, and each stays far below the size that failed. A change
+    /// that crosses a bound must move code out of that file, not raise it.
+    #[test]
+    fn the_scripts_stay_far_below_the_size_that_stopped_a_camera() {
+        const FAILED: usize = 36_533;
+        const LOADER_MAX: usize = 16 * 1024;
+        const RESIDENT_MAX: usize = 30 * 1024;
+        let releases: Vec<_> = ["1.11", "1.20", "1.21"]
+            .iter()
+            .map(|firmware| FastRelease::new(&crate::camera::GR4, firmware).unwrap())
+            .collect();
+        for loader in [loader(), loader_with(ICON_STRIDE, &releases)] {
+            assert!(
+                loader.len() <= LOADER_MAX,
+                "LOADER.TTL has {} bytes",
+                loader.len()
+            );
+        }
+        let resident = resident();
+        assert!(
+            resident.len() <= RESIDENT_MAX,
+            "RESIDENT.TTL has {} bytes",
+            resident.len()
+        );
+        const { assert!(RESIDENT_MAX < FAILED && LOADER_MAX < FAILED) };
+        // The resident part jumps only to its own labels, and the loader only
+        // to its own: an include does not share labels across the files.
+        let labels = |script: &str| -> Vec<String> {
+            script
+                .split("\r\n")
+                .filter_map(|line| line.strip_prefix(':').map(str::to_owned))
+                .collect()
+        };
+        let targets = |script: &str| -> Vec<String> {
+            script
+                .split("\r\n")
+                .flat_map(|line| {
+                    // The words outside quoted text: a quoted command such as
+                    // `SYS_memovr ... call` is not a jump.
+                    let bare: String = line.split('\'').step_by(2).collect::<Vec<_>>().join(" ");
+                    let words: Vec<&str> = bare.split_whitespace().collect();
+                    words
+                        .windows(2)
+                        .filter(|pair| pair[0] == "goto" || pair[0] == "call")
+                        .map(|pair| pair[1].to_owned())
+                        .collect::<Vec<_>>()
+                })
+                .collect()
+        };
+        for script in [
+            String::from_utf8(loader_with(ICON_STRIDE, &releases)).unwrap(),
+            String::from_utf8(resident).unwrap(),
+        ] {
+            let own = labels(&script);
+            for target in targets(&script) {
+                assert!(own.contains(&target), "{target} is not a label of its file");
+            }
+        }
     }
 
     /// A start that does not use its fast-boot files, or stops using them,

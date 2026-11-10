@@ -203,11 +203,12 @@ fn menu_assembly_symbols_are_typed_functions() {
 #[test]
 fn production_scripts_and_activation_match_fixed_contracts() {
     let files = grku_core::runtime::runtime_files(b"ELF");
-    assert_eq!(files.len(), 5);
+    assert_eq!(files.len(), 6);
     assert_eq!(files["SCRIPT/GRKU/CORE.BIN"], b"ELF");
     for (path, name) in [
         ("SCRIPT/STARTUP.TTL", "STARTUP.TTL"),
         ("SCRIPT/GRKU/LOADER.TTL", "LOADER.TTL"),
+        ("SCRIPT/GRKU/RESIDENT.TTL", "RESIDENT.TTL"),
         ("SCRIPT/GRKU/SCAN.SH", "SCAN.SH"),
         ("SCRIPT/GRKU/INSTALL.SH", "INSTALL.SH"),
     ] {
