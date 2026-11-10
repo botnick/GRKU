@@ -109,7 +109,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
   const [humanReset, setHumanReset] = useState(0);
 
   const tier: Tier = choice === 'pack' ? `pack:${pack}` : choice;
-  const totalLooks = libraryLooks ?? 135;
+  const totalLooks = libraryLooks ?? 145;
   const due = amountDue(tier, owned);
   const validEmail = EMAIL.test(email.trim());
 

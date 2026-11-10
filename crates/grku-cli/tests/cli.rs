@@ -35,17 +35,17 @@ fn write_build(root: &Path, target: &str) {
 }
 
 /// The shared stand-in build of `gr3-2.21`, which GR III and GR IIIx
-/// packages need after the `gr3-2.10` build of a test.
+/// packages need after the `gr3-2.10` build of a test. Each run of the tests
+/// writes it once, in a directory of its own: a build that an earlier run
+/// left would hold the scripts of that run.
 fn gr3_221_build() -> String {
-    let root = Path::new(env!("CARGO_TARGET_TMPDIR")).join("gr3-2.21-build");
-    // Tests run in parallel: write the build once, under another name, and
-    // rename it.
-    if !root.join("build.json").exists() {
-        let staging = tempfile::tempdir_in(env!("CARGO_TARGET_TMPDIR")).unwrap();
-        write_build(staging.path(), "gr3-2.21");
-        let _ = fs::rename(staging.keep(), &root);
-    }
-    text(&root).to_owned()
+    static BUILD: std::sync::OnceLock<tempfile::TempDir> = std::sync::OnceLock::new();
+    let root = BUILD.get_or_init(|| {
+        let root = tempfile::tempdir_in(env!("CARGO_TARGET_TMPDIR")).unwrap();
+        write_build(root.path(), "gr3-2.21");
+        root
+    });
+    text(root.path()).to_owned()
 }
 
 /// Run grku. A `package` command without `--module` gets the official

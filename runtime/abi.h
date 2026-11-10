@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6144
+#define GRKU_HOST_HEADER_SIZE 6120
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -118,20 +118,21 @@
 #define GRKU_RECIPE_DIAL_OFF 536870911U
 /* The settings that the camera saves in a user mode of the mode dial
    (runtime/mode_dial.h, grku_core::abi::DIAL_SET_WORDS): GRKU_DIAL_SET_WORDS
-   words, the number of pairs + 1 (0 without a set), a word for each
-   capability, the Fn adjustments and the Toning of the effect, then
-   GRKU_DIAL_SET_PAIRS pairs of a state file ID and a value. The effect word is
-   0 for Off, else GRKU_DIAL_SET_EFFECT with the recipe code of the effect. In
-   their file, word w of user mode u (0 for U1) has the key
-   GRKU_DIAL_SET_KEY_BASE + u * GRKU_DIAL_SET_KEY_STRIDE + w, and a word is at
-   most GRKU_DIAL_SET_VALUE_MAX. */
+   words, the number of pairs + 1 (0 without a set), a word for each of the
+   first GRKU_DIAL_SET_CAPABILITIES capabilities and a word that stays 0, the
+   Fn adjustments and the Toning of the effect, then GRKU_DIAL_SET_PAIRS pairs
+   of a state file ID and a value. The effect word is 0 for Off, else
+   GRKU_DIAL_SET_EFFECT with the recipe code of the effect. In their file, word
+   w of user mode u (0 for U1) has the key GRKU_DIAL_SET_KEY_BASE + u *
+   GRKU_DIAL_SET_KEY_STRIDE + w, and a word is at most GRKU_DIAL_SET_VALUE_MAX. */
 #define GRKU_DIAL_SET_PAIRS 93U
 #define GRKU_DIAL_SET_COUNT 0U
 #define GRKU_DIAL_SET_CORE 1U
-#define GRKU_DIAL_SET_FN 11U
-#define GRKU_DIAL_SET_TONING 12U
-#define GRKU_DIAL_SET_PAIR 13U
-#define GRKU_DIAL_SET_WORDS 199U
+#define GRKU_DIAL_SET_CAPABILITIES 7U
+#define GRKU_DIAL_SET_FN 9U
+#define GRKU_DIAL_SET_TONING 10U
+#define GRKU_DIAL_SET_PAIR 11U
+#define GRKU_DIAL_SET_WORDS 197U
 #define GRKU_DIAL_SET_EFFECT 32768U
 #define GRKU_DIAL_SET_KEY_BASE 992000000U
 #define GRKU_DIAL_SET_KEY_STRIDE 1000U
@@ -480,7 +481,7 @@
    resident loader saves each word that is not 0 in their file
    (`capabilities::StateFile::DialSets`), and INSTALL restores them. */
 #define GRKU_HOST_DIAL_SETS 3756
-#define GRKU_HOST_DIAL_SETS_WORDS 597
+#define GRKU_HOST_DIAL_SETS_WORDS 591
 
 /* The capabilities of the core (grku_core::capabilities): the handle of each
    CORE setting, and for each handle in order, its header word and its number
@@ -513,13 +514,13 @@
 #define GRKU_CORE_ADJ_VALUES 2U
 #define GRKU_CORE_ADJ_BIT 0x80
 #define GRKU_CORE_ADJ_MODULE 0x108U
-#define GRKU_CORE_ADJ_MODULE_VALUES 10U
+#define GRKU_CORE_ADJ_MODULE_VALUES 19U
 #define GRKU_CORE_ADJ_MODULE_BIT 0x100
 #define GRKU_CORE_RECIPE 0x109U
 #define GRKU_CORE_RECIPE_VALUES 0U
 #define GRKU_CORE_RECIPE_BIT 0x200
 #define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,3752,188,0
-#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,6,2,2,10,0
+#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,6,2,2,19,0
 
 /* An Image Control record. The records follow the header. */
 #define GRKU_RECORD_SIZE 0x1100

@@ -604,7 +604,7 @@ export function Workbench({
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {(() => {
                   const counts = catalog ? packCounts(catalog.effects) : null;
-                  const total = catalog ? catalog.effects.length : 135;
+                  const total = catalog ? catalog.effects.length : 145;
                   return [
                     [t.plus.tierAll, PRICES.plus, true, t.plus.outcomeAll(total, MAX_EFFECTS), REGULAR_PRICES.plus],
                     [t.plus.tierSlots, PRICES.slots25, false, t.plus.outcomeSlots(25), REGULAR_PRICES.slots25],

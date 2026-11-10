@@ -9,7 +9,7 @@
 
 use crate::abi::{
     HOST_ADJ_OPEN, HOST_ASPECT_MODE, HOST_CROP, HOST_CROP_MODE, HOST_FRAME_RATIO, HOST_GRAIN,
-    HOST_GRAIN_SIZE, HOST_MODULE, MODULES_MAX,
+    HOST_GRAIN_SIZE, HOST_MODULE, MODULE_PAGES_MAX,
 };
 
 /// An extension point: the firmware changes that a group of features needs.
@@ -190,9 +190,11 @@ pub const CAPABILITIES: [Capability; 10] = [
     },
     Capability {
         // The module of the GRKU root row where the next ADJ session opens
-        // (HOST_MODULE). No firmware patches: INSTALL always restores it.
+        // (HOST_MODULE): a module page, or the Modules, About, or switch
+        // row after the pages (MODULE_TOTAL in runtime/modules.h). No
+        // firmware patches: INSTALL always restores it.
         key: "ADJ_MODULE",
-        values: MODULES_MAX as u32,
+        values: (MODULE_PAGES_MAX + 3) as u32,
         state: State::Word(HOST_MODULE),
         points: &[],
     },
@@ -298,6 +300,30 @@ mod tests {
         assert_eq!(CAPABILITIES[0].state, State::Effect);
         // The capabilities without a state key come last, so the state key
         // of index n is capability n (CORE_STATE_IDS in runtime/installer.c).
+        // The sets of the mode dial hold the first capabilities, the picture
+        // settings (`abi::DIAL_SET_CAPABILITIES`): their layout is that of
+        // GRKU 1.6, so these keep their order, and a later capability is one
+        // that a user mode does not change.
+        let held: Vec<_> = CAPABILITIES[..crate::abi::DIAL_SET_CAPABILITIES]
+            .iter()
+            .map(|capability| capability.key)
+            .collect();
+        assert_eq!(
+            held,
+            [
+                "TONE",
+                "ASPECT",
+                "GRAIN",
+                "GRAIN_SIZE",
+                "ASPECT_MODE",
+                "CROP",
+                "CROP_MODE"
+            ]
+        );
+        assert!(CAPABILITIES[crate::abi::DIAL_SET_CAPABILITIES..]
+            .iter()
+            .all(|capability| capability.points.is_empty() || capability.state == State::Recipes));
+        assert_eq!(crate::abi::DIAL_SET_WORDS, 197);
         let keyed = state_keys().len();
         assert!(CAPABILITIES[keyed..]
             .iter()

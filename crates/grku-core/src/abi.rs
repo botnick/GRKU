@@ -120,10 +120,13 @@ pub const RECIPE_DIAL_POSITIONS: usize = 3;
 /// The settings that the camera saves in a user mode of the mode dial
 /// (`HOST_DIAL_SETS`, runtime/mode_dial.h): a set of `DIAL_SET_WORDS` words.
 /// Word `DIAL_SET_COUNT` holds the number of its pairs + 1, or 0 without a
-/// set. A word for each capability follows at `DIAL_SET_CORE`, in the order
-/// of `capabilities::CAPABILITIES`: the effect as `DIAL_SET_EFFECT` with the
-/// recipe code of its ID (`recipes::effect_code`), or 0 for Off, and the
-/// value of each other capability. Then the Fn adjustments of the effect
+/// set. A word for each of the first `DIAL_SET_CAPABILITIES` capabilities
+/// follows at `DIAL_SET_CORE`, in the order of `capabilities::CAPABILITIES`:
+/// the effect as `DIAL_SET_EFFECT` with the recipe code of its ID
+/// (`recipes::effect_code`), or 0 for Off, and the value of each other one,
+/// then a word that stays 0. A set does not hold the later capabilities:
+/// CORE.ADJ and CORE.ADJ_MODULE say where ADJ opens, which a user mode does
+/// not change, and CORE.RECIPE has no value. Then the Fn adjustments of the effect
 /// (`DIAL_SET_FN`, base-9 digits as a recipe holds them) and its Toning byte
 /// (`DIAL_SET_TONING`), and from `DIAL_SET_PAIR` the pairs of a state file ID
 /// of a setting and its value: the saved module settings, the Enable of each
@@ -137,7 +140,12 @@ pub const RECIPE_DIAL_POSITIONS: usize = 3;
 pub const DIAL_SET_PAIRS: usize = 93;
 pub const DIAL_SET_COUNT: usize = 0;
 pub const DIAL_SET_CORE: usize = 1;
-pub const DIAL_SET_FN: usize = DIAL_SET_CORE + crate::capabilities::CAPABILITIES.len();
+/// The capabilities that a set holds: CORE.TONE to CORE.CROP_MODE.
+pub const DIAL_SET_CAPABILITIES: usize = 7;
+/// The word after them is the word of CORE.RECIPE in the sets of GRKU 1.6
+/// and 1.7, which is 0. The layout of a set, and so of `USERMODE.TXT`, does
+/// not change with the capabilities.
+pub const DIAL_SET_FN: usize = DIAL_SET_CORE + DIAL_SET_CAPABILITIES + 1;
 pub const DIAL_SET_TONING: usize = DIAL_SET_FN + 1;
 pub const DIAL_SET_PAIR: usize = DIAL_SET_TONING + 1;
 pub const DIAL_SET_WORDS: usize = DIAL_SET_PAIR + 2 * DIAL_SET_PAIRS;
@@ -1145,8 +1153,9 @@ pub fn header() -> String {
         &mut out,
         "The settings that the camera saves in a user mode of the mode dial \
          (runtime/mode_dial.h, grku_core::abi::DIAL_SET_WORDS): GRKU_DIAL_SET_WORDS \
-         words, the number of pairs + 1 (0 without a set), a word for each \
-         capability, the Fn adjustments and the Toning of the effect, then \
+         words, the number of pairs + 1 (0 without a set), a word for each of \
+         the first GRKU_DIAL_SET_CAPABILITIES capabilities and a word that \
+         stays 0, the Fn adjustments and the Toning of the effect, then \
          GRKU_DIAL_SET_PAIRS pairs of a state file ID and a value. The effect \
          word is 0 for Off, else GRKU_DIAL_SET_EFFECT with the recipe code of \
          the effect. In their file, word w of user mode u (0 for U1) has the key \
@@ -1157,6 +1166,7 @@ pub fn header() -> String {
         ("PAIRS", DIAL_SET_PAIRS as u32),
         ("COUNT", DIAL_SET_COUNT as u32),
         ("CORE", DIAL_SET_CORE as u32),
+        ("CAPABILITIES", DIAL_SET_CAPABILITIES as u32),
         ("FN", DIAL_SET_FN as u32),
         ("TONING", DIAL_SET_TONING as u32),
         ("PAIR", DIAL_SET_PAIR as u32),

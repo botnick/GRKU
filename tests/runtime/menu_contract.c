@@ -4057,6 +4057,11 @@ static void the_mode_dial_saves_the_settings_in_a_user_mode(void)
     assert(set[GRKU_DIAL_SET_CORE] == (GRKU_DIAL_SET_EFFECT | recipe_effect_code(dial_record(1))));
     assert(set[GRKU_DIAL_SET_FN] == DIAL_FN && set[GRKU_DIAL_SET_TONING] == 3);
     assert(set[GRKU_DIAL_SET_CORE + 1] == 1 && set[GRKU_DIAL_SET_CORE + 2] == 4 && set[GRKU_DIAL_SET_CORE + 3] == 2);
+    /* The layout of a set is that of GRKU 1.6, whose USERMODE.TXT a card may
+       hold: seven capabilities, a word that stays 0, then Fn and Toning. A
+       set does not hold where ADJ opens (CORE.ADJ, CORE.ADJ_MODULE). */
+    assert(GRKU_DIAL_SET_CAPABILITIES == 7 && GRKU_DIAL_SET_FN == 9 && GRKU_DIAL_SET_WORDS == 197);
+    assert(!set[GRKU_DIAL_SET_CORE + GRKU_DIAL_SET_CAPABILITIES]);
     /* The dial is at P: nothing applies. U2 now lists Saved Settings, with
        the mark on it, before the recipes. */
     assert(!h[GRKU_HOST_STATE_HOLD / 4] && !services_word(h, SERVICES_DIAL + DIAL_ACTIVE)[0]);
@@ -4096,10 +4101,15 @@ static void the_mode_dial_applies_saved_settings_and_restores_the_base(void)
 {
     volatile u32 *h = test_header;
     const Setting *dial = &recipe_menu_settings[1];
-    u32 table, requests;
+    u32 table, requests, module;
     dial_saved_reset();
     dial_saved_settings();
+    /* Where ADJ opens is not a setting of a user mode: the set does not
+       hold it, U2 does not set it, and P does not put it back. */
+    module = h[GRKU_HOST_MODULE / 4];
+    h[GRKU_HOST_ADJ_OPEN / 4] = 1;
     assert(dial->select(h, 0, 1) && dial->select(h, 0, DIAL_VALUE_SAVE));
+    h[GRKU_HOST_ADJ_OPEN / 4] = 0;
     dial_saved_base();
     /* U2 applies each value of its set that differs, through the setters,
        holds the state file, and labels it. Date LOOK did not change, so
@@ -4110,6 +4120,8 @@ static void the_mode_dial_applies_saved_settings_and_restores_the_base(void)
     dial_fire();
     assert(dial_saved_applies() && h[GRKU_HOST_STATE_HOLD / 4] == 1 && settings_memory[1] == table + 2);
     assert(framing_requests > requests && !recipe_undo_count(h));
+    assert(!h[GRKU_HOST_ADJ_OPEN / 4] && h[GRKU_HOST_MODULE / 4] == module);
+    h[GRKU_HOST_ADJ_OPEN / 4] = 1;
     assert(label_state() == DIAL_LABEL_WAITS && label_lines() == 1 && label_line(0, "U2: Saved Settings", 0));
     /* Changes in U2 are temporary; P restores the base state. */
     setting_store(h, 2, 2);
@@ -4117,6 +4129,8 @@ static void the_mode_dial_applies_saved_settings_and_restores_the_base(void)
     dial_fire();
     assert(dial_base() && DATE_STYLE == 0 && DATE_LOOK == 0 && !h[GRKU_HOST_FRAME_RATIO / 4]);
     assert(BYTE(dial_record(1), GRKU_RECORD_TONING) == 0 && !h[GRKU_HOST_GRAIN_SIZE / 4]);
+    assert(h[GRKU_HOST_ADJ_OPEN / 4] == 1 && h[GRKU_HOST_MODULE / 4] == module);
+    h[GRKU_HOST_ADJ_OPEN / 4] = 0;
     /* A second visit applies only what differs: nothing, when the settings
        are those of the set. */
     dial_saved_settings();

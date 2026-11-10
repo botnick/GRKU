@@ -165,7 +165,9 @@ static u32 dial_assignment(volatile u32 *h,u32 u,u32 *entry) {
 /* ---- The base state ------------------------------------------------------- */
 /* The value of capability k as the core keeps it: the effect as its row,
    CORE.ASPECT as its selection (aspect_value hides a ratio in another native
-   aspect), and the others as their header word. 0 for CORE.RECIPE. */
+   aspect), and the others as their header word. The dial holds and sets the
+   first GRKU_DIAL_SET_CAPABILITIES capabilities, the picture settings: where
+   ADJ opens (CORE.ADJ, CORE.ADJ_MODULE) is not a setting of a user mode. */
 static u32 dial_core_value(volatile u32 *h,u32 k) {
     u32 handle=GRKU_CORE_SETTING_BASE+k;
     if(handle==GRKU_CORE_TONE) return tone_value(h);
@@ -175,7 +177,7 @@ static u32 dial_core_value(volatile u32 *h,u32 k) {
 static void dial_snapshot(volatile u32 *h) {
     volatile u32 *t=settings_table(h);
     u32 i, n=t ? t[0] : 0U, records=h[GRKU_HOST_COUNT/4];
-    for(i=0;i<GRKU_CORE_SETTING_COUNT;++i) dial_word(h,DIAL_BASE_CORE+4U*i)[0]=dial_core_value(h,i);
+    for(i=0;i<GRKU_DIAL_SET_CAPABILITIES;++i) dial_word(h,DIAL_BASE_CORE+4U*i)[0]=dial_core_value(h,i);
     dial_word(h,DIAL_BASE_COUNT)[0]=n;
     for(i=0;i<n;++i) dial_word(h,DIAL_BASE_SETTINGS+4U*i)[0]=t[SETTINGS_ENTRY(i)+1];
     if(records>GRKU_TEXT_RECORDS) records=0;
@@ -216,7 +218,7 @@ static void dial_restore(volatile u32 *h) {
         changed=1;
     }
     if(changed) manage_off_changed(h);
-    for(i=0;i<GRKU_CORE_SETTING_COUNT;++i) {
+    for(i=0;i<GRKU_DIAL_SET_CAPABILITIES;++i) {
         value=dial_word(h,DIAL_BASE_CORE+4U*i)[0];
         /* CORE.RECIPE has no value. */
         if(!core_setting_values[i] && GRKU_CORE_SETTING_BASE+i!=GRKU_CORE_TONE) continue;
@@ -253,7 +255,7 @@ static u32 dial_set_handle(volatile u32 *h,volatile u32 *t,u32 id) {
 static void dial_save(volatile u32 *h,u32 u) {
     volatile u32 *s=dial_set(h,u), *t=settings_table(h);
     u32 i, n=0, record=h[GRKU_HOST_ACTIVE/4], effect=0, fn=0, toning=0;
-    for(i=0;i<GRKU_CORE_SETTING_COUNT;++i) s[GRKU_DIAL_SET_CORE+i]=dial_core_value(h,i);
+    for(i=0;i<GRKU_DIAL_SET_CAPABILITIES;++i) s[GRKU_DIAL_SET_CORE+i]=dial_core_value(h,i);
     /* The effect by its code, which finds it when the effects change. */
     if(record_index(h,record)<GRKU_TEXT_RECORDS) {
         effect=GRKU_DIAL_SET_EFFECT|recipe_effect_code(record);
@@ -307,7 +309,7 @@ static u32 dial_set_apply(volatile u32 *h,u32 u) {
         changed=1;
     }
     if(changed) manage_off_changed(h);
-    for(i=0;i<GRKU_CORE_SETTING_COUNT;++i) {
+    for(i=0;i<GRKU_DIAL_SET_CAPABILITIES;++i) {
         if(GRKU_CORE_SETTING_BASE+i==GRKU_CORE_TONE) value=index<GRKU_TEXT_RECORDS ? index+1U : 0;
         /* CORE.RECIPE has no value. */
         else if(!core_setting_values[i]) continue;
