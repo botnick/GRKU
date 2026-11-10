@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![grku.app](https://img.shields.io/badge/site-grku.app-d94135)](https://grku.app)
 
-GRKU は、[BOTNICK](https://github.com/botnick) がまずタイの GR ユーザーへ、そして世界中のすべての人へ向けて制作した独自のプロジェクトです。SD カードから GR 上でコードを実行する方法を発見した ahonn 氏による [GRKit](https://github.com/ahonn/GRKit) のコードから始まり、その後ひとつひとつ再構築されました。リアルなフィルム箱のアイコンを備えた 135 種類のルックからなるフィルムライブラリ、レシピ、さらなるモジュール、ワンショット起動、カードへの書き込みや追加ルックの購入ができるサイト、タイ語のトーン、そして独自のリリースパイプラインを備えています。[ルーツ](#origins)のセクションに、何が GRKit に由来し、GRKU がそれをどのように作り上げたかを掲載しています。
+GRKU は、[BOTNICK](https://github.com/botnick) がまずタイの GR ユーザーへ、そして世界中のすべての人へ向けて制作した独自のプロジェクトです。SD カードから GR 上でコードを実行する方法を発見した ahonn 氏による [GRKit](https://github.com/ahonn/GRKit) のコードから始まり、その後ひとつひとつ再構築されました。リアルなフィルム箱のアイコンを備えた 145 種類のルックからなるフィルムライブラリ、レシピ、さらなるモジュール、ワンショット起動、カードへの書き込みや追加ルックの購入ができるサイト、タイ語のトーン、そして独自のリリースパイプラインを備えています。[ルーツ](#origins)のセクションに、何が GRKit に由来し、GRKU がそれをどのように作り上げたかを掲載しています。
 
 <p>
   <img src="resources/images/grku-root.jpg" alt="ADJ メニューの GRKU ページ" width="49%">
@@ -21,7 +21,7 @@ GRKU は、[BOTNICK](https://github.com/botnick) がまずタイの GR ユーザ
 
 撮影中に ADJ レバーを押し、6 番目の項目「GRKU」を選びます。GRKU のすべての機能はそこにあり、MENU の GRKU セクションにもあります。
 
-- **フィルムルック**：実在するフィルムの 135 種類のルックで、カードには一度に 40 種類を保存できます。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman、Rollei に加え、GR II のポジフィルムを再現した GRKU 独自の Positive GRII も収録しています。各ルックには実物のパッケージの色を模したフィルム箱のアイコンが付いています。Fn でルックを微調整でき、サイトから手持ちの LUT を読み込むこともできます。
+- **フィルムルック**：実在するフィルムの 145 種類のルックで、カードには一度に 40 種類を保存できます。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman、Rollei に加え、GR II のポジフィルムを再現した GRKU 独自の Positive GRII も収録しています。各ルックには実物のパッケージの色を模したフィルム箱のアイコンが付いています。Fn でルックを微調整でき、サイトから手持ちの LUT を読み込むこともできます。
 - **レシピ**：カメラ全体のルックに名前を付けて保存したり、サイトから人気のレシピを取り込んだりして、フィルムルックまたは Image Control、粒状感、グロー、ホワイトバランス、補正、露出をアンドゥ付きで一度に切り替えます。モードダイヤルの U1、U2、U3 にレシピを割り当てることもできます。
 - **フレーミング**：XPan、2.35:1、16:9、4:3、5:4、7:6、1:1。JPEG の切り抜きまたは構図枠線のみで表示します。**クロップ**：35、40、50、70、90 mm をライブビューで確認できます。
 - **構図ガイド**：9 分割、画面中央、黄金比、対角線、黄金螺旋、ダイナミックシンメトリー。
@@ -74,7 +74,7 @@ GRKU は GRKit 1.5.2 および GRKit の `feat/recipes` ブランチをもとに
 
 | 領域 | GRKit（GRKU の起点） | 現在の GRKU | 実装方法 |
 | --- | --- | --- | --- |
-| フィルムライブラリ | 21 種類のルック | 135 種類のルック、カードあたり 40 種類。すべてのルックを収録したフィルムライブラリ ZIP | Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT、Fotufilm のオープンなフィルムプリセットからフィッティングを行い、`docs/popular-films-2026.md` における 2026 年の人気度調査に基づいてデフォルトの 40 種類を選定 |
+| フィルムライブラリ | 21 種類のルック | 145 種類のルック、カードあたり 40 種類。すべてのルックを収録したフィルムライブラリ ZIP | Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT、Fotufilm のオープンなフィルムプリセットからフィッティングを行い、`docs/popular-films-2026.md` における 2026 年の人気度調査に基づいてデフォルトの 40 種類を選定 |
 | アイコン | フラットなタイル | すべてのルックに実物のパッケージ色を模したフィルム箱、メニュー用のカラータイル、独自の PNG アイコンを持つエフェクト | `scripts/flap-icons.py` が箱を描画。エフェクトコンパイラが `icon: {"png": ...}` を処理 |
 | レシピ | 未マージのブランチ | マージ済み。タイ語に配慮した解説、ricohcookbook.com の人気レシピ、3 ステップのエディター、作例写真、カメラ風の設定シートを搭載 | `modules/recipes`、`web/src/components/Recipe*.tsx` |
 | モジュール | Film Look、Framing、Guides、Date、Glow、Grain | 加えて Crop、Light Leak、Diffusion、Border、Recipes、Enable at Start、フィート表示ラベル、黄金螺旋およびダイナミックシンメトリーのガイド | MustafaCisse および kkasemsa のフォークから移植し、新規作成。1 つのパッケージに 10 個のモジュールを収録可能 |
@@ -104,7 +104,7 @@ grku package --build build/runtime --camera gr4 --effects build/effects-default 
 grku verify dist/GRKU-gr4.zip
 ```
 
-`build/effects` には 135 種類すべてのルックが入ります。パッケージには最大 40 種類しか入らないため、`python3 -I scripts/defaults.py build/effects build/effects-default` で `effects/defaults.txt` の 40 種類を選びます。パッケージには 10 個のモジュールを収録できるため、1 つを除外します（リリース版では Border を除外しています）。GR III の場合は、`fwdc239b.bin` から `gr3-2.10` をビルドし、`--camera gr3` でパッケージします。その後、`python3 -I scripts/card.py write dist/GRKU-gr4.zip` でリーダーに入れたカードへパッケージを書き込みます。
+`build/effects` には 145 種類すべてのルックが入ります。パッケージには最大 40 種類しか入らないため、`python3 -I scripts/defaults.py build/effects build/effects-default` で `effects/defaults.txt` の 40 種類を選びます。パッケージには 10 個のモジュールを収録できるため、1 つを除外します（リリース版では Border を除外しています）。GR III の場合は、`fwdc239b.bin` から `gr3-2.10` をビルドし、`--camera gr3` でパッケージします。その後、`python3 -I scripts/card.py write dist/GRKU-gr4.zip` でリーダーに入れたカードへパッケージを書き込みます。
 
 ## 貢献
 

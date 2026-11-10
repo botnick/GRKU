@@ -53,6 +53,10 @@ Positive GRII is a look of this repository, in the spirit of the Positive Film i
 
 GR2 Positive derives from the GR2 Positive Film LUT of the Ricoh GR2 Film Look for Photoshop in the [Imprint](https://github.com/luqie0106/Imprint) repository of luqie0106 (revision 3916a11), a stylized imitation of the Positive Film setting of the RICOH GR II from a few parameters (contrast, saturation, cool shadows, warm highlights), not camera data, licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). `sources/IMPRINT_LICENSE.txt` contains the upstream notice and the license. GRKit fits the LUT to the effect model; the change is the fit.
 
+## FUJIFILM
+
+Provia, Velvia, Astia, Classic Chrome, Classic Neg, Pro Neg Std, Reala Ace, Eterna, Eterna BB, and Acros are the film simulations of the FUJIFILM digital cameras. They derive from the official 3D LUTs of FUJIFILM Corporation for the GFX ETERNA 55 (F-Log2 and F-Gamut to BT.709, 65 grid, V.1.00), downloaded from https://www.fujifilm-x.com/global/support/download/lut/. `sources/manifest.json` pins each LUT by SHA-256; the LUTs are not in the repository. GRKU fits each LUT to the effect model; the change is the fit. FUJIFILM, PROVIA, Velvia, ASTIA, CLASSIC CHROME, CLASSIC Neg., PRO Neg., REALA ACE, ETERNA, and ACROS are trademarks of FUJIFILM Corporation. GRKU is not affiliated with or endorsed by FUJIFILM Corporation.
+
 ## Names and limits
 
 Effect names and film, paper, and filter names identify the simulated materials. Some of these

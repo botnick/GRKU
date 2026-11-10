@@ -20,5 +20,5 @@ How it works: choose film looks and modules on the site, write them to the SD ca
 
 - Cameras: RICOH GR III, GR III HDF, GR IIIx, GR IIIx HDF, GR IV, GR IV HDF, GR IV Monochrome
 - Install: no firmware change; files on the SD card only; remove the card or the files to go back
-- A card holds 40 film looks at a time from a library of 135; recipes save a look with its settings and the mode dial U1 to U3 can hold them
+- A card holds 40 film looks at a time from a library of 145; recipes save a look with its settings and the mode dial U1 to U3 can hold them
 - Source and issues: https://github.com/botnick/GRKU

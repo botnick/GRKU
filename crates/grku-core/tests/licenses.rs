@@ -118,6 +118,8 @@ fn each_catalog_effect_has_the_attribution_of_its_source() {
             ("GRKU looks", "MIT")
         } else if generator.starts_with("Imprint ") {
             ("Imprint", "Apache-2.0")
+        } else if generator.starts_with("FUJIFILM 3D LUT ") {
+            ("FUJIFILM", "LicenseRef-FUJIFILM")
         } else {
             panic!("{name}: no attribution for {generator}");
         };

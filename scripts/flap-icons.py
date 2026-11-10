@@ -47,6 +47,8 @@ KINDS = {'negative': (235, 120, 30), 'slide': (90, 170, 235), 'mono': (150, 150,
          'cine': (0, 150, 140), 'instant': (240, 150, 180)}
 SLIDE_NAMES = ('VELVIA', 'PROVIA', 'ASTIA', 'SENSIA', 'EKTACHROME', 'KODACHROME', 'ELITE', 'PRECISA',
                'AGFACHROME', 'AEROCHROME', 'X-PRO', 'POLACHROME', 'FORTIA')
+FUJI_SIMS = ('PROVIA', 'VELVIA', 'ASTIA', 'CLASSIC CHROME', 'CLASSIC NEG', 'PRO NEG STD', 'REALA ACE',
+             'ETERNA', 'ETERNA BB', 'ACROS')
 INSTANT_NAMES = ('INSTAX', 'FP-', 'PX', 'TIME ZERO', 'POLAROID', 'TYPE')
 # The label colors of the Kodak motion picture cans.
 VISION_CODES = {'500T': (230, 60, 50), '250D': (60, 120, 220), '200T': (150, 80, 200), '50D': (80, 180, 90),
@@ -86,6 +88,8 @@ def palette(brand, name, number, cine):
         if n.startswith(('BW400', 'HIE', 'DOUBLE')): return (BLACK, WHITE, WHITE, None)
         return (WHITE, BLACK, BLACK, None)
     if brand == 'FUJIFILM':
+        # The film simulations of the FUJIFILM digital cameras: a silver box, as the camera body.
+        if key in FUJI_SIMS: return ((178, 180, 178), (30, 30, 30), (30, 30, 30), None)
         if n.startswith('VELVIA'): return ((0, 70, 40), WHITE, PINK if number.startswith('50') else ORANGE, None)
         if n.startswith('PROVIA'): return (BLUE, WHITE, WHITE, None)
         if n.startswith(('ASTIA', 'SENSIA')): return ((235, 215, 150), (40, 60, 40), (40, 60, 40), None)
@@ -279,6 +283,8 @@ def film_kind(definition):
     cover = definition.get('cover') or definition['icon']
     name = cover['name'].upper()
     target = definition.get('attribution', {}).get('target', '').lower()
+    if cover.get('brand') == 'FUJIFILM' and f"{name} {cover.get('number', '')}".strip() in FUJI_SIMS:
+        return None
     if definition.get('flags', 0) & 1:
         return 'mono'
     if cover.get('template') == 'cine':

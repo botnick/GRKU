@@ -2,25 +2,29 @@ import { describe, expect, it } from 'vitest';
 import { amountDue, DEFAULT_LOOKS, FREE, FREE_SLOTS, hasTier, packOf, slotsOf, takesSlot, usedSlots, type Entitlement } from './plus';
 import { MAX_EFFECTS, type Effect } from './catalog';
 
-const box = (brand: string, name: string, extra: Record<string, unknown> = {}) =>
-  ({ id: `${brand}-${name}`.toLowerCase(), name, icon: '', monochrome: false, cover: { template: 'box', brand, name }, look: '', ...extra }) as unknown as Effect;
+const box = (brand: string, name: string, extra: Record<string, unknown> = {}, number?: string) =>
+  ({ id: `${brand}-${name}`.toLowerCase(), name, icon: '', monochrome: false, cover: { template: 'box', brand, name, number }, look: '', ...extra }) as unknown as Effect;
 
 describe('packOf', () => {
   it('sorts the shelf into its packs, and leaves the camera looks out', () => {
     expect(packOf(box('Kodak', 'PORTRA'))).toBe('kodak');
     expect(packOf(box('FUJIFILM', 'SUPERIA'))).toBe('fuji');
     expect(packOf(box('AGFA', 'VISTA'))).toBe('indie');
-    expect(packOf(box('FUJIFILM', 'VELVIA'))).toBe('slide');
+    expect(packOf(box('FUJIFILM', 'VELVIA', {}, '100'))).toBe('slide');
     expect(packOf(box('Kodak', 'TRI-X', { monochrome: true }))).toBe('mono');
     expect(packOf(box('FUJIFILM', 'INSTAX'))).toBe('instant');
     expect(packOf({ id: 'c', name: 'c', icon: '', monochrome: false, cover: { template: 'cine', brand: 'Kodak', name: '5219' }, look: '' } as unknown as Effect)).toBe('cinema');
     expect(packOf(box('RICOH', 'POSITIVE'))).toBeNull();
+    // The film simulations of the FUJIFILM cameras are camera looks, the monochrome one too.
+    expect(packOf(box('FUJIFILM', 'VELVIA'))).toBeNull();
+    expect(packOf(box('FUJIFILM', 'CLASSIC', {}, 'CHROME'))).toBeNull();
+    expect(packOf(box('FUJIFILM', 'ACROS', { monochrome: true }))).toBeNull();
   });
 });
 
 describe('takesSlot and usedSlots', () => {
   const portra = box('Kodak', 'PORTRA');
-  const velvia = box('FUJIFILM', 'VELVIA');
+  const velvia = box('FUJIFILM', 'VELVIA', {}, '100');
   const positive = box('RICOH', 'POSITIVE');
   const lut = box('X', 'LUT', { imported: { kind: 'lut' } });
 
