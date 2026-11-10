@@ -85,7 +85,7 @@ GRKU 起步于 GRKit 1.5.2 以及 GRKit 的 `feat/recipes` 分支；运行时技
 | 品牌 | GRKit | GRKU：带有红点的文字商标、泰语语调、`docs/brand.md` | |
 | 发布 | GitHub Actions 部署至 grkit.app | 针对 grku.app 的相同流水线：推送触发发布 pull request，合并后基于官方固件构建并通过 Cloudflare Pages 部署网站；Plus 服务从 `services/plus` 部署 | `.github/workflows`、`docs/releasing.md` |
 
-GRKU 保留了 GRKit 的模块 ABI（用 GRKit SDK 构建的模块仍可加载）及其许可证，并在适用时将修复内容回馈给 GRKit。它不是 GRKit 的镜像，但会紧随其后：GRKit 后续的每项改动只要适用都会被移植，比如 GRKit 1.5.4 的 ADJ 记忆以及 2026 年 11 月的固件支持。GRKit 快速启动固件的改动则被排除在外。
+GRKU 保留了 GRKit 的模块 ABI（用 GRKit SDK 构建的模块仍可加载）及其许可证，并在适用时将修复内容回馈给 GRKit。它不是 GRKit 的镜像，但会紧随其后：GRKit 后续的每项改动只要适用都会被移植，比如 GRKit 1.5.4 的 ADJ 记忆、2026 年 11 月的固件支持，以及 GRKit 1.5.5 的状态行和配方修复。GRKit 快速启动固件的改动则被排除在外。
 
 ## 从源码构建
 

@@ -85,7 +85,7 @@ GRKU는 GRKit 1.5.2와 GRKit의 `feat/recipes` 브랜치에서 시작되었습�
 | 브랜드 | GRKit | GRKU: 빨간 마침표가 있는 워드마크, 태국어 어조, `docs/brand.md` | |
 | 릴리스 | GitHub Actions로 grkit.app에 배포 | grku.app을 위한 동일한 파이프라인: 푸시 시 릴리스 풀 리퀘스트 생성, 병합 시 공식 펌웨어에서 빌드하고 Cloudflare Pages를 통해 사이트 배포, Plus 서비스는 `services/plus`에서 배포 | `.github/workflows`, `docs/releasing.md` |
 
-GRKU는 GRKit의 모듈 ABI를 유지하여(GRKit SDK로 빌드된 모듈도 계속 불러와짐) 라이선스를 준수하며, 해당 사항이 있는 수정 사항은 업스트림인 GRKit으로 다시 보냅니다. 이는 GRKit의 미러가 아니지만 GRKit을 따릅니다. GRKit 1.5.4의 ADJ 메모리와 2026년 11월 펌웨어처럼 해당 사항이 있을 때마다 GRKit의 이후 변경 사항을 이식합니다. GRKit의 빠른 부팅 펌웨어에 대한 변경 사항은 제외된 상태로 유지됩니다.
+GRKU는 GRKit의 모듈 ABI를 유지하여(GRKit SDK로 빌드된 모듈도 계속 불러와짐) 라이선스를 준수하며, 해당 사항이 있는 수정 사항은 업스트림인 GRKit으로 다시 보냅니다. 이는 GRKit의 미러가 아니지만 GRKit을 따릅니다. GRKit 1.5.4의 ADJ 메모리, 2026년 11월 펌웨어, GRKit 1.5.5의 상태 표시줄 및 레시피 수정 사항처럼 해당 사항이 있을 때마다 GRKit의 이후 변경 사항을 이식합니다. GRKit의 빠른 부팅 펌웨어에 대한 변경 사항은 제외된 상태로 유지됩니다.
 
 ## 소스에서 빌드
 

@@ -21,18 +21,18 @@ GRKU 是一個獨立專案，由 [BOTNICK](https://github.com/botnick) 先為泰
 
 拍攝時按下 ADJ 撥桿，選擇第 6 項 GRKU。GRKU 的所有功能都在這裡，以及 MENU 中的 GRKU 小節。ADJ 會再次開啟在 GRKU 上，並停留在你離開時的那一行，即使關機後也是如此。
 
-- **底片風格**：145 種真實底片風格，記憶卡中一次可存放 40 種。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 與 Rollei，再加上 GRKU 仿照 GR II 正片風格自製的 Positive GRII 風格，以及 FUJIFILM 相機的十種免費底片模擬，從 Provia、Classic Chrome 到 Acros。每種風格都有採用真實底片盒配色的底片盒圖示。按下 Fn 可微調風格；也可以在網站上匯入自己的 LUT。
-- **配方**：將整套相機風格命名儲存，或從網站載入熱門配方，即可一次切換底片風格或 Image Control、顆粒、光暈、白平衡、校正與曝光，並支援還原。模式轉盤上的 U1、U2 與 U3 都能存放配方。
-- **構圖比例**：XPan、2.35:1、16:9、4:3、5:4、7:6 與 1:1，可裁切 JPEG，也可僅顯示框線。**裁切**：35、40、50、70 或 90 mm，具備即時預覽。
-- **輔助線**：三分法、中心、黃金分割、對角線、黃金螺旋、動態對稱。
-- **加印日期**：在照片上印日期，有經典、GR1s 點陣或 GR II 三種樣式。
-- **光暈**：柔光讓燈光和高光向周圍擴散，底片光暈則呈現電影底片配色的橙紅色光暈。
-- **漏光**：暗角、灰塵與毛髮、漏光、刮痕，或褪色、蒙塵、漏光、過期等預設。每張照片的效果分布都不同。
-- **柔光**：1/8、1/4 或 1/2 強度的 Black Pro-Mist 濾鏡、陰影處覆上 Black Mist 薄紗感，以及點光源的變形鏡頭光條。
-- **顆粒**：四段強度，四種大小。
-- **邊框**：白色或黑色的沖印邊框，寬度為照片寬度的 3% 或 6%。
-- **開機時啟用**：每次開機時將 GRKU 設為開啟、關閉或維持關機前的狀態。
-- **英尺**：記憶卡中放入 `GRKU/FEET.TXT` 後，Snap 對焦距離會以英尺顯示。
+- **Film Look**：145 種真實底片風格，記憶卡中一次可存放 40 種。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 與 Rollei，再加上 GRKU 仿照 GR II 正片風格自製的 Positive GRII 風格，以及 FUJIFILM 相機的十種免費底片模擬，從 Provia、Classic Chrome 到 Acros。每種風格都有採用真實底片盒配色的底片盒圖示。按下 Fn 可微調風格；也可以在網站上匯入自己的 LUT。
+- **Recipes**：將整套相機風格命名儲存，或從網站載入熱門配方，即可一次切換 Film Look 或 Image Control、顆粒、光暈、白平衡、校正與曝光，並支援還原。模式轉盤上的 U1、U2 與 U3 都能存放配方。
+- **Framing**：XPan、2.35:1、16:9、4:3、5:4、7:6 與 1:1，可裁切 JPEG，也可僅顯示框線。**Crop**：35、40、50、70 或 90 mm，具備即時預覽。
+- **Guides**：三分法、中心、黃金分割、對角線、黃金螺旋、動態對稱。
+- **Date Imprint**：在照片上印日期，有經典、GR1s 點陣或 GR II 三種樣式。
+- **Glow**：柔光讓燈光和高光向周圍擴散，底片光暈則呈現電影底片配色的橙紅色光暈。
+- **Light Leak**：暗角、灰塵與毛髮、漏光、刮痕，或褪色、蒙塵、漏光、過期等預設。每張照片的效果分布都不同。
+- **Diffusion**：1/8、1/4 或 1/2 強度的 Black Pro-Mist 濾鏡、陰影處覆上 Black Mist 薄紗感，以及點光源的變形鏡頭光條。
+- **Grain**：四段強度，四種大小。
+- **Border**：白色或黑色的沖印邊框，寬度為照片寬度的 3% 或 6%。
+- **Enable at Start**：每次開機時將 GRKU 設為開啟、關閉或維持關機前的狀態。
+- **Feet**：記憶卡中放入 `GRKU/FEET.TXT` 後，Snap 對焦距離會以英尺顯示。
 
 開機後 GRKU 需要約 9 秒載入（安裝後的第一次開機會更久）。在這之前相機保持原本的狀態。所有設定都會保留在記憶卡的 `GRKU` 資料夾中。
 
@@ -85,7 +85,7 @@ GRKU 源自 GRKit 1.5.2 以及 GRKit 的 `feat/recipes` 分支；執行階段技
 | 品牌 | GRKit | GRKU：帶有紅點的文字標誌、泰文語調、`docs/brand.md` | |
 | 發布 | GitHub Actions 至 grkit.app | 同樣的管線用於 grku.app：推送會建立發布 pull request，合併後從官方韌體建置並透過 Cloudflare Pages 部署網站；Plus 服務則從 `services/plus` 部署 | `.github/workflows`、`docs/releasing.md` |
 
-GRKU 保留了 GRKit 的模組 ABI（使用 GRKit SDK 建置的模組仍可載入）及其授權條款，並將適用的修正送回 GRKit。它並非 GRKit 的鏡像，但持續關注其發展：GRKit 後續的每項變更只要適用都會被移植進來，正如 GRKit 1.5.4 的 ADJ 記憶以及 2026 年 11 月韌體所做的修改一樣。GRKit 快速啟動韌體的變更則維持不納入。
+GRKU 保留了 GRKit 的模組 ABI（使用 GRKit SDK 建置的模組仍可載入）及其授權條款，並將適用的修正送回 GRKit。它並非 GRKit 的鏡像，但持續關注其發展：GRKit 後續的每項變更只要適用都會被移植進來，正如 GRKit 1.5.4 的 ADJ 記憶、2026 年 11 月韌體，以及 GRKit 1.5.5 的狀態列與配方修正一樣。GRKit 快速啟動韌體的變更則維持不納入。
 
 ## 從原始碼建置
 

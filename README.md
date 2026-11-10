@@ -85,7 +85,7 @@ GRKU grew out of GRKit 1.5.2 and GRKit's `feat/recipes` branch; the runtime tech
 | Brand | GRKit | GRKU: the wordmark with a red period, Thai voice, `docs/brand.md` | |
 | Release | GitHub Actions to grkit.app | The same pipeline for grku.app: a push opens the release pull request, merging it builds from the official firmware and deploys the site through Cloudflare Pages; the Plus service deploys from `services/plus` | `.github/workflows`, `docs/releasing.md` |
 
-GRKU keeps GRKit's module ABI (a module built with the GRKit SDK still loads) and its licenses, and sends fixes back to GRKit where they apply. It is not a mirror of GRKit, but it follows it: each later change of GRKit is ported when it applies, as the ADJ memory of GRKit 1.5.4 and the firmware of November 2026 were. The changes of GRKit's fast-boot firmware stay out.
+GRKU keeps GRKit's module ABI (a module built with the GRKit SDK still loads) and its licenses, and sends fixes back to GRKit where they apply. It is not a mirror of GRKit, but it follows it: each later change of GRKit is ported when it applies, as the ADJ memory of GRKit 1.5.4, the firmware of November 2026, and the status row and recipe fixes of GRKit 1.5.5 were. The changes of GRKit's fast-boot firmware stay out.
 
 ## Build from source
 
