@@ -1,3 +1,11 @@
+## 1.8.1 (2026-11-10)
+
+### Fixes
+
+- The ADJ button closes the Recipes page without applying the highlighted recipe, running Save Settings, or Undo; only OK acts there.
+- A recipe that you save on the camera now holds the exposure settings too, and applying it sets them. A recipe from the site that leaves them out keeps those of the camera.
+- In live view, the GRKU icons show at the right of the second row, so they no longer cover the white balance shift.
+
 ## 1.8.0 (2026-11-10)
 
 ### Features
