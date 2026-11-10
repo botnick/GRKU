@@ -111,7 +111,7 @@ Everything below was installed on 2026-11-08 under the `botnick` account.
 | Rust 1.99.1 stable | `~/.rustup/toolchains/stable-aarch64-apple-darwin/bin` (`rustup` from Homebrew at `~/homebrew/bin/rustup`) | put the toolchain `bin` on `PATH`; there is no `~/.cargo/bin` |
 | Apple Clang 21.0.0 | `/usr/bin/clang` | the reference compiler of upstream |
 | LLD 21.1.8 | `~/Tools/llvm-dl/LLVM-21.1.8-macOS-ARM64/bin/ld.lld` | the reference linker version of upstream (prebuilt LLVM release; Homebrew was building LLVM from source, which takes hours) |
-| Official firmware files | `~/firmware/gr3-2.10/fwdc239b.bin` (target `gr3-2.10`), `~/firmware/gr4-1.11/fwdc248b.bin` (`gr4-1.11`), `~/firmware/gr4-1.20/fwdc248b.bin` (`gr4-1.20`), each with the SHA-256 that its target pins; the zips are next to them | From `https://www.ricoh-imaging.co.jp/resources/japan/support/download/digital/FIRMWARE/gr3_v210.zip`, `gr4_v111.zip`, `gr4_v120.zip`: Ricoh links only the latest version but still serves the older files. The factory build of the GR IV 30th Anniversary camera (`gr4-1.20-0528`) comes only from a camera dump (`runtime/dump/`), which we do not have. Keep firmware out of Git. |
+| Official firmware files | `~/firmware/gr3-2.10/fwdc239b.bin` (target `gr3-2.10`), `~/firmware/gr4-1.11/fwdc248b.bin` (`gr4-1.11`), `~/firmware/gr4-1.20/fwdc248b.bin` (`gr4-1.20`), `~/firmware/gr3-2.21/fwdc239b.bin` (`gr3-2.21`), `~/firmware/gr4-1.21/fwdc248b.bin` (`gr4-1.21`), each with the SHA-256 that its target pins; the zips are next to them | From `https://www.ricoh-imaging.co.jp/resources/japan/support/download/digital/FIRMWARE/gr3_v210.zip`, `gr4_v111.zip`, `gr4_v120.zip`: Ricoh links only the latest version but still serves the older files. The factory build of the GR IV 30th Anniversary camera (`gr4-1.20-0528`) comes only from a camera dump (`runtime/dump/`), which we do not have. Keep firmware out of Git. |
 | REA (Reverse Engineer Anything) 6.7.0 | `rea` on PATH (npm global); registered as MCP server `rea` for Claude Code (`~/.claude.json`) and Codex (`~/.codex/config.toml`); skill `reverse-engineer-anything` | for the RTOS reverse engineering of the roadmap |
 | Ghidra 12.1.4 (the version REA verifies against; 12.2 wants JDK 25) | `~/Tools/ghidra-dl/ghidra_12.1.4_PUBLIC` | the release zip has no macOS arm64 decompiler: `support/buildNatives` builds it with Gradle (started on 2026-11-08; check `Ghidra/Features/Decompiler/build/os/mac_arm_64/decompile`). Until then `rea doctor` reports `native_decompiler` as missing and REA's native analysis is off. Ghidra 12.2 is also at `~/Tools/ghidra-dl/ghidra_12.2_PUBLIC` |
 | JDK 21 (Temurin 21.0.14) | `~/Tools/jdk-dl/jdk-21.0.14+1/Contents/Home` | not on PATH; export `JAVA_HOME` |
@@ -145,20 +145,23 @@ grku doctor
 grku effects build --source effects --out build/effects
 grku build --target gr3-2.10 --firmware ~/firmware/gr3-2.10/fwdc239b.bin --out build/runtime \
   --clang "$GRKU_CLANG" --lld "$GRKU_LLD"
+grku build --target gr3-2.21 --firmware ~/firmware/gr3-2.21/fwdc239b.bin --out build/runtime-gr3-2.21 \
+  --clang "$GRKU_CLANG" --lld "$GRKU_LLD"
 for module in modules/*/; do grku module build --dir "$module" --out "build/modules/$(basename "$module").GRM"; done
 sh .github/scripts/install-guide-tools.sh build/guide-tools
 sh .github/scripts/build-guides.sh grku build/guide-tools build/guides
-grku package --build build/runtime --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
+grku package --build build/runtime --build build/runtime-gr3-2.21 --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
   --guide build/guides/gr3/en.pdf --out dist/GRKU-gr3.zip
 grku verify dist/GRKU-gr3.zip
 ```
 
-For GR IIIx, package with `--camera gr3x` and `--guide build/guides/gr3x/en.pdf`. For GR IV, build `gr4-1.11` and `gr4-1.20` from their firmware files into two directories and package both:
+For GR IIIx, package with `--camera gr3x` and `--guide build/guides/gr3x/en.pdf`. For GR IV, build `gr4-1.11`, `gr4-1.20` and `gr4-1.21` from their firmware files into three directories and package them (`~/Desktop/grku-tools/build-packages.sh` builds all five runtimes and the three packages):
 
 ```sh
 grku build --target gr4-1.11 --firmware ~/firmware/gr4-1.11/fwdc248b.bin --out build/runtime-gr4-1.11 --clang "$GRKU_CLANG" --lld "$GRKU_LLD"
 grku build --target gr4-1.20 --firmware ~/firmware/gr4-1.20/fwdc248b.bin --out build/runtime-gr4-1.20 --clang "$GRKU_CLANG" --lld "$GRKU_LLD"
-grku package --build build/runtime-gr4-1.11 --build build/runtime-gr4-1.20 --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
+grku build --target gr4-1.21 --firmware ~/firmware/gr4-1.21/fwdc248b.bin --out build/runtime-gr4-1.21 --clang "$GRKU_CLANG" --lld "$GRKU_LLD"
+grku package --build build/runtime-gr4-1.11 --build build/runtime-gr4-1.20 --build build/runtime-gr4-1.21 --effects build/effects $(for m in build/modules/*.GRM; do printf -- '--module %s ' "$m"; done) \
   --camera gr4 --guide build/guides/gr4/en.pdf --out dist/GRKU-gr4.zip
 ```
 

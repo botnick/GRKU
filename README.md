@@ -19,9 +19,9 @@ Photo in the screens: [Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi
 
 ## What it does
 
-Press the ADJ lever while shooting and pick the sixth entry, GRKU. Everything GRKU does is in there, and in the GRKU section of MENU.
+Press the ADJ lever while shooting and pick the sixth entry, GRKU. Everything GRKU does is in there, and in the GRKU section of MENU. ADJ opens on GRKU again, on the row you left, also after you turn the camera off.
 
-- **Film Look**: 145 looks of real films, 40 on the card at a time. Kodak, Fujifilm, Ilford, CineStill, Lomography, Polaroid, Agfa, Harman and Rollei, plus Positive GRII, GRKU's own look after the Positive Film of the GR II. Each look has a film-box icon in the colors of the real box. Fn adjusts a look; import your own LUT on the site.
+- **Film Look**: 145 looks of real films, 40 on the card at a time. Kodak, Fujifilm, Ilford, CineStill, Lomography, Polaroid, Agfa, Harman and Rollei, plus Positive GRII, GRKU's own look after the Positive Film of the GR II, and the ten film simulations of the FUJIFILM cameras, from Provia and Classic Chrome to Acros, which are free. Each look has a film-box icon in the colors of the real box. Fn adjusts a look; import your own LUT on the site.
 - **Recipes**: save the whole look of the camera under a name, or bring popular recipes from the site, then switch Film Look or Image Control, grain, glow, white balance, corrections and exposure in one step, with Undo. U1, U2 and U3 on the mode dial can hold a recipe.
 - **Framing**: XPan, 2.35:1, 16:9, 4:3, 5:4, 7:6 and 1:1, as a crop of the JPEG or as frame lines only. **Crop**: 35, 40, 50, 70 or 90 mm with a live view.
 - **Guides**: thirds, center, golden ratio, diagonals, golden spiral, dynamic symmetry.
@@ -45,7 +45,7 @@ GRKU shows up about nine seconds after power-on (longer on the first start after
 | GR IV, GR IV HDF | 1.11 | 1.11, 1.20, 1.21 |
 | GR IV Monochrome | — | 1.00, 1.10, 1.11 |
 
-GRKU's own changes have run on a GR IV with firmware 1.11. The GR III and GR IIIx packages are built from the same code and the tests of GRKit, but nobody has run GRKU on those cameras yet. If you do, tell us in an [issue](https://github.com/botnick/GRKU/issues), whether it worked or not.
+GRKU's own changes have run on a GR IV with firmware 1.11. The GR III and GR IIIx packages are built from the same code and the tests of GRKit, but nobody has run GRKU on those cameras yet. If you do, tell us in an [issue](https://github.com/botnick/GRKU/issues), whether it worked or not. The builds for the firmware that Ricoh released on 10 November 2026 (GR III 2.21, GR IIIx 1.71, GR IV 1.21, GR IV Monochrome 1.11) are checked against Ricoh's firmware files; they have not run on a camera yet.
 
 > [!WARNING]
 > GRKU is experimental. Use it at your own risk.
@@ -74,7 +74,7 @@ GRKU grew out of GRKit 1.5.2 and GRKit's `feat/recipes` branch; the runtime tech
 
 | Area | GRKit (where GRKU started) | GRKU today | How |
 | --- | --- | --- | --- |
-| Film library | 21 looks | 145 looks, 40 per card; a film library ZIP with every look | Fits from the open film presets of Pat David (CC BY-SA 4.0), t3mujinpack (MIT), spektrafilm, Spectral Film LUT and Fotufilm, with the 2026 popularity research in `docs/popular-films-2026.md` choosing the default 40 |
+| Film library | 21 looks | 145 looks, 40 per card; a film library ZIP with every look | Fits from the open film presets of Pat David (CC BY-SA 4.0), t3mujinpack (MIT), spektrafilm, Spectral Film LUT and Fotufilm, and of FUJIFILM's own LUTs for its ten film simulations, with the 2026 popularity research in `docs/popular-films-2026.md` choosing the default 40 |
 | Icons | Flat tiles | A film box in the colors of the real box for every look, color tiles for the menu, and effects that bring their own PNG icon | `scripts/flap-icons.py` draws the boxes; the effect compiler takes `icon: {"png": ...}` |
 | Recipes | An unmerged branch | Merged, with a Thai-friendly explainer, popular recipes from ricohcookbook.com, a three-step editor, example photos, and a camera-style settings sheet | `modules/recipes`, `web/src/components/Recipe*.tsx` |
 | Modules | Film Look, Framing, Guides, Date, Glow, Grain | Plus Crop, Light Leak, Diffusion, Border, Recipes, Enable at Start, feet labels, Golden Spiral and Dynamic Symmetry guides | Ported from the MustafaCisse and kkasemsa forks and written new; ten modules fit a package |
@@ -85,7 +85,7 @@ GRKU grew out of GRKit 1.5.2 and GRKit's `feat/recipes` branch; the runtime tech
 | Brand | GRKit | GRKU: the wordmark with a red period, Thai voice, `docs/brand.md` | |
 | Release | GitHub Actions to grkit.app | The same pipeline for grku.app: a push opens the release pull request, merging it builds from the official firmware and deploys the site through Cloudflare Pages; the Plus service deploys from `services/plus` | `.github/workflows`, `docs/releasing.md` |
 
-GRKU keeps GRKit's module ABI (a module built with the GRKit SDK still loads) and its licenses, and sends fixes back to GRKit where they apply. It is not a mirror of GRKit: GRKit's later releases are reviewed, not merged.
+GRKU keeps GRKit's module ABI (a module built with the GRKit SDK still loads) and its licenses, and sends fixes back to GRKit where they apply. It is not a mirror of GRKit, but it follows it: each later change of GRKit is ported when it applies, as the ADJ memory of GRKit 1.5.4 and the firmware of November 2026 were. The changes of GRKit's fast-boot firmware stay out.
 
 ## Build from source
 
@@ -104,7 +104,7 @@ grku package --build build/runtime --camera gr4 --effects build/effects-default 
 grku verify dist/GRKU-gr4.zip
 ```
 
-`build/effects` holds all 145 looks; a package carries at most 40, so `python3 -I scripts/defaults.py build/effects build/effects-default` picks the 40 of `effects/defaults.txt`. A package holds ten modules, so leave one out (the release leaves out Border). For the GR III, build `gr3-2.10` from `fwdc239b.bin` and package with `--camera gr3`. Then `python3 -I scripts/card.py write dist/GRKU-gr4.zip` puts the package on a card in a reader.
+`build/effects` holds all 145 looks; a package carries at most 40, so `python3 -I scripts/defaults.py build/effects build/effects-default` picks the 40 of `effects/defaults.txt`. A package holds ten modules, so leave one out (the release leaves out Border). For the GR III, build `gr3-2.10` and `gr3-2.21`, each from the `fwdc239b.bin` of its firmware, and package with `--camera gr3` and a `--build` for each; the GR IV package takes `gr4-1.11`, `gr4-1.20` and `gr4-1.21`. Then `python3 -I scripts/card.py write dist/GRKU-gr4.zip` puts the package on a card in a reader.
 
 ## Contributing
 

@@ -21,7 +21,7 @@ Commits are plain: one change, a message that says what and why, no trailers. Ad
 
 [README.md](README.md#build-from-source) builds a GR IV package. For the others:
 
-- GR III: build with `--target gr3-2.10` from `fwdc239b.bin`, package with `--camera gr3` and `--guide build/guides/gr3/en.pdf`.
+- GR III: build `--target gr3-2.10` and `--target gr3-2.21`, each from the `fwdc239b.bin` of its firmware (2.10 and 2.21), and package with `--camera gr3`, a `--build` for each, and `--guide build/guides/gr3/en.pdf`. A package may leave a build out: it then runs only on the firmware of the builds it has.
 - GR IIIx: the GR III runtime, packaged with `--camera gr3x` and `--guide build/guides/gr3x/en.pdf`.
 - HDF models: package for the base camera, for example `--camera gr3` for the GR III HDF.
 - GR IV Monochrome: package as for the GR IV, without the Film Look module (`FILMLOOK.GRM`) and without `--effects`.
