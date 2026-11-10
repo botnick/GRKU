@@ -52,6 +52,11 @@ def write(args):
         # The package folder of GRKit 1.3 to 1.5 and of GRKU before 2026-11-09 went with SCRIPT.
         adopt_old_data(card)
         count = 0
+        # As the site writes (web/src/card.ts LAST): the resident part before the loader that
+        # includes it, then the package list, and STARTUP.TTL, which includes the loader, at the end.
+        last = ['SD_ROOT/SCRIPT/GRKU/RESIDENT.TTL', 'SD_ROOT/SCRIPT/GRKU/LOADER.TTL',
+                'SD_ROOT/SCRIPT/GRKU/PACKAGE.TXT', 'SD_ROOT/SCRIPT/STARTUP.TTL']
+        files = [n for n in files if n not in last] + [n for n in last if n in files]
         for name in files:
             rel = name[len('SD_ROOT/'):]
             top = rel.split('/')[0]

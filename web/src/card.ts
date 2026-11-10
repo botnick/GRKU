@@ -37,6 +37,7 @@ export interface CardFile {
 
 export const PACKAGE_LIST = 'SCRIPT/GRKU/PACKAGE.TXT';
 const LOADER = 'SCRIPT/GRKU/LOADER.TTL';
+const RESIDENT = 'SCRIPT/GRKU/RESIDENT.TTL';
 const STARTUP = 'SCRIPT/STARTUP.TTL';
 const LEGACY = 'SCRIPT/PLUGINS';
 export const LEGACY_EFFECTS = 'SCRIPT/PLUGINS/EFFECTS';
@@ -72,7 +73,9 @@ export const RECIPES_PACKAGE = 'SCRIPT/GRKU/RECIPES.BIN';
  * interrupted update from GRKit 1.2 leaves the old version to run. The package list names the
  * modules and effects of the new package only after their files are on the card.
  */
-const LAST = [PACKAGE_LIST, STARTUP];
+/** Written one at a time, in this order: the loader includes the resident part, and STARTUP.TTL
+   includes the loader, so a write that stops leaves no script that names a missing or older one. */
+const LAST = [RESIDENT, LOADER, PACKAGE_LIST, STARTUP];
 /** The number of files that a write sends at the same time. Chrome checks each file at its close. */
 const PARALLEL = 6;
 

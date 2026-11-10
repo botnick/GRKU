@@ -196,15 +196,23 @@ describe('writeFiles', () => {
     const files = [
       { path: 'SCRIPT/STARTUP.TTL', bytes: bytes('new') },
       { path: 'SCRIPT/GRKU/PACKAGE.TXT', bytes: bytes('GUIDES.GRM\n') },
+      { path: 'SCRIPT/GRKU/LOADER.TTL', bytes: bytes('loader') },
       { path: 'SCRIPT/GRKU/CORE.BIN', bytes: bytes('core') },
+      { path: 'SCRIPT/GRKU/RESIDENT.TTL', bytes: bytes('resident') },
       { path: 'SCRIPT/GRKU/MODULES/GUIDES.GRM', bytes: bytes('guides') },
       { path: '00078350.588', bytes: bytes('[SCRIPT_EN_MODE EN]\r\n') },
     ];
     const progress: number[] = [];
     await writeFiles(card, files, (written) => progress.push(written));
 
-    expect(card.log.slice(-2)).toEqual(['SCRIPT/GRKU/PACKAGE.TXT', 'SCRIPT/STARTUP.TTL']);
-    expect(progress).toEqual([1, 2, 3, 4, 5]);
+    // The resident part before the loader that includes it, then the list and STARTUP.TTL.
+    expect(card.log.slice(-4)).toEqual([
+      'SCRIPT/GRKU/RESIDENT.TTL',
+      'SCRIPT/GRKU/LOADER.TTL',
+      'SCRIPT/GRKU/PACKAGE.TXT',
+      'SCRIPT/STARTUP.TTL',
+    ]);
+    expect(progress).toEqual([1, 2, 3, 4, 5, 6, 7]);
     expect(card.text('SCRIPT/STARTUP.TTL')).toBe('new');
     // The merge keeps GRKit 1.2, which the first power-on migrates.
     expect(card.text('SCRIPT/PLUGINS/PLUGINS.TTL')).toBe('old');
