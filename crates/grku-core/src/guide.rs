@@ -61,12 +61,16 @@ impl GuideLanguage {
     fn camera_phrase(self, camera: &Camera, versions: &[&str]) -> String {
         match self {
             GuideLanguage::Package(language) => language.camera_phrase(camera, versions),
-            GuideLanguage::Thai => format!(
-                "{} และ {} เฟิร์มแวร์ {}",
-                camera.name,
-                camera.hdf,
-                versions.join(" หรือ ")
-            ),
+            GuideLanguage::Thai => {
+                // "2.10", "2.10 หรือ 2.20", or "2.10, 2.20 หรือ 2.21".
+                let versions = match versions.split_last() {
+                    Some((last, first)) if !first.is_empty() => {
+                        format!("{} หรือ {last}", first.join(", "))
+                    }
+                    _ => versions.concat(),
+                };
+                format!("{} และ {} เฟิร์มแวร์ {versions}", camera.name, camera.hdf)
+            }
         }
     }
 
@@ -134,22 +138,31 @@ impl Language {
     }
 
     /// The camera phrase of a guide, for example "GR III and GR III HDF
-    /// firmware 2.10" for one version, or "... firmware 2.10 or 2.20" for the
-    /// releases of the camera.
+    /// firmware 2.10" for one version, or "... firmware 2.10, 2.20, or 2.21"
+    /// for the releases of the camera.
     pub fn camera_phrase(self, camera: &Camera, versions: &[&str]) -> String {
-        let (and, word, or) = match self {
-            Language::English => ("and", "firmware", " or "),
-            Language::SimplifiedChinese => ("和", "固件", " 或 "),
-            Language::TraditionalChinese => ("與", "韌體", " 或 "),
-            Language::Japanese => ("および", "ファームウェア", " または "),
-            Language::Korean => ("및", "펌웨어", " 또는 "),
+        // The list separator, and the word before the last version.
+        let (and, word, comma, or) = match self {
+            Language::English => ("and", "firmware", ", ", " or "),
+            Language::SimplifiedChinese => ("和", "固件", "、", " 或 "),
+            Language::TraditionalChinese => ("與", "韌體", "、", " 或 "),
+            Language::Japanese => ("および", "ファームウェア", "、", " または "),
+            Language::Korean => ("및", "펌웨어", ", ", " 또는 "),
         };
-        format!(
-            "{} {and} {} {word} {}",
-            camera.name,
-            camera.hdf,
-            versions.join(or)
-        )
+        let list = match versions {
+            [] => String::new(),
+            [only] => (*only).to_owned(),
+            [first @ .., last] => {
+                // An English list of three or more has a comma before "or".
+                let or = if first.len() > 1 && self == Language::English {
+                    ", or "
+                } else {
+                    or
+                };
+                format!("{}{or}{last}", first.join(comma))
+            }
+        };
+        format!("{} {and} {} {word} {list}", camera.name, camera.hdf)
     }
 }
 

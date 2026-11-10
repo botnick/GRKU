@@ -40,10 +40,10 @@ GRKU는 전원을 켠 후 약 9초 후에 나타납니다(설치 후 첫 시작 
 
 | Camera | Ran on a camera | Built for |
 | --- | --- | --- |
-| GR III, GR III HDF | — | 2.10, 2.20 |
-| GR IIIx, GR IIIx HDF | — | 1.60, 1.70 |
-| GR IV, GR IV HDF | 1.11 | 1.11, 1.20 |
-| GR IV Monochrome | — | 1.00, 1.10 |
+| GR III, GR III HDF | — | 2.10, 2.20, 2.21 |
+| GR IIIx, GR IIIx HDF | — | 1.60, 1.70, 1.71 |
+| GR IV, GR IV HDF | 1.11 | 1.11, 1.20, 1.21 |
+| GR IV Monochrome | — | 1.00, 1.10, 1.11 |
 
 GRKU의 자체 변경 사항은 펌웨어 1.11이 설치된 GR IV에서 실행되었습니다. GR III 및 GR IIIx 패키지는 동일한 코드와 GRKit의 테스트로부터 빌드되었지만, 아직 아무도 해당 카메라에서 GRKU를 실행해 보지 않았습니다. 실행해 보신다면 작동 여부와 관계없이 [이슈](https://github.com/botnick/GRKU/issues)로 알려 주십시오.
 

@@ -40,10 +40,10 @@ GRKU shows up about nine seconds after power-on (longer on the first start after
 
 | Camera | Ran on a camera | Built for |
 | --- | --- | --- |
-| GR III, GR III HDF | — | 2.10, 2.20 |
-| GR IIIx, GR IIIx HDF | — | 1.60, 1.70 |
-| GR IV, GR IV HDF | 1.11 | 1.11, 1.20 |
-| GR IV Monochrome | — | 1.00, 1.10 |
+| GR III, GR III HDF | — | 2.10, 2.20, 2.21 |
+| GR IIIx, GR IIIx HDF | — | 1.60, 1.70, 1.71 |
+| GR IV, GR IV HDF | 1.11 | 1.11, 1.20, 1.21 |
+| GR IV Monochrome | — | 1.00, 1.10, 1.11 |
 
 GRKU's own changes have run on a GR IV with firmware 1.11. The GR III and GR IIIx packages are built from the same code and the tests of GRKit, but nobody has run GRKU on those cameras yet. If you do, tell us in an [issue](https://github.com/botnick/GRKU/issues), whether it worked or not.
 

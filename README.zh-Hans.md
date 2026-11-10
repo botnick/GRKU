@@ -40,10 +40,10 @@ GRKU 在开机后约 9 秒出现（安装后的第一次开机耗时更长）。
 
 | 机型 | 真机测试 | 已支持 |
 | --- | --- | --- |
-| GR III、GR III HDF | — | 2.10、2.20 |
-| GR IIIx、GR IIIx HDF | — | 1.60、1.70 |
-| GR IV、GR IV HDF | 1.11 | 1.11、1.20 |
-| GR IV Monochrome | — | 1.00、1.10 |
+| GR III、GR III HDF | — | 2.10、2.20、2.21 |
+| GR IIIx、GR IIIx HDF | — | 1.60、1.70、1.71 |
+| GR IV、GR IV HDF | 1.11 | 1.11、1.20、1.21 |
+| GR IV Monochrome | — | 1.00、1.10、1.11 |
 
 GRKU 本身的改动已在固件 1.11 的 GR IV 上运行过。GR III 和 GR IIIx 的安装包由同一份代码以及 GRKit 的测试构建，但目前还没有人在这些相机上运行过 GRKU。如果您尝试了，无论是否成功，都请在 [issue](https://github.com/botnick/GRKU/issues) 中告诉我们。
 

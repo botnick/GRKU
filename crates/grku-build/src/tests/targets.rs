@@ -187,6 +187,10 @@ const BUILD_ONLY_DEFINITIONS: &[(&str, &[&str])] = &[
         &["NATIVE_ICON_LIMIT", "NATIVE_MONOCHROME_TYPES_HIGH"],
     ),
     ("gr4-1.20-0528", &["NATIVE_ICON_LIMIT"]),
+    (
+        "gr4-1.21",
+        &["NATIVE_ICON_LIMIT", "NATIVE_MONOCHROME_TYPES_HIGH"],
+    ),
 ];
 
 /// The hooks of a build are those of its family (`Family::hooks`). Each build
@@ -382,13 +386,15 @@ fn move_value(word: u32) -> Option<(u32, u32)> {
 /// The Fn hint IDs of a build header are those that the native ADJ refresh of
 /// its firmware gives to FW_GUIDE_SET_CONTENT: the label in r1, the icon in r3.
 #[test]
-#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, and GRKU_TEST_FIRMWARE_GR4_120_0528"]
+#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR3_221, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, GRKU_TEST_FIRMWARE_GR4_120_0528, and GRKU_TEST_FIRMWARE_GR4_121"]
 fn fn_hint_ids_are_those_of_the_native_adj_refresh() -> Result<()> {
     for (variable, target) in [
         ("GRKU_TEST_FIRMWARE", &target::GR3_210),
+        ("GRKU_TEST_FIRMWARE_GR3_221", &target::GR3_221),
         ("GRKU_TEST_FIRMWARE_GR4", &target::GR4_111),
         ("GRKU_TEST_FIRMWARE_GR4_120", &target::GR4_120),
         ("GRKU_TEST_FIRMWARE_GR4_120_0528", &target::GR4_120_0528),
+        ("GRKU_TEST_FIRMWARE_GR4_121", &target::GR4_121),
     ] {
         let path = std::env::var(variable).with_context(|| format!("Set {variable}"))?;
         let image = verify_firmware(Path::new(&path), target)?;
@@ -537,13 +543,15 @@ fn tail_call(words: &[u32], function: u32) -> Option<u32> {
 /// shading and clarity one kind too far, and the stock bytes could not show
 /// it, because those setters are equal functions.
 #[test]
-#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, and GRKU_TEST_FIRMWARE_GR4_120_0528"]
+#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR3_221, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, GRKU_TEST_FIRMWARE_GR4_120_0528, and GRKU_TEST_FIRMWARE_GR4_121"]
 fn parameter_rows_are_those_of_their_row_kinds() -> Result<()> {
     for (variable, target) in [
         ("GRKU_TEST_FIRMWARE", &target::GR3_210),
+        ("GRKU_TEST_FIRMWARE_GR3_221", &target::GR3_221),
         ("GRKU_TEST_FIRMWARE_GR4", &target::GR4_111),
         ("GRKU_TEST_FIRMWARE_GR4_120", &target::GR4_120),
         ("GRKU_TEST_FIRMWARE_GR4_120_0528", &target::GR4_120_0528),
+        ("GRKU_TEST_FIRMWARE_GR4_121", &target::GR4_121),
     ] {
         let path = std::env::var(variable).with_context(|| format!("Set {variable}"))?;
         let image = verify_firmware(Path::new(&path), target)?;
@@ -625,13 +633,15 @@ fn gr4_look_sources_match_their_targets() {
 /// firmware, and each setting that recipes use matches the patterns of the
 /// reader, with one getter chain and one record shape for the firmware.
 #[test]
-#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, and GRKU_TEST_FIRMWARE_GR4_120_0528"]
+#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR3_221, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, GRKU_TEST_FIRMWARE_GR4_120_0528, and GRKU_TEST_FIRMWARE_GR4_121"]
 fn userdata_settings_of_recipes_match_each_firmware() -> Result<()> {
     for (variable, target) in [
         ("GRKU_TEST_FIRMWARE", &target::GR3_210),
+        ("GRKU_TEST_FIRMWARE_GR3_221", &target::GR3_221),
         ("GRKU_TEST_FIRMWARE_GR4", &target::GR4_111),
         ("GRKU_TEST_FIRMWARE_GR4_120", &target::GR4_120),
         ("GRKU_TEST_FIRMWARE_GR4_120_0528", &target::GR4_120_0528),
+        ("GRKU_TEST_FIRMWARE_GR4_121", &target::GR4_121),
     ] {
         let path = std::env::var(variable).with_context(|| format!("Set {variable}"))?;
         let image = verify_firmware(Path::new(&path), target)?;
@@ -691,15 +701,17 @@ fn userdata_settings_of_recipes_match_each_firmware() -> Result<()> {
 /// each build (`userdata::native_header`). With GRKU_UPDATE_GENERATED set,
 /// the test writes the files instead.
 #[test]
-#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, and GRKU_TEST_FIRMWARE_GR4_120_0528"]
+#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR3_221, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, GRKU_TEST_FIRMWARE_GR4_120_0528, and GRKU_TEST_FIRMWARE_GR4_121"]
 fn native_headers_match_each_firmware() -> Result<()> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../runtime/targets");
     let update = std::env::var_os("GRKU_UPDATE_GENERATED").is_some();
     for (variable, target) in [
         ("GRKU_TEST_FIRMWARE", &target::GR3_210),
+        ("GRKU_TEST_FIRMWARE_GR3_221", &target::GR3_221),
         ("GRKU_TEST_FIRMWARE_GR4", &target::GR4_111),
         ("GRKU_TEST_FIRMWARE_GR4_120", &target::GR4_120),
         ("GRKU_TEST_FIRMWARE_GR4_120_0528", &target::GR4_120_0528),
+        ("GRKU_TEST_FIRMWARE_GR4_121", &target::GR4_121),
     ] {
         let path = std::env::var(variable).with_context(|| format!("Set {variable}"))?;
         let image = verify_firmware(Path::new(&path), target)?;
@@ -719,7 +731,7 @@ fn native_headers_match_each_firmware() -> Result<()> {
 /// show the icons of Standard and HDR Cuisine, and each other type has its
 /// own. On GR III, Standard shows the icon that NATIVE_OFF_ICON reads.
 #[test]
-#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, and GRKU_TEST_FIRMWARE_GR4_120_0528"]
+#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR3_221, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, GRKU_TEST_FIRMWARE_GR4_120_0528, and GRKU_TEST_FIRMWARE_GR4_121"]
 fn native_type_icons_match_each_firmware() -> Result<()> {
     use grku_core::native::TYPES;
     let position = |label: &str| TYPES.iter().position(|t| t.label == label).unwrap();
@@ -729,9 +741,11 @@ fn native_type_icons_match_each_firmware() -> Result<()> {
     ];
     for (variable, target) in [
         ("GRKU_TEST_FIRMWARE", &target::GR3_210),
+        ("GRKU_TEST_FIRMWARE_GR3_221", &target::GR3_221),
         ("GRKU_TEST_FIRMWARE_GR4", &target::GR4_111),
         ("GRKU_TEST_FIRMWARE_GR4_120", &target::GR4_120),
         ("GRKU_TEST_FIRMWARE_GR4_120_0528", &target::GR4_120_0528),
+        ("GRKU_TEST_FIRMWARE_GR4_121", &target::GR4_121),
     ] {
         let path = std::env::var(variable).with_context(|| format!("Set {variable}"))?;
         let image = verify_firmware(Path::new(&path), target)?;
@@ -807,13 +821,15 @@ fn each_build_includes_its_native_header() {
 /// opens KEYBOARD_CONTROLLER. GR III: the controller ID KEYBOARD_CONTROLLER
 /// starts the keyboard with the use KEYBOARD_COPYRIGHT.
 #[test]
-#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, and GRKU_TEST_FIRMWARE_GR4_120_0528"]
+#[ignore = "Requires local GRKU_TEST_FIRMWARE, GRKU_TEST_FIRMWARE_GR3_221, GRKU_TEST_FIRMWARE_GR4, GRKU_TEST_FIRMWARE_GR4_120, GRKU_TEST_FIRMWARE_GR4_120_0528, and GRKU_TEST_FIRMWARE_GR4_121"]
 fn keyboard_definitions_match_each_firmware() -> Result<()> {
     for (variable, target) in [
         ("GRKU_TEST_FIRMWARE", &target::GR3_210),
+        ("GRKU_TEST_FIRMWARE_GR3_221", &target::GR3_221),
         ("GRKU_TEST_FIRMWARE_GR4", &target::GR4_111),
         ("GRKU_TEST_FIRMWARE_GR4_120", &target::GR4_120),
         ("GRKU_TEST_FIRMWARE_GR4_120_0528", &target::GR4_120_0528),
+        ("GRKU_TEST_FIRMWARE_GR4_121", &target::GR4_121),
     ] {
         let path = std::env::var(variable).with_context(|| format!("Set {variable}"))?;
         let image = verify_firmware(Path::new(&path), target)?;
@@ -943,4 +959,21 @@ fn keyboard_definitions_match_each_firmware() -> Result<()> {
         }
     }
     Ok(())
+}
+/// Each firmware address of the runtime is in the header of a build, so a new
+/// build of a family gives each one (and `grku port` finds each one). Code
+/// that a family shares names an address only by its definition. The fast-boot
+/// targets are build headers of their own.
+#[test]
+fn shared_runtime_code_names_no_firmware_address() {
+    for (name, bytes) in crate::RUNTIME_SOURCES {
+        if name.starts_with("targets/") || name.starts_with("fastboot/targets/") {
+            continue;
+        }
+        let text = String::from_utf8_lossy(bytes);
+        assert!(
+            !text.contains("FIRMWARE(0x"),
+            "{name} names a firmware address outside the build headers"
+        );
+    }
 }

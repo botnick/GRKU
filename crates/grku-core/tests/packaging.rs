@@ -10,8 +10,9 @@ fn runtime_fixture() -> Files {
     testing::runtime_files(&testing::installer(), "gr3-2.10")
 }
 
-fn runtime() -> VerifiedRuntime {
-    testing::runtime("gr3-2.10")
+/// The runtimes of a GR III or GR IIIx package: one for each GR III build.
+fn gr3_runtimes() -> Vec<VerifiedRuntime> {
+    testing::camera_runtimes(&camera::GR3)
 }
 
 /// A stand-in for a guide PDF, which the release builds with Typst.
@@ -26,7 +27,7 @@ fn english() -> Guide<'static> {
 
 fn package() -> Vec<u8> {
     assemble(
-        &[runtime()],
+        &gr3_runtimes(),
         &testing::effect_set(&["test-effect"]),
         &testing::official_modules(),
         &camera::GR3,
@@ -78,7 +79,7 @@ fn package_round_trip_is_deterministic_and_preserves_metadata() {
     assert_eq!(first, package());
     let verified = verify_package(&first).unwrap();
     assert_eq!(verified.effect_ids, ["test-effect"]);
-    assert_eq!(verified.targets, ["gr3-2.10"]);
+    assert_eq!(verified.targets, ["gr3-2.10", "gr3-2.21"]);
     let mut archive = ZipArchive::new(Cursor::new(first)).unwrap();
     for index in 0..archive.len() {
         let entry = archive.by_index(index).unwrap();
@@ -243,7 +244,7 @@ fn target_capacity_and_empty_effect_selection_are_supported() {
             .unwrap();
     }
     let bytes = assemble(
-        &[runtime()],
+        &gr3_runtimes(),
         &effects,
         &testing::official_modules(),
         &camera::GR3,
@@ -265,7 +266,7 @@ fn target_capacity_and_empty_effect_selection_are_supported() {
         "{error}"
     );
     let bytes = assemble(
-        &[runtime()],
+        &gr3_runtimes(),
         &EffectSet::default(),
         &testing::official_modules(),
         &camera::GR3,
@@ -283,9 +284,15 @@ fn target_capacity_and_empty_effect_selection_are_supported() {
 fn selected_modules_are_packaged_and_verified() {
     let effects = testing::effect_set(&["test-effect"]);
     let modules = [testing::module("DATE"), testing::module("FILMLOOK")];
-    let bytes = assemble(&[runtime()], &effects, &modules, &camera::GR3, &english())
-        .unwrap()
-        .bytes;
+    let bytes = assemble(
+        &gr3_runtimes(),
+        &effects,
+        &modules,
+        &camera::GR3,
+        &english(),
+    )
+    .unwrap()
+    .bytes;
     let files = unpack(&bytes);
     assert!(files.contains_key("SD_ROOT/SCRIPT/GRKU/MODULES/DATE.GRM"));
     assert!(files.contains_key("SD_ROOT/SCRIPT/GRKU/MODULES/FILMLOOK.GRM"));
@@ -307,7 +314,7 @@ fn packages_that_show_nothing_are_rejected() {
     let assemble_with = |effects: &[&str], modules: &[&str]| {
         let modules: Vec<_> = modules.iter().map(|id| testing::module(id)).collect();
         assemble(
-            &[runtime()],
+            &gr3_runtimes(),
             &testing::effect_set(effects),
             &modules,
             &camera::GR3,
@@ -503,7 +510,7 @@ fn each_camera_gets_its_modeset_file_and_guide() {
     let effects = testing::effect_set(&["test-effect"]);
     let gr3 = unpack(&package());
     let bytes = assemble(
-        &[runtime()],
+        &gr3_runtimes(),
         &effects,
         &testing::official_modules(),
         &camera::GR3X,
@@ -513,20 +520,20 @@ fn each_camera_gets_its_modeset_file_and_guide() {
     .bytes;
     let verified = verify_package(&bytes).unwrap();
     assert_eq!(verified.camera.id, "gr3x");
-    assert_eq!(verified.targets, ["gr3-2.10"]);
+    assert_eq!(verified.targets, ["gr3-2.10", "gr3-2.21"]);
     let gr3x = unpack(&bytes);
     assert!(gr3x.contains_key("SD_ROOT/00078490.609"));
     assert!(!gr3x.contains_key("SD_ROOT/00078350.588"));
     // The guide source names GR IIIx, GR IIIx HDF, and their ModeSet file.
     let guide = String::from_utf8(installation_guide(&camera::GR3X, Language::English)).unwrap();
-    assert!(guide.contains("For RICOH GR IIIx and GR IIIx HDF firmware 1.60 or 1.70 only."));
+    assert!(guide.contains("For RICOH GR IIIx and GR IIIx HDF firmware 1.60, 1.70, or 1.71 only."));
     assert!(guide.contains("`00078490.609`") && !guide.contains("00078350.588"));
     // The GR III guide is the resource with each release of its runtime build.
     assert_eq!(
         String::from_utf8(installation_guide(&camera::GR3, Language::English)).unwrap(),
         include_str!("../../../resources/INSTALLATION.md").replace(
             "GR III HDF firmware 2.10 only.",
-            "GR III HDF firmware 2.10 or 2.20 only."
+            "GR III HDF firmware 2.10, 2.20, or 2.21 only."
         )
     );
     // Every runtime and effect file is the same for both cameras.
@@ -567,7 +574,7 @@ fn the_guide_names_the_camera_once_and_the_modeset_file_three_times() {
         let phrase = language.camera_phrase(&camera::GR3, &["2.10"]);
         assert_eq!(guide.matches(&phrase).count(), 1, "{phrase}");
         let source = String::from_utf8(installation_guide(&camera::GR3, language)).unwrap();
-        let releases = language.camera_phrase(&camera::GR3, &["2.10", "2.20"]);
+        let releases = language.camera_phrase(&camera::GR3, &["2.10", "2.20", "2.21"]);
         assert_eq!(source.matches(&releases).count(), 1, "{releases}");
         assert_eq!(guide.matches(camera::GR3.hdf).count(), 1, "{language:?}");
         // In the card picture after step 2, after the installation, and in the
@@ -608,7 +615,7 @@ fn the_gr4_guide_names_each_release_once() {
         let phrase = language.camera_phrase(&camera::GR4, &["1.11"]);
         assert_eq!(guide.matches(&phrase).count(), 1, "{phrase}");
         let source = String::from_utf8(installation_guide(&camera::GR4, language)).unwrap();
-        let releases = language.camera_phrase(&camera::GR4, &["1.11", "1.20"]);
+        let releases = language.camera_phrase(&camera::GR4, &["1.11", "1.20", "1.21"]);
         assert_eq!(source.matches(&releases).count(), 1, "{releases}");
     }
 }
@@ -618,7 +625,7 @@ fn a_package_has_the_guide_of_its_language_only() {
     let effects = testing::effect_set(&["test-effect"]);
     for language in Language::ALL {
         let bytes = assemble(
-            &[runtime()],
+            &gr3_runtimes(),
             &effects,
             &testing::official_modules(),
             &camera::GR3X,
@@ -633,7 +640,7 @@ fn a_package_has_the_guide_of_its_language_only() {
         assert_eq!(guides, 1, "{language:?}");
         // The guide source names GR IIIx and GR IIIx HDF in each language.
         let source = String::from_utf8(installation_guide(&camera::GR3X, language)).unwrap();
-        assert!(source.contains(&language.camera_phrase(&camera::GR3X, &["1.60", "1.70"])));
+        assert!(source.contains(&language.camera_phrase(&camera::GR3X, &["1.60", "1.70", "1.71"])));
         assert_eq!(source.matches(camera::GR3X.hdf).count(), 1, "{language:?}");
         assert!(!source.contains(camera::GR3.hdf));
         assert!(source.contains(camera::GR3X.modeset) && !source.contains(camera::GR3.modeset));
@@ -648,15 +655,17 @@ fn a_package_has_the_guide_of_its_language_only() {
             "GRKU 설치 가이드.pdf",
         ]
     );
-    // The GR IV guide names both releases of GR IV; each has its own build.
+    // The GR IV guide names each release of GR IV; each has its own build.
     assert_eq!(
         String::from_utf8(installation_guide(
             &camera::GR4,
             Language::TraditionalChinese
         ))
         .unwrap(),
-        include_str!("../../../resources/INSTALLATION-GR4.zh-Hant.md")
-            .replace("GR IV HDF 韌體 1.11。", "GR IV HDF 韌體 1.11 或 1.20。")
+        include_str!("../../../resources/INSTALLATION-GR4.zh-Hant.md").replace(
+            "GR IV HDF 韌體 1.11。",
+            "GR IV HDF 韌體 1.11、1.20 或 1.21。"
+        )
     );
 }
 
@@ -677,7 +686,7 @@ fn a_package_has_exactly_one_pdf_guide() {
         pdf: b"# GRKU\n",
     };
     assert!(assemble(
-        &[runtime()],
+        &gr3_runtimes(),
         &EffectSet::default(),
         &testing::official_modules(),
         &camera::GR3,
@@ -725,7 +734,10 @@ fn a_gr4_package_has_its_modeset_file_guide_and_modules() {
     .bytes;
     let verified = verify_package(&bytes).unwrap();
     assert_eq!(verified.camera.id, "gr4");
-    assert_eq!(verified.targets, ["gr4-1.11", "gr4-1.20", "gr4-1.20-0528"]);
+    assert_eq!(
+        verified.targets,
+        ["gr4-1.11", "gr4-1.20", "gr4-1.20-0528", "gr4-1.21"]
+    );
     let files = unpack(&bytes);
     assert!(files.contains_key("SD_ROOT/00078560.636"));
     assert_eq!(files["GRKU Installation Guide.pdf"], PDF);
@@ -733,12 +745,12 @@ fn a_gr4_package_has_its_modeset_file_guide_and_modules() {
         String::from_utf8(installation_guide(&camera::GR4, Language::English)).unwrap(),
         include_str!("../../../resources/INSTALLATION-GR4.md").replace(
             "GR IV HDF firmware 1.11 only.",
-            "GR IV HDF firmware 1.11 or 1.20 only."
+            "GR IV HDF firmware 1.11, 1.20, or 1.21 only."
         )
     );
     // A GR III runtime does not run on GR IV.
     assert!(assemble(
-        &[runtime()],
+        &gr3_runtimes(),
         &EffectSet::default(),
         &testing::official_modules(),
         &camera::GR4,
@@ -880,7 +892,7 @@ fn install_tries_the_core_of_the_last_start_first() {
     std::fs::create_dir_all(card.path().join("GRKU")).unwrap();
     std::fs::write(package.join("INSTALL.SH"), script).unwrap();
     // A stand-in core: it logs its run and installs only on its build.
-    for (index, build) in ["1.11", "1.20", "0528"].iter().enumerate() {
+    for (index, build) in ["1.11", "1.20", "0528", "1.21"].iter().enumerate() {
         let core = package.join(format!("CORE{}.BIN", index + 1));
         std::fs::write(
             &core,
@@ -935,7 +947,9 @@ fn install_tries_the_core_of_the_last_start_first() {
     // A build that no core names keeps the record and goes on to --try.
     let (runs, record) = start("2.00");
     assert!(
-        runs.starts_with("CORE1 --known\nCORE2 --known\nCORE3 --known\nCORE1 --try\n"),
+        runs.starts_with(
+            "CORE1 --known\nCORE2 --known\nCORE3 --known\nCORE4 --known\nCORE1 --try\n"
+        ),
         "{runs}"
     );
     assert_eq!(record, "CORE1.BIN\n");
@@ -971,7 +985,7 @@ fn scan_starts_the_core_of_the_build_once() {
     std::fs::write(package.join("SCAN.SH"), script).unwrap();
     // A stand-in core: it logs its run, and starts only on its build, where
     // it takes the lock of the start as the core does.
-    for (index, build) in ["1.11", "1.20", "0528"].iter().enumerate() {
+    for (index, build) in ["1.11", "1.20", "0528", "1.21"].iter().enumerate() {
         let core = package.join(format!("CORE{}.BIN", index + 1));
         std::fs::write(
             &core,
@@ -1027,8 +1041,8 @@ fn scan_starts_the_core_of_the_build_once() {
     let (runs, record) = start("2.00");
     assert_eq!(
         runs,
-        "CORE3 --start-known\nCORE1 --start-known\nCORE2 --start-known\n\
-         CORE1 --start-try\nCORE2 --start-try\nCORE3 --start\n"
+        "CORE3 --start-known\nCORE1 --start-known\nCORE2 --start-known\nCORE4 --start-known\n\
+         CORE1 --start-try\nCORE2 --start-try\nCORE3 --start-try\nCORE4 --start\n"
     );
     assert_eq!(record, "CORE3.BIN\n");
     // The boot log of the start is in RAM, after the load line on the card.
@@ -1056,13 +1070,14 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
     let bytes = gr4(&gr4_runtimes()).unwrap();
     assert_eq!(
         verify_package(&bytes).unwrap().targets,
-        ["gr4-1.11", "gr4-1.20", "gr4-1.20-0528"]
+        ["gr4-1.11", "gr4-1.20", "gr4-1.20-0528", "gr4-1.21"]
     );
     let files = unpack(&bytes);
     for (path, target) in [
         ("SD_ROOT/SCRIPT/GRKU/CORE1.BIN", "gr4-1.11"),
         ("SD_ROOT/SCRIPT/GRKU/CORE2.BIN", "gr4-1.20"),
         ("SD_ROOT/SCRIPT/GRKU/CORE3.BIN", "gr4-1.20-0528"),
+        ("SD_ROOT/SCRIPT/GRKU/CORE4.BIN", "gr4-1.21"),
     ] {
         assert_eq!(files[path], testing::marked_installer(target), "{path}");
     }
@@ -1083,7 +1098,7 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
              fi\n\
              [ -e /tmp/grku-start.lck ] && exit 0\n\
              read t _ </proc/uptime; echo \"$t start\" >>/tmp/grku-boot.log\n\
-             for core in CORE2.BIN CORE3.BIN; do [ -e /media/storage1/SCRIPT/GRKU/$core ]; done\n\
+             for core in CORE2.BIN CORE3.BIN CORE4.BIN; do [ -e /media/storage1/SCRIPT/GRKU/$core ]; done\n\
              k=/media/storage1/GRKU/CORE.TXT\n"
         ),
         "{scan}"
@@ -1092,7 +1107,7 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
         "/media/storage1/SCRIPT/GRKU/$last --start-known; status=$?; used=$last ;; esac\n",
         "    /media/storage1/SCRIPT/GRKU/$core --start-known\n",
         "    /media/storage1/SCRIPT/GRKU/$core --start-try\n",
-        "  case $status in 47) /media/storage1/SCRIPT/GRKU/CORE3.BIN --start; status=$? ;; esac\n",
+        "  case $status in 47) /media/storage1/SCRIPT/GRKU/CORE4.BIN --start; status=$? ;; esac\n",
         "read t _ </proc/uptime; echo \"$t started $status\" >>/tmp/grku-boot.log\n\
          echo GR_MODULE_START_EXIT_$status\n\
          if [ -e /media/storage1/GRKU/DIAG ]; then\n",
@@ -1113,7 +1128,7 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
     for part in [
         "/media/storage1/SCRIPT/GRKU/$last --known; status=$?; used=$last ;; esac\n",
         "    /media/storage1/SCRIPT/GRKU/$core --try\n",
-        "  case $status in 47) /media/storage1/SCRIPT/GRKU/CORE3.BIN --install; status=$? ;; esac\n",
+        "  case $status in 47) /media/storage1/SCRIPT/GRKU/CORE4.BIN --install; status=$? ;; esac\n",
     ] {
         assert!(install.contains(part), "{part}\n{install}");
     }
@@ -1125,20 +1140,31 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
         ),
         "{install}"
     );
+    // A GR III package has a core file for 2.10 and one for 2.21, and its
+    // scripts select the core of the build as those of GR IV do.
     let gr3 = unpack(&package());
+    for (path, target) in [
+        ("SD_ROOT/SCRIPT/GRKU/CORE1.BIN", "gr3-2.10"),
+        ("SD_ROOT/SCRIPT/GRKU/CORE2.BIN", "gr3-2.21"),
+    ] {
+        assert_eq!(gr3[path], testing::marked_installer(target), "{path}");
+    }
+    assert!(!gr3.contains_key("SD_ROOT/SCRIPT/GRKU/CORE.BIN"));
     let scan = text(&gr3["SD_ROOT/SCRIPT/GRKU/SCAN.SH"]);
-    assert!(
-        scan.contains("\n/media/storage1/SCRIPT/GRKU/CORE.BIN --start\nstatus=$?\n"),
-        "{scan}"
-    );
-    assert!(!scan.contains("for core in"));
+    for part in [
+        "for core in CORE2.BIN; do [ -e /media/storage1/SCRIPT/GRKU/$core ]; done\n",
+        "    /media/storage1/SCRIPT/GRKU/$core --start-known\n",
+        "  case $status in 47) /media/storage1/SCRIPT/GRKU/CORE2.BIN --start; status=$? ;; esac\n",
+    ] {
+        assert!(scan.contains(part), "{part}\n{scan}");
+    }
     let install = text(&gr3["SD_ROOT/SCRIPT/GRKU/INSTALL.SH"]);
     assert!(
-        install.contains("\n/media/storage1/SCRIPT/GRKU/CORE.BIN --install\nstatus=$?\n"),
+        install.contains(
+            "  case $status in 47) /media/storage1/SCRIPT/GRKU/CORE2.BIN --install; status=$? ;; esac\n"
+        ),
         "{install}"
     );
-    assert!(gr3.contains_key("SD_ROOT/SCRIPT/GRKU/CORE.BIN"));
-    assert!(!gr3.contains_key("SD_ROOT/SCRIPT/GRKU/CORE1.BIN"));
 
     // Each build, in release order.
     let mut runtimes = gr4_runtimes();
@@ -1167,7 +1193,7 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
     twice[1] = twice[0].clone();
     assert!(format!("{:#}", gr4(&twice[..2]).unwrap_err()).contains("each once"));
     // A GR III runtime does not run on GR IV.
-    assert!(gr4(&[runtime()]).is_err());
+    assert!(gr4(&gr3_runtimes()).is_err());
     // The installer and the build manifest must name the same build.
     let files = testing::runtime_files(&testing::marked_installer("gr4-1.20"), "gr4-1.20");
     let error = load_runtime(&testing::manifest("gr4-1.11", &files), &files).unwrap_err();
@@ -1215,7 +1241,7 @@ fn packages_list_their_files_and_keep_out_of_the_data_folder() {
 #[test]
 fn module_files_install_from_the_modules_folder() {
     let package = assemble(
-        &[runtime()],
+        &gr3_runtimes(),
         &EffectSet::default(),
         &[testing::module("GUIDES")],
         &camera::GR3,
@@ -1241,7 +1267,7 @@ fn module_files_install_from_the_modules_folder() {
     assert!(validate_contents(&with_sums(broken)).is_err());
     // The same module cannot be in a package twice.
     assert!(assemble(
-        &[runtime()],
+        &gr3_runtimes(),
         &EffectSet::default(),
         &[testing::module("GUIDES"), testing::module("GUIDES")],
         &camera::GR3,
@@ -1255,7 +1281,7 @@ fn module_files_install_from_the_modules_folder() {
     let modules: Vec<_> = ids.iter().map(|id| testing::module(id)).collect();
     let package = |modules: &[Vec<u8>]| {
         assemble(
-            &[runtime()],
+            &gr3_runtimes(),
             &EffectSet::default(),
             modules,
             &camera::GR3,
@@ -1308,7 +1334,7 @@ fn indicator_module(id: &str, placements: &[(u32, u32)]) -> Vec<u8> {
 fn package_viewfinder_capacity_is_checked_across_modules() {
     let build = |modules: &[Vec<u8>]| {
         assemble(
-            &[runtime()],
+            &gr3_runtimes(),
             &EffectSet::default(),
             modules,
             &camera::GR3,
@@ -1341,7 +1367,7 @@ fn package_viewfinder_capacity_is_checked_across_modules() {
 fn package_viewfinder_slots_have_one_owner() {
     let build = |modules: &[Vec<u8>]| {
         assemble(
-            &[runtime()],
+            &gr3_runtimes(),
             &EffectSet::default(),
             modules,
             &camera::GR3,
@@ -1376,7 +1402,7 @@ fn package_viewfinder_descriptors_are_bounded_before_reading() {
         // the descriptor reader, as an untrusted file can do.
         module.code_relocations.retain(|&at| at != offset as u32);
         let error = assemble(
-            &[runtime()],
+            &gr3_runtimes(),
             &EffectSet::default(),
             &[module.encode().unwrap()],
             &camera::GR3,
@@ -1443,7 +1469,7 @@ fn a_package_keeps_the_import_library_that_the_camera_does_not_install() {
     ])
     .unwrap();
     let built = assemble_with(
-        &[runtime()],
+        &gr3_runtimes(),
         &testing::effect_set(&["test-effect"]),
         &testing::official_modules(),
         &camera::GR3,
@@ -1502,13 +1528,13 @@ fn a_package_holds_the_fast_boot_files_of_its_camera() {
     let cases = [
         (
             &camera::GR3,
-            vec![gr3.clone()],
-            vec!["F588210.BIN", "F588220.BIN"],
+            vec![gr3.clone(), testing::fast_runtime("gr3-2.21")],
+            vec!["F588210.BIN", "F588220.BIN", "F588221.BIN"],
         ),
         (
             &camera::GR3X,
-            vec![gr3.clone()],
-            vec!["F609160.BIN", "F609170.BIN"],
+            vec![gr3.clone(), testing::fast_runtime("gr3-2.21")],
+            vec!["F609160.BIN", "F609170.BIN", "F609171.BIN"],
         ),
         (
             &camera::GR4,
@@ -1516,8 +1542,9 @@ fn a_package_holds_the_fast_boot_files_of_its_camera() {
                 testing::fast_runtime("gr4-1.11"),
                 testing::fast_runtime("gr4-1.20"),
                 testing::marked_runtime("gr4-1.20-0528"),
+                testing::fast_runtime("gr4-1.21"),
             ],
-            vec!["F636111.BIN", "F636120.BIN"],
+            vec!["F636111.BIN", "F636120.BIN", "F636121.BIN"],
         ),
     ];
     for (camera, runtimes, expected) in cases {
@@ -1639,7 +1666,7 @@ fn a_package_holds_the_recipe_library_of_its_camera() {
     )
     .unwrap();
     let with_library = assemble_with(
-        &[runtime()],
+        &gr3_runtimes(),
         &testing::effect_set(&["test-effect"]),
         &testing::official_modules(),
         &camera::GR3,
@@ -1659,7 +1686,7 @@ fn a_package_holds_the_recipe_library_of_its_camera() {
     assert!(files.keys().all(|path| !path.starts_with("GRKU/")));
     let other = encode(&[recipe(Family::Gr4)], &Default::default()).unwrap();
     let error = assemble_with(
-        &[runtime()],
+        &gr3_runtimes(),
         &testing::effect_set(&["test-effect"]),
         &testing::official_modules(),
         &camera::GR3,

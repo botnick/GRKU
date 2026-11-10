@@ -40,10 +40,10 @@ GRKU の表示には、電源を入れてから約 9 秒かかります（イン
 
 | カメラ | 実機で確認済み | 対応 |
 | --- | --- | --- |
-| GR III、GR III HDF | — | 2.10、2.20 |
-| GR IIIx、GR IIIx HDF | — | 1.60、1.70 |
-| GR IV、GR IV HDF | 1.11 | 1.11、1.20 |
-| GR IV Monochrome | — | 1.00、1.10 |
+| GR III、GR III HDF | — | 2.10、2.20、2.21 |
+| GR IIIx、GR IIIx HDF | — | 1.60、1.70、1.71 |
+| GR IV、GR IV HDF | 1.11 | 1.11、1.20、1.21 |
+| GR IV Monochrome | — | 1.00、1.10、1.11 |
 
 GRKU 独自の変更点は、ファームウェア 1.11 の GR IV で動作しています。GR III および GR IIIx 用のパッケージは同じコードと GRKit のテストからビルドされていますが、まだ誰もそれらのカメラで GRKU を実行していません。実行された場合は、動作したかどうかにかかわらず [issue](https://github.com/botnick/GRKU/issues) でお知らせください。
 

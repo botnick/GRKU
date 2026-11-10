@@ -40,10 +40,10 @@ GRKU 是一個獨立專案，由 [BOTNICK](https://github.com/botnick) 先為泰
 
 | 機型 | 實機測試 | 已支援 |
 | --- | --- | --- |
-| GR III、GR III HDF | — | 2.10、2.20 |
-| GR IIIx、GR IIIx HDF | — | 1.60、1.70 |
-| GR IV、GR IV HDF | 1.11 | 1.11、1.20 |
-| GR IV Monochrome | — | 1.00、1.10 |
+| GR III、GR III HDF | — | 2.10、2.20、2.21 |
+| GR IIIx、GR IIIx HDF | — | 1.60、1.70、1.71 |
+| GR IV、GR IV HDF | 1.11 | 1.11、1.20、1.21 |
+| GR IV Monochrome | — | 1.00、1.10、1.11 |
 
 GRKU 本身的修改已在韌體 1.11 的 GR IV 上執行過。GR III 與 GR IIIx 的安裝包由相同的程式碼和 GRKit 的測試建置，但尚未有人在這些相機上實際執行 GRKU。如果您嘗試了，不論成功與否，請在 [issue](https://github.com/botnick/GRKU/issues) 中告訴我們。
 

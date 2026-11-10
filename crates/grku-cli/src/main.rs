@@ -274,7 +274,7 @@ enum EffectsCommand {
     },
     /// Read Cinema (Yellow) and Cinema (Green) from your GR IV firmware into new effect
     /// definitions at OUT/ID/effect.json. FIRMWARE is an official GR IV zip or its
-    /// fwdc248b.bin, version 1.11 or 1.20. GRKU ships none of this data.
+    /// fwdc248b.bin, version 1.11, 1.20, or 1.21. GRKU ships none of this data.
     Native {
         #[arg(long)]
         firmware: PathBuf,
