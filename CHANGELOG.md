@@ -1,3 +1,15 @@
+## 1.8.0 (2026-11-10)
+
+### Features
+
+- Ten film simulations of the FUJIFILM cameras join the film library: Provia, Velvia, Astia, Classic Chrome, Classic Neg, Pro Neg Std, Reala Ace, Eterna, Eterna BB, and Acros. Each is a fit of the official FUJIFILM 3D LUT (F-Log2 to BT.709, GFX ETERNA 55), nine at grade A and Reala Ace at grade B. They sit with the camera looks, in a silver box, and are free: they take no slot and are in no pack. The library has 145 looks.
+- GRKU supports the firmware that Ricoh released on 2026-11-10: GR III 2.21, GR IIIx 1.71, GR IV 1.21, and GR IV Monochrome 1.11. The GR III and GR IIIx packages hold a core file for 2.10 and one for 2.21, and the GR IV package one more for 1.21; the camera picks the one of its firmware at power-on. Crop, Recipes, the mode dial, and the keyboard of recipe names have their addresses in the new firmware too, checked against Ricoh's files. Not run on a camera with the new firmware yet.
+
+### Fixes
+
+- ADJ keeps opening where it closed last time after each power-off, not only after the first one.
+- ADJ opens on GRKU after power-off when ADJ closed there last time, and on the same module row.
+
 ## 1.7.0 (2026-11-09)
 
 ### Features
