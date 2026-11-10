@@ -306,9 +306,12 @@ export function errorKind(
 }
 
 /** What an entitlement gives, one line each, for the page and the sheet. Empty for the free tier. */
-export function ownedLines(owned: Entitlement, strings: { yoursAll: string; yoursPack: (name: string, n: number) => string; yoursSlots: (n: number) => string; packs: Record<Pack, string> }, counts: Record<Pack, number> | null): string[] {
+export function ownedLines(owned: Entitlement, strings: { yoursAll: string; yoursPack: (name: string, n: number) => string; yoursTotal?: (n: number) => string; yoursSlots: (n: number) => string; packs: Record<Pack, string> }, counts: Record<Pack, number> | null): string[] {
   if (owned.plus) return [strings.yoursAll];
-  const lines = owned.packs.filter((pack): pack is Pack => (PACKS as readonly string[]).includes(pack)).map((pack) => strings.yoursPack(strings.packs[pack], counts?.[pack] ?? 0));
+  const packs = owned.packs.filter((pack): pack is Pack => (PACKS as readonly string[]).includes(pack));
+  const lines = packs.map((pack) => strings.yoursPack(strings.packs[pack], counts?.[pack] ?? 0));
+  // Two packs or more add up, so the count of the button that puts them on the card reads at once.
+  if (packs.length > 1 && counts && strings.yoursTotal) lines.push(strings.yoursTotal(packs.reduce((sum, pack) => sum + counts[pack], 0)));
   if (owned.slots > FREE.slots) lines.push(strings.yoursSlots(owned.slots));
   return lines;
 }

@@ -520,7 +520,8 @@ export function Workbench({
           const lines = ownedLines(owned, t.plus, catalog ? packCounts(catalog.effects) : null);
           if (lines.length === 0) return null;
           // Bought looks are unlocked, not placed: this puts the ones not yet on the card there, as many as fit.
-          const notOnCard = listed.filter((effect) => !effect.card && unlockedBy(effect, owned) && !checked.has(effect.id));
+          const bought = listed.filter((effect) => !effect.card && unlockedBy(effect, owned));
+          const notOnCard = bought.filter((effect) => !checked.has(effect.id));
           const fits = Math.min(notOnCard.length, Math.max(0, MAX_EFFECTS - checked.size));
           const addOwned = () => {
             const next = new Set(checked);
@@ -568,7 +569,7 @@ export function Workbench({
                 {fits > 0 && (
                   <Button type="button" variant="brand" size="sm" className="mt-3" onClick={addOwned}>
                     <Plus aria-hidden="true" />
-                    {t.plus.addOwned(fits)}
+                    {notOnCard.length === bought.length ? t.plus.addOwned(fits) : t.plus.addOwnedRest(fits)}
                   </Button>
                 )}
               </div>
