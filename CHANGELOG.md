@@ -1,3 +1,10 @@
+## 1.8.2 (2026-11-10)
+
+### Fixes
+
+- Date Imprint, Bloom, Halation, and Grain get a Show Icon setting, as Framing has, to hide their icon in live view.
+- The GRKU icons of the live view sit level with the text next to them, on the line of the focus distance.
+
 ## 1.8.1 (2026-11-10)
 
 ### Fixes
