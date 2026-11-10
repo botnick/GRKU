@@ -504,7 +504,7 @@ export function Workbench({
                 <Progress value={Math.min(100, (used / Math.max(slots, 1)) * 100)} className="w-20 [&>div]:bg-brand" aria-hidden="true" />
                 <span className="text-sm tabular-nums">
                   <b className="font-semibold">{used}</b>
-                  <span className="text-muted-foreground"> / {slots}</span>
+                  <span className="text-muted-foreground"> / {slots} {t.slotsLabel}</span>
                 </span>
               </div>
               {!owned.plus && (
@@ -746,6 +746,27 @@ export function Workbench({
             <div className="mb-2 flex items-center justify-between gap-3 text-[13px]">
               <span className="font-medium">
                 {t.onCard} · <span className="tabular-nums">{checked.size}</span>
+                {/* Where the count comes from: the free slots, Plus, the camera looks, and imports. */}
+                {(() => {
+                  const parts = { free: 0, plus: 0, camera: 0, imported: 0 };
+                  for (const effect of listed) {
+                    if (!checked.has(effect.id)) continue;
+                    const kind = filmKind(effect);
+                    if (kind === 'camera') parts.camera += 1;
+                    else if (kind === 'imported') parts.imported += 1;
+                    else if (unlockedBy(effect, owned)) parts.plus += 1;
+                    else parts.free += 1;
+                  }
+                  const text = [
+                    parts.free ? t.onCardFree(parts.free) : '',
+                    parts.plus ? t.onCardPlus(parts.plus) : '',
+                    parts.camera ? t.onCardCamera(parts.camera) : '',
+                    parts.imported ? t.onCardImported(parts.imported) : '',
+                  ].filter(Boolean);
+                  return text.length > 1 ? (
+                    <span className="ml-2 font-normal text-muted-foreground">({text.join(' · ')})</span>
+                  ) : null;
+                })()}
               </span>
               <Button type="button" variant="ghost" size="xs" onClick={() => onSelectionChange(new Set())}>
                 {t.clear}
