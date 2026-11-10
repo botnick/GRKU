@@ -346,7 +346,7 @@ const en = {
     `A package holds ${max} film looks. Uncheck others to include these looks.`,
   /** Why a file gave no looks (`NativeProblem`). */
   nativeErrors: {
-    unsupported: 'This file does not work. Only the GR IV firmware 1.11 and 1.20 work.',
+    unsupported: 'This file does not work. Only the GR IV firmware 1.11, 1.20, and 1.21 work.',
     notFirmware: "This is not the GR IV firmware ZIP. Choose the ZIP file from Ricoh's GR IV page.",
     tooLarge: 'This file is too large to be the GR IV firmware.',
     failed: 'The looks cannot be read from this file. Try again.',
@@ -990,7 +990,7 @@ const zhHans: Strings = {
   nativeDone: (version) => `找到 GR IV ${version}，这些色彩已加入胶片风格列表。`,
   nativeUnchecked: (max) => `一个安装包最多 ${max} 种胶片风格。取消勾选其他胶片风格后，才能加入这些色彩。`,
   nativeErrors: {
-    unsupported: '这个文件用不了。只支持 GR IV 1.11 和 1.20 版固件。',
+    unsupported: '这个文件用不了。只支持 GR IV 1.11、1.20 和 1.21 版固件。',
     notFirmware: '这不是 GR IV 固件的 ZIP 文件。请选择从理光 GR IV 页面下载的 ZIP。',
     tooLarge: '文件太大，不是 GR IV 固件。',
     failed: '无法从这个文件读取色彩，请重试。',
@@ -1581,7 +1581,7 @@ const zhHant: Strings = {
   nativeDone: (version) => `找到 GR IV ${version}，色彩已加入底片風格清單。`,
   nativeUnchecked: (max) => `最多可安裝 ${max} 種底片風格。取消勾選其他底片風格，才能加入這些色彩。`,
   nativeErrors: {
-    unsupported: '無法使用這個檔案。只支援 GR IV 1.11 與 1.20 版韌體。',
+    unsupported: '無法使用這個檔案。只支援 GR IV 1.11、1.20 與 1.21 版韌體。',
     notFirmware: '這不是 GR IV 韌體的 ZIP 檔案。請選擇從理光 GR IV 頁面下載的 ZIP。',
     tooLarge: '檔案太大，不是 GR IV 韌體。',
     failed: '無法從這個檔案讀取色彩，請再試一次。',
@@ -2174,7 +2174,7 @@ const ja: Strings = {
   nativeUnchecked: (max) =>
     `1 つのパッケージに入るフィルムルックは最大 ${max} 個です。これらの色を入れるには、ほかのフィルムルックの選択を外してください。`,
   nativeErrors: {
-    unsupported: 'このファイルは使えません。使えるのは GR IV 1.11 と 1.20 のファームウェアだけです。',
+    unsupported: 'このファイルは使えません。使えるのは GR IV 1.11、1.20、1.21 のファームウェアだけです。',
     notFirmware:
       'GR IV のファームウェアの ZIP ファイルではありません。リコーの GR IV のページからダウンロードした ZIP を選択してください。',
     tooLarge: 'ファイルが大きすぎます。GR IV のファームウェアではありません。',
@@ -2768,7 +2768,7 @@ const ko: Strings = {
   nativeUnchecked: (max) =>
     `패키지 하나에는 효과를 ${max}개까지 넣을 수 있습니다. 이 색감을 넣으려면 다른 효과의 선택을 해제하세요.`,
   nativeErrors: {
-    unsupported: '이 파일은 사용할 수 없습니다. GR IV 1.11과 1.20 펌웨어만 지원합니다.',
+    unsupported: '이 파일은 사용할 수 없습니다. GR IV 1.11, 1.20, 1.21 펌웨어만 지원합니다.',
     notFirmware: 'GR IV 펌웨어 ZIP 파일이 아닙니다. 리코 GR IV 페이지에서 받은 ZIP을 선택하세요.',
     tooLarge: '파일이 너무 큽니다. GR IV 펌웨어가 아닙니다.',
     failed: '이 파일에서 색감을 읽을 수 없습니다. 다시 시도하세요.',
@@ -3396,7 +3396,7 @@ const th: Strings = {
     `หนึ่งแพ็กเกจใส่ได้ ${max} ฟิล์มลุค นำเครื่องหมายถูกออกบางอันเพื่อเพิ่มลุคเหล่านี้`,
   /** Why a file gave no looks (`NativeProblem`). */
   nativeErrors: {
-    unsupported: 'ไฟล์นี้ใช้ไม่ได้ ใช้ได้เฉพาะเฟิร์มแวร์ GR IV 1.11 และ 1.20 เท่านั้น',
+    unsupported: 'ไฟล์นี้ใช้ไม่ได้ ใช้ได้เฉพาะเฟิร์มแวร์ GR IV 1.11, 1.20 และ 1.21 เท่านั้น',
     notFirmware: "ไฟล์นี้ไม่ใช่ ZIP เฟิร์มแวร์ GR IV เลือกไฟล์ ZIP จากหน้า GR IV ของ Ricoh",
     tooLarge: 'ไฟล์นี้ใหญ่เกินกว่าจะเป็นเฟิร์มแวร์ GR IV',
     failed: 'อ่านลุคจากไฟล์นี้ไม่ได้ ลองอีกครั้ง',
