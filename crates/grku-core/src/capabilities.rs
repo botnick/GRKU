@@ -8,7 +8,8 @@
 //! `CORE.<KEY>`, and restores it only while a loaded module uses it.
 
 use crate::abi::{
-    HOST_ASPECT_MODE, HOST_CROP, HOST_CROP_MODE, HOST_FRAME_RATIO, HOST_GRAIN, HOST_GRAIN_SIZE,
+    HOST_ADJ_OPEN, HOST_ASPECT_MODE, HOST_CROP, HOST_CROP_MODE, HOST_FRAME_RATIO, HOST_GRAIN,
+    HOST_GRAIN_SIZE, HOST_MODULE, MODULES_MAX,
 };
 
 /// An extension point: the firmware changes that a group of features needs.
@@ -115,7 +116,7 @@ impl Capability {
 }
 
 /// The capabilities in handle order.
-pub const CAPABILITIES: [Capability; 8] = [
+pub const CAPABILITIES: [Capability; 10] = [
     Capability {
         // The effect of still pictures and the live view: 0 Off, then effect
         // n - 1 of the installed effects (runtime/tone.h). The core gives
@@ -177,6 +178,23 @@ pub const CAPABILITIES: [Capability; 8] = [
         values: 2,
         state: State::Word(HOST_CROP_MODE),
         points: &[Point::ViewfinderOverlay, Point::CaptureCrop],
+    },
+    Capability {
+        // 1 when ADJ should open on GRKU after the next power-on, 0 for a
+        // native entry. No firmware patches: INSTALL always restores it
+        // (runtime/installer.c), and menu_exit writes it (runtime/menu.c).
+        key: "ADJ",
+        values: 2,
+        state: State::Word(HOST_ADJ_OPEN),
+        points: &[],
+    },
+    Capability {
+        // The module of the GRKU root row where the next ADJ session opens
+        // (HOST_MODULE). No firmware patches: INSTALL always restores it.
+        key: "ADJ_MODULE",
+        values: MODULES_MAX as u32,
+        state: State::Word(HOST_MODULE),
+        points: &[],
     },
     Capability {
         // The camera recipes (runtime/recipes.h). The core gives the rows of

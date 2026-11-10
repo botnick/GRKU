@@ -166,10 +166,10 @@ fn generated_header_gives_the_points_of_each_patch() -> Result<()> {
     // and CORE.CROP_MODE need the overlay point (bit 2) and the capture crop
     // point (bit 7). CORE.RECIPE needs the mode dial point (bit 8) and the overlay point.
     assert!(header.contains(
-        "static const char *const core_setting_names[] = {\"CORE.TONE\",\"CORE.ASPECT\",\"CORE.GRAIN\",\"CORE.GRAIN_SIZE\",\"CORE.ASPECT_MODE\",\"CORE.CROP\",\"CORE.CROP_MODE\",\"CORE.RECIPE\"};"
+        "static const char *const core_setting_names[] = {\"CORE.TONE\",\"CORE.ASPECT\",\"CORE.GRAIN\",\"CORE.GRAIN_SIZE\",\"CORE.ASPECT_MODE\",\"CORE.CROP\",\"CORE.CROP_MODE\",\"CORE.ADJ\",\"CORE.ADJ_MODULE\",\"CORE.RECIPE\"};"
     ));
     assert!(header.contains(
-        "static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc,0x84,0x84,0x104};"
+        "static const u32 core_setting_points[] = {0x12,0xc,0x20,0x40,0xc,0x84,0x84,0x0,0x0,0x104};"
     ));
     Ok(())
 }

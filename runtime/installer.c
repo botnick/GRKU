@@ -496,7 +496,11 @@ static void apply_state(u32 base, u32 table)
     u32 value;
     _Static_assert(sizeof(ids) / sizeof(ids[0]) == CORE_STATE_COUNT, "a state key for each keyed capability");
     for (u32 k = 0; k < CORE_STATE_COUNT; ++k) {
-        if (!(capabilities_used >> k & 1) || !state_value(&saved_state, ids[k], &value)) continue;
+        /* UI-only keys (no firmware points) always restore: ADJ open preference
+           and the last GRKU root module. Module capabilities still need a
+           loaded module that uses them. */
+        if ((core_setting_points[k] && !(capabilities_used >> k & 1)) ||
+            !state_value(&saved_state, ids[k], &value)) continue;
         if (k == GRKU_CORE_TONE - GRKU_CORE_SETTING_BASE) {
             /* The effect is its ImageTone code. */
             for (u32 i = 0; i < count; ++i) {
@@ -505,6 +509,9 @@ static void apply_state(u32 base, u32 table)
             }
         } else if (value < values[k]) store(base + words[k], value);
     }
+    /* ADJ exited from GRKU on the last power-on: the next ADJ opens GRKU
+       (RETURN_GRKU in runtime/menu.c). */
+    if (word(base + GRKU_HOST_ADJ_OPEN) == 1) store(base + GRKU_HOST_RETURN, 3);
     if (table) {
         u32 n = word(table);
         for (u32 k = 0; k < n && k < GRKU_MODULE_SETTINGS_MAX; ++k) {

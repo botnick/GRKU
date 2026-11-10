@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6116
+#define GRKU_HOST_HEADER_SIZE 6144
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -128,10 +128,10 @@
 #define GRKU_DIAL_SET_PAIRS 93U
 #define GRKU_DIAL_SET_COUNT 0U
 #define GRKU_DIAL_SET_CORE 1U
-#define GRKU_DIAL_SET_FN 9U
-#define GRKU_DIAL_SET_TONING 10U
-#define GRKU_DIAL_SET_PAIR 11U
-#define GRKU_DIAL_SET_WORDS 197U
+#define GRKU_DIAL_SET_FN 11U
+#define GRKU_DIAL_SET_TONING 12U
+#define GRKU_DIAL_SET_PAIR 13U
+#define GRKU_DIAL_SET_WORDS 199U
 #define GRKU_DIAL_SET_EFFECT 32768U
 #define GRKU_DIAL_SET_KEY_BASE 992000000U
 #define GRKU_DIAL_SET_KEY_STRIDE 1000U
@@ -290,13 +290,13 @@
    (runtime/picture.c). */
 #define GRKU_HOST_GRAIN_SHOT 248
 /* Return to GRKU Image Control after the native parameter page: 1 opening, 2
-   away. 3: ADJ exited from GRKit, so the next ADJ opens GRKU. 4: MENU or OK on
+   away. 3: ADJ exited from GRKU, so the next ADJ opens GRKU. 4: MENU or OK on
    GRKU passed the event that closes ADJ to the native list. */
 #define GRKU_HOST_RETURN 252
 /* Number of changes of the saved selections: the effect, CORE.ASPECT,
-   CORE.GRAIN, CORE.GRAIN_SIZE, the Fn adjustments, and the module settings
-   (GRKU_STATE_CHANGED). The resident loader polls this word and
-   HOST_RECIPE_CHANGES, and saves the state file after it changes. */
+   CORE.GRAIN, CORE.GRAIN_SIZE, CORE.ADJ, CORE.ADJ_MODULE, the Fn adjustments,
+   and the module settings (GRKU_STATE_CHANGED). The resident loader polls this
+   word and HOST_RECIPE_CHANGES, and saves the state file after it changes. */
 #define GRKU_HOST_STATE_CHANGES 256
 /* Number of module plane filters in GRKU_HOST_MODULE_FILTERS. INSTALL writes
    it. */
@@ -468,20 +468,24 @@
 /* The count of changes of the saved settings of the user modes
    (`HOST_DIAL_SETS`): the loader saves their file after it changes. */
 #define GRKU_HOST_DIAL_SET_CHANGES 3748
+/* CORE.ADJ: 1 when the next ADJ should open on GRKU, 0 for a native entry.
+   Survives enter clearing HOST_RETURN, and STATE.TXT keeps it across power-off
+   (runtime/menu.c). */
+#define GRKU_HOST_ADJ_OPEN 3752
 /* The settings that the camera saved in each user mode of the mode dial, U1 to
    U3, `DIAL_SET_WORDS` words each (runtime/mode_dial.h). A user mode applies
    them while it has `runtime::RECIPE_DIAL_SAVED` (`HOST_RECIPE_DIAL`). The
    resident loader saves each word that is not 0 in their file
    (`capabilities::StateFile::DialSets`), and INSTALL restores them. */
-#define GRKU_HOST_DIAL_SETS 3752
-#define GRKU_HOST_DIAL_SETS_WORDS 591
+#define GRKU_HOST_DIAL_SETS 3756
+#define GRKU_HOST_DIAL_SETS_WORDS 597
 
 /* The capabilities of the core (grku_core::capabilities): the handle of each
    CORE setting, and for each handle in order, its header word and its number
    of values. CORE.TONE has neither: its value is the active record, and the
    effects give its number of values (runtime/tone.h). */
 #define GRKU_CORE_SETTING_BASE 0x100U
-#define GRKU_CORE_SETTING_COUNT 8U
+#define GRKU_CORE_SETTING_COUNT 10U
 #define GRKU_CORE_TONE 0x100U
 #define GRKU_CORE_TONE_VALUES 0U
 #define GRKU_CORE_TONE_BIT 0x1
@@ -503,11 +507,17 @@
 #define GRKU_CORE_CROP_MODE 0x106U
 #define GRKU_CORE_CROP_MODE_VALUES 2U
 #define GRKU_CORE_CROP_MODE_BIT 0x40
-#define GRKU_CORE_RECIPE 0x107U
+#define GRKU_CORE_ADJ 0x107U
+#define GRKU_CORE_ADJ_VALUES 2U
+#define GRKU_CORE_ADJ_BIT 0x80
+#define GRKU_CORE_ADJ_MODULE 0x108U
+#define GRKU_CORE_ADJ_MODULE_VALUES 10U
+#define GRKU_CORE_ADJ_MODULE_BIT 0x100
+#define GRKU_CORE_RECIPE 0x109U
 #define GRKU_CORE_RECIPE_VALUES 0U
-#define GRKU_CORE_RECIPE_BIT 0x80
-#define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,0
-#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,6,2,0
+#define GRKU_CORE_RECIPE_BIT 0x200
+#define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,3752,188,0
+#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,6,2,2,10,0
 
 /* An Image Control record. The records follow the header. */
 #define GRKU_RECORD_SIZE 0x1100

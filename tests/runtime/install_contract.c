@@ -41,8 +41,8 @@ typedef unsigned int u32;
 #define DIAL_SETS_PATH CARD "/GRKU/USERMODE.TXT"
 #define DIAL_SETS_TMP_PATH CARD "/GRKU/USERMODE.TMP"
 #define RECIPES_INBOX_PATH CARD "/SCRIPT/GRKU/RECIPES.BIN"
-#define CORE_STATE_COUNT 7U
-#define CORE_STATE_IDS 861965461, 484706023, 790270076, 977751003, 826089556, 660632122, 618415657
+#define CORE_STATE_COUNT 9U
+#define CORE_STATE_IDS 861965461, 484706023, 790270076, 977751003, 826089556, 660632122, 618415657, 458876999, 697053196
 #define PARAMETER_KEY_BASE 990000000U
 #define RECIPE_VALUE_MAX 536870911U
 #define STATE_TEXT_MAX 16384U
@@ -50,8 +50,8 @@ typedef unsigned int u32;
 #define POINT_MENU_PAGE 0x1U
 #define POINT_PICTURE_ENCODE 0x10U
 static const char *const core_setting_names[] = {"CORE.TONE", "CORE.ASPECT", "CORE.GRAIN", "CORE.GRAIN_SIZE", "CORE.ASPECT_MODE",
-                                                 "CORE.CROP", "CORE.CROP_MODE", "CORE.RECIPE"};
-static const u32 core_setting_points[] = {0x12, 0xc, 0x20, 0x40, 0xc, 0x84, 0x84, 0x104};
+                                                 "CORE.CROP", "CORE.CROP_MODE", "CORE.ADJ", "CORE.ADJ_MODULE", "CORE.RECIPE"};
+static const u32 core_setting_points[] = {0x12, 0xc, 0x20, 0x40, 0xc, 0x84, 0x84, 0x0, 0x0, 0x104};
 /* The tail of the core, and its one export, overlay_label. */
 #define TAIL 0x54000000U
 #define TAIL_SYMBOL 0U

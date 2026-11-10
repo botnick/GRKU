@@ -277,13 +277,14 @@ packed_fields!(HEADER_FIELDS, HOST_HEADER_SIZE {
     /// reads it (runtime/picture.c).
     HOST_GRAIN_SHOT: 4;
     /// Return to GRKU Image Control after the native parameter page: 1 opening,
-    /// 2 away. 3: ADJ exited from GRKit, so the next ADJ opens GRKU. 4: MENU
+    /// 2 away. 3: ADJ exited from GRKU, so the next ADJ opens GRKU. 4: MENU
     /// or OK on GRKU passed the event that closes ADJ to the native list.
     HOST_RETURN: 4;
     /// Number of changes of the saved selections: the effect, CORE.ASPECT,
-    /// CORE.GRAIN, CORE.GRAIN_SIZE, the Fn adjustments, and the module settings
-    /// (GRKU_STATE_CHANGED). The resident loader polls this word and
-    /// HOST_RECIPE_CHANGES, and saves the state file after it changes.
+    /// CORE.GRAIN, CORE.GRAIN_SIZE, CORE.ADJ, CORE.ADJ_MODULE, the Fn
+    /// adjustments, and the module settings (GRKU_STATE_CHANGED). The
+    /// resident loader polls this word and HOST_RECIPE_CHANGES, and saves the
+    /// state file after it changes.
     HOST_STATE_CHANGES: 4;
     /// Number of module plane filters in GRKU_HOST_MODULE_FILTERS. INSTALL
     /// writes it.
@@ -446,6 +447,10 @@ packed_fields!(HEADER_FIELDS, HOST_HEADER_SIZE {
     /// The count of changes of the saved settings of the user modes
     /// (`HOST_DIAL_SETS`): the loader saves their file after it changes.
     HOST_DIAL_SET_CHANGES: 4;
+    /// CORE.ADJ: 1 when the next ADJ should open on GRKU, 0 for a native
+    /// entry. Survives enter clearing HOST_RETURN, and STATE.TXT keeps it
+    /// across power-off (runtime/menu.c).
+    HOST_ADJ_OPEN: 4;
     /// The settings that the camera saved in each user mode of the mode
     /// dial, U1 to U3, `DIAL_SET_WORDS` words each (runtime/mode_dial.h). A
     /// user mode applies them while it has `runtime::RECIPE_DIAL_SAVED`
