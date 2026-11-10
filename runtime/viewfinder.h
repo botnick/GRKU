@@ -286,7 +286,12 @@ static GRKU_ICON_COMPACT u32 canvas_pixels(u32 canvas,u32 bitmap) {
    of the same row; the end of the cue redraws the canvas. */
 #define STATUS_LEFT 245U
 #define STATUS_RIGHT 580U
-#define STATUS_TOP 45U
+/* A one-line label stays at LABEL_TOP, so its capitals share the baseline of
+   the native focus distance next to the row. The marks of an icon and of a
+   two-line label fill rows 2 to 37 of their 40 rows; from STATUS_TOP they
+   center on the one-line text. */
+#define STATUS_TOP 40U
+#define STATUS_LINE_HEIGHT 32U
 #define STATUS_STEP 44U
 /* A core label takes its own width and this gap. The marks of an icon reach
    one pixel from its tile edge, so the space after a label looks close to
@@ -328,9 +333,7 @@ static GRKU_ICON_COMPACT void viewfinder_status_paint(volatile u32 *h,const Surf
         u32 icon=item[i];
         if(icon&STATUS_LABEL_BIT) {
             u32 label=icon&~STATUS_LABEL_BIT;
-            /* At LABEL_TOP, so its capitals share the baseline of the
-               native focus distance next to the row. */
-            overlay_label(surface,label,left,LABEL_TOP);
+            overlay_label(surface,label,left,label_field(labels,label*8+2,2)>STATUS_LINE_HEIGHT ? STATUS_TOP : LABEL_TOP);
             left+=width[i]+STATUS_LABEL_GAP;
             continue;
         }
