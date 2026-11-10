@@ -241,7 +241,7 @@ dependencies = [
 
 [[package]]
 name = "grku-build"
-version = "1.8.2"
+version = "1.8.3"
 dependencies = [
  "anyhow",
  "grku-core",
@@ -255,7 +255,7 @@ dependencies = [
 
 [[package]]
 name = "grku-cli"
-version = "1.8.2"
+version = "1.8.3"
 dependencies = [
  "anyhow",
  "clap",
@@ -268,7 +268,7 @@ dependencies = [
 
 [[package]]
 name = "grku-core"
-version = "1.8.2"
+version = "1.8.3"
 dependencies = [
  "ab_glyph",
  "anyhow",
@@ -285,7 +285,7 @@ dependencies = [
 
 [[package]]
 name = "grku-firmware"
-version = "1.8.2"
+version = "1.8.3"
 dependencies = [
  "anyhow",
  "hex",
@@ -298,7 +298,7 @@ dependencies = [
 
 [[package]]
 name = "grku-wasm"
-version = "1.8.2"
+version = "1.8.3"
 dependencies = [
  "anyhow",
  "grku-core",
