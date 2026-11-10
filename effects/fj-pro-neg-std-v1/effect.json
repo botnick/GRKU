@@ -38,7 +38,7 @@
       "holdout_p95_de": 3.098,
       "grade": "A"
     },
-    "target": "Pro Neg. Std, the FUJIFILM film simulation, as FUJIFILM renders it from F-Log2 and F-Gamut to BT.709 (official GFX ETERNA 55 3D LUT, 65 grid, V.1.00)",
+    "target": "Pro Neg. Std, a film simulation of the FUJIFILM cameras",
     "generator": "FUJIFILM 3D LUT (GFX ETERNA 55, V.1.00)",
     "license": "LicenseRef-FUJIFILM"
   },
