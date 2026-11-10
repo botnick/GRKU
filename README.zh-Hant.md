@@ -15,13 +15,13 @@ GRKU 是一個獨立專案，由 [BOTNICK](https://github.com/botnick) 先為泰
   <img src="resources/images/grku-menu.jpg" alt="MENU 自訂頁中的 GRKU 小節" width="49%">
 </p>
 
-照片：[Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg)，[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)。
+畫面中的照片：[Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg)，[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)。
 
 ## 功能
 
-拍攝時按下 ADJ 撥桿，選擇第 6 項 GRKU。GRKU 的所有功能都在這裡，以及 MENU 中的 GRKU 小節。
+拍攝時按下 ADJ 撥桿，選擇第 6 項 GRKU。GRKU 的所有功能都在這裡，以及 MENU 中的 GRKU 小節。ADJ 會再次開啟在 GRKU 上，並停留在你離開時的那一行，即使關機後也是如此。
 
-- **底片風格**：145 種真實底片風格，記憶卡中一次可存放 40 種。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 與 Rollei，再加上 GRKU 仿照 GR II 正片風格自製的 Positive GRII 風格。每種風格都有採用真實底片盒配色的底片盒圖示。按下 Fn 可微調風格；也可以在網站上匯入自己的 LUT。
+- **底片風格**：145 種真實底片風格，記憶卡中一次可存放 40 種。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 與 Rollei，再加上 GRKU 仿照 GR II 正片風格自製的 Positive GRII 風格，以及 FUJIFILM 相機的十種免費底片模擬，從 Provia、Classic Chrome 到 Acros。每種風格都有採用真實底片盒配色的底片盒圖示。按下 Fn 可微調風格；也可以在網站上匯入自己的 LUT。
 - **配方**：將整套相機風格命名儲存，或從網站載入熱門配方，即可一次切換底片風格或 Image Control、顆粒、光暈、白平衡、校正與曝光，並支援還原。模式轉盤上的 U1、U2 與 U3 都能存放配方。
 - **構圖比例**：XPan、2.35:1、16:9、4:3、5:4、7:6 與 1:1，可裁切 JPEG，也可僅顯示框線。**裁切**：35、40、50、70 或 90 mm，具備即時預覽。
 - **輔助線**：三分法、中心、黃金分割、對角線、黃金螺旋、動態對稱。
@@ -45,7 +45,7 @@ GRKU 是一個獨立專案，由 [BOTNICK](https://github.com/botnick) 先為泰
 | GR IV、GR IV HDF | 1.11 | 1.11、1.20、1.21 |
 | GR IV Monochrome | — | 1.00、1.10、1.11 |
 
-GRKU 本身的修改已在韌體 1.11 的 GR IV 上執行過。GR III 與 GR IIIx 的安裝包由相同的程式碼和 GRKit 的測試建置，但尚未有人在這些相機上實際執行 GRKU。如果您嘗試了，不論成功與否，請在 [issue](https://github.com/botnick/GRKU/issues) 中告訴我們。
+GRKU 本身的修改已在韌體 1.11 的 GR IV 上執行過。GR III 與 GR IIIx 的安裝包由相同的程式碼和 GRKit 的測試建置，但尚未有人在這些相機上實際執行 GRKU。如果您嘗試了，不論成功與否，請在 [issue](https://github.com/botnick/GRKU/issues) 中告訴我們。針對理光於 2026 年 11 月 10 日釋出的韌體（GR III 2.21、GR IIIx 1.71、GR IV 1.21、GR IV Monochrome 1.11）所建立的版本已對照理光韌體檔案進行驗證；它們尚未在實機上執行過。
 
 > [!WARNING]
 > GRKU 仍是實驗性專案，使用風險請自行承擔。
@@ -55,7 +55,7 @@ GRKU 本身的修改已在韌體 1.11 的 GR IV 上執行過。GR III 與 GR III
 
 前往 [grku.app](https://grku.app)，選好你的相機、模組與底片風格，然後選擇其中一種方式：
 
-- 在 Chrome 或 Edge 上**直接寫入 SD 卡**（該網站也可以更新、增減風格以及解除安裝），或
+- 在 Chrome 或 Edge 上**寫入 SD 卡**（該網站也可以更新、增減風格以及解除安裝），或
 - **下載 ZIP**（`GRKU-gr3.zip`、`GRKU-gr3x.zip` 或 `GRKU-gr4.zip`），並依照壓縮檔內的 PDF 指南操作（[GR III 與 GR IIIx](resources/INSTALLATION.md)、[GR IV](resources/INSTALLATION-GR4.md)）。
 
 只有第一次開機時需要按住 MENU。若要從 ZIP 更新，替換記憶卡中的 `SCRIPT` 資料夾即可；你的設定會保留在 `GRKU` 裡。格式化記憶卡會移除 GRKU。
@@ -74,7 +74,7 @@ GRKU 源自 GRKit 1.5.2 以及 GRKit 的 `feat/recipes` 分支；執行階段技
 
 | 領域 | GRKit（GRKU 的起點） | 今日的 GRKU | 實現方式 |
 | --- | --- | --- | --- |
-| 底片庫 | 21 種風格 | 145 種風格，每張卡 40 種；收錄所有風格的底片庫 ZIP | 擬合自 Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT 與 Fotufilm 的開放底片預設集，並根據 `docs/popular-films-2026.md` 的 2026 年熱門底片研究選出預設的 40 種 |
+| 底片庫 | 21 種風格 | 145 種風格，每張卡 40 種；收錄所有風格的底片庫 ZIP | 擬合自 Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT 與 Fotufilm 的開放底片預設集，以及 FUJIFILM 自身十款底片模擬的 LUT，並根據 `docs/popular-films-2026.md` 的 2026 年熱門底片研究選出預設的 40 種 |
 | 圖示 | 扁平圖塊 | 每種風格皆有採用真實底片盒配色的底片盒圖示、選單彩色方塊，以及自帶 PNG 圖示的效果 | `scripts/flap-icons.py` 繪製底片盒；效果編譯器接受 `icon: {"png": ...}` |
 | 配方 | 未合併的分支 | 已合併，附有對泰文友善的解說、來自 ricohcookbook.com 的熱門配方、三步驟編輯器、範例照片，以及相機風格的設定清單 | `modules/recipes`、`web/src/components/Recipe*.tsx` |
 | 模組 | Film Look、Framing、Guides、Date、Glow、Grain | 新增 Crop、Light Leak、Diffusion、Border、Recipes、Enable at Start、英呎標示、黃金螺旋與動態對稱輔助線 | 移植自 MustafaCisse 和 kkasemsa 的分支並全新編寫；一個安裝包可容納十個模組 |
@@ -85,7 +85,7 @@ GRKU 源自 GRKit 1.5.2 以及 GRKit 的 `feat/recipes` 分支；執行階段技
 | 品牌 | GRKit | GRKU：帶有紅點的文字標誌、泰文語調、`docs/brand.md` | |
 | 發布 | GitHub Actions 至 grkit.app | 同樣的管線用於 grku.app：推送會建立發布 pull request，合併後從官方韌體建置並透過 Cloudflare Pages 部署網站；Plus 服務則從 `services/plus` 部署 | `.github/workflows`、`docs/releasing.md` |
 
-GRKU 保留了 GRKit 的模組 ABI（使用 GRKit SDK 建置的模組仍可載入）及其授權條款，並將適用的修正送回 GRKit。它並非 GRKit 的鏡像：GRKit 後續釋出的版本會經過審視，而非直接合併。
+GRKU 保留了 GRKit 的模組 ABI（使用 GRKit SDK 建置的模組仍可載入）及其授權條款，並將適用的修正送回 GRKit。它並非 GRKit 的鏡像，但持續關注其發展：GRKit 後續的每項變更只要適用都會被移植進來，正如 GRKit 1.5.4 的 ADJ 記憶以及 2026 年 11 月韌體所做的修改一樣。GRKit 快速啟動韌體的變更則維持不納入。
 
 ## 從原始碼建置
 
@@ -104,7 +104,7 @@ grku package --build build/runtime --camera gr4 --effects build/effects-default 
 grku verify dist/GRKU-gr4.zip
 ```
 
-`build/effects` 包含全部 145 種風格；一個安裝包最多只能放入 40 種，因此用 `python3 -I scripts/defaults.py build/effects build/effects-default` 選出 `effects/defaults.txt` 的 40 種。一個安裝包可容納十個模組，因此請略過一個（正式發布版略過了 Border）。GR III 請以 `fwdc239b.bin` 建置 `gr3-2.10`，並以 `--camera gr3` 打包。接著以 `python3 -I scripts/card.py write dist/GRKU-gr4.zip` 將安裝包寫入讀卡機中的記憶卡。
+`build/effects` 包含全部 145 種風格；一個安裝包最多只能放入 40 種，因此用 `python3 -I scripts/defaults.py build/effects build/effects-default` 選出 `effects/defaults.txt` 的 40 種。一個安裝包可容納十個模組，因此請略過一個（正式發布版略過了 Border）。GR III 請分別從其韌體的 `fwdc239b.bin` 建置 `gr3-2.10` 與 `gr3-2.21`，並以 `--camera gr3` 以及為各版本加上 `--build` 來打包；GR IV 安裝包則納入 `gr4-1.11`、`gr4-1.20` 與 `gr4-1.21`。接著以 `python3 -I scripts/card.py write dist/GRKU-gr4.zip` 將安裝包寫入讀卡機中的記憶卡。
 
 ## 參與貢獻
 

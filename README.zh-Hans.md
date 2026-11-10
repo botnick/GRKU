@@ -15,13 +15,13 @@ GRKU 是一个独立项目，由 [BOTNICK](https://github.com/botnick) 首先为
   <img src="resources/images/grku-menu.jpg" alt="MENU 自定义页中的 GRKU 小节" width="49%">
 </p>
 
-照片：[Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg)，[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)。
+屏幕中的照片：[Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg)，[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)。
 
 ## 功能
 
-拍摄时按下 ADJ 拨杆，选择第 6 项 GRKU。GRKU 的所有功能都在这里，以及 MENU 的 GRKU 小节中。
+拍摄时按下 ADJ 拨杆，选择第 6 项 GRKU。GRKU 的所有功能都在这里，以及 MENU 的 GRKU 小节中。再次按下 ADJ 时仍会停留在 GRKU 上，并停留在你离开时的那一行，即使关机后再开也是如此。
 
-- **Film Look**：145 种真实胶片风格，卡上一次最多 40 种。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 和 Rollei，以及源自 GR II 正片（Positive Film）的 GRKU 专属 Positive GRII 风格。每种风格都有采用真实胶卷盒配色的胶片盒图标。按 Fn 键可调整风格；也可以在网站上导入自己的 LUT。
+- **Film Look**：145 种真实胶片风格，卡上一次最多 40 种。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 和 Rollei，以及源自 GR II 正片（Positive Film）的 GRKU 专属 Positive GRII 风格，还有富士相机的十款胶片模拟（从 Provia、Classic Chrome 到 Acros，均可免费使用）。每种风格都有采用真实胶卷盒配色的胶片盒图标。按 Fn 键可调整风格；也可以在网站上导入自己的 LUT。
 - **Recipes**：将相机的整套风格以名称保存，或从网站载入热门配方，然后一键切换 Film Look 或 Image Control、颗粒、光晕、白平衡、校正与曝光，并支持撤销。模式转盘上的 U1、U2 和 U3 均可存储一个配方。
 - **Framing**：XPan、2.35:1、16:9、4:3、5:4、7:6 和 1:1，可直接裁切 JPEG，也可仅显示框线。**Crop**：35、40、50、70 或 90 mm，带有实时取景。
 - **Guides**：三分法、中心、黄金分割、对角线、黄金螺旋、动态对称。
@@ -45,7 +45,7 @@ GRKU 在开机后约 9 秒出现（安装后的第一次开机耗时更长）。
 | GR IV、GR IV HDF | 1.11 | 1.11、1.20、1.21 |
 | GR IV Monochrome | — | 1.00、1.10、1.11 |
 
-GRKU 本身的改动已在固件 1.11 的 GR IV 上运行过。GR III 和 GR IIIx 的安装包由同一份代码以及 GRKit 的测试构建，但目前还没有人在这些相机上运行过 GRKU。如果您尝试了，无论是否成功，都请在 [issue](https://github.com/botnick/GRKU/issues) 中告诉我们。
+GRKU 本身的改动已在固件 1.11 的 GR IV 上运行过。GR III 和 GR IIIx 的安装包由同一份代码以及 GRKit 的测试构建，但目前还没有人在这些相机上运行过 GRKU。如果您尝试了，无论是否成功，都请在 [issue](https://github.com/botnick/GRKU/issues) 中告诉我们。针对理光于 2026 年 11 月 10 日发布的固件（GR III 2.21、GR IIIx 1.71、GR IV 1.21、GR IV Monochrome 1.11）的构建版本已对照理光官方固件文件进行过校验；它们尚未在真机上运行过。
 
 > [!WARNING]
 > GRKU 仍是实验性项目。使用风险自负。
@@ -74,7 +74,7 @@ GRKU 起步于 GRKit 1.5.2 以及 GRKit 的 `feat/recipes` 分支；运行时技
 
 | 方面 | GRKit（GRKU 的起点） | 如今的 GRKU | 实现方式 |
 | --- | --- | --- | --- |
-| 胶片库 | 21 种风格 | 145 种风格，每张卡 40 种；包含所有风格的胶片库 ZIP | 拟合自 Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT 和 Fotufilm 的开源胶片预设，并通过 `docs/popular-films-2026.md` 中的 2026 年流行度调研选出默认的 40 款 |
+| 胶片库 | 21 种风格 | 145 种风格，每张卡 40 种；包含所有风格的胶片库 ZIP | 拟合自 Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT 和 Fotufilm 的开源胶片预设，以及 FUJIFILM 自家十款胶片模拟的 LUT，并通过 `docs/popular-films-2026.md` 中的 2026 年流行度调研选出默认的 40 款 |
 | 图标 | 扁平色块 | 每种风格都有与真实胶卷盒配色一致的胶卷盒图标、菜单彩色色块，以及自带 PNG 图标的效果 | `scripts/flap-icons.py` 绘制胶卷盒；效果编译器支持 `icon: {"png": ...}` |
 | 配方（Recipes） | 未合并的分支 | 已合并，配有对泰语友好的说明、来自 ricohcookbook.com 的热门配方、三步编辑器、示例照片以及相机风格的设置表 | `modules/recipes`、`web/src/components/Recipe*.tsx` |
 | 模块 | Film Look、Framing、Guides、Date、Glow、Grain | 加上 Crop、Light Leak、Diffusion、Border、Recipes、Enable at Start、英尺标注、黄金螺旋和动态对称辅助线 | 移植自 MustafaCisse 和 kkasemsa 的分支并全新编写；一个安装包可容纳十个模块 |
@@ -85,7 +85,7 @@ GRKU 起步于 GRKit 1.5.2 以及 GRKit 的 `feat/recipes` 分支；运行时技
 | 品牌 | GRKit | GRKU：带有红点的文字商标、泰语语调、`docs/brand.md` | |
 | 发布 | GitHub Actions 部署至 grkit.app | 针对 grku.app 的相同流水线：推送触发发布 pull request，合并后基于官方固件构建并通过 Cloudflare Pages 部署网站；Plus 服务从 `services/plus` 部署 | `.github/workflows`、`docs/releasing.md` |
 
-GRKU 保留了 GRKit 的模块 ABI（用 GRKit SDK 构建的模块仍可加载）及其许可证，并在适用时将修复内容回馈给 GRKit。它不是 GRKit 的镜像：对于 GRKit 的后续版本，我们会审查跟进，而不是直接合并。
+GRKU 保留了 GRKit 的模块 ABI（用 GRKit SDK 构建的模块仍可加载）及其许可证，并在适用时将修复内容回馈给 GRKit。它不是 GRKit 的镜像，但会紧随其后：GRKit 后续的每项改动只要适用都会被移植，比如 GRKit 1.5.4 的 ADJ 记忆以及 2026 年 11 月的固件支持。GRKit 快速启动固件的改动则被排除在外。
 
 ## 从源码构建
 
@@ -104,7 +104,7 @@ grku package --build build/runtime --camera gr4 --effects build/effects-default 
 grku verify dist/GRKU-gr4.zip
 ```
 
-`build/effects` 包含全部 145 个效果；一个安装包最多带 40 个，因此用 `python3 -I scripts/defaults.py build/effects build/effects-default` 挑出 `effects/defaults.txt` 里的 40 个。一个安装包可容纳十个模块，所以需要省去一个（发布版本省去了 Border）。对于 GR III，从 `fwdc239b.bin` 构建 `gr3-2.10` 并使用 `--camera gr3` 打包。然后 `python3 -I scripts/card.py write dist/GRKU-gr4.zip` 即可将安装包写入读卡器中的存储卡。
+`build/effects` 包含全部 145 个效果；一个安装包最多带 40 个，因此用 `python3 -I scripts/defaults.py build/effects build/effects-default` 挑出 `effects/defaults.txt` 里的 40 个。一个安装包可容纳十个模块，所以需要省去一个（发布版本省去了 Border）。对于 GR III，分别从对应固件的 `fwdc239b.bin` 构建 `gr3-2.10` 和 `gr3-2.21`，并使用 `--camera gr3` 以及为每一个构建传入 `--build` 来打包；GR IV 安装包则包含 `gr4-1.11`、`gr4-1.20` 和 `gr4-1.21`。然后 `python3 -I scripts/card.py write dist/GRKU-gr4.zip` 即可将安装包写入读卡器中的存储卡。
 
 ## 参与贡献
 

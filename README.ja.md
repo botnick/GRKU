@@ -15,13 +15,13 @@ GRKU は、[BOTNICK](https://github.com/botnick) がまずタイの GR ユーザ
   <img src="resources/images/grku-menu.jpg" alt="MENU のカスタマイズタブにある GRKU セクション" width="49%">
 </p>
 
-写真：[Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg)、[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)。
+画面内の写真：[Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi_Joushi_Kouen_1.jpg)、[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)。
 
 ## 機能
 
-撮影中に ADJ レバーを押し、6 番目の項目「GRKU」を選びます。GRKU のすべての機能はそこにあり、MENU の GRKU セクションにもあります。
+撮影中に ADJ レバーを押し、6 番目の項目「GRKU」を選びます。GRKU のすべての機能はそこにあり、MENU の GRKU セクションにもあります。カメラの電源を切った後でも、ADJ は前回離れた行の GRKU の位置で再び開きます。
 
-- **フィルムルック**：実在するフィルムの 145 種類のルックで、カードには一度に 40 種類を保存できます。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman、Rollei に加え、GR II のポジフィルムを再現した GRKU 独自の Positive GRII も収録しています。各ルックには実物のパッケージの色を模したフィルム箱のアイコンが付いています。Fn でルックを微調整でき、サイトから手持ちの LUT を読み込むこともできます。
+- **フィルムルック**：実在するフィルムの 145 種類のルックで、カードには一度に 40 種類を保存できます。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman、Rollei に加え、GR II のポジフィルムを再現した GRKU 独自の Positive GRII、そして無料で利用できる Provia や Classic Chrome から Acros までの FUJIFILM カメラの 10 種類のフィルムシミュレーションも収録しています。各ルックには実物のパッケージの色を模したフィルム箱のアイコンが付いています。Fn でルックを微調整でき、サイトから手持ちの LUT を読み込むこともできます。
 - **レシピ**：カメラ全体のルックに名前を付けて保存したり、サイトから人気のレシピを取り込んだりして、フィルムルックまたは Image Control、粒状感、グロー、ホワイトバランス、補正、露出をアンドゥ付きで一度に切り替えます。モードダイヤルの U1、U2、U3 にレシピを割り当てることもできます。
 - **フレーミング**：XPan、2.35:1、16:9、4:3、5:4、7:6、1:1。JPEG の切り抜きまたは構図枠線のみで表示します。**クロップ**：35、40、50、70、90 mm をライブビューで確認できます。
 - **構図ガイド**：9 分割、画面中央、黄金比、対角線、黄金螺旋、ダイナミックシンメトリー。
@@ -45,7 +45,7 @@ GRKU の表示には、電源を入れてから約 9 秒かかります（イン
 | GR IV、GR IV HDF | 1.11 | 1.11、1.20、1.21 |
 | GR IV Monochrome | — | 1.00、1.10、1.11 |
 
-GRKU 独自の変更点は、ファームウェア 1.11 の GR IV で動作しています。GR III および GR IIIx 用のパッケージは同じコードと GRKit のテストからビルドされていますが、まだ誰もそれらのカメラで GRKU を実行していません。実行された場合は、動作したかどうかにかかわらず [issue](https://github.com/botnick/GRKU/issues) でお知らせください。
+GRKU 独自の変更点は、ファームウェア 1.11 の GR IV で動作しています。GR III および GR IIIx 用のパッケージは同じコードと GRKit のテストからビルドされていますが、まだ誰もそれらのカメラで GRKU を実行していません。実行された場合は、動作したかどうかにかかわらず [issue](https://github.com/botnick/GRKU/issues) でお知らせください。リコーが 2026 年 11 月 10 日にリリースしたファームウェア（GR III 2.21、GR IIIx 1.71、GR IV 1.21、GR IV Monochrome 1.11）向けのビルドは、リコーのファームウェアファイルと照合済みですが、まだ実機での動作確認は行われていません。
 
 > [!WARNING]
 > GRKU は試験的なプロジェクトです。ご利用は自己責任でお願いします。
@@ -74,7 +74,7 @@ GRKU は GRKit 1.5.2 および GRKit の `feat/recipes` ブランチをもとに
 
 | 領域 | GRKit（GRKU の起点） | 現在の GRKU | 実装方法 |
 | --- | --- | --- | --- |
-| フィルムライブラリ | 21 種類のルック | 145 種類のルック、カードあたり 40 種類。すべてのルックを収録したフィルムライブラリ ZIP | Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT、Fotufilm のオープンなフィルムプリセットからフィッティングを行い、`docs/popular-films-2026.md` における 2026 年の人気度調査に基づいてデフォルトの 40 種類を選定 |
+| フィルムライブラリ | 21 種類のルック | 145 種類のルック、カードあたり 40 種類。すべてのルックを収録したフィルムライブラリ ZIP | Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT、Fotufilm のオープンなフィルムプリセット、および富士フイルム独自の 10 種類のフィルムシミュレーション用 LUT からフィッティングを行い、`docs/popular-films-2026.md` における 2026 年の人気度調査に基づいてデフォルトの 40 種類を選定 |
 | アイコン | フラットなタイル | すべてのルックに実物のパッケージ色を模したフィルム箱、メニュー用のカラータイル、独自の PNG アイコンを持つエフェクト | `scripts/flap-icons.py` が箱を描画。エフェクトコンパイラが `icon: {"png": ...}` を処理 |
 | レシピ | 未マージのブランチ | マージ済み。タイ語に配慮した解説、ricohcookbook.com の人気レシピ、3 ステップのエディター、作例写真、カメラ風の設定シートを搭載 | `modules/recipes`、`web/src/components/Recipe*.tsx` |
 | モジュール | Film Look、Framing、Guides、Date、Glow、Grain | 加えて Crop、Light Leak、Diffusion、Border、Recipes、Enable at Start、フィート表示ラベル、黄金螺旋およびダイナミックシンメトリーのガイド | MustafaCisse および kkasemsa のフォークから移植し、新規作成。1 つのパッケージに 10 個のモジュールを収録可能 |
@@ -85,7 +85,7 @@ GRKU は GRKit 1.5.2 および GRKit の `feat/recipes` ブランチをもとに
 | ブランド | GRKit | GRKU：赤いピリオドが付いたワードマーク、タイのトーン、`docs/brand.md` | |
 | リリース | GitHub Actions から grkit.app へ | grku.app 用の同一パイプライン：プッシュによりリリースのプルリクエストが作成され、マージすると公式ファームウェアからビルドして Cloudflare Pages 経由でサイトをデプロイ。Plus サービスは `services/plus` からデプロイ | `.github/workflows`, `docs/releasing.md` |
 
-GRKU は GRKit のモジュール ABI を維持しており（GRKit SDK でビルドされたモジュールも引き続き読み込まれます）、そのライセンスも保持し、適用可能な修正は GRKit に送り返されます。GRKU は GRKit のミラーではありません。GRKit のその後のリリースはマージするのではなく、内容を吟味しています。
+GRKU は GRKit のモジュール ABI を維持しており（GRKit SDK でビルドされたモジュールも引き続き読み込まれます）、そのライセンスも保持し、適用可能な修正は GRKit に送り返されます。GRKit のミラーではありませんが、その動向に追従しており、GRKit 1.5.4 の ADJ メモリーや 2026 年 11 月のファームウェアのように、適用可能なその後の各変更は移植されています。GRKit の高速起動ファームウェアの変更は除外されたままです。
 
 ## ソースからのビルド
 
@@ -104,13 +104,13 @@ grku package --build build/runtime --camera gr4 --effects build/effects-default 
 grku verify dist/GRKU-gr4.zip
 ```
 
-`build/effects` には 145 種類すべてのルックが入ります。パッケージには最大 40 種類しか入らないため、`python3 -I scripts/defaults.py build/effects build/effects-default` で `effects/defaults.txt` の 40 種類を選びます。パッケージには 10 個のモジュールを収録できるため、1 つを除外します（リリース版では Border を除外しています）。GR III の場合は、`fwdc239b.bin` から `gr3-2.10` をビルドし、`--camera gr3` でパッケージします。その後、`python3 -I scripts/card.py write dist/GRKU-gr4.zip` でリーダーに入れたカードへパッケージを書き込みます。
+`build/effects` には 145 種類すべてのルックが入ります。パッケージには最大 40 種類しか入らないため、`python3 -I scripts/defaults.py build/effects build/effects-default` で `effects/defaults.txt` の 40 種類を選びます。パッケージには 10 個のモジュールを収録できるため、1 つを除外します（リリース版では Border を除外しています）。GR III の場合は、それぞれのファームウェアの `fwdc239b.bin` から `gr3-2.10` と `gr3-2.21` をビルドし、`--camera gr3` とそれぞれに対する `--build` を指定してパッケージします。GR IV のパッケージには `gr4-1.11`、`gr4-1.20`、`gr4-1.21` を含めます。その後、`python3 -I scripts/card.py write dist/GRKU-gr4.zip` でリーダーに入れたカードへパッケージを書き込みます。
 
 ## 貢献
 
 [CONTRIBUTING.md](CONTRIBUTING.md) をご覧ください。カメラからのレポートは、特にお寄せいただきたい情報であり、とりわけ GR III または GR IIIx からのレポートを歓迎します。問題、アイデア、質問は [issues](https://github.com/botnick/GRKU/issues) へお送りください。
 
-## ドキュメント（英語）
+## ドキュメント
 
 - [アーキテクチャ](docs/architecture.md)と[ワンショット起動](docs/one-shot-start.md)
 - [モジュールの作り方](docs/modules.md)と[モジュールリファレンス](docs/module-reference.md)
@@ -122,7 +122,7 @@ grku verify dist/GRKU-gr4.zip
 
 ## ライセンス
 
-コードは [MIT ライセンス](LICENSE)です。GRKU は、同じく MIT である ahonn 氏の [GRKit](https://github.com/ahonn/GRKit) をもとにしており、その表記を保持しています。各パッケージには、収録ファイルのライセンスをまとめた `LICENSES.md` が入っています。
+コードは [MIT ライセンス](LICENSE)です。GRKU は、同じく MIT である ahonn 氏の [GRKit](https://github.com/ahonn/GRKit) のコードを含んでおり、その表記を保持しています。各パッケージには、収録ファイルのライセンスをまとめた `LICENSES.md` が入っています。
 
 - エフェクトのライセンスは CC BY-SA 4.0、MIT、または Apache-2.0 です。[effects/NOTICE.md](effects/NOTICE.md) をご覧ください。
 - メニューとライブビューの文字には [Roboto Condensed](https://github.com/googlefonts/roboto-classic) を [SIL Open Font License 1.1](crates/grku-core/assets/RobotoCondensed-LICENSE.txt) のもとで使用しています。
