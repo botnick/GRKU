@@ -283,7 +283,7 @@ static int monochrome_camera(void) { return test_monochrome; }
 static u32 test_id_source;
 #define RECIPE_ID_SOURCE(high) (*(high) = 0U, test_id_source)
 #include "install_recipes.h"
-/* installer.c also reads STATE.TMP and the state of GRKit 1.2. */
+/* installer.c also reads STATE.TMP and the state of GRKU 1.2. */
 static void read_state(void)
 {
     static u8 text[STATE_TEXT_MAX];
@@ -807,6 +807,17 @@ static void setting_defaults_and_saved_zero(void)
     save_state(pairs, 1);
     assert(install() == 0);
     assert(kept_count == 1 && kept_ids[0] == pairs[0] && kept_values[0] == 0);
+
+    /* CORE.ADJ and CORE.ADJ_MODULE belong to no module, and INSTALL
+       restores them (apply_state). They are not kept: the loader would write
+       the kept value after the current one, and the old value would win at
+       the next start. */
+    const u32 adj[] = {id_of("CORE.ADJ"), 1, id_of("CORE.ADJ_MODULE"), 3};
+    reset();
+    add_module(PACKAGE_MODULES_PATH, "GUIDES.GRM", &guides);
+    save_state(adj, 2);
+    assert(install() == 0);
+    assert(state_taken(adj[0]) && state_taken(adj[2]) && kept_count == 0);
 }
 /* SCAN and INSTALL keep the framing mode available for the state restore,
    including when Framing loads stopped. This harness does not run the
