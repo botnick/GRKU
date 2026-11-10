@@ -636,7 +636,6 @@ export function Workbench({
             </div>
           </div>
         )}
-        <p className="mb-4 text-[13px] text-muted-foreground">{t.freeIncludes(slotsOf({ ...owned, plus: false, slots: owned.slots }))}</p>
 
         {notice && (
           <Alert className="mb-4">

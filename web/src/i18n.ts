@@ -29,7 +29,6 @@ const en = {
   onCardCamera: (n: number) => `${n} camera looks, free`,
   onCardImported: (n: number) => `${n} imported`,
   slotsUsed: (used: number, total: number) => `${used} of ${total} on the card`,
-  freeIncludes: (n: number) => `Everything is free! You can put ${n} looks on the camera, and the camera looks (Positive GRII and the ten FUJIFILM film simulations) never take a slot. To use more than ${n} looks on the camera, you can support GRKU to unlock more, or wait for new looks, which keep coming for free. Nothing is required.`,
   examples: 'On photos',
   plus: {
     title: 'GRKU Plus',
@@ -698,7 +697,6 @@ const zhHans: Strings = {
   onCardCamera: (n: number) => `${n} 个机内色彩，免费`,
   onCardImported: (n: number) => `${n} 个导入`,
   slotsUsed: (used: number, total: number) => `存储卡 ${used}/${total}`,
-  freeIncludes: (n: number) => `所有内容均可免费使用！您可在相机中存入 ${n} 款色彩风格，且自带的相机风格（Positive GRII 与十款 FUJIFILM 胶片模拟）不占用槽位。如需在相机中使用超过 ${n} 款风格，您可以支持 GRKU 解锁更多，或等待持续免费推出的新风格。全凭自愿，无需强制付费。`,
   examples: '样片',
   plus: {
     title: 'GRKU Plus',
@@ -1294,7 +1292,6 @@ const zhHant: Strings = {
   onCardCamera: (n: number) => `${n} 個相機色彩（免費）`,
   onCardImported: (n: number) => `${n} 個已匯入`,
   slotsUsed: (used: number, total: number) => `記憶卡上 ${used}/${total}`,
-  freeIncludes: (n: number) => `所有功能皆可免費使用！您可以在相機中載入 ${n} 款色彩外觀，且相機內建外觀（Positive GRII 與十款 FUJIFILM 軟片模擬）不佔用名額。若想在相機中使用超過 ${n} 款外觀，您可以贊助 GRKU 以解鎖更多名額，或是等待持續推出的免費新外觀。無任何強制費用。`,
   examples: '照片範例',
   plus: {
     title: 'GRKU Plus',
@@ -1890,7 +1887,6 @@ const ja: Strings = {
   onCardCamera: (n: number) => `カメラルック（無料）${n}`,
   onCardImported: (n: number) => `インポート ${n}`,
   slotsUsed: (used: number, total: number) => `カード内 ${used}/${total}`,
-  freeIncludes: (n: number) => `すべて無料でご利用いただけます。カメラ本体には最大${n}件のルックを登録可能で、カメラルック（Positive GRIIおよびFUJIFILMのフィルムシミュレーション10種）は登録枠を消費しません。${n}件を超えるルックをカメラで使用したい場合は、GRKUをサポートして枠を増やすか、今後も無料で追加される新しいルックをお待ちください。課金の強制は一切ありません。`,
   examples: '作例',
   plus: {
     title: 'GRKU Plus',
@@ -2490,7 +2486,6 @@ const ko: Strings = {
   onCardCamera: (n: number) => `카메라 룩(무료) ${n}개`,
   onCardImported: (n: number) => `가져온 항목 ${n}개`,
   slotsUsed: (used: number, total: number) => `카드에 ${used}/${total}`,
-  freeIncludes: (n: number) => `모든 기능을 무료로 이용할 수 있습니다! 카메라에 최대 ${n}개의 룩을 담을 수 있으며, 카메라 기본 룩(Positive GRII 및 10가지 FUJIFILM 필름 시뮬레이션)은 슬롯을 차지하지 않습니다. 카메라에서 ${n}개보다 많은 룩을 사용하려면 GRKU를 후원하여 추가로 잠금 해제하거나, 무료로 계속 추가되는 새로운 룩을 기다려 주세요. 결제는 필수가 아닙니다.`,
   examples: '사진으로 보기',
   plus: {
     title: 'GRKU Plus',
@@ -3104,7 +3099,6 @@ const th: Strings = {
   onCardCamera: (n: number) => `${n} ลุคกล้อง ฟรี`,
   onCardImported: (n: number) => `${n} นำเข้าเอง`,
   slotsUsed: (used: number, total: number) => `ใช้แล้ว ${used} จาก ${total} ช่อง`,
-  freeIncludes: (n: number) => `ทุกอย่างใช้งานได้ฟรี! สามารถใส่ได้ ${n} ลุคลงกล้อง และลุคกล้อง (Positive GRII กับฟิล์มซิมูเลชัน FUJIFILM ทั้ง 10 แบบ) จะไม่กินโควตา หากต้องการใช้งานมากกว่า ${n} ลุคบนกล้อง สามารถร่วมสนับสนุน GRKU เพื่อปลดล็อกเพิ่มเติมได้ หรือจะรออัปเดตลุคใหม่ ๆ ฟรีก็ได้เช่นกัน ไม่มีค่าใช้จ่ายบังคับ`,
   examples: 'ตัวอย่างภาพ',
   plus: {
     title: 'GRKU Plus',
