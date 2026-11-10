@@ -291,7 +291,9 @@
 #define GRKU_HOST_GRAIN_SHOT 248
 /* Return to GRKU Image Control after the native parameter page: 1 opening, 2
    away. 3: ADJ exited from GRKU, so the next ADJ opens GRKU. 4: MENU or OK on
-   GRKU passed the event that closes ADJ to the native list. */
+   GRKU passed the event that closes ADJ to the native list. 5: INSTALL
+   restored CORE.ADJ = 1, so the next ADJ that opens after INSTALL opens GRKU
+   (runtime/menu.c). */
 #define GRKU_HOST_RETURN 252
 /* Number of changes of the saved selections: the effect, CORE.ASPECT,
    CORE.GRAIN, CORE.GRAIN_SIZE, CORE.ADJ, CORE.ADJ_MODULE, the Fn adjustments,

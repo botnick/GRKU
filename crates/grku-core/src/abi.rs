@@ -279,6 +279,8 @@ packed_fields!(HEADER_FIELDS, HOST_HEADER_SIZE {
     /// Return to GRKU Image Control after the native parameter page: 1 opening,
     /// 2 away. 3: ADJ exited from GRKU, so the next ADJ opens GRKU. 4: MENU
     /// or OK on GRKU passed the event that closes ADJ to the native list.
+    /// 5: INSTALL restored CORE.ADJ = 1, so the next ADJ that opens after
+    /// INSTALL opens GRKU (runtime/menu.c).
     HOST_RETURN: 4;
     /// Number of changes of the saved selections: the effect, CORE.ASPECT,
     /// CORE.GRAIN, CORE.GRAIN_SIZE, CORE.ADJ, CORE.ADJ_MODULE, the Fn
