@@ -852,8 +852,8 @@ static void toning_moves_red_and_blue_from_green(void)
 static void adj_exits_return_once_for_the_parameter_page(void)
 {
     reset();
-    /* ADJ exits once for the parameter page. An exit from GRKit, or MENU or OK
-       that closed ADJ from GRKit, opens GRKU at the next ADJ. Any other exit
+    /* ADJ exits once for the parameter page. An exit from GRKU, or MENU or OK
+       that closed ADJ from GRKU, opens GRKU at the next ADJ. Any other exit
        ends the return. */
     assert(exit_return(RETURN_OPENING, 0) == RETURN_PARAMETERS);
     assert(exit_return(RETURN_CLOSING, 0) == RETURN_GRKU);
@@ -876,7 +876,7 @@ static void adj_exits_return_once_for_the_parameter_page(void)
     assert(test_header[GRKU_HOST_RETURN / 4] == (RETURN_PARAMETERS | RETURN_ROOT));
     menu_settings_controller(0x4000000);
     assert(!test_header[GRKU_HOST_RETURN / 4]);
-    /* ADJ that opens GRKU after an exit from GRKit keeps its return. */
+    /* ADJ that opens GRKU after an exit from GRKU keeps its return. */
     test_header[GRKU_HOST_RETURN / 4] = RETURN_GRKU;
     menu_settings_controller(0x4000000);
     assert(test_header[GRKU_HOST_RETURN / 4] == RETURN_GRKU);
@@ -3022,10 +3022,14 @@ static void the_recipes_menu_page_chooses_a_recipe_then_an_action(void)
     menu[MENU_ROWS_CURRENT / 4] = settings_pages[2];
     assert(settings_text(h, 0, settings_row_texts[2]) == (u32)services_word(h, SERVICES_MENU + MENU_ROWS_PAGE_TEXTS) + 1U);
     menu[MENU_ROWS_CURRENT / 4] = SETTINGS_SUBMENU;
-    /* MENU returns to the list with the cursor on Street, which the
-       settings do not match. */
+    /* MENU returns to the list with the cursor on Corner, which the
+       settings match: the camera shows the mark only on the row where the
+       cursor starts. Without a match, the cursor is on Street. */
     assert(recipes->select(h, 0, SETTING_BACK));
-    assert(*state == 2 && recipes->cursor(h) == 1 && listed_get(h, 2) == 2 && same(listed_text(h, 2, 1), "Street"));
+    assert(*state == 2 && listed_get(h, 2) == 2 && recipes->cursor(h) == 2 && menu_settings_current(2, 0, 2) == 2);
+    h[GRKU_HOST_GRAIN / 4] = 3;
+    assert(listed_get(h, 2) == RECIPE_NONE && recipes->cursor(h) == 1 && same(listed_text(h, 2, 1), "Street"));
+    h[GRKU_HOST_GRAIN / 4] = 2;
     /* Rename: the return from the keyboard names the recipe after an OK,
        keeps the name after MENU, and the page shows the new name. The
        change from the keyboard calls the callback (ui_keyboard_change); a
