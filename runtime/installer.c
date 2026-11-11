@@ -477,7 +477,11 @@ static void read_camera(int with_record)
 #endif
 #ifdef MODEL_RECORD
     u32 record = with_record ? word(MODEL_RECORD) : 0;
-    if (camera_name && record >= RELOCATION_RTOS_BASE && record + MODEL_VERSION + 4 <= relocation.image_end) {
+    /* The record and both words of it lie in the image: compared by subtraction, so a record
+       address near the top of the address space cannot wrap around the bound. */
+    u32 last = MODEL_VERSION > MODEL_NUMBER ? MODEL_VERSION : MODEL_NUMBER;
+    if (camera_name && record >= RELOCATION_RTOS_BASE && relocation.image_end >= last + 4 &&
+        record <= relocation.image_end - last - 4) {
         u32 version = word(record + MODEL_VERSION), number = word(record + MODEL_NUMBER);
         camera_major = version >> 24;
         camera_minor = (version >> 16) & 0xff;
