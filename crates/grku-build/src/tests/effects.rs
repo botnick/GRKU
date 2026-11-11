@@ -1,21 +1,20 @@
 use super::*;
+use grku_core::effects::Effect;
+use grku_core::fit::Model;
 
-/// The built-in film looks on the camera's Standard base gamma: as the exposure of a color
-/// grows from -2 EV up to where the sensor clips, its L* may not fall. The hue sectors can darken or saturate bright
-/// colors; the fit bounds this (`fit::sectors::Ramps`), and refits must keep it bounded.
-#[test]
-#[ignore = "Requires local GRKU_TEST_FIRMWARE"]
-fn builtin_effects_brighten_with_exposure() -> Result<()> {
-    use grku_core::cube::{self, LabConverter};
-    use grku_core::fit::Model;
-
+/// The camera model on the Standard base gamma of the GR III 2.10 firmware in
+/// `GRKU_TEST_FIRMWARE`.
+fn gr3_model() -> Result<Model> {
     let firmware =
         PathBuf::from(std::env::var("GRKU_TEST_FIRMWARE").context("Set GRKU_TEST_FIRMWARE")?);
     let image = verify_firmware(&firmware, &target::GR3_210)?;
-    let model = Model::new(&firmware::standard_base_gamma(&image)?);
-    let lab = LabConverter::default();
+    Ok(Model::new(&firmware::standard_base_gamma(&image)?))
+}
+
+/// The compiled built-in effects of the `effects` directory.
+fn builtin_effects() -> Result<Vec<Effect>> {
     let effects = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../effects");
-    let mut falls = Vec::new();
+    let mut out = Vec::new();
     for entry in fs::read_dir(effects)? {
         let path = entry?.path().join("effect.json");
         if !path.is_file() {
@@ -24,6 +23,72 @@ fn builtin_effects_brighten_with_exposure() -> Result<()> {
         let definition = grku_core::effects::parse_json(&fs::read(&path)?)?;
         let (effect, _) =
             grku_core::effects::decode(&grku_core::effects::compile_definition(&definition)?)?;
+        out.push(effect);
+    }
+    ensure!(!out.is_empty(), "The effects directory has no effect");
+    Ok(out)
+}
+
+/// The looks that GRKU fitted itself (the library of `effects/NOTICE.md` past the 21 of GRKit):
+/// their IDs carry the prefix of their source, and Positive GRII is GRKU's own. Many of them
+/// move mid gray by up to 0.7 EV (HANDOFF.md, 2026-11-11), so the mid-gray check below holds
+/// only for the looks of GRKit until they are refitted with `--exposure`.
+fn grku_fit(id: &str) -> bool {
+    ["pd-", "ff-", "sfl-", "spk-", "t3-", "fj-", "im-"]
+        .iter()
+        .any(|prefix| id.starts_with(prefix))
+        || id == "positive-film-grii-v1"
+}
+
+/// The camera meters for Standard, so a color look must render mid gray as Standard does:
+/// otherwise each picture is brighter or darker than the meter intends. If a source LUT moves
+/// mid gray, refit it with `--exposure`. Monochrome looks are not checked: they keep the print
+/// density of their source.
+#[test]
+#[ignore = "Requires local GRKU_TEST_FIRMWARE"]
+fn builtin_color_effects_keep_standard_mid_gray() -> Result<()> {
+    use grku_core::cube::LabConverter;
+
+    let model = gr3_model()?;
+    let lab = LabConverter::default();
+    let gray = |ev: f64| [0.18 * 2f64.powf(ev); 3];
+    let mut offsets = Vec::new();
+    for effect in builtin_effects()? {
+        if effect.flags & grku_core::effects::MONOCHROME != 0 || grku_fit(&effect.id) {
+            continue;
+        }
+        let target = lab.lab(model.render(&grku_core::site::params(&effect), gray(0.0)))[0];
+        // The exposure at which Standard gives the same L*. Standard brightens monotonically.
+        let (mut low, mut high) = (-2.0, 2.0);
+        for _ in 0..40 {
+            let middle = (low + high) / 2.0;
+            if lab.lab(model.standard(gray(middle)))[0] < target {
+                low = middle;
+            } else {
+                high = middle;
+            }
+        }
+        offsets.push((effect.id, low));
+    }
+    offsets.sort_by(|a, b| b.1.abs().total_cmp(&a.1.abs()));
+    eprintln!("largest mid-gray offsets in EV: {offsets:.2?}");
+    // The color looks are within 0.16 EV. Instax was 0.83 EV before its refit.
+    assert!(offsets[0].1.abs() < 0.25, "{offsets:.2?}");
+    Ok(())
+}
+
+/// The built-in film looks on the camera's Standard base gamma: as the exposure of a color
+/// grows from -2 EV up to where the sensor clips, its L* may not fall. The hue sectors can darken or saturate bright
+/// colors; the fit bounds this (`fit::sectors::Ramps`), and refits must keep it bounded.
+#[test]
+#[ignore = "Requires local GRKU_TEST_FIRMWARE"]
+fn builtin_effects_brighten_with_exposure() -> Result<()> {
+    use grku_core::cube::{self, LabConverter};
+
+    let model = gr3_model()?;
+    let lab = LabConverter::default();
+    let mut falls = Vec::new();
+    for effect in builtin_effects()? {
         let params = grku_core::site::params(&effect);
         let mut worst = 0.0f64;
         for k in 0..36 {
@@ -47,14 +112,10 @@ fn builtin_effects_brighten_with_exposure() -> Result<()> {
                 }
             }
         }
-        falls.push((
-            definition["effect_id"].as_str().unwrap_or("?").to_string(),
-            worst,
-        ));
+        falls.push((effect.id, worst));
     }
     falls.sort_by(|a, b| b.1.total_cmp(&a.1));
     eprintln!("largest L* falls: {falls:.2?}");
-    assert!(!falls.is_empty(), "The effects directory has no effect");
     // The fits before the lightness bound fell by up to 30 L*.
     assert!(falls[0].1 < 1.0, "{falls:.2?}");
     Ok(())
