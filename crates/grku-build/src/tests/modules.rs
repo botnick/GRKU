@@ -55,6 +55,59 @@ fn module_folders() -> Vec<std::path::PathBuf> {
     folders
 }
 
+/// The official modules load together on a color camera: what they need of
+/// the core fits what the core holds. INSTALL skips a module that does not fit
+/// with error 54. GRKU has more official modules than a card holds
+/// (`MODULES_MAX`), and a person may put any of them on the card, so each
+/// limit holds for the heaviest `MODULES_MAX` modules of that resource.
+#[test]
+fn official_modules_fit_together() -> Result<()> {
+    use grku_core::runtime::{
+        INDICATORS_MAX, MODULES_MAX, MODULE_FILTERS_MAX, MODULE_LAYERS_MAX, MODULE_PAGES_MAX,
+        MODULE_TILES_MAX, STATUS_ICONS_MAX,
+    };
+    let folders = module_folders();
+    let mut needs: [Vec<usize>; 6] = Default::default();
+    for folder in &folders {
+        let m = module::generate(folder)?.0;
+        // A group page takes a page for itself and one for each child.
+        needs[0].push(m.page.as_ref().map_or(0, |page| 1 + page.children.len()));
+        needs[1].push(m.layers.len());
+        needs[2].push(m.filters.len());
+        needs[3].push(m.indicators.len());
+        needs[4].push(
+            m.indicators
+                .iter()
+                .filter(|i| matches!(i.placement, module::IndicatorPlacement::StatusRow))
+                .count(),
+        );
+        needs[5].push(m.tiles.len());
+    }
+    let heaviest = |values: &mut Vec<usize>| -> usize {
+        values.sort_unstable_by(|a, b| b.cmp(a));
+        values.iter().take(MODULES_MAX).sum()
+    };
+    assert!(folders.len() >= MODULES_MAX);
+    for ((what, room), values) in [
+        ("pages", MODULE_PAGES_MAX),
+        ("layers", MODULE_LAYERS_MAX),
+        ("plane filters", MODULE_FILTERS_MAX),
+        ("indicators", INDICATORS_MAX),
+        ("status-row icons", STATUS_ICONS_MAX),
+        ("tiles", MODULE_TILES_MAX),
+    ]
+    .into_iter()
+    .zip(needs.iter_mut())
+    {
+        let need = heaviest(values);
+        assert!(
+            need <= room,
+            "{MODULES_MAX} official modules can need {need} {what}, the core holds {room}"
+        );
+    }
+    Ok(())
+}
+
 /// Each module folder passes its host test (`grku module test`). The test
 /// needs a host C compiler: `cc`, or GRKU_HOST_CC.
 #[test]
