@@ -30,7 +30,7 @@ GRKU 是一个独立项目，由 [BOTNICK](https://github.com/botnick) 首先为
 - **Light Leak**：暗角、灰尘和毛发、漏光、划痕，或 Faded、Dusty、Leaky 和 Expired 预设。每张照片上的分布都不同。
 - **Diffusion**：黑柔滤镜（Black Pro-Mist）效果，强度可选 1/8、1/4 或 1/2，阴影上的 Black Mist 薄纱感，以及点光源的变形宽银幕横向眩光。
 - **Grain**：四档强度，四种大小。
-- **Border**：白色或黑色的打印边框，宽度为照片宽度的 3% 或 6%。
+- **边框**：为照片添加白色或黑色边框，宽度为照片宽度的 3% 或 6%；照片将等比缩小以完整呈现，画面无裁切，日期保留在内，犹如实体印相。
 - **Enable at Start**：每次开机时开启、关闭或保持上次退出时的状态。
 - **Feet**：卡上若有 `GRKU/FEET.TXT`，Snap 对焦距离将以英尺显示。
 

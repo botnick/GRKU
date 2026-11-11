@@ -82,6 +82,7 @@ jobs:
           cargo run --locked -p grku-cli -- module test --dir modules/glow --cc "$GRKU_HOST_CC"
           cargo run --locked -p grku-cli -- module test --dir modules/diffusion --cc "$GRKU_HOST_CC"
           cargo run --locked -p grku-cli -- module test --dir modules/date --cc "$GRKU_HOST_CC"
+          cargo run --locked -p grku-cli -- module test --dir modules/border --cc "$GRKU_HOST_CC"
           cargo run --locked -p grku-cli -- module test --dir modules/lightleak --cc "$GRKU_HOST_CC"
           cargo test --locked -p grku-core --test native_contracts
       - run: cargo build --release --locked -p grku-cli

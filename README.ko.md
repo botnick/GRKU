@@ -30,7 +30,7 @@ GRKU는 [BOTNICK](https://github.com/botnick)이 태국의 GR 사용자들을 �
 - **Light Leak**: 비네트, 먼지와 머리카락, 라이트 리크, 스크래치, 또는 Faded, Dusty, Leaky, Expired 프리셋. 매 촬영마다 다르게 나타납니다.
 - **Diffusion**: 1/8, 1/4, 1/2 강도의 Black Pro-Mist 필터, 섀도 위의 Black Mist 베일, 점 광원의 아나모픽 스트릭.
 - **Grain**: 네 가지 강도, 네 가지 크기.
-- **Border**: 너비의 3% 또는 6% 크기의 흰색 또는 검은색 인화 테두리.
+- **테두리**: 사진 둘레에 가로 폭의 3% 또는 6% 크기로 흰색 또는 검은색 테두리를 추가합니다. 사진이 잘리지 않도록 축소되어 인화물처럼 날짜도 테두리 안에 배치됩니다.
 - **Enable at Start**: 전원을 켤 때마다 GRKU를 켜짐, 꺼짐, 또는 마지막 상태 그대로 유지.
 - **Feet**: 카드에 `GRKU/FEET.TXT` 파일이 있으면 Snap 초점 거리가 피트 단위로 표시됩니다.
 
