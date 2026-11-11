@@ -55,7 +55,7 @@ int main(void)
     PictureSet set;
     Inner in;
     Plane p;
-    /* The descriptor: STYLE with 5 values, a page, a frame-stage filter, and
+    /* The descriptor: STYLE with 5 values, a page, a print-stage filter, and
        a status-row indicator. */
     assert(grku_module.setting_count == 1 && grku_module.settings[0].values == 5);
     assert(grku_module.tile_count == 6 && SETTING_STYLE == GRKU_SETTING(0));

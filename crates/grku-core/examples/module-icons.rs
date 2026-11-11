@@ -664,7 +664,7 @@ fn date(order: &str, with_time: bool) -> Result<Vec<u8>> {
     Ok(pixels)
 }
 
-// Border: a print border painted over the edge of the photo. The diagram is a
+// Border: a print border around the photo, which shrinks to fit inside it. The diagram is a
 // photo with the band in white or black inside a light outline. The gray fill
 // keeps a black band visible against the tile background.
 const BORDER_FILL: u8 = 110;
