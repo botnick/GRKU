@@ -468,6 +468,10 @@ packed_fields!(HEADER_FIELDS, HOST_HEADER_SIZE {
     /// 0 in their file (`capabilities::StateFile::DialSets`), and INSTALL
     /// restores them.
     HOST_DIAL_SETS: 4 * DIAL_SET_WORDS * RECIPE_DIAL_POSITIONS;
+    /// The native Image Control type plus 1 when ADJ last opened, or 0 when
+    /// it was not readable. A half-press on the native Image Control slot
+    /// with another type selects that type, as OK does (runtime/menu.c).
+    HOST_ADJ_IC_TYPE: 4;
 });
 
 pub const RECORD_SIZE: usize = 0x1100;

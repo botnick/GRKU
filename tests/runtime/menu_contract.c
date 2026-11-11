@@ -29,6 +29,9 @@ static unsigned test_lens_40mm;
 static unsigned test_crop_bits = 0x3f800000U, test_crop_sets;
 #define CROP_NATIVE_BITS() (test_crop_bits)
 #define CROP_NATIVE_SET(bits) (test_crop_bits = (bits), ++test_crop_sets)
+/* The native Image Control type plus 1 (runtime/menu.c). */
+static unsigned native_ic_value;
+#define MENU_NATIVE_IC_TYPE() (native_ic_value)
 /* The controller factory gives the TopMenu instance, which the GRKU section
    takes out of it (runtime/menu_section.h). */
 #undef FW_CONTROLLER_FACTORY
@@ -902,6 +905,34 @@ static void adj_exits_return_once_for_the_parameter_page(void)
     assert(controller_return(RETURN_GRKU, ADJ_CONTROLLER, SHOOTING_CONTROLLER) == RETURN_GRKU);
     assert(controller_return(RETURN_PARAMETERS, ADJ_CONTROLLER, SHOOTING_CONTROLLER) == RETURN_PARAMETERS);
     test_header[GRKU_HOST_RETURN / 4] = 0;
+}
+
+static void a_half_press_on_the_native_slot_selects_its_type(void)
+{
+    reset();
+    /* ADJ keeps the native type when it opens, also when it returns after
+       a half-press. Other screens do not change it. */
+    native_ic_value = 12;
+    menu_settings_transition(0, ADJ_CONTROLLER, SHOOTING_CONTROLLER);
+    assert(test_header[GRKU_HOST_ADJ_IC_TYPE / 4] == 12);
+    native_ic_value = 3;
+    menu_settings_transition(0, SHOOTING_CONTROLLER, CONTROLLER_BACK);
+    assert(test_header[GRKU_HOST_ADJ_IC_TYPE / 4] == 12);
+    menu_settings_transition(0, ADJ_CONTROLLER, CONTROLLER_BACK);
+    assert(test_header[GRKU_HOST_ADJ_IC_TYPE / 4] == 3);
+    native_ic_value = 0;
+    /* A half-press on the native Image Control slot with another type
+       selects it, as the native slot keeps the type under its cursor. */
+    assert(native_ic_chosen(12, 3, 1, 1));
+    /* The same type, which the slot writes again when it is selected, keeps
+       the GRKU effect. */
+    assert(!native_ic_chosen(12, 12, 1, 1));
+    /* Another slot, a screen other than the shooting screen (playback, a
+       mode change), or a type that was not readable keeps it. */
+    assert(!native_ic_chosen(12, 3, 0, 1));
+    assert(!native_ic_chosen(12, 3, 1, 0));
+    assert(!native_ic_chosen(0, 3, 1, 1));
+    assert(!native_ic_chosen(12, 0, 1, 1));
 }
 
 static void the_root_lists_the_official_modules(void)
@@ -4583,6 +4614,7 @@ int main(void)
     playback_matches_private_tags_only();
     icons_toolbar_and_edges_map_their_ids();
     adj_exits_return_once_for_the_parameter_page();
+    a_half_press_on_the_native_slot_selects_its_type();
     a_half_press_keeps_the_parameter_session();
     fn_values_add_the_defaults_of_a_native_look();
     toning_moves_red_and_blue_from_green();

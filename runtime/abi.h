@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6120
+#define GRKU_HOST_HEADER_SIZE 6124
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -482,6 +482,10 @@
    (`capabilities::StateFile::DialSets`), and INSTALL restores them. */
 #define GRKU_HOST_DIAL_SETS 3756
 #define GRKU_HOST_DIAL_SETS_WORDS 591
+/* The native Image Control type plus 1 when ADJ last opened, or 0 when it was
+   not readable. A half-press on the native Image Control slot with another
+   type selects that type, as OK does (runtime/menu.c). */
+#define GRKU_HOST_ADJ_IC_TYPE 6120
 
 /* The capabilities of the core (grku_core::capabilities): the handle of each
    CORE setting, and for each handle in order, its header word and its number
