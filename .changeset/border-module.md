@@ -1,5 +1,5 @@
 ---
-default: minor
+default: patch
 ---
 
-The new Border module adds a white or black border around each photo and shrinks the photo to fit, so nothing is cut.
+Border now shrinks the photo to fit inside its white or black border instead of covering the edge, so nothing is cut, and the date stays inside the border as on a print.
