@@ -14,22 +14,22 @@ static const char target_marker[] __attribute__((used)) = "GRKU_TARGET=gr3-2.10"
 #define CODE_RELOCATION_COUNT 0x1U
 #define TAIL_SYMBOL 0U
 #define TAIL_BYTES 0x0U
-static const u32 relocation_words[] = { /* 2968 values, SHA-256 47a7c8f4521e0644c89eaf36728e99d250456816c668f5bfad216d1eab63b053 */ };
+static const u32 relocation_words[] = { /* 2456 values, SHA-256 b011814bb832414d8519c417e9fa6b06cb5b03813fa9ce37a958e1911009bdb2 */ };
 static const struct relocation_window relocation_windows[] = {
-{0x53010200,0,768,1,0,1},
-{0x53010300,768,768,1,0,1},
-{0x530003f0,1536,24,0,0,0},
-{0x55002b6c,1560,64,0,1,1},
-{0x55018fcc,1624,64,0,1,1},
-{0x53010000,1688,768,1,0,1},
-{0x550186f4,2456,64,0,1,1},
-{0x55018d54,2520,64,1,1,1},
-{0x55018cb0,2584,64,0,1,1},
-{0x55018e0c,2648,64,0,1,1},
-{0x53dc2774,2712,64,0,0,1},
-{0x53dc28f8,2776,64,0,0,1},
-{0x53dc299c,2840,64,1,0,1},
-{0x53dc2404,2904,64,0,0,1},
+{0x53010200,0,576,1,0,1},
+{0x53010300,576,512,1,0,1},
+{0x530003f0,1088,24,0,0,0},
+{0x55002b6c,1112,64,0,1,1},
+{0x55018fcc,1176,64,0,1,1},
+{0x53010000,1240,704,1,0,1},
+{0x550186f4,1944,64,0,1,1},
+{0x55018d54,2008,64,1,1,1},
+{0x55018cb0,2072,64,0,1,1},
+{0x55018e0c,2136,64,0,1,1},
+{0x53dc2774,2200,64,0,0,1},
+{0x53dc28f8,2264,64,0,0,1},
+{0x53dc299c,2328,64,1,0,1},
+{0x53dc2404,2392,64,0,0,1},
 };
 static const u32 relocation_symbols[] = { /* 15 values, SHA-256 cb2b3274bda7d58aaaa1998a9b17324e3c26a9d27974571a603ef9833ce6bf59 */ };
 static const struct relocation_source relocation_sources[] = {
