@@ -451,6 +451,42 @@ static int monochrome_camera(void)
     return 0;
 #endif
 }
+/* The camera and the firmware version that it shows, for REPORT.TXT. The
+   RTOS identity word holds the version of the firmware file: the major
+   version in its low byte, the minor version in the next. The build names the
+   camera of each identity that it knows (rtos_cameras). After relocation
+   (with_record), a build with a model record reads the model and the version
+   that the model shows from it. Other builds name an HDF model as its base
+   model, whose firmware it runs. It reads the firmware memory, so it runs
+   while that is mapped; the report is written after the mapping ends. */
+static const char *camera_name, *camera_model = "";
+static u32 camera_major, camera_minor, camera_read;
+static void read_camera(int with_record)
+{
+    u32 identity = word(RTOS_IDENTITY);
+    camera_major = identity & 0xff;
+    camera_minor = (identity >> 8) & 0xff;
+    camera_read = 1;
+#if RTOS_IDENTITY_COUNT
+    const char *name = rtos_cameras;
+    for (u32 i = 0; i < RTOS_IDENTITY_COUNT; ++i) {
+        if (identity == rtos_identities[i]) { camera_name = name; break; }
+        while (*name) ++name;
+        ++name;
+    }
+#endif
+#ifdef MODEL_RECORD
+    u32 record = with_record ? word(MODEL_RECORD) : 0;
+    if (camera_name && record >= RELOCATION_RTOS_BASE && record + MODEL_VERSION + 4 <= relocation.image_end) {
+        u32 version = word(record + MODEL_VERSION), number = word(record + MODEL_NUMBER);
+        camera_major = version >> 24;
+        camera_minor = (version >> 16) & 0xff;
+        camera_model = number == MODEL_MONOCHROME ? " Monochrome" : number == MODEL_HDF ? " HDF" : "";
+    }
+#else
+    (void)with_record;
+#endif
+}
 #include "install_modules.h"
 #ifndef RTOS_NATIVE
 /* The value behind new recipe IDs (runtime/recipe_id.h). INSTALL runs as a
@@ -1001,6 +1037,7 @@ static int install(void)
         return STATUS_PLAN;
     failed_step = "relocate";
     if ((status = relocate())) return status;
+    read_camera(1);
     failed_step = "install";
     return install_planned();
 }
@@ -1259,6 +1296,9 @@ static void run_start(void)
        log says whether the build moved and the search ran. */
     failed_step = "relocate";
     status = relocate();
+    /* The camera line of REPORT.TXT, while the firmware memory is mapped:
+       with its model record after a relocation, else the identity only. */
+    read_camera(!status);
     log_step("relocated", status ? status : (int)relocation.searched);
     log_build();
     if (!status && (box = mailbox()) != 0) {
@@ -1409,7 +1449,11 @@ __attribute__((used)) void start(u32 *stack)
             status = STATUS_NO_MAPPING;
             if ((u32)mapped < 0xfffff001U) {
                 mapping = (volatile u8 *)mapped;
-                if (argc == 2) status = install();
+                if (argc == 2) {
+                    status = install();
+                    /* An install that ended before relocation reads the identity only. */
+                    if (!camera_read) read_camera(0);
+                }
 #ifdef MODULE_DIAGNOSTICS
                 else status = select_profile(argv[2]);
 #endif

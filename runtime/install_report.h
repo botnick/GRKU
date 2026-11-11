@@ -157,12 +157,22 @@ static void say_recipes(void)
     }
     if (recipe_problems_more) { say("and "); say_number(recipe_problems_more); say(" more\r\n"); }
 }
+/* The camera line (read_camera in installer.c), such as "GR IIIx 1.70". */
+static void say_camera(void)
+{
+    if (!camera_read) return;
+    say("Camera: ");
+    if (camera_name) { say(camera_name); say(camera_model); say(" "); }
+    else say("unknown, firmware ");
+    say_number(camera_major); say(camera_minor < 10 ? ".0" : "."); say_number(camera_minor); say("\r\n");
+}
 /* The details for a device report (install_diag.h). */
 static void say_details(int status);
 static void write_report(int status)
 {
     report_length = 0;
     say("GRKU "); say(GRKU_VERSION); say(" ("); say(target_marker + sizeof("GRKU_TARGET=") - 1); say(")\r\n");
+    say_camera();
     if (status) {
         say("\r\nGRKU did not install: error "); say_number((u32)status); say(" ("); say(status_name((u32)status));
         say("): "); say(status_meaning((u32)status)); say(".\r\n");
