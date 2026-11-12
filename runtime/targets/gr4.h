@@ -403,7 +403,7 @@
 #define CROP_NATIVE_50 0x3fe23119
 /* The live view zooms to the factor of a crop (runtime/framing.S:
    crop_live). */
-#define CROP_LIVE_FACTOR 1
+#define CROP_LIVE_FACTOR 0
 #define CROP_SHOT_COPY 0x4688
 /* The instruction that the shot hook displaces (runtime/framing.S). */
 #define CROP_SHOT_DISPLACED mov r1, r5
