@@ -107,6 +107,15 @@
   },
   "IMPRINT_LICENSE.txt": {
    "sha256": "3015b07fbb93baccb92dac4fb8a3efc34b0a7f82750e67922692d3ac5df84285"
+  },
+  "fujifilm_recipe.mjs": {
+   "sha256": "13f2d59574639e06852dc8d369e06a12888d3148c793095b3839d88f449351aa"
+  },
+  "make_fujifilm_recipe.mjs": {
+   "sha256": "b8f0281c7f6ca5279d458c933bd7900b20cd7e587679caa67ba797d186ca0969"
+  },
+  "FUJIFILM_RECIPES.md": {
+   "sha256": "b465ebeac05bcc9159b348df6274c979a9e41a95407a2dc9ccbaf14120ddb1ad"
   }
  },
  "luts": {
@@ -811,6 +820,12 @@
   "xtra-400-crystal-v1.cube": {
    "generator": "spektrafilm",
    "sha256": "9305c01ab20062fa09572fb6d29ea0769183ff1c2184654578afb8943b5eafae"
+  },
+  "fj-reggies-portra-v1.cube": {
+   "generator": "fujifilm",
+   "sha256": "94b6e05c6dfd25d7e35991dab99180f45c0e859e54db490b638422348e1c0930",
+   "upstream": "FLog2_to_CLASSIC-CHROME_65grid_V.1.00.cube",
+   "recipe": "make_fujifilm_recipe.mjs FLog2_to_CLASSIC-CHROME_65grid_V.1.00.cube '{\"wbRed\":2,\"wbBlue\":-4,\"highlight\":-1,\"shadow\":-1,\"color\":2,\"chrome\":1,\"chromeBlue\":0.5}'"
   }
  }
 }

@@ -8,7 +8,8 @@ export const FILM_KINDS: readonly FilmKind[] = ['negative', 'slide', 'mono', 'ci
 /** The films that are slide (reversal) film, by the start of the name on the box. */
 const SLIDE = ['VELVIA', 'PROVIA', 'ASTIA', 'SENSIA', 'EKTACHROME', 'KODACHROME', 'ELITE', 'PRECISA', 'AGFACHROME', 'AEROCHROME', 'X-PRO', 'POLACHROME', 'FORTIA'];
 /** The film simulations of the FUJIFILM digital cameras: by the name and number on the box (scripts/flap-icons.py FUJI_SIMS). */
-const FUJI_SIMS = ['PROVIA', 'VELVIA', 'ASTIA', 'CLASSIC CHROME', 'CLASSIC NEG', 'PRO NEG STD', 'REALA ACE', 'ETERNA', 'ETERNA BB', 'ACROS'];
+// Reggie's Portra is a FUJIFILM recipe on Classic Chrome: a camera look too.
+const FUJI_SIMS = ['PROVIA', 'VELVIA', 'ASTIA', 'CLASSIC CHROME', 'CLASSIC NEG', 'PRO NEG STD', 'REALA ACE', 'ETERNA', 'ETERNA BB', 'ACROS', "REGGIE'S PORTRA"];
 /** The instant films, by the start of the name on the box. */
 const INSTANT = ['INSTAX', 'FP-', 'PX', 'TIME ZERO', 'POLAROID', 'TYPE'];
 

@@ -75,6 +75,7 @@ import { PlusSheet } from './components/PlusSheet';
 import { DOC_PATHS, LANGUAGE_PATHS } from './languagePage';
 import { RichText } from './components/RichText';
 import { SiteFooter } from './components/SiteFooter';
+import { WhatsNew } from './components/WhatsNew';
 import { Step } from './components/Step';
 import { TermsNote } from './components/TermsNote';
 import { Workbench } from './components/Workbench';
@@ -1193,6 +1194,7 @@ export function App({
           </div>
         </Step>
 
+        <WhatsNew language={language} />
         <Faq strings={t} />
       </main>
       <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} />
