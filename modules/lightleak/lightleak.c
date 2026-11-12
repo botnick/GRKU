@@ -88,6 +88,18 @@ static u32 next(u32 *s) { u32 x = *s; x ^= x << 13; x ^= x >> 17; x ^= x << 5; r
    through divide(). */
 static u32 rnd(u32 *s, u32 n) { u32 r = next(s) >> 8; return n ? r - divide(r, n) * n : 0; }
 
+/* The generator of element k of a kind: its own stream, so the elements of a
+   kind do not depend on how many draws an earlier one took. */
+static u32 stream(u32 seed, u32 kind, u32 k)
+{
+    u32 s = (seed ^ kind) * 0x9e3779b1U + k * 0x85ebca77U;
+    s ^= s >> 15; s *= 0x2c1b3c6dU; s ^= s >> 12;
+    return s ? s : 0x6d2b79f5U;
+}
+/* A position along a side of n pixels from 16 random bits: the same place in
+   every plane of the shot, whatever its size. */
+static u32 along(u32 *rs, u32 n) { return (rnd(rs, 65536) * n) >> 16; }
+
 /* A seed from the picture: sums of a few luma samples of the largest plane.
    The same shot gives the same seed in each of its planes only if sampled
    from one plane, so leak_apply passes it down. */
@@ -175,44 +187,61 @@ static void speck(const View *v, int u, int w, int r4, u32 target, u32 a)
         }
 }
 
-/* A hair: a thin curved fibre of length n from (u, w), pale, faint, with a
-   slightly darker core, as a fibre on a scanner's glass. */
-static void hair(const View *v, u32 *rs, int u, int w, int n, u32 a, int thick)
+/* A hair: a thin curved fibre, pale, faint, with a slightly darker core, as
+   a fibre on a scanner's glass. Its path is HAIR_POINTS points in 1/65536 of
+   the upright width, drawn from `rs` alone, so it is the same curve in every
+   plane of the shot; each plane draws the segments at its own scale. */
+#define HAIR_POINTS 48
+static void hair(const View *v, u32 *rs, u32 a, int thick)
 {
-    int i, x, y, ddu = (int)rnd(rs, 3) - 1, ddw = (int)rnd(rs, 3) - 1;
-    int fu = u * 16, fw = w * 16, vu = (int)rnd(rs, 33) - 16, vw = (int)rnd(rs, 33) - 16;
+    int i, x, y, k;
+    /* Start, heading in 1/16 of a step, and the length of a step: 0.1% to 0.3%
+       of the width, so a hair spans 5% to 15% of the frame. */
+    int fu = (int)rnd(rs, 65536), fw = (int)divide(rnd(rs, 65536) * v->h, v->w ? v->w : 1);
+    int vu = (int)rnd(rs, 33) - 16, vw = (int)rnd(rs, 33) - 16, ddu = (int)rnd(rs, 3) - 1, ddw = (int)rnd(rs, 3) - 1;
+    int step = 64 + (int)rnd(rs, 140);
     if (vu == 0 && vw == 0) vu = 11;
-    for (i = 0; i < n; ++i) {
-        int t;
-        fu += vu; fw += vw;
-        if ((i & 15) == 0) { vu += ddu; vw += ddw; if (rnd(rs, 4) == 0) { ddu = (int)rnd(rs, 3) - 1; ddw = (int)rnd(rs, 3) - 1; } }
+    int pu = (int)(((u32)fu * v->w) >> 16), pw = (int)(((u32)fw * v->w) >> 16);
+    for (i = 0; i < HAIR_POINTS; ++i) {
+        vu += ddu; vw += ddw;
+        if (rnd(rs, 3) == 0) { ddu = (int)rnd(rs, 3) - 1; ddw = (int)rnd(rs, 3) - 1; }
         if (vu > 16) vu = 16;
         if (vu < -16) vu = -16;
         if (vw > 16) vw = 16;
         if (vw < -16) vw = -16;
-        /* The alpha wanders along the fibre: a hair is never one even line. */
+        fu += vu * step / 16; fw += vw * step / 16;
         {
-            u32 ai = (a * (160U + ((u32)(i * 7) & 95U))) >> 8;
-            for (t = 0; t < thick; ++t) {
-                /* perpendicular offset: thicker fibres are a few pixels wide, fainter at the sides */
-                int side = t - thick / 2, px = fu / 16 + (vw > 0 ? side : -side) * (vw != 0), py = fw / 16 + (vu != 0 ? side : 0);
-                u32 as = side == 0 ? ai : ai / 2;
-                sensor(v, px, py, &x, &y);
-                blend_px(v, x, y, 235, as);
+            int nu = (int)(((u32)(fu < 0 ? 0 : fu) * v->w) >> 16), nw = (int)(((u32)(fw < 0 ? 0 : fw) * v->w) >> 16);
+            int du = nu - pu, dw = nw - pw, n = (du < 0 ? -du : du) > (dw < 0 ? -dw : dw) ? (du < 0 ? -du : du) : (dw < 0 ? -dw : dw);
+            /* The alpha wanders along the fibre: a hair is never one even line. */
+            u32 ai = (a * (160U + ((u32)(i * 37) & 95U))) >> 8;
+            if (fu < 0 || fw < 0) break;
+            if (n < 1) n = 1;
+            for (k = 0; k < n; ++k) {
+                int t, cu = pu + divide((u32)(du < 0 ? -du : du) * (u32)k, (u32)n) * (du < 0 ? -1 : 1);
+                int cw = pw + divide((u32)(dw < 0 ? -dw : dw) * (u32)k, (u32)n) * (dw < 0 ? -1 : 1);
+                for (t = 0; t < thick; ++t) {
+                    /* perpendicular offset: thicker fibres are a few pixels wide, fainter at the sides */
+                    int side = t - thick / 2, px = cu + ((dw < 0 ? -dw : dw) > (du < 0 ? -du : du) ? side : 0), py = cw + ((dw < 0 ? -dw : dw) > (du < 0 ? -du : du) ? 0 : side);
+                    sensor(v, px, py, &x, &y);
+                    blend_px(v, x, y, 235, side == 0 ? ai : ai / 2);
+                }
             }
+            pu = nu; pw = nw;
         }
     }
 }
 
 static void dust(const View *v, u32 strength)
 {
-    u32 rs = v->seed ^ 0xd0d0U, i;
+    u32 rs, i;
     u32 scale = v->w / 300;                        /* 1 at 300 px wide, 20 at 6000 */
     if (!scale) scale = 1;
     u32 n = (strength == 1 ? 16 : strength == 2 ? 45 : 120);
     u32 hairs = strength == 1 ? 1 : strength == 2 ? 2 : 4;
     for (i = 0; i < n; ++i) {
-        int u = (int)rnd(&rs, v->w), w = (int)rnd(&rs, v->h);
+        rs = stream(v->seed, 0xd0d0U, i);
+        int u = (int)along(&rs, v->w), w = (int)along(&rs, v->h);
         /* Mostly tiny specks; a few larger blots. Radius in 1/4 px. */
         u32 big = rnd(&rs, 10) == 0;
         int r4 = (int)(scale * (big ? 5 + rnd(&rs, 8) : 2 + rnd(&rs, 4)));
@@ -222,8 +251,8 @@ static void dust(const View *v, u32 strength)
         speck(v, u, w, r4, dark ? 40U : 225U, a);
     }
     for (i = 0; i < hairs; ++i) {
-        int u = (int)rnd(&rs, v->w), w = (int)rnd(&rs, v->h);
-        hair(v, &rs, u, w, (int)(scale * (25 + rnd(&rs, 70))), 35 + rnd(&rs, 45), scale >= 6 ? 3 : scale >= 3 ? 2 : 1);
+        rs = stream(v->seed, 0x4a12U, i);
+        hair(v, &rs, 35 + rnd(&rs, 45), scale >= 6 ? 3 : scale >= 3 ? 2 : 1);
     }
 }
 
@@ -234,12 +263,12 @@ static void dust(const View *v, u32 strength)
    and the brightness. Luma rises and the chroma turns orange-red. */
 static void light_leak(const View *v, u32 strength)
 {
-    u32 rs = v->seed ^ 0x1ea4U, style = rnd(&rs, 3), side = rnd(&rs, 2);
+    u32 rs = stream(v->seed, 0x1ea4U, 0), style = rnd(&rs, 3), side = rnd(&rs, 2);
     u32 W = v->w, H = v->h, u, w;
     int x, y;
     u32 width = (W * (strength == 1 ? 18 : strength == 2 ? 28 : 40)) / 100;
     int peak = strength == 1 ? 70 : strength == 2 ? 110 : 150;
-    u32 band_at = width / 2 + rnd(&rs, W - width);
+    u32 band_at = width / 2 + along(&rs, W - width);
     u32 step = v->w >= 1200 ? 2 : 1;               /* every pixel on small planes */
     u32 period = H / 3 > 8 ? H / 3 : 8;
     for (w = 0; w < H; w += 1) {
@@ -278,32 +307,60 @@ static void light_leak(const View *v, u32 strength)
 
 /* ---- scratches ----------------------------------------------------------------- */
 
-/* Thin pale lines along the long side of the film, which is the sensor's x
-   axis in either posture. A scratch is faint and uneven: its alpha wanders
-   along its length and it fades in and out. */
+/* Thin lines along the long side of the film, which is the sensor's x axis in
+   either posture, as the gate scratches it. Each scratch has its own count of
+   random draws, in 1/65536 of the frame, so it falls the same in every plane
+   of the shot: its start and length, a drift across the frame that wanders
+   at SCRATCH_POINTS control points, breaks, and an alpha that rises and
+   falls. Most are pale, some dark. Strength sets how many: 1-2, 2-4, 4-7. */
+#define SCRATCH_POINTS 32
 static void scratches(const View *v, u32 strength)
 {
-    u32 rs = v->seed ^ 0x5c7aU, i, n = strength == 1 ? 1 : strength == 2 ? 2 : 4;
     const Plane *p = v->p;
-    u32 W = p->right - p->left, H = p->bottom - p->top;
+    u32 W = p->right - p->left, H = p->bottom - p->top, i, k;
+    u32 rs = stream(v->seed, 0x5c7aU, 0xffffU);
+    u32 base = strength == 1 ? 1 : strength == 2 ? 2 : 4, n = base + rnd(&rs, base + (strength == 3 ? 0 : 1));
     u32 scale = W / 1500; if (!scale) scale = 1;
     for (i = 0; i < n; ++i) {
-        u32 y0 = p->top + rnd(&rs, H), len = W / 5 + rnd(&rs, W - W / 5), x0 = p->left + rnd(&rs, W - len);
-        u32 thick = 1 + rnd(&rs, scale), x;
-        u32 a0 = 30 + rnd(&rs, 50), wobble = 0, fade_in = len / 8 + 1, segment = 0;
-        u32 bright = rnd(&rs, 5) != 0;             /* most scratches are pale, some dark */
-        for (x = x0; x < x0 + len; ++x) {
-            u32 t, a = a0, d = x - x0;
-            if ((x & 63) == 0) { wobble = rnd(&rs, 3); segment = rnd(&rs, 4); }
-            if (d < fade_in) a = divide(a * d, fade_in);
-            if (len - d < fade_in) a = divide(a * (len - d), fade_in);
-            if (segment == 0) a = a / 3;           /* a faint stretch */
-            for (t = 0; t < thick; ++t) {
-                int yy = (int)(y0 + t + wobble) - 1;
-                u32 at = thick > 1 && (t == 0 || t == thick - 1) ? a / 2 : a;
-                if (yy >= (int)p->top && yy < (int)p->bottom) {
-                    u32 l = p->y + (u32)yy * p->pitch, yv = BYTE(l, x), target = bright ? 240U : 30U;
-                    BYTE(l, x) = (u8)(yv + (((int)target - (int)yv) * (int)at >> 8));
+        rs = stream(v->seed, 0x5c7aU, i);
+        /* Start and length along x, the row across, in 1/65536. A third are
+           short marks, the rest run long. */
+        u32 len16 = rnd(&rs, 3) == 0 ? 3000 + rnd(&rs, 9000) : 13000 + rnd(&rs, 52000);
+        u32 x16 = rnd(&rs, 65536 - len16 + 1), y16 = 1500 + rnd(&rs, 62500);
+        u32 thick = 1 + rnd(&rs, scale + (scale > 1)), bright = rnd(&rs, 5) != 0, a0 = 25 + rnd(&rs, 60);
+        int drift[SCRATCH_POINTS + 1], gap[SCRATCH_POINTS + 1], amp[SCRATCH_POINTS + 1];
+        /* The drift: a random walk with a slope, up to about 1.5% of the
+           height over the scratch, in 1/65536 of the height. */
+        int slope = (int)rnd(&rs, 61) - 30, walk = 0;
+        for (k = 0; k <= SCRATCH_POINTS; ++k) {
+            walk += (int)rnd(&rs, 31) - 15 + slope;
+            drift[k] = walk;
+            gap[k] = rnd(&rs, 9) == 0;                 /* a break in the scratch */
+            amp[k] = 96 + (int)rnd(&rs, 161);          /* 96..256: the scratch fades in and out */
+        }
+        {
+            u32 x0 = p->left + ((x16 * W) >> 16), len = (len16 * W) >> 16, x;
+            if (len < 4) continue;
+            for (x = 0; x < len && x0 + x < p->right; ++x) {
+                /* The control point and the fraction to the next, in 1/256. */
+                u32 at = divide(x * SCRATCH_POINTS * 256U, len), c = at >> 8, fr = at & 255U, t;
+                int d, yrow;
+                u32 a;
+                if (c >= SCRATCH_POINTS) { c = SCRATCH_POINTS - 1; fr = 255; }
+                if (gap[c]) continue;
+                d = drift[c] + (((drift[c + 1] - drift[c]) * (int)fr) >> 8);
+                yrow = (int)p->top + (int)((y16 * H) >> 16) + ((d * (int)H) >> 16);
+                a = (a0 * (u32)(amp[c] + (((amp[c + 1] - amp[c]) * (int)fr) >> 8))) >> 8;
+                /* Fade in and out at the ends. */
+                if (x < len / 10) a = divide(a * x, len / 10 + 1);
+                if (len - x < len / 10) a = divide(a * (len - x), len / 10 + 1);
+                for (t = 0; t < thick; ++t) {
+                    int yy = yrow + (int)t;
+                    u32 as = thick > 1 && (t == 0 || t == thick - 1) ? a / 2 : a;
+                    if (yy >= (int)p->top && yy < (int)p->bottom) {
+                        u32 l = p->y + (u32)yy * p->pitch, yv = BYTE(l, x0 + x), target = bright ? 240U : 30U;
+                        BYTE(l, x0 + x) = (u8)(yv + (((int)target - (int)yv) * (int)as >> 8));
+                    }
                 }
             }
         }

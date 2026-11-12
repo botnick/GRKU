@@ -344,6 +344,20 @@ fn glow_stays_within_stack_budget() -> Result<()> {
     Ok(())
 }
 
+/// Light Leak runs beneath the firmware JPEG encoder too: its frames stay
+/// within the budget of Glow, the scratch control points included.
+#[test]
+#[ignore = "Requires ARM-capable Clang and LLD; run with --ignored"]
+fn lightleak_stays_within_stack_budget() -> Result<()> {
+    for (function, bytes) in stack_frames("lightleak", "lightleak.c")? {
+        assert!(
+            bytes <= 640,
+            "Light Leak stack frame exceeds budget: {function} {bytes}"
+        );
+    }
+    Ok(())
+}
+
 /// A module that needs a compiler helper does not build, because the core does
 /// not export it.
 #[test]

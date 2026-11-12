@@ -64,6 +64,19 @@ static PictureSet wide_picture(void)
 
 /* How many pixels of the main picture differ from the flat grey, and how
    many are brighter. */
+/* The centre of the changed pixels of a plane, in 1/1000 of its width and
+   height. */
+static void centre(const Plane *p, u32 *cx, u32 *cy)
+{
+    unsigned long long sx = 0, sy = 0, n = 0;
+    for (u32 y = 0; y < p->height; ++y)
+        for (u32 x = 0; x < p->width; ++x)
+            if (luma(p, x, y) != GREY) { sx += x; sy += y; ++n; }
+    *cx = n ? (u32)(sx * 1000 / n / p->width) : 0;
+    *cy = n ? (u32)(sy * 1000 / n / p->height) : 0;
+}
+#define NEAR(a, b, d) ((a) + (d) >= (b) && (b) + (d) >= (a))
+
 static void changed(const Plane *p, u32 *diff, u32 *brighter)
 {
     *diff = *brighter = 0;
@@ -213,6 +226,26 @@ int main(void)
     set.turns = 3;
     leak_apply(&set, 5);
     assert(luma(&set.planes[0], 2, MAIN_H - 3) < GREY);
+
+    /* Each artefact falls in the same place in the main picture and the
+       thumbnail, so a picture does not jump when the camera shows its
+       screennail and then the picture: the centre of what changed agrees. */
+    {
+        const u32 rows[3] = {SETTING_DUST, SETTING_LEAK, SETTING_SCRATCH};
+        for (u32 r = 0; r < 3; ++r) {
+            for (u32 turns = 0; turns < 4; turns += 3) {
+                u32 mx, my, tx, ty;
+                set = pictures();
+                set.turns = turns;
+                grku_test_settings[rows[r]] = 3;
+                leak_apply(&set, 1);
+                centre(&set.planes[0], &mx, &my);
+                centre(&set.planes[1], &tx, &ty);
+                assert(NEAR(mx, tx, 40) && NEAR(my, ty, 40));
+                grku_test_settings[rows[r]] = 0;
+            }
+        }
+    }
 
     /* Different pictures give different seeds: the seed samples the top left
        pixel among others. */
