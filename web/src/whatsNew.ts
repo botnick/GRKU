@@ -11,6 +11,17 @@ export interface Release {
 
 export const RELEASES: Release[] = [
   {
+    "version": "1.8.5",
+    "date": "2026-11-13",
+    "items": [
+      "185.1",
+      "185.2",
+      "185.3",
+      "185.4",
+      "185.5"
+    ]
+  },
+  {
     "version": "1.8.4",
     "date": "2026-11-10",
     "items": [
@@ -75,6 +86,11 @@ export const RELEASES: Release[] = [
 
 const STRINGS: Record<Language, Record<string, string>> = {
   "en": {
+    "185.1": "New look: Reggie's Portra, the most popular Fujifilm recipe, on FUJIFILM's own Classic Chrome with each setting measured from real Fujifilm camera photos. Free, it takes no slot.",
+    "185.2": "Border now goes around the whole photo, so nothing is cut, with a new Instant style. Recipes and U1 to U3 keep the border too.",
+    "185.3": "Distance Unit in MENU, under GRKU Settings: the Snap distances and the manual focus scale in meters or feet.",
+    "185.4": "Crop: 35, 40, 50, and 70 mm (90 mm is gone). On GR III and GR IIIx the live view zooms to the crop.",
+    "185.5": "Strong Glow stays even around big lights, the recipe mark stays after Rename and Delete, and 16 print film looks keep bright skin tones.",
     "title": "What's new",
     "lead": "Each update of GRKU, newest first. To update, write the card again from this page, or copy the new package to it.",
     "latest": "New",
@@ -126,7 +142,12 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "160.3": "模式拨盘的 U1 至 U3 档位可保留 GRKU 设置或直接调用配方。",
     "160.4": "开机启用：可设置每次开机时是否默认开启 GRKU。",
     "160.5": "胶片库扩展至 100 多款风格，均配有还原真实包装配色的胶卷图标。",
-    "160.6": "提升了相机开机时 GRKU 的启动速度。"
+    "160.6": "提升了相机开机时 GRKU 的启动速度。",
+    "185.1": "新增外观：Reggie's Portra，最受欢迎的 Fujifilm 色彩配方，基于 FUJIFILM 原生 Classic Chrome，各项设置均实测自 Fujifilm 相机样张。免费提供，不占用配方槽位。",
+    "185.2": "Border（边框）现环绕于整张照片外侧，画面完整无裁切，并新增 Instant 样式。色彩配方及 U1 至 U3 设置亦会保留边框效果。",
+    "185.3": "MENU 中“GRKU Settings”下新增 Distance Unit（距离单位）：支持将 Snap 对焦距离与手动对焦标尺切换为米或英尺。",
+    "185.4": "Crop（裁切）：提供 35、40、50 及 70 mm 选项（已移除 90 mm）。GR III 与 GR IIIx 的实时取景画面将跟随裁切放大显示。",
+    "185.5": "强 Glow 效果在大面积光源周围过渡更自然；执行 Rename 与 Delete 后配方标记仍会保留；优化 16 种正片胶片外观，使明亮肤色更加通透。"
   },
   "zh-Hant": {
     "title": "最新消息",
@@ -153,7 +174,12 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "160.3": "模式轉盤 U1 至 U3 可保留您的 GRKU 設定，或直接套用配方。",
     "160.4": "開機時啟用：設定每次開啟相機時是否自動啟動 GRKU。",
     "160.5": "底片庫擴充至 100 種以上外觀，各配方均具備原廠包裝配色之底片盒圖示。",
-    "160.6": "縮短開機時 GRKU 的啟動時間。"
+    "160.6": "縮短開機時 GRKU 的啟動時間。",
+    "185.1": "全新外觀：Reggie's Portra，最受歡迎的 Fujifilm 配方，基於 FUJIFILM 原廠 Classic Chrome，各項數值皆比對真實 Fujifilm 相機照片測定。免費提供，不佔用欄位。",
+    "185.2": "Border 現已包覆整張照片而不裁切畫面，並新增 Instant 風格。切換至配方與 U1 至 U3 時亦會保留邊框。",
+    "185.3": "MENU 內的 GRKU Settings 新增 Distance Unit：Snap 距離與手動對焦尺標可設定為公尺或英尺。",
+    "185.4": "Crop：提供 35、40、50 與 70 mm（取消 90 mm）。GR III 與 GR IIIx 的即時取景畫面會隨裁切放大。",
+    "185.5": "強烈 Glow 在強光源周圍更顯自然均勻；Rename 與 Delete 後仍保留配方標記；16 款相紙底片外觀維持明亮膚色。"
   },
   "ja": {
     "title": "更新履歴",
@@ -180,7 +206,12 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "160.3": "モードダイヤルのU1〜U3に、GRKUの設定の保持やレシピの割り当てが可能になりました。",
     "160.4": "起動時有効設定：カメラの電源を入れた際に、GRKUを自動で有効にするか選択できるようになりました。",
     "160.5": "フィルムライブラリが100種類以上に拡充。実物のパッケージカラーを再現したフィルム箱アイコンが付きました。",
-    "160.6": "カメラ起動時のGRKUの立ち上がり速度を向上しました。"
+    "160.6": "カメラ起動時のGRKUの立ち上がり速度を向上しました。",
+    "185.1": "新しいルック：最も人気のあるFujifilmレシピ「Reggie's Portra」を追加。FUJIFILMの実機写真から各設定を測定したClassic Chromeベースです。空きスロットを消費せず無料で使用できます。",
+    "185.2": "Borderが写真全体を囲むようになり、画像がトリミングされなくなりました。新しいInstantスタイルも追加。レシピやU1〜U3でもBorder設定が保持されます。",
+    "185.3": "MENU内のGRKU Settingsに「Distance Unit」を追加：Snap撮影距離およびマニュアルフォーカスバーの表示をメートル／フィートから選択できます。",
+    "185.4": "Crop：35、40、50、70 mm（90 mmは廃止）。GR IIIおよびGR IIIxでは、ライブビューがクロップ画角にズーム表示されます。",
+    "185.5": "強度の高いGlowが大きな光源の周囲でも均一に適用されるよう改善。RenameやDelete後もレシピマークが保持され、16種のプリントフィルムルックで明るいスキントーンが維持されます。"
   },
   "ko": {
     "title": "새로운 기능",
@@ -207,7 +238,12 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "160.3": "모드 다이얼의 U1~U3에 기존 설정을 유지하거나 새 레시피를 지정할 수 있습니다.",
     "160.4": "시작 시 활성화: 카메라를 켤 때 GRKU를 자동으로 실행할지 설정합니다.",
     "160.5": "실제 필름 패키지 색상을 반영한 아이콘과 함께 100종 이상의 필름 룩을 제공합니다.",
-    "160.6": "카메라를 켤 때 GRKU가 더 빠르게 시작됩니다."
+    "160.6": "카메라를 켤 때 GRKU가 더 빠르게 시작됩니다.",
+    "185.1": "신규 룩: 가장 인기 있는 Fujifilm 레시피인 Reggie's Portra 추가. 실제 Fujifilm 카메라로 촬영한 사진을 기반으로 FUJIFILM의 Classic Chrome 설정을 정밀하게 측정했습니다. 슬롯을 차지하지 않는 무료 제공 룩입니다.",
+    "185.2": "새로운 Instant 스타일과 함께 Border가 사진 전체를 둘러싸도록 변경되어 잘리는 부분이 없습니다. 레시피 및 U1~U3에서도 테두리가 유지됩니다.",
+    "185.3": "MENU의 GRKU Settings 항목에 Distance Unit 추가: Snap 거리 및 수동 초점 눈금을 미터(m) 또는 피트(ft)로 설정할 수 있습니다.",
+    "185.4": "Crop: 35, 40, 50, 70 mm 지원(90 mm 제외). GR III 및 GR IIIx의 라이브 뷰가 크롭 화각에 맞춰 확대됩니다.",
+    "185.5": "강한 광원 주변에서도 강한 Glow 효과가 균일하게 유지되며, Rename 및 Delete 후에도 레시피 표시가 유지됩니다. 16종의 인화 필름 룩에서 밝은 피부 톤 표현이 유지됩니다."
   },
   "th": {
     "title": "มีอะไรใหม่",
@@ -234,7 +270,12 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "160.3": "โหมด U1 ถึง U3 บนแป้นหมุนสามารถจำค่า GRKU ที่ตั้งไว้ หรือจะผูกเข้ากับสูตรสีก็ได้",
     "160.4": "เปิดใช้เมื่อเริ่ม: เลือกว่าจะให้ GRKU ทำงานทันทีทุกครั้งที่เปิดกล้องหรือไม่",
     "160.5": "คลังฟิล์มเพิ่มขึ้นเป็นกว่า 100 โทน มาพร้อมไอคอนกล่องฟิล์มตามสีของกล่องจริง",
-    "160.6": "GRKU พร้อมใช้งานเร็วขึ้นเมื่อเปิดกล้อง"
+    "160.6": "GRKU พร้อมใช้งานเร็วขึ้นเมื่อเปิดกล้อง",
+    "185.1": "ลุคใหม่: Reggie's Portra สูตรสี Fujifilm ยอดนิยม บน Classic Chrome ของ FUJIFILM เอง โดยเทียบวัดค่าจากภาพถ่ายกล้อง Fujifilm จริง ฟรี ไม่กินสล็อต",
+    "185.2": "Border ตอนนี้จะล้อมรอบทั้งรูป ภาพจึงไม่ถูกตัด พร้อมสไตล์ใหม่ Instant ทั้งสูตรสีและ U1 ถึง U3 ก็จำค่า Border ไว้ด้วย",
+    "185.3": "Distance Unit ใน MENU ใต้ GRKU Settings: เลือกระยะ Snap และสเกลแมนนวลโฟกัสเป็นเมตรหรือฟุต",
+    "185.4": "Crop: 35, 40, 50 และ 70 mm (ตัด 90 mm ออกแล้ว) บน GR III และ GR IIIx จอ Live View จะซูมตามระยะ Crop",
+    "185.5": "Strong Glow เนียนสม่ำเสมอแม้รอบดวงไฟใหญ่ สัญลักษณ์สูตรสีไม่หายหลัง Rename และ Delete และลุคฟิล์มปรินต์ 16 แบบยังคงโทนผิวที่สว่างใส"
   }
 };
 
