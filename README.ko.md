@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![grku.app](https://img.shields.io/badge/site-grku.app-d94135)](https://grku.app)
 
-GRKU는 [BOTNICK](https://github.com/botnick)이 태국의 GR 사용자들을 최우선으로, 나아가 모든 사용자를 위해 만든 독자적인 프로젝트입니다. SD 카드에서 GR의 코드를 실행하는 방법을 찾아낸 ahonn의 [GRKit](https://github.com/ahonn/GRKit) 코드에서 시작되었으며, 이후 하나씩 새롭게 재구축되었습니다: 실제 필름 상자 아이콘을 갖춘 145가지 룩의 필름 라이브러리, 레시피, 더 많은 모듈, 원샷 시작, 카드에 직접 기록하고 추가 룩을 판매하는 사이트, 태국어 지원 및 자체 릴리스 파이프라인을 갖추었습니다. [기원](#origins) 섹션에서 GRKit에서 가져온 부분과 GRKU가 새롭게 만든 부분을 설명합니다.
+GRKU는 [BOTNICK](https://github.com/botnick)이 태국의 GR 사용자들을 최우선으로, 나아가 모든 사용자를 위해 만든 독자적인 프로젝트입니다. SD 카드에서 GR의 코드를 실행하는 방법을 찾아낸 ahonn의 [GRKit](https://github.com/ahonn/GRKit) 코드에서 시작되었으며, 이후 하나씩 새롭게 재구축되었습니다: 실제 필름 상자 아이콘을 갖춘 146가지 룩의 필름 라이브러리, 레시피, 더 많은 모듈, 원샷 시작, 카드에 직접 기록하고 추가 룩을 판매하는 사이트, 태국어 지원 및 자체 릴리스 파이프라인을 갖추었습니다. [기원](#origins) 섹션에서 GRKit에서 가져온 부분과 GRKU가 새롭게 만든 부분을 설명합니다.
 
 <p>
   <img src="resources/images/grku-root.jpg" alt="ADJ 메뉴의 GRKU 페이지" width="49%">
@@ -21,7 +21,7 @@ GRKU는 [BOTNICK](https://github.com/botnick)이 태국의 GR 사용자들을 �
 
 촬영 중 ADJ 레버를 누르고 여섯 번째 항목인 GRKU를 선택합니다. GRKU의 모든 기능은 여기에 있으며, MENU의 GRKU 섹션에도 있습니다. 카메라를 껐다 켠 후에도 ADJ는 이전에 머물렀던 항목의 GRKU에서 다시 열립니다.
 
-- **Film Look**: 실제 필름의 145가지 룩으로, 한 번에 40가지가 카드에 들어갑니다. Kodak, Fujifilm, Ilford, CineStill, Lomography, Polaroid, Agfa, Harman, Rollei와 함께 GR II의 Positive Film을 본뜬 GRKU 고유의 룩인 Positive GRII, 그리고 Provia와 Classic Chrome부터 Acros까지 무료로 제공되는 FUJIFILM 카메라의 10가지 필름 시뮬레이션이 있습니다. 각 룩에는 실제 상자의 색상으로 된 필름 상자 아이콘이 있습니다. Fn 버튼으로 룩을 조절할 수 있으며, 사이트에서 직접 만든 LUT를 가져올 수도 있습니다.
+- **Film Look**: 실제 필름의 146가지 룩으로, 한 번에 40가지가 카드에 들어갑니다. Kodak, Fujifilm, Ilford, CineStill, Lomography, Polaroid, Agfa, Harman, Rollei와 함께 GR II의 Positive Film을 본뜬 GRKU 고유의 룩인 Positive GRII, 그리고 Provia와 Classic Chrome부터 Acros까지 무료로 제공되는 FUJIFILM 카메라의 10가지 필름 시뮬레이션이 있습니다. 각 룩에는 실제 상자의 색상으로 된 필름 상자 아이콘이 있습니다. Fn 버튼으로 룩을 조절할 수 있으며, 사이트에서 직접 만든 LUT를 가져올 수도 있습니다.
 - **Recipes**: 카메라의 전체 룩을 이름으로 저장하거나 사이트에서 인기 있는 레시피를 가져온 다음, Film Look 또는 Image Control, 그레인, 글로우, 화이트 밸런스, 보정 및 노출을 한 번에 전환할 수 있으며 실행 취소도 지원합니다. 모드 다이얼의 U1, U2, U3에 레시피를 할당할 수 있습니다.
 - **Framing**: XPan, 2.35:1, 16:9, 4:3, 5:4, 7:6, 1:1로, JPEG 사진을 크롭하거나 프레임 라인으로만 표시합니다. **Crop**: 35, 40, 50, 70 또는 90 mm를 라이브 뷰와 함께 제공합니다.
 - **Guides**: 삼등분, 중앙, 황금비, 대각선, 황금 나선, 다이내믹 시머트리.
@@ -74,7 +74,7 @@ GRKU는 GRKit 1.5.2와 GRKit의 `feat/recipes` 브랜치에서 시작되었습�
 
 | 영역 | GRKit (GRKU의 시작점) | 현재의 GRKU | 방법 |
 | --- | --- | --- | --- |
-| 필름 라이브러리 | 21가지 룩 | 145가지 룩, 카드당 40가지, 모든 룩이 포함된 필름 라이브러리 ZIP | Pat David (CC BY-SA 4.0), t3mujinpack (MIT), spektrafilm, Spectral Film LUT, Fotufilm의 오픈 필름 프리셋과 10가지 필름 시뮬레이션을 위한 FUJIFILM 자체 LUT에서 피팅하고, `docs/popular-films-2026.md`의 2026년 인기도 조사를 바탕으로 기본 40가지를 선정 |
+| 필름 라이브러리 | 21가지 룩 | 146가지 룩, 카드당 40가지, 모든 룩이 포함된 필름 라이브러리 ZIP | Pat David (CC BY-SA 4.0), t3mujinpack (MIT), spektrafilm, Spectral Film LUT, Fotufilm의 오픈 필름 프리셋과 10가지 필름 시뮬레이션을 위한 FUJIFILM 자체 LUT에서 피팅하고, `docs/popular-films-2026.md`의 2026년 인기도 조사를 바탕으로 기본 40가지를 선정 |
 | 아이콘 | 평면 타일 | 모든 룩에 실제 상자 색상의 필름 박스, 메뉴용 컬러 타일, 고유한 PNG 아이콘을 가져오는 효과 | `scripts/flap-icons.py`가 상자를 그리고, 효과 컴파일러가 `icon: {"png": ...}`를 처리 |
 | 레시피 | 병합되지 않은 브랜치 | 병합 완료, 태국어 친화적 설명, ricohcookbook.com의 인기 레시피, 3단계 편집기, 예시 사진, 카메라 스타일의 설정 시트 포함 | `modules/recipes`, `web/src/components/Recipe*.tsx` |
 | 모듈 | Film Look, Framing, Guides, Date, Glow, Grain | 추가: Crop, Light Leak, Diffusion, Border, Recipes, Enable at Start, 피트(feet) 레이블, Golden Spiral 및 Dynamic Symmetry 가이드 | MustafaCisse 및 kkasemsa 포크에서 이식하고 새로 작성, 패키지당 10개 모듈 수용 |
@@ -104,7 +104,7 @@ grku package --build build/runtime --camera gr4 --effects build/effects-default 
 grku verify dist/GRKU-gr4.zip
 ```
 
-`build/effects`에는 145개의 룩이 모두 들어갑니다. 패키지에는 최대 40개까지만 담을 수 있으므로 `python3 -I scripts/defaults.py build/effects build/effects-default`로 `effects/defaults.txt`의 40개를 고릅니다. 패키지에는 모듈을 10개까지 담을 수 있으므로 하나를 제외해야 합니다(릴리스에서는 Border를 제외합니다). GR III의 경우 각 펌웨어의 `fwdc239b.bin`에서 `gr3-2.10`과 `gr3-2.21`을 빌드하고, `--camera gr3` 및 각각에 대한 `--build`로 패키징합니다. GR IV 패키지는 `gr4-1.11`, `gr4-1.20`, `gr4-1.21`을 받습니다. 그런 다음 `python3 -I scripts/card.py write dist/GRKU-gr4.zip`을 실행하면 카드 리더기에 있는 카드에 패키지가 기록됩니다.
+`build/effects`에는 146개의 룩이 모두 들어갑니다. 패키지에는 최대 40개까지만 담을 수 있으므로 `python3 -I scripts/defaults.py build/effects build/effects-default`로 `effects/defaults.txt`의 40개를 고릅니다. 패키지에는 모듈을 10개까지 담을 수 있으므로 하나를 제외해야 합니다(릴리스에서는 Border를 제외합니다). GR III의 경우 각 펌웨어의 `fwdc239b.bin`에서 `gr3-2.10`과 `gr3-2.21`을 빌드하고, `--camera gr3` 및 각각에 대한 `--build`로 패키징합니다. GR IV 패키지는 `gr4-1.11`, `gr4-1.20`, `gr4-1.21`을 받습니다. 그런 다음 `python3 -I scripts/card.py write dist/GRKU-gr4.zip`을 실행하면 카드 리더기에 있는 카드에 패키지가 기록됩니다.
 
 ## 기여하기
 

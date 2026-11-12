@@ -48,7 +48,7 @@ KINDS = {'negative': (235, 120, 30), 'slide': (90, 170, 235), 'mono': (150, 150,
 SLIDE_NAMES = ('VELVIA', 'PROVIA', 'ASTIA', 'SENSIA', 'EKTACHROME', 'KODACHROME', 'ELITE', 'PRECISA',
                'AGFACHROME', 'AEROCHROME', 'X-PRO', 'POLACHROME', 'FORTIA')
 FUJI_SIMS = ('PROVIA', 'VELVIA', 'ASTIA', 'CLASSIC CHROME', 'CLASSIC NEG', 'PRO NEG STD', 'REALA ACE',
-             'ETERNA', 'ETERNA BB', 'ACROS')
+             'ETERNA', 'ETERNA BB', 'ACROS', "REGGIE'S PORTRA")
 INSTANT_NAMES = ('INSTAX', 'FP-', 'PX', 'TIME ZERO', 'POLAROID', 'TYPE')
 # The label colors of the Kodak motion picture cans.
 VISION_CODES = {'500T': (230, 60, 50), '250D': (60, 120, 220), '200T': (150, 80, 200), '50D': (80, 180, 90),
