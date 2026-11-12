@@ -256,50 +256,259 @@ static void dust(const View *v, u32 strength)
     }
 }
 
-/* ---- light leak --------------------------------------------------------------- */
+/* ---- light leak and bokeh ------------------------------------------------------ */
 
-/* The leak: a warm wash. style 0 a wash from the left or right edge, 1 a
-   vertical band, 2 a flare from a top corner. The strength sets the width
-   and the brightness. Luma rises and the chroma turns orange-red. */
-static void light_leak(const View *v, u32 strength)
+/* Light that got into the camera fogs the film from the side it came in: strongest at that edge, fading
+   into the frame along a soft, smoky boundary. Through the base of a colour negative it prints warm: a
+   core near white-yellow, then orange, red, and a magenta fringe; through the front, a pale streak. The
+   leak adds light (a screen blend), so it never greys the picture. A lens adds ghosts: soft discs on the
+   line from the light through the centre, the bokeh of the flare.
+
+   The shape is a field of LG_W x LG_H points over the upright frame, in 1/4096, from the seed alone, so
+   every plane of the shot gets the same leak; each pixel samples it bilinearly. */
+#define LG_W 48U
+#define LG_H 32U
+#define Q 4096U
+
+/* Value noise in [0, Q): hashed lattice values, smoothly blended. x and y in 1/Q of a lattice cell. */
+static u32 lattice(u32 seed, u32 i, u32 j) { return stream(seed, 0x6e01U + i * 0x9e37U, j) >> 20; }
+static u32 smooth(u32 t) { return ((((t * t) >> 12) * (3U * Q - 2U * t)) >> 12); }
+static u32 noise(u32 seed, u32 x, u32 y)
 {
-    u32 rs = stream(v->seed, 0x1ea4U, 0), style = rnd(&rs, 3), side = rnd(&rs, 2);
-    u32 W = v->w, H = v->h, u, w;
-    int x, y;
-    u32 width = (W * (strength == 1 ? 18 : strength == 2 ? 28 : 40)) / 100;
-    int peak = strength == 1 ? 70 : strength == 2 ? 110 : 150;
-    u32 band_at = width / 2 + along(&rs, W - width);
-    u32 step = v->w >= 1200 ? 2 : 1;               /* every pixel on small planes */
-    u32 period = H / 3 > 8 ? H / 3 : 8;
-    for (w = 0; w < H; w += 1) {
-        /* A slow ripple down the frame, so the leak is not a flat wash: a
-           triangle wave of period H/3, 208 to 255 in 1/256. */
-        u32 t = divide(w * 256, period) & 255, rip = t < 128 ? t : 255 - t;
-        u32 gain = 208 + (rip * 48) / 128;
-        for (u = 0; u < W; u += step) {
-            u32 a;                                 /* 0..256 */
-            if (style == 0) {
-                u32 d = side ? W - 1 - u : u;
-                if (d >= width) continue;
-                a = 256 - divide(d * 256, width);
-                a = (a * a) >> 8;
-            } else if (style == 1) {
-                u32 d = u > band_at ? u - band_at : band_at - u;
-                if (d >= width / 2) continue;
-                a = 256 - divide(d * 512, width);
-            } else {
-                u32 du = side ? W - 1 - u : u, dw = w;
-                u32 d = du + dw;                   /* a diagonal fall-off from the corner */
-                if (d >= width * 2) continue;
-                a = 256 - divide(d * 128, width);
+    u32 i = x >> 12, j = y >> 12, fx = smooth(x & (Q - 1)), fy = smooth(y & (Q - 1));
+    u32 a = lattice(seed, i, j), b = lattice(seed, i + 1, j), c = lattice(seed, i, j + 1), d = lattice(seed, i + 1, j + 1);
+    u32 top = (a * (Q - fx) + b * fx) >> 12, bottom = (c * (Q - fx) + d * fx) >> 12;
+    return (top * (Q - fy) + bottom * fy) >> 12;
+}
+/* The fall-off of a leak at t (0 at its source, Q at its end): a cube, so the colour gathers at the
+   source and thins quickly into the frame instead of hazing it. */
+static u32 falloff(u32 t) { if (t >= Q) return 0; t = Q - t; return (((t * t) >> 12) * t) >> 12; }
+
+#define LEAK_EDGE 0
+#define LEAK_CORNER 1
+#define LEAK_BAND 2
+#define LEAK_BURN 3
+#define LEAK_STREAK 4
+
+typedef struct {
+    u32 style, side, low, gain, palette;
+    u32 width;          /* in 1/Q of the width (edge, band, burn) or of the short side (corner, streak) */
+    u32 at;             /* band centre, corner point, streak angle, in 1/Q */
+    u32 seed;
+} Leak;
+
+/* The leak strength at upright (nx, ny), both in 1/Q of the frame; X and Y in 1/Q of the short side. */
+static u32 leak_at(const Leak *k, u32 nx, u32 ny, u32 X, u32 Y, u32 W, u32 H)
+{
+    u32 wob = 2458U + ((noise(k->seed, (ny * 3U), 1234U) * 3277U) >> 12);   /* 0.6 .. 1.4 of the width */
+    u32 grain = 2867U + ((noise(k->seed ^ 0x55U, nx * 9U, ny * 6U) * 1229U) >> 12); /* wisps, 0.7 .. 1.0 */
+    u32 w = (k->width * wob) >> 12, t, d, a = 0;
+    if (!w) w = 1;
+    switch (k->style) {
+    case LEAK_EDGE:
+    case LEAK_BURN:
+        d = k->side ? Q - nx : nx;
+        a = falloff(divide(d * 64U, w) * 64U);
+        break;
+    case LEAK_BAND:
+        d = nx > k->at ? nx - k->at : k->at - nx;
+        a = falloff(divide(d * 128U, w) * 64U);
+        break;
+    case LEAK_CORNER: {
+        /* From a point just outside a top corner (low: a bottom one). */
+        int cx = k->side ? (int)divide(W * Q, H < W ? H : W) + 300 : -300, cy = k->low ? (int)divide(H * Q, H < W ? H : W) + 300 : -300;
+        int dx = (int)X - cx, dy = (int)Y - cy;
+        u32 r2 = (u32)((dx >> 4) * (dx >> 4) + (dy >> 4) * (dy >> 4)), r = 0, bit = 1U << 30;
+        while (bit > r2) bit >>= 2;
+        while (bit) { if (r2 >= r + bit) { r2 -= r + bit; r = (r >> 1) + bit; } else r >>= 1; bit >>= 2; }
+        a = falloff(divide((r << 4) * 64U, w) * 64U);
+        break;
+    }
+    default: {
+        /* A pale streak across the frame at an angle: the distance from its line. */
+        int dx = (int)X - (int)k->at, dy = (int)Y - (int)(Q / 2), slope = (int)k->side * 2 - 1;
+        int dist = (dx * 3 + dy * 4 * slope) / 5;
+        t = (u32)(dist < 0 ? -dist : dist);
+        a = falloff(divide(t * 64U, w) * 64U);
+        break;
+    }
+    }
+    return (a * grain) >> 12;
+}
+
+/* The colour of the leak at strength a (0..Q): five stops from the fringe to the core. */
+static void leak_colour(u32 palette, u32 a, int out[3])
+{
+    static const u8 stops[4][5][3] = {
+        {{190, 20, 70}, {235, 35, 25}, {255, 85, 10}, {255, 145, 25}, {255, 215, 110}},     /* orange */
+        {{140, 20, 125}, {205, 25, 100}, {250, 45, 65}, {255, 95, 75}, {255, 185, 150}},    /* magenta-red */
+        {{200, 40, 35}, {245, 85, 15}, {255, 135, 15}, {255, 185, 50}, {255, 230, 150}},    /* golden */
+        {{235, 225, 215}, {240, 235, 225}, {245, 240, 232}, {250, 246, 240}, {255, 252, 248}}, /* pale */
+    };
+    static const u16 at[5] = {0, 700, 1500, 2600, 3700};
+    u32 i = 0, k;
+    while (i < 3 && a > at[i + 1]) ++i;
+    u32 span = at[i + 1] - at[i], f = a <= at[i] ? 0 : a >= at[i + 1] ? span : a - at[i];
+    for (k = 0; k < 3; ++k)
+        out[k] = (int)((stops[palette][i][k] * (span - f) + stops[palette][i + 1][k] * f) / span);
+}
+
+/* Screen colour c into the sensor pixel at amount m (0..Q), in RGB; the chroma of a pixel pair (and of
+   a row pair when the plane halves it) takes the first pixel's result. */
+static void screen_px(const View *v, int x, int y, const int c[3], u32 m)
+{
+    const Plane *p = v->p;
+    u32 l = p->y + (u32)y * p->pitch;
+    int Y = BYTE(l, x), cb = 0, cr = 0, rgb[3], k;
+    u32 cl = 0;
+    if (!v->mono) {
+        cl = chroma_row(p, (u32)y) + ((u32)x & ~1U);
+        cb = (int)BYTE(cl, 0) - 128; cr = (int)BYTE(cl, 1) - 128;
+    }
+    rgb[0] = Y + ((359 * cr) >> 8); rgb[1] = Y - ((88 * cb + 183 * cr) >> 8); rgb[2] = Y + ((454 * cb) >> 8);
+    /* Fog has a colour: the pixel moves towards it (0.45 of m), then the light adds (a screen at 0.7
+       of m), so a leak is warm on a bright sky too and still lifts the shadows. */
+    for (k = 0; k < 3; ++k) {
+        int in = (int)clamp8(rgb[k]);
+        in += (int)(((c[k] - in) * (int)((m * 1843U) >> 12)) >> 12);
+        in = (int)clamp8(in);
+        rgb[k] = in + (int)((((u32)(255 - in) * (u32)c[k]) >> 8) * ((m * 2867U) >> 12) >> 12);
+    }
+    if (v->mono) {
+        int cy = (77 * c[0] + 150 * c[1] + 29 * c[2]) >> 8;
+        BYTE(l, x) = (u8)clamp8(Y + (int)((((u32)(255 - Y) * (u32)cy) >> 8) * m >> 12));
+        return;
+    }
+    /* Light only adds: the tint may move the colour, never darken the pixel. */
+    k = (77 * rgb[0] + 150 * rgb[1] + 29 * rgb[2]) >> 8;
+    BYTE(l, x) = (u8)clamp8(k < Y ? Y : k);
+    if (!(x & 1) && (!p->half || !(y & 1))) {
+        BYTE(cl, 0) = (u8)clamp8(128 + ((-43 * rgb[0] - 85 * rgb[1] + 128 * rgb[2]) >> 8));
+        BYTE(cl, 1) = (u8)clamp8(128 + ((128 * rgb[0] - 107 * rgb[1] - 21 * rgb[2]) >> 8));
+    }
+}
+
+/* The upright pixel (u, w) of sensor pixel (x, y): the inverse of sensor(). */
+static void upright(const View *v, int x, int y, int *u, int *w)
+{
+    int L = (int)v->p->left, T = (int)v->p->top, W = (int)(v->p->right - v->p->left), H = (int)(v->p->bottom - v->p->top);
+    switch (v->turns) {
+    case 0: *u = x - L; *w = y - T; break;
+    case 1: *w = x - L; *u = T + H - 1 - y; break;
+    case 2: *u = L + W - 1 - x; *w = T + H - 1 - y; break;
+    default: *w = L + W - 1 - x; *u = y - T; break;
+    }
+}
+
+static void bokeh(const View *v, const Leak *k, u32 strength);
+
+static void light_leak(const View *v, u32 strength, u8 *scratch)
+{
+    const Plane *p = v->p;
+    u32 rs = stream(v->seed, 0x1ea4U, 0), pick = rnd(&rs, 100), i, j;
+    u32 W = v->w, H = v->h, S = W < H ? W : H;
+    u16 *field = (u16 *)scratch;
+    Leak k, second;
+    k.seed = stream(v->seed, 0x1ea5U, 0);
+    k.style = pick < 42 ? LEAK_EDGE : pick < 66 ? LEAK_CORNER : pick < 80 ? LEAK_BAND : pick < (strength >= 2 ? 92U : 86U) ? LEAK_BURN : LEAK_STREAK;
+    k.side = rnd(&rs, 2); k.low = rnd(&rs, 4) == 0;
+    k.palette = k.style == LEAK_STREAK ? 3 : rnd(&rs, 5) < 3 ? 0 : rnd(&rs, 3) ? 1 : 2;
+    k.width = (strength == 1 ? 900U : strength == 2 ? 1300U : 1700U) + rnd(&rs, 600);
+    if (k.style == LEAK_BURN) k.width = 2200U + rnd(&rs, 1100);
+    if (k.style == LEAK_CORNER) k.width += k.width / 2;
+    if (k.style == LEAK_STREAK) k.width = 250U + rnd(&rs, 300);
+    k.at = k.style == LEAK_STREAK ? along(&rs, divide(W * Q, S)) : 700U + rnd(&rs, Q - 1400U);
+    k.gain = strength == 1 ? 2400U : strength == 2 ? 3300U : 4096U;
+    if (k.style == LEAK_STREAK) k.gain = k.gain * 2 / 3;
+    /* Strong: a weaker leak from the other edge too. */
+    second = k;
+    second.style = LEAK_EDGE; second.side = !k.side; second.seed = stream(v->seed, 0x1ea6U, 0);
+    second.width = k.width / 2 + 300U; second.gain = k.gain * 2 / 5;
+    for (j = 0; j <= LG_H; ++j)
+        for (i = 0; i <= LG_W; ++i) {
+            u32 nx = divide(i * Q, LG_W), ny = divide(j * Q, LG_H);
+            u32 X = divide(nx * (W >> 2), S >> 2), Y = divide(ny * (H >> 2), S >> 2);
+            u32 a = (leak_at(&k, nx, ny, X, Y, W, H) * k.gain) >> 12;
+            if (strength == 3) a += (leak_at(&second, nx, ny, X, Y, W, H) * second.gain) >> 12;
+            field[j * (LG_W + 1) + i] = (u16)(a > Q ? Q : a);
+        }
+    {
+        u32 x, y, kx = divide(LG_W << 16, W), ky = divide(LG_H << 16, H);
+        for (y = p->top; y < p->bottom; ++y)
+            for (x = p->left; x < p->right; ++x) {
+                int u, w, c[3];
+                upright(v, (int)x, (int)y, &u, &w);
+                u32 gx = ((u32)u * kx) >> 8, gy = ((u32)w * ky) >> 8;           /* in 1/256 of a cell */
+                u32 ci = gx >> 8, cj = gy >> 8, fx = gx & 255, fy = gy & 255;
+                if (ci >= LG_W) { ci = LG_W - 1; fx = 255; }
+                if (cj >= LG_H) { cj = LG_H - 1; fy = 255; }
+                {
+                    const u16 *f0 = field + cj * (LG_W + 1) + ci, *f1 = f0 + LG_W + 1;
+                    if (!(f0[0] | f0[1] | f1[0] | f1[1])) continue;
+                    u32 top = (f0[0] * (256 - fx) + f0[1] * fx) >> 8, bot = (f1[0] * (256 - fx) + f1[1] * fx) >> 8;
+                    u32 a = (top * (256 - fy) + bot * fy) >> 8;
+                    if (a < 16) continue;
+                    leak_colour(k.palette, a, c);
+                    screen_px(v, (int)x, (int)y, c, a);
+                }
             }
-            a = (a * gain) >> 8;
-            {
-                int dy = (peak * (int)a) >> 8;
-                int dcr = (dy * 3) / 8, dcb = -(dy / 5);
-                sensor(v, (int)u, (int)w, &x, &y);
-                add_px(v, x, y, dy, dcb, dcr);
-                if (step == 2) add_px(v, x + (v->turns & 1 ? 0 : 1), y + (v->turns & 1 ? 1 : 0), dy, dcb, dcr);
+    }
+    bokeh(v, &k, strength);
+}
+
+/* Bokeh of the flare. Most are orbs: out-of-focus points of the leaking light, in its own colour,
+   scattered near where it comes in, a few large and dim, more small and brighter. A few are ghosts: soft
+   discs on the line from the light through the centre, faintly tinted by the lens coatings. Each disc is
+   flat inside, a little brighter at the rim, with a soft edge, as an aperture draws it. */
+static void bokeh(const View *v, const Leak *k, u32 strength)
+{
+    static const int tints[3][3] = {{255, 196, 120}, {170, 235, 190}, {255, 232, 205}};
+    u32 rs = stream(v->seed, 0xb0ce0U, 0), n = strength == 1 ? 2 + rnd(&rs, 3) : strength == 2 ? 4 + rnd(&rs, 4) : 6 + rnd(&rs, 6), i;
+    u32 W = v->w, H = v->h, S = W < H ? W : H;
+    /* The source: the middle of the leak's edge, or its corner. */
+    int sx = k->side ? (int)W : 0, sy = k->style == LEAK_CORNER ? (k->low ? (int)H : 0) : (int)(H / 2);
+    if (k->style == LEAK_BAND || k->style == LEAK_STREAK) sx = (int)((k->at * (W >> 4)) >> 8) > (int)W ? (int)W : (int)((k->at * (W >> 4)) >> 8);
+    for (i = 0; i < n; ++i) {
+        u32 r2s = stream(v->seed, 0xb0ce1U, i), ghost = rnd(&r2s, 4) == 0, t, peak;
+        int cx, cy, r, u, w, x, y, c[3];
+        if (ghost) {
+            t = 1200U + rnd(&r2s, 4000);                        /* along the line, 0.3 .. 1.27 */
+            cx = sx + (int)(((int)(W / 2) - sx) * (int)t / (int)Q) + (int)along(&r2s, S / 16) - (int)(S / 32);
+            cy = sy + (int)(((int)(H / 2) - sy) * (int)t / (int)Q) + (int)along(&r2s, S / 16) - (int)(S / 32);
+            r = (int)(S / 40 + along(&r2s, S * 5 / 100));
+            peak = (strength == 1 ? 500U : strength == 2 ? 700U : 900U) + rnd(&r2s, 500);
+            for (u = 0; u < 3; ++u) c[u] = tints[rnd(&r2s, 3)][u];
+        } else {
+            /* Near the source: up to 0.45 of the way in, spread across the leak. */
+            u32 size = rnd(&r2s, 8);
+            t = rnd(&r2s, 1850);
+            cx = sx + (int)(((int)(W / 2) - sx) * (int)t / (int)Q);
+            cy = sy + (int)(((int)(H / 2) - sy) * (int)t / (int)Q);
+            if (k->style == LEAK_CORNER) { cx += (int)along(&r2s, S / 3) - (int)(S / 6); cy += (int)along(&r2s, S / 3) - (int)(S / 6); }
+            else cy = (int)along(&r2s, H);
+            /* Big and dim, or small and bright. */
+            r = size < 2 ? (int)(S / 14 + along(&r2s, S / 14)) : (int)(S / 70 + along(&r2s, S / 28));
+            peak = (strength == 1 ? 900U : strength == 2 ? 1300U : 1700U) + rnd(&r2s, 900);
+            if (size < 2) peak = peak / 2;
+            leak_colour(k->palette, 2200U + rnd(&r2s, 1600), c);
+        }
+        {
+            int r2 = r * r, edge = r + r / 10 + 1;
+            if (r < 2) continue;
+            for (w = cy - edge; w <= cy + edge; ++w) {
+                if (w < 0 || w >= (int)H) continue;
+                for (u = cx - edge; u <= cx + edge; ++u) {
+                    int du = u - cx, dw = w - cy, d2 = du * du + dw * dw;
+                    u32 m;
+                    if (u < 0 || u >= (int)W || d2 > edge * edge) continue;
+                    /* 0.7 of the peak inside, the full peak at the rim, then a soft edge. */
+                    if (d2 <= r2 * 64 / 100) m = peak * 7 / 10;
+                    else if (d2 <= r2) m = peak * 7 / 10 + (u32)divide((u32)(d2 - r2 * 64 / 100) * (peak * 3 / 10), (u32)(r2 * 36 / 100 + 1));
+                    else m = (u32)divide((u32)(edge * edge - d2) * peak, (u32)(edge * edge - r2 + 1));
+                    sensor(v, u, w, &x, &y);
+                    if (x < (int)v->p->left || x >= (int)v->p->right || y < (int)v->p->top || y >= (int)v->p->bottom) continue;
+                    screen_px(v, x, y, c, m);
+                }
             }
         }
     }
@@ -377,7 +586,7 @@ void leak_plane(const Plane *p, u32 turns, u32 mono, u32 seed, const Strengths *
     v.w = v.turns & 1 ? H : W;
     v.h = v.turns & 1 ? W : H;
     if (W < 16 || H < 16) return;
-    if (s->leak) light_leak(&v, s->leak);
+    if (s->leak) light_leak(&v, s->leak, scratch);
     if (s->vignette) vignette(&v, s->vignette, scratch);
     if (s->dust) dust(&v, s->dust);
     if (s->scratch) scratches(&v, s->scratch);
