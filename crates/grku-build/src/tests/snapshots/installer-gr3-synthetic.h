@@ -134,8 +134,8 @@ static const u8 rotate_pixels[] __attribute__((aligned(4))) = { /* 6400 values, 
 #define SCALE_LABEL_HEIGHT 20U
 static const u8 scale_feet_pixels[] __attribute__((aligned(4))) = { /* 2400 values, SHA-256 3035b84a34c34a48cf875d679bf732869c4b70c8e01f9a1a6c904e721f5bc1ef */ };
 static const u8 scale_sixteen_pixels[] __attribute__((aligned(4))) = { /* 2400 values, SHA-256 39ce4c2f7f5579af5c39910e572b3987d7875b3aa451cf90726fb42d0a56148b */ };
-#define MENU_TEXT_BYTES 5858U
-static const u8 menu_text[] __attribute__((aligned(4))) = { /* 5858 values, SHA-256 902f74bb82044a454853efec58ce0a3cea4f1d82e610d0082b014def641bed01 */ };
+#define MENU_TEXT_BYTES 6040U
+static const u8 menu_text[] __attribute__((aligned(4))) = { /* 6040 values, SHA-256 abe39c80e39fbef10e24ba20e4c2d0331e7b6c0d992828a553f0ef1d1a8c2832 */ };
 #define LABELS_BYTES 25160U
 static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 25160 values, SHA-256 f5255dd063b5dbc8c5624b79d4b73bcac2ac3cd6876c3383c89fd1609771a3d5 */ };
 static const u8 stock_tables[] __attribute__((aligned(4))) = { /* 312 values, SHA-256 43c6a333770e97d39d0749933c4cc8fd3d39ab51233e06eaefe7dda15bae5cb6 */ };

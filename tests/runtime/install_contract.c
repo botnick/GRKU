@@ -1549,8 +1549,9 @@ static void the_recipes_restore_and_import_once(void)
         name[n] = (char)c;
     }
     name[n] = 0;
-    printf("recipe %s|1|%u %u %u %u %u\n", name, recipe_word_at(header, 1, 0), recipe_word_at(header, 1, 1),
-           recipe_word_at(header, 1, 2), recipe_word_at(header, 1, 3), recipe_word_at(header, 1, 4));
+    printf("recipe %s|1|%u %u %u %u %u %u\n", name, recipe_word_at(header, 1, 0), recipe_word_at(header, 1, 1),
+           recipe_word_at(header, 1, 2), recipe_word_at(header, 1, 3), recipe_word_at(header, 1, 4),
+           recipe_word_at(header, 1, 5));
     /* The next start: the recipe file has both recipes and the hash, so the
        same library adds nothing, also after a person deleted the recipe. */
     char saved[2048];
@@ -1689,25 +1690,30 @@ static void the_recipes_restore_and_import_once(void)
 
     /* REPORT.TXT names the recipes that cannot apply in full. Recipe 1:
        Film Look Off and Grain level 2; recipe 2, "Night": Halation 2;
-       recipe 3: Film Look Off only; recipe 4: an effect. */
+       recipe 3: Film Look Off and Border Off; recipe 4: an effect; recipe
+       5: Border Thin. */
     reset();
     for (u32 k = 0; k < GRKU_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
     store(header + GRKU_HOST_RECIPES, 0x08000000U | 1U | 4U | 2U << 3);
     store(header + GRKU_HOST_RECIPES + 4 * GRKU_RECIPE_WORDS, 0x08000000U | 1U);
     store(header + GRKU_HOST_RECIPES + 4 * (GRKU_RECIPE_WORDS + 4), (1U | 2U << 1) << 3);
     store(header + GRKU_HOST_RECIPES + 4 * 2 * GRKU_RECIPE_WORDS, 0x08000000U | 1U);
+    store(header + GRKU_HOST_RECIPES + 4 * (2 * GRKU_RECIPE_WORDS + GRKU_RECIPE_SETTINGS_WORD), 1U);
     store(header + GRKU_HOST_RECIPES + 4 * 3 * GRKU_RECIPE_WORDS, 0x08000000U | 2U | 0x1234U << 8);
+    store(header + GRKU_HOST_RECIPES + 4 * 4 * GRKU_RECIPE_WORDS, 0x08000000U | 1U);
+    store(header + GRKU_HOST_RECIPES + 4 * (4 * GRKU_RECIPE_WORDS + GRKU_RECIPE_SETTINGS_WORD), 1U | 1U << 1);
     store(header + GRKU_HOST_RECIPE_NAMES + 4 * GRKU_RECIPE_NAME_WORDS, 'N' | 'i' << 7 | 'g' << 14 | 'h' << 21);
     store(header + GRKU_HOST_RECIPE_NAMES + 4 * GRKU_RECIPE_NAME_WORDS + 4, 't');
     check_recipes(header, 0, 0, GRKU_CORE_TONE_BIT);
-    assert(recipe_problem_count == 3 && !recipe_problems_more);
+    assert(recipe_problem_count == 4 && !recipe_problems_more);
     assert(recipe_problems[0].recipe == 1 && !recipe_problems[0].name[0] && recipe_problems[0].problem == RECIPE_PROBLEM_GRAIN);
     assert(recipe_problems[1].recipe == 2 && !strcmp(recipe_problems[1].name, "Night") &&
-           recipe_problems[1].problem == RECIPE_PROBLEM_GLOW);
+           recipe_problems[1].problem == RECIPE_PROBLEM_MODULE(0));
     assert(recipe_problems[2].recipe == 4 && recipe_problems[2].problem == RECIPE_PROBLEM_EFFECT);
-    /* With the Grain module, the Glow and the effect remain. */
-    check_recipes(header, 0, 0, GRKU_CORE_TONE_BIT | GRKU_CORE_GRAIN_BIT);
-    assert(recipe_problem_count == 2 && recipe_problems[0].problem == RECIPE_PROBLEM_GLOW);
+    assert(recipe_problems[3].recipe == 5 && recipe_problems[3].problem == RECIPE_PROBLEM_MODULE(1));
+    /* With the Grain and Border modules, the Glow and the effect remain. */
+    check_recipes(header, 0, 0, GRKU_CORE_TONE_BIT | GRKU_CORE_GRAIN_BIT | GRKU_CORE_BORDER_BIT);
+    assert(recipe_problem_count == 2 && recipe_problems[0].problem == RECIPE_PROBLEM_MODULE(0));
 }
 
 /* The sets of the user modes (runtime/install_recipes.h: install_dial_sets):

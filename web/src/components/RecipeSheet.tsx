@@ -82,6 +82,7 @@ export function recipeChips(recipe: Recipe, strings: RecipeStrings, language: La
   if (recipe.grain && recipe.grain.level > 0) chips.push(`${r.grain} ${r.grainLevels[recipe.grain.level] ?? ''}`);
   if (recipe.glow?.bloom) chips.push(`${r.bloom} ${r.glowLevels[recipe.glow.bloom] ?? ''}`);
   if (recipe.glow?.halation) chips.push(`${r.halation} ${r.glowLevels[recipe.glow.halation] ?? ''}`);
+  if (recipe.border?.style) chips.push(`${r.border} ${r.borderStyles[recipe.border.style] ?? ''}`);
   return chips;
 }
 
@@ -110,6 +111,10 @@ export function RecipeSheet({ recipe, r: strings, language, effectNames, compact
   if (recipe.glow) {
     rows.push([r.bloom, r.glowLevels[recipe.glow.bloom] ?? '']);
     rows.push([r.halation, `${r.glowLevels[recipe.glow.halation] ?? ''}${recipe.glow.halation && recipe.glow.halationColor !== null ? ` · ${r.halationColors[recipe.glow.halationColor] ?? ''}` : ''}`]);
+  }
+  if (recipe.border) {
+    const color = recipe.border.style && recipe.border.color !== null ? ` · ${r.borderColors[recipe.border.color] ?? ''}` : '';
+    rows.push([r.border, `${r.borderStyles[recipe.border.style] ?? ''}${color}`]);
   }
   recipe.corrections.forEach((stored, index) => {
     if (stored === null) return;

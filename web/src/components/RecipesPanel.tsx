@@ -56,6 +56,8 @@ export interface RecipesPanelProps {
   grainModule: boolean;
   /** The package has the Glow module. */
   glowModule: boolean;
+  /** The package has the Border module. */
+  borderModule: boolean;
   /** Adds the recipe of a preset to the library, and its effect to the package. */
   onAddPreset: (recipe: Recipe, effect: string | null) => void;
   /**
@@ -111,6 +113,7 @@ export function RecipesPanel({
   packageEffects,
   grainModule,
   glowModule,
+  borderModule,
   onAddPreset,
   dial = null,
 }: RecipesPanelProps) {
@@ -126,7 +129,7 @@ export function RecipesPanel({
   // Only the recipes that are on apply on the camera.
   const warnings = libraryWarnings(
     library.filter((recipe) => recipe.enabled),
-    { grain: grainModule, glow: glowModule },
+    { grain: grainModule, glow: glowModule, border: borderModule },
     packageEffects,
   );
   const nameOf = (recipe: Recipe) => recipe.name || automaticName(sheetLookName(recipe, r, language, effectNames), recipe.number);
@@ -243,10 +246,11 @@ export function RecipesPanel({
           })}
         </ul>
       )}
-      {(warnings.grain.length > 0 || warnings.glow.length > 0 || warnings.missing.length > 0) && (
+      {(warnings.grain.length > 0 || warnings.glow.length > 0 || warnings.border.length > 0 || warnings.missing.length > 0) && (
         <div className="flex flex-col gap-1 text-sm text-destructive">
           {warnings.grain.length > 0 && <p>{r.warnGrain(warnings.grain.join(t.listSeparator))}</p>}
           {warnings.glow.length > 0 && <p>{r.warnGlow(warnings.glow.join(t.listSeparator))}</p>}
+          {warnings.border.length > 0 && <p>{r.warnBorder(warnings.border.join(t.listSeparator))}</p>}
           {warnings.missing.length > 0 && <p>{r.warnMissing(warnings.missing.join(t.listSeparator))}</p>}
         </div>
       )}

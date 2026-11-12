@@ -232,6 +232,8 @@ export function RecipeEditor({
       grain: draft.grain === UNSET ? null : { level: Number(draft.grain), size: Number(draft.grain) === 0 ? 0 : Number(draft.grainSize) },
       glow: glowSet ? { bloom: draft.bloom === UNSET ? 0 : Number(draft.bloom), halation: draft.halation === UNSET ? 0 : Number(draft.halation), halationColor: monochrome || draft.halationColor === UNSET ? null : Number(draft.halationColor) } : null,
       whiteBalance: draft.balance === UNSET ? null : { mode: Number(draft.balance), shiftBa: Number(draft.shiftBa), shiftGm: Number(draft.shiftGm), kelvin: Math.min(TEMPERATURE.max, Math.max(TEMPERATURE.min, Math.round(Number(draft.kelvin) / TEMPERATURE.step) * TEMPERATURE.step)) },
+      // The form has no border: a copy keeps the border of its recipe, a new recipe the camera's.
+      border: initial?.border ?? null,
       corrections: draft.corrections.map((value) => (value === UNSET ? null : Number(value))),
       exposure: { compensation: draft.compensation === UNSET ? null : Number(draft.compensation), isoLimit: draft.isoLimit === UNSET ? null : Number(draft.isoLimit), metering: draft.metering === UNSET ? null : (draft.metering as Metering), nd: draft.nd === UNSET ? null : (draft.nd as Nd) },
       enabled: true,

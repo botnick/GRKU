@@ -45,6 +45,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 28,
@@ -109,6 +110,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 20,
@@ -167,6 +169,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 2,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 4,
@@ -217,6 +220,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 2,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 4,
@@ -281,6 +285,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 5,
           "shiftBa": 8,
@@ -337,6 +342,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 5,
           "shiftBa": 8,
@@ -401,6 +407,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 4,
           "shiftBa": 28,
@@ -457,6 +464,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 4,
           "shiftBa": 28,
@@ -521,6 +529,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 5,
           "shiftBa": 17,
@@ -577,6 +586,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 5,
           "shiftBa": 17,
@@ -641,6 +651,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 2,
           "shiftBa": 14,
@@ -705,6 +716,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 14,
           "shiftBa": 14,
@@ -761,6 +773,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 14,
           "shiftBa": 14,
@@ -825,6 +838,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 14,
@@ -881,6 +895,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 14,
@@ -945,6 +960,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 6,
           "shiftBa": 14,
@@ -1001,6 +1017,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 6,
           "shiftBa": 14,
@@ -1065,6 +1082,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 14,
@@ -1121,6 +1139,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 14,
@@ -1185,6 +1204,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 4,
           "shiftBa": 24,
@@ -1241,6 +1261,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 4,
           "shiftBa": 24,
@@ -1305,6 +1326,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 14,
           "shiftBa": 14,
@@ -1361,6 +1383,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 14,
           "shiftBa": 14,
@@ -1425,6 +1448,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 14,
@@ -1481,6 +1505,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 14,
@@ -1545,6 +1570,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 1,
           "shiftBa": 9,
@@ -1601,6 +1627,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 9,
@@ -1665,6 +1692,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 14,
@@ -1721,6 +1749,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 14,
@@ -1785,6 +1814,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 14,
@@ -1841,6 +1871,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 14,
@@ -1905,6 +1936,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 3,
           "shiftBa": 14,
@@ -1969,6 +2001,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 7,
           "shiftBa": 13,
@@ -2025,6 +2058,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 7,
           "shiftBa": 13,
@@ -2089,6 +2123,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 14,
           "shiftBa": 14,
@@ -2145,6 +2180,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 14,
           "shiftBa": 14,
@@ -2209,6 +2245,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 4,
           "shiftBa": 24,
@@ -2265,6 +2302,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 4,
           "shiftBa": 24,
@@ -2329,6 +2367,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 14,
           "shiftBa": 14,
@@ -2385,6 +2424,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 14,
           "shiftBa": 14,
@@ -2449,6 +2489,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 15,
@@ -2505,6 +2546,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 0,
           "shiftBa": 15,
@@ -2569,6 +2611,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 4,
           "shiftBa": 15,
@@ -2625,6 +2668,7 @@ export const PRESETS: readonly Preset[] = [
           "halation": 0,
           "halationColor": 0
         },
+        "border": null,
         "whiteBalance": {
           "mode": 4,
           "shiftBa": 15,
