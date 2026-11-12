@@ -1,7 +1,12 @@
+import { useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { LANGUAGES, type Language, type Strings } from '../i18n';
 import { REPOSITORY } from '../links';
+import { newsStrings } from '../whatsNew';
+
+/** The version whose news this browser opened (the dot on the version goes). */
+const SEEN_KEY = 'grku.seenNews';
 
 /**
  * The header: the wordmark with its red period and the version, the links to the steps, the
@@ -20,25 +25,56 @@ export function Masthead({
   version: string;
   releaseUrl: string;
 }) {
+  // A red dot on the version until this browser opened the news of this version.
+  const [unseen, setUnseen] = useState(false);
+  useEffect(() => {
+    try {
+      setUnseen(localStorage.getItem(SEEN_KEY) !== version);
+    } catch {
+      setUnseen(false);
+    }
+  }, [version]);
+  const seen = () => {
+    setUnseen(false);
+    try {
+      localStorage.setItem(SEEN_KEY, version);
+    } catch {
+      // Private mode: the dot comes back next time.
+    }
+  };
+  const news = newsStrings(language);
   const label = LANGUAGES.find((item) => item.code === language)?.label ?? language;
   return (
     <header className="sticky top-0 z-30 border-b border-border/80 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-4 px-gutter">
-        <a href="#top" className="flex items-baseline gap-2 no-underline">
-          <span className="text-[22px] leading-none font-extrabold tracking-[-0.03em]">
-            GRKU<span className="text-brand">.</span>
-          </span>
-          <span className="font-mono text-[11px] text-muted-foreground">v{version}</span>
-        </a>
+        <div className="flex items-baseline gap-1">
+          <a href="#top" className="no-underline">
+            <span className="text-[22px] leading-none font-extrabold tracking-[-0.03em]">
+              GRKU<span className="text-brand">.</span>
+            </span>
+          </a>
+          <a
+            href="#news"
+            onClick={seen}
+            title={news.navLabel}
+            className="relative rounded-full px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground no-underline hover:bg-accent hover:text-foreground"
+          >
+            v{version}
+            {unseen && <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-brand" aria-label={news.latest} />}
+          </a>
+        </div>
         <nav className="hidden items-center gap-1 md:flex" aria-label="GRKU">
           {[
             ['#looks', t.effects],
             ['#modules', t.modules],
             ['#install', t.install],
+            ['#news', news.navLabel],
             ['#faq', t.faqTitle],
           ].map(([href, text]) => (
             <Button key={href} asChild variant="ghost" size="sm" className="text-[13px] text-muted-foreground hover:text-foreground">
-              <a href={href}>{text}</a>
+              <a href={href} onClick={href === '#news' ? seen : undefined}>
+                {text}
+              </a>
             </Button>
           ))}
         </nav>
