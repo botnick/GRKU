@@ -148,7 +148,7 @@
 /* Icon slots: the host icons, then the effect icons, then the module tiles, in
    chunks of GRKU_ICONS_PER_CHUNK (GRKU_HOST_ICON_CHUNKS).
    GRKU_ICON_MODULE_TILE(n) is the icon ID of module tile n. */
-#define GRKU_HOST_ICON_COUNT 6
+#define GRKU_HOST_ICON_COUNT 8
 #define GRKU_ICONS_PER_CHUNK 40
 #define GRKU_MODULE_TILES_MAX 128
 #define GRKU_ICON_MODULE_TILE(n) (0x7000U+(n))
@@ -952,6 +952,9 @@
 /* The Mode Dial row of the Recipes page of MENU, then the values of a user
    mode besides a recipe: None, GRKU Off, and Saved Settings. */
 #define TEXT_DIAL 64
-#define GRKU_TEXT_STRINGS 68
+/* GRKU Settings, the MENU row and the title of the settings page of the core,
+   then its Distance Unit row and the values Meters and Feet. */
+#define TEXT_UNIT 68
+#define GRKU_TEXT_STRINGS 72
 
 #endif

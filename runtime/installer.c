@@ -94,9 +94,6 @@ static const char legacy_state_path[] = LEGACY_STATE_PATH;
 static const char legacy_state_tmp_path[] = LEGACY_STATE_TMP_PATH;
 static const char legacy_effects_path[] = LEGACY_EFFECTS_PATH;
 static const char report_path[] = REPORT_PATH;
-/* The distance unit marker: while GRKU/FEET.TXT is on the card, INSTALL
-   rewrites the snap focus distance labels of the firmware in feet. */
-static const char feet_path[] = DATA_PATH "/FEET.TXT";
 static const char relocation_path[] = RELOCATION_PATH;
 /* The boot log of this start in RAM, which SCAN.SH starts, and the boot
    log on the card (grku_core::runtime::files::BOOT_LOG). */
@@ -105,9 +102,9 @@ static const char relocation_path[] = RELOCATION_PATH;
 /* What the details of a report say about this start (install_diag.h): the
    step that stopped it, how it ran, the retries of a native state that the
    camera still initialized, the build word of the firmware, whether the
-   relocation resolved, the mailbox, and the feet labels. */
+   relocation resolved, and the mailbox. */
 static const char *failed_step = "start", *run_mode = "INSTALL.SH";
-static u32 install_retries, rtos_identity_value, relocation_done, mailbox_address, units_requested, units_changed, units_searched;
+static u32 install_retries, rtos_identity_value, relocation_done, mailbox_address;
 static volatile u8 *at(u32 physical) { return mapping + physical - MAP_BASE; }
 static u32 word(u32 p) { return *(volatile u32 *)at(p); }
 static void store(u32 p, u32 v) { *(volatile u32 *)at(p) = v; }
@@ -271,9 +268,9 @@ static int sync_alias(u32 address, u32 n)
     barrier();
     return syscall6(0xf0002, (u32)at(address), (u32)at(address + n), 0, 0, 0, 0) == 0;
 }
-/* A native icon: its descriptor, then the 40 x 40 pixels. The descriptor
-   gives the pixels as an offset in words from `pixels`, the base of the icon
-   drawer. */
+/* A native icon: its descriptor, then the pixels, 40 x 40 or less. The
+   descriptor gives the pixels as an offset in words from `pixels`, the base
+   of the icon drawer. */
 #ifdef GRKU_ICON_DESCRIPTOR_12
 /* Width and a valid flag, height, and the pixel offset. */
 #define ICON_PIXELS 12
@@ -281,17 +278,18 @@ static int sync_alias(u32 address, u32 n)
 /* Height and width, then the pixel offset. */
 #define ICON_PIXELS 8
 #endif
-static void icon_header(u32 icon, u32 pixels)
+static void icon_sized(u32 icon, u32 pixels, u32 width, u32 height)
 {
 #ifdef GRKU_ICON_DESCRIPTOR_12
-    store(icon, 0x00280001);
-    store(icon + 4, 40);
+    store(icon, width << 16 | 1);
+    store(icon + 4, height);
     store(icon + 8, (icon + ICON_PIXELS - pixels) / 4);
 #else
-    store(icon, 0x00280028);
+    store(icon, height << 16 | width);
     store(icon + 4, (icon + ICON_PIXELS - pixels) / 4);
 #endif
 }
+static void icon_header(u32 icon, u32 pixels) { icon_sized(icon, pixels, 40, 40); }
 static int heap(u32 p, u32 n)
 {
     return !(p & 3) && p >= HEAP_MIN && n <= HEAP_END - HEAP_MIN && p <= HEAP_END - n;
@@ -792,15 +790,18 @@ static void write_host_icons(const struct arrays *a, u32 pixels)
     u32 base = a->base;
     /* Host artwork does not consume an effect record or a native settings ID.
        It comes first in chunk 0: Off, the GRKU tile, the Version tile, the
-       Modules tile, the Modules tile of Enable GRKU Off, then the Fn hint
-       of a row where Fn turns a setting. */
-    _Static_assert(HOST_ICON_COUNT == 6, "The host icons are Off, GRKU, Version, Modules, Modules Off, and Rotate");
+       Modules tile, the Modules tile of Enable GRKU Off, the Fn hint of a
+       row where Fn turns a setting, then the "ft" and "16" labels of the
+       manual focus scale (SCALE_LABEL_WIDTH x SCALE_LABEL_HEIGHT). */
+    _Static_assert(HOST_ICON_COUNT == 8, "The host icons are Off, GRKU, Version, Modules, Modules Off, Rotate, and two scale labels");
     for (u32 i = 0; i < HOST_ICON_COUNT; ++i) {
-        u32 icon = a->icon_bases[0] + i * ICON_STRIDE;
+        u32 icon = a->icon_bases[0] + i * ICON_STRIDE, label = i >= 6;
         static const u8 *const artwork[HOST_ICON_COUNT] = {off_pixels, grku_pixels, version_pixels, modules_pixels,
-                                                                 modules_off_pixels, rotate_pixels};
-        icon_header(icon, pixels);
-        copy(at(icon + ICON_PIXELS), artwork[i], 6400);
+                                                                 modules_off_pixels, rotate_pixels, scale_feet_pixels,
+                                                                 scale_sixteen_pixels};
+        if (label) icon_sized(icon, pixels, SCALE_LABEL_WIDTH, SCALE_LABEL_HEIGHT);
+        else icon_header(icon, pixels);
+        copy(at(icon + ICON_PIXELS), artwork[i], label ? SCALE_LABEL_WIDTH * SCALE_LABEL_HEIGHT * 4 : 6400);
         /* The menu derives the icons after the GRKU icon from its
            address. */
         if (i < 2) store(base + (i ? GRKU_HOST_GRKU_ICON : GRKU_HOST_OFF_ICON), icon);
@@ -870,110 +871,6 @@ static int publish_patches(void)
     return 0;
 }
 
-/* The snap focus distance labels in feet while GRKU/FEET.TXT is on the card
-   (ahonn/GRKit#71). The firmware keeps the labels as NUL-terminated UTF-16
-   strings in the read-only part of the RTOS image, one set for each menu
-   language: 0.3m, 1m, 1.5m, 2m, 2.5m, and 5m. INSTALL writes the feet label
-   over each whole string: 1', 3', 5', 7', 8', and 16', which fit in the
-   string, its terminator, and its pad. The MF distance scale is drawn, not
-   text, so it stays in meters. The camera loads the image again at each
-   power-on, so a start without the marker shows meters.
-
-   A search of the image reads about 20 MB uncached, so the start that
-   searches keeps the addresses in GRKU/FEET.BIN with the identity of the
-   build, as RELOC.BIN keeps the relocation windows. A later start checks the
-   labels at those addresses and searches again only when one is not there.
-   The count of the labels changed goes to the boot log and the report
-   (units_changed, install_diag.h). */
-#ifndef RTOS_NATIVE
-struct unit_label { const char *meters, *feet; };
-static const struct unit_label unit_labels[] = {
-    {"0.3m", "1'"}, {"1m", "3'"}, {"1.5m", "5'"}, {"2m", "7'"}, {"2.5m", "8'"}, {"5m", "16'"},
-};
-#define UNIT_LABELS (sizeof(unit_labels) / sizeof(unit_labels[0]))
-#define UNITS_MAX 128U
-#define UNITS_MAGIC 0x54464b47U
-static const char feet_hint_path[] = DATA_PATH "/FEET.BIN";
-/* FEET.BIN: the magic word, the identity of the build, the count, then the
-   address of each label. */
-static u32 unit_words[3 + UNITS_MAX];
-/* Whether the UTF-16 string at `a` is exactly the ASCII `s`, preceded by a
-   NUL unit and followed by its terminator; `pad` gets the number of NUL units
-   after the terminator, up to 2. */
-static int utf16_whole_at(u32 a, const char *s, u32 *pad)
-{
-    u32 n = length(s);
-    if (*(volatile u16 *)at(a - 2) != 0) return 0;
-    for (u32 i = 0; i < n; ++i)
-        if (*(volatile u16 *)at(a + i * 2) != (u16)(u8)s[i]) return 0;
-    if (*(volatile u16 *)at(a + n * 2) != 0) return 0;
-    *pad = 0;
-    while (*pad < 2 && *(volatile u16 *)at(a + (n + 1 + *pad) * 2) == 0) ++*pad;
-    return 1;
-}
-/* The label whose meters string is whole at `a` and whose feet string fits
-   in its place, or UNIT_LABELS. */
-static u32 unit_label_at(u32 a, u32 *pad)
-{
-    for (u32 k = 0; k < UNIT_LABELS; ++k)
-        if (utf16_whole_at(a, unit_labels[k].meters, pad))
-            return length(unit_labels[k].feet) <= length(unit_labels[k].meters) + *pad ? k : UNIT_LABELS;
-    return UNIT_LABELS;
-}
-static int unit_address_valid(u32 a)
-{
-    return a >= RELOCATION_RTOS_BASE + 4 && a + 16 < relocation.image_end && !(a & 1);
-}
-/* The addresses of the labels into unit_words: from FEET.BIN while each
-   still holds its label, else from a search of the image, which FEET.BIN then
-   keeps. Returns the count. */
-static u32 find_units(void)
-{
-    u32 count = 0, pad;
-    long have = read_text(feet_hint_path, (u8 *)unit_words, sizeof(unit_words));
-    if (have >= 12 && unit_words[0] == UNITS_MAGIC && unit_words[1] == word(RTOS_IDENTITY) &&
-        unit_words[2] <= UNITS_MAX && (u32)have == (3 + unit_words[2]) * 4) {
-        for (count = 0; count < unit_words[2]; ++count) {
-            u32 a = unit_words[3 + count];
-            if (!unit_address_valid(a) || unit_label_at(a, &pad) == UNIT_LABELS) break;
-        }
-        if (count == unit_words[2]) return count;
-    }
-    /* A label starts after a NUL unit with a digit, at a word or at its
-       upper half. */
-    units_searched = 1;
-    count = 0;
-    for (u32 w = RELOCATION_RTOS_BASE + 4; w + 16 < relocation.image_end && count < UNITS_MAX; w += 4) {
-        u32 v = word(w), low = v & 0xffffU, high = v >> 16, a;
-        if (low >= '0' && low <= '9' && word(w - 4) >> 16 == 0) a = w;
-        else if (high >= '0' && high <= '9' && low == 0) a = w + 2;
-        else continue;
-        if (unit_label_at(a, &pad) != UNIT_LABELS) unit_words[3 + count++] = a;
-    }
-    unit_words[0] = UNITS_MAGIC; unit_words[1] = word(RTOS_IDENTITY); unit_words[2] = count;
-    write_file(feet_hint_path, (const u8 *)unit_words, (3 + count) * 4);
-    return count;
-}
-static void apply_units(void)
-{
-    u32 changed = 0;
-    if (!present(feet_path)) return;
-    units_requested = 1;
-    u32 count = find_units();
-    for (u32 i = 0; i < count; ++i) {
-        u32 a = unit_words[3 + i], pad, k = unit_label_at(a, &pad);
-        if (k == UNIT_LABELS) continue;
-        u32 n = length(unit_labels[k].meters), m = length(unit_labels[k].feet);
-        for (u32 j = 0; j <= n + pad; ++j)
-            *(volatile u16 *)at(a + j * 2) = j < m ? (u16)(u8)unit_labels[k].feet[j] : 0;
-        sync_alias(a, (n + pad + 1) * 2);
-        ++changed;
-    }
-    units_changed = changed;
-}
-#else
-static void apply_units(void) {}
-#endif
 
 /* INSTALL after the plan and the relocation: the code area, the arrays, the
    firmware checks, the records, the icons, the modules, the saved values,
@@ -1023,7 +920,6 @@ static int install_planned(void)
     for (u32 i = 0; i < icon_chunks; ++i)
         if (!sync_alias(arrays.icon_bases[i], chunk_count(i) * ICON_STRIDE)) return STATUS_SYNC;
     if ((status = publish_patches())) return status;
-    apply_units();
     print("GR_MODULE_INSTALLED "); number(count); print("\n");
     return 0;
 }

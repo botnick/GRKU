@@ -189,8 +189,6 @@ static void say_state_detail(void)
 static void say_modes(void)
 {
     say("Modes: safe "); say(safe_mode ? "on" : "off"); say(", profile "); say(profile_mode ? "on" : "off");
-    say(", feet labels "); say(units_requested ? "on, " : "off");
-    if (units_requested) { say_number(units_changed); say(" labels changed"); say(units_searched ? " (found by a search of the image, kept in GRKU\\FEET.BIN)" : " (at the addresses of GRKU\\FEET.BIN)"); }
     nl();
 }
 static void say_details(int status)
@@ -354,10 +352,6 @@ static void log_install(void)
     text_add(text, &n, sizeof(text), "/"); text_dec(text, &n, sizeof(text), module_count);
     text_add(text, &n, sizeof(text), " capabilities="); text_hex(text, &n, sizeof(text), capabilities_used);
     text_add(text, &n, sizeof(text), " running="); text_hex(text, &n, sizeof(text), capabilities_running);
-    if (units_requested) {
-        text_add(text, &n, sizeof(text), " units="); text_dec(text, &n, sizeof(text), units_changed);
-        text_add(text, &n, sizeof(text), units_searched ? " (searched)" : " (hinted)");
-    }
     if (install_retries) { text_add(text, &n, sizeof(text), " retries="); text_dec(text, &n, sizeof(text), install_retries); }
     log_text(text);
 }

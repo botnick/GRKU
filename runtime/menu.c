@@ -758,6 +758,7 @@ static void fit_value(u32 view) {
 #include "menu_recipes.h"
 #include "menu_section.h"
 #include "menu_about.h"
+#include "distance.h"
 /* The shooting screen: the framing component calls this entry, whose
    address INSTALL writes (SERVICES_CORE_VIEWFINDER), in the App task with
    an event (runtime/services.h): the first shooting screen after INSTALL,
@@ -776,7 +777,8 @@ A32_ENTRY void menu_viewfinder(u32 event) {
    camera information page shows About GRKU, the borrowed submenu and its
    value pages show a settings page, and another screen can show the rows of
    the GRKU section. So the screens can use the same text IDs: the rows of
-   the GRKU section use those of the borrowed rows (MENU_ROW_LABEL_TEXT). */
+   the GRKU section use those of the borrowed rows (MENU_ROW_LABEL_TEXT).
+   The Snap focus distances show in feet on each screen (distance_text). */
 #ifdef DEVELOP_TONE_LIST
 static u32 develop_text(volatile u32 *h,u32 id);
 #else
@@ -785,6 +787,8 @@ static u32 develop_text(volatile u32 *h,u32 id);
 A32_ENTRY u32 menu_text_override(u32 view,u32 id) {
     volatile u32 *h=menu_header();
     u32 title=menu_parameter_title(view);
+    if(title) return title;
+    title=distance_text(h,id);
     if(title) return title;
     title=develop_text(h,id);
     if(title) return title;
@@ -1181,6 +1185,8 @@ static u32 icon_address(volatile u32 *h,u32 id) {
     if(id==GRKU_ICON_MODULES) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+2*GRKU_ICON_STRIDE : 0;
     if(id==GRKU_ICON_MODULES_OFF) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+3*GRKU_ICON_STRIDE : 0;
     if(id==GRKU_ICON_ROTATE) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+4*GRKU_ICON_STRIDE : 0;
+    if(id==GRKU_ICON_SCALE_FEET) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+5*GRKU_ICON_STRIDE : 0;
+    if(id==GRKU_ICON_SCALE_SIXTEEN) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+6*GRKU_ICON_STRIDE : 0;
     if(id==0x7fff) return h[GRKU_HOST_OFF_ICON/4] ? h[GRKU_HOST_OFF_ICON/4] : NATIVE_OFF_ICON();
     if(index>=h[GRKU_HOST_COUNT/4]) return 0;
     return WORD(h[GRKU_HOST_RECORDS/4]+index*GRKU_RECORD_SIZE,GRKU_RECORD_ICON);
