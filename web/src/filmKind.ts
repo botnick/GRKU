@@ -9,13 +9,14 @@ export const FILM_KINDS: readonly FilmKind[] = ['negative', 'slide', 'mono', 'ci
 const SLIDE = ['VELVIA', 'PROVIA', 'ASTIA', 'SENSIA', 'EKTACHROME', 'KODACHROME', 'ELITE', 'PRECISA', 'AGFACHROME', 'AEROCHROME', 'X-PRO', 'POLACHROME', 'FORTIA'];
 /** The film simulations of the FUJIFILM digital cameras: by the name and number on the box (scripts/flap-icons.py FUJI_SIMS). */
 const FUJI_SIMS = ['PROVIA', 'VELVIA', 'ASTIA', 'CLASSIC CHROME', 'CLASSIC NEG', 'PRO NEG STD', 'REALA ACE', 'ETERNA', 'ETERNA BB', 'ACROS'];
-/** The FUJIFILM recipes, on the box of the film each is named after: brand, then name and number
- * (scripts/flap-icons.py FUJI_RECIPES). Free camera looks, as the simulations. */
-const FUJI_RECIPES = ["Kodak PORTRA REGGIE'S"];
+/** The FUJIFILM recipes by effect ID: a film simulation with the camera's settings, on the box of the
+ * film each is named after (scripts/flap-icons.py FUJI_RECIPES). Free camera looks, as the simulations. */
+export const FUJI_RECIPES = ['fj-reggies-portra-v1', 'fj-kodachrome-64-v1', 'fj-gold-200-v1', 'fj-tri-x-400-v1', 'fj-reggies-superia-v1'];
 /** The instant films, by the start of the name on the box. */
 const INSTANT = ['INSTAX', 'FP-', 'PX', 'TIME ZERO', 'POLAROID', 'TYPE'];
 
 interface Classified {
+  id?: string;
   monochrome?: boolean;
   cover?: Cover;
   look?: string;
@@ -30,7 +31,7 @@ export function filmKind(effect: Classified): FilmKind {
   const name = (cover?.name ?? '').toUpperCase();
   const look = (effect.look ?? '').toLowerCase();
   if (cover?.brand === 'FUJIFILM' && FUJI_SIMS.includes(`${name} ${cover.number ?? ''}`.trim())) return 'camera';
-  if (cover && FUJI_RECIPES.includes(`${cover.brand} ${name} ${(cover.number ?? '').toUpperCase()}`.trim())) return 'camera';
+  if (effect.id && FUJI_RECIPES.includes(effect.id)) return 'camera';
   if (effect.monochrome) return 'mono';
   if (cover?.template === 'cine') return 'cine';
   if (cover?.brand === 'POLAROID' || INSTANT.some((prefix) => name.startsWith(prefix)) || look.includes('instax')) return 'instant';

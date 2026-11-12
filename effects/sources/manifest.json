@@ -109,13 +109,13 @@
    "sha256": "3015b07fbb93baccb92dac4fb8a3efc34b0a7f82750e67922692d3ac5df84285"
   },
   "fujifilm_recipe.mjs": {
-   "sha256": "13f2d59574639e06852dc8d369e06a12888d3148c793095b3839d88f449351aa"
+   "sha256": "0a640192a6ccfe512b005c4950f5ccb6c048d1d4f93bbc4d3d0658434e2e4072"
   },
   "make_fujifilm_recipe.mjs": {
    "sha256": "b8f0281c7f6ca5279d458c933bd7900b20cd7e587679caa67ba797d186ca0969"
   },
   "FUJIFILM_RECIPES.md": {
-   "sha256": "b465ebeac05bcc9159b348df6274c979a9e41a95407a2dc9ccbaf14120ddb1ad"
+   "sha256": "003ae71d19a0143380710c3842edd2d85a907acc1e1b0c7223ce91ec42f11175"
   }
  },
  "luts": {
@@ -826,6 +826,30 @@
    "sha256": "94b6e05c6dfd25d7e35991dab99180f45c0e859e54db490b638422348e1c0930",
    "upstream": "FLog2_to_CLASSIC-CHROME_65grid_V.1.00.cube",
    "recipe": "make_fujifilm_recipe.mjs FLog2_to_CLASSIC-CHROME_65grid_V.1.00.cube '{\"wbRed\":2,\"wbBlue\":-4,\"highlight\":-1,\"shadow\":-1,\"color\":2,\"chrome\":1,\"chromeBlue\":0.5}'"
+  },
+  "fj-kodachrome-64-v1.cube": {
+   "generator": "fujifilm",
+   "sha256": "90f1fafacf9c8b4e6ef963e4c02328f96845e741bed4d61b848fa32684a63928",
+   "upstream": "FLog2_to_CLASSIC-CHROME_65grid_V.1.00.cube",
+   "recipe": "make_fujifilm_recipe.mjs FLog2_to_CLASSIC-CHROME_65grid_V.1.00.cube '{\"wbRed\":2,\"wbBlue\":-5,\"highlight\":0,\"shadow\":0,\"color\":2,\"chrome\":1,\"chromeBlue\":0.5,\"dr\":\"DR200\",\"wb\":\"Daylight\"}'"
+  },
+  "fj-gold-200-v1.cube": {
+   "generator": "fujifilm",
+   "sha256": "f92e91a97a4ad09f0b35cf2cff7e5df729ff7df9f16d2db6134ae02de20d9760",
+   "upstream": "FLog2_to_CLASSIC-CHROME_65grid_V.1.00.cube",
+   "recipe": "make_fujifilm_recipe.mjs FLog2_to_CLASSIC-CHROME_65grid_V.1.00.cube '{\"wbRed\":4,\"wbBlue\":-5,\"highlight\":-2,\"shadow\":1,\"color\":3,\"chrome\":1,\"chromeBlue\":0,\"dr\":\"DR-Auto\",\"wb\":\"Daylight\"}'"
+  },
+  "fj-tri-x-400-v1.cube": {
+   "generator": "fujifilm",
+   "sha256": "26f76c77c7944bc6e897afecf0344f0949034f21ac2b6a83736b472332fb96e0",
+   "upstream": "FLog2_to_ACROS_65grid_V.1.00.cube",
+   "recipe": "make_fujifilm_recipe.mjs FLog2_to_ACROS_65grid_V.1.00.cube '{\"wbRed\":9,\"wbBlue\":-9,\"highlight\":0,\"shadow\":3,\"color\":0,\"chrome\":1,\"chromeBlue\":0,\"dr\":\"DR200\",\"wb\":\"Daylight\"}'"
+  },
+  "fj-reggies-superia-v1.cube": {
+   "generator": "fujifilm",
+   "sha256": "6a49feb230f49c8b9f82a1dfbb61c38dcb72e996f319c25cc04af1e6b1cc183d",
+   "upstream": "FLog2_to_CLASSIC-Neg._65grid_V.1.00.cube",
+   "recipe": "make_fujifilm_recipe.mjs FLog2_to_CLASSIC-Neg._65grid_V.1.00.cube '{\"wbRed\":1,\"wbBlue\":-3,\"highlight\":-2,\"shadow\":-1,\"color\":1,\"chrome\":1,\"chromeBlue\":1,\"dr\":\"DR-Auto\",\"wb\":\"Auto\"}'"
   }
  }
 }

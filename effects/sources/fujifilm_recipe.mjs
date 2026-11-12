@@ -29,6 +29,32 @@ const HIGHLIGHT_M1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.05, -0.51, -1.18, -2.0
 const SHADOW_M1 = [1.4, 3.59, 4.25, 4.39, 4.06, 3.7, 3.27, 2.66, 1.77, 0.99, 0.37, 0.09, 0, 0, 0, 0, 0, 0, 0, 0];
 const HIGHLIGHT_P1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.22, 0.67, 1.52, 2.44, 3.09, 3.07, 2.65, 1.69, 0.86];
 const SHADOW_P1 = [-0.99, -2.63, -3.76, -4.29, -4.4, -4.05, -3.79, -3.23, -2.31, -1.36, -0.62, -0.15, 0, 0, 0, 0, 0, 0, 0, 0];
+// Dynamic range, ΔL* of a neutral from DR100 (X-T3, Imaging Resource XT3OUTB DR100/DR200/DR400, and
+// DRP0/DRPW/DRPS for D-Range Priority Weak and Strong). DR-Auto picks one per scene: not modelled.
+const DR_TABLES = {
+  DR200: [0, 0.43, 0.49, 0.75, 0.9, 0.88, 0.9, 1.05, 1.06, 1.02, 0.92, 0.76, 0.38, 0.13, -0.21, -0.72, -1.35, -2.12, -3.17, -3.89],
+  DR400: [0, 0.03, 0.23, 0.46, 0.57, 0.71, 0.76, 0.81, 0.82, 0.86, 0.79, 0.6, 0.17, -0.32, -0.95, -1.57, -2.47, -3.74, -5.64, -6.75],
+  'DR-P Weak': [3.51, 8.95, 10.48, 10.62, 9.93, 9.08, 8.04, 6.75, 5.21, 3.76, 2.67, 1.55, 0.26, -1.43, -3.36, -5.18, -6.69, -7.52, -8.11, -7.7],
+  'DR-P Strong': [8.02, 14.19, 14.87, 14.04, 11.9, 10.24, 8.71, 6.98, 4.54, 2.02, -0.31, -2.67, -5.12, -7.33, -9.66, -12.01, -14.37, -16.36, -17.99, -18.04],
+};
+// A fixed white balance on a daylight scene (5500 K, as Auto leaves it): the colour of daylight seen
+// through the white point of the setting, from the Planckian locus. Fluorescent presets by their lamps
+// (FUJIFILM: 1 daylight, 2 warm white, 3 cool white); their green-magenta correction is not modelled.
+const WB_KELVIN = { Auto: 0, Daylight: 5500, 'Daylight/Fine': 5500, Shade: 7500, 'Fluorescent 1': 6500, 'Fluorescent 2': 3000, 'Fluorescent 3': 4200, Incandescent: 3000, Underwater: 0 };
+function planck(K) {
+  // CIE 1931 xy of a blackbody (Kim et al. cubic spline), then linear sRGB with Y = 1.
+  const T = K, x = T <= 4000 ? -0.2661239e9 / T ** 3 - 0.2343589e6 / T ** 2 + 0.8776956e3 / T + 0.17991 : -3.0258469e9 / T ** 3 + 2.1070379e6 / T ** 2 + 0.2226347e3 / T + 0.24039;
+  const y = T <= 2222 ? -1.1063814 * x ** 3 - 1.3481102 * x ** 2 + 2.18555832 * x - 0.20219683 : T <= 4000 ? -0.9549476 * x ** 3 - 1.37418593 * x ** 2 + 2.09137015 * x - 0.16748867 : 3.081758 * x ** 3 - 5.8733867 * x ** 2 + 3.75112997 * x - 0.37001483;
+  const X = x / y, Z = (1 - x - y) / y;
+  return [3.2406 * X - 1.5372 - 0.4986 * Z, -0.9689 * X + 1.8758 + 0.0415 * Z, 0.0557 * X - 0.204 + 1.057 * Z];
+}
+export function kelvinGains(wb) {
+  const K = typeof wb === 'number' ? wb : /^\d+K$/.test(wb ?? '') ? Number(wb.slice(0, -1)) : WB_KELVIN[wb] ?? 0;
+  if (!K) return [1, 1, 1];
+  const scene = planck(5500), set = planck(K);
+  const g = scene.map((v, i) => v / set[i]);
+  return g.map((v) => v / g[1]);
+}
 const interp = (table, L) => { const p = Math.min(19, Math.max(0, (L - 2.5) / 5)), i = Math.min(18, Math.floor(p)), w = p - i; return table[i] * (1 - w) + table[i + 1] * w; };
 // Color Chrome Strong: ΔL* by (L*, C*) at full hue weight, from the FUJIFILM bluebell pair and the
 // Fuji X Weekly X-T30 Off/Weak/Strong series; Weak is half (measured 0.47-0.52).
@@ -62,11 +88,12 @@ export function settings(r) {
     wbRed: Number(r['WB Shift Red'] ?? 0), wbBlue: Number(r['WB Shift Blue'] ?? 0),
     highlight: Number(r.Highlight ?? 0), shadow: Number(r.Shadow ?? 0), color: Number(r.Color ?? 0),
     chrome: strength(r['Color Chrome Effect']), chromeBlue: strength(r['Color Chrome Effect Blue']),
+    dr: r['Dynamic Range'] ?? 'DR100', wb: r['White Balance'] ?? 'Auto',
   };
 }
 
 // The scene gains of the WB shift (R, G, B), for scene linear light before the film simulation.
-export const wbGains = (s) => [Math.exp(WB_R * s.wbRed), 1, Math.exp(WB_B * s.wbBlue)];
+export const wbGains = (s) => { const k = kelvinGains(s.wb); return [k[0] * Math.exp(WB_R * s.wbRed), 1, k[2] * Math.exp(WB_B * s.wbBlue)]; };
 
 // Everything after the film simulation, on display sRGB values 0..1.
 export function post(rgb, s) {
@@ -75,7 +102,8 @@ export function post(rgb, s) {
     const L = Lstar(v);
     const h = s.highlight < 0 ? -s.highlight * interp(HIGHLIGHT_M1, L) : s.highlight * interp(HIGHLIGHT_P1, L);
     const sh = s.shadow < 0 ? -s.shadow * interp(SHADOW_M1, L) : s.shadow * interp(SHADOW_P1, L);
-    return vOfL(Math.min(100, Math.max(0, L + h + sh)));
+    const dr = DR_TABLES[s.dr] ? interp(DR_TABLES[s.dr], L) : 0;
+    return vOfL(Math.min(100, Math.max(0, L + h + sh + dr)));
   };
   let c = rgb.map(tone);
   let [L, a, b] = toLab(c);

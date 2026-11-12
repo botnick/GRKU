@@ -49,10 +49,10 @@ SLIDE_NAMES = ('VELVIA', 'PROVIA', 'ASTIA', 'SENSIA', 'EKTACHROME', 'KODACHROME'
                'AGFACHROME', 'AEROCHROME', 'X-PRO', 'POLACHROME', 'FORTIA')
 FUJI_SIMS = ('PROVIA', 'VELVIA', 'ASTIA', 'CLASSIC CHROME', 'CLASSIC NEG', 'PRO NEG STD', 'REALA ACE',
              'ETERNA', 'ETERNA BB', 'ACROS')
-# The FUJIFILM recipes (effects fj-*, a film simulation with the camera's settings): (brand, name number) on
-# the box of the film that they are named after, with a FUJI RECIPE label; free camera looks like the
-# simulations. web/src/filmKind.ts FUJI_RECIPES must match.
-FUJI_RECIPES = (('Kodak', "PORTRA REGGIE'S"),)
+# The FUJIFILM recipes by effect ID (a film simulation with the camera's settings): on the box of the film
+# that they are named after, with a FUJI RECIPE label; free camera looks like the simulations.
+# web/src/filmKind.ts FUJI_RECIPES must match.
+FUJI_RECIPES = ('fj-reggies-portra-v1', 'fj-kodachrome-64-v1', 'fj-gold-200-v1', 'fj-tri-x-400-v1', 'fj-reggies-superia-v1')
 FUJI_GREEN = (0, 135, 70)
 INSTANT_NAMES = ('INSTAX', 'FP-', 'PX', 'TIME ZERO', 'POLAROID', 'TYPE')
 # The label colors of the Kodak motion picture cans.
@@ -299,7 +299,7 @@ def film_kind(definition):
     target = definition.get('attribution', {}).get('target', '').lower()
     if cover.get('brand') == 'FUJIFILM' and f"{name} {cover.get('number', '')}".strip() in FUJI_SIMS:
         return None
-    if (cover.get('brand'), f"{name} {cover.get('number', '').upper()}".strip()) in FUJI_RECIPES:
+    if definition.get('effect_id') in FUJI_RECIPES:
         return None
     if definition.get('flags', 0) & 1:
         return 'mono'
@@ -320,7 +320,7 @@ def effect_icon(definition, scale=1):
     brand = cover.get('brand', 'Kodak')
     if brand not in BANDS:
         brand = 'Kodak'
-    recipe = (brand, f"{cover['name'].upper()} {cover.get('number', '').upper()}".strip()) in FUJI_RECIPES
+    recipe = definition.get('effect_id') in FUJI_RECIPES
     return render(brand, cover['name'], cover.get('number', ''), cine=cover.get('template') == 'cine',
                   kind=film_kind(definition), scale=scale, recipe=recipe)
 

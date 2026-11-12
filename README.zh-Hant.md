@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![grku.app](https://img.shields.io/badge/site-grku.app-d94135)](https://grku.app)
 
-GRKU 是一個獨立專案，由 [BOTNICK](https://github.com/botnick) 先為泰國的 GR 使用者、再為所有人打造而成。它始於 ahonn 的 [GRKit](https://github.com/ahonn/GRKit) 程式碼，GRKit 找到了從 SD 卡在 GR 上執行程式碼的方法，自此之後 GRKU 便被逐步重新建構：包含 146 種風格並附上真實底片盒圖示的底片庫、配方、更多模組、單次啟動、可寫入記憶卡並販售額外風格的網站、泰文語調以及專屬的發布管線。[起源](#origins)小節說明了哪些內容來自 GRKit，以及 GRKU 將其打造成了什麼樣子。
+GRKU 是一個獨立專案，由 [BOTNICK](https://github.com/botnick) 先為泰國的 GR 使用者、再為所有人打造而成。它始於 ahonn 的 [GRKit](https://github.com/ahonn/GRKit) 程式碼，GRKit 找到了從 SD 卡在 GR 上執行程式碼的方法，自此之後 GRKU 便被逐步重新建構：包含 150 種風格並附上真實底片盒圖示的底片庫、配方、更多模組、單次啟動、可寫入記憶卡並販售額外風格的網站、泰文語調以及專屬的發布管線。[起源](#origins)小節說明了哪些內容來自 GRKit，以及 GRKU 將其打造成了什麼樣子。
 
 <p>
   <img src="resources/images/grku-root.jpg" alt="ADJ 選單中的 GRKU 頁面" width="49%">
@@ -21,7 +21,7 @@ GRKU 是一個獨立專案，由 [BOTNICK](https://github.com/botnick) 先為泰
 
 拍攝時按下 ADJ 撥桿，選擇第 6 項 GRKU。GRKU 的所有功能都在這裡，以及 MENU 中的 GRKU 小節。ADJ 會再次開啟在 GRKU 上，並停留在你離開時的那一行，即使關機後也是如此。
 
-- **Film Look**：146 種真實底片風格，記憶卡中一次可存放 40 種。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 與 Rollei，再加上 GRKU 仿照 GR II 正片風格自製的 Positive GRII 風格，以及 FUJIFILM 相機的十種免費底片模擬，從 Provia、Classic Chrome 到 Acros。每種風格都有採用真實底片盒配色的底片盒圖示。按下 Fn 可微調風格；也可以在網站上匯入自己的 LUT。
+- **Film Look**：150 種真實底片風格，記憶卡中一次可存放 40 種。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 與 Rollei，再加上 GRKU 仿照 GR II 正片風格自製的 Positive GRII 風格，以及 FUJIFILM 相機的十種免費底片模擬，從 Provia、Classic Chrome 到 Acros。每種風格都有採用真實底片盒配色的底片盒圖示。按下 Fn 可微調風格；也可以在網站上匯入自己的 LUT。
 - **Recipes**：將整套相機風格命名儲存，或從網站載入熱門配方，即可一次切換 Film Look 或 Image Control、顆粒、光暈、白平衡、校正與曝光，並支援還原。模式轉盤上的 U1、U2 與 U3 都能存放配方。
 - **Framing**：XPan、2.35:1、16:9、4:3、5:4、7:6 與 1:1，可裁切 JPEG，也可僅顯示框線。**Crop**：35、40、50 或 70 mm，具備即時預覽。
 - **Guides**：三分法、中心、黃金分割、對角線、黃金螺旋、動態對稱。
@@ -74,7 +74,7 @@ GRKU 源自 GRKit 1.5.2 以及 GRKit 的 `feat/recipes` 分支；執行階段技
 
 | 領域 | GRKit（GRKU 的起點） | 今日的 GRKU | 實現方式 |
 | --- | --- | --- | --- |
-| 底片庫 | 21 種風格 | 146 種風格，每張卡 40 種；收錄所有風格的底片庫 ZIP | 擬合自 Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT 與 Fotufilm 的開放底片預設集，以及 FUJIFILM 自身十款底片模擬的 LUT，並根據 `docs/popular-films-2026.md` 的 2026 年熱門底片研究選出預設的 40 種 |
+| 底片庫 | 21 種風格 | 150 種風格，每張卡 40 種；收錄所有風格的底片庫 ZIP | 擬合自 Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT 與 Fotufilm 的開放底片預設集，以及 FUJIFILM 自身十款底片模擬的 LUT，並根據 `docs/popular-films-2026.md` 的 2026 年熱門底片研究選出預設的 40 種 |
 | 圖示 | 扁平圖塊 | 每種風格皆有採用真實底片盒配色的底片盒圖示、選單彩色方塊，以及自帶 PNG 圖示的效果 | `scripts/flap-icons.py` 繪製底片盒；效果編譯器接受 `icon: {"png": ...}` |
 | 配方 | 未合併的分支 | 已合併，附有對泰文友善的解說、來自 ricohcookbook.com 的熱門配方、三步驟編輯器、範例照片，以及相機風格的設定清單 | `modules/recipes`、`web/src/components/Recipe*.tsx` |
 | 模組 | Film Look、Framing、Guides、Date、Glow、Grain | 新增 Crop、Light Leak、Diffusion、Border、Recipes、Enable at Start、英呎標示、黃金螺旋與動態對稱輔助線 | 移植自 MustafaCisse 和 kkasemsa 的分支並全新編寫；一個安裝包可容納十個模組 |
@@ -104,7 +104,7 @@ grku package --build build/runtime --camera gr4 --effects build/effects-default 
 grku verify dist/GRKU-gr4.zip
 ```
 
-`build/effects` 包含全部 146 種風格；一個安裝包最多只能放入 40 種，因此用 `python3 -I scripts/defaults.py build/effects build/effects-default` 選出 `effects/defaults.txt` 的 40 種。一個安裝包可容納十個模組，因此請略過一個（正式發布版略過了 Border）。GR III 請分別從其韌體的 `fwdc239b.bin` 建置 `gr3-2.10` 與 `gr3-2.21`，並以 `--camera gr3` 以及為各版本加上 `--build` 來打包；GR IV 安裝包則納入 `gr4-1.11`、`gr4-1.20` 與 `gr4-1.21`。接著以 `python3 -I scripts/card.py write dist/GRKU-gr4.zip` 將安裝包寫入讀卡機中的記憶卡。
+`build/effects` 包含全部 150 種風格；一個安裝包最多只能放入 40 種，因此用 `python3 -I scripts/defaults.py build/effects build/effects-default` 選出 `effects/defaults.txt` 的 40 種。一個安裝包可容納十個模組，因此請略過一個（正式發布版略過了 Border）。GR III 請分別從其韌體的 `fwdc239b.bin` 建置 `gr3-2.10` 與 `gr3-2.21`，並以 `--camera gr3` 以及為各版本加上 `--build` 來打包；GR IV 安裝包則納入 `gr4-1.11`、`gr4-1.20` 與 `gr4-1.21`。接著以 `python3 -I scripts/card.py write dist/GRKU-gr4.zip` 將安裝包寫入讀卡機中的記憶卡。
 
 ## 參與貢獻
 
