@@ -15,15 +15,21 @@
     7637
   ],
   "icon": {
-    "label": "RP",
-    "shape": "film"
+    "png": "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"
+  },
+  "cover": {
+    "template": "box",
+    "brand": "Kodak",
+    "name": "PORTRA",
+    "number": "REGGIE'S",
+    "band": false
   },
   "attribution": {
     "origin": "cube-fit",
     "source": "fj-reggies-portra-v1.cube",
     "source_sha256": "94b6e05c6dfd25d7e35991dab99180f45c0e859e54db490b638422348e1c0930",
     "input": "flog2",
-    "exposure": 0.0,
+    "exposure": 0,
     "fit": {
       "mean_de": 0.773,
       "max_de": 2.042,
@@ -1193,12 +1199,5 @@
       62,
       89
     ]
-  },
-  "cover": {
-    "template": "box",
-    "brand": "FUJIFILM",
-    "name": "REGGIE'S",
-    "number": "PORTRA",
-    "band": true
   }
 }

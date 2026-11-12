@@ -48,7 +48,12 @@ KINDS = {'negative': (235, 120, 30), 'slide': (90, 170, 235), 'mono': (150, 150,
 SLIDE_NAMES = ('VELVIA', 'PROVIA', 'ASTIA', 'SENSIA', 'EKTACHROME', 'KODACHROME', 'ELITE', 'PRECISA',
                'AGFACHROME', 'AEROCHROME', 'X-PRO', 'POLACHROME', 'FORTIA')
 FUJI_SIMS = ('PROVIA', 'VELVIA', 'ASTIA', 'CLASSIC CHROME', 'CLASSIC NEG', 'PRO NEG STD', 'REALA ACE',
-             'ETERNA', 'ETERNA BB', 'ACROS', "REGGIE'S PORTRA")
+             'ETERNA', 'ETERNA BB', 'ACROS')
+# The FUJIFILM recipes (effects fj-*, a film simulation with the camera's settings): (brand, name number) on
+# the box of the film that they are named after, with a FUJI RECIPE label; free camera looks like the
+# simulations. web/src/filmKind.ts FUJI_RECIPES must match.
+FUJI_RECIPES = (('Kodak', "PORTRA REGGIE'S"),)
+FUJI_GREEN = (0, 135, 70)
 INSTANT_NAMES = ('INSTAX', 'FP-', 'PX', 'TIME ZERO', 'POLAROID', 'TYPE')
 # The label colors of the Kodak motion picture cans.
 VISION_CODES = {'500T': (230, 60, 50), '250D': (60, 120, 220), '200T': (150, 80, 200), '50D': (80, 180, 90),
@@ -88,8 +93,13 @@ def palette(brand, name, number, cine):
         if n.startswith(('BW400', 'HIE', 'DOUBLE')): return (BLACK, WHITE, WHITE, None)
         return (WHITE, BLACK, BLACK, None)
     if brand == 'FUJIFILM':
-        # The film simulations of the FUJIFILM digital cameras: a silver box, as the camera body.
-        if key in FUJI_SIMS: return ((178, 180, 178), (30, 30, 30), (30, 30, 30), None)
+        # The film simulations of the FUJIFILM digital cameras, on the box of the film each comes
+        # from: Provia, Velvia, Astia, Acros, Eterna, and Reala are FUJIFILM films; Pro Neg Std the
+        # Pro 160S box, Classic Neg the red of the Superia X-TRA box it recalls, Classic Chrome a box of its own.
+        if key == 'CLASSIC CHROME': return ((48, 52, 58), (232, 232, 228), (232, 232, 228), (205, 45, 40))
+        if key == 'CLASSIC NEG': return ((200, 45, 50), WHITE, WHITE, None)
+        if key == 'PRO NEG STD': return (WHITE, GREEN, GREEN, None)
+        if key == 'ETERNA BB': return ((70, 72, 74), WHITE, (200, 200, 200), (120, 210, 130))
         if n.startswith('VELVIA'): return ((0, 70, 40), WHITE, PINK if number.startswith('50') else ORANGE, None)
         if n.startswith('PROVIA'): return (BLUE, WHITE, WHITE, None)
         if n.startswith(('ASTIA', 'SENSIA')): return ((235, 215, 150), (40, 60, 40), (40, 60, 40), None)
@@ -176,7 +186,7 @@ def wrap(draw, name, path, size, width):
     return lines[:2]
 
 
-def render(brand, name, number, cine=False, kind=None, scale=1):
+def render(brand, name, number, cine=False, kind=None, scale=1, recipe=False):
     """The icon as a Pillow RGBA image with binary alpha: 40 x 40 at scale 1, the icon of the
     camera; at a larger scale the same box drawn sharp at scale times the size, for the site."""
     S = scale
@@ -204,7 +214,7 @@ def render(brand, name, number, cine=False, kind=None, scale=1):
         centered(d, BAND_TEXT[brand], (TOP + 2) * S, fit(d, BAND_TEXT[brand], BOLD, 8 * S, 36 * S, 6 * S, S), band_fg, 0, W)
     # The name: one or two lines, or large when there is no number
     y = (BAND_BOTTOM + 2) * S
-    floor = (BOTTOM - (3 if kind else 1)) * S   # the rows above the film type stripe
+    floor = (BOTTOM - (5 if recipe else 3 if kind else 1)) * S   # the rows above the film type stripe or the recipe label
     # A name that only repeats the brand, as CineStill 800T, leaves the room to the number.
     lines = [] if name.upper() == BAND_TEXT[brand].upper() else wrap(d, name, BOLD, 8 * S, 36 * S)
     if not number and lines:
@@ -230,12 +240,16 @@ def render(brand, name, number, cine=False, kind=None, scale=1):
     # A stripe in the accent color under the band, as Ilford and the cine cans have
     if accent:
         d.rectangle([0, (BAND_BOTTOM + 1) * S, W - 1, (BAND_BOTTOM + 2) * S - 1], fill=accent + (255,))
+    # A FUJIFILM recipe: a green label at the bottom, as a sticker on the box
+    if recipe:
+        d.rectangle([0, (BOTTOM - 4) * S, W - 1, (BOTTOM + 1) * S - 1], fill=FUJI_GREEN + (255,))
+        centered(d, 'FUJI RECIPE', (BOTTOM - 4) * S, fit(d, 'FUJI RECIPE', BOLD, 5 * S, 36 * S, 4 * S, S), WHITE, 0, W)
     # The film type stripe at the bottom
-    if kind:
+    if kind and not recipe:
         d.rectangle([0, (BOTTOM - 1) * S, W - 1, (BOTTOM + 1) * S - 1], fill=KINDS[kind] + (255,))
     # The light on the box: a little brighter under the band, darker toward the bottom
     px = img.load()
-    body_rows = range((BAND_BOTTOM + 1) * S, (BOTTOM - (2 if kind else 0)) * S)
+    body_rows = range((BAND_BOTTOM + 1) * S, (BOTTOM - (5 if recipe else 2 if kind else 0)) * S)
     for yy in body_rows:
         t = (yy - (BAND_BOTTOM + 1) * S) / max(1, len(body_rows) - 1)
         factor = 1.06 - 0.12 * t
@@ -285,6 +299,8 @@ def film_kind(definition):
     target = definition.get('attribution', {}).get('target', '').lower()
     if cover.get('brand') == 'FUJIFILM' and f"{name} {cover.get('number', '')}".strip() in FUJI_SIMS:
         return None
+    if (cover.get('brand'), f"{name} {cover.get('number', '').upper()}".strip()) in FUJI_RECIPES:
+        return None
     if definition.get('flags', 0) & 1:
         return 'mono'
     if cover.get('template') == 'cine':
@@ -304,8 +320,9 @@ def effect_icon(definition, scale=1):
     brand = cover.get('brand', 'Kodak')
     if brand not in BANDS:
         brand = 'Kodak'
+    recipe = (brand, f"{cover['name'].upper()} {cover.get('number', '').upper()}".strip()) in FUJI_RECIPES
     return render(brand, cover['name'], cover.get('number', ''), cine=cover.get('template') == 'cine',
-                  kind=film_kind(definition), scale=scale)
+                  kind=film_kind(definition), scale=scale, recipe=recipe)
 
 
 def sheet(images, cols=13, scale=3):
