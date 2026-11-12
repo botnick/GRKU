@@ -1,3 +1,23 @@
+## 1.8.5 (2026-11-12)
+
+### Fixes
+
+- Border puts its white or black border around the whole photo: the JPEG grows by the border and the photo keeps every pixel. Thin is 3% and Wide 6% of the short side, and the new Instant is 4% with a bottom three times as wide. In-camera RAW development adds the current border, and on GR IV a large border takes its memory from the image pool, narrower when the pool is low. Border is now a page of the core, so it costs no module memory, and U1 to U3 of the mode dial keep its border and color. Module ABI 2.8.
+- Crop at 40 mm keeps the camera on a crop factor it knows: a power-off at 40 mm no longer leaves a factor that the camera without GRKU shows as an error in each live-view frame.
+- Distance Unit in GRKU Settings of the GRKU section of MENU shows the Snap focus distances and the manual focus scale in meters or in feet, and a change applies at once. It replaces `GRKU/FEET.TXT`, which GRKU no longer reads: choose Feet in MENU instead.
+- The print film looks keep more color in highlights, and saturated colors change more smoothly from one hue to the next.
+- Bloom and Halation glow evenly around screens and other large bright areas at Strong, and sit centered on their light at every strength.
+- Instax is no longer brighter than the meter reading, so its highlights keep more detail.
+- A half-press after you select a built-in Image Control in ADJ now replaces the GRKU Film Look, as OK does.
+- A recipe saved on the camera holds the border of the Border module too (its style, and the color of a border that is on), and applying it sets the border. Like the exposure settings, the border is not part of the look: it does not decide which recipe matches, and a recipe from the site without a border keeps the border of the camera. Without the Border module, applying leaves the border out and says so. The recipe file of an earlier GRKU still reads: its recipes hold no border.
+- The recipe list in MENU keeps its mark on the recipe that your settings match after Rename and Delete.
+- Reggie's Portra, the most popular Fujifilm recipe (by Reggie Ballesteros, published by Fuji X Weekly), joins the film library as a free camera look: FUJIFILM's own Classic Chrome LUT with the recipe's white balance shift, Highlight, Shadow, Color, Color Chrome, and FX Blue applied as the camera does, each measured on FUJIFILM camera JPEGs (`effects/sources/FUJIFILM_RECIPES.md`). Set Grain to Weak, Small for the whole recipe. The library has 146 looks.
+- In live view, the GRKU icons move next to the camera's own information in the same row, so they no longer cover the dial guide of Snap mode on GR IV.
+
+#### Crop shows the crop itself in the live view: at 40 and 70 mm the view zooms in, without frame lines, while the camera keeps its own 35 or 50 mm. Movies keep the camera's view. 90 mm (128 mm on GR IIIx) is gone, because the live view cannot zoom that far. The ADJ tiles of the crops name their focal lengths, with their own tiles on GR IIIx.
+
+On GR IV the live view keeps the frame lines of the crop for now: the code of one of its live-view hooks differs in the memory of a GR IV 1.11 from the firmware file, so the install stopped (status 47). GR III and GR IIIx zoom the live view.
+
 ## 1.8.4 (2026-11-10)
 
 ### Fixes
