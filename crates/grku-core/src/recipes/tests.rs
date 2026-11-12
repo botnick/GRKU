@@ -132,7 +132,8 @@ fn a_library_of_five_word_records_still_reads() {
     for index in 0..recipes.len() {
         let record = HEADER_SIZE + RECORD_SIZE * index;
         let family = bytes[record + RCP_RECORD_FAMILY];
-        bytes[record + RCP_RECORD_WORDS + 20..record + RCP_RECORD_WORDS + 24].copy_from_slice(&[family, 0, 0, 0]);
+        bytes[record + RCP_RECORD_WORDS + 20..record + RCP_RECORD_WORDS + 24]
+            .copy_from_slice(&[family, 0, 0, 0]);
         bytes[record + RCP_RECORD_FAMILY] = 0;
     }
     let crc = library::checksum(&bytes);

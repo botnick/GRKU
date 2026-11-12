@@ -873,10 +873,7 @@ mod tests {
                 Language::Japanese,
                 ["GRKU 設定", "距離の単位", "メートル", "フィート"],
             ),
-            (
-                Language::Korean,
-                ["GRKU 설정", "거리 단위", "미터", "피트"],
-            ),
+            (Language::Korean, ["GRKU 설정", "거리 단위", "미터", "피트"]),
         ];
         for (language, texts) in expected {
             let list = strings(language, VERSION);

@@ -167,11 +167,16 @@ pub fn decode(bytes: &[u8]) -> Result<Library> {
             // no border (runtime/install_recipes.h: recipe_record_upgrade).
             let old = RCP_RECORD_WORDS + 20;
             let legacy = record[RCP_RECORD_FAMILY] == 0 && (1..=3).contains(&record[old]);
-            let mut words: [u32; RECIPE_WORDS] = std::array::from_fn(|n| get(record, RCP_RECORD_WORDS + 4 * n));
+            let mut words: [u32; RECIPE_WORDS] =
+                std::array::from_fn(|n| get(record, RCP_RECORD_WORDS + 4 * n));
             if legacy {
                 words[5] = 0;
             }
-            let family = Family::from_code(if legacy { record[old] } else { record[RCP_RECORD_FAMILY] })?;
+            let family = Family::from_code(if legacy {
+                record[old]
+            } else {
+                record[RCP_RECORD_FAMILY]
+            })?;
             Recipe::from_words(name, family, words).with_context(|| format!("Recipe {}", index + 1))
         })
         .collect::<Result<_>>()?;
