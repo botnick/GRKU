@@ -115,6 +115,19 @@ static int recipes_whole(const u8 *file, u32 size)
     return 1;
 }
 /* Whether a record is usable. */
+/* A record of GRKU 1.8.4 and earlier holds five recipe words, then its family
+   at the byte where a record now holds the low byte of word 5, and 0 at the
+   family byte. Move the family and clear word 5: that recipe holds no
+   border. A record of this layout has a family byte from 1 to 3. */
+#define RCP_OLD_FAMILY (GRKU_RCP_RECORD_WORDS + 20)
+_Static_assert(GRKU_RCP_RECORD_FAMILY == GRKU_RCP_RECORD_WORDS + 24 && GRKU_RECIPE_WORDS == 6, "the record of 1.8.5 adds word 5 before the family");
+static void recipe_record_upgrade(u8 *record)
+{
+    u32 old = record[RCP_OLD_FAMILY];
+    if (record[GRKU_RCP_RECORD_FAMILY] || old < GRKU_RCP_FAMILY_GR3 || old > GRKU_RCP_FAMILY_GR4_MONOCHROME) return;
+    record[GRKU_RCP_RECORD_FAMILY] = (u8)old;
+    for (u32 i = 0; i < 4; ++i) record[RCP_OLD_FAMILY + i] = 0;
+}
 static int recipe_record_usable(const u8 *record)
 {
     u32 ended = 0;
@@ -263,9 +276,10 @@ static void install_recipes(u32 base, u32 family)
         recipes_import = RECIPES_IMPORT_READ;
         u32 records = get32(recipes_inbox + GRKU_RCP_COUNT);
         for (u32 i = 0; i < records; ++i) {
-            const u8 *record = recipes_inbox + GRKU_RCP_HEADER_SIZE + i * GRKU_RCP_RECORD_SIZE;
+            u8 *record = recipes_inbox + GRKU_RCP_HEADER_SIZE + i * GRKU_RCP_RECORD_SIZE;
             u32 w[GRKU_RECIPE_WORDS], name[GRKU_RECIPE_NAME_WORDS];
             record_recipe[i] = GRKU_RECIPE_SLOTS;
+            recipe_record_upgrade(record);
             if (!recipe_record_usable(record)) { ++recipes_bad; continue; }
             if (record[GRKU_RCP_RECORD_FAMILY] != family) { ++recipes_other; continue; }
             for (u32 k = 0; k < GRKU_RECIPE_WORDS; ++k) w[k] = get32(record + GRKU_RCP_RECORD_WORDS + 4 * k);

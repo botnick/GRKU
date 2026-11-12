@@ -1261,8 +1261,8 @@ pub fn header() -> String {
         "The settings that the camera saves in a user mode of the mode dial \
          (runtime/mode_dial.h, grku_core::abi::DIAL_SET_WORDS): GRKU_DIAL_SET_WORDS \
          words, the number of pairs + 1 (0 without a set), a word for each of \
-         the first GRKU_DIAL_SET_CAPABILITIES capabilities and a word that \
-         stays 0, the Fn adjustments and the Toning of the effect, then \
+         the first GRKU_DIAL_SET_CAPABILITIES capabilities and the border word \
+         (0 in a set without a border), the Fn adjustments and the Toning of the effect, then \
          GRKU_DIAL_SET_PAIRS pairs of a state file ID and a value. The effect \
          word is 0 for Off, else GRKU_DIAL_SET_EFFECT with the recipe code of \
          the effect. In their file, word w of user mode u (0 for U1) has the key \

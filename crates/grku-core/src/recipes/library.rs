@@ -3,7 +3,7 @@
 use super::{Family, Recipe, LIBRARY_MAX, NAME_UNITS, ON_MAX};
 use crate::abi::{
     RCP_BYTES, RCP_COUNT, RCP_CRC, RCP_DIAL, RCP_MAGIC, RCP_RECORD_FAMILY, RCP_RECORD_NAME,
-    RCP_RECORD_WORDS, RECIPE_DIAL_POSITIONS,
+    RCP_RECORD_WORDS, RECIPE_DIAL_POSITIONS, RECIPE_WORDS,
 };
 use anyhow::{bail, ensure, Context, Result};
 use serde::{Deserialize, Serialize};
@@ -162,8 +162,16 @@ pub fn decode(bytes: &[u8]) -> Result<Library> {
                 .take_while(|&unit| unit != 0)
                 .collect();
             let name = String::from_utf16(&units).context("A recipe name is not UTF-16")?;
-            let words = std::array::from_fn(|n| get(record, RCP_RECORD_WORDS + 4 * n));
-            let family = Family::from_code(record[RCP_RECORD_FAMILY])?;
+            // A record of GRKU 1.8.4 and earlier: five words, then its family
+            // where word 5 now starts, and 0 at the family byte. Its recipe holds
+            // no border (runtime/install_recipes.h: recipe_record_upgrade).
+            let old = RCP_RECORD_WORDS + 20;
+            let legacy = record[RCP_RECORD_FAMILY] == 0 && (1..=3).contains(&record[old]);
+            let mut words: [u32; RECIPE_WORDS] = std::array::from_fn(|n| get(record, RCP_RECORD_WORDS + 4 * n));
+            if legacy {
+                words[5] = 0;
+            }
+            let family = Family::from_code(if legacy { record[old] } else { record[RCP_RECORD_FAMILY] })?;
             Recipe::from_words(name, family, words).with_context(|| format!("Recipe {}", index + 1))
         })
         .collect::<Result<_>>()?;

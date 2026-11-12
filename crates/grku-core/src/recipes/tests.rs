@@ -122,6 +122,30 @@ fn a_library_round_trips() {
     }
 }
 
+/// A library of GRKU 1.8.4 and earlier: five recipe words, then the family
+/// where word 5 now starts. It still reads, and its recipes hold no border.
+#[test]
+fn a_library_of_five_word_records_still_reads() {
+    use crate::abi::{RCP_CRC, RCP_RECORD_FAMILY, RCP_RECORD_WORDS};
+    let recipes = sample();
+    let mut bytes = encode(&recipes, &KEEP).unwrap();
+    for index in 0..recipes.len() {
+        let record = HEADER_SIZE + RECORD_SIZE * index;
+        let family = bytes[record + RCP_RECORD_FAMILY];
+        bytes[record + RCP_RECORD_WORDS + 20..record + RCP_RECORD_WORDS + 24].copy_from_slice(&[family, 0, 0, 0]);
+        bytes[record + RCP_RECORD_FAMILY] = 0;
+    }
+    let crc = library::checksum(&bytes);
+    bytes[RCP_CRC..RCP_CRC + 4].copy_from_slice(&crc.to_le_bytes());
+    let read = decode(&bytes).unwrap().recipes;
+    assert_eq!(read.len(), recipes.len());
+    for (old, new) in read.iter().zip(&recipes) {
+        assert_eq!(old.family, new.family);
+        assert!(old.border.is_none());
+        assert_eq!(old.words().unwrap()[..5], new.words().unwrap()[..5]);
+    }
+}
+
 #[test]
 fn the_words_follow_the_camera_layout() {
     let words = sample()[1].words().unwrap();

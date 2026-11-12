@@ -97,7 +97,7 @@ Then `Details for a device report:`
 | `Effects:` | the effects listed, installed, the limit, and those past the list of 64; then each effect: its file, its ID, its status (`loaded`, `off`, `over the limit`, `unreadable`), its choice (`Off`, and its position when a person moved it), and its record (its index among the installed effects, or `none`) |
 | `Core settings:` | the five core settings, `CORE.TONE` (the effect), `CORE.ASPECT`, `CORE.GRAIN`, `CORE.GRAIN_SIZE`, `CORE.ASPECT_MODE`, with the saved value or `default` |
 | `State (GRKU\STATE.TXT):` | every pair of the state file as the installer read it, `state ID=value`, eight to a line, the first 128 |
-| `Modes:` | safe mode, profile, and the feet labels (`on, 13 labels changed`, or `off`) |
+| `Modes:` | safe mode and profile (feet are the Distance Unit of GRKU Settings in MENU, a saved setting) |
 
 The details are the same at each start while the card and the firmware are, so the report is rewritten only when something changed: a module, an effect, a setting, a firmware update.
 
