@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6144
+#define GRKU_HOST_HEADER_SIZE 6152
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -442,72 +442,76 @@
 /* GR IV: the queue completion flags of that shot, CROP_QUEUE_POSTED and
    CROP_QUEUE_RECOVERED. */
 #define GRKU_HOST_CROP_QUEUE_FLAGS 1080
+/* CORE.BORDER: 0 Off, 1 Thin, 2 Wide, 3 Instant (runtime/canvas.h). */
+#define GRKU_HOST_BORDER 1084
+/* CORE.BORDER_COLOR: 0 white, 1 black. */
+#define GRKU_HOST_BORDER_COLOR 1088
 /* The recipes (runtime/recipes.h): RECIPE_WORDS words for each of the
    RECIPE_SLOTS recipes. A recipe whose word 0 is 0 is empty. The resident
    loader saves each word that is not 0 in the recipe file
    (`capabilities::StateFile::Recipes`). */
-#define GRKU_HOST_RECIPES 1084
+#define GRKU_HOST_RECIPES 1092
 #define GRKU_HOST_RECIPES_WORDS 320
 /* The names of the recipes, RECIPE_NAME_WORDS words each (RECIPE_NAME_CHARS),
    right after HOST_RECIPES, which the loader saves after the recipe words. */
-#define GRKU_HOST_RECIPE_NAMES 2364
+#define GRKU_HOST_RECIPE_NAMES 2372
 #define GRKU_HOST_RECIPE_NAMES_WORDS 256
 /* The hash of the recipe library of the package that INSTALL imported last
    (runtime/install_recipes.h), after the names: the loader saves it with the
    recipes, so a package imports once. */
-#define GRKU_HOST_RECIPE_IMPORTED 3388
+#define GRKU_HOST_RECIPE_IMPORTED 3396
 /* The ID of each recipe, by slot, 1 to `runtime::RECIPE_ID_MAX`: a generated
    number, so that a recipe that the site moves to another card keeps an ID
    that no recipe of that card had. A reference to a recipe holds its ID, so
    that it stays valid when the recipes move. Each part that creates a recipe
    (the camera, INSTALL, the site) generates its ID. The loader saves the IDs
    after the import hash. */
-#define GRKU_HOST_RECIPE_IDS 3392
+#define GRKU_HOST_RECIPE_IDS 3400
 #define GRKU_HOST_RECIPE_IDS_WORDS 64
 /* What each user mode of the mode dial, U1 to U3, does
    (`runtime::RECIPE_DIAL_FOLLOW`, `RECIPE_DIAL_OFF`, or the ID of a recipe).
    An ID that no recipe has follows, as `RECIPE_DIAL_FOLLOW`. A generated ID is
    never one of these values, so a deleted recipe never gets the references of
    another. */
-#define GRKU_HOST_RECIPE_DIAL 3648
+#define GRKU_HOST_RECIPE_DIAL 3656
 #define GRKU_HOST_RECIPE_DIAL_WORDS 3
 /* The count of changes of the recipes: the loader saves the recipe file after
    it changes (GRKU_RECIPES_CHANGED). INSTALL sets 1 after an import. */
-#define GRKU_HOST_RECIPE_CHANGES 3660
+#define GRKU_HOST_RECIPE_CHANGES 3668
 /* The undo steps, the oldest first, RECIPE_WORDS words each. They are not
    saved: a start begins without them. */
-#define GRKU_HOST_RECIPE_UNDO 3664
+#define GRKU_HOST_RECIPE_UNDO 3672
 #define GRKU_HOST_RECIPE_UNDO_WORDS 25
 /* Nonzero while the mode dial is on a user mode whose settings are temporary
    (runtime/mode_dial.h): the resident loader then does not save the main state
    file, so the file keeps the settings of the other positions. The recipe file
    still saves. */
-#define GRKU_HOST_STATE_HOLD 3764
+#define GRKU_HOST_STATE_HOLD 3772
 /* The count of changes of the saved settings of the user modes
    (`HOST_DIAL_SETS`): the loader saves their file after it changes. */
-#define GRKU_HOST_DIAL_SET_CHANGES 3768
+#define GRKU_HOST_DIAL_SET_CHANGES 3776
 /* CORE.ADJ: 1 when the next ADJ should open on GRKU, 0 for a native entry.
    Survives enter clearing HOST_RETURN, and STATE.TXT keeps it across power-off
    (runtime/menu.c). */
-#define GRKU_HOST_ADJ_OPEN 3772
+#define GRKU_HOST_ADJ_OPEN 3780
 /* The settings that the camera saved in each user mode of the mode dial, U1 to
    U3, `DIAL_SET_WORDS` words each (runtime/mode_dial.h). A user mode applies
    them while it has `runtime::RECIPE_DIAL_SAVED` (`HOST_RECIPE_DIAL`). The
    resident loader saves each word that is not 0 in their file
    (`capabilities::StateFile::DialSets`), and INSTALL restores them. */
-#define GRKU_HOST_DIAL_SETS 3776
+#define GRKU_HOST_DIAL_SETS 3784
 #define GRKU_HOST_DIAL_SETS_WORDS 591
 /* The native Image Control type plus 1 when ADJ last opened, or 0 when it was
    not readable. A half-press on the native Image Control slot with another
    type selects that type, as OK does (runtime/menu.c). */
-#define GRKU_HOST_ADJ_IC_TYPE 6140
+#define GRKU_HOST_ADJ_IC_TYPE 6148
 
 /* The capabilities of the core (grku_core::capabilities): the handle of each
    CORE setting, and for each handle in order, its header word and its number
    of values. CORE.TONE has neither: its value is the active record, and the
    effects give its number of values (runtime/tone.h). */
 #define GRKU_CORE_SETTING_BASE 0x100U
-#define GRKU_CORE_SETTING_COUNT 10U
+#define GRKU_CORE_SETTING_COUNT 12U
 #define GRKU_CORE_TONE 0x100U
 #define GRKU_CORE_TONE_VALUES 0U
 #define GRKU_CORE_TONE_BIT 0x1
@@ -535,11 +539,17 @@
 #define GRKU_CORE_ADJ_MODULE 0x108U
 #define GRKU_CORE_ADJ_MODULE_VALUES 19U
 #define GRKU_CORE_ADJ_MODULE_BIT 0x100
-#define GRKU_CORE_RECIPE 0x109U
+#define GRKU_CORE_BORDER 0x109U
+#define GRKU_CORE_BORDER_VALUES 4U
+#define GRKU_CORE_BORDER_BIT 0x200
+#define GRKU_CORE_BORDER_COLOR 0x10aU
+#define GRKU_CORE_BORDER_COLOR_VALUES 2U
+#define GRKU_CORE_BORDER_COLOR_BIT 0x400
+#define GRKU_CORE_RECIPE 0x10bU
 #define GRKU_CORE_RECIPE_VALUES 0U
-#define GRKU_CORE_RECIPE_BIT 0x200
-#define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,3772,188,0
-#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,5,2,2,19,0
+#define GRKU_CORE_RECIPE_BIT 0x800
+#define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,3780,188,1084,1088,0
+#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,5,2,2,19,4,2,0
 
 /* An Image Control record. The records follow the header. */
 #define GRKU_RECORD_SIZE 0x1100
@@ -790,18 +800,22 @@
    the turns of the last shot with a known posture. Entry n is at
    GRKU_SHOT_ENTRY + GRKU_SHOT_STRIDE n and holds the key at GRKU_SHOT_KEY, the
    record at GRKU_SHOT_RECORD, the posture of the electronic level at
-   GRKU_SHOT_POSTURE, and the effective capture crop at GRKU_SHOT_FRAME_CROP
-   (runtime/processing.h). */
+   GRKU_SHOT_POSTURE, the effective capture crop at GRKU_SHOT_FRAME_CROP, and
+   the border at GRKU_SHOT_BORDER (runtime/processing.h). */
 #define GRKU_SHOT_RING 141376
 #define GRKU_SHOT_ENTRIES 8
 #define GRKU_SHOT_ENTRY 8
-#define GRKU_SHOT_STRIDE 16
+#define GRKU_SHOT_STRIDE 32
 #define GRKU_SHOT_KEY 0
 #define GRKU_SHOT_RECORD 4
 #define GRKU_SHOT_POSTURE 8
 #define GRKU_SHOT_FRAME_CROP 12
+#define GRKU_SHOT_BORDER 16
 #define GRKU_SHOT_LAST_TURNS 4
-#define GRKU_PICTURE_SCRATCH 141512
+#define GRKU_CANVAS_TABLE 141640
+#define GRKU_CANVAS_ENTRIES 4
+#define GRKU_CANVAS_ENTRY_SIZE 80
+#define GRKU_PICTURE_SCRATCH 141960
 
 /* The layout of GrkuShot (runtime/sdk/grku.h) that picture_shot fills:
    its size in bytes, the byte offset of each field, and the bits of
@@ -852,7 +866,7 @@
    GRKU_PROFILE_SLOT_SIZE bytes: calls, cycles, and the cycles of the largest
    call. The core points come first, then GRKU_PROFILE_KINDS slots for each of
    those modules. */
-#define GRKU_PROFILE 194760
+#define GRKU_PROFILE 195208
 #define GRKU_PROFILE_SIZE 500
 #define GRKU_PROFILE_MODULES 8
 #define GRKU_PROFILE_MODULE_SIZE 16
@@ -873,10 +887,10 @@
 #define GRKU_PROFILE_FILTER 1
 #define GRKU_PROFILE_CALL 2
 /* Everything after the records: the script array must hold it. */
-#define GRKU_TAIL_SIZE 199356
+#define GRKU_TAIL_SIZE 199804
 /* The own red and blue curves of the native looks with Toning: for each of
    GRKU_TONE_SLOTS slots, 256 u16 red samples, then the blue ones. */
-#define GRKU_TONE_CURVES 195260
+#define GRKU_TONE_CURVES 195708
 #define GRKU_TONE_SLOTS 4
 #define GRKU_TONE_SLOT_SIZE 1024
 #define GRKU_TEXT_SUMMARY 8192

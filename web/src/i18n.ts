@@ -413,7 +413,7 @@ const en = {
       'A vignette, dust and hairs, a light leak, and scratches on photos, each Off, Light, Medium, or Strong, or the Faded, Dusty, Leaky, and Expired presets. They fall differently on every shot. No live-view preview.',
     diffusion: 'The glow of a Black Pro-Mist diffusion filter at 1/8, 1/4, or 1/2, with an optional Black Mist veil over the shadows and a blue or amber anamorphic streak from point lights. No live-view preview.',
     grain: "Film grain from the camera's grain stage, in four strengths. Photos only.",
-    border: 'A white or black border around each photo, 3% or 6% of its width: the photo shrinks to fit inside it, and the date stays inside. Photos only.',
+    border: 'A white or black border around each photo. The photo keeps every pixel.',
     recipes: 'Save looks and settings as recipes and switch in ADJ. Add popular ones here.',
   },
   steps: [
@@ -1057,7 +1057,7 @@ const zhHans: Strings = {
       '在照片上加入暗角、灰尘与毛发、漏光和划痕，各分弱、中、强三档，也可选用褪色、灰尘、漏光、过期预设。每张照片的效果各不相同，无法实时预览。',
     diffusion: '黑柔滤镜的高光柔光，分 1/8、1/4、1/2 三档，可加黑柔雾化提亮暗部，以及点光源的蓝色或琥珀色横向拉丝光。无法实时预览。',
     grain: '相机内置的颗粒感，分弱、中、强、特强四档。仅用于照片。',
-    border: '为照片添加白色或黑色边框，宽度为照片宽度的 3% 或 6%。照片将等比缩小以完整容纳，日期保留在内。仅限照片。',
+    border: '给每张照片加上白色或黑色边框，照片本身不缩小也不裁切。',
     recipes: '把风格和白平衡等设置存成配方，在 ADJ 中一步切换。也可添加本站的热门配方。',
   },
   steps: [
@@ -1654,7 +1654,7 @@ const zhHant: Strings = {
       '在照片上加入暗角、灰塵與毛髮、漏光和刮痕，各分弱、中、強三段，也可選用褪色、灰塵、漏光、過期預設。每張照片的效果各不相同，實時顯示中無法預覽。',
     diffusion: '黑柔濾鏡的亮部柔光，分 1/8、1/4、1/2 三段，可加黑柔霧化提亮暗部，以及點光源的藍色或琥珀色橫向拉絲光。實時顯示中無法預覽。',
     grain: '相機內建的粒紋感，分弱、中、強、特強四段。僅用於照片。',
-    border: '在相片周圍加上 3% 或 6% 寬度的白邊或黑邊：影像等比縮小以容納邊框，日期亦保留在框內。僅支援相片。',
+    border: '為每張照片加上白色或黑色邊框，照片本身不縮小也不裁切。',
     recipes: '把風格和白平衡等設定存成配方，在 ADJ 中一步切換。也可加入本站的熱門配方。',
   },
   steps: [
@@ -2255,7 +2255,7 @@ const ja: Strings = {
       '周辺減光、ダストと毛、光漏れ、キズを写真に加えます。それぞれ弱・中・強の 3 段階で、退色、ダスト、光漏れ、期限切れのプリセットもあります。写り方は 1 枚ごとに変わります。ライブビューには反映されません。',
     diffusion: 'ブラックプロミストのようにハイライトをにじませます（1/8・1/4・1/2）。ブラックミストで暗部を持ち上げ、ストリークで点光源にブルーまたはアンバーの横方向のフレアを加えられます。ライブビューには反映されません。',
     grain: 'カメラ内蔵の粒状感を、弱・中・強・特強の 4 段階で加えます。静止画のみ。',
-    border: '写真の周囲に白または黒のフチを追加（幅の3%または6%）。写真は縮小配置されケラレず、日付も内側に収まります。静止画専用。',
+    border: '写真に白または黒のボーダーを付けます。写真は縮小も切り取りもしません。',
     recipes: 'ルックや WB などをレシピに保存し、ADJ で一度に切り替え。人気レシピも追加可。',
   },
   steps: [
@@ -2853,7 +2853,7 @@ const ko: Strings = {
       '사진에 비네팅, 먼지와 털, 빛샘, 스크래치를 더합니다. 각각 약, 중, 강 3단계이며, 빛바램, 먼지, 빛샘, 만료 프리셋도 있습니다. 사진마다 다르게 나타나고, 라이브 뷰에서는 미리 볼 수 없습니다.',
     diffusion: '블랙 프로미스트 필터처럼 하이라이트를 번지게 합니다(1/8, 1/4, 1/2). 블랙 미스트로 어두운 부분을 띄우고, 스트릭으로 점광원에 블루 또는 앰버의 가로 플레어를 더할 수 있습니다. 라이브 뷰에서는 미리 볼 수 없습니다.',
     grain: '카메라 자체의 입자감을 약, 중, 강, 매우 강 4단계로 더합니다. 사진에만 적용됩니다.',
-    border: '사진 둘레에 가로 폭의 3% 또는 6% 크기로 흰색 또는 검은색 테두리를 추가합니다. 사진이 축소되어 테두리 안에 들어가며 날짜도 테두리 안에 유지됩니다. 사진 전용.',
+    border: '사진에 흰색 또는 검은색 테두리를 넣습니다. 사진은 줄이거나 자르지 않습니다.',
     recipes: '룩과 화이트 밸런스 등을 레시피로 저장해 ADJ에서 바로 전환. 인기 레시피도 추가.',
   },
   steps: [

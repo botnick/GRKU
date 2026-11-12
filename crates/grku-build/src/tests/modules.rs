@@ -344,21 +344,6 @@ fn glow_stays_within_stack_budget() -> Result<()> {
     Ok(())
 }
 
-/// Border runs beneath the firmware JPEG encoder too, after Date (print stage):
-/// its scale rows stay in picture scratch, and its frames stay within the
-/// budget of Glow. Its largest frames were about 136 bytes on 2026-11-12.
-#[test]
-#[ignore = "Requires ARM-capable Clang and LLD; run with --ignored"]
-fn border_stays_within_stack_budget() -> Result<()> {
-    for (function, bytes) in stack_frames("border", "border.c")? {
-        assert!(
-            bytes <= 640,
-            "Border stack frame exceeds budget: {function} {bytes}"
-        );
-    }
-    Ok(())
-}
-
 /// A module that needs a compiler helper does not build, because the core does
 /// not export it.
 #[test]

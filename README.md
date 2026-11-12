@@ -30,7 +30,7 @@ Press the ADJ lever while shooting and pick the sixth entry, GRKU. Everything GR
 - **Light Leak**: vignette, dust and hairs, a light leak, scratches, or the presets Faded, Dusty, Leaky and Expired. Different on every shot.
 - **Diffusion**: a Black Pro-Mist filter at 1/8, 1/4 or 1/2, a Black Mist veil over the shadows, and the anamorphic streak of point lights.
 - **Grain**: four strengths, four sizes.
-- **Border**: a white or black border around the photo, 3% or 6% of the width; the photo shrinks to fit inside it, so nothing is cut, and the date stays inside, as on a print.
+- **Border**: a Thin, Wide, or Instant white or black border around the whole photo: the JPEG grows by the border and the photo keeps every pixel.
 - **Enable at Start**: GRKU on, off, or as you left it, at every power-on.
 - **Distance Unit**: the Snap focus distances and the manual focus scale in meters or in feet, in MENU under GRKU Settings.
 

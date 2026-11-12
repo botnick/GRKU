@@ -18,7 +18,7 @@
 #define GRM_MAX_SEGMENT 0x10000U
 /* The ABI of the core (runtime/sdk/grku.h). */
 #define GRM_ABI_MAJOR 2U
-#define GRM_ABI_MINOR 7U
+#define GRM_ABI_MINOR 8U
 #define GRM_POINT_OVERLAY_LAYER 1U
 #define GRM_POINT_MENU_PAGE 2U
 #define GRM_POINT_PICTURE_PLANE 3U
@@ -54,7 +54,6 @@
 /* The stages of plane filters (runtime/sdk/grku.h). */
 #define GRM_STAGE_FRAME 20U
 #define GRM_STAGE_MARK 30U
-#define GRM_STAGE_PRINT 40U
 /* The most registrations that one descriptor gives. */
 #define GRM_REGISTRATIONS 16U
 /* The descriptor: size, ABI, registrations and their count, settings and

@@ -126,9 +126,10 @@ pub const RECIPE_DIAL_POSITIONS: usize = 3;
 /// follows at `DIAL_SET_CORE`, in the order of `capabilities::CAPABILITIES`:
 /// the effect as `DIAL_SET_EFFECT` with the recipe code of its ID
 /// (`recipes::effect_code`), or 0 for Off, and the value of each other one,
-/// then a word that stays 0. A set does not hold the later capabilities:
-/// CORE.ADJ and CORE.ADJ_MODULE say where ADJ opens, which a user mode does
-/// not change, and CORE.RECIPE has no value. Then the Fn adjustments of the effect
+/// then the border word (runtime/mode_dial.h: DIAL_BORDER_HELD | CORE.BORDER
+/// | CORE.BORDER_COLOR << 8, or 0 in a set without a border). A set holds no
+/// other later capability: CORE.ADJ and CORE.ADJ_MODULE say where ADJ opens,
+/// which a user mode does not change, and CORE.RECIPE has no value. Then the Fn adjustments of the effect
 /// (`DIAL_SET_FN`, base-9 digits as a recipe holds them) and its Toning byte
 /// (`DIAL_SET_TONING`), and from `DIAL_SET_PAIR` the pairs of a state file ID
 /// of a setting and its value: the saved module settings, the Enable of each
@@ -144,8 +145,8 @@ pub const DIAL_SET_COUNT: usize = 0;
 pub const DIAL_SET_CORE: usize = 1;
 /// The capabilities that a set holds: CORE.TONE to CORE.CROP_MODE.
 pub const DIAL_SET_CAPABILITIES: usize = 7;
-/// The word after them is the word of CORE.RECIPE in the sets of GRKU 1.6
-/// and 1.7, which is 0. The layout of a set, and so of `USERMODE.TXT`, does
+/// The word after them, the border word, is the word of CORE.RECIPE in the
+/// sets of GRKU 1.6 and 1.7, which is 0 there. The layout of a set, and so of `USERMODE.TXT`, does
 /// not change with the capabilities.
 pub const DIAL_SET_FN: usize = DIAL_SET_CORE + DIAL_SET_CAPABILITIES + 1;
 pub const DIAL_SET_TONING: usize = DIAL_SET_FN + 1;
@@ -435,6 +436,10 @@ packed_fields!(HEADER_FIELDS, HOST_HEADER_SIZE {
     /// GR IV: the queue completion flags of that shot, CROP_QUEUE_POSTED and
     /// CROP_QUEUE_RECOVERED.
     HOST_CROP_QUEUE_FLAGS: 4;
+    /// CORE.BORDER: 0 Off, 1 Thin, 2 Wide, 3 Instant (runtime/canvas.h).
+    HOST_BORDER: 4;
+    /// CORE.BORDER_COLOR: 0 white, 1 black.
+    HOST_BORDER_COLOR: 4;
     /// The recipes (runtime/recipes.h): RECIPE_WORDS words for each of the
     /// RECIPE_SLOTS recipes. A recipe whose word 0 is 0 is empty. The resident
     /// loader saves each word that is not 0 in the recipe file
@@ -711,15 +716,18 @@ pub const SHOT_ENTRIES: usize = 8;
 /// The shot ring: a write count, the turns of the last shot with a known
 /// posture (`SHOT_LAST_TURNS`), then entry n at `SHOT_ENTRY + SHOT_STRIDE * n`,
 /// which holds the key at `SHOT_KEY`, the record at `SHOT_RECORD`, the
-/// posture of the electronic level at `SHOT_POSTURE`, and the effective
-/// capture crop at `SHOT_FRAME_CROP`.
+/// posture of the electronic level at `SHOT_POSTURE`, the effective
+/// capture crop at `SHOT_FRAME_CROP`, and the border at `SHOT_BORDER`
+/// (CORE.BORDER, and CORE.BORDER_COLOR in bits 8 to 15). The other words of
+/// an entry are reserved.
 pub const SHOT_LAST_TURNS: usize = 4;
 pub const SHOT_ENTRY: usize = 8;
-pub const SHOT_STRIDE: usize = 16;
+pub const SHOT_STRIDE: usize = 32;
 pub const SHOT_KEY: usize = 0;
 pub const SHOT_RECORD: usize = 4;
 pub const SHOT_POSTURE: usize = 8;
 pub const SHOT_FRAME_CROP: usize = 12;
+pub const SHOT_BORDER: usize = 16;
 /// The layout of `GrkuShot` (runtime/sdk/grku.h) that picture_shot fills:
 /// its size in bytes, then the byte offset of each field, then the bits of
 /// `known`. runtime/picture.c writes these offsets, and
@@ -751,8 +759,15 @@ pub const SHOT_INFO: [(&str, usize); 25] = [
     ("KNOWN_METERING", 0x40),
     ("KNOWN_ALL", 0x7f),
 ];
-/// The picture scratch after the records: the masks, then the shot ring.
-pub const PICTURE_SCRATCH: usize = PICTURE_MASKS + SHOT_ENTRY + SHOT_STRIDE * SHOT_ENTRIES;
+/// The canvas table after the shot ring (runtime/canvas_shot.h): an entry of
+/// `CANVAS_ENTRY_SIZE` bytes for each developed picture with a border that
+/// is not encoded yet. Continuous shooting develops into banks in turn.
+pub const CANVAS_TABLE: usize = PICTURE_MASKS + SHOT_ENTRY + SHOT_STRIDE * SHOT_ENTRIES;
+pub const CANVAS_ENTRIES: usize = 4;
+pub const CANVAS_ENTRY_SIZE: usize = 80;
+/// The picture scratch after the records: the masks, the shot ring, then the
+/// canvas table.
+pub const PICTURE_SCRATCH: usize = CANVAS_TABLE + CANVAS_ENTRIES * CANVAS_ENTRY_SIZE;
 /// Bytes of the live-view labels after the menu text (`artwork::overlay_labels`).
 pub const LABELS_SIZE: usize = 28672;
 /// The profile table after the labels (runtime/profile.h): for each of the
@@ -1396,8 +1411,9 @@ pub fn header() -> String {
          (GRKU_SHOT_LAST_TURNS) holds the turns of the last shot with a known posture. \
          Entry n is at GRKU_SHOT_ENTRY + GRKU_SHOT_STRIDE n and holds the key at \
          GRKU_SHOT_KEY, the record at GRKU_SHOT_RECORD, the posture of the \
-         electronic level at GRKU_SHOT_POSTURE, and the effective capture crop \
-         at GRKU_SHOT_FRAME_CROP (runtime/processing.h).",
+         electronic level at GRKU_SHOT_POSTURE, the effective capture crop \
+         at GRKU_SHOT_FRAME_CROP, and the border at GRKU_SHOT_BORDER \
+         (runtime/processing.h).",
         "SHOT_RING",
         PICTURE_MASKS,
     );
@@ -1409,9 +1425,17 @@ pub fn header() -> String {
         ("RECORD", SHOT_RECORD),
         ("POSTURE", SHOT_POSTURE),
         ("FRAME_CROP", SHOT_FRAME_CROP),
+        ("BORDER", SHOT_BORDER),
         ("LAST_TURNS", SHOT_LAST_TURNS),
     ] {
         writeln!(out, "#define GRKU_SHOT_{name} {value}").unwrap();
+    }
+    for (name, value) in [
+        ("TABLE", CANVAS_TABLE),
+        ("ENTRIES", CANVAS_ENTRIES),
+        ("ENTRY_SIZE", CANVAS_ENTRY_SIZE),
+    ] {
+        writeln!(out, "#define GRKU_CANVAS_{name} {value}").unwrap();
     }
     writeln!(out, "#define GRKU_PICTURE_SCRATCH {PICTURE_SCRATCH}").unwrap();
     out.push('\n');

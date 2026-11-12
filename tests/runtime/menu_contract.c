@@ -4114,10 +4114,11 @@ static void the_mode_dial_saves_the_settings_in_a_user_mode(void)
     assert(set[GRKU_DIAL_SET_FN] == DIAL_FN && set[GRKU_DIAL_SET_TONING] == 3);
     assert(set[GRKU_DIAL_SET_CORE + 1] == 1 && set[GRKU_DIAL_SET_CORE + 2] == 4 && set[GRKU_DIAL_SET_CORE + 3] == 2);
     /* The layout of a set is that of GRKU 1.6, whose USERMODE.TXT a card may
-       hold: seven capabilities, a word that stays 0, then Fn and Toning. A
-       set does not hold where ADJ opens (CORE.ADJ, CORE.ADJ_MODULE). */
+       hold: seven capabilities, the border word (0 in GRKU 1.6 to 1.8.4),
+       then Fn and Toning. A set does not hold where ADJ opens (CORE.ADJ,
+       CORE.ADJ_MODULE). */
     assert(GRKU_DIAL_SET_CAPABILITIES == 7 && GRKU_DIAL_SET_FN == 9 && GRKU_DIAL_SET_WORDS == 197);
-    assert(!set[GRKU_DIAL_SET_CORE + GRKU_DIAL_SET_CAPABILITIES]);
+    assert(set[GRKU_DIAL_SET_CORE + GRKU_DIAL_SET_CAPABILITIES] == DIAL_BORDER_HELD);
     /* The dial is at P: nothing applies. U2 now lists Saved Settings, with
        the mark on it, before the recipes. */
     assert(!h[GRKU_HOST_STATE_HOLD / 4] && !services_word(h, SERVICES_DIAL + DIAL_ACTIVE)[0]);
@@ -4151,6 +4152,41 @@ static void the_mode_dial_saves_the_settings_in_a_user_mode(void)
     assert(!dial_has_set(h, 2) && same(dial->value_text(h, 1), "U2: None"));
     set[GRKU_DIAL_SET_COUNT] = 0;
     assert(same(dial->value_text(h, 1), "U2: None"));
+}
+
+/* A user mode keeps the border and its color in the border word of its set,
+   and P puts the border of the base state back. A set of an earlier GRKU has
+   0 there: its user mode keeps the border that the camera has. */
+static void the_mode_dial_keeps_the_border(void)
+{
+    volatile u32 *h = test_header, *set = dial_set_of(2);
+    const Setting *dial = &recipe_menu_settings[1];
+    dial_saved_reset();
+    dial_saved_settings();
+    setting_store(h, GRKU_CORE_BORDER, 3);
+    setting_store(h, GRKU_CORE_BORDER_COLOR, 1);
+    assert(dial->select(h, 0, 1) && dial->select(h, 0, DIAL_VALUE_SAVE));
+    assert(set[GRKU_DIAL_SET_CORE + GRKU_DIAL_SET_CAPABILITIES] == (DIAL_BORDER_HELD | 3 | 1 << 8));
+    setting_store(h, GRKU_CORE_BORDER, 0);
+    setting_store(h, GRKU_CORE_BORDER_COLOR, 0);
+    dial_saved_base();
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(dial_saved_applies() && h[GRKU_HOST_BORDER / 4] == 3 && h[GRKU_HOST_BORDER_COLOR / 4] == 1);
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(dial_base() && !h[GRKU_HOST_BORDER / 4] && !h[GRKU_HOST_BORDER_COLOR / 4]);
+    /* The set of an earlier GRKU: the border stays as it is. */
+    set[GRKU_DIAL_SET_CORE + GRKU_DIAL_SET_CAPABILITIES] = 0;
+    setting_store(h, GRKU_CORE_BORDER, 2);
+    dial_to(DIAL_U(2));
+    dial_fire();
+    assert(dial_saved_applies() && h[GRKU_HOST_BORDER / 4] == 2 && !h[GRKU_HOST_BORDER_COLOR / 4]);
+    dial_to(DIAL_P);
+    dial_fire();
+    assert(h[GRKU_HOST_BORDER / 4] == 2);
+    setting_store(h, GRKU_CORE_BORDER, 0);
+    dial_saved_base();
 }
 
 static void the_mode_dial_applies_saved_settings_and_restores_the_base(void)
@@ -4793,6 +4829,7 @@ int main(void)
     the_mode_dial_page_sets_what_each_user_mode_does();
     the_mode_dial_saves_the_settings_in_a_user_mode();
     the_mode_dial_applies_saved_settings_and_restores_the_base();
+    the_mode_dial_keeps_the_border();
     saved_settings_skip_what_the_camera_does_not_have();
     the_mode_dial_labels_what_a_user_mode_applies();
     the_label_of_the_mode_dial_follows_the_live_view();
