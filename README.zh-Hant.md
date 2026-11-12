@@ -23,7 +23,7 @@ GRKU 是一個獨立專案，由 [BOTNICK](https://github.com/botnick) 先為泰
 
 - **Film Look**：145 種真實底片風格，記憶卡中一次可存放 40 種。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 與 Rollei，再加上 GRKU 仿照 GR II 正片風格自製的 Positive GRII 風格，以及 FUJIFILM 相機的十種免費底片模擬，從 Provia、Classic Chrome 到 Acros。每種風格都有採用真實底片盒配色的底片盒圖示。按下 Fn 可微調風格；也可以在網站上匯入自己的 LUT。
 - **Recipes**：將整套相機風格命名儲存，或從網站載入熱門配方，即可一次切換 Film Look 或 Image Control、顆粒、光暈、白平衡、校正與曝光，並支援還原。模式轉盤上的 U1、U2 與 U3 都能存放配方。
-- **Framing**：XPan、2.35:1、16:9、4:3、5:4、7:6 與 1:1，可裁切 JPEG，也可僅顯示框線。**Crop**：35、40、50、70 或 90 mm，具備即時預覽。
+- **Framing**：XPan、2.35:1、16:9、4:3、5:4、7:6 與 1:1，可裁切 JPEG，也可僅顯示框線。**Crop**：35、40、50 或 70 mm，具備即時預覽。
 - **Guides**：三分法、中心、黃金分割、對角線、黃金螺旋、動態對稱。
 - **Date Imprint**：在照片上印日期，有經典、GR1s 點陣或 GR II 三種樣式。
 - **Glow**：柔光讓燈光和高光向周圍擴散，底片光暈則呈現電影底片配色的橙紅色光暈。

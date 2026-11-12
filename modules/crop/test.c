@@ -12,10 +12,11 @@ static int inside(const u16 *box, u32 x, u32 y) { return x >= box[0] && x < box[
 int main(void)
 {
     /* The descriptor: MASK, the uses CORE.CROP and CORE.CROP_MODE, a page
-       of CORE.CROP with its settings rows, and the mask layer. */
+       of CORE.CROP with its settings rows, and the mask layer. The tiles:
+       the module, the four crops, and the four crops of GR IIIx. */
     assert(grku_module.setting_count == 1 && grku_module.use_count == 2);
     assert(SETTING_MASK == GRKU_SETTING(0));
-    assert(grku_module.registration_count == 2 && grku_module.tile_count == 6);
+    assert(grku_module.registration_count == 2 && grku_module.tile_count == 9);
     /* Dark covers each pixel outside the frame at 50%, and no other. */
     {
         Surface s = grku_test_surface(frame50);

@@ -132,8 +132,8 @@ static const u8 modules_off_pixels[] __attribute__((aligned(4))) = { /* 6400 val
 static const u8 rotate_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 8a5f3688e3432fc4c20d670e4b092cf937baf93ebd9db2e934d4e3ce63ae2d56 */ };
 #define MENU_TEXT_BYTES 5576U
 static const u8 menu_text[] __attribute__((aligned(4))) = { /* 5576 values, SHA-256 7d369821dd7b8a70c07f280caebeae4201c489bab5d3c4146d5f98dbd44f0f1e */ };
-#define LABELS_BYTES 27616U
-static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 27616 values, SHA-256 f3e690930ea0308815f90fcf2b04ab74f58078706dfbf410b82154eec43bf681 */ };
+#define LABELS_BYTES 25160U
+static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 25160 values, SHA-256 f5255dd063b5dbc8c5624b79d4b73bcac2ac3cd6876c3383c89fd1609771a3d5 */ };
 static const u8 stock_tables[] __attribute__((aligned(4))) = { /* 312 values, SHA-256 43c6a333770e97d39d0749933c4cc8fd3d39ab51233e06eaefe7dda15bae5cb6 */ };
 static const u32 code_relocations[] = {0x0,0x0};
 static const u8 before_0[] __attribute__((aligned(4))) = {0,0,0,0,0,0,0,0};

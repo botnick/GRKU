@@ -23,7 +23,7 @@ GRKU 是一个独立项目，由 [BOTNICK](https://github.com/botnick) 首先为
 
 - **Film Look**：145 种真实胶片风格，卡上一次最多 40 种。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 和 Rollei，以及源自 GR II 正片（Positive Film）的 GRKU 专属 Positive GRII 风格，还有富士相机的十款胶片模拟（从 Provia、Classic Chrome 到 Acros，均可免费使用）。每种风格都有采用真实胶卷盒配色的胶片盒图标。按 Fn 键可调整风格；也可以在网站上导入自己的 LUT。
 - **Recipes**：将相机的整套风格以名称保存，或从网站载入热门配方，然后一键切换 Film Look 或 Image Control、颗粒、光晕、白平衡、校正与曝光，并支持撤销。模式转盘上的 U1、U2 和 U3 均可存储一个配方。
-- **Framing**：XPan、2.35:1、16:9、4:3、5:4、7:6 和 1:1，可直接裁切 JPEG，也可仅显示框线。**Crop**：35、40、50、70 或 90 mm，带有实时取景。
+- **Framing**：XPan、2.35:1、16:9、4:3、5:4、7:6 和 1:1，可直接裁切 JPEG，也可仅显示框线。**Crop**：35、40、50 或 70 mm，带有实时取景。
 - **Guides**：三分法、中心、黄金分割、对角线、黄金螺旋、动态对称。
 - **Date Imprint**：在照片上印日期，有经典、GR1s 点阵或 GR II 样式。
 - **Glow**：灯光和高光周围的柔光（Bloom），以及模拟电影胶片配色的橙红色光晕（Halation）。

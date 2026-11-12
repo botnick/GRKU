@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6124
+#define GRKU_HOST_HEADER_SIZE 6144
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -418,74 +418,89 @@
    while the camera keeps its own (runtime/crop.h). */
 #define GRKU_HOST_CROP_NATIVE 1048
 /* The crop factor of the next shot, as float bits, where it is longer than the
-   native factor of the live view (40, 70, and 90 mm), or 0. */
+   native factor of the camera (40 and 70 mm), or 0. */
 #define GRKU_HOST_CROP_SHOT 1052
+/* The crop factor that the live view shows in place of the camera's, as float
+   bits, or 0 for the camera's own (runtime/framing.S: crop_live). */
+#define GRKU_HOST_CROP_LIVE 1056
+/* The zoom of GRKU_HOST_CROP_LIVE (the factor times 8192), or 0, and the zoom
+   of the camera's crop factor that the core set: the live-view window takes
+   the first in place of the second (runtime/framing.S: crop_window). */
+#define GRKU_HOST_CROP_LIVE_ZOOM 1060
+#define GRKU_HOST_CROP_CAMERA_ZOOM 1064
+/* The zoom of the last live-view window of a crop (the factor times 8192), or
+   0 before one (runtime/framing.S: crop_window). */
+#define GRKU_HOST_CROP_LIVE_SEEN 1068
+/* The tries to make the live view read its factor again: the count in the high
+   byte, and the second of the last try plus 1 below it (runtime/crop.h:
+   crop_live_retry). */
+#define GRKU_HOST_CROP_LIVE_RETRY 1072
 /* GR IV: the back end of the last shot, whose queue completion the core can
    post when a crop shot finishes before the shutter release stops
    (runtime/crop_queue.S). */
-#define GRKU_HOST_CROP_QUEUE_OWNER 1056
+#define GRKU_HOST_CROP_QUEUE_OWNER 1076
 /* GR IV: the queue completion flags of that shot, CROP_QUEUE_POSTED and
    CROP_QUEUE_RECOVERED. */
-#define GRKU_HOST_CROP_QUEUE_FLAGS 1060
+#define GRKU_HOST_CROP_QUEUE_FLAGS 1080
 /* The recipes (runtime/recipes.h): RECIPE_WORDS words for each of the
    RECIPE_SLOTS recipes. A recipe whose word 0 is 0 is empty. The resident
    loader saves each word that is not 0 in the recipe file
    (`capabilities::StateFile::Recipes`). */
-#define GRKU_HOST_RECIPES 1064
+#define GRKU_HOST_RECIPES 1084
 #define GRKU_HOST_RECIPES_WORDS 320
 /* The names of the recipes, RECIPE_NAME_WORDS words each (RECIPE_NAME_CHARS),
    right after HOST_RECIPES, which the loader saves after the recipe words. */
-#define GRKU_HOST_RECIPE_NAMES 2344
+#define GRKU_HOST_RECIPE_NAMES 2364
 #define GRKU_HOST_RECIPE_NAMES_WORDS 256
 /* The hash of the recipe library of the package that INSTALL imported last
    (runtime/install_recipes.h), after the names: the loader saves it with the
    recipes, so a package imports once. */
-#define GRKU_HOST_RECIPE_IMPORTED 3368
+#define GRKU_HOST_RECIPE_IMPORTED 3388
 /* The ID of each recipe, by slot, 1 to `runtime::RECIPE_ID_MAX`: a generated
    number, so that a recipe that the site moves to another card keeps an ID
    that no recipe of that card had. A reference to a recipe holds its ID, so
    that it stays valid when the recipes move. Each part that creates a recipe
    (the camera, INSTALL, the site) generates its ID. The loader saves the IDs
    after the import hash. */
-#define GRKU_HOST_RECIPE_IDS 3372
+#define GRKU_HOST_RECIPE_IDS 3392
 #define GRKU_HOST_RECIPE_IDS_WORDS 64
 /* What each user mode of the mode dial, U1 to U3, does
    (`runtime::RECIPE_DIAL_FOLLOW`, `RECIPE_DIAL_OFF`, or the ID of a recipe).
    An ID that no recipe has follows, as `RECIPE_DIAL_FOLLOW`. A generated ID is
    never one of these values, so a deleted recipe never gets the references of
    another. */
-#define GRKU_HOST_RECIPE_DIAL 3628
+#define GRKU_HOST_RECIPE_DIAL 3648
 #define GRKU_HOST_RECIPE_DIAL_WORDS 3
 /* The count of changes of the recipes: the loader saves the recipe file after
    it changes (GRKU_RECIPES_CHANGED). INSTALL sets 1 after an import. */
-#define GRKU_HOST_RECIPE_CHANGES 3640
+#define GRKU_HOST_RECIPE_CHANGES 3660
 /* The undo steps, the oldest first, RECIPE_WORDS words each. They are not
    saved: a start begins without them. */
-#define GRKU_HOST_RECIPE_UNDO 3644
+#define GRKU_HOST_RECIPE_UNDO 3664
 #define GRKU_HOST_RECIPE_UNDO_WORDS 25
 /* Nonzero while the mode dial is on a user mode whose settings are temporary
    (runtime/mode_dial.h): the resident loader then does not save the main state
    file, so the file keeps the settings of the other positions. The recipe file
    still saves. */
-#define GRKU_HOST_STATE_HOLD 3744
+#define GRKU_HOST_STATE_HOLD 3764
 /* The count of changes of the saved settings of the user modes
    (`HOST_DIAL_SETS`): the loader saves their file after it changes. */
-#define GRKU_HOST_DIAL_SET_CHANGES 3748
+#define GRKU_HOST_DIAL_SET_CHANGES 3768
 /* CORE.ADJ: 1 when the next ADJ should open on GRKU, 0 for a native entry.
    Survives enter clearing HOST_RETURN, and STATE.TXT keeps it across power-off
    (runtime/menu.c). */
-#define GRKU_HOST_ADJ_OPEN 3752
+#define GRKU_HOST_ADJ_OPEN 3772
 /* The settings that the camera saved in each user mode of the mode dial, U1 to
    U3, `DIAL_SET_WORDS` words each (runtime/mode_dial.h). A user mode applies
    them while it has `runtime::RECIPE_DIAL_SAVED` (`HOST_RECIPE_DIAL`). The
    resident loader saves each word that is not 0 in their file
    (`capabilities::StateFile::DialSets`), and INSTALL restores them. */
-#define GRKU_HOST_DIAL_SETS 3756
+#define GRKU_HOST_DIAL_SETS 3776
 #define GRKU_HOST_DIAL_SETS_WORDS 591
 /* The native Image Control type plus 1 when ADJ last opened, or 0 when it was
    not readable. A half-press on the native Image Control slot with another
    type selects that type, as OK does (runtime/menu.c). */
-#define GRKU_HOST_ADJ_IC_TYPE 6120
+#define GRKU_HOST_ADJ_IC_TYPE 6140
 
 /* The capabilities of the core (grku_core::capabilities): the handle of each
    CORE setting, and for each handle in order, its header word and its number
@@ -509,7 +524,7 @@
 #define GRKU_CORE_ASPECT_MODE_VALUES 2U
 #define GRKU_CORE_ASPECT_MODE_BIT 0x10
 #define GRKU_CORE_CROP 0x105U
-#define GRKU_CORE_CROP_VALUES 6U
+#define GRKU_CORE_CROP_VALUES 5U
 #define GRKU_CORE_CROP_BIT 0x20
 #define GRKU_CORE_CROP_MODE 0x106U
 #define GRKU_CORE_CROP_MODE_VALUES 2U
@@ -523,8 +538,8 @@
 #define GRKU_CORE_RECIPE 0x109U
 #define GRKU_CORE_RECIPE_VALUES 0U
 #define GRKU_CORE_RECIPE_BIT 0x200
-#define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,3752,188,0
-#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,6,2,2,19,0
+#define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,3772,188,0
+#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,5,2,2,19,0
 
 /* An Image Control record. The records follow the header. */
 #define GRKU_RECORD_SIZE 0x1100
@@ -881,7 +896,7 @@
 #define GRKU_TEXT_RECORDS 40
 #define GRKU_TEXT(h) ((h)[GRKU_HOST_TAIL/4]+GRKU_PICTURE_SCRATCH)
 #define GRKU_LABELS(h) (GRKU_TEXT(h)+GRKU_TEXT_SIZE)
-#define GRKU_LABEL_COUNT 20
+#define GRKU_LABEL_COUNT 18
 #define GRKU_MODULE_LABEL_COUNT 14
 /* String IDs of the label table, in grku_core::menu_text order. A run of IDs
    follows the rows or values that it names. */
