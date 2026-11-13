@@ -49,10 +49,11 @@ typedef unsigned int u32;
 #define POINT_VIEWFINDER_OVERLAY 0x4U
 #define POINT_MENU_PAGE 0x1U
 #define POINT_PICTURE_ENCODE 0x10U
+#define POINT_MODE_DIAL 0x100U
 static const char *const core_setting_names[] = {"CORE.TONE", "CORE.ASPECT", "CORE.GRAIN", "CORE.GRAIN_SIZE", "CORE.ASPECT_MODE",
                                                  "CORE.CROP", "CORE.CROP_MODE", "CORE.ADJ", "CORE.ADJ_MODULE",
                                                  "CORE.BORDER", "CORE.BORDER_COLOR", "CORE.RECIPE"};
-static const u32 core_setting_points[] = {0x12, 0xc, 0x20, 0x40, 0xc, 0x84, 0x84, 0x0, 0x0, 0x210, 0x210, 0x104};
+static const u32 core_setting_points[] = {0x12, 0xc, 0x20, 0x40, 0xc, 0x84, 0x84, 0x0, 0x0, 0x210, 0x210, 0x0};
 /* The tail of the core, and its one export, overlay_label. */
 #define TAIL 0x54000000U
 #define TAIL_SYMBOL 0U
@@ -995,20 +996,21 @@ static void the_switch_stops_each_module(void)
     assert(!all_off && word(services_block + SERVICES_SUSPENDED) == 1);
     assert(capabilities_running == 1U << (GRKU_CORE_ASPECT - GRKU_CORE_SETTING_BASE));
 }
-/* The mode dial belongs to CORE.RECIPE: a module that uses it needs the
-   hook of the dial also when it loads stopped, by its own Enable or by the
-   switch, so the dial can turn GRKU on (runtime/mode_dial.h). INSTALL
-   writes the entry of the menu for SYSTEM_READY, which applies a user mode
-   of the dial at a start. */
-static void a_stopped_recipes_module_keeps_the_dial(void)
+/* The mode dial belongs to the core: its hook and the shooting screen
+   install with any listed module, also one that loads stopped, by its own
+   Enable or by the switch, and without a module that uses CORE.RECIPE
+   (runtime/mode_dial.h). INSTALL writes the entry of the menu for
+   SYSTEM_READY, where the dial lands at a start. */
+static void the_dial_installs_with_the_core(void)
 {
     reset();
-    add_module(PACKAGE_MODULES_PATH, "RECIPES.GRM", &(struct spec){.id = "RECIPES", .order = 1, .uses = {"CORE.RECIPE"}});
-    const u32 pairs[] = {id_of("CORE.OFF"), 1, id_of("CORE.OFF.RECIPES"), 1};
+    add_module(PACKAGE_MODULES_PATH, "GUIDES.GRM", &(struct spec){.id = "GUIDES", .order = 1});
+    const u32 pairs[] = {id_of("CORE.OFF"), 1, id_of("CORE.OFF.GUIDES"), 1};
     save_state(pairs, 2);
     assert(install() == 0 && all_off && module_status[0] == 0);
     assert(word(services_block + SERVICES_SUSPENDED) == 1);
-    assert((needed_points & core_setting_points[7]) == core_setting_points[7]);
+    assert((needed_points & (POINT_MODE_DIAL | POINT_VIEWFINDER_OVERLAY)) == (POINT_MODE_DIAL | POINT_VIEWFINDER_OVERLAY));
+    assert(!core_setting_points[GRKU_CORE_RECIPE - GRKU_CORE_SETTING_BASE]);
     assert(word(services_block + SERVICES_CORE_VIEWFINDER) == TAIL + CORE_VIEWFINDER);
 }
 /* Enable at Start decides the switch at each start. `pairs` is STATE.TXT,
@@ -1056,6 +1058,68 @@ static void enable_at_start_decides_the_switch(void)
     start_with((const u32[]){off, 0, start, MANAGE_START_KEEP}, 2, 0, MANAGE_START_KEEP);
     /* A value out of range is no value: the default of a saved file. */
     start_with((const u32[]){off, 1, start, MANAGE_START_VALUES}, 2, 1, MANAGE_START_KEEP);
+}
+/* The copy of the switch, Enable at Start, and Distance Unit in the file
+   of the user modes (runtime/install_recipes.h: read_manage_copy) decides
+   them before STATE.TXT, which the core holds on a user mode with a
+   snapshot. `pairs` is STATE.TXT, and `usermode` the file of the user modes
+   or 0. The switch of the start, Enable at Start, and Distance Unit, as
+   apply_state restores them, and the copy that INSTALL writes into the
+   header (install_manage_copy), which moves no count of changes. */
+static void start_with_copy(const u32 *pairs, u32 n, const char *usermode, const char *path, u32 off, u32 start,
+                            u32 unit)
+{
+    const u32 header = MEMORY_BASE + 0xc0000U;
+    reset();
+    add_module(PACKAGE_MODULES_PATH, "FIRST.GRM", &(struct spec){.id = "FIRST", .order = 1, .uses = {"CORE.ASPECT"}});
+    save_state(pairs, n);
+    if (usermode) add_text(path, usermode);
+    assert(install() == 0);
+    assert(all_off == off && start_choice == start && word(services_block + SERVICES_SUSPENDED) == off);
+    u32 handle = word(module_list + MANAGE_SWITCH) - 1, unit_handle = word(module_list + MANAGE_UNIT) - 1;
+    expect_setting(handle, id_of("CORE.OFF"), off, 2);
+    expect_setting(handle + 1, id_of("CORE.START"), start, MANAGE_START_VALUES);
+    assert(state_setting_value(&saved_state, id_of("CORE.OFF"), 0, 2) == off);
+    assert(state_setting_value(&saved_state, id_of("CORE.UNIT"), 0, MANAGE_UNIT_VALUES) == unit);
+    /* apply_state (installer.c) restores Distance Unit into the table. */
+    store(ARRAY_AT + 4 * SETTINGS_ENTRY(unit_handle) + 4, unit);
+    for (u32 k = 0; k < GRKU_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    install_dial_sets(header);
+    install_manage_copy(header, ARRAY_AT);
+    assert(word(header + GRKU_HOST_MANAGE_COPY + 4 * GRKU_MANAGE_COPY_SWITCH) == off + 1 &&
+           word(header + GRKU_HOST_MANAGE_COPY + 4 * GRKU_MANAGE_COPY_START) == start + 1 &&
+           word(header + GRKU_HOST_MANAGE_COPY + 4 * GRKU_MANAGE_COPY_UNIT) == unit + 1);
+    assert(!word(header + GRKU_HOST_DIAL_SET_CHANGES));
+}
+static void the_copy_in_the_file_of_the_user_modes_decides_the_switch(void)
+{
+    const u32 off = id_of("CORE.OFF"), start = id_of("CORE.START"), unit = id_of("CORE.UNIT");
+    const u32 keep_off[] = {off, 1, start, MANAGE_START_KEEP, unit, MANAGE_UNIT_METERS};
+    char text[256];
+    /* The switch Off on P with Keep Last, then On on a user mode with a
+       snapshot, and Feet: STATE.TXT kept Off and Meters, the copy has On,
+       Keep Last, and Feet. The copy decides: GRKU starts On. */
+    snprintf(text, sizeof text, "%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n", GRKU_MANAGE_COPY_KEY + GRKU_MANAGE_COPY_SWITCH, 1U,
+             GRKU_MANAGE_COPY_KEY + GRKU_MANAGE_COPY_START, MANAGE_START_KEEP + 1, GRKU_MANAGE_COPY_KEY + GRKU_MANAGE_COPY_UNIT,
+             MANAGE_UNIT_FEET + 1);
+    start_with_copy(keep_off, 3, text, DIAL_SETS_PATH, 0, MANAGE_START_KEEP, MANAGE_UNIT_FEET);
+    /* USERMODE.TMP, which a save cut by the power leaves. */
+    start_with_copy(keep_off, 3, text, DIAL_SETS_TMP_PATH, 0, MANAGE_START_KEEP, MANAGE_UNIT_FEET);
+    /* An older card: no file of the user modes, or one without a copy.
+       STATE.TXT decides. */
+    start_with_copy(keep_off, 3, 0, DIAL_SETS_PATH, 1, MANAGE_START_KEEP, MANAGE_UNIT_METERS);
+    snprintf(text, sizeof text, "%u\r\n%u\r\n", GRKU_DIAL_SLOT_KEY_BASE + GRKU_DIAL_SLOT_WORDS * GRKU_DIAL_USER_MODES, 1U);
+    start_with_copy(keep_off, 3, text, DIAL_SETS_PATH, 1, MANAGE_START_KEEP, MANAGE_UNIT_METERS);
+    /* Enable at Start of the copy decides the switch: Off, also with the
+       switch On in the copy. */
+    snprintf(text, sizeof text, "%u\r\n%u\r\n%u\r\n%u\r\n", GRKU_MANAGE_COPY_KEY + GRKU_MANAGE_COPY_SWITCH, 1U,
+             GRKU_MANAGE_COPY_KEY + GRKU_MANAGE_COPY_START, MANAGE_START_OFF + 1);
+    start_with_copy((const u32[]){off, 0, start, MANAGE_START_KEEP}, 2, text, DIAL_SETS_PATH, 1, MANAGE_START_OFF,
+                    MANAGE_UNIT_METERS);
+    /* A value out of range is no copy: STATE.TXT decides that setting. */
+    snprintf(text, sizeof text, "%u\r\n%u\r\n%u\r\n%u\r\n", GRKU_MANAGE_COPY_KEY + GRKU_MANAGE_COPY_SWITCH, 3U,
+             GRKU_MANAGE_COPY_KEY + GRKU_MANAGE_COPY_UNIT, MANAGE_UNIT_VALUES + 1);
+    start_with_copy(keep_off, 3, text, DIAL_SETS_PATH, 1, MANAGE_START_KEEP, MANAGE_UNIT_METERS);
 }
 /* Conditions in two descriptors can share one array. Relocation must read
    original local handles each time, not relocate an already global handle. */
@@ -1365,8 +1429,8 @@ static void recipe_file_of(u32 header, char *out, u32 size)
                                     GRKU_RECIPE_NAME_KEY_BASE + w * GRKU_RECIPE_KEY_STRIDE + slot, value);
         }
     }
-    /* The import hash, the IDs, and the user modes. */
-    for (u32 t = 0; GRKU_HOST_RECIPE_IMPORTED + 4 * t < GRKU_HOST_RECIPE_DIAL + 4 * GRKU_RECIPE_DIAL_POSITIONS; ++t) {
+    /* The import hash and the IDs. */
+    for (u32 t = 0; GRKU_HOST_RECIPE_IMPORTED + 4 * t < GRKU_HOST_RECIPE_IDS + 4 * GRKU_RECIPE_SLOTS; ++t) {
         u32 value = word(header + GRKU_HOST_RECIPE_IMPORTED + 4 * t);
         if (value) at += (u32)snprintf(out + at, size - at, "%u\r\n%u\r\n", GRKU_RECIPE_IMPORTED_KEY + t, value);
     }
@@ -1374,21 +1438,21 @@ static void recipe_file_of(u32 header, char *out, u32 size)
 }
 /* Each recipe keeps its ID when INSTALL moves the recipes that are on
    first. A recipe without an ID, or with the ID of an earlier recipe, gets
-   a generated one that no recipe has and no user mode names, and the user
-   modes of the mode dial stay as the file has them. */
-static void recipes_keep_their_ids_and_the_dial(void)
+   a generated one that no recipe has. A key of the mode dial of an earlier
+   build stays out of the header. */
+static void recipes_keep_their_ids(void)
 {
     const u32 header = MEMORY_BASE + 0xc0000U;
     char text[1024];
     u32 at = 0;
     /* A, off, with ID 7; B with ID 3; C with ID 3 too. The words differ in
-       their number. U1 applies B, U2 turns GRKU off, U3 names a recipe
-       that is gone, whose ID is the first candidate. */
+       their number. After the IDs, the keys of the user modes of an earlier
+       build. */
     test_id_source = 0x5678U;
-    const u32 c0 = recipe_id_candidate(0), c1 = recipe_id_candidate(1);
-    assert(c0 && c1 && c0 != c1 && c1 <= GRKU_RECIPE_ID_MAX && c1 != 3 && c1 != 7);
+    const u32 c0 = recipe_id_candidate(0);
+    assert(c0 && c0 <= GRKU_RECIPE_ID_MAX && c0 != 3 && c0 != 7);
     const u32 number[3] = {1, 2, 3}, id[3] = {7, 3, 3}, off[3] = {GRKU_RECIPE_OFF, 0, 0};
-    const u32 dial[GRKU_RECIPE_DIAL_POSITIONS] = {3, GRKU_RECIPE_DIAL_OFF, c0};
+    const u32 dial[3] = {3, 0x1fffffffU, 0x1ffffffeU};
     for (u32 slot = 0; slot < 3; ++slot) {
         at += (u32)snprintf(text + at, sizeof text - at, "%u\r\n%u\r\n%u\r\n%u\r\n", GRKU_RECIPE_KEY_BASE + slot,
                             0x08000001U | number[slot] << GRKU_RECIPE_NUMBER_SHIFT, GRKU_RECIPE_ID_KEY_BASE + slot, id[slot]);
@@ -1396,22 +1460,23 @@ static void recipes_keep_their_ids_and_the_dial(void)
             at += (u32)snprintf(text + at, sizeof text - at, "%u\r\n%u\r\n",
                                 GRKU_RECIPE_KEY_BASE + GRKU_RECIPE_MODULE_WORD * GRKU_RECIPE_KEY_STRIDE + slot, off[slot]);
     }
-    for (u32 u = 0; u < GRKU_RECIPE_DIAL_POSITIONS; ++u)
-        at += (u32)snprintf(text + at, sizeof text - at, "%u\r\n%u\r\n", GRKU_RECIPE_DIAL_KEY_BASE + u, dial[u]);
+    for (u32 u = 0; u < 3; ++u)
+        at += (u32)snprintf(text + at, sizeof text - at, "%u\r\n%u\r\n", GRKU_RECIPE_ID_KEY_BASE + GRKU_RECIPE_SLOTS + u,
+                            dial[u]);
     reset();
     for (u32 k = 0; k < GRKU_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
     add_text(RECIPES_STATE_PATH, text);
     install_recipes(header, GRKU_RCP_FAMILY_GR3);
     assert(recipes_count == 3 && word(header + GRKU_HOST_RECIPE_CHANGES) == 1);
-    /* B, C, then A, each with its ID: C gets the second candidate, because
-       U3 names the first. */
-    const u32 order[3] = {2, 3, 1}, ids[3] = {3, c1, 7};
+    /* B, C, then A, each with its ID: C gets the first candidate. */
+    const u32 order[3] = {2, 3, 1}, ids[3] = {3, c0, 7};
     for (u32 slot = 0; slot < 3; ++slot) {
         assert((recipe_word_at(header, slot, 0) >> GRKU_RECIPE_NUMBER_SHIFT & GRKU_RECIPE_NUMBER_MAX) == order[slot]);
         assert(word(header + GRKU_HOST_RECIPE_IDS + 4 * slot) == ids[slot]);
     }
     assert(!word(header + GRKU_HOST_RECIPE_IDS + 4 * 3));
-    for (u32 u = 0; u < GRKU_RECIPE_DIAL_POSITIONS; ++u) assert(word(header + GRKU_HOST_RECIPE_DIAL + 4 * u) == dial[u]);
+    for (u32 k = GRKU_HOST_RECIPE_IDS + 4 * GRKU_RECIPE_SLOTS; k < GRKU_HOST_HEADER_SIZE; k += 4)
+        assert(word(header + k) == (k == GRKU_HOST_RECIPE_CHANGES));
     /* The next start reads the file that the loader saved: nothing changes. */
     char saved[2048];
     recipe_file_of(header, saved, sizeof saved);
@@ -1419,87 +1484,8 @@ static void recipes_keep_their_ids_and_the_dial(void)
     for (u32 k = 0; k < GRKU_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
     add_text(RECIPES_STATE_PATH, saved);
     install_recipes(header, GRKU_RCP_FAMILY_GR3);
-    assert(!word(header + GRKU_HOST_RECIPE_CHANGES) && word(header + GRKU_HOST_RECIPE_IDS + 4) == c1);
-}
-/* The library of the Rust codec at $GRKU_TEST_RECIPES also sets the user
-   modes of the mode dial: U1 applies its GR III record 0, U2 its GR IV record
-   1, and U3 turns GRKU off. INSTALL sets them once with the import: a
-   record becomes the ID of its recipe on the camera, a record of another
-   camera line follows, and a step that keeps leaves the camera's value. */
-static u32 dial_at(u32 header, u32 u) { return word(header + GRKU_HOST_RECIPE_DIAL + 4 * u); }
-static void install_with(u32 header, const char *text, const u8 *library, u32 size)
-{
-    reset();
-    for (u32 k = 0; k < GRKU_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
-    add_text(RECIPES_STATE_PATH, text);
-    if (library) add_file(RECIPES_INBOX_PATH, library, size);
-    install_recipes(header, GRKU_RCP_FAMILY_GR3);
-}
-static void with_steps(u8 *library, u32 size, u32 u1, u32 u2, u32 u3)
-{
-    put32(library + GRKU_RCP_DIAL, u1);
-    put32(library + GRKU_RCP_DIAL + 4, u2);
-    put32(library + GRKU_RCP_DIAL + 8, u3);
-    put32(library + GRKU_RCP_CRC, recipes_crc(library, size));
-}
-static void a_library_sets_the_mode_dial_once(void)
-{
-    const char *path = getenv("GRKU_TEST_RECIPES");
-    static u8 bytes[GRKU_RCP_HEADER_SIZE + GRKU_RCP_MAX * GRKU_RCP_RECORD_SIZE], other[sizeof bytes];
-    const u32 header = MEMORY_BASE + 0xc0000U;
-    char text[512], saved[2048];
-    assert(path);
-    FILE *file = fopen(path, "rb");
-    assert(file);
-    u32 size = (u32)fread(bytes, 1, sizeof bytes, file);
-    fclose(file);
-    assert(get32(bytes + GRKU_RCP_DIAL) == GRKU_RCP_DIAL_RECORD &&
-           get32(bytes + GRKU_RCP_DIAL + 4) == GRKU_RCP_DIAL_RECORD + 1 &&
-           get32(bytes + GRKU_RCP_DIAL + 8) == GRKU_RCP_DIAL_OFF);
-    /* The recipe file has "Mine" with ID 9, and U1 to U3 apply it. */
-    snprintf(text, sizeof text, "%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n%u\r\n", GRKU_RECIPE_KEY_BASE, 0x08000001U,
-             GRKU_RECIPE_ID_KEY_BASE, 9U, GRKU_RECIPE_DIAL_KEY_BASE, 9U, GRKU_RECIPE_DIAL_KEY_BASE + 1, 9U,
-             GRKU_RECIPE_DIAL_KEY_BASE + 2, 9U);
-    test_id_source = 0x4242U;
-    install_with(header, text, 0, 0);
-    assert(dial_at(header, 0) == 9 && dial_at(header, 1) == 9 && dial_at(header, 2) == 9);
-    /* The import: U1 gets the ID of the added recipe, U2 follows because
-       INSTALL skips a GR IV record, U3 turns GRKU off. */
-    install_with(header, text, bytes, size);
-    assert(recipes_import == RECIPES_IMPORT_READ && recipes_added == 1 && recipes_count == 2);
-    u32 added = word(header + GRKU_HOST_RECIPE_IDS + 4);
-    assert(added && added != 9 && word(header + GRKU_HOST_RECIPE_CHANGES) == 1);
-    assert(dial_at(header, 0) == added && dial_at(header, 1) == GRKU_RECIPE_DIAL_FOLLOW &&
-           dial_at(header, 2) == GRKU_RECIPE_DIAL_OFF);
-    /* A person sets the dial on the camera; the next start with the same
-       library keeps it: the library was imported. */
-    store(header + GRKU_HOST_RECIPE_DIAL, 9);
-    store(header + GRKU_HOST_RECIPE_DIAL + 8, 0);
-    recipe_file_of(header, saved, sizeof saved);
-    install_with(header, saved, bytes, size);
-    assert(recipes_import == RECIPES_IMPORT_NONE && !word(header + GRKU_HOST_RECIPE_CHANGES));
-    assert(dial_at(header, 0) == 9 && dial_at(header, 1) == GRKU_RECIPE_DIAL_FOLLOW && dial_at(header, 2) == 0);
-    /* Another library: U1 keeps the camera's value, U2 turns GRKU off, and
-       U3 applies record 0, which the camera already has: its ID. */
-    memcpy(other, bytes, size);
-    with_steps(other, size, GRKU_RCP_DIAL_KEEP, GRKU_RCP_DIAL_OFF, GRKU_RCP_DIAL_RECORD);
-    install_with(header, saved, other, size);
-    assert(recipes_import == RECIPES_IMPORT_READ && recipes_same == 1 && recipes_added == 0);
-    assert(dial_at(header, 0) == 9 && dial_at(header, 1) == GRKU_RECIPE_DIAL_OFF && dial_at(header, 2) == added);
-    /* Follow, and a record that the library has off: its user mode follows. */
-    memcpy(other, bytes, size);
-    u32 word4 = GRKU_RCP_HEADER_SIZE + GRKU_RCP_RECORD_WORDS + 4 * GRKU_RECIPE_MODULE_WORD;
-    put32(other + word4, get32(other + word4) | GRKU_RECIPE_OFF);
-    with_steps(other, size, GRKU_RCP_DIAL_FOLLOW, GRKU_RCP_DIAL_KEEP, GRKU_RCP_DIAL_RECORD);
-    install_with(header, saved, other, size);
-    assert(recipes_import == RECIPES_IMPORT_READ && recipes_switched == 1);
-    assert(dial_at(header, 0) == GRKU_RECIPE_DIAL_FOLLOW && dial_at(header, 1) == GRKU_RECIPE_DIAL_FOLLOW &&
-           dial_at(header, 2) == GRKU_RECIPE_DIAL_FOLLOW);
-    /* A step past the records is a damaged library: nothing changes. */
-    memcpy(other, bytes, size);
-    with_steps(other, size, GRKU_RCP_DIAL_RECORD + get32(other + GRKU_RCP_COUNT), GRKU_RCP_DIAL_KEEP, GRKU_RCP_DIAL_KEEP);
-    install_with(header, saved, other, size);
-    assert(recipes_import == RECIPES_IMPORT_DAMAGED && dial_at(header, 0) == 9 && recipes_count == 2);
+    assert(!word(header + GRKU_HOST_RECIPE_CHANGES) && word(header + GRKU_HOST_RECIPE_IDS + 4) == c0);
+    assert(!strstr(saved, "991009065"));
 }
 static void the_recipes_restore_and_import_once(void)
 {
@@ -1716,8 +1702,9 @@ static void the_recipes_restore_and_import_once(void)
     assert(recipe_problem_count == 2 && recipe_problems[0].problem == RECIPE_PROBLEM_MODULE(0));
 }
 
-/* The sets of the user modes (runtime/install_recipes.h: install_dial_sets):
-   INSTALL restores each word as the file of the loader has it. A set with
+/* The settings of the user modes (runtime/install_recipes.h:
+   install_dial_sets): INSTALL restores each word as the file of the loader
+   has it, the values of the user modes and the row of P/Av/Tv/M too. A set with
    more pairs than the header holds stays out, and a word above
    GRKU_DIAL_SET_VALUE_MAX has more digits than a value of the file. */
 static u32 set_word_at(u32 header, u32 u, u32 w) { return word(header + GRKU_HOST_DIAL_SETS + 4 * (u * GRKU_DIAL_SET_WORDS + w)); }
@@ -1743,6 +1730,11 @@ static void the_sets_of_the_user_modes_restore(void)
         {key + 2 * GRKU_DIAL_SET_KEY_STRIDE + GRKU_DIAL_SET_PAIR, 55},
         {key + 2 * GRKU_DIAL_SET_KEY_STRIDE + GRKU_DIAL_SET_PAIR + 1, GRKU_DIAL_SET_VALUE_MAX},
         {key + 2 * GRKU_DIAL_SET_KEY_STRIDE + GRKU_DIAL_SET_CORE + 1, GRKU_DIAL_SET_VALUE_MAX + 1},
+        /* U2 applies its snapshot, whose slot has the name of fingerprint
+           88; P/Av/Tv/M Off. */
+        {GRKU_DIAL_SLOT_KEY_BASE + GRKU_DIAL_SLOT_WORDS + GRKU_DIAL_SLOT_VALUE, GRKU_DIAL_VALUE_SNAPSHOT},
+        {GRKU_DIAL_SLOT_KEY_BASE + GRKU_DIAL_SLOT_WORDS + GRKU_DIAL_SLOT_NAME, 88},
+        {GRKU_DIAL_SLOT_KEY_BASE + GRKU_DIAL_SLOT_WORDS * GRKU_DIAL_USER_MODES, 1},
     };
     for (u32 i = 0; i < sizeof pairs / sizeof pairs[0]; ++i)
         at += (u32)snprintf(text + at, sizeof text - at, "%u\r\n%u\r\n", pairs[i][0], pairs[i][1]);
@@ -1759,10 +1751,20 @@ static void the_sets_of_the_user_modes_restore(void)
     assert(set_word_at(header, 2, GRKU_DIAL_SET_COUNT) == 2 && set_word_at(header, 2, GRKU_DIAL_SET_PAIR) == 55);
     assert(set_word_at(header, 2, GRKU_DIAL_SET_PAIR + 1) == GRKU_DIAL_SET_VALUE_MAX);
     assert(!set_word_at(header, 2, GRKU_DIAL_SET_CORE + 1));
+    /* The user modes: U2 as the file has it, U1 and U3 without an entry 0;
+       then the row of P/Av/Tv/M. */
+    assert(word(header + GRKU_HOST_DIAL_SHARED_OFF) == 1);
+    for (u32 w = 0; w < GRKU_HOST_DIAL_SLOTS_WORDS; ++w) {
+        static const u32 slots[GRKU_DIAL_SLOT_WORDS] = {GRKU_DIAL_VALUE_SNAPSHOT, 88};
+        u32 u = w / GRKU_DIAL_SLOT_WORDS;
+        assert(word(header + GRKU_HOST_DIAL_SLOTS + 4 * w) == (u == 1 ? slots[w % GRKU_DIAL_SLOT_WORDS] : 0));
+    }
     /* The words around the sets stay; the count of changes stays 0, so the
        loader does not save. */
     assert(word(header + GRKU_HOST_DIAL_SETS - 4) == 0xa5a5a5a5U);
     assert(word(header + GRKU_HOST_DIAL_SETS + 4 * GRKU_HOST_DIAL_SETS_WORDS - 4) == 0);
+    assert(word(header + GRKU_HOST_DIAL_SHARED_OFF + 4) == 0xa5a5a5a5U ||
+           GRKU_HOST_DIAL_SHARED_OFF + 4 == GRKU_HOST_HEADER_SIZE);
     /* USERMODE.TMP, which a save cut by the power leaves, when the file is
        missing; without both, no set. */
     reset();
@@ -1772,7 +1774,8 @@ static void the_sets_of_the_user_modes_restore(void)
     assert(set_word_at(header, 0, GRKU_DIAL_SET_COUNT) == 3 && set_word_at(header, 2, GRKU_DIAL_SET_PAIR) == 55);
     reset();
     install_dial_sets(header);
-    for (u32 u = 0; u < GRKU_RECIPE_DIAL_POSITIONS; ++u) assert(!set_word_at(header, u, GRKU_DIAL_SET_COUNT));
+    for (u32 u = 0; u < GRKU_DIAL_USER_MODES; ++u) assert(!set_word_at(header, u, GRKU_DIAL_SET_COUNT));
+    assert(!word(header + GRKU_HOST_DIAL_SHARED_OFF));
 }
 
 static void *run(void *unused)
@@ -1797,8 +1800,9 @@ static void *run(void *unused)
     a_color_only_module_needs_a_color_camera();
     install_group_page();
     the_switch_stops_each_module();
-    a_stopped_recipes_module_keeps_the_dial();
+    the_dial_installs_with_the_core();
     enable_at_start_decides_the_switch();
+    the_copy_in_the_file_of_the_user_modes_decides_the_switch();
     layer_conditions_resolve_shared_and_optional_settings();
     layers_follow_their_order_and_filters_their_stage();
     the_module_list_shows_each_result();
@@ -1807,8 +1811,7 @@ static void *run(void *unused)
     the_fn_setting_of_a_page_gets_its_handle();
     a_setting_of_a_module_that_did_not_link_is_missing();
     the_recipes_restore_and_import_once();
-    a_library_sets_the_mode_dial_once();
-    recipes_keep_their_ids_and_the_dial();
+    recipes_keep_their_ids();
     the_sets_of_the_user_modes_restore();
     reset();
     return 0;

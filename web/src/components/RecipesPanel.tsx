@@ -11,8 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { siteUrl } from '../catalog';
 import { PRESETS } from '../generated/recipes';
@@ -22,17 +20,12 @@ import { RECIPE_STRINGS, type RecipeStrings } from '../recipeStrings';
 import {
   automaticName,
   cameraOrder,
-  DIAL_FOLLOW,
-  DIAL_OFF,
-  DIAL_SAVED,
-  dialChoices,
   LIBRARY_MAX,
   libraryWarnings,
   ON_MAX,
   onCount,
   presetOf,
   presetRows,
-  type DialChoice,
   type Family,
   type Preset,
   type Recipe,
@@ -60,18 +53,6 @@ export interface RecipesPanelProps {
   borderModule: boolean;
   /** Adds the recipe of a preset to the library, and its effect to the package. */
   onAddPreset: (recipe: Recipe, effect: string | null) => void;
-  /**
-   * What the user modes of the mode dial do, as the camera shows them, and the change of user mode
-   * `u` (0 for U1): for a ZIP package, null keeps the camera's value; on a card, each user mode has
-   * a value. `saved` tells the user modes of the card that apply settings that the camera saved in
-   * them, which the site can keep but not make. Null when the page writes no recipes.
-   */
-  dial?: {
-    shown: DialChoice;
-    canKeep: boolean;
-    saved?: readonly boolean[];
-    onChange: (u: number, value: number | null) => void;
-  } | null;
 }
 
 /**
@@ -90,8 +71,6 @@ const COUNT_NEAR = 5;
 
 
 
-/** The value of the option that keeps the camera's value of a user mode. */
-const KEEP_VALUE = 'keep';
 
 /**
  * The recipes of the selected camera line, in the order of the camera, then the presets that the
@@ -99,7 +78,7 @@ const KEEP_VALUE = 'keep';
  * and deletes them, but not a preset, and a preset joins the library when the person turns it on.
  * As with the film looks, at most `ON_MAX` recipes are on: the camera lists them. The others stay
  * on the card for the site. The name of a recipe opens its settings, with the pictures of a
- * preset. Then the user modes of the mode dial, U1 to U3.
+ * preset.
  */
 export function RecipesPanel({
   strings: t,
@@ -115,7 +94,6 @@ export function RecipesPanel({
   glowModule,
   borderModule,
   onAddPreset,
-  dial = null,
 }: RecipesPanelProps) {
   const r = RECIPE_STRINGS[language];
   const on = onCount(library);
@@ -172,7 +150,7 @@ export function RecipesPanel({
       </div>
       {/* What a recipe is, in four lines: new to most people. */}
       <ul className="grid gap-2 rounded-xl border border-dashed bg-card/60 p-4 text-sm leading-relaxed text-muted-foreground sm:grid-cols-2">
-        {[r.introWhat, r.introCamera, r.introSite, r.introDial].map((text) => (
+        {[r.introWhat, r.introCamera, r.introSite].map((text) => (
           <li key={text}>{text}</li>
         ))}
       </ul>
@@ -255,39 +233,6 @@ export function RecipesPanel({
         </div>
       )}
       <div aria-live="polite">{library.length >= LIBRARY_MAX && <p className="text-sm text-muted-foreground">{r.full(LIBRARY_MAX)}</p>}</div>
-      {dial && (
-        <div className="rounded-xl border bg-card p-4">
-          <h3 className="text-base font-semibold">{r.modeDial}</h3>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {dial.shown.map((value, u) => (
-              <div key={u} className="flex flex-col gap-1.5">
-                <Label htmlFor={`dial-u${u + 1}`} className="font-mono text-xs text-muted-foreground">
-                  U{u + 1}
-                </Label>
-                <Select
-                  value={value === null ? KEEP_VALUE : String(value)}
-                  onValueChange={(next) => dial.onChange(u, next === KEEP_VALUE ? null : Number(next))}
-                >
-                  <SelectTrigger id={`dial-u${u + 1}`} className="w-full bg-background">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {dial.canKeep && <SelectItem value={KEEP_VALUE}>{r.dialKeep}</SelectItem>}
-                    <SelectItem value={String(DIAL_FOLLOW)}>{r.dialNone}</SelectItem>
-                    <SelectItem value={String(DIAL_OFF)}>{r.dialOff}</SelectItem>
-                    {dial.saved?.[u] && <SelectItem value={String(DIAL_SAVED)}>{r.dialSaved}</SelectItem>}
-                    {dialChoices(library).map((recipe) => (
-                      <SelectItem key={recipe.id} value={String(recipe.id)}>
-                        {nameOf(recipe)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
       <RecipeEditor
         strings={t}
         r={r}

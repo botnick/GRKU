@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6428
+#define GRKU_HOST_HEADER_SIZE 6504
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -22,19 +22,16 @@
    GRKU_RECIPE_NAME_CHARS; word w of the name of recipe n has the key
    GRKU_RECIPE_NAME_KEY_BASE + w * GRKU_RECIPE_KEY_STRIDE + n. The words after
    the names have one key each from GRKU_RECIPE_IMPORTED_KEY: the hash of the
-   imported package library, the ID of recipe n at GRKU_RECIPE_ID_KEY_BASE + n,
-   the assignment of user mode u at GRKU_RECIPE_DIAL_KEY_BASE + u
-   (grku_core::runtime::recipe_key). A recipe ID is a generated number, 1 to
-   GRKU_RECIPE_ID_MAX (runtime/recipe_id.h). A user mode follows
-   (GRKU_RECIPE_DIAL_FOLLOW), turns GRKU off (GRKU_RECIPE_DIAL_OFF), or applies
-   the recipe with its ID. The undo steps are not saved. */
+   imported package library, and the ID of recipe n at GRKU_RECIPE_ID_KEY_BASE
+   + n (grku_core::runtime::recipe_key). A recipe ID is a generated number, 1
+   to GRKU_RECIPE_ID_MAX (runtime/recipe_id.h). The undo steps are not saved. */
 #define GRKU_RECIPE_SLOTS 64U
 #define GRKU_RECIPE_ON_MAX 40U
 #define GRKU_RECIPE_UNDO 5U
 #define GRKU_RECIPE_WORDS 6U
 #define GRKU_RECIPE_NAME_CHARS 16U
 #define GRKU_RECIPE_NAME_WORDS 4U
-#define GRKU_RECIPE_DIAL_POSITIONS 3U
+#define GRKU_DIAL_USER_MODES 3U
 /* The bit layout of the recipe words (grku_core::recipes::layout): the index
    of each word, then for each field its _SHIFT and the _MASK of its value
    after the shift, and the bit of each flag. */
@@ -123,33 +120,50 @@
 #define GRKU_RECIPE_NAME_KEY_BASE 991005000U
 #define GRKU_RECIPE_IMPORTED_KEY 991009000U
 #define GRKU_RECIPE_ID_KEY_BASE 991009001U
-#define GRKU_RECIPE_DIAL_KEY_BASE 991009065U
 #define GRKU_RECIPE_ID_MAX 536870909U
-#define GRKU_RECIPE_DIAL_FOLLOW 0U
-#define GRKU_RECIPE_DIAL_SAVED 536870910U
-#define GRKU_RECIPE_DIAL_OFF 536870911U
-/* The settings that the camera saves in a user mode of the mode dial
-   (runtime/mode_dial.h, grku_core::abi::DIAL_SET_WORDS): GRKU_DIAL_SET_WORDS
-   words, the number of pairs + 1 (0 without a set), a word for each of the
-   first GRKU_DIAL_SET_CAPABILITIES capabilities and the border word (0 in a
-   set without a border), the Fn adjustments and the Toning of the effect, then
-   GRKU_DIAL_SET_PAIRS pairs of a state file ID and a value. The effect word is
-   0 for Off, else GRKU_DIAL_SET_EFFECT with the recipe code of the effect. In
-   their file, word w of user mode u (0 for U1) has the key
-   GRKU_DIAL_SET_KEY_BASE + u * GRKU_DIAL_SET_KEY_STRIDE + w, and a word is at
-   most GRKU_DIAL_SET_VALUE_MAX. */
+/* The snapshot of a user mode of the mode dial: the GRKU settings that Save
+   Current Settings keeps in it (runtime/mode_dial.h,
+   grku_core::abi::DIAL_SET_WORDS): GRKU_DIAL_SET_WORDS words, the number of
+   pairs + 1 (0 without a set), a word for each capability, the Fn adjustments
+   and the Toning of the effect, then GRKU_DIAL_SET_PAIRS pairs of a state file
+   ID and a value. The effect word is 0 for Off, else GRKU_DIAL_SET_EFFECT with
+   the recipe code of the effect. In their file, word w of user mode u (0 for
+   U1) has the key GRKU_DIAL_SET_KEY_BASE + u * GRKU_DIAL_SET_KEY_STRIDE + w,
+   and a word is at most GRKU_DIAL_SET_VALUE_MAX. */
 #define GRKU_DIAL_SET_PAIRS 93U
 #define GRKU_DIAL_SET_COUNT 0U
 #define GRKU_DIAL_SET_CORE 1U
-#define GRKU_DIAL_SET_CAPABILITIES 7U
-#define GRKU_DIAL_SET_FN 9U
-#define GRKU_DIAL_SET_TONING 10U
-#define GRKU_DIAL_SET_PAIR 11U
-#define GRKU_DIAL_SET_WORDS 197U
+#define GRKU_DIAL_SET_FN 13U
+#define GRKU_DIAL_SET_TONING 14U
+#define GRKU_DIAL_SET_PAIR 15U
+#define GRKU_DIAL_SET_WORDS 201U
 #define GRKU_DIAL_SET_EFFECT 32768U
 #define GRKU_DIAL_SET_KEY_BASE 992000000U
 #define GRKU_DIAL_SET_KEY_STRIDE 1000U
 #define GRKU_DIAL_SET_VALUE_MAX 999999999U
+/* What a user mode does (GRKU_HOST_DIAL_SLOTS, runtime/mode_dial.h):
+   GRKU_DIAL_SLOT_WORDS words, its value, GRKU_DIAL_VALUE_SAME,
+   GRKU_DIAL_VALUE_OFF, or GRKU_DIAL_VALUE_SNAPSHOT, and a fingerprint of the
+   name that the core gave its native slot with the snapshot. In the file of
+   the sets, word w of user mode u (0 for U1) has the key
+   GRKU_DIAL_SLOT_KEY_BASE + u * GRKU_DIAL_SLOT_WORDS + w, and
+   GRKU_HOST_DIAL_SHARED_OFF the key after the last of them. */
+#define GRKU_DIAL_SLOT_VALUE 0U
+#define GRKU_DIAL_SLOT_NAME 1U
+#define GRKU_DIAL_SLOT_WORDS 2U
+#define GRKU_DIAL_SLOT_KEY_BASE 992003000U
+/* The copy of the switch, Enable at Start, and Distance Unit
+   (GRKU_HOST_MANAGE_COPY, runtime/manage.h): each as its value + 1, or 0
+   without a copy. In the file of the sets, word w has the key
+   GRKU_MANAGE_COPY_KEY + w. */
+#define GRKU_MANAGE_COPY_SWITCH 0U
+#define GRKU_MANAGE_COPY_START 1U
+#define GRKU_MANAGE_COPY_UNIT 2U
+#define GRKU_MANAGE_COPY_WORDS 3U
+#define GRKU_MANAGE_COPY_KEY 992003007U
+#define GRKU_DIAL_VALUE_SAME 0U
+#define GRKU_DIAL_VALUE_OFF 1U
+#define GRKU_DIAL_VALUE_SNAPSHOT 2U
 #define GRKU_MODULE_SETTINGS_MAX 160
 /* The most modules that GRKU lists, and the words of the largest script array,
    which holds the module array. */
@@ -481,43 +495,52 @@
    after the import hash. */
 #define GRKU_HOST_RECIPE_IDS 3656
 #define GRKU_HOST_RECIPE_IDS_WORDS 64
-/* What each user mode of the mode dial, U1 to U3, does
-   (`runtime::RECIPE_DIAL_FOLLOW`, `RECIPE_DIAL_OFF`, or the ID of a recipe).
-   An ID that no recipe has follows, as `RECIPE_DIAL_FOLLOW`. A generated ID is
-   never one of these values, so a deleted recipe never gets the references of
-   another. */
-#define GRKU_HOST_RECIPE_DIAL 3912
-#define GRKU_HOST_RECIPE_DIAL_WORDS 3
 /* The count of changes of the recipes: the loader saves the recipe file after
    it changes (GRKU_RECIPES_CHANGED). INSTALL sets 1 after an import. */
-#define GRKU_HOST_RECIPE_CHANGES 3924
+#define GRKU_HOST_RECIPE_CHANGES 3912
 /* The undo steps, the oldest first, RECIPE_WORDS words each. They are not
    saved: a start begins without them. */
-#define GRKU_HOST_RECIPE_UNDO 3928
+#define GRKU_HOST_RECIPE_UNDO 3916
 #define GRKU_HOST_RECIPE_UNDO_WORDS 30
-/* Nonzero while the mode dial is on a user mode whose settings are temporary
-   (runtime/mode_dial.h): the resident loader then does not save the main state
-   file, so the file keeps the settings of the other positions. The recipe file
-   still saves. */
-#define GRKU_HOST_STATE_HOLD 4048
-/* The count of changes of the saved settings of the user modes
-   (`HOST_DIAL_SETS`): the loader saves their file after it changes. */
-#define GRKU_HOST_DIAL_SET_CHANGES 4052
+/* Nonzero while the mode dial is on a user mode with a snapshot, whose changes
+   are temporary (runtime/mode_dial.h): the resident loader then does not save
+   the main state file, so the file keeps the shared settings of P/Av/Tv/M. The
+   recipe file still saves. */
+#define GRKU_HOST_STATE_HOLD 4036
+/* The count of changes of the settings of the user modes (`HOST_DIAL_SETS` to
+   `HOST_MANAGE_COPY`): the loader saves their file after it changes. */
+#define GRKU_HOST_DIAL_SET_CHANGES 4040
 /* CORE.ADJ: 1 when the next ADJ should open on GRKU, 0 for a native entry.
    Survives enter clearing HOST_RETURN, and STATE.TXT keeps it across power-off
    (runtime/menu.c). */
-#define GRKU_HOST_ADJ_OPEN 4056
-/* The settings that the camera saved in each user mode of the mode dial, U1 to
-   U3, `DIAL_SET_WORDS` words each (runtime/mode_dial.h). A user mode applies
-   them while it has `runtime::RECIPE_DIAL_SAVED` (`HOST_RECIPE_DIAL`). The
-   resident loader saves each word that is not 0 in their file
-   (`capabilities::StateFile::DialSets`), and INSTALL restores them. */
-#define GRKU_HOST_DIAL_SETS 4060
-#define GRKU_HOST_DIAL_SETS_WORDS 591
+#define GRKU_HOST_ADJ_OPEN 4044
+/* The snapshot of each user mode of the mode dial, U1 to U3, `DIAL_SET_WORDS`
+   words each (runtime/mode_dial.h). The resident loader saves each word that
+   is not 0 in their file (`capabilities::StateFile::DialSets`), and INSTALL
+   restores them. */
+#define GRKU_HOST_DIAL_SETS 4048
+#define GRKU_HOST_DIAL_SETS_WORDS 603
+/* What each user mode, U1 to U3, does, `DIAL_SLOT_WORDS` words each
+   (runtime/mode_dial.h), right after HOST_DIAL_SETS: the loader saves them in
+   the file of the sets after the sets, and INSTALL restores them. Only the
+   camera writes them. */
+#define GRKU_HOST_DIAL_SLOTS 6460
+#define GRKU_HOST_DIAL_SLOTS_WORDS 6
+/* 1 while GRKU is off at P/Av/Tv/M (and Sn on GR IV), else 0, right after
+   HOST_DIAL_SLOTS, in the same file (runtime/mode_dial.h). */
+#define GRKU_HOST_DIAL_SHARED_OFF 6484
+/* The copy of the switch, Enable at Start, and Distance Unit,
+   `MANAGE_COPY_WORDS` words (runtime/manage.h), right after
+   HOST_DIAL_SHARED_OFF, in the same file. The core holds the main state file
+   on a user mode with a snapshot, but never this file, so a change of these
+   settings there saves. INSTALL takes them from the copy before the main state
+   file, and writes the values of the start here. */
+#define GRKU_HOST_MANAGE_COPY 6488
+#define GRKU_HOST_MANAGE_COPY_WORDS 3
 /* The native Image Control type plus 1 when ADJ last opened, or 0 when it was
    not readable. A half-press on the native Image Control slot with another
    type selects that type, as OK does (runtime/menu.c). */
-#define GRKU_HOST_ADJ_IC_TYPE 6424
+#define GRKU_HOST_ADJ_IC_TYPE 6500
 
 /* The capabilities of the core (grku_core::capabilities): the handle of each
    CORE setting, and for each handle in order, its header word and its number
@@ -561,7 +584,7 @@
 #define GRKU_CORE_RECIPE 0x10bU
 #define GRKU_CORE_RECIPE_VALUES 0U
 #define GRKU_CORE_RECIPE_BIT 0x800
-#define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,4056,188,1084,1088,0
+#define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,4044,188,1084,1088,0
 #define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,5,2,6,19,4,2,0
 
 /* An Image Control record. The records follow the header. */
@@ -675,13 +698,6 @@
 #define GRKU_RCP_RECORD_SIZE 64U
 #define GRKU_RCP_MAX 64U
 #define GRKU_RCP_NAME_UNITS 16U
-/* A user mode of the mode dial in the header (GRKU_RCP_DIAL): keep the value
-   of the camera, follow the dial, turn GRKU off, or apply record k at
-   GRKU_RCP_DIAL_RECORD + k. */
-#define GRKU_RCP_DIAL_KEEP 0U
-#define GRKU_RCP_DIAL_FOLLOW 1U
-#define GRKU_RCP_DIAL_OFF 2U
-#define GRKU_RCP_DIAL_RECORD 3U
 /* The family byte of a record: the camera line whose INSTALL imports it. */
 #define GRKU_RCP_FAMILY_GR3 1U
 #define GRKU_RCP_FAMILY_GR4 2U
@@ -694,9 +710,6 @@
 #define GRKU_RCP_CRC 12U
 /* u32 number of recipes. */
 #define GRKU_RCP_COUNT 16U
-/* u32 for each user mode of the mode dial, U1 to U3: what INSTALL sets it to
-   when it imports the library (`recipes::DialStep`). */
-#define GRKU_RCP_DIAL 20U
 /* The name: UTF-16LE units, zero-padded, without a NUL at 16 units. */
 #define GRKU_RCP_RECORD_NAME 0U
 /* The RECIPE_WORDS words of the recipe (runtime/recipes.h). */
@@ -978,12 +991,15 @@
 /* Enable at Start, which decides the switch at each start: its MENU row, then
    its Keep Last value. Its On and Off are TEXT_ON and TEXT_OFF. */
 #define TEXT_START 68
-/* The Mode Dial row of the Recipes page of MENU, then the values of a user
-   mode besides a recipe: None, GRKU Off, and Saved Settings. */
+/* The Mode Dial row of GRKU Settings in MENU, then Save Current Settings, the
+   action of a user mode, then the text before and after P/Av/Tv/M in the value
+   of a user mode that does the same, then the text before and after the name
+   of a user mode in the confirm before Save Current Settings overwrites its
+   native slot. */
 #define TEXT_DIAL 70
 /* GRKU Settings, the MENU row and the title of the settings page of the core,
    then its Distance Unit row and the values Meters and Feet. */
-#define TEXT_UNIT 74
-#define GRKU_TEXT_STRINGS 78
+#define TEXT_UNIT 76
+#define GRKU_TEXT_STRINGS 80
 
 #endif

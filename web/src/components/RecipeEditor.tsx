@@ -248,7 +248,7 @@ export function RecipeEditor({
     setError(null);
     const next = recipe();
     try {
-      await encodeLibrary([next], ['keep', 'keep', 'keep']);
+      await encodeLibrary([next]);
       onAdd(next);
       onClose();
     } catch (failure) {

@@ -37,8 +37,9 @@ pub enum Point {
     /// of a crop factor, the factor of a shot, and the crop button.
     CaptureCrop,
     /// The mode dial: the firmware's apply of a dial position, after which
-    /// the core applies what a user mode of the dial does
-    /// (`runtime/mode_dial.h`).
+    /// the core applies what the position does (`runtime/mode_dial.h`). The
+    /// dial belongs to the core: INSTALL applies this point, and the
+    /// shooting screen of `ViewfinderOverlay`, whenever it lists a module.
     ModeDial,
     /// The canvas of recorded pictures: a larger developed picture with the
     /// border around the picture at its own size (`runtime/canvas.h`).
@@ -230,15 +231,11 @@ pub const CAPABILITIES: [Capability; 12] = [
         // The camera recipes (runtime/recipes.h). The core gives the rows of
         // its page: undo, the recipes, and save. A recipe sets the other
         // capabilities only while a module uses them, so applying one needs
-        // no point. The user modes of the mode dial apply recipes
-        // (runtime/mode_dial.h), which needs the hook of the dial, and the
-        // hooks of the shooting screen: the dial acts on a start in a user
-        // mode at the first shooting screen, and its label shows on the
-        // live view.
+        // no point.
         key: "RECIPE",
         values: 0,
         state: State::Recipes,
-        points: &[Point::ModeDial, Point::ViewfinderOverlay],
+        points: &[],
     },
 ];
 
@@ -253,8 +250,10 @@ pub enum StateFile {
     /// The recipes, their names, and the hash of the last imported package
     /// library (`runtime::recipe_key`). The site reads and writes it too.
     Recipes,
-    /// The settings that the camera saved in the user modes of the mode dial
-    /// (`runtime::dial_set_key`). Only the camera writes it.
+    /// The settings of the mode dial: the snapshot and the value of each user
+    /// mode, and whether GRKU is off at P/Av/Tv/M (`runtime::dial_set_key`);
+    /// and a copy of the switch, Enable at Start, and Distance Unit, which
+    /// INSTALL takes before the main file. Only the camera writes it.
     DialSets,
 }
 
@@ -328,34 +327,6 @@ mod tests {
         assert_eq!(CAPABILITIES[0].state, State::Effect);
         // The capabilities without a state key come last, so the state key
         // of index n is capability n (CORE_STATE_IDS in runtime/installer.c).
-        // The sets of the mode dial hold the first capabilities, the picture
-        // settings (`abi::DIAL_SET_CAPABILITIES`): their layout is that of
-        // GRKU 1.6, so these keep their order, and a later capability is one
-        // that a user mode does not change.
-        let held: Vec<_> = CAPABILITIES[..crate::abi::DIAL_SET_CAPABILITIES]
-            .iter()
-            .map(|capability| capability.key)
-            .collect();
-        assert_eq!(
-            held,
-            [
-                "TONE",
-                "ASPECT",
-                "GRAIN",
-                "GRAIN_SIZE",
-                "ASPECT_MODE",
-                "CROP",
-                "CROP_MODE"
-            ]
-        );
-        // A later capability with points is a border capability, which the
-        // border word of a set holds (runtime/mode_dial.h), or CORE.RECIPE.
-        assert!(CAPABILITIES[crate::abi::DIAL_SET_CAPABILITIES..]
-            .iter()
-            .all(|capability| capability.points.is_empty()
-                || capability.state == State::Recipes
-                || capability.key.starts_with("BORDER")));
-        assert_eq!(crate::abi::DIAL_SET_WORDS, 197);
         let keyed = state_keys().len();
         assert!(CAPABILITIES[keyed..]
             .iter()

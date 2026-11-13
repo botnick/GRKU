@@ -4,9 +4,9 @@
    includes it once, after the helpers, the state parser, and the effects.
 
    - The recipe file (GRKU/RECIPES.TXT, or RECIPES.TMP that a save cut by
-     the power left) holds the recipes, their names and IDs, the hash of the
-     last package library that INSTALL imported, and the user modes of the
-     mode dial (grku_core::runtime::recipe_key). INSTALL generates an ID
+     the power left) holds the recipes, their names and IDs, and the hash of
+     the last package library that INSTALL imported
+     (grku_core::runtime::recipe_key). INSTALL generates an ID
      (runtime/recipe_id.h) for each recipe without one, such as an added
      recipe.
      INSTALL restores them into the header, also without a module that uses
@@ -27,23 +27,22 @@
      the file. An added recipe keeps its on or off; one that is on goes after
      the recipes that are on. A recipe that the list holds takes the on or
      off of the library, because the site turns recipes on and off. A recipe that a person deleted on the camera does not come
-     back from the same package. The header of the library also sets the
-     user modes of the mode dial (GRKU_RCP_DIAL), once with the recipes: a
-     user mode keeps the value of the camera, follows, turns GRKU off, or
-     applies the recipe that record k became, by its ID. A record that INSTALL
-     does not import, or a recipe that ends up off, makes the user mode
-     follow. A record is usable if its name is at most
+     back from the same package. A record is usable if its name is at most
      GRKU_RCP_NAME_UNITS printable ASCII characters (none for the automatic
      name, as in the recipe file), its family is known,
      its first word is that of a recipe, and each word stays below 2^29. The
      core checks the values for the camera when a person applies the recipe.
    - REPORT.TXT tells the count, the import, and each recipe that cannot
      apply in full (check_recipes). The installer deletes no file.
-   - The file of the sets of the user modes (GRKU/USERMODE.TXT, or
-     USERMODE.TMP) holds the settings that the camera saved in each user
-     mode (runtime/mode_dial.h, grku_core::runtime::dial_set_key). INSTALL
-     restores them into the header as the file has them (install_dial_sets);
-     a set with more pairs than the header holds is damaged and stays out. */
+   - The file of the user modes of the mode dial (GRKU/USERMODE.TXT, or
+     USERMODE.TMP) holds the snapshot of each user mode, what each user mode
+     does, and whether GRKU is off at P/Av/Tv/M (runtime/mode_dial.h,
+     grku_core::runtime::dial_set_key). Only the camera writes it. INSTALL
+     restores them into the header as the file has them
+     (install_dial_sets); a set with more pairs than the header holds is
+     damaged and stays out. The file also holds a copy of the switch, Enable
+     at Start, and Distance Unit (runtime/manage.h: manage_copy), which
+     decides them before the main state file (read_manage_copy). */
 #include "recipe_id.h"
 static const char recipes_state_path[] = RECIPES_STATE_PATH, recipes_state_tmp_path[] = RECIPES_STATE_TMP_PATH;
 static const char dial_sets_path[] = DIAL_SETS_PATH, dial_sets_tmp_path[] = DIAL_SETS_TMP_PATH;
@@ -100,19 +99,15 @@ static u32 recipes_crc(const u8 *data, u32 size)
     return ~crc;
 }
 /* Whether the `size` bytes are a whole library file: the magic, the size
-   of its count of records, its CRC, and a user mode step for each user mode
-   (a record that the file has). */
+   of its count of records, and its CRC. */
 static int recipes_whole(const u8 *file, u32 size)
 {
     u32 count;
     if (size < GRKU_RCP_HEADER_SIZE || !equal(file + GRKU_RCP_MAGIC, (const u8 *)"GRKR0001", 8)) return 0;
     count = get32(file + GRKU_RCP_COUNT);
-    if (count > GRKU_RCP_MAX || get32(file + GRKU_RCP_BYTES) != size ||
-        size != GRKU_RCP_HEADER_SIZE + count * GRKU_RCP_RECORD_SIZE || get32(file + GRKU_RCP_CRC) != recipes_crc(file, size))
-        return 0;
-    for (u32 u = 0; u < GRKU_RECIPE_DIAL_POSITIONS; ++u)
-        if (get32(file + GRKU_RCP_DIAL + 4U * u) >= GRKU_RCP_DIAL_RECORD + count) return 0;
-    return 1;
+    return count <= GRKU_RCP_MAX && get32(file + GRKU_RCP_BYTES) == size &&
+           size == GRKU_RCP_HEADER_SIZE + count * GRKU_RCP_RECORD_SIZE &&
+           get32(file + GRKU_RCP_CRC) == recipes_crc(file, size);
 }
 /* Whether a record is usable. */
 /* A record of GRKU 1.8.4 and earlier holds five recipe words, then its family
@@ -201,15 +196,14 @@ static int recipes_store(u32 base)
     }
     return changed;
 }
-/* A generated ID (runtime/recipe_id.h) that no recipe of the list has and
-   that no user mode of `dial` names, or 0 when each candidate is taken. */
-static u32 recipes_new_id(const u32 *dial)
+/* A generated ID (runtime/recipe_id.h) that no recipe of the list has, or 0
+   when each candidate is taken. */
+static u32 recipes_new_id(void)
 {
     for (u32 attempt = 0; attempt < RECIPE_ID_ATTEMPTS; ++attempt) {
         u32 id = recipe_id_candidate(attempt);
         int taken = !id || id > GRKU_RECIPE_ID_MAX;
         for (u32 i = 0; i < recipes_count && !taken; ++i) taken = recipes_list[i].id == id;
-        for (u32 u = 0; u < GRKU_RECIPE_DIAL_POSITIONS && !taken; ++u) taken = dial[u] == id;
         if (!taken) return id;
     }
     return 0;
@@ -217,7 +211,7 @@ static u32 recipes_new_id(const u32 *dial)
 /* Generate an ID for each recipe that has none, or one that an earlier
    recipe has: a recipe of a package, or of a recipe file from before the
    IDs. 1 when a recipe got an ID. */
-static int recipes_give_ids(const u32 *dial)
+static int recipes_give_ids(void)
 {
     int changed = 0;
     for (u32 i = 0; i < recipes_count; ++i) {
@@ -225,7 +219,7 @@ static int recipes_give_ids(const u32 *dial)
         int taken = !id || id > GRKU_RECIPE_ID_MAX;
         for (u32 j = 0; j < i && !taken; ++j) taken = recipes_list[j].id == id;
         if (!taken) continue;
-        recipes_list[i].id = recipes_new_id(dial);
+        recipes_list[i].id = recipes_new_id();
         changed = 1;
     }
     return changed;
@@ -240,10 +234,7 @@ static u32 recipes_hash(const u8 *file, u32 size) { return (recipes_crc(file, si
 static void install_recipes(u32 base, u32 family)
 {
     u8 *text = recipes_text;
-    /* The recipe that each record of the library became, or
-       GRKU_RECIPE_SLOTS for a record that INSTALL did not import. */
-    static u8 record_recipe[GRKU_RCP_MAX];
-    u32 value, imported = 0, hash = 0, dial[GRKU_RECIPE_DIAL_POSITIONS];
+    u32 value, imported = 0, hash = 0;
     recipes_import = recipes_added = recipes_full = recipes_other = recipes_same = recipes_bad = recipes_switched = 0;
     long n = read_text(recipes_state_path, text, sizeof(recipes_text));
     if (n < 0) n = read_text(recipes_state_tmp_path, text, sizeof(recipes_text));
@@ -261,11 +252,6 @@ static void install_recipes(u32 base, u32 family)
             state_value(&saved_recipes, GRKU_RECIPE_ID_KEY_BASE + slot, &value) && value <= RECIPE_VALUE_MAX ? value : 0;
     }
     if (state_value(&saved_recipes, GRKU_RECIPE_IMPORTED_KEY, &value) && value <= RECIPE_VALUE_MAX) imported = value;
-    /* The user modes of the mode dial stay as the file has them, unless a
-       new library sets them. A user mode whose recipe is gone follows
-       (runtime/abi.h). */
-    for (u32 u = 0; u < GRKU_RECIPE_DIAL_POSITIONS; ++u)
-        dial[u] = state_value(&saved_recipes, GRKU_RECIPE_DIAL_KEY_BASE + u, &value) && value <= RECIPE_VALUE_MAX ? value : 0;
     /* The recipes: the run of recipe words. */
     recipes_count = 0;
     while (recipes_count < GRKU_RECIPE_SLOTS && recipe_first_word(recipes_list[recipes_count].words[0])) ++recipes_count;
@@ -278,7 +264,6 @@ static void install_recipes(u32 base, u32 family)
         for (u32 i = 0; i < records; ++i) {
             u8 *record = recipes_inbox + GRKU_RCP_HEADER_SIZE + i * GRKU_RCP_RECORD_SIZE;
             u32 w[GRKU_RECIPE_WORDS], name[GRKU_RECIPE_NAME_WORDS];
-            record_recipe[i] = GRKU_RECIPE_SLOTS;
             recipe_record_upgrade(record);
             if (!recipe_record_usable(record)) { ++recipes_bad; continue; }
             if (record[GRKU_RCP_RECORD_FAMILY] != family) { ++recipes_other; continue; }
@@ -294,11 +279,9 @@ static void install_recipes(u32 base, u32 family)
                     ++recipes_switched;
                 }
                 ++recipes_same;
-                record_recipe[i] = (u8)known;
                 continue;
             }
             if (recipes_count == GRKU_RECIPE_SLOTS) { ++recipes_full; continue; }
-            record_recipe[i] = (u8)recipes_count;
             for (u32 k = 0; k < GRKU_RECIPE_WORDS; ++k) recipes_list[recipes_count].words[k] = w[k];
             for (u32 k = 0; k < GRKU_RECIPE_NAME_WORDS; ++k) recipes_list[recipes_count].name[k] = name[k];
             recipes_list[recipes_count].id = 0;
@@ -307,37 +290,22 @@ static void install_recipes(u32 base, u32 family)
         }
         imported = hash;
     }
-    int given = recipes_give_ids(dial), changed = recipes_store(base);
-    /* The user modes that the new library sets. recipes_store turned off
-       each recipe on past GRKU_RECIPE_ON_MAX, so a recipe that is off now
-       makes its user mode follow. */
-    if (recipes_import == RECIPES_IMPORT_READ)
-        for (u32 u = 0; u < GRKU_RECIPE_DIAL_POSITIONS; ++u) {
-            u32 step = get32(recipes_inbox + GRKU_RCP_DIAL + 4U * u), recipe;
-            if (step == GRKU_RCP_DIAL_KEEP) continue;
-            dial[u] = step == GRKU_RCP_DIAL_OFF ? GRKU_RECIPE_DIAL_OFF : GRKU_RECIPE_DIAL_FOLLOW;
-            if (step < GRKU_RCP_DIAL_RECORD) continue;
-            recipe = record_recipe[step - GRKU_RCP_DIAL_RECORD];
-            if (recipe < recipes_count && !(recipes_list[recipe].words[GRKU_RECIPE_MODULE_WORD] & GRKU_RECIPE_OFF))
-                dial[u] = recipes_list[recipe].id;
-        }
-    for (u32 u = 0; u < GRKU_RECIPE_DIAL_POSITIONS; ++u) store(base + GRKU_HOST_RECIPE_DIAL + 4U * u, dial[u]);
-    /* The loader saves the recipe file with the hash and the user modes
-       (StateFile::Recipes) after an import, a change of the order, or new
-       IDs. */
+    int given = recipes_give_ids(), changed = recipes_store(base);
+    /* The loader saves the recipe file with the hash (StateFile::Recipes)
+       after an import, a change of the order, or new IDs. */
     store(base + GRKU_HOST_RECIPE_IMPORTED, imported);
     if (changed || given || recipes_import == RECIPES_IMPORT_READ) store(base + GRKU_HOST_RECIPE_CHANGES, 1);
 }
 
-/* Restore the sets of the user modes from their file. The loader saves the
-   file only after a save on the camera (GRKU_HOST_DIAL_SET_CHANGES), so a
-   set that stays out stays in the file until then. */
+/* Restore the settings of the user modes from their file. The loader saves
+   the file only after a change on the camera (GRKU_HOST_DIAL_SET_CHANGES),
+   so a set that stays out stays in the file until then. */
 static void install_dial_sets(u32 base)
 {
     long n = read_text(dial_sets_path, recipes_text, sizeof(recipes_text));
     if (n < 0) n = read_text(dial_sets_tmp_path, recipes_text, sizeof(recipes_text));
     state_parse(&saved_recipes, recipes_text, n);
-    for (u32 u = 0; u < GRKU_RECIPE_DIAL_POSITIONS; ++u) {
+    for (u32 u = 0; u < GRKU_DIAL_USER_MODES; ++u) {
         u32 key = GRKU_DIAL_SET_KEY_BASE + u * GRKU_DIAL_SET_KEY_STRIDE, value, count = 0;
         u32 set = base + GRKU_HOST_DIAL_SETS + 4U * u * GRKU_DIAL_SET_WORDS;
         if (state_value(&saved_recipes, key + GRKU_DIAL_SET_COUNT, &value)) count = value;
@@ -346,6 +314,54 @@ static void install_dial_sets(u32 base)
            writes each word up to GRKU_DIAL_SET_VALUE_MAX. */
         for (u32 w = 0; w < GRKU_DIAL_SET_WORDS; ++w)
             store(set + 4U * w, whole && state_value(&saved_recipes, key + w, &value) ? value : 0);
+    }
+    /* What each user mode does, then whether GRKU is off at P/Av/Tv/M,
+       which follows it in the header and in the keys. */
+    _Static_assert(GRKU_HOST_DIAL_SHARED_OFF == GRKU_HOST_DIAL_SLOTS + 4U * GRKU_DIAL_SLOT_WORDS * GRKU_DIAL_USER_MODES,
+                   "the row of P/Av/Tv/M follows the user modes");
+    for (u32 w = 0; w <= GRKU_DIAL_SLOT_WORDS * GRKU_DIAL_USER_MODES; ++w) {
+        u32 value;
+        store(base + GRKU_HOST_DIAL_SLOTS + 4U * w,
+              state_value(&saved_recipes, GRKU_DIAL_SLOT_KEY_BASE + w, &value) ? value : 0);
+    }
+}
+
+/* The copy of the switch, Enable at Start, and Distance Unit in the file
+   of the user modes decides them instead of the main state file: the core
+   writes the copy with each change of them, and the loader never holds that
+   file, so the copy is never older. The main state file can be: the core
+   holds it on a user mode with a snapshot (runtime/mode_dial.h). A value of
+   the copy goes into the pairs of the main state file, so start_switch,
+   order_modules, and apply_state take it as a saved value, and Keep Last
+   keeps the switch of the copy. A card without a copy, or a value out of
+   range, keeps the value of the main state file. plan_modules calls this
+   after read_state, so SCAN and INSTALL agree. */
+static void read_manage_copy(void)
+{
+    static const char *const keys[GRKU_MANAGE_COPY_WORDS] = {MANAGE_SWITCH_KEY, MANAGE_START_KEY, MANAGE_UNIT_KEY};
+    static const u32 values[GRKU_MANAGE_COPY_WORDS] = {2U, MANAGE_START_VALUES, MANAGE_UNIT_VALUES};
+    _Static_assert(GRKU_MANAGE_COPY_SWITCH == 0U && GRKU_MANAGE_COPY_START == 1U && GRKU_MANAGE_COPY_UNIT == 2U,
+                   "the keys follow the words of the copy");
+    long n = read_text(dial_sets_path, recipes_text, sizeof(recipes_text));
+    if (n < 0) n = read_text(dial_sets_tmp_path, recipes_text, sizeof(recipes_text));
+    state_parse(&saved_recipes, recipes_text, n);
+    for (u32 i = 0; i < GRKU_MANAGE_COPY_WORDS; ++i) {
+        u32 value;
+        if (state_value(&saved_recipes, GRKU_MANAGE_COPY_KEY + i, &value) && value && value - 1U < values[i])
+            state_set(&saved_state, grm_state_id(keys[i]), value - 1U);
+    }
+}
+/* Write the copy of the switch, Enable at Start, and Distance Unit into the
+   header: the values of this start in `table`, which apply_state restored,
+   for the handles of the module list. No count of changes moves, so the
+   file of the user modes saves only after a change on the camera. Without a
+   module list, no copy. */
+static void install_manage_copy(u32 base, u32 table)
+{
+    _Static_assert(GRKU_HOST_MANAGE_COPY == GRKU_HOST_DIAL_SHARED_OFF + 4U, "the copy follows the row of P/Av/Tv/M");
+    for (u32 i = 0; i < GRKU_MANAGE_COPY_WORDS; ++i) {
+        u32 at = table && module_list ? word(module_list + MANAGE_SWITCH + 4U * i) : 0;
+        store(base + GRKU_HOST_MANAGE_COPY + 4U * i, at ? word(table + 4U * SETTINGS_ENTRY(at - 1U) + 4U) + 1U : 0);
     }
 }
 

@@ -6,10 +6,8 @@
    (runtime/install_recipes.h) the ID of a recipe that they create. So a
    recipe that the site moves to another card keeps an ID that no recipe of
    that card is likely to have had. Each creator takes the first candidate
-   that is none of the IDs of the card and none of its user modes
-   (GRKU_HOST_RECIPE_DIAL), so a reference to a deleted recipe never names
-   another. The includer defines u32 and the GRKU_RECIPE_* values
-   (runtime/abi.h). */
+   that is none of the IDs of the card. The includer defines u32 and the
+   GRKU_RECIPE_* values (runtime/abi.h). */
 
 /* The candidates that a creator tries. Past them, the recipe goes without an
    ID, and INSTALL generates one at the next start. */
@@ -47,7 +45,5 @@ static u32 recipe_id_candidate(u32 attempt) {
     x ^= x >> 16;
     return x & 0x1fffffffU;
 }
-_Static_assert(GRKU_RECIPE_ID_MAX + 2U == 0x1fffffffU, "a candidate has the bits of an ID and of GRKU_RECIPE_DIAL_OFF");
-_Static_assert(GRKU_RECIPE_DIAL_SAVED > GRKU_RECIPE_ID_MAX && GRKU_RECIPE_DIAL_OFF > GRKU_RECIPE_DIAL_SAVED,
-               "no ID applies the saved settings or turns GRKU off");
+_Static_assert(GRKU_RECIPE_ID_MAX + 2U == 0x1fffffffU, "a candidate has the bits of an ID");
 #endif

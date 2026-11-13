@@ -33,7 +33,7 @@ import {
 } from './card';
 import { allowCard, forgetLastCard, saveLastCard } from './cardStore';
 import { useRecipeLibrary } from './recipeLibrary';
-import { DIAL_SAVED, effectCode, familyOf, withPreset, writeRecipeFile, type Family, type Recipe } from './recipes';
+import { effectCode, familyOf, withPreset, writeRecipeFile, type Family, type Recipe } from './recipes';
 import { RecipesPanel } from './components/RecipesPanel';
 import {
   changedImports,
@@ -656,12 +656,7 @@ export function App({
       // The recipes of the site replace the recipe file of the camera, which keeps its import
       // record; the library of a ZIP package has no more use.
       if (changes.recipes === 'write' && recipeLibrary.packageRecipes) {
-        const text = await writeRecipeFile(
-          recipeLibrary.packageRecipes,
-          family,
-          session.state.recipeText ?? '',
-          recipeLibrary.dial(session),
-        );
+        const text = await writeRecipeFile(recipeLibrary.packageRecipes, family, session.state.recipeText ?? '');
         files.push({ path: RECIPE_FILE, bytes: new TextEncoder().encode(text) });
         library.remove.push(RECIPES_PACKAGE);
       }
@@ -1058,26 +1053,6 @@ export function App({
                       grainModule={plan.modules.includes('GRAIN')}
                       glowModule={plan.modules.includes('GLOW')}
                       borderModule={plan.modules.includes('BORDER')}
-                      dial={
-                        // A card shows and writes its own dial; a ZIP package carries the choice
-                        // of this browser.
-                        !recipeLibrary.packageRecipes
-                          ? null
-                          : mode === 'zip'
-                            ? { shown: recipeLibrary.zipDial, canKeep: true, onChange: recipeLibrary.changeZipDial }
-                            : active
-                              ? {
-                                  shown: recipeLibrary.shownDial(active),
-                                  canKeep: false,
-                                  // The settings that the camera saved in a user mode stay a
-                                  // choice while the person tries another value.
-                                  saved: active.dial.map((value) => value === DIAL_SAVED),
-                                  onChange: (u: number, value: number | null) => {
-                                    if (value !== null) recipeLibrary.changeDial(active, u, value);
-                                  },
-                                }
-                              : null
-                      }
                     />
                   </Suspense>
                 </ErrorBoundary>
