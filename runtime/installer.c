@@ -550,7 +550,7 @@ static void apply_state(u32 base, u32 table)
     /* ADJ exited from GRKU on the last power-on: the next ADJ that opens
        opens GRKU (RETURN_POWERON in runtime/menu.c). An ADJ that is open
        now stays as it is. */
-    if (word(base + GRKU_HOST_ADJ_OPEN) == 1) store(base + GRKU_HOST_RETURN, 5);
+    if (word(base + GRKU_HOST_ADJ_OPEN) >= 1) store(base + GRKU_HOST_RETURN, 5);
     if (table) {
         u32 n = word(table);
         for (u32 k = 0; k < n && k < GRKU_MODULE_SETTINGS_MAX; ++k) {

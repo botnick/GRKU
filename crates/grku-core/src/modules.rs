@@ -38,6 +38,12 @@ pub fn default_package() -> impl Iterator<Item = &'static Official> {
 /// The official modules, in the order that the site shows them.
 pub const OFFICIAL: [Official; 11] = [
     Official {
+        id: "RECIPES",
+        folder: "recipes",
+        key: "recipes",
+        needs_effects: false,
+    },
+    Official {
         id: "FILMLOOK",
         folder: "film-look",
         key: "filmLook",
@@ -95,12 +101,6 @@ pub const OFFICIAL: [Official; 11] = [
         id: "GRAIN",
         folder: "grain",
         key: "grain",
-        needs_effects: false,
-    },
-    Official {
-        id: "RECIPES",
-        folder: "recipes",
-        key: "recipes",
         needs_effects: false,
     },
 ];

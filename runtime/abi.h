@@ -547,7 +547,7 @@
 #define GRKU_CORE_CROP_MODE_VALUES 2U
 #define GRKU_CORE_CROP_MODE_BIT 0x40
 #define GRKU_CORE_ADJ 0x107U
-#define GRKU_CORE_ADJ_VALUES 2U
+#define GRKU_CORE_ADJ_VALUES 6U
 #define GRKU_CORE_ADJ_BIT 0x80
 #define GRKU_CORE_ADJ_MODULE 0x108U
 #define GRKU_CORE_ADJ_MODULE_VALUES 19U
@@ -562,7 +562,7 @@
 #define GRKU_CORE_RECIPE_VALUES 0U
 #define GRKU_CORE_RECIPE_BIT 0x800
 #define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,4056,188,1084,1088,0
-#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,5,2,2,19,4,2,0
+#define GRKU_CORE_SETTING_VALUES 0,8,5,4,2,5,2,6,19,4,2,0
 
 /* An Image Control record. The records follow the header. */
 #define GRKU_RECORD_SIZE 0x1100
@@ -944,23 +944,24 @@
 #define TEXT_RESTART 9
 /* The Image Control settings row that opens the Fn adjustments. */
 #define TEXT_ADJUSTMENTS 10
-/* The ADJ Order row of MENU. */
+/* The ADJ Order row of GRKU Settings, then the places of its value pages: the
+   entries 1 to 4 of the ADJ toolbar before GRKU, and Hidden. */
 #define TEXT_ADJ 11
 /* The settings row that lists the options of a module page. */
-#define TEXT_OPTIONS 12
+#define TEXT_OPTIONS 17
 /* About GRKU: the title, the Version row and its value, the Website row and
    its value, and the Film Look row, whose value the menu counts. */
-#define TEXT_ABOUT 13
+#define TEXT_ABOUT 18
 /* The Film Look settings row that selects the effect. */
-#define TEXT_FILM 19
+#define TEXT_FILM 24
 /* The guides of an options value page: OK turns an option on or off, MENU goes
    back. */
-#define TEXT_GUIDE 20
+#define TEXT_GUIDE 25
 /* The switch that stops each module at once: its ADJ summary while on, and
    while off, then its MENU row. */
-#define TEXT_SWITCH 22
+#define TEXT_SWITCH 27
 /* Between a group title and its value in the ADJ root summary. */
-#define TEXT_SEPARATOR 25
+#define TEXT_SEPARATOR 30
 /* The page of recipes: the Undo and Save rows, the text before a saved name,
    the text before and after the name to delete, the message when the recipes
    are full, the text of a missing effect, the name of a recipe without a look,
@@ -970,19 +971,19 @@
    effect is not installed, the Apply row of the Recipes page of MENU, and the
    message of an apply that left out the settings of a module that is not
    loaded, for each module of the recipe settings. */
-#define TEXT_RECIPE 26
+#define TEXT_RECIPE 31
 /* The names of the native Image Control types, in the order of
    runtime/native.h. */
-#define TEXT_NATIVE_TYPE 42
+#define TEXT_NATIVE_TYPE 47
 /* Enable at Start, which decides the switch at each start: its MENU row, then
    its Keep Last value. Its On and Off are TEXT_ON and TEXT_OFF. */
-#define TEXT_START 63
+#define TEXT_START 68
 /* The Mode Dial row of the Recipes page of MENU, then the values of a user
    mode besides a recipe: None, GRKU Off, and Saved Settings. */
-#define TEXT_DIAL 65
+#define TEXT_DIAL 70
 /* GRKU Settings, the MENU row and the title of the settings page of the core,
    then its Distance Unit row and the values Meters and Feet. */
-#define TEXT_UNIT 69
-#define GRKU_TEXT_STRINGS 73
+#define TEXT_UNIT 74
+#define GRKU_TEXT_STRINGS 78
 
 #endif
