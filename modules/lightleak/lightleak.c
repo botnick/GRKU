@@ -350,7 +350,7 @@ static void leak_colour(u32 palette, u32 a, int out[3])
     while (i < 3 && a > at[i + 1]) ++i;
     u32 span = at[i + 1] - at[i], f = a <= at[i] ? 0 : a >= at[i + 1] ? span : a - at[i];
     for (k = 0; k < 3; ++k)
-        out[k] = (int)((stops[palette][i][k] * (span - f) + stops[palette][i + 1][k] * f) / span);
+        out[k] = (int)divide(stops[palette][i][k] * (span - f) + stops[palette][i + 1][k] * f, span);
 }
 
 /* Screen colour c into the sensor pixel at amount m (0..Q), in RGB; the chroma of a pixel pair (and of
