@@ -1,3 +1,12 @@
+## 1.8.6 (2026-11-13)
+
+### Fixes
+
+- The FUJIFILM looks sit on the box of their film instead of a grey box: Provia blue, Velvia green, Astia cream, Acros and Eterna black, Reala Ace green, Pro Neg Std as Pro 160S, Classic Neg red, Classic Chrome dark slate. Reggie's Portra sits on a Kodak Portra box with a green FUJI RECIPE label, and stays a free camera look.
+- Four FUJIFILM recipes from Fuji X Weekly, made with the measured recipe model on FUJIFILM's own F-Log2 film simulation LUTs: Kodachrome 64 and Gold 200 (Classic Chrome), Tri-X 400 (Acros), and Reggie's Superia (Classic Neg.). Each is in the box of the film it is named after, with a FUJI RECIPE label.
+- Light Leak draws a new leak. Light fogs the film from an edge, a corner, a band, a burn, or a pale streak, along a smoky boundary from value noise, and gathers at its source instead of hazing the frame. Its colour runs from a magenta fringe through red and orange to a warm core (orange, magenta-red, or golden), and it is tinted and screened in, so it never darkens a pixel. Bokeh comes with it: out-of-focus orbs of the leaking light near its source, and a few lens ghosts on the line through the centre. Strong adds a weaker leak from the other edge.
+- Light Leak puts its dust, hairs, leak, and scratches in the same place in the photo, its screennail, and its thumbnail, so they no longer jump when the camera shows a photo after a shot. Each one draws its own random numbers in a scale of the frame, not of the plane, and a test checks the main picture against the thumbnail. The scratches are more random: 1-2, 2-4, or 4-7 by strength, short marks and long runs, a wandering drift across the frame, breaks, and an alpha that rises and falls.
+
 ## 1.8.5 (2026-11-12)
 
 ### Fixes
