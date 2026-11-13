@@ -11,6 +11,15 @@ export interface Release {
 
 export const RELEASES: Release[] = [
   {
+    "version": "1.8.6",
+    "date": "2026-11-13",
+    "items": [
+      "186.1",
+      "186.2",
+      "186.3"
+    ]
+  },
+  {
     "version": "1.8.5",
     "date": "2026-11-13",
     "items": [
@@ -86,6 +95,9 @@ export const RELEASES: Release[] = [
 
 const STRINGS: Record<Language, Record<string, string>> = {
   "en": {
+    "186.1": "Four FUJIFILM recipes from Fuji X Weekly, measured like Reggie's Portra: Kodachrome 64, Gold 200, Tri-X 400, and Reggie's Superia.",
+    "186.2": "A new Light Leak: warm light from an edge, a corner, or a band, strongest where it comes in, with bokeh orbs and lens ghosts. It no longer moves between the photo and its preview.",
+    "186.3": "Light Leak scratches are more random, and the FUJIFILM looks come in the box of their film.",
     "185.1": "New look: Reggie's Portra, the most popular Fujifilm recipe, on FUJIFILM's own Classic Chrome with each setting measured from real Fujifilm camera photos. Free, it takes no slot.",
     "185.2": "Border now goes around the whole photo, so nothing is cut, with a new Instant style. Recipes and U1 to U3 keep the border too.",
     "185.3": "Distance Unit in MENU, under GRKU Settings: the Snap distances and the manual focus scale in meters or feet.",
@@ -118,6 +130,9 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "160.6": "GRKU starts faster when you turn the camera on."
   },
   "zh-Hans": {
+    "186.1": "来自 Fuji X Weekly 的四款 FUJIFILM 配方，采用与 Reggie's Portra 相同的测光基准：Kodachrome 64、Gold 200、Tri-X 400 与 Reggie's Superia。",
+    "186.2": "全新 Light Leak 效果：边缘、角落或条带状的暖光，入射处最强，伴有焦外光斑和镜头眩光。照片与预览效果现已完全一致，不再偏移。",
+    "186.3": "Light Leak 划痕更加随机自然，FUJIFILM 色彩风格采用对应胶片包装盒图案呈现。",
     "title": "更新日志",
     "lead": "GRKU 各版本更新，按时间倒序排列。如需更新，请通过本页面重新写入存储卡，或将新固件包复制至卡中。",
     "latest": "最新",
@@ -150,6 +165,9 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "强 Glow 效果在大面积光源周围过渡更自然；执行 Rename 与 Delete 后配方标记仍会保留；优化 16 种正片胶片外观，使明亮肤色更加通透。"
   },
   "zh-Hant": {
+    "186.1": "四款源自 Fuji X Weekly 的 FUJIFILM 配方，採用與 Reggie's Portra 相同的測量標準：Kodachrome 64、Gold 200、Tri-X 400 與 Reggie's Superia。",
+    "186.2": "全新 Light Leak 效果：暖色光線自邊緣、角落或呈光帶透入，入射處效果最強烈，伴隨散景光斑與鏡頭鬼影。照片與預覽畫面之間的位置不再偏移。",
+    "186.3": "Light Leak 刮痕效果更隨機自然，FUJIFILM 色調外觀亦改以其底片盒包裝呈現。",
     "title": "最新消息",
     "lead": "GRKU 各版本更新記錄，依發布時間由新至舊排列。如需更新，請於此頁面重新寫入記憶卡，或將新版本套件複製至記憶卡中。",
     "latest": "最新",
@@ -182,6 +200,9 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "強烈 Glow 在強光源周圍更顯自然均勻；Rename 與 Delete 後仍保留配方標記；16 款相紙底片外觀維持明亮膚色。"
   },
   "ja": {
+    "186.1": "Fuji X Weeklyによる4種類のFUJIFILMレシピを追加（Reggie's Portraと同様の測定に基づく）：Kodachrome 64、Gold 200、Tri-X 400、Reggie's Superia。",
+    "186.2": "新しいLight Leak：端や四隅、帯状に差し込む温かみのある光。入射部が最も強く、玉ボケやゴーストも再現。撮影画像とプレビュー間での位置ズレも解消しました。",
+    "186.3": "Light Leakのキズのランダム性を向上。FUJIFILMルックは各フィルムパッケージのデザインで表示されます。",
     "title": "更新履歴",
     "lead": "GRKUの各バージョンの更新履歴です（新しい順）。アップデートするには、このページからSDカードに再度書き込むか、新しいパッケージをカードにコピーしてください。",
     "latest": "新着",
@@ -214,6 +235,9 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "強度の高いGlowが大きな光源の周囲でも均一に適用されるよう改善。RenameやDelete後もレシピマークが保持され、16種のプリントフィルムルックで明るいスキントーンが維持されます。"
   },
   "ko": {
+    "186.1": "Fuji X Weekly의 4가지 FUJIFILM 레시피 추가(Reggie's Portra와 동일한 방식으로 측정): Kodachrome 64, Gold 200, Tri-X 400, Reggie's Superia.",
+    "186.2": "새로운 Light Leak: 가장자리, 모서리 또는 띠 형태로 유입되는 따뜻한 빛 효과 추가(빛이 들어오는 부분이 가장 강하며 보케 및 렌즈 고스트 포함). 사진과 미리보기 간에 위치가 달라지지 않습니다.",
+    "186.3": "Light Leak의 스크래치가 더 무작위로 적용되며, FUJIFILM 룩은 해당 필름 패키지 디자인으로 제공됩니다.",
     "title": "새로운 기능",
     "lead": "GRKU의 업데이트 내역입니다(최신순). 업데이트하려면 이 페이지에서 카드를 다시 쓰거나 새 패키지를 카드에 복사하십시오.",
     "latest": "최신",
@@ -246,6 +270,9 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "강한 광원 주변에서도 강한 Glow 효과가 균일하게 유지되며, Rename 및 Delete 후에도 레시피 표시가 유지됩니다. 16종의 인화 필름 룩에서 밝은 피부 톤 표현이 유지됩니다."
   },
   "th": {
+    "186.1": "สูตรสี FUJIFILM 4 แบบจาก Fuji X Weekly วัดค่าแบบเดียวกับ Reggie's Portra: Kodachrome 64, Gold 200, Tri-X 400 และ Reggie's Superia",
+    "186.2": "เอฟเฟกต์ Light Leak ใหม่: แสงอุ่นจากขอบภาพ มุมภาพ หรือเป็นแถบแสง สว่างชัดตรงจุดที่แสงเข้า พร้อมโบเก้กลมและแฟลร์เลนส์ และตำแหน่งจะไม่เลื่อนระหว่างรูปจริงกับภาพพรีวิวอีกต่อไป",
+    "186.3": "รอยขีดข่วนของ Light Leak สุ่มได้เป็นธรรมชาติต่างกันมากขึ้น และโทนสี FUJIFILM มาพร้อมกล่องฟิล์มตรงรุ่น",
     "title": "มีอะไรใหม่",
     "lead": "รวมทุกอัปเดตของ GRKU เรียงจากใหม่ไปเก่า อัปเดตได้โดยเขียนข้อมูลลงการ์ดใหม่จากหน้านี้ หรือคัดลอกไฟล์เวอร์ชันใหม่ลงในการ์ด",
     "latest": "ใหม่",
