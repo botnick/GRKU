@@ -64,4 +64,4 @@ Reggie's Portra (Reggie Ballesteros), Reggie's Superia (Reggie Ballesteros), Kod
 
 ### Names
 
-Effect names and film, paper, and filter names identify the simulated materials. Some of these names are trademarks of their owners. GRKU is not affiliated with or endorsed by RICOH IMAGING COMPANY, LTD., Eastman Kodak Company, Kodak Alaris, Fujifilm, HARMAN technology Limited (Ilford Photo), Agfa, Polaroid, Lomography, Rollei, or CineStill. The simulations are models of published data or hand-made styles, not measured equivalents of the products.
+Effect names and film, paper, and filter names identify the simulated materials. Some of these names are trademarks of their owners. GRKU is not affiliated with or endorsed by RICOH IMAGING COMPANY, LTD., Eastman Kodak Company, Kodak Alaris, Fujifilm, HARMAN technology Limited (Ilford Photo), Agfa, Polaroid, Lomography, Rollei, or CineStill Film. The simulations are models of published data or hand-made styles, not measured equivalents of the products.

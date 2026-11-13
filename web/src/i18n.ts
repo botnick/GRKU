@@ -383,7 +383,7 @@ const en = {
   ready: 'GRKU.zip is ready.',
   buildError: 'GRKU.zip cannot be prepared. Check the connection and try again.',
   trademarks:
-    'GRKU is not affiliated with or endorsed by Ricoh, Kodak, Fujifilm, or Ilford. Some camera, film, and paper names are trademarks of their owners.',
+    'GRKU is not affiliated with or endorsed by Ricoh, Kodak, Fujifilm, Ilford, or CineStill. Some camera, film, and paper names are trademarks of their owners.',
   licenses: 'Film look licenses',
   thirdParty: 'Third-party licenses',
   recovery: 'Recovery guide',
@@ -1032,7 +1032,7 @@ const zhHans: Strings = {
   ready: 'GRKU.zip 已就绪。',
   buildError: '无法准备 GRKU.zip。请检查网络后重试。',
   trademarks:
-    'GRKU 与 Ricoh、Kodak、Fujifilm、Ilford 无隶属关系，也未获其认可。部分相机、胶片和相纸名称是其所有者的商标。',
+    'GRKU 与 Ricoh、Kodak、Fujifilm、Ilford、CineStill 无隶属关系，也未获其认可。部分相机、胶片和相纸名称是其所有者的商标。',
   licenses: '胶片风格许可',
   thirdParty: '第三方许可',
   recovery: '恢复指南',
@@ -1629,7 +1629,7 @@ const zhHant: Strings = {
   ready: 'GRKU.zip 已就緒。',
   buildError: '無法準備 GRKU.zip。請檢查網路後再試。',
   trademarks:
-    'GRKU 與 Ricoh、Kodak、Fujifilm、Ilford 無關，也未獲得其認可。部分相機、底片與相紙名稱為其所有者的商標。',
+    'GRKU 與 Ricoh、Kodak、Fujifilm、Ilford、CineStill 無關，也未獲得其認可。部分相機、底片與相紙名稱為其所有者的商標。',
   licenses: '底片風格授權',
   thirdParty: '第三方授權',
   recovery: '復原指南',
@@ -2229,7 +2229,7 @@ const ja: Strings = {
   ready: 'GRKU.zip の準備ができました。',
   buildError: 'GRKU.zip を準備できません。接続を確認して、もう一度お試しください。',
   trademarks:
-    'GRKU は Ricoh、Kodak、Fujifilm、Ilford とは関係がなく、これらの企業の承認も受けていません。一部のカメラ、フィルム、印画紙の名称は、各所有者の商標です。',
+    'GRKU は Ricoh、Kodak、Fujifilm、Ilford、CineStill とは関係がなく、これらの企業の承認も受けていません。一部のカメラ、フィルム、印画紙の名称は、各所有者の商標です。',
   licenses: 'フィルムルックのライセンス',
   thirdParty: 'サードパーティーのライセンス',
   recovery: '復旧ガイド',
@@ -2828,7 +2828,7 @@ const ko: Strings = {
   ready: 'GRKU.zip이 준비되었습니다.',
   buildError: 'GRKU.zip을 준비할 수 없습니다. 인터넷 연결을 확인하고 다시 시도하세요.',
   trademarks:
-    'GRKU은 Ricoh, Kodak, Fujifilm, Ilford와 관련이 없으며 이들 회사의 승인을 받지 않았습니다. 일부 카메라, 필름, 인화지 이름은 각 소유자의 상표입니다.',
+    'GRKU은 Ricoh, Kodak, Fujifilm, Ilford, CineStill과 관련이 없으며 이들 회사의 승인을 받지 않았습니다. 일부 카메라, 필름, 인화지 이름은 각 소유자의 상표입니다.',
   licenses: '필름 룩 라이선스',
   thirdParty: '서드파티 라이선스',
   recovery: '복구 가이드',
