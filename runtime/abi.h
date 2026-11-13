@@ -291,7 +291,9 @@
 #define GRKU_HOST_CAPABILITIES 204
 /* Framing ratio: 0 native, then the Framing rows. */
 #define GRKU_HOST_FRAME_RATIO 208
-/* ADJ Framing page preview: 0 none, else the highlighted ratio + 1. */
+/* ADJ page preview: the highlighted ratio + 1 in the low byte, 0 none, and 1 +
+   the slot of the recipe whose settings ADJ shows in the next byte
+   (runtime/services.h: FRAME_PREVIEW_PANEL). */
 #define GRKU_HOST_FRAME_PREVIEW 212
 /* Number of Framing paints. A diagnostic. */
 #define GRKU_HOST_FRAME_DRAWS 216
@@ -881,10 +883,11 @@
    GRKU_SUMMARY_UNITS units each, language-major. */
 #define GRKU_TEXT_SIZE 24576
 /* Live-view labels after the menu text. The installer copies the label table
-   of the build (grku_core::artwork::overlay_labels): for label n, a u16 width,
-   a u16 height, and the u32 offset of its pixels from the table start at 8 n.
-   Each pixel is one byte of text coverage, row by row. */
-#define GRKU_LABELS_SIZE 28672
+   of the build (grku_core::artwork::overlay_labels): the labels, then the
+   glyphs from GRKU_GLYPH_FIRST. For entry n, a u16 width, a u16 height, and
+   the u32 offset of its pixels from the table start at 8 n. Each pixel is one
+   byte of text coverage, row by row. */
+#define GRKU_LABELS_SIZE 53248
 /* The profile table after the labels (runtime/profile.h). For each of the
    first GRKU_PROFILE_MODULES listed modules, at GRKU_PROFILE_MODULE_SIZE n:
    its code start, its code end, and GRKU_PROFILE_NAME_BYTES ASCII bytes of its
@@ -892,7 +895,7 @@
    GRKU_PROFILE_SLOT_SIZE bytes: calls, cycles, and the cycles of the largest
    call. The core points come first, then GRKU_PROFILE_KINDS slots for each of
    those modules. */
-#define GRKU_PROFILE 195208
+#define GRKU_PROFILE 219784
 #define GRKU_PROFILE_SIZE 500
 #define GRKU_PROFILE_MODULES 8
 #define GRKU_PROFILE_MODULE_SIZE 16
@@ -913,10 +916,10 @@
 #define GRKU_PROFILE_FILTER 1
 #define GRKU_PROFILE_CALL 2
 /* Everything after the records: the script array must hold it. */
-#define GRKU_TAIL_SIZE 199804
+#define GRKU_TAIL_SIZE 224380
 /* The own red and blue curves of the native looks with Toning: for each of
    GRKU_TONE_SLOTS slots, 256 u16 red samples, then the blue ones. */
-#define GRKU_TONE_CURVES 195708
+#define GRKU_TONE_CURVES 220284
 #define GRKU_TONE_SLOTS 4
 #define GRKU_TONE_SLOT_SIZE 1024
 #define GRKU_TEXT_SUMMARY 8192
@@ -938,6 +941,9 @@
 #define GRKU_LABELS(h) (GRKU_TEXT(h)+GRKU_TEXT_SIZE)
 #define GRKU_LABEL_COUNT 18
 #define GRKU_MODULE_LABEL_COUNT 14
+#define GRKU_GLYPH_FIRST 18
+#define GRKU_GLYPH_COUNT 95
+#define GRKU_GLYPH_HEIGHT 28
 /* String IDs of the label table, in grku_core::menu_text order. A run of IDs
    follows the rows or values that it names. */
 #define TEXT_OFF 0
@@ -981,25 +987,25 @@
    the message of a value that the camera does not have, the message of an
    apply whose Grain has no effect, then the two buttons of Fn on a camera
    recipe: Rename and Delete, then the mark after the name of a recipe whose
-   effect is not installed, the Apply row of the Recipes page of MENU, and the
-   message of an apply that left out the settings of a module that is not
-   loaded, for each module of the recipe settings. */
+   effect is not installed, the Apply and View rows of the Recipes page of
+   MENU, and the message of an apply that left out the settings of a module
+   that is not loaded, for each module of the recipe settings. */
 #define TEXT_RECIPE 31
 /* The names of the native Image Control types, in the order of
    runtime/native.h. */
-#define TEXT_NATIVE_TYPE 47
+#define TEXT_NATIVE_TYPE 48
 /* Enable at Start, which decides the switch at each start: its MENU row, then
    its Keep Last value. Its On and Off are TEXT_ON and TEXT_OFF. */
-#define TEXT_START 68
+#define TEXT_START 69
 /* The Mode Dial row of GRKU Settings in MENU, then Save Current Settings, the
    action of a user mode, then the text before and after P/Av/Tv/M in the value
    of a user mode that does the same, then the text before and after the name
    of a user mode in the confirm before Save Current Settings overwrites its
    native slot. */
-#define TEXT_DIAL 70
+#define TEXT_DIAL 71
 /* GRKU Settings, the MENU row and the title of the settings page of the core,
    then its Distance Unit row and the values Meters and Feet. */
-#define TEXT_UNIT 76
-#define GRKU_TEXT_STRINGS 80
+#define TEXT_UNIT 77
+#define GRKU_TEXT_STRINGS 81
 
 #endif
