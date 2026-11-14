@@ -568,7 +568,7 @@ fn a_kept_recipe_keeps_its_id_unless_the_site_has_it() {
 /// The mode dial keeps its settings in its own file. A write of the site
 /// keeps the keys of the user modes that GRKU 1.8.6 kept after the IDs, and
 /// the import hash: the camera moves their GRKU Off to the file of the user
-/// modes and then rewrites the recipe file without them.
+/// modes until a later build saved that file.
 #[test]
 fn a_write_keeps_the_keys_of_the_mode_dial_of_1_8_6() {
     use crate::runtime::{RECIPE_ID_KEY_BASE, RECIPE_IMPORTED_KEY, RECIPE_SLOTS};

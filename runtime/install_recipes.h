@@ -233,9 +233,7 @@ static u32 recipes_hash(const u8 *file, u32 size) { return (recipes_crc(file, si
    another family counts in recipes_other. */
 /* The keys of what U1 to U3 did in the recipe file of GRKU 1.8.6. */
 #define LEGACY_DIAL_KEY_BASE (GRKU_RECIPE_ID_KEY_BASE + GRKU_RECIPE_SLOTS)
-/* The loader rewrites a recipe file with these keys (legacy_dial_keys), which
-   it does not write, so the migration happens once. */
-static u32 legacy_dial_off, legacy_dial_keys;
+static u32 legacy_dial_off;
 static void install_recipes(u32 base, u32 family)
 {
     u8 *text = recipes_text;
@@ -258,14 +256,12 @@ static void install_recipes(u32 base, u32 family)
     }
     if (state_value(&saved_recipes, GRKU_RECIPE_IMPORTED_KEY, &value) && value <= RECIPE_VALUE_MAX) imported = value;
     /* GRKU 1.8.6 kept what U1 to U3 do in this file, after the recipe IDs:
-       its GRKU Off (RECIPE_VALUE_MAX) becomes Off of the user mode, when the
-       file of the user modes has no value for it yet (install_dial_sets). */
-    legacy_dial_off = legacy_dial_keys = 0;
+       its GRKU Off (RECIPE_VALUE_MAX) becomes Off of the user mode while the
+       file of the user modes is one of 1.8.6 (install_dial_sets). The keys
+       stay: a later build ignores them. */
+    legacy_dial_off = 0;
     for (u32 u = 0; u < GRKU_DIAL_USER_MODES; ++u)
-        if (state_value(&saved_recipes, LEGACY_DIAL_KEY_BASE + u, &value)) {
-            legacy_dial_keys = 1;
-            if (value == RECIPE_VALUE_MAX) legacy_dial_off |= 1U << u;
-        }
+        if (state_value(&saved_recipes, LEGACY_DIAL_KEY_BASE + u, &value) && value == RECIPE_VALUE_MAX) legacy_dial_off |= 1U << u;
     /* The recipes: the run of recipe words. */
     recipes_count = 0;
     while (recipes_count < GRKU_RECIPE_SLOTS && recipe_first_word(recipes_list[recipes_count].words[0])) ++recipes_count;
@@ -308,7 +304,7 @@ static void install_recipes(u32 base, u32 family)
     /* The loader saves the recipe file with the hash (StateFile::Recipes)
        after an import, a change of the order, or new IDs. */
     store(base + GRKU_HOST_RECIPE_IMPORTED, imported);
-    if (changed || given || recipes_import == RECIPES_IMPORT_READ || legacy_dial_keys) store(base + GRKU_HOST_RECIPE_CHANGES, 1);
+    if (changed || given || recipes_import == RECIPES_IMPORT_READ) store(base + GRKU_HOST_RECIPE_CHANGES, 1);
 }
 
 /* Restore the settings of the user modes from their file. The loader saves
@@ -338,12 +334,19 @@ static void install_dial_sets(u32 base)
         store(base + GRKU_HOST_DIAL_SLOTS + 4U * w,
               state_value(&saved_recipes, GRKU_DIAL_SLOT_KEY_BASE + w, &value) ? value : 0);
     }
-    for (u32 u = 0; u < GRKU_DIAL_USER_MODES; ++u) {
-        u32 value, at = u * GRKU_DIAL_SLOT_WORDS + GRKU_DIAL_SLOT_VALUE;
-        if (!(legacy_dial_off >> u & 1U) || state_value(&saved_recipes, GRKU_DIAL_SLOT_KEY_BASE + at, &value)) continue;
-        store(base + GRKU_HOST_DIAL_SLOTS + 4U * at, GRKU_DIAL_VALUE_OFF);
-        store(base + GRKU_HOST_DIAL_SET_CHANGES, 1);
-    }
+    /* A file of the user modes that a later build saved has the copy of the
+       switch, which INSTALL always fills (install_manage_copy) and 1.8.6 did
+       not have: it decides, also when it gives On by leaving a value out.
+       Else the GRKU Off of 1.8.6 moves over, and the loader saves the file,
+       with the copy. Until that save, each start moves it over again. */
+    u32 copy;
+    if (!state_value(&saved_recipes, GRKU_MANAGE_COPY_KEY + GRKU_MANAGE_COPY_SWITCH, &copy))
+        for (u32 u = 0; u < GRKU_DIAL_USER_MODES; ++u) {
+            u32 value, at = u * GRKU_DIAL_SLOT_WORDS + GRKU_DIAL_SLOT_VALUE;
+            if (!(legacy_dial_off >> u & 1U) || state_value(&saved_recipes, GRKU_DIAL_SLOT_KEY_BASE + at, &value)) continue;
+            store(base + GRKU_HOST_DIAL_SLOTS + 4U * at, GRKU_DIAL_VALUE_OFF);
+            store(base + GRKU_HOST_DIAL_SET_CHANGES, 1);
+        }
 }
 
 /* The copy of the switch, Enable at Start, and Distance Unit in the file

@@ -55,7 +55,8 @@ fn a_recipe_file_keeps_the_ids_of_its_recipes() {
 }
 
 /// A write of the site keeps the keys of the user modes that GRKU 1.8.6 kept
-/// after the IDs, until the camera moves their GRKU Off to its own file.
+/// after the IDs, which the camera reads until it saved the file of the user
+/// modes.
 #[test]
 fn a_recipe_file_keeps_the_keys_of_the_mode_dial_of_1_8_6() {
     use grku_core::runtime::{RECIPE_ID_KEY_BASE, RECIPE_SLOTS};

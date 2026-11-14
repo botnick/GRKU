@@ -1853,17 +1853,26 @@ static void the_sets_of_the_user_modes_restore(void)
     assert(word(header + GRKU_HOST_DIAL_SLOTS + 4 * (GRKU_DIAL_SLOT_WORDS + GRKU_DIAL_SLOT_VALUE)) == GRKU_DIAL_VALUE_SNAPSHOT);
     assert(!word(header + GRKU_HOST_DIAL_SLOTS + 4 * (2 * GRKU_DIAL_SLOT_WORDS + GRKU_DIAL_SLOT_VALUE)));
     assert(word(header + GRKU_HOST_DIAL_SET_CHANGES) == 1);
+    /* A file that a later build saved, with the copy of the switch, decides:
+       U1, which it leaves out, stays On. */
+    reset();
+    for (u32 k = 0; k < GRKU_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    at = (u32)strlen(text);
+    snprintf(text + at, sizeof text - at, "%u\r\n2\r\n", GRKU_MANAGE_COPY_KEY + GRKU_MANAGE_COPY_SWITCH);
+    add_text(DIAL_SETS_PATH, text);
+    legacy_dial_off = 1;
+    install_dial_sets(header);
+    assert(!word(header + GRKU_HOST_DIAL_SLOTS + 4 * GRKU_DIAL_SLOT_VALUE) && !word(header + GRKU_HOST_DIAL_SET_CHANGES));
     /* The recipe file of 1.8.6 with U2 GRKU Off and U3 a recipe: INSTALL
-       reads the Off, and the loader rewrites the file without these keys,
-       so a later On of U2 stays. */
+       reads the Off, and asks for no rewrite of the recipe file. */
     reset();
     for (u32 k = 0; k < GRKU_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
     snprintf(text, sizeof text, "%u\r\n%u\r\n%u\r\n%u\r\n", GRKU_RECIPE_ID_KEY_BASE + GRKU_RECIPE_SLOTS + 1, (u32)RECIPE_VALUE_MAX,
              GRKU_RECIPE_ID_KEY_BASE + GRKU_RECIPE_SLOTS + 2, 7U);
     add_text(RECIPES_STATE_PATH, text);
     install_recipes(header, GRKU_RCP_FAMILY_GR3);
-    assert(legacy_dial_off == 2 && legacy_dial_keys && word(header + GRKU_HOST_RECIPE_CHANGES) == 1);
-    legacy_dial_off = legacy_dial_keys = 0;
+    assert(legacy_dial_off == 2 && !word(header + GRKU_HOST_RECIPE_CHANGES));
+    legacy_dial_off = 0;
 }
 
 /* INSTALL publishes a baseline after restores, before any App edits. The

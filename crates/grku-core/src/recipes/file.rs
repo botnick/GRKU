@@ -161,9 +161,9 @@ pub fn write_recipe_file(recipes: &[Recipe], family: Family, previous: &str) -> 
         put(RECIPE_ID_KEY_BASE + slot as u32, record.id);
     }
     put(RECIPE_IMPORTED_KEY, value(RECIPE_IMPORTED_KEY));
-    // What U1 to U3 did in GRKU 1.8.6 stays until the camera moves its GRKU
-    // Off to the file of the user modes and rewrites this file without it
-    // (runtime/install_recipes.h).
+    // What U1 to U3 did in GRKU 1.8.6 stays: the camera moves its GRKU Off
+    // to the file of the user modes until that file is one of a later build
+    // (runtime/install_recipes.h), and then ignores it.
     for u in 0..LEGACY_DIAL_POSITIONS {
         put(LEGACY_DIAL_KEY_BASE + u, value(LEGACY_DIAL_KEY_BASE + u));
     }
