@@ -100,6 +100,24 @@ int main(void)
             assert(drawn > 1000);
         }
     }
+    /* In XPan (720 x 266) and 2.35:1 (720 x 306), the reciprocal from the top
+       left corner ends on the bottom at height x height / width: x = 98 and
+       x = 130. Before 1.6.1 an unsigned error moved these ends to x = 261
+       and x = 302. */
+    {
+        static const u16 xpan[4] = {0, 107, 720, 373}, scope[4] = {0, 87, 720, 393};
+        static const struct { const u16 *box; u32 end, wrong; } wide[] = {{xpan, 98, 261}, {scope, 130, 302}};
+        for (u32 i = 0; i < 2; ++i) {
+            Surface inner = grku_test_surface(wide[i].box);
+            u32 bottom = wide[i].box[3] - 1;
+            grku_test_clear();
+            guides_paint(&inner, 7);
+            assert(grku_test_pixel(wide[i].end, bottom) == 0x80000000U && grku_test_pixel(wide[i].end + 1, bottom) == 0x80000000U);
+            assert(grku_test_pixel(719 - wide[i].end, bottom) == 0x80000000U);
+            assert(grku_test_pixel(wide[i].wrong, bottom) == GRKU_TEST_CLEAR);
+            assert(grku_test_pixel(wide[i].end + 4, bottom) == GRKU_TEST_CLEAR);
+        }
+    }
     /* White at 100%, and yellow at 50%. */
     grku_test_settings[SETTING_COLOR] = 1;
     grku_test_settings[SETTING_OPACITY] = 1;
