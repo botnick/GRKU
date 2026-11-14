@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6508
+#define GRKU_HOST_HEADER_SIZE 6528
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -544,6 +544,20 @@
 #define GRKU_HOST_ADJ_IC_TYPE 6500
 /* Word index of the PERSIST buffer within modulecode, not a native address. */
 #define GRKU_HOST_PERSIST_WORD 6504
+/* The record of the ADJ preview of a recipe whose Fn adjustments the live view
+   takes from GRKU_HOST_PREVIEW_FN_BYTES, not from the record, while
+   GRKU_HOST_PREVIEW is that record; else 0 (runtime/recipe_preview.h,
+   runtime/processing.h). */
+#define GRKU_HOST_PREVIEW_FN 6508
+/* Those adjustments: one stored byte each, in the order of RECORD_PARAMETERS.
+   It follows GRKU_HOST_PREVIEW_FN. */
+#define GRKU_HOST_PREVIEW_FN_BYTES 6512
+#define GRKU_HOST_PREVIEW_FN_BYTES_WORDS 3
+/* The copy of the native settings record from the start of the ADJ preview of
+   a recipe, in the services block, or 0 while no preview writes native
+   settings. A capture of the current settings reads the native settings from
+   it (runtime/recipes.h). */
+#define GRKU_HOST_RECIPE_PREVIEW 6524
 /* Consumer request ticket, 1..2147483647. Zero means no request. */
 #define GRKU_PERSIST_REQUEST 0
 /* Producer publishes this ticket after all payload stores are visible. */
