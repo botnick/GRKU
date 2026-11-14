@@ -21,7 +21,7 @@ typedef signed int s32;
    equals that of the core and whose minor version is not larger. A minor
    version adds functions, registration types, or trailing descriptor fields. */
 #define GRKU_ABI_MAJOR 2U
-#define GRKU_ABI_MINOR 8U
+#define GRKU_ABI_MINOR 9U
 #define GRKU_ABI (GRKU_ABI_MAJOR << 16 | GRKU_ABI_MINOR)
 
 /* ---- overlay.layer -------------------------------------------------------- */
@@ -253,9 +253,11 @@ typedef struct {
 /* A row of a native settings page (GrkuPage.settings): a setting of this
    module (an index) or a used setting (GRKU_USE), its label, and the text
    of each of its values. A setting has at most GRKU_SETTING_ROW_VALUES
-   values. The installer leaves out the row of an optional used setting that
-   no module has. */
-#define GRKU_SETTING_ROW_VALUES 8U
+   values (since ABI 2.9; at most 8 before); a row with more than 8 lists
+   them on a long value page. The first row is the page setting, with a
+   value for each row of the page. The installer leaves out the row of an
+   optional used setting that no module has. */
+#define GRKU_SETTING_ROW_VALUES 64U
 typedef struct {
     u32 size;
     u32 setting;
@@ -275,7 +277,7 @@ typedef struct {
    it when it has 2 rows or more. Each module also has a row in the GRKU
    section of the Customize tab of the native MENU, which opens the native
    settings page with an Enable row before its rows, or Enable and the row
-   of the page setting (at most 8 values) for a page without settings rows;
+   of the page setting for a page without settings rows;
    so MENU shows Enable and at most GRKU_SETTING_ROWS rows of a page. The row of a page of CORE.TONE
    opens Enable and the Fn adjustments of the committed effect.
 

@@ -87,7 +87,7 @@ A `group` page has no `setting`, `settings`, `off_row`, or `options`. Each `[[pa
 | Key | Type | Description |
 | --- | --- | --- |
 | `key` | string | A unique key with 1 to 15 characters `A`-`Z`, `0`-`9`, or `_`. It identifies the child title in the text files. |
-| `settings` | array of strings | The child's 1 to 5 native settings rows. The first setting has 2 to 8 values: 0 is Off, and the other values turn the child on. It must be available and cannot be an optional use. |
+| `settings` | array of strings | The child's 1 to 5 native settings rows. The first setting has 2 to 64 values: 0 is Off, and the other values turn the child on. It must be available and cannot be an optional use. |
 | `icon` | table | Optional [icon source](#icon-sources). Without it, child n uses tile n + 1. |
 
 This example uses two settings declared elsewhere in the manifest, each with the values Off, Weak, Medium, and Strong:
@@ -307,7 +307,7 @@ A registration connects a part of the module to an extension point of the core. 
 
 A `choice` page lists one row for each value of its setting in ADJ. OK on a row sets the value. ADJ shows a choice page when it has at least two rows. ADJ Order in GRKU Settings of MENU sets the module order. The installer rejects a page whose number of rows is not the number of values of its setting.
 
-A page of a setting of the module can also give 2 to 5 rows of a native settings page (`GRKU_SETTING_ROWS`), as `modules/date` does. The first row is the page setting, and the others are settings of the module or used settings, with at most 8 values each. The text of a used setting gives its `values`. INSTALL leaves out the row of an optional used setting that no module has. Fn in ADJ opens this page.
+A page of a setting of the module can also give 2 to 5 rows of a native settings page (`GRKU_SETTING_ROWS`), as `modules/date` does. The first row is the page setting, and the others are settings of the module or used settings. A row has at most 64 values (`GRKU_SETTING_ROW_VALUES`, since ABI 2.9; at most 8 before). A row with more than 8 values lists them on a longer value page. The text of a used setting gives its `values`. INSTALL leaves out the row of an optional used setting that no module has. Fn in ADJ opens this page.
 
 A `settings` page shows one ADJ entry with its title and module tile. OK, Right, Fn, or a touch opens the native settings directly. Each row changes only its own setting. MENU shows Enable followed by the same rows.
 
@@ -439,7 +439,7 @@ The UI services work only in an event handler, a timer callback, or a UI callbac
 
 ## ABI and compatibility
 
-**ABI version.** `GRKU_ABI` is 2.7: the major version in the high 16 bits, the minor version in the low 16 bits. The build writes it into the file header and into the descriptor. The installer loads a module whose major version equals that of the core and whose minor version is not larger. A minor version adds capabilities without changing existing contracts. A major version can change an existing layout.
+**ABI version.** `GRKU_ABI` is 2.9: the major version in the high 16 bits, the minor version in the low 16 bits. The build writes it into the file header and into the descriptor. The installer loads a module whose major version equals that of the core and whose minor version is not larger. A minor version adds capabilities without changing existing contracts. A major version can change an existing layout.
 
 In 2.0, each text list also has a Korean text. The installer rejects a module with ABI 1.0 (status 51). Build such a module again with a `text/ko.toml`.
 
@@ -469,6 +469,8 @@ ABI 2.6 adds the capabilities `CORE.CROP` and `CORE.CROP_MODE`. `Surface` keeps 
 ABI 2.7 adds the capability `CORE.RECIPE`, the recipes of the camera, and the `mode.dial` point.
 
 ABI 2.8 adds the capabilities `CORE.BORDER` and `CORE.BORDER_COLOR`, a border around each recorded picture that the core draws on a larger canvas, and the `picture.canvas` point (GRKU has them in its ABI 2.6). The `print` filter stage of the test builds of GRKU 1.8.5 is gone: Border is no longer a filter.
+
+ABI 2.9 lets a settings row have up to 64 values (`GRKU_SETTING_ROW_VALUES`); a row with more than 8 lists them on a long value page (GRKU has it in its ABI 2.7). The installer of an earlier core rejects an ABI 2.9 module.
 
 **File format.** A module file is GRM version 1 (`grku_core::grm`): a header, the code, the data, the relocations, the imports, and the tiles. The build compiles each source as Thumb code for ARMv7-A with `-Os`. The installer only moves absolute 32-bit words and fills the imports by name hash. The build rejects other relocation types and each undefined symbol that is not a service or `grku_self`.
 
