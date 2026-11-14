@@ -3,7 +3,7 @@ static const char target_marker[] __attribute__((used)) = "GRKU_TARGET=gr3-2.10"
 #define MAX_CHUNKS 0x5U
 #define ICONS_PER_CHUNK 0x28U
 #define ICON_STRIDE 0x1908U
-#define HOST_ICON_COUNT 0x8U
+#define HOST_ICON_COUNT 0x15U
 #define MAP_BASE 0x51000000U
 #define MAP_SIZE 0xf000000U
 #define HEAP_END 0x60000000U
@@ -135,10 +135,11 @@ static const u8 rotate_pixels[] __attribute__((aligned(4))) = { /* 6400 values, 
 #define SCALE_LABEL_HEIGHT 20U
 static const u8 scale_feet_pixels[] __attribute__((aligned(4))) = { /* 2400 values, SHA-256 3035b84a34c34a48cf875d679bf732869c4b70c8e01f9a1a6c904e721f5bc1ef */ };
 static const u8 scale_sixteen_pixels[] __attribute__((aligned(4))) = { /* 2400 values, SHA-256 39ce4c2f7f5579af5c39910e572b3987d7875b3aa451cf90726fb42d0a56148b */ };
+static const u8 recipe_card_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 08f40ffcc7f1ac6a7839fba8956becc7493be6a5f2f7cb4a23f4752dda76fff8 */ };
 #define MENU_TEXT_BYTES 6458U
 static const u8 menu_text[] __attribute__((aligned(4))) = { /* 6458 values, SHA-256 6cc7bc77294b368e5cdbfb539c660b5c9d87774e0f49226e47b7bc49070710d8 */ };
-#define LABELS_BYTES 49716U
-static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 49716 values, SHA-256 154641b9b4fe1be807c865efc634fe7b8fbca6b01ae26bfe8f37177ebdb5683d */ };
+#define LABELS_BYTES 70416U
+static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 70416 values, SHA-256 54588f0b5254f4be64a35385364e34e2bc9df63d63096d4cc51aebe08fd471e6 */ };
 static const u8 stock_tables[] __attribute__((aligned(4))) = { /* 312 values, SHA-256 43c6a333770e97d39d0749933c4cc8fd3d39ab51233e06eaefe7dda15bae5cb6 */ };
 static const u32 code_relocations[] = {0x0,0x0};
 static const u8 before_0[] __attribute__((aligned(4))) = {0,0,0,0,0,0,0,0};

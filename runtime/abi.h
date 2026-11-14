@@ -175,7 +175,7 @@
 /* Icon slots: the host icons, then the effect icons, then the module tiles, in
    chunks of GRKU_ICONS_PER_CHUNK (GRKU_HOST_ICON_CHUNKS).
    GRKU_ICON_MODULE_TILE(n) is the icon ID of module tile n. */
-#define GRKU_HOST_ICON_COUNT 8
+#define GRKU_HOST_ICON_COUNT 21
 #define GRKU_ICONS_PER_CHUNK 40
 #define GRKU_MODULE_TILES_MAX 128
 #define GRKU_ICON_MODULE_TILE(n) (0x7000U+(n))
@@ -911,7 +911,7 @@
    glyphs from GRKU_GLYPH_FIRST. For entry n, a u16 width, a u16 height, and
    the u32 offset of its pixels from the table start at 8 n. Each pixel is one
    byte of text coverage, row by row. */
-#define GRKU_LABELS_SIZE 53248
+#define GRKU_LABELS_SIZE 73728
 /* The profile table after the labels (runtime/profile.h). For each of the
    first GRKU_PROFILE_MODULES listed modules, at GRKU_PROFILE_MODULE_SIZE n:
    its code start, its code end, and GRKU_PROFILE_NAME_BYTES ASCII bytes of its
@@ -919,7 +919,7 @@
    GRKU_PROFILE_SLOT_SIZE bytes: calls, cycles, and the cycles of the largest
    call. The core points come first, then GRKU_PROFILE_KINDS slots for each of
    those modules. */
-#define GRKU_PROFILE 219784
+#define GRKU_PROFILE 240264
 #define GRKU_PROFILE_SIZE 500
 #define GRKU_PROFILE_MODULES 8
 #define GRKU_PROFILE_MODULE_SIZE 16
@@ -940,10 +940,10 @@
 #define GRKU_PROFILE_FILTER 1
 #define GRKU_PROFILE_CALL 2
 /* Everything after the records: the script array must hold it. */
-#define GRKU_TAIL_SIZE 224380
+#define GRKU_TAIL_SIZE 244860
 /* The own red and blue curves of the native looks with Toning: for each of
    GRKU_TONE_SLOTS slots, 256 u16 red samples, then the blue ones. */
-#define GRKU_TONE_CURVES 220284
+#define GRKU_TONE_CURVES 240764
 #define GRKU_TONE_SLOTS 4
 #define GRKU_TONE_SLOT_SIZE 1024
 #define GRKU_TEXT_SUMMARY 8192
@@ -968,6 +968,13 @@
 #define GRKU_GLYPH_FIRST 18
 #define GRKU_GLYPH_COUNT 95
 #define GRKU_GLYPH_HEIGHT 28
+#define GRKU_SMALL_GLYPH_FIRST 113
+#define GRKU_SMALL_GLYPH_HEIGHT 20
+#define GRKU_CAPTION_FIRST 208
+#define GRKU_CAPTION_CHARACTERS "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define GRKU_CAPTION_TOP 22
+#define GRKU_CAPTION_INK 255
+#define GRKU_TILE_FILL 51
 /* String IDs of the label table, in grku_core::menu_text order. A run of IDs
    follows the rows or values that it names. */
 #define TEXT_OFF 0

@@ -1396,6 +1396,7 @@ static u32 icon_address(volatile u32 *h,u32 id) {
     if(id-GRKU_ICON_MODULE_TILE(0)<GRKU_MODULE_TILES_MAX) {
         return module_tile_address(h,id);
     }
+    if(id-GRKU_ICON_RECIPE(0)<GRKU_RECIPE_SLOTS) return recipe_card_address(h,id-GRKU_ICON_RECIPE(0));
     if(id==GRKU_ICON_GRKU) return h[GRKU_HOST_GRKU_ICON/4];
     /* The installer puts the Version icon after the GRKU icon. */
     if(id==GRKU_ICON_VERSION) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+GRKU_ICON_STRIDE : 0;
