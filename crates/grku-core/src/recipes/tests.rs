@@ -565,11 +565,12 @@ fn a_kept_recipe_keeps_its_id_unless_the_site_has_it() {
     assert_eq!((file_ids(&text), kept_id(&text)), (vec![6], 0));
 }
 
-/// The recipe file holds recipes only: the mode dial keeps its settings in
-/// its own file. A write of the site drops the keys of the user modes that
-/// earlier builds kept after the IDs, and keeps the import hash.
+/// The mode dial keeps its settings in its own file. A write of the site
+/// keeps the keys of the user modes that GRKU 1.8.6 kept after the IDs, and
+/// the import hash: the camera moves their GRKU Off to the file of the user
+/// modes and then rewrites the recipe file without them.
 #[test]
-fn a_write_drops_the_keys_of_the_mode_dial() {
+fn a_write_keeps_the_keys_of_the_mode_dial_of_1_8_6() {
     use crate::runtime::{RECIPE_ID_KEY_BASE, RECIPE_IMPORTED_KEY, RECIPE_SLOTS};
     let recipes = named(&[("A", 11)]);
     let mut card = write_recipe_file(&recipes, Family::Gr3, "").unwrap();
@@ -588,7 +589,7 @@ fn a_write_drops_the_keys_of_the_mode_dial() {
         .map(|word| word.parse().unwrap())
         .collect();
     assert!(keys.contains(&RECIPE_IMPORTED_KEY));
-    assert!(keys.iter().all(|&key| !(dial..dial + 3).contains(&key)));
+    assert!(keys.contains(&dial) && keys.contains(&(dial + 2)) && !keys.contains(&(dial + 1)));
     assert_eq!(read_recipe_file(&text, Family::Gr3), recipes);
 }
 

@@ -54,10 +54,10 @@ fn a_recipe_file_keeps_the_ids_of_its_recipes() {
     assert_eq!(read, library);
 }
 
-/// The recipe file holds recipes only: a write of the site drops the keys of
-/// the user modes of the mode dial that earlier builds kept after the IDs.
+/// A write of the site keeps the keys of the user modes that GRKU 1.8.6 kept
+/// after the IDs, until the camera moves their GRKU Off to its own file.
 #[test]
-fn a_recipe_file_drops_the_keys_of_the_mode_dial() {
+fn a_recipe_file_keeps_the_keys_of_the_mode_dial_of_1_8_6() {
     use grku_core::runtime::{RECIPE_ID_KEY_BASE, RECIPE_SLOTS};
     use grku_wasm::write_recipe_file;
     let library = json!([{
@@ -86,5 +86,5 @@ fn a_recipe_file_drops_the_keys_of_the_mode_dial() {
         .map(|word| word.parse().unwrap())
         .collect();
     assert!(keys.contains(&(RECIPE_ID_KEY_BASE)));
-    assert!(keys.iter().all(|&key| !(dial..dial + 3).contains(&key)));
+    assert!(keys.contains(&dial) && keys.contains(&(dial + 1)) && !keys.contains(&(dial + 2)));
 }

@@ -1097,7 +1097,11 @@ fn watch_poll(name: &str) -> Vec<String> {
         "call release_capture".into(),
         format!(":{name}_state_saved"),
     ];
-    for file in [StateFile::Recipes, StateFile::DialSets] {
+    // The file of the user modes saves first: INSTALL moves the GRKU Off of
+    // a 1.8.6 recipe file into it, and asks for a rewrite of the recipe
+    // file without those keys (runtime/install_recipes.h), so a cut power
+    // never leaves the Off in neither file.
+    for file in [StateFile::DialSets, StateFile::Recipes] {
         let (changes, at, saved, stamp) = watch_names(file);
         let next = format!("{name}_{}_saved", label(file));
         lines.extend([

@@ -37,13 +37,6 @@ last = changes
 if legacy <> 0 goto watch_state_saved
 call release_capture
 :watch_state_saved
-rchanges = registry[978]
-if rchanges <> rchangeslast goto watch_recipes_saved
-if rchanges = rsaved goto watch_recipes_saved
-rstamp = rchanges
-call save_recipes
-:watch_recipes_saved
-rchangeslast = rchanges
 dchanges = registry[1010]
 if dchanges <> dchangeslast goto watch_usermode_saved
 if dchanges = dsaved goto watch_usermode_saved
@@ -51,6 +44,13 @@ dstamp = dchanges
 call save_usermode
 :watch_usermode_saved
 dchangeslast = dchanges
+rchanges = registry[978]
+if rchanges <> rchangeslast goto watch_recipes_saved
+if rchanges = rsaved goto watch_recipes_saved
+rstamp = rchanges
+call save_recipes
+:watch_recipes_saved
+rchangeslast = rchanges
 goto watch
 :save_state
 if stateok = 0 goto save_state_end
@@ -678,13 +678,6 @@ last = changes
 if legacy <> 0 goto profile_poll_state_saved
 call release_capture
 :profile_poll_state_saved
-rchanges = registry[978]
-if rchanges <> rchangeslast goto profile_poll_recipes_saved
-if rchanges = rsaved goto profile_poll_recipes_saved
-rstamp = rchanges
-call save_recipes
-:profile_poll_recipes_saved
-rchangeslast = rchanges
 dchanges = registry[1010]
 if dchanges <> dchangeslast goto profile_poll_usermode_saved
 if dchanges = dsaved goto profile_poll_usermode_saved
@@ -692,6 +685,13 @@ dstamp = dchanges
 call save_usermode
 :profile_poll_usermode_saved
 dchangeslast = dchanges
+rchanges = registry[978]
+if rchanges <> rchangeslast goto profile_poll_recipes_saved
+if rchanges = rsaved goto profile_poll_recipes_saved
+rstamp = rchanges
+call save_recipes
+:profile_poll_recipes_saved
+rchangeslast = rchanges
 goto profile_poll
 :profile_write
 ppolls = 0

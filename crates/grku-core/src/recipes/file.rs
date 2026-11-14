@@ -6,6 +6,11 @@ use super::{check_library, Family, Recipe, LIBRARY_MAX, ON_MAX, WORD_LIMIT};
 use crate::abi::{RECIPE_NAME_WORDS, RECIPE_SLOTS, RECIPE_WORDS};
 use crate::runtime::{recipe_key, RECIPE_ID_KEY_BASE, RECIPE_ID_MAX, RECIPE_IMPORTED_KEY};
 use anyhow::{ensure, Context, Result};
+
+/// The keys of what U1 to U3 did in the recipe file of GRKU 1.8.6, after
+/// the recipe IDs.
+const LEGACY_DIAL_KEY_BASE: u32 = RECIPE_ID_KEY_BASE + RECIPE_SLOTS as u32;
+const LEGACY_DIAL_POSITIONS: u32 = 3;
 use std::collections::{BTreeMap, BTreeSet};
 
 /// A record of the recipe file: the words of a recipe, of its name, and its
@@ -156,6 +161,12 @@ pub fn write_recipe_file(recipes: &[Recipe], family: Family, previous: &str) -> 
         put(RECIPE_ID_KEY_BASE + slot as u32, record.id);
     }
     put(RECIPE_IMPORTED_KEY, value(RECIPE_IMPORTED_KEY));
+    // What U1 to U3 did in GRKU 1.8.6 stays until the camera moves its GRKU
+    // Off to the file of the user modes and rewrites this file without it
+    // (runtime/install_recipes.h).
+    for u in 0..LEGACY_DIAL_POSITIONS {
+        put(LEGACY_DIAL_KEY_BASE + u, value(LEGACY_DIAL_KEY_BASE + u));
+    }
     Ok(text)
 }
 
