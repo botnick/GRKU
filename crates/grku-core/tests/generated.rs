@@ -1,4 +1,4 @@
-//! Files generated from `grku_core::abi`, `modules`, `camera`, and `site`. Set
+//! Files generated from `grku_core::abi`, `modules`, `camera`, `site`, and `aspect`. Set
 //! GRKU_UPDATE_GENERATED=1 to rewrite them after a change of the tables.
 
 use std::{fs, path::Path};
@@ -14,6 +14,7 @@ fn checked_in_generated_files_match_the_tables() {
     files.extend(grku_core::camera::generated());
     files.extend(grku_core::site::generated());
     files.extend(grku_core::recipes::generated());
+    files.extend(grku_core::aspect::generated());
     let update = std::env::var_os("GRKU_UPDATE_GENERATED").is_some();
     let mut stale = Vec::new();
     for (name, expected) in files {

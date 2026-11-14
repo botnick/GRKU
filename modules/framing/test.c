@@ -27,7 +27,7 @@ int main(void)
        and settings rows, a mask layer, and a status indicator. */
     assert(grku_module.setting_count == 2 && grku_module.use_count == 2);
     assert(SETTING_MASK == GRKU_SETTING(0) && SETTING_LABEL == GRKU_SETTING(1));
-    assert(grku_module.registration_count == 3 && grku_module.tile_count == 8);
+    assert(grku_module.registration_count == 3 && grku_module.tile_count == 9);
     /* The mask covers each pixel outside the photo area, and no other. */
     check_mask(xpan, 1);
     check_mask(four_three, 3);

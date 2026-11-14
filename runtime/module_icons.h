@@ -36,6 +36,11 @@ static GRKU_MAYBE_UNUSED GRKU_ICON_COMPACT u32 module_icon_row(volatile u32 *h,u
         if(!setting_offered(h,setting,value)) return GRKU_ICON_OFF;
     }
     tile=MODULE_ICON_WORD(address,MODULE_ICON_FIRST);
+    /* A label of CORE.ASPECT from label 0 is the label of each ratio value
+       (framing_label), label 0 for Off as before; the labels of other
+       settings follow `tile`. */
+    if(kind==3 && setting==GRKU_CORE_ASPECT && !tile)
+        return framing_label(value)<GRKU_LABEL_COUNT ? GRKU_ICON_CORE_LABEL(framing_label(value)) : GRKU_ICON_OFF;
     if(kind==3) return tile<GRKU_MODULE_LABEL_COUNT && value<GRKU_MODULE_LABEL_COUNT-tile ? GRKU_ICON_CORE_LABEL(tile+value) : GRKU_ICON_OFF;
     if(tile_base>=GRKU_MODULE_TILES_MAX || tile>=GRKU_MODULE_TILES_MAX-tile_base ||
        value>=GRKU_MODULE_TILES_MAX-tile_base-tile) return GRKU_ICON_OFF;
