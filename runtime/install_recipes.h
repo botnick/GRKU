@@ -231,6 +231,9 @@ static u32 recipes_hash(const u8 *file, u32 size) { return (recipes_crc(file, si
 /* Restore the recipes, then add those of a new package library whose
    family is `family`, the GRKU_RCP_FAMILY of this camera. A record of
    another family counts in recipes_other. */
+/* The keys of what U1 to U3 did in the recipe file of GRKU 1.8.6. */
+#define LEGACY_DIAL_KEY_BASE (GRKU_RECIPE_ID_KEY_BASE + GRKU_RECIPE_SLOTS)
+static u32 legacy_dial_off;
 static void install_recipes(u32 base, u32 family)
 {
     u8 *text = recipes_text;
@@ -252,6 +255,12 @@ static void install_recipes(u32 base, u32 family)
             state_value(&saved_recipes, GRKU_RECIPE_ID_KEY_BASE + slot, &value) && value <= RECIPE_VALUE_MAX ? value : 0;
     }
     if (state_value(&saved_recipes, GRKU_RECIPE_IMPORTED_KEY, &value) && value <= RECIPE_VALUE_MAX) imported = value;
+    /* GRKU 1.8.6 kept what U1 to U3 do in this file, after the recipe IDs:
+       its GRKU Off (RECIPE_VALUE_MAX) becomes Off of the user mode, when the
+       file of the user modes has no value for it yet (install_dial_sets). */
+    legacy_dial_off = 0;
+    for (u32 u = 0; u < GRKU_DIAL_USER_MODES; ++u)
+        if (state_value(&saved_recipes, LEGACY_DIAL_KEY_BASE + u, &value) && value == RECIPE_VALUE_MAX) legacy_dial_off |= 1U << u;
     /* The recipes: the run of recipe words. */
     recipes_count = 0;
     while (recipes_count < GRKU_RECIPE_SLOTS && recipe_first_word(recipes_list[recipes_count].words[0])) ++recipes_count;
@@ -323,6 +332,12 @@ static void install_dial_sets(u32 base)
         u32 value;
         store(base + GRKU_HOST_DIAL_SLOTS + 4U * w,
               state_value(&saved_recipes, GRKU_DIAL_SLOT_KEY_BASE + w, &value) ? value : 0);
+    }
+    for (u32 u = 0; u < GRKU_DIAL_USER_MODES; ++u) {
+        u32 value, at = u * GRKU_DIAL_SLOT_WORDS + GRKU_DIAL_SLOT_VALUE;
+        if (!(legacy_dial_off >> u & 1U) || state_value(&saved_recipes, GRKU_DIAL_SLOT_KEY_BASE + at, &value)) continue;
+        store(base + GRKU_HOST_DIAL_SLOTS + 4U * at, GRKU_DIAL_VALUE_OFF);
+        store(base + GRKU_HOST_DIAL_SET_CHANGES, 1);
     }
 }
 

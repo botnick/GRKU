@@ -1840,6 +1840,19 @@ static void the_sets_of_the_user_modes_restore(void)
     install_dial_sets(header);
     for (u32 u = 0; u < GRKU_DIAL_USER_MODES; ++u) assert(!set_word_at(header, u, GRKU_DIAL_SET_COUNT));
     assert(!word(header + GRKU_HOST_DIAL_SHARED_OFF));
+    /* GRKU Off of GRKU 1.8.6 at U1 and U2 (RECIPES.TXT, install_recipes):
+       U1, which the file of the user modes does not name, becomes Off, and
+       the loader saves; U2 keeps the value of the file. */
+    reset();
+    for (u32 k = 0; k < GRKU_HOST_HEADER_SIZE; k += 4) store(header + k, 0);
+    add_text(DIAL_SETS_PATH, text);
+    legacy_dial_off = 3;
+    install_dial_sets(header);
+    legacy_dial_off = 0;
+    assert(word(header + GRKU_HOST_DIAL_SLOTS + 4 * GRKU_DIAL_SLOT_VALUE) == GRKU_DIAL_VALUE_OFF);
+    assert(word(header + GRKU_HOST_DIAL_SLOTS + 4 * (GRKU_DIAL_SLOT_WORDS + GRKU_DIAL_SLOT_VALUE)) == GRKU_DIAL_VALUE_SNAPSHOT);
+    assert(!word(header + GRKU_HOST_DIAL_SLOTS + 4 * (2 * GRKU_DIAL_SLOT_WORDS + GRKU_DIAL_SLOT_VALUE)));
+    assert(word(header + GRKU_HOST_DIAL_SET_CHANGES) == 1);
 }
 
 /* INSTALL publishes a baseline after restores, before any App edits. The
