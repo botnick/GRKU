@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6504
+#define GRKU_HOST_HEADER_SIZE 6508
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -327,8 +327,9 @@
 #define GRKU_HOST_RETURN 252
 /* Number of changes of the saved selections: the effect, CORE.ASPECT,
    CORE.GRAIN, CORE.GRAIN_SIZE, CORE.ADJ, CORE.ADJ_MODULE, the Fn adjustments,
-   and the module settings (GRKU_STATE_CHANGED). The resident loader polls this
-   word and HOST_RECIPE_CHANGES, and saves the state file after it changes. */
+   and the module settings (GRKU_STATE_CHANGED). This also counts temporary
+   user-mode changes. The normal resident path uses the persistence export
+   revision instead; only module-free installs poll it. */
 #define GRKU_HOST_STATE_CHANGES 256
 /* Number of module plane filters in GRKU_HOST_MODULE_FILTERS. INSTALL writes
    it. */
@@ -504,10 +505,8 @@
    saved: a start begins without them. */
 #define GRKU_HOST_RECIPE_UNDO 3916
 #define GRKU_HOST_RECIPE_UNDO_WORDS 30
-/* Nonzero while the mode dial is on a user mode with a snapshot, whose changes
-   are temporary (runtime/mode_dial.h): the resident loader then does not save
-   the main state file, so the file keeps the shared settings of P/Av/Tv/M. The
-   recipe file still saves. */
+/* Nonzero while a user-mode snapshot holds temporary settings. The persistence
+   export reads dial-owned values from the shared copy. */
 #define GRKU_HOST_STATE_HOLD 4036
 /* The count of changes of the settings of the user modes (`HOST_DIAL_SETS` to
    `HOST_MANAGE_COPY`): the loader saves their file after it changes. */
@@ -533,16 +532,41 @@
 #define GRKU_HOST_DIAL_SHARED_OFF 6484
 /* The copy of the switch, Enable at Start, and Distance Unit,
    `MANAGE_COPY_WORDS` words (runtime/manage.h), right after
-   HOST_DIAL_SHARED_OFF, in the same file. The core holds the main state file
-   on a user mode with a snapshot, but never this file, so a change of these
-   settings there saves. INSTALL takes them from the copy before the main state
-   file, and writes the values of the start here. */
+   HOST_DIAL_SHARED_OFF, in the same file. INSTALL takes them from the copy
+   before the main state file, and writes the values of the start here. */
 #define GRKU_HOST_MANAGE_COPY 6488
 #define GRKU_HOST_MANAGE_COPY_WORDS 3
 /* The native Image Control type plus 1 when ADJ last opened, or 0 when it was
    not readable. A half-press on the native Image Control slot with another
    type selects that type, as OK does (runtime/menu.c). */
 #define GRKU_HOST_ADJ_IC_TYPE 6500
+/* Word index of the PERSIST buffer within modulecode, not a native address. */
+#define GRKU_HOST_PERSIST_WORD 6504
+/* Consumer request ticket, 1..2147483647. Zero means no request. */
+#define GRKU_PERSIST_REQUEST 0
+/* Producer publishes this ticket after all payload stores are visible. */
+#define GRKU_PERSIST_READY 4
+/* Consumer releases the matching ticket after its final payload read. */
+#define GRKU_PERSIST_RELEASE 8
+/* Content revision, initially 1. Temporary user-mode changes do not advance
+   it. */
+#define GRKU_PERSIST_REVISION 12
+/* Core state values. TONE is its stable 16-bit ImageTone code. */
+#define GRKU_PERSIST_CORE 16
+#define GRKU_PERSIST_CORE_WORDS 11
+#define GRKU_PERSIST_EFFECT_COUNT 60
+/* Each effect: low 15 bits of code, base-9 Fn adjustments, Toning. */
+#define GRKU_PERSIST_EFFECTS 64
+#define GRKU_PERSIST_EFFECTS_WORDS 120
+#define GRKU_PERSIST_MODULE_COUNT 544
+/* Each module setting: state ID, value. Zero values must persist too. */
+#define GRKU_PERSIST_MODULES 548
+#define GRKU_PERSIST_MODULES_WORDS 320
+#define GRKU_PERSIST_CORE_COUNT 11U
+#define GRKU_PERSIST_EFFECT_WORDS 3U
+#define GRKU_PERSIST_MODULE_WORDS 2U
+#define GRKU_PERSIST_SIZE 1828U
+#define GRKU_PERSIST_WORDS 457U
 
 /* The capabilities of the core (grku_core::capabilities): the handle of each
    CORE setting, and for each handle in order, its header word and its number

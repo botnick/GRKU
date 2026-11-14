@@ -108,6 +108,10 @@ static u32 install_retries, rtos_identity_value, relocation_done, mailbox_addres
 static volatile u8 *at(u32 physical) { return mapping + physical - MAP_BASE; }
 static u32 word(u32 p) { return *(volatile u32 *)at(p); }
 static void store(u32 p, u32 v) { *(volatile u32 *)at(p) = v; }
+#define PERSIST_HALF(p,o) (*(volatile u16 *)at((p)+(o)))
+#define PERSIST_BYTE(p,o) (at((p)+(o))[0])
+#define PERSIST_SETTINGS(h) ((h)[GRKU_HOST_MODULE_SETTINGS/4] ? (volatile u32 *)at((h)[GRKU_HOST_MODULE_SETTINGS/4]) : (volatile u32 *)0)
+#include "persist_view.h"
 #include "install_io.h"
 #include "install_text.h"
 #define GRKU_GRF_EMBEDDED
@@ -820,6 +824,7 @@ static int write_modules(const struct arrays *a, u32 pixels, u32 code)
     store(base + GRKU_HOST_EFFECTS, effect_list);
     store(base + GRKU_HOST_SERVICES, services_block);
     store(base + GRKU_HOST_MODULE_SETTINGS, a->module_array);
+    store(base + GRKU_HOST_PERSIST_WORD, (services_block + SERVICES_PERSIST - a->module_array) / 4U);
     store(base + GRKU_HOST_CAPABILITIES, capabilities_running);
     store(base + GRKU_HOST_MODULE_PAGE_COUNT, module_page_count);
     for (u32 i = 0; i < module_page_count * 3; ++i) store(base + GRKU_HOST_MODULE_PAGES + i * 4, module_pages[i]);
@@ -913,6 +918,11 @@ static int install_planned(void)
     install_recipes(arrays.base, recipe_family);
     install_dial_sets(arrays.base);
     install_manage_copy(arrays.base, module_count ? arrays.module_array : 0);
+    if (module_count) {
+        u32 persist = services_block + SERVICES_PERSIST;
+        persist_baseline((volatile u32 *)at(arrays.base), (volatile u32 *)at(persist));
+        if (!sync_alias(persist, GRKU_PERSIST_SIZE)) return STATUS_SYNC;
+    }
     check_recipes(arrays.base, count, module_count ? arrays.module_array : 0, capabilities_running);
     for (u32 i = 0; i < CODE_RELOCATION_COUNT; ++i) {
         u32 patch_index = code_relocations[i * 2], offset = code_relocations[i * 2 + 1];

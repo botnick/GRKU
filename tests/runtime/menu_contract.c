@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include "abi.h"
 /* The build's label table, which the Rust test writes for this harness. */
 #include "menu_text.h"
 /* The family header sends the aspect request; the harness counts requests. */
@@ -80,7 +81,7 @@ static unsigned *page_at(unsigned address)
    (runtime/effects.h), then COLOR, OPACITY, and DISP of Guides for the MENU
    page tests. A list of ten modules has its settings after the three
    module settings instead. */
-static unsigned settings_memory[2 + 3 * (3 + 3 * 10)];
+static unsigned settings_memory[2 + 3 * GRKU_MODULE_SETTINGS_MAX];
 static volatile unsigned *mapped_settings(unsigned address)
 {
     assert(address == TEST_SETTINGS);
@@ -118,7 +119,7 @@ static volatile unsigned *mapped_services(unsigned address)
    TEST_OBJECTS, and the stock submenu kind table and the MENU tab table at
    their firmware addresses. */
 #define TEST_OBJECTS 0x5b000000U
-static unsigned object_memory[0x1000];
+static unsigned object_memory[GRKU_TEXT_RECORDS * GRKU_RECORD_SIZE / 4];
 static unsigned stock_kinds[17 * 0x64 / 4];
 static unsigned menu_tabs[8];
 static unsigned *object_at(unsigned address);
@@ -196,6 +197,11 @@ static unsigned dial_timer_start(unsigned ms)
 }
 #define DIAL_TIMER_START(ms) dial_timer_start(ms)
 #define DIAL_TIMER_CANCEL(id) ((void)((id) && ++dial_timer_cancels))
+/* Persistence has its own App timer; firing it must work while a menu is
+   open and must not consume or replace the dial's timer. */
+static unsigned persist_timer_ids, persist_timer_ms, persist_barriers;
+#define PERSIST_TIMER_START(ms) (persist_timer_ms = (ms), 0x10000U + ++persist_timer_ids)
+#define PERSIST_BARRIER() (++persist_barriers)
 /* The native slots of the user modes (runtime/mode_dial.h): a settings
    record of the test at TEST_RECORD, whose byte 0 marks its content and
    which holds the name of slot n at TEST_NAME(n) and its registered flag at
@@ -4118,7 +4124,7 @@ static void a_snapshot_applies_on_its_user_mode_only(void)
     dial_fire();
     assert(dial_base() && !manage_grku_off(h));
     /* U2 applies each value of its snapshot that differs, through the
-       setters, and holds the state file. Date LOOK did not change, so the
+       setters, and marks the temporary state. Date LOOK did not change, so the
        table counts two changes. */
     table = settings_memory[1];
     requests = framing_requests;
@@ -4126,8 +4132,8 @@ static void a_snapshot_applies_on_its_user_mode_only(void)
     dial_fire();
     assert(dial_saved_applies() && h[GRKU_HOST_STATE_HOLD / 4] == 1 && settings_memory[1] == table + 2);
     assert(framing_requests > requests && !recipe_undo_count(h) && services_word(h, SERVICES_DIAL + DIAL_ACTIVE)[0] == 2);
-    /* Changes in U2 are temporary; P restores the shared settings and
-       releases the file, so the loader saves it. ADJ closed on GRKU in U2
+    /* Changes in U2 are temporary; P restores the shared settings that
+       the main export kept. ADJ closed on GRKU in U2
        still opens GRKU next time, and an ADJ position stays. */
     setting_store(h, 2, 2);
     setting_store(h, 4, 3);
@@ -4387,10 +4393,10 @@ static void the_switch_stops_the_dial_and_the_dial_keeps_the_switch(void)
     assert(!dial_timer_ids && !services_word(h, SERVICES_DIAL + DIAL_AT)[0]);
 }
 
-/* R1 and R2 on a snapshot: the core holds the main state file there, but
-   the switch, Enable at Start, and Distance Unit keep a copy in the file of
+/* R1 and R2 on a snapshot: the switch, Enable at Start, and Distance Unit
+   remain global. They also keep a copy in the file of
    the user modes (runtime/manage.h: manage_copy), each as its value + 1,
-   which the loader saves also during the hold. Off of the dial and On in
+   which the loader saves independently of the main file. Off of the dial and On in
    ADJ where the dial turned GRKU off are not the switch and change no
    copy. Enable at Start is setting 13 and Distance Unit setting 14. */
 static volatile u32 *manage_copy_word(u32 w) { return test_header + GRKU_HOST_MANAGE_COPY / 4 + w; }
@@ -4421,7 +4427,7 @@ static void the_switch_saves_on_a_snapshot(void)
            *manage_copy_word(GRKU_MANAGE_COPY_START) == MANAGE_START_KEEP + 1 &&
            *manage_copy_word(GRKU_MANAGE_COPY_UNIT) == MANAGE_UNIT_METERS + 1);
     /* U3, its snapshot, with the switch Off: nothing applies. The switch On
-       there applies the snapshot and holds the main state file, and the copy
+       there applies the snapshot and marks the temporary state, and the copy
        saves the switch. */
     dial_to(DIAL_U(3));
     dial_fire();
@@ -4634,7 +4640,7 @@ static void the_mode_dial_belongs_to_the_core(void)
 
 /* The values of the dial are in the file of the user modes, not in the
    main state file: a restore of the shared settings keeps them, and they
-   save while a snapshot holds the main file. */
+   save while a snapshot applies. */
 static void the_dial_values_survive_a_restore(void)
 {
     volatile u32 *h = test_header;
@@ -5095,6 +5101,252 @@ static void crops_name_the_focal_lengths_of_the_lens(void)
     assert(crop_tile(GRKU_CORE_ASPECT,1)==1);
     test_lens_40mm=0;
 }
+static volatile u32 *persist_test_buffer(void)
+{
+    return services_word(test_header, SERVICES_PERSIST);
+}
+static u32 persist_test_core(u32 handle)
+{
+    return persist_test_buffer()[GRKU_PERSIST_CORE / 4 + handle - GRKU_CORE_SETTING_BASE];
+}
+static u32 persist_test_module(u32 handle)
+{
+    return persist_test_buffer()[GRKU_PERSIST_MODULES / 4 + handle * GRKU_PERSIST_MODULE_WORDS + 1];
+}
+static void persist_test_request(u32 ticket)
+{
+    volatile u32 *p = persist_test_buffer();
+    p[GRKU_PERSIST_RELEASE / 4] = p[GRKU_PERSIST_READY / 4];
+    p[GRKU_PERSIST_REQUEST / 4] = ticket;
+    persist_poll(test_header);
+    assert(p[GRKU_PERSIST_READY / 4] == ticket);
+}
+/* A shared edit immediately followed by entering U1 must be exportable
+   there. The whole file, including Fn, Toning and module values, comes
+   from the shared copy; only global settings follow live changes. */
+static void persistence_exports_shared_values_while_a_snapshot_applies(void)
+{
+    volatile u32 *h = test_header, *p;
+    dial_reset();
+    p = persist_test_buffer();
+    HALF(dial_record(0), GRKU_RECORD_CODE) = 0x8123;
+    HALF(dial_record(1), GRKU_RECORD_CODE) = 0x8456;
+    dial_saved_settings();
+    dial_save(h, 1);
+    dial_saved_base();
+    persist_baseline(h, p);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 1 && !p[GRKU_PERSIST_READY / 4]);
+    /* The exact lost-write window: edit P, then enter U1 before a poll. */
+    h[GRKU_HOST_ACTIVE / 4] = dial_record(0);
+    h[GRKU_HOST_CROP / 4] = 3;
+    h[GRKU_HOST_BORDER / 4] = 2;
+    recipe_fn_write(dial_record(0), 101);
+    BYTE(dial_record(0), GRKU_RECORD_TONING) = 2;
+    GUIDE_STYLE = 4;
+    dial_enter(h, 1);
+    assert(dial_word(h, DIAL_ACTIVE)[0] == 1 && tone_value(h) == 2);
+    persist_test_request(1);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 2);
+    assert(persist_test_core(GRKU_CORE_TONE) == 0x8123);
+    assert(persist_test_core(GRKU_CORE_CROP) == 3 && persist_test_core(GRKU_CORE_BORDER) == 2);
+    assert(p[GRKU_PERSIST_EFFECTS / 4] == 0x123);
+    assert(p[GRKU_PERSIST_EFFECTS / 4 + 1] == 101 && p[GRKU_PERSIST_EFFECTS / 4 + 2] == 2);
+    assert(persist_test_module(0) == 4);
+    /* Continuous temporary changes and other files' counters cannot
+       change the main revision or prevent its debounce from settling. */
+    h[GRKU_HOST_CROP / 4] = 4;
+    h[GRKU_HOST_BORDER / 4] = 1;
+    recipe_fn_write(dial_record(0), 321);
+    BYTE(dial_record(0), GRKU_RECORD_TONING) = 5;
+    GUIDE_STYLE = 1;
+    ++h[GRKU_HOST_STATE_CHANGES / 4];
+    ++h[GRKU_HOST_RECIPE_CHANGES / 4];
+    persist_test_request(2);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 2 && persist_test_module(0) == 4);
+    assert(p[GRKU_PERSIST_EFFECTS / 4 + 1] == 101 && p[GRKU_PERSIST_EFFECTS / 4 + 2] == 2);
+    /* ADJ selection and module position are global even in U1. */
+    h[GRKU_HOST_ADJ_OPEN / 4] = 1;
+    settings_memory[SETTINGS_ENTRY(4) + 1] = 3;
+    persist_test_request(3);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 3);
+    assert(persist_test_core(GRKU_CORE_ADJ) == 1 && persist_test_module(4) == 3);
+    dial_leave(h);
+    persist_test_request(4);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 3);
+    assert(h[GRKU_HOST_CROP / 4] == 3 && persist_test_core(GRKU_CORE_CROP) == 3);
+}
+/* The largest export must include the last effect and setting. The table
+   has 80 module settings, nine management settings, 64 effect choices,
+   three globals, and four kept settings of missing modules. Kept entries
+   remain global; only dial-owned settings and all effect adjustments use
+   the shared copy while a user-mode snapshot applies. */
+static void persistence_exports_the_capacity_boundaries_in_user_modes(void)
+{
+    volatile u32 *h = test_header, *p;
+    const u32 owned = 80, last_effect = GRKU_TEXT_RECORDS - 1, last_setting = GRKU_MODULE_SETTINGS_MAX - 1;
+    const u32 kept = owned + 3 * MANAGE_PER_MODULE + 64 + 3;
+    const u32 effect_at = GRKU_PERSIST_EFFECTS / 4 + last_effect * GRKU_PERSIST_EFFECT_WORDS;
+    const u32 module_at = GRKU_PERSIST_MODULES / 4 + last_setting * GRKU_PERSIST_MODULE_WORDS;
+    dial_reset();
+    p = persist_test_buffer();
+    h[GRKU_HOST_COUNT / 4] = GRKU_TEXT_RECORDS;
+    h[GRKU_HOST_ACTIVE / 4] = dial_record(last_effect);
+    settings_memory[0] = GRKU_MODULE_SETTINGS_MAX;
+    manage_memory[MANAGE_SETTINGS / 4] = owned;
+    manage_memory[MANAGE_SWITCH / 4] = kept - 2;
+    manage_memory[MANAGE_START / 4] = kept - 1;
+    manage_memory[MANAGE_UNIT / 4] = kept;
+    for (u32 i = 0; i < GRKU_TEXT_RECORDS; ++i) {
+        HALF(dial_record(i), GRKU_RECORD_CODE) = (u16)(0x8000U + i);
+        recipe_fn_write(dial_record(i), i + 100);
+        BYTE(dial_record(i), GRKU_RECORD_TONING) = (u8)(i % 9);
+    }
+    for (u32 i = 0; i < GRKU_MODULE_SETTINGS_MAX; ++i) {
+        settings_memory[SETTINGS_ENTRY(i)] = 1000 + i;
+        settings_memory[SETTINGS_ENTRY(i) + 1] = i < owned || i >= kept ? i + 10 : 0;
+        settings_memory[SETTINGS_ENTRY(i) + 2] = 1000;
+    }
+    settings_memory[SETTINGS_ENTRY(owned - 3)] = 0; /* Unsaved. */
+    settings_memory[SETTINGS_ENTRY(owned - 2) + 1] = 0; /* Saved zero. */
+    persist_baseline(h, p);
+    assert(p[GRKU_PERSIST_EFFECT_COUNT / 4] == GRKU_TEXT_RECORDS);
+    assert(p[GRKU_PERSIST_MODULE_COUNT / 4] == GRKU_MODULE_SETTINGS_MAX);
+    assert(p[effect_at] == last_effect && p[effect_at + 1] == last_effect + 100 && p[effect_at + 2] == last_effect % 9);
+    assert(p[module_at] == 1000 + last_setting && p[module_at + 1] == last_setting + 10);
+    assert(p[GRKU_PERSIST_MODULES / 4 + (owned - 3) * GRKU_PERSIST_MODULE_WORDS] == 0);
+    assert(persist_test_module(owned - 3) == 0 && persist_test_module(owned - 2) == 0);
+    /* U1 changes the last dial-owned module setting and the final effect.
+       The copy must contain the full arrays, not just their first items. */
+    dial_snapshot(h);
+    dial_word(h, DIAL_ACTIVE)[0] = 1;
+    h[GRKU_HOST_ACTIVE / 4] = dial_record(0);
+    recipe_fn_write(dial_record(last_effect), 999);
+    BYTE(dial_record(last_effect), GRKU_RECORD_TONING) = 8;
+    settings_memory[SETTINGS_ENTRY(owned - 1) + 1] = 888;
+    settings_memory[SETTINGS_ENTRY(owned - 2) + 1] = 777;
+    settings_memory[SETTINGS_ENTRY(owned - 3) + 1] = 666;
+    persist_test_request(1);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 1);
+    assert(persist_test_core(GRKU_CORE_TONE) == 0x8000U + last_effect);
+    assert(p[effect_at + 1] == last_effect + 100 && p[effect_at + 2] == last_effect % 9);
+    assert(persist_test_module(owned - 1) == owned + 9);
+    assert(persist_test_module(owned - 2) == 0 && persist_test_module(owned - 3) == 0);
+    for (u32 i = kept; i < GRKU_MODULE_SETTINGS_MAX; ++i) {
+        assert(!dial_set_holds(h, settings_memory, i));
+        assert(persist_test_module(i) == i + 10);
+    }
+    /* A kept zero remains an explicit ID/value pair at the final offset. */
+    settings_memory[SETTINGS_ENTRY(last_setting) + 1] = 0;
+    persist_test_request(2);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 2);
+    assert(p[module_at] == 1000 + last_setting && p[module_at + 1] == 0);
+    assert(p[effect_at + 1] == last_effect + 100 && persist_test_module(owned - 1) == owned + 9);
+}
+
+static void persistence_freezes_the_complete_file_until_release(void)
+{
+    volatile u32 *h = test_header, *p;
+    u32 frozen[GRKU_PERSIST_WORDS], barriers;
+    dial_reset();
+    p = persist_test_buffer();
+    persist_baseline(h, p);
+    persist_test_request(1);
+    memcpy(frozen, (const void *)p, sizeof frozen);
+    h[GRKU_HOST_CROP / 4] = 4;
+    recipe_fn_write(dial_record(1), 18);
+    BYTE(dial_record(1), GRKU_RECORD_TONING) = 6;
+    GUIDE_STYLE = 0;
+    dial_snapshot(h);
+    dial_word(h, DIAL_ACTIVE)[0] = 1;
+    h[GRKU_HOST_CROP / 4] = 1;
+    p[GRKU_PERSIST_REQUEST / 4] = 2;
+    barriers = persist_barriers;
+    persist_poll(h);
+    assert(persist_barriers == barriers);
+    assert(!memcmp(frozen + GRKU_PERSIST_READY / 4, (const void *)(p + GRKU_PERSIST_READY / 4),
+                   sizeof frozen - GRKU_PERSIST_READY));
+    p[GRKU_PERSIST_RELEASE / 4] = 1;
+    persist_poll(h);
+    assert(persist_barriers == barriers + 2 && p[GRKU_PERSIST_READY / 4] == 2);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 2 && persist_test_core(GRKU_CORE_CROP) == 4);
+    assert(p[GRKU_PERSIST_EFFECTS / 4 + 4] == 18 && p[GRKU_PERSIST_EFFECTS / 4 + 5] == 6);
+    assert(persist_test_module(0) == 0); /* A zero value must still save. */
+    persist_test_request(3);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 2);
+    /* A failed write may request the same content again without losing
+       its pending revision. Positive revision and tickets may wrap. */
+    p[GRKU_PERSIST_REVISION / 4] = 0x7fffffffU;
+    h[GRKU_HOST_ADJ_OPEN / 4] = 1;
+    persist_test_request(0x7fffffffU);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 1);
+    persist_test_request(1);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 1);
+}
+static void persistence_ignores_unsaved_values_and_rejects_incomplete_views(void)
+{
+    volatile u32 *h = test_header, *p;
+    u32 modules;
+    dial_reset();
+    p = persist_test_buffer();
+    settings_memory[SETTINGS_ENTRY(2)] = 0;
+    persist_baseline(h, p);
+    settings_memory[SETTINGS_ENTRY(2) + 1] = 999;
+    persist_test_request(1);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 1 && persist_test_module(2) == 0);
+    for (u32 i = 2 * GRKU_PERSIST_EFFECT_WORDS; i < GRKU_PERSIST_EFFECTS_WORDS; ++i)
+        assert(p[GRKU_PERSIST_EFFECTS / 4 + i] == 0);
+    modules = settings_memory[0];
+    for (u32 i = modules * GRKU_PERSIST_MODULE_WORDS; i < GRKU_PERSIST_MODULES_WORDS; ++i)
+        assert(p[GRKU_PERSIST_MODULES / 4 + i] == 0);
+    p[GRKU_PERSIST_RELEASE / 4] = 1;
+    p[GRKU_PERSIST_REQUEST / 4] = 2;
+    h[GRKU_HOST_COUNT / 4] = GRKU_TEXT_RECORDS + 1;
+    persist_poll(h);
+    assert(p[GRKU_PERSIST_READY / 4] == 1);
+    h[GRKU_HOST_COUNT / 4] = 2;
+    settings_memory[0] = GRKU_MODULE_SETTINGS_MAX + 1;
+    persist_poll(h);
+    assert(p[GRKU_PERSIST_READY / 4] == 1);
+    settings_memory[0] = modules;
+    dial_snapshot(h);
+    dial_word(h, DIAL_ACTIVE)[0] = 1;
+    dial_word(h, DIAL_BASE_RECORDS)[0] = 1;
+    persist_poll(h);
+    assert(p[GRKU_PERSIST_READY / 4] == 1);
+    dial_word(h, DIAL_BASE_RECORDS)[0] = 2;
+    dial_word(h, DIAL_BASE_COUNT)[0] = modules - 1;
+    persist_poll(h);
+    assert(p[GRKU_PERSIST_READY / 4] == 1);
+    dial_word(h, DIAL_BASE_COUNT)[0] = modules;
+    persist_poll(h);
+    assert(p[GRKU_PERSIST_READY / 4] == 2 && p[GRKU_PERSIST_REVISION / 4] == 1);
+}
+static void persistence_timer_runs_in_menus_and_preserves_early_dirty_values(void)
+{
+    volatile u32 *h = test_header, *p;
+    u32 timer;
+    dial_reset();
+    h[GRKU_HOST_PERSIST_WORD / 4] = 1;
+    p = persist_test_buffer();
+    persist_baseline(h, p);
+    h[GRKU_HOST_CROP / 4] = 3; /* Before resident startup. */
+    p[GRKU_PERSIST_REQUEST / 4] = 1;
+    menu_viewfinder(VIEWFINDER_READY);
+    assert(p[GRKU_PERSIST_REVISION / 4] == 2 && p[GRKU_PERSIST_READY / 4] == 1);
+    timer = services_word(h, SERVICES_PERSIST_TIMER)[0];
+    assert(timer && persist_timer_ms == PERSIST_POLL_MS);
+    menu_viewfinder(VIEWFINDER_READY);
+    assert(services_word(h, SERVICES_PERSIST_TIMER)[0] == timer);
+    services_word(h, SERVICES_MENU + MENU_ROWS_CURRENT)[0] = SETTINGS_SUBMENU;
+    p[GRKU_PERSIST_RELEASE / 4] = 1;
+    p[GRKU_PERSIST_REQUEST / 4] = 2;
+    h[GRKU_HOST_CROP / 4] = 4;
+    ui_timer_fired(0, timer);
+    assert(p[GRKU_PERSIST_READY / 4] == 2 && p[GRKU_PERSIST_REVISION / 4] == 3);
+    assert(services_word(h, SERVICES_PERSIST_TIMER)[0] != timer);
+    assert(dial_word(h, DIAL_TIMER)[0] == dial_timer_ids);
+}
+
 int main(void)
 {
     crops_name_the_focal_lengths_of_the_lens();
@@ -5191,5 +5443,10 @@ int main(void)
     the_mode_dial_lands_at_a_start();
     the_mode_dial_belongs_to_the_core();
     the_dial_values_survive_a_restore();
+    persistence_exports_shared_values_while_a_snapshot_applies();
+    persistence_exports_the_capacity_boundaries_in_user_modes();
+    persistence_freezes_the_complete_file_until_release();
+    persistence_ignores_unsaved_values_and_rejects_incomplete_views();
+    persistence_timer_runs_in_menus_and_preserves_early_dirty_values();
     return 0;
 }
