@@ -142,7 +142,7 @@
 #define GRKU_DIAL_SET_KEY_STRIDE 1000U
 #define GRKU_DIAL_SET_VALUE_MAX 999999999U
 /* What a user mode does (GRKU_HOST_DIAL_SLOTS, runtime/mode_dial.h):
-   GRKU_DIAL_SLOT_WORDS words, its value, GRKU_DIAL_VALUE_SAME,
+   GRKU_DIAL_SLOT_WORDS words, its value, GRKU_DIAL_VALUE_ON,
    GRKU_DIAL_VALUE_OFF, or GRKU_DIAL_VALUE_SNAPSHOT, and a fingerprint of the
    name that the core gave its native slot with the snapshot. In the file of
    the sets, word w of user mode u (0 for U1) has the key
@@ -161,7 +161,7 @@
 #define GRKU_MANAGE_COPY_UNIT 2U
 #define GRKU_MANAGE_COPY_WORDS 3U
 #define GRKU_MANAGE_COPY_KEY 992003007U
-#define GRKU_DIAL_VALUE_SAME 0U
+#define GRKU_DIAL_VALUE_ON 0U
 #define GRKU_DIAL_VALUE_OFF 1U
 #define GRKU_DIAL_VALUE_SNAPSHOT 2U
 #define GRKU_MODULE_SETTINGS_MAX 160
@@ -527,8 +527,10 @@
    camera writes them. */
 #define GRKU_HOST_DIAL_SLOTS 6460
 #define GRKU_HOST_DIAL_SLOTS_WORDS 6
-/* 1 while GRKU is off at P/Av/Tv/M (and Sn on GR IV), else 0, right after
-   HOST_DIAL_SLOTS, in the same file (runtime/mode_dial.h). */
+/* The positions that share their settings, P, Av, Tv, and M (and Sn on GR IV),
+   where GRKU is off: bit c for the position with code c, right after
+   HOST_DIAL_SLOTS, in the same file (runtime/mode_dial.h). Bit 0, which no
+   position has, is the older value for each of them off. */
 #define GRKU_HOST_DIAL_SHARED_OFF 6484
 /* The copy of the switch, Enable at Start, and Distance Unit,
    `MANAGE_COPY_WORDS` words (runtime/manage.h), right after
@@ -1029,14 +1031,12 @@
    its Keep Last value. Its On and Off are TEXT_ON and TEXT_OFF. */
 #define TEXT_START 69
 /* The Mode Dial row of GRKU Settings in MENU, then Save Current Settings, the
-   action of a user mode, then the text before and after P/Av/Tv/M in the value
-   of a user mode that does the same, then the text before and after the name
-   of a user mode in the confirm before Save Current Settings overwrites its
-   native slot. */
+   action of a user mode, then the text before and after the name of a user
+   mode in the confirm before Save Current Settings overwrites its native slot. */
 #define TEXT_DIAL 71
 /* GRKU Settings, the MENU row and the title of the settings page of the core,
    then its Distance Unit row and the values Meters and Feet. */
-#define TEXT_UNIT 77
-#define GRKU_TEXT_STRINGS 81
+#define TEXT_UNIT 75
+#define GRKU_TEXT_STRINGS 79
 
 #endif
