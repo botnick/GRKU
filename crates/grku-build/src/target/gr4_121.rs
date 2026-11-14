@@ -36,6 +36,7 @@ pub const TARGET: Target = Target {
     // As on 1.11: the settings domain follows the vtable of the capture
     // property singleton, and the icon drawer is +0x10 in the icon manager.
     relocation_bases: &[(0x5537b2a8, 0x5537b2a4), (0x55083038, 0x55083028)],
+    site_windows: &[],
 };
 
 /// The tables and types of 1.20.
@@ -238,13 +239,13 @@ const SITES: &[Site] = &[
     ("crop_queue_post", 0x5374c30c, "0dc0a0e1"),
     ("crop_queue_release", 0x53740f00, "0400a0e1"),
     // The BLs to the live-view crop factor before the zoom of the live view.
-    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_live_0", 0x53653740, "bbab04eb"),
-    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_live_1", 0x53659524, "429404eb"),
-    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_live_2", 0x5365d270, "ef8404eb"),
-    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_live_3", 0x53660ba0, "a37604eb"),
-    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_live_4", 0x53664e20, "036604eb"),
+    ("crop_live_0", 0x53653740, "bbab04eb"),
+    ("crop_live_1", 0x53659524, "429404eb"),
+    ("crop_live_2", 0x5365d270, "ef8404eb"),
+    ("crop_live_3", 0x53660ba0, "a37604eb"),
+    ("crop_live_4", 0x53664e20, "036604eb"),
     // The entry (`mov r12, sp`) of the function that makes the live-view window.
-    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_window", 0x538afc70, "0dc0a0e1"),
+    ("crop_window", 0x538afc70, "0dc0a0e1"),
     ("menu_develop_count", 0x531a2bcc, "0dc0a0e1"),
     ("menu_develop_category", 0x5337a6b4, "0530d0e5"),
     ("menu_develop_value", 0x5337a6e4, "0dc0a0e1"),
