@@ -233,7 +233,9 @@ static u32 recipes_hash(const u8 *file, u32 size) { return (recipes_crc(file, si
    another family counts in recipes_other. */
 /* The keys of what U1 to U3 did in the recipe file of GRKU 1.8.6. */
 #define LEGACY_DIAL_KEY_BASE (GRKU_RECIPE_ID_KEY_BASE + GRKU_RECIPE_SLOTS)
-static u32 legacy_dial_off;
+/* The loader rewrites a recipe file with these keys (legacy_dial_keys), which
+   it does not write, so the migration happens once. */
+static u32 legacy_dial_off, legacy_dial_keys;
 static void install_recipes(u32 base, u32 family)
 {
     u8 *text = recipes_text;
@@ -258,9 +260,12 @@ static void install_recipes(u32 base, u32 family)
     /* GRKU 1.8.6 kept what U1 to U3 do in this file, after the recipe IDs:
        its GRKU Off (RECIPE_VALUE_MAX) becomes Off of the user mode, when the
        file of the user modes has no value for it yet (install_dial_sets). */
-    legacy_dial_off = 0;
+    legacy_dial_off = legacy_dial_keys = 0;
     for (u32 u = 0; u < GRKU_DIAL_USER_MODES; ++u)
-        if (state_value(&saved_recipes, LEGACY_DIAL_KEY_BASE + u, &value) && value == RECIPE_VALUE_MAX) legacy_dial_off |= 1U << u;
+        if (state_value(&saved_recipes, LEGACY_DIAL_KEY_BASE + u, &value)) {
+            legacy_dial_keys = 1;
+            if (value == RECIPE_VALUE_MAX) legacy_dial_off |= 1U << u;
+        }
     /* The recipes: the run of recipe words. */
     recipes_count = 0;
     while (recipes_count < GRKU_RECIPE_SLOTS && recipe_first_word(recipes_list[recipes_count].words[0])) ++recipes_count;
@@ -303,7 +308,7 @@ static void install_recipes(u32 base, u32 family)
     /* The loader saves the recipe file with the hash (StateFile::Recipes)
        after an import, a change of the order, or new IDs. */
     store(base + GRKU_HOST_RECIPE_IMPORTED, imported);
-    if (changed || given || recipes_import == RECIPES_IMPORT_READ) store(base + GRKU_HOST_RECIPE_CHANGES, 1);
+    if (changed || given || recipes_import == RECIPES_IMPORT_READ || legacy_dial_keys) store(base + GRKU_HOST_RECIPE_CHANGES, 1);
 }
 
 /* Restore the settings of the user modes from their file. The loader saves
