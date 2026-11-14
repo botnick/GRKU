@@ -19,8 +19,8 @@ const en = {
   presetBefore: 'Without the recipe',
   presetAfter: 'With the recipe',
   presetText: {
-    'bennet-800': 'Negative Film with warm, punchy color. Made on the GR III.',
-    'reggie-negative': 'Negative Film tuned toward Fuji colors. Made on the GR III.',
+    'bennet-800': 'Negative Film with warm, punchy color.',
+    'reggie-negative': 'Negative Film tuned toward Fuji colors.',
     'cinestill-800t': 'Vision3 500T with red halation around lights. Best at night.',
     'royal-supra': 'A saturated Kodak Royal/Supra-style Positive Film look with deep contrast and clarity.',
     'bennets-bw800': 'The B&W companion to Bennet 800: punchy Monotone contrast with film-like grain, tuned for everyday street.',
@@ -149,8 +149,8 @@ const zhHans: RecipeStrings = {
   presetBefore: '未使用配方',
   presetAfter: '使用配方',
   presetText: {
-    'bennet-800': '暖调、色彩浓郁的负片风格，在 GR III 上调校。',
-    'reggie-negative': '接近富士色彩的负片风格，在 GR III 上调校。',
+    'bennet-800': '暖调、色彩浓郁的负片风格。',
+    'reggie-negative': '接近富士色彩的负片风格。',
     'cinestill-800t': 'Vision3 500T，灯光周围带红色光晕，适合夜景。',
     'royal-supra': '浓郁的Kodak Royal/Supra风格正片色调，兼具深沉对比度与高清晰度。',
     'bennets-bw800': 'Bennet 800的黑白搭档：高反差单色与胶片颗粒感，专为日常街拍调校。',
@@ -277,8 +277,8 @@ const zhHant: RecipeStrings = {
   presetBefore: '未使用配方',
   presetAfter: '使用配方',
   presetText: {
-    'bennet-800': '暖調、色彩濃郁的負片風格，在 GR III 上調校。',
-    'reggie-negative': '接近富士色彩的負片風格，在 GR III 上調校。',
+    'bennet-800': '暖調、色彩濃郁的負片風格。',
+    'reggie-negative': '接近富士色彩的負片風格。',
     'cinestill-800t': 'Vision3 500T，燈光周圍帶紅色光暈，適合夜景。',
     'royal-supra': '濃郁的 Kodak Royal/Supra 風格正片效果，具備深邃對比與清晰度。',
     'bennets-bw800': 'Bennet 800 的黑白版本：鮮明單色對比搭配膠卷感顆粒，專為日常街拍調校。',
@@ -405,8 +405,8 @@ const ja: RecipeStrings = {
   presetBefore: 'レシピなし',
   presetAfter: 'レシピあり',
   presetText: {
-    'bennet-800': '暖かく鮮やかなネガフィルム調。GR III で調整。',
-    'reggie-negative': '富士フイルムの色に寄せたネガフィルム調。GR III で調整。',
+    'bennet-800': '暖かく鮮やかなネガフィルム調。',
+    'reggie-negative': '富士フイルムの色に寄せたネガフィルム調。',
     'cinestill-800t': 'Vision3 500T に、光の周りの赤いハレーション。夜景向けです。',
     'royal-supra': 'Kodak Royal/Supra調のポジフィルム調：深いコントラストとクリアな発色。',
     'bennets-bw800': 'Bennet 800のモノトーン版：力強い階調とフィルム調の粒状感で日常スナップに最適。',
@@ -533,8 +533,8 @@ const ko: RecipeStrings = {
   presetBefore: '레시피 없음',
   presetAfter: '레시피 적용',
   presetText: {
-    'bennet-800': '따뜻하고 진한 네거티브 필름. GR III에서 조정.',
-    'reggie-negative': '후지필름 색에 가까운 네거티브 필름. GR III에서 조정.',
+    'bennet-800': '따뜻하고 진한 네거티브 필름.',
+    'reggie-negative': '후지필름 색에 가까운 네거티브 필름.',
     'cinestill-800t': 'Vision3 500T에 빛 주위의 붉은 헐레이션. 야경에 어울립니다.',
     'royal-supra': 'Kodak Royal/Supra 스타일의 포지티브 필름 룩. 깊은 대비와 선명한 채도를 제공합니다.',
     'bennets-bw800': 'Bennet 800의 흑백 버전. 일상 스냅에 맞춘 강한 흑백 대비와 필름 질감의 입자감.',
@@ -662,7 +662,7 @@ const th: RecipeStrings = {
   presetAfter: 'ใส่สูตรสี',
   presetText: {
     'bennet-800': 'โทนเนกาทีฟสีอุ่นจัดจ้านที่ชาว GR หลงรัก เหมาะมากสำหรับสตรีทและวันแดดจัด',
-    'reggie-negative': 'Negative Film ปรับโทนสีสไตล์ Fuji สร้างขึ้นบน GR III',
+    'reggie-negative': 'Negative Film ที่ปรับโทนสีให้ใกล้เคียง Fujifilm',
     'cinestill-800t': 'Vision3 500T พร้อมแสงฟุ้งสีแดงรอบดวงไฟ เหมาะที่สุดสำหรับกลางคืน',
     'royal-supra': 'โทน Positive Film สไตล์ Kodak Royal/Supra สีอิ่ม คอนทราสต์ลึก คมชัดสะใจ',
     'bennets-bw800': 'คู่หูขาวดำของ Bennet 800: โทน Monotone คอนทราสต์จัด พร้อมเกรนสไตล์ฟิล์มสำหรับสตรีท',
