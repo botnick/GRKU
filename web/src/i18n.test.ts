@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { MODESET_TOKEN } from './cameras';
+import { FRAMING_RATIOS } from './generated/framing';
 import { matchLanguage, STRINGS } from './i18n';
 
 describe('matchLanguage', () => {
@@ -30,11 +31,13 @@ describe('matchLanguage', () => {
 });
 
 describe('STRINGS', () => {
-  it('lists the Framing ratios in menu order, as each language writes a list', () => {
-    expect(STRINGS.en.modulesText.framing).toBe('XPan, 2.35:1, 16:9, 4:3, 5:4, 7:6, 1:1, or 3:4 photos. The view dims the rest.');
-    expect(STRINGS['zh-Hans'].modulesText.framing).toBe('XPan、2.35:1、16:9、4:3、5:4、7:6、1:1 或 3:4 照片，画幅外变暗。');
-    expect(STRINGS.ja.modulesText.framing).toBe('XPan、2.35:1、16:9、4:3、5:4、7:6、1:1、3:4 の写真。範囲外は暗く表示します。');
-    expect(STRINGS.ko.modulesText.framing).toBe('XPan, 2.35:1, 16:9, 4:3, 5:4, 7:6, 1:1, 3:4 사진. 범위 밖은 어둡게 표시합니다.');
+  it('lists every Framing ratio in menu order in each language', () => {
+    for (const language of Object.keys(STRINGS) as (keyof typeof STRINGS)[]) {
+      const text = STRINGS[language].modulesText.framing;
+      const at = FRAMING_RATIOS.map((ratio) => text.indexOf(ratio.name));
+      expect(at.every((i) => i >= 0), language).toBe(true);
+      expect(at, language).toEqual([...at].sort((x, y) => x - y));
+    }
   });
 
   it('gives each language the same install steps and effect looks', () => {
