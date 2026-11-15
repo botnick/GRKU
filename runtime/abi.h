@@ -927,7 +927,7 @@
    glyphs from GRKU_GLYPH_FIRST. For entry n, a u16 width, a u16 height, and
    the u32 offset of its pixels from the table start at 8 n. Each pixel is one
    byte of text coverage, row by row. */
-#define GRKU_LABELS_SIZE 73728
+#define GRKU_LABELS_SIZE 77824
 /* The profile table after the labels (runtime/profile.h). For each of the
    first GRKU_PROFILE_MODULES listed modules, at GRKU_PROFILE_MODULE_SIZE n:
    its code start, its code end, and GRKU_PROFILE_NAME_BYTES ASCII bytes of its
@@ -935,7 +935,7 @@
    GRKU_PROFILE_SLOT_SIZE bytes: calls, cycles, and the cycles of the largest
    call. The core points come first, then GRKU_PROFILE_KINDS slots for each of
    those modules. */
-#define GRKU_PROFILE 240264
+#define GRKU_PROFILE 244360
 #define GRKU_PROFILE_SIZE 500
 #define GRKU_PROFILE_MODULES 8
 #define GRKU_PROFILE_MODULE_SIZE 16
@@ -956,10 +956,10 @@
 #define GRKU_PROFILE_FILTER 1
 #define GRKU_PROFILE_CALL 2
 /* Everything after the records: the script array must hold it. */
-#define GRKU_TAIL_SIZE 244860
+#define GRKU_TAIL_SIZE 248956
 /* The own red and blue curves of the native looks with Toning: for each of
    GRKU_TONE_SLOTS slots, 256 u16 red samples, then the blue ones. */
-#define GRKU_TONE_CURVES 240764
+#define GRKU_TONE_CURVES 244860
 #define GRKU_TONE_SLOTS 4
 #define GRKU_TONE_SLOT_SIZE 1024
 #define GRKU_TEXT_SUMMARY 8192
@@ -979,14 +979,15 @@
 #define GRKU_TEXT_RECORDS 40
 #define GRKU_TEXT(h) ((h)[GRKU_HOST_TAIL/4]+GRKU_PICTURE_SCRATCH)
 #define GRKU_LABELS(h) (GRKU_TEXT(h)+GRKU_TEXT_SIZE)
-#define GRKU_LABEL_COUNT 19
+#define GRKU_LABEL_COUNT 22
+#define GRKU_LABEL_CROP_CAMERA 19
 #define GRKU_MODULE_LABEL_COUNT 14
-#define GRKU_GLYPH_FIRST 19
+#define GRKU_GLYPH_FIRST 22
 #define GRKU_GLYPH_COUNT 95
 #define GRKU_GLYPH_HEIGHT 28
-#define GRKU_SMALL_GLYPH_FIRST 114
+#define GRKU_SMALL_GLYPH_FIRST 117
 #define GRKU_SMALL_GLYPH_HEIGHT 20
-#define GRKU_CAPTION_FIRST 209
+#define GRKU_CAPTION_FIRST 212
 #define GRKU_CAPTION_CHARACTERS "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define GRKU_CAPTION_TOP 22
 #define GRKU_CAPTION_INK 255
