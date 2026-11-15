@@ -1097,8 +1097,8 @@ fn watch_poll(name: &str) -> Vec<String> {
         "call release_capture".into(),
         format!(":{name}_state_saved"),
     ];
-    // The file of the user modes saves first, and the recipe file waits
-    // while it has a change that did not save: a recipe file of GRKU 1.8.6
+    // The file of the user modes saves first, and until it has saved once,
+    // the recipe file waits while it has a change: a recipe file of GRKU 1.8.6
     // holds the GRKU Off of U1 to U3, which INSTALL moves into the file of
     // the user modes (runtime/install_recipes.h), and a rewrite of the
     // recipe file drops it.
@@ -1112,7 +1112,12 @@ fn watch_poll(name: &str) -> Vec<String> {
         ]);
         if file == StateFile::Recipes {
             let (dial, _, dial_saved, _) = watch_names(StateFile::DialSets);
-            lines.push(format!("if {dial} <> {dial_saved} goto {next}"));
+            // Only until its first save: later the files save apart.
+            lines.extend([
+                format!("dwait = {dial}"),
+                format!("if {dial_saved} <> 0 dwait = 0"),
+                format!("if dwait <> 0 goto {next}"),
+            ]);
         }
         lines.extend([
             format!("{stamp} = {changes}"),
