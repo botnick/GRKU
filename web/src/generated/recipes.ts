@@ -508,7 +508,7 @@ export const PRESETS: readonly Preset[] = [
           "tone": 0,
           "intensity": 0,
           "filter": 0,
-          "grainStrength": 0,
+          "grainStrength": 2,
           "grainSize": 0,
           "solarization": 0
         },
@@ -565,7 +565,7 @@ export const PRESETS: readonly Preset[] = [
           "tone": 0,
           "intensity": 0,
           "filter": 0,
-          "grainStrength": 0,
+          "grainStrength": 2,
           "grainSize": 0,
           "solarization": 0
         },
@@ -625,7 +625,7 @@ export const PRESETS: readonly Preset[] = [
             1,
             4,
             4,
-            0
+            4
           ],
           "tone": 0,
           "intensity": 0,
@@ -682,7 +682,7 @@ export const PRESETS: readonly Preset[] = [
             1,
             4,
             4,
-            0
+            4
           ],
           "tone": 0,
           "intensity": 0,
@@ -752,13 +752,13 @@ export const PRESETS: readonly Preset[] = [
           "tone": 1,
           "intensity": 0,
           "filter": 0,
-          "grainStrength": 0,
+          "grainStrength": 1,
           "grainSize": 0,
           "solarization": 0
         },
         "grain": {
-          "level": 1,
-          "size": 1
+          "level": 0,
+          "size": 0
         },
         "glow": {
           "bloom": 0,
@@ -767,7 +767,7 @@ export const PRESETS: readonly Preset[] = [
         },
         "border": null,
         "whiteBalance": {
-          "mode": 2,
+          "mode": 0,
           "shiftBa": 14,
           "shiftGm": 14,
           "kelvin": 5500
@@ -777,6 +777,128 @@ export const PRESETS: readonly Preset[] = [
           0,
           0,
           0
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      }
+    ]
+  },
+  {
+    "id": "cotton-color-400",
+    "effect": null,
+    "author": "Luke Taylor",
+    "source": "https://www.lukeptaylor.com/blog/cotton-color-400-ricoh-gr-iii-film-recipe",
+    "recipes": [
+      {
+        "name": "Cotton Color 400",
+        "family": "gr3",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            4,
+            4,
+            6,
+            5,
+            3,
+            0,
+            2,
+            6,
+            2
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "border": null,
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 12,
+          "shiftGm": 11,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          2,
+          0,
+          5
+        ],
+        "exposure": {
+          "compensation": null,
+          "isoLimit": null,
+          "metering": null,
+          "nd": null
+        },
+        "enabled": true,
+        "hidden": false,
+        "number": 0,
+        "id": 0
+      },
+      {
+        "name": "Cotton Color 400",
+        "family": "gr4",
+        "look": {
+          "kind": "native",
+          "imageType": 7,
+          "levels": [
+            4,
+            4,
+            6,
+            5,
+            3,
+            0,
+            2,
+            6,
+            2
+          ],
+          "tone": 0,
+          "intensity": 0,
+          "filter": 0,
+          "grainStrength": 0,
+          "grainSize": 0,
+          "solarization": 0
+        },
+        "grain": {
+          "level": 0,
+          "size": 0
+        },
+        "glow": {
+          "bloom": 0,
+          "halation": 0,
+          "halationColor": 0
+        },
+        "border": null,
+        "whiteBalance": {
+          "mode": 0,
+          "shiftBa": 12,
+          "shiftGm": 11,
+          "kelvin": 5500
+        },
+        "corrections": [
+          1,
+          2,
+          0,
+          5
         ],
         "exposure": {
           "compensation": null,
@@ -834,7 +956,7 @@ export const PRESETS: readonly Preset[] = [
         "whiteBalance": {
           "mode": 14,
           "shiftBa": 14,
-          "shiftGm": 14,
+          "shiftGm": 16,
           "kelvin": 5700
         },
         "corrections": [
@@ -891,7 +1013,7 @@ export const PRESETS: readonly Preset[] = [
         "whiteBalance": {
           "mode": 14,
           "shiftBa": 14,
-          "shiftGm": 14,
+          "shiftGm": 16,
           "kelvin": 5700
         },
         "corrections": [
@@ -1183,12 +1305,12 @@ export const PRESETS: readonly Preset[] = [
           "tone": 0,
           "intensity": 0,
           "filter": 0,
-          "grainStrength": 0,
+          "grainStrength": 3,
           "grainSize": 0,
           "solarization": 0
         },
         "grain": {
-          "level": 3,
+          "level": 0,
           "size": 0
         },
         "glow": {
@@ -1240,12 +1362,12 @@ export const PRESETS: readonly Preset[] = [
           "tone": 0,
           "intensity": 0,
           "filter": 0,
-          "grainStrength": 0,
+          "grainStrength": 3,
           "grainSize": 0,
           "solarization": 0
         },
         "grain": {
-          "level": 3,
+          "level": 0,
           "size": 0
         },
         "glow": {

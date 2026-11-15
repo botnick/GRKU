@@ -1,6 +1,7 @@
 //! The recipes that the site offers.
 
 use super::{effect_code, Exposure, Family, Glow, Grain, Look, NativeLook, Recipe, WhiteBalance};
+use crate::native;
 use serde::Serialize;
 
 /// A recipe that the site offers: its ID, the effect that it uses, and the
@@ -37,6 +38,109 @@ const GLOW_OFF: Glow = Glow {
     halation: 0,
     halation_color: Some(0),
 };
+
+/// A community recipe of a native Image Control type, with its settings as
+/// its source gives them and the camera menus show them. A setting that the
+/// source does not give takes the neutral value of `AUTO_WHITE_BALANCE` and
+/// `NEUTRAL_CORRECTIONS`. It has no GRKU Grain or Glow.
+struct Native {
+    name: &'static str,
+    /// The label of the type (`native::TYPES`).
+    image_type: &'static str,
+    /// The nine levels, -4 to +4, in portable order: saturation, hue, key,
+    /// contrast, highlight contrast, shadow contrast, sharpness, shading,
+    /// and clarity. A level that the type does not have is 0.
+    levels: [i8; 9],
+    /// The label of the value of the tone parameter of the type, if it has
+    /// one: "OFF" of Toning, or "Mid" of the Cinema tone.
+    tone: Option<&'static str>,
+    /// The native grain in portable values: strength 0 (Off) to 3 (High),
+    /// and size 0 (Small) to 2 (Large). GR III has one size, 0, so a recipe
+    /// of both lines has size 0 on GR IV too.
+    grain: (u8, u8),
+    /// The label of the white balance mode (`native::WHITE_BALANCE`), its
+    /// A-B shift (A positive) and G-M shift (M positive) in steps, and the
+    /// color temperature of `ColorTemp1`.
+    white_balance: (&'static str, i8, i8, u32),
+    /// The labels of the highlight correction, the shadow correction, the
+    /// peripheral illumination correction, and the high-ISO noise reduction
+    /// (`native::CORRECTIONS`).
+    corrections: [&'static str; 4],
+}
+
+impl Native {
+    /// The recipes of the lines.
+    fn recipes(&self, lines: &[Family]) -> Vec<Recipe> {
+        lines.iter().map(|&family| self.recipe(family)).collect()
+    }
+
+    fn recipe(&self, family: Family) -> Recipe {
+        let image_type = native::TYPES
+            .iter()
+            .position(|t| t.label == self.image_type)
+            .unwrap_or_else(|| panic!("no type {}", self.image_type));
+        let native_family = family.native();
+        // The tone parameter of the type in the family: one of the
+        // ColorTone parameters.
+        let tone = self.tone.map_or(0, |label| {
+            let parameter = (0..native::PARAMETERS.len())
+                .find(|&p| {
+                    native::PARAMETERS[p].key.starts_with("ColorTone")
+                        && native::parameter_name(native_family, image_type, p).is_some()
+                })
+                .unwrap_or_else(|| panic!("{} has no tone", self.image_type));
+            let labels = native::type_parameter_labels(native_family, image_type, parameter)
+                .unwrap_or_else(|| panic!("{} has no tone labels", self.image_type));
+            stored(&labels, label)
+        });
+        let (mode, ba, gm, kelvin) = self.white_balance;
+        let mode = native::WHITE_BALANCE
+            .iter()
+            .position(|m| m.labels.contains(&Some(mode)))
+            .unwrap_or_else(|| panic!("no white balance mode {mode}"));
+        Recipe {
+            name: self.name.into(),
+            family,
+            look: Look::Native(NativeLook {
+                image_type,
+                levels: self.levels.map(|level| (level + 4) as u8),
+                tone,
+                intensity: 0,
+                filter: 0,
+                grain_strength: self.grain.0,
+                grain_size: self.grain.1,
+                solarization: 0,
+            }),
+            grain: Some(GRAIN_OFF),
+            glow: Some(GLOW_OFF),
+            // A preset keeps the border of the camera.
+            border: None,
+            white_balance: Some(WhiteBalance {
+                mode,
+                shift_ba: (ba + 14) as u8,
+                shift_gm: (gm + 14) as u8,
+                kelvin,
+            }),
+            corrections: std::array::from_fn(|n| {
+                Some(stored(&native::CORRECTIONS[n].labels, self.corrections[n]))
+            }),
+            exposure: Exposure::default(),
+            enabled: true,
+            hidden: false,
+            number: 0,
+            id: 0,
+        }
+    }
+}
+
+/// The stored value of a label.
+fn stored(labels: &native::Labels, label: &str) -> u8 {
+    labels
+        .values()
+        .find(|(name, _)| *name == label)
+        .map(|(_, value)| value as u8)
+        .unwrap_or_else(|| panic!("no label {label}"))
+}
 
 /// The recipes that the site offers.
 pub fn presets() -> Vec<Preset> {
@@ -215,197 +319,48 @@ pub fn presets() -> Vec<Preset> {
             }],
         },
         // Bennet's BW800 by Bennet: Monotone; saved 116 times on ricohcookbook.com.
+        // The comment of the author on the post gives the settings. The grain of GR III Grain Effect 2 is Mid.
         Preset {
             id: "bennets-bw800",
             effect: None,
             author: Some("Bennet"),
             source: Some("https://www.reddit.com/r/ricohGR/comments/1t2rmuv/bennets_bw800/"),
-            recipes: vec![Recipe {
-                name: "Bennet's BW800".into(),
-                family: Family::Gr3,
-                look: Look::Native(NativeLook {
-                    image_type: 2,
-                    levels: [4, 4, 2, 8, 2, 0, 3, 4, 4],
-                    tone: 0,
-                    intensity: 0,
-                    filter: 0,
-                    grain_strength: 0,
-                    grain_size: 0,
-                    solarization: 0,
-                }),
-                grain: Some(Grain { level: 0, size: 0 }),
-                glow: Some(GLOW_OFF),
-                border: None,
-                white_balance: Some(WhiteBalance { mode: 4, shift_ba: 28, shift_gm: 12, kelvin: 5500 }),
-                corrections: [Some(1), Some(2), Some(1), Some(5)],
-                exposure: Exposure::default(),
-                enabled: true,
-                hidden: false,
-                number: 0,
-                id: 0,
-            }, Recipe {
-                name: "Bennet's BW800".into(),
-                family: Family::Gr4,
-                look: Look::Native(NativeLook {
-                    image_type: 2,
-                    levels: [4, 4, 2, 8, 2, 0, 3, 4, 4],
-                    tone: 0,
-                    intensity: 0,
-                    filter: 0,
-                    grain_strength: 0,
-                    grain_size: 0,
-                    solarization: 0,
-                }),
-                grain: Some(Grain { level: 0, size: 0 }),
-                glow: Some(GLOW_OFF),
-                border: None,
-                white_balance: Some(WhiteBalance { mode: 4, shift_ba: 28, shift_gm: 12, kelvin: 5500 }),
-                corrections: [Some(1), Some(2), Some(1), Some(5)],
-                exposure: Exposure::default(),
-                enabled: true,
-                hidden: false,
-                number: 0,
-                id: 0,
-            }],
+            recipes: Native { name: "Bennet's BW800", image_type: "MonotoneGR", levels: [0, 0, -2, 4, -2, -4, -1, 0, 0], tone: Some("OFF"), grain: (2, 0), white_balance: ("Daylight", 14, -2, 5500), corrections: ["On", "Mid", "On", "Off"] }.recipes(&[Family::Gr3, Family::Gr4]),
         },
         // Portra 160 by Chrizz Ocampo: Negative Film; saved 107 times on ricohcookbook.com.
+        // The reply of the author to the post gives clarity "0 or -4 (for a nostalgic look)": the recipe keeps 0, as GRKit does.
         Preset {
             id: "portra-160-chrizz-ocampo",
             effect: None,
             author: Some("Chrizz Ocampo"),
             source: Some("https://www.facebook.com/groups/363978064347683/posts/1465331294212349/"),
-            recipes: vec![Recipe {
-                name: "Portra 160".into(),
-                family: Family::Gr3,
-                look: Look::Native(NativeLook {
-                    image_type: 6,
-                    levels: [7, 3, 7, 3, 6, 1, 4, 4, 0],
-                    tone: 0,
-                    intensity: 0,
-                    filter: 0,
-                    grain_strength: 0,
-                    grain_size: 0,
-                    solarization: 0,
-                }),
-                grain: Some(Grain { level: 0, size: 0 }),
-                glow: Some(GLOW_OFF),
-                border: None,
-                white_balance: Some(WhiteBalance { mode: 5, shift_ba: 17, shift_gm: 11, kelvin: 5500 }),
-                corrections: [Some(0), Some(0), Some(0), Some(0)],
-                exposure: Exposure::default(),
-                enabled: true,
-                hidden: false,
-                number: 0,
-                id: 0,
-            }, Recipe {
-                name: "Portra 160".into(),
-                family: Family::Gr4,
-                look: Look::Native(NativeLook {
-                    image_type: 6,
-                    levels: [7, 3, 7, 3, 6, 1, 4, 4, 0],
-                    tone: 0,
-                    intensity: 0,
-                    filter: 0,
-                    grain_strength: 0,
-                    grain_size: 0,
-                    solarization: 0,
-                }),
-                grain: Some(Grain { level: 0, size: 0 }),
-                glow: Some(GLOW_OFF),
-                border: None,
-                white_balance: Some(WhiteBalance { mode: 5, shift_ba: 17, shift_gm: 11, kelvin: 5500 }),
-                corrections: [Some(0), Some(0), Some(0), Some(0)],
-                exposure: Exposure::default(),
-                enabled: true,
-                hidden: false,
-                number: 0,
-                id: 0,
-            }],
+            recipes: Native { name: "Portra 160", image_type: "NegativeFilm", levels: [3, -1, 3, -1, 2, -3, 0, 0, 0], tone: None, grain: (0, 0), white_balance: ("Shade", 3, -3, 5500), corrections: ["Auto", "Auto", "Off", "Auto"] }.recipes(&[Family::Gr3, Family::Gr4]),
         },
         // Lanzarote by I Am a Camera: Cinema (Yellow); saved 58 times on ricohcookbook.com.
+        // The video gives Toning 2 (Mid) and grain size 1 and strength 1 (Small, Low), and no white balance.
         Preset {
             id: "lanzarote-cinema-yellow",
             effect: None,
             author: Some("I Am a Camera"),
             source: Some("https://ricohcookbook.com/recipe/lanzarote-cinema-yellow"),
-            recipes: vec![Recipe {
-                name: "Lanzarote".into(),
-                family: Family::Gr4,
-                look: Look::Native(NativeLook {
-                    image_type: 12,
-                    levels: [4, 3, 5, 4, 2, 3, 4, 4, 4],
-                    tone: 1,
-                    intensity: 0,
-                    filter: 0,
-                    grain_strength: 0,
-                    grain_size: 0,
-                    solarization: 0,
-                }),
-                grain: Some(Grain { level: 1, size: 1 }),
-                glow: Some(GLOW_OFF),
-                border: None,
-                white_balance: Some(WhiteBalance { mode: 2, shift_ba: 14, shift_gm: 14, kelvin: 5500 }),
-                corrections: [Some(0), Some(0), Some(0), Some(0)],
-                exposure: Exposure::default(),
-                enabled: true,
-                hidden: false,
-                number: 0,
-                id: 0,
-            }],
+            recipes: Native { name: "Lanzarote", image_type: "CinemaYellow", levels: [0, -1, 1, 0, -2, -1, 0, 0, 0], tone: Some("Mid"), grain: (1, 0), white_balance: ("Auto", 0, 0, 5500), corrections: ["Auto", "Auto", "Off", "Auto"] }.recipes(&[Family::Gr4]),
+        },
+        // Cotton Color 400 by Luke Taylor: Positive Film, from the settings of the post.
+        Preset {
+            id: "cotton-color-400",
+            effect: None,
+            author: Some("Luke Taylor"),
+            source: Some("https://www.lukeptaylor.com/blog/cotton-color-400-ricoh-gr-iii-film-recipe"),
+            recipes: Native { name: "Cotton Color 400", image_type: "PositiveFilm", levels: [0, 0, 2, 1, -1, -4, -2, 2, -2], tone: None, grain: (0, 0), white_balance: ("Auto", -2, -3, 5500), corrections: ["On", "Mid", "Off", "Off"] }.recipes(&[Family::Gr3, Family::Gr4]),
         },
         // Candy Color 400 by Luke Taylor: Positive Film; saved 52 times on ricohcookbook.com.
+        // The post gives a white balance of 5700 K with M2.
         Preset {
             id: "candy-color-400",
             effect: None,
             author: Some("Luke Taylor"),
             source: Some("https://www.lukeptaylor.com/blog/candy-color-400-ricoh-gr-iii-film-recipe"),
-            recipes: vec![Recipe {
-                name: "Candy Color 400".into(),
-                family: Family::Gr3,
-                look: Look::Native(NativeLook {
-                    image_type: 7,
-                    levels: [8, 2, 4, 8, 8, 8, 8, 5, 8],
-                    tone: 0,
-                    intensity: 0,
-                    filter: 0,
-                    grain_strength: 0,
-                    grain_size: 0,
-                    solarization: 0,
-                }),
-                grain: Some(Grain { level: 0, size: 0 }),
-                glow: Some(GLOW_OFF),
-                border: None,
-                white_balance: Some(WhiteBalance { mode: 14, shift_ba: 14, shift_gm: 14, kelvin: 5700 }),
-                corrections: [Some(1), Some(3), Some(1), Some(5)],
-                exposure: Exposure::default(),
-                enabled: true,
-                hidden: false,
-                number: 0,
-                id: 0,
-            }, Recipe {
-                name: "Candy Color 400".into(),
-                family: Family::Gr4,
-                look: Look::Native(NativeLook {
-                    image_type: 7,
-                    levels: [8, 2, 4, 8, 8, 8, 8, 5, 8],
-                    tone: 0,
-                    intensity: 0,
-                    filter: 0,
-                    grain_strength: 0,
-                    grain_size: 0,
-                    solarization: 0,
-                }),
-                grain: Some(Grain { level: 0, size: 0 }),
-                glow: Some(GLOW_OFF),
-                border: None,
-                white_balance: Some(WhiteBalance { mode: 14, shift_ba: 14, shift_gm: 14, kelvin: 5700 }),
-                corrections: [Some(1), Some(3), Some(1), Some(5)],
-                exposure: Exposure::default(),
-                enabled: true,
-                hidden: false,
-                number: 0,
-                id: 0,
-            }],
+            recipes: Native { name: "Candy Color 400", image_type: "PositiveFilm", levels: [4, -2, 0, 4, 4, 4, 4, 1, 4], tone: None, grain: (0, 0), white_balance: ("ColorTemp1", 0, 2, 5700), corrections: ["On", "High", "On", "Off"] }.recipes(&[Family::Gr3, Family::Gr4]),
         },
         // IAC Tri-X by I Am a Camera: Monotone; saved 51 times on ricohcookbook.com.
         Preset {
@@ -516,58 +471,13 @@ pub fn presets() -> Vec<Preset> {
             }],
         },
         // Dante Sisofo Street B&W by Dante Sisofo: Hi-Contrast B&W; saved 42 times on ricohcookbook.com.
+        // GR III Grain Effect 3 is High. The source gives no white balance: the recipe is black and white.
         Preset {
             id: "dante-sisofo-street-bw",
             effect: None,
             author: Some("Dante Sisofo"),
             source: Some("https://dantesisofo.com/my-ricoh-gr-camera-settings-for-street-photography/"),
-            recipes: vec![Recipe {
-                name: "Sisofo Street BW".into(),
-                family: Family::Gr3,
-                look: Look::Native(NativeLook {
-                    image_type: 5,
-                    levels: [4, 4, 2, 8, 0, 4, 8, 8, 8],
-                    tone: 0,
-                    intensity: 0,
-                    filter: 0,
-                    grain_strength: 0,
-                    grain_size: 0,
-                    solarization: 0,
-                }),
-                grain: Some(Grain { level: 3, size: 0 }),
-                glow: Some(GLOW_OFF),
-                border: None,
-                white_balance: Some(WhiteBalance { mode: 0, shift_ba: 14, shift_gm: 14, kelvin: 5500 }),
-                corrections: [Some(0), Some(0), Some(0), Some(0)],
-                exposure: Exposure::default(),
-                enabled: true,
-                hidden: false,
-                number: 0,
-                id: 0,
-            }, Recipe {
-                name: "Sisofo Street BW".into(),
-                family: Family::Gr4,
-                look: Look::Native(NativeLook {
-                    image_type: 5,
-                    levels: [4, 4, 2, 8, 0, 4, 8, 8, 8],
-                    tone: 0,
-                    intensity: 0,
-                    filter: 0,
-                    grain_strength: 0,
-                    grain_size: 0,
-                    solarization: 0,
-                }),
-                grain: Some(Grain { level: 3, size: 0 }),
-                glow: Some(GLOW_OFF),
-                border: None,
-                white_balance: Some(WhiteBalance { mode: 0, shift_ba: 14, shift_gm: 14, kelvin: 5500 }),
-                corrections: [Some(0), Some(0), Some(0), Some(0)],
-                exposure: Exposure::default(),
-                enabled: true,
-                hidden: false,
-                number: 0,
-                id: 0,
-            }],
+            recipes: Native { name: "Sisofo Street BW", image_type: "HighContrastBW", levels: [0, 0, -2, 4, -4, 0, 4, 4, 4], tone: Some("OFF"), grain: (3, 0), white_balance: ("Auto", 0, 0, 5500), corrections: ["Auto", "Auto", "Off", "Auto"] }.recipes(&[Family::Gr3, Family::Gr4]),
         },
         // Kodak Chrome by Ritchie Roesch: Positive Film; saved 40 times on ricohcookbook.com.
         Preset {
