@@ -27,7 +27,7 @@ pub const TEXT_GROUP_VALUE: usize = TEXT_SETTINGS - 2 * GROUP_UNITS;
 /// The units of the longest string with its NUL, and of each summary slot.
 pub const SUMMARY_UNITS: usize = 32;
 /// The number of strings in each language (`GRKU_TEXT_STRINGS`).
-pub const STRINGS: usize = 79;
+pub const STRINGS: usize = 80;
 /// The website that About GRKU shows.
 const WEBSITE: &str = "grku.app";
 /// The longest effect name in a record.
@@ -92,6 +92,8 @@ struct Words {
     adj_hidden: &'static str,
     /// The settings row that lists the options of a module page.
     options: &'static str,
+    /// The settings row that orders the options of a module page.
+    order: &'static str,
     /// The MENU row of the GRKU switch, its version, and its website.
     about: &'static str,
     website: &'static str,
@@ -168,6 +170,7 @@ const ENGLISH: Words = Words {
     adj_pins: ["Top 1", "Top 2", "Top 3", "Top 4"],
     adj_hidden: "Hidden",
     options: "Options",
+    order: "Order",
     about: "About GRKU",
     website: "Website",
     adjustments: "Parameters",
@@ -240,6 +243,7 @@ const SIMPLIFIED_CHINESE: Words = Words {
     adj_pins: ["顶栏 1", "顶栏 2", "顶栏 3", "顶栏 4"],
     adj_hidden: "隐藏",
     options: "可选项",
+    order: "顺序",
     about: "关于 GRKU",
     website: "网站",
     adjustments: "效果参数",
@@ -309,6 +313,7 @@ const TRADITIONAL_CHINESE: Words = Words {
     adj_pins: ["頂欄 1", "頂欄 2", "頂欄 3", "頂欄 4"],
     adj_hidden: "隱藏",
     options: "可選項",
+    order: "順序",
     about: "關於 GRKU",
     website: "網站",
     adjustments: "效果參數",
@@ -380,6 +385,7 @@ const JAPANESE: Words = Words {
     adj_pins: ["上段 1", "上段 2", "上段 3", "上段 4"],
     adj_hidden: "非表示",
     options: "オプション",
+    order: "順番",
     about: "GRKU について",
     website: "ウェブサイト",
     adjustments: "パラメーター",
@@ -452,6 +458,7 @@ const KOREAN: Words = Words {
     adj_pins: ["상단 1", "상단 2", "상단 3", "상단 4"],
     adj_hidden: "숨김",
     options: "옵션",
+    order: "순서",
     about: "GRKU 정보",
     website: "웹사이트",
     adjustments: "파라미터",
@@ -631,6 +638,11 @@ pub const RUNS: &[Run] = &[
         "GRKU Settings, the MENU row and the title of the settings page of the core, \
          then its Distance Unit row and the values Meters and Feet.",
     ),
+    run(
+        "ORDER",
+        1,
+        "The settings row that orders the options of a module page.",
+    ),
 ];
 
 /// The first string ID of each run, in table order.
@@ -718,6 +730,7 @@ fn run_strings(w: &Words, name: &str, version: &str) -> Vec<String> {
             w.dial_overwrite.1,
         ]),
         "UNIT" => words(&[w.grku_settings, w.distance_unit, w.meters, w.feet]),
+        "ORDER" => words(&[w.order]),
         _ => unreachable!("Unknown menu text run {name}"),
     }
 }
