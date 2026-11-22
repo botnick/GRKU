@@ -4,11 +4,12 @@ import {
   useCallback,
   useRef,
   useState,
+  useSyncExternalStore,
   useTransition,
   type ChangeEvent,
   type ReactNode,
 } from 'react';
-import { Check, KeyRound, LoaderCircle, Lock, Plus, Search, Sparkles, Upload, X } from 'lucide-react';
+import { Check, KeyRound, LoaderCircle, Lock, Maximize, Minimize, Plus, Search, Sparkles, Upload, X } from 'lucide-react';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -38,6 +39,15 @@ import { BrandSwatch } from './BrandMark';
 import { EffectIcon } from './EffectIcon';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ImportDialog, type ImportDialogHandle } from './ImportDialog';
+
+function subscribeFullscreen(change: () => void): () => void {
+  document.addEventListener('fullscreenchange', change);
+  return () => document.removeEventListener('fullscreenchange', change);
+}
+
+/** The browser can show an element in full screen. iPhone Safari cannot. */
+const fullscreenEnabled = () => document.fullscreenEnabled === true;
+const neverChanges = () => () => undefined;
 
 /** GRKU's own look, which the page shows first. */
 const FIRST_LOOK = 'positive-film-grii-v1';
@@ -164,6 +174,12 @@ export function Workbench({
   const used = usedSlots(listed, checked, owned);
   const slots = slotsOf(owned);
   const full = used >= slots;
+  // The viewer, not the frame, goes to full screen (as on GRKit): an error replaces the frame, and
+  // the removal of the full-screen element would end full screen. The photo keeps its render size.
+  const [viewer, setViewer] = useState<HTMLDivElement | null>(null);
+  const canFullscreen = useSyncExternalStore(neverChanges, fullscreenEnabled, () => false);
+  const fullscreenElement = useSyncExternalStore(subscribeFullscreen, () => document.fullscreenElement, () => null);
+  const fullscreen = viewer !== null && fullscreenElement === viewer;
   // The effect that the frame shows, which changes in a transition when its preview is ready, and
   // the effect that the user pressed last, which the boxes and the text show at once.
   const [previewId, setPreviewId] = useState(FIRST_LOOK);
@@ -313,6 +329,29 @@ export function Workbench({
   const requestedOn = !!requested && checked.has(requested.id);
   const credit = sample?.credit ?? SAMPLES[0]!.credit;
 
+  function toggleFullscreen() {
+    // A refusal, such as without a user gesture, leaves the page as it is.
+    if (fullscreen) document.exitFullscreen().catch(() => undefined);
+    else viewer?.requestFullscreen().catch(() => undefined);
+  }
+
+  /**
+   * Puts the shown looks on the card, as many as fit: room on the card, and a free slot for each
+   * look that takes one.
+   */
+  function addShown() {
+    const next = new Set(checked);
+    for (const effect of visible) {
+      if (next.size >= MAX_EFFECTS) break;
+      if (next.has(effect.id) || effect.card) continue;
+      if (takesSlot(effect, owned) && usedSlots(listed, next, owned) >= slots) continue;
+      next.add(effect.id);
+    }
+    if (next.size !== checked.size) onSelectionChange(next);
+  }
+  const canAddShown =
+    checked.size < MAX_EFFECTS && visible.some((effect) => !checked.has(effect.id) && !effect.card && canAdd(effect));
+
   function retryPreview() {
     forget(source);
     setPreviewAttempt((attempt) => attempt + 1);
@@ -354,9 +393,9 @@ export function Workbench({
           id="looks-title"
           className="mt-2 text-balance text-[clamp(30px,3.4vw,44px)] leading-[1.1] font-semibold tracking-[-0.02em] [:root[lang=th]_&]:leading-[1.3] [:root[lang=th]_&]:tracking-normal"
         >
-          {t.site.looksHeading}
+          {t.site.toolHeading}
         </h1>
-        <p className="mt-4 max-w-[40em] text-[15px] leading-relaxed text-muted-foreground">{t.site.looksLead}</p>
+        <p className="mt-4 max-w-[40em] text-[15px] leading-relaxed text-muted-foreground">{t.site.toolLead}</p>
       </div>
 
       {/* The photograph, which stays in view while the shelf scrolls. */}
@@ -364,7 +403,10 @@ export function Workbench({
         className="sticky top-24 z-20 -mx-gutter min-w-0 bg-background px-gutter pt-3 pb-3 lg:top-[72px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:self-start lg:px-0 lg:pt-[clamp(28px,6vh,72px)] lg:pb-0"
         aria-label={t.preview}
       >
-        <div className="relative">
+        <div
+          ref={setViewer}
+          className="relative [&:fullscreen]:flex [&:fullscreen]:items-center [&:fullscreen]:justify-center [&:fullscreen]:bg-black"
+        >
         {shown && previewed ? (
           <ErrorBoundary
             resetKey={`${source.key}\n${shown.id}\n${previewAttempt}`}
@@ -396,10 +438,22 @@ export function Workbench({
           still
         )}
         {/* On a phone the name and the button lie over the photo, so the sticky block stays short. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] flex items-end justify-between gap-3 rounded-b-2xl bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 lg:hidden">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] flex items-end justify-between gap-3 rounded-b-2xl bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 lg:hidden [:fullscreen>&]:flex [:fullscreen>&]:rounded-none [:fullscreen>&]:p-5">
           <span className="min-w-0 truncate text-[15px] font-semibold text-white drop-shadow">{requested?.name ?? t.original}</span>
           <span className="pointer-events-auto">{addButton('sm')}</span>
         </div>
+        {canFullscreen && shown && (
+          <Button
+            type="button"
+            size="icon"
+            className="absolute top-3 left-3 z-[4] size-9 rounded-md bg-black/75 text-white hover:bg-black [:fullscreen>&]:top-5 [:fullscreen>&]:left-5"
+            aria-label={fullscreen ? t.exitFullScreen : t.fullScreen}
+            title={fullscreen ? t.exitFullScreen : t.fullScreen}
+            onClick={toggleFullscreen}
+          >
+            {fullscreen ? <Minimize aria-hidden="true" /> : <Maximize aria-hidden="true" />}
+          </Button>
+        )}
         </div>
         <div className="mt-5 hidden items-start justify-between gap-4 lg:flex">
           <div className="min-w-0">
@@ -409,6 +463,14 @@ export function Workbench({
               <p className="font-mono text-[13px] text-muted-foreground">{stockText(STOCKS[requested.id]!, t)}</p>
             )}
             {look && <p className="mt-0.5 text-sm text-muted-foreground">{look}</p>}
+            {requested && !requested.imported && t.lookHints[requested.id] && (
+              <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-muted-foreground">{t.lookHints[requested.id]}</p>
+            )}
+            {requested && onCard && (
+              <span className="mt-2 inline-flex">
+                <ChangeBadge on={onCard.has(requested.id)} checked={checked.has(requested.id)} changed={changedOnCard?.has(requested.id)} strings={t} />
+              </span>
+            )}
           </div>
           {addButton('default')}
         </div>
@@ -677,7 +739,14 @@ export function Workbench({
             </TabsList>
           </Tabs>
           <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-muted-foreground tabular-nums">
-            <span>{catalog ? t.shownOf(visible.length, listed.length) : error ? t.loadError : t.loading}</span>
+            <span className="flex items-center gap-2">
+              {catalog ? t.shownOf(visible.length, listed.length) : error ? t.loadError : t.loading}
+              {catalog && (
+                <Button type="button" variant="ghost" size="xs" disabled={!canAddShown} onClick={addShown}>
+                  {t.selectAll}
+                </Button>
+              )}
+            </span>
             {/* The key to the marks on the boxes. */}
             <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="flex items-center gap-1.5">
@@ -885,7 +954,7 @@ export function Workbench({
 function Frame({ busy = false, children }: { busy?: boolean; children: ReactNode }) {
   return (
     <div
-      className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-black shadow-[0_30px_80px_rgba(0,0,0,0.55)] ring-1 ring-white/[0.06]"
+      className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-black shadow-[0_30px_80px_rgba(0,0,0,0.55)] ring-1 ring-white/[0.06] [:fullscreen>&]:w-[min(100%,calc(100vh*3/2))] [:fullscreen>&]:rounded-none [:fullscreen>&]:shadow-none [:fullscreen>&]:ring-0"
       aria-busy={busy}
     >
       {children}

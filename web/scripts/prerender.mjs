@@ -2,10 +2,10 @@
 //
 // Search engines and link previews read the HTML that the server sends. The page renders in the
 // browser, so this script renders the first screen of each page of each language into its own
-// file: the home page, the looks page, and the install page, at dist/index.html,
-// dist/looks/index.html, and dist/install/index.html for Thai, and under dist/<language>/ for the
-// others. Each page names its other languages with hreflang links. The edge worker sends a visitor
-// of a Thai page to the same page of their language.
+// file: the home page and the install page, at dist/index.html and dist/install/index.html for
+// Thai, and under dist/<language>/ for the others. Each page names its other languages with
+// hreflang links. The edge worker sends a visitor of a Thai page to the same page of their
+// language, and the looks page of the earlier site to the install page.
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -77,8 +77,8 @@ async function edgeWorker(headers) {
       lib: { entry: 'src/edge.ts', formats: ['es'], fileName: () => '_worker.js' },
     },
   });
-  // Only the Thai pages run the worker. Pages serves the other files directly.
-  const include = Object.keys(SITE_PAGES).map((name) => pagePath('th', name));
+  // Only the Thai pages and the old looks pages run the worker. Pages serves the other files directly.
+  const include = [...Object.keys(SITE_PAGES).map((name) => pagePath('th', name)), ...codes.flatMap((code) => [`${LANGUAGE_PATHS[code]}looks`, `${LANGUAGE_PATHS[code]}looks/`])];
   writeFileSync(join(dist, '_routes.json'), `${JSON.stringify({ version: 1, include, exclude: [] }, null, 2)}\n`);
 }
 

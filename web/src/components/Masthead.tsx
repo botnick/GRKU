@@ -57,7 +57,6 @@ export function Masthead({
   const pages = (
     [
       ['home', t.site.home],
-      ['looks', t.effects],
       ['install', t.install],
     ] as const
   ).map(([name, text]) => ({ name, text, current: name === page }));

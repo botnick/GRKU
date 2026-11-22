@@ -7,8 +7,7 @@ How it works: choose film looks and modules on the site, write them to the SD ca
 ## Pages
 
 - [GRKU (Thai)](https://grku.app/): the home page: what GRKU does, the modules with example photos, the cameras, and the FAQ
-- [Film looks](https://grku.app/en/looks/): every film look, previewed on a sample photo or your own DNG, and the choice of looks for the card
-- [Install](https://grku.app/en/install/): the camera, the modules, the recipes, and the SD card write or the GRKU.zip download
+- [Install](https://grku.app/en/install/): every film look, previewed on a sample photo or your own DNG, then the camera, the modules, the recipes, and the SD card write or the GRKU.zip download
 - [GRKU (English)](https://grku.app/en/)
 - [GRKU (日本語)](https://grku.app/ja/)
 - [GRKU (한국어)](https://grku.app/ko/)

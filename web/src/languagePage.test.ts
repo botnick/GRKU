@@ -38,17 +38,18 @@ describe('pathLanguage', () => {
 });
 
 describe('site pages', () => {
-  it('puts the looks and install pages under each language path', () => {
+  it('puts the install page under each language path', () => {
     expect(pagePath('th', 'home')).toBe('/');
-    expect(pagePath('th', 'looks')).toBe('/looks/');
+    expect(pagePath('th', 'install')).toBe('/install/');
     expect(pagePath('en', 'install')).toBe('/en/install/');
-    expect(pagePath('zh-Hant', 'looks')).toBe('/zh-hant/looks/');
+    expect(pagePath('zh-Hant', 'install')).toBe('/zh-hant/install/');
   });
 
   it('reads the page and the language of an address', () => {
     expect(pathPage('/')).toBe('home');
     expect(pathPage('/en/')).toBe('home');
-    expect(pathPage('/looks')).toBe('looks');
+    expect(pathPage('/looks')).toBe('install');
+    expect(pathPage('/en/looks/')).toBe('install');
     expect(pathPage('/ja/Install/')).toBe('install');
     expect(pathPage('/faq/')).toBeNull();
     expect(pathPage('/en/terms/')).toBeNull();
@@ -137,10 +138,16 @@ describe('edge worker', () => {
     expect(response.headers.get('Vary')).toBe('Accept-Language, Cookie');
   });
 
+  it('sends the old looks pages to the install page of their language', async () => {
+    const thai = await edge.fetch(request('/looks/', { 'Accept-Language': 'ja' }), { ASSETS: assets });
+    expect(thai.status).toBe(301);
+    expect(thai.headers.get('Location')).toBe('https://grku.app/install/');
+    const english = await edge.fetch(request('/en/looks?ref=x', {}), { ASSETS: assets });
+    expect(english.headers.get('Location')).toBe('https://grku.app/en/install/?ref=x');
+    expect(assets.fetch).not.toHaveBeenCalled();
+  });
+
   it('sends a visitor of a Thai page to the same page of their language', async () => {
-    const looks = await edge.fetch(request('/looks/', { 'Accept-Language': 'ja' }), { ASSETS: assets });
-    expect(looks.status).toBe(302);
-    expect(looks.headers.get('Location')).toBe('https://grku.app/ja/looks/');
     const install = await edge.fetch(request('/install/?ref=x', { 'Accept-Language': 'en' }), { ASSETS: assets });
     expect(install.headers.get('Location')).toBe('https://grku.app/en/install/?ref=x');
     vi.stubGlobal('__SITE_HEADERS__', {});

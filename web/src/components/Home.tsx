@@ -111,10 +111,10 @@ function Actions({ strings: t, link, className }: { strings: Strings; link: Page
   return (
     <div className={cn('flex flex-wrap items-center gap-3', className)}>
       <Button asChild variant="brand" size="lg" className="h-11 px-6 text-[15px]">
-        <a {...link('looks')}>{t.chooseLooks}</a>
+        <a {...link('install')}>{t.chooseLooks}</a>
       </Button>
       <Button asChild variant="outline" size="lg" className="h-11 px-6 text-[15px]">
-        <a {...link('install')}>{t.install}</a>
+        <a {...link('install', '#install')}>{t.install}</a>
       </Button>
     </div>
   );
@@ -142,7 +142,7 @@ function Shelf({ strings: t, link }: { strings: Strings; link: PageLink }) {
       {rest > 0 && (
         <li className="flex">
           <a
-            {...link('looks')}
+            {...link('install')}
             className="flex w-full flex-col items-center justify-center gap-1 rounded-lg border border-dashed p-1.5 text-center text-muted-foreground no-underline transition-colors hover:border-input hover:text-foreground"
           >
             <span className="font-mono text-lg tabular-nums">+{rest}</span>
@@ -206,7 +206,7 @@ export function Home({
           </h2>
           <p className={LEAD}>{t.site.shelfText}</p>
           <Button asChild variant="outline" className="mt-6">
-            <a {...link('looks')}>{t.chooseLooks}</a>
+            <a {...link('install')}>{t.chooseLooks}</a>
           </Button>
         </div>
         <Shelf strings={t} link={link} />

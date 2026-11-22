@@ -1,5 +1,5 @@
 import { Suspense, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { ArrowRight, FileText, TriangleAlert } from 'lucide-react';
+import { ArrowDown, FileText, TriangleAlert } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -53,7 +53,7 @@ import {
   PREVIEW_TARGET,
   type Camera,
 } from './cameras';
-import { loadCatalog, MAX_EFFECTS, type Catalog, type CardEffect, type Effect, type ImportedEffect, type PackageEffect } from './catalog';
+import { loadCatalog, MAX_EFFECTS, type Catalog, type CardEffect, type ImportedEffect, type PackageEffect } from './catalog';
 import {
   CardChangesView,
   CardConnect,
@@ -76,7 +76,6 @@ import { DOC_PATHS, LANGUAGE_PATHS, pagePath, pathLanguage, pathPage, type SiteP
 import { pageLink, type Navigate, type PageLink } from './navigation';
 import { loadCamera, loadModules, saveCamera, saveModules } from './setup';
 import { Home } from './components/Home';
-import { EffectIcon } from './components/EffectIcon';
 import { RichText } from './components/RichText';
 import { SiteFooter } from './components/SiteFooter';
 import { WhatsNew } from './components/WhatsNew';
@@ -164,6 +163,8 @@ export function App({
   // The three pages share this state, so a move between them keeps the looks, the modules, the
   // camera, and the connected card. The browser storage keeps them for a reload and the next visit.
   const [page, setPage] = useState<SitePage>(initialPage);
+  // The looks part of the install page, for the bar under it.
+  const [looksArea, setLooksArea] = useState<HTMLDivElement | null>(null);
   // The element that a move to a page shows, by the hash of its link, or the top of the page.
   const [scrollTarget, setScrollTarget] = useState<{ hash: string } | null>(() =>
     typeof location === 'undefined' || !location.hash ? null : { hash: location.hash },
@@ -310,9 +311,26 @@ export function App({
 
   useEffect(() => {
     if (!scrollTarget) return;
-    const target = scrollTarget.hash ? document.getElementById(scrollTarget.hash.slice(1)) : null;
-    if (target) target.scrollIntoView({ block: 'start' });
-    else window.scrollTo(0, 0);
+    const target = () => (scrollTarget.hash ? document.getElementById(scrollTarget.hash.slice(1)) : null);
+    if (!target()) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    target()?.scrollIntoView({ block: 'start' });
+    // The looks above a step fill in as the catalog arrives, which moves the step down: it comes
+    // back into place for a moment, until the visitor scrolls.
+    const again = () => target()?.scrollIntoView({ block: 'start' });
+    const timers = [setTimeout(again, 400), setTimeout(again, 1200)];
+    const stop = () => timers.forEach(clearTimeout);
+    addEventListener('wheel', stop, { once: true, passive: true });
+    addEventListener('touchstart', stop, { once: true, passive: true });
+    addEventListener('keydown', stop, { once: true });
+    return () => {
+      stop();
+      removeEventListener('wheel', stop);
+      removeEventListener('touchstart', stop);
+      removeEventListener('keydown', stop);
+    };
   }, [scrollTarget]);
 
   /** A change of the selection makes the result of a download or a card write stale. */
@@ -1070,7 +1088,7 @@ export function App({
         page={page}
         link={link}
       />
-      <main id="top" className={cn('mx-auto w-full max-w-[1280px] px-gutter', page === 'looks' ? 'pb-28' : 'pb-8')}>
+      <main id="top" className={cn('mx-auto w-full max-w-[1280px] px-gutter', page === 'install' ? 'pb-24' : 'pb-8')}>
         {page === 'home' && (
           <Home
             strings={t}
@@ -1083,8 +1101,10 @@ export function App({
           />
         )}
 
-        {page === 'looks' && (
+        {page === 'install' && (
           <>
+            {/* Step 1, the looks: the workbench, with the bar that leads on to the install step while it shows. */}
+            <div ref={setLooksArea}>
             <Workbench
               strings={t}
               selection={selection}
@@ -1106,38 +1126,10 @@ export function App({
               onForgetKey={dropKey}
               notice={!available.includes('filmLook') ? t.effectsUnavailable(camera.name) : !plan.includeEffects ? t.effectsOff : null}
             />
-            <ContinueBar strings={t} count={checkedCount} link={link} />
-          </>
-        )}
+            </div>
+            <InstallBar strings={t} count={checkedCount} link={link} area={looksArea} />
 
-        {page === 'install' && (
-          <>
-            <header className="pt-[clamp(24px,5vh,56px)] pb-10">
-              <h1 className="text-[clamp(30px,3.4vw,44px)] leading-[1.1] font-semibold tracking-[-0.02em] [:root[lang=th]_&]:leading-[1.3] [:root[lang=th]_&]:tracking-normal">
-                {t.install}
-              </h1>
-              <p className="mt-4 max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground">
-                {canWrite ? t.landing.installNote : t.landing.installNoteZip}
-              </p>
-              <LooksSummary
-                strings={t}
-                effects={
-                  previewCatalog
-                    ? [...previewCatalog.effects, ...imported, ...(active ? cardExtra : [])].filter((effect) =>
-                        resolveSelection(
-                          selection,
-                          previewCatalog.effects.map((item) => item.id),
-                          [...imported, ...(active ? cardExtra : [])].map((item) => item.id),
-                        ).has(effect.id),
-                      )
-                    : null
-                }
-                notice={!available.includes('filmLook') ? t.effectsUnavailable(camera.name) : !plan.includeEffects ? t.effectsOff : null}
-                link={link}
-              />
-            </header>
-
-            <Step id="camera" number={t.step(2)} title={t.camera} description={cardCamera ? undefined : t.firmwareNote}>
+            <Step id="camera" number={t.step(2)} title={t.camera} description={cardCamera ? undefined : t.firmwareNote} className="mt-14">
               {cardCamera ? (
                 <dl className={FACTS}>
                   <dt className={FACT_LABEL}>{t.camera}</dt>
@@ -1305,8 +1297,6 @@ export function App({
         )}
       </main>
       <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} />
-      {/* Room for the bar of the looks page under the footer. */}
-      {page === 'looks' && <div className="h-16" aria-hidden="true" />}
       <PlusSheet
         open={plusOpen}
         onOpenChange={setPlusOpen}
@@ -1321,7 +1311,7 @@ export function App({
         payOrder={payOrder}
         termsHref={`${LANGUAGE_PATHS[language]}${DOC_PATHS.TERMS}`}
         language={language}
-        onBrowse={() => navigate('looks', '#looks')}
+        onBrowse={() => navigate('install', '#looks')}
       />
     </>
   );
@@ -1480,67 +1470,46 @@ function RecipesWithEffects({
 }
 
 /**
- * The bar at the bottom of the looks page: how many looks go on the card, and the way on to the
- * install page, which keeps them.
+ * A bar at the bottom of the install page while its looks show: how many looks go on the card,
+ * and a link down to the install step. `area` is the looks part of the page.
  */
-function ContinueBar({ strings: t, count, link }: { strings: Strings; count: number | null; link: PageLink }) {
+function InstallBar({
+  strings: t,
+  count,
+  link,
+  area,
+}: {
+  strings: Strings;
+  count: number | null;
+  link: PageLink;
+  area: HTMLElement | null;
+}) {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    if (!area) return;
+    const observer = new IntersectionObserver(([entry]) => setShown(!!entry?.isIntersecting), { rootMargin: '-25% 0px -25% 0px' });
+    observer.observe(area);
+    return () => observer.disconnect();
+  }, [area]);
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between gap-4 px-gutter">
+    <div
+      className={cn(
+        'fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur-md transition-[transform,opacity] duration-200 ease-out',
+        shown ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0',
+      )}
+      aria-hidden={!shown}
+    >
+      <div className="mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-4 px-gutter">
         <p className="min-w-0 truncate text-sm text-muted-foreground tabular-nums">
           {count === null ? t.loading : t.slotsUsed(count, MAX_EFFECTS)}
         </p>
-        <Button asChild size="lg" className="h-11 shrink-0 px-5 text-[15px]">
-          <a {...link('install')}>
-            {t.site.continueInstall}
-            <ArrowRight aria-hidden="true" />
+        <Button asChild className="h-9 shrink-0 px-4" tabIndex={shown ? undefined : -1}>
+          <a {...link('install', '#install')}>
+            {t.install}
+            <ArrowDown aria-hidden="true" />
           </a>
         </Button>
       </div>
-    </div>
-  );
-}
-
-/** The looks that go on the card, at the top of the install page, with the way back to change them. */
-function LooksSummary({
-  strings: t,
-  effects,
-  notice,
-  link,
-}: {
-  strings: Strings;
-  /** The looks on the card, or null before the catalog loads. */
-  effects: readonly (Effect | CardEffect)[] | null;
-  /** Why the package takes no looks, if it takes none. */
-  notice: string | null;
-  link: PageLink;
-}) {
-  return (
-    <div className="mt-8 flex flex-col gap-4 rounded-2xl border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0">
-        <p className="flex items-baseline gap-2 font-medium">
-          {t.effects}
-          {effects && <span className="font-mono text-[13px] text-muted-foreground tabular-nums">{t.slotsUsed(effects.length, MAX_EFFECTS)}</span>}
-        </p>
-        {notice ? (
-          <p className="mt-2 text-sm text-muted-foreground">{notice}</p>
-        ) : effects === null ? (
-          <p className="mt-2 text-sm text-muted-foreground">{t.loading}</p>
-        ) : effects.length === 0 ? (
-          <p className="mt-2 text-sm text-destructive">{t.site.noLooks}</p>
-        ) : (
-          <ul className="mt-3 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={t.onCard}>
-            {effects.map((effect) => (
-              <li key={effect.id} className="shrink-0" title={effect.name}>
-                <EffectIcon effect={effect} className="size-11" />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <Button asChild variant="outline" className="shrink-0 self-start sm:self-auto">
-        <a {...link('looks')}>{t.site.changeLooks}</a>
-      </Button>
     </div>
   );
 }

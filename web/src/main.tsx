@@ -6,7 +6,7 @@ import { loadLastCard } from './cardStore';
 import { loadImports } from './import/store';
 import { loadFonts } from './fonts';
 import { pageLanguage, showLanguage, takeLegacyLanguage } from './i18n';
-import { pagePath, pathPage } from './languagePage';
+import { looksLanguage, pagePath, pathPage } from './languagePage';
 import { anchorPage } from './navigation';
 // The site serves its fonts itself, so a page view sends no request to a font host.
 // loadFonts adds the Chinese, Japanese, or Korean fonts when a page in that language needs them.
@@ -22,7 +22,8 @@ import './index.css';
 const language = pageLanguage();
 let page = pathPage(location.pathname) ?? 'home';
 // The steps of the one-page site have their own pages now: `/#install` opens the install page.
-const moved = page === 'home' ? anchorPage(location.hash) : null;
+// The looks page of the earlier site is the install page now (the edge worker sends it there too).
+const moved = page === 'home' ? anchorPage(location.hash) : looksLanguage(location.pathname) ? page : null;
 if (moved) {
   history.replaceState(history.state, '', `${pagePath(language, moved)}${location.search}${location.hash}`);
   page = moved;

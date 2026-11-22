@@ -6,9 +6,9 @@ describe('anchorPage', () => {
     expect(anchorPage('#install')).toBe('install');
     expect(anchorPage('#modules')).toBe('install');
     expect(anchorPage('#camera')).toBe('install');
-    expect(anchorPage('#looks')).toBe('looks');
-    expect(anchorPage('#plus=abc')).toBe('looks');
-    expect(anchorPage('#pay=abcdefghij')).toBe('looks');
+    expect(anchorPage('#looks')).toBe('install');
+    expect(anchorPage('#plus=abc')).toBe('install');
+    expect(anchorPage('#pay=abcdefghij')).toBe('install');
     expect(anchorPage('#faq')).toBeNull();
     expect(anchorPage('')).toBeNull();
   });
@@ -34,7 +34,7 @@ describe('pageLink', () => {
     link.onClick(event as never);
     expect(event.preventDefault).toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith('install', '#zip');
-    expect(pageLink('th', navigate, 'looks').href).toBe('/looks/');
+    expect(pageLink('th', navigate, 'install').href).toBe('/install/');
   });
 
   it('leaves a click for a new tab to the browser', () => {

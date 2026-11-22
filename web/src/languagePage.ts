@@ -53,10 +53,11 @@ export function fastbootPath(language: Language): string {
 }
 
 /**
- * The pages of the site under each language path: the home page, the looks page with the
- * workbench, and the install page. `/looks/` is the Thai looks page and `/en/looks/` the English one.
+ * The pages of the site under each language path: the home page, and the install page, where the
+ * visitor chooses the film looks, the camera, and the modules, and writes the card. `/install/`
+ * is the Thai install page and `/en/install/` the English one.
  */
-export const SITE_PAGES = { home: '', looks: 'looks/', install: 'install/' } as const;
+export const SITE_PAGES = { home: '', install: 'install/' } as const;
 
 export type SitePage = keyof typeof SITE_PAGES;
 
@@ -67,7 +68,24 @@ export function pagePath(language: Language, page: SitePage): string {
   return `${LANGUAGE_PATHS[language]}${SITE_PAGES[page]}`;
 }
 
-/** The page at `pathname`, or null for an address that is no page of the site. */
+/**
+ * The looks page of an earlier version of the site, now the install page, which starts with the
+ * looks. The edge worker sends it there; a browser that loads it anyway shows the install page.
+ */
+const LOOKS_PAGE = 'looks/';
+
+/** The address of the old looks page in `language`. */
+export function looksPath(language: Language): string {
+  return `${LANGUAGE_PATHS[language]}${LOOKS_PAGE}`;
+}
+
+/** The language of `pathname` when it is an old looks page, else null. */
+export function looksLanguage(pathname: string): Language | null {
+  const path = normalized(pathname);
+  return CODES.find((code) => looksPath(code) === path) ?? null;
+}
+
+/** The page at `pathname`, or null for an address that is no page of the site. An old looks page is the install page. */
 export function pathPage(pathname: string): SitePage | null {
   const path = normalized(pathname);
   for (const code of CODES) {
@@ -75,7 +93,7 @@ export function pathPage(pathname: string): SitePage | null {
       if (pagePath(code, page) === path) return page;
     }
   }
-  return null;
+  return looksLanguage(pathname) ? 'install' : null;
 }
 
 /** The language of the page at `pathname`, a page of a language or its fast-boot page. Any other path is Thai. */
@@ -83,7 +101,8 @@ export function pathLanguage(pathname: string): Language {
   const path = normalized(pathname);
   return (
     CODES.find(
-      (code) => fastbootPath(code) === path || PAGE_NAMES.some((page) => pagePath(code, page) === path),
+      (code) =>
+        fastbootPath(code) === path || looksPath(code) === path || PAGE_NAMES.some((page) => pagePath(code, page) === path),
     ) ?? 'th'
   );
 }
