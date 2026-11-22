@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CAMERAS, PREVIEW_TARGET } from '../cameras';
@@ -10,7 +9,6 @@ import type { Language, Strings } from '../i18n';
 import { LANDING_LOOKS, LANDING_PHOTOS, landingImage } from '../landing';
 import type { PageLink } from '../navigation';
 import type { SitePage } from '../languagePage';
-import { SAMPLES } from '../preview/samples';
 import { cameraTerms, RECIPE_STRINGS } from '../recipeStrings';
 import { useCatalog } from '../useCatalog';
 import { EffectIcon } from './EffectIcon';
@@ -48,62 +46,70 @@ const SUPPORTED_CAMERAS = CAMERAS.filter((camera) => camera.support)
 /** The boxes on the shelf of the home page. */
 const SHELF_SIZE = 23;
 
+/** The photo of the hero, a sample of the looks page (scripts/build-hero.mjs renders its looks). */
+const HERO_PHOTO = 'achensee';
+const heroImage = (slug: string) => landingImage(`hero/${HERO_PHOTO}-${slug}.jpg`);
+
 /**
- * The first screen: the same photo developed with five looks of the library, against the base
- * development under a handle, and the boxes that pick the look.
+ * The first screen: one GR photo developed with five looks of the library, against the base
+ * development under a handle. The name of the look sits on the photo; under it, a tight row of
+ * film boxes picks the look, the one on the photo lifted and underlined, and the credit sits small
+ * at the end of the row.
  */
 function HeroCompare({ strings: t }: { strings: Strings }) {
   const [index, setIndex] = useState(0);
   const look = LANDING_LOOKS[index]!;
   const comparison = useReactCompareSlider({ clip: 'itemTwo' });
-  const credit = SAMPLES[0]!.credit;
+  const credit = LANDING_PHOTOS[HERO_PHOTO];
   return (
     <figure className="m-0 min-w-0">
       <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-black ring-1 ring-white/[0.06]">
         <Provider {...comparison}>
           <Root className="image-comparison">
             <Item item="itemOne">
-              <img src={landingImage('looks/standard.jpg')} alt={`${t.samplePhoto} — ${t.original}`} width="1200" height="800" fetchPriority="high" />
+              <img src={heroImage('standard')} alt={`${t.samplePhoto} — ${t.original}`} width="1200" height="800" fetchPriority="high" />
             </Item>
             <Item item="itemTwo" className="comparison-effect">
-              <img src={landingImage(`looks/${look.image}.jpg`)} alt={`${t.samplePhoto} — ${look.name}`} width="1200" height="800" fetchPriority="high" />
+              <img src={heroImage(look.image)} alt={`${t.samplePhoto} — ${look.name}`} width="1200" height="800" fetchPriority="high" />
             </Item>
             <HandleRoot aria-label={t.compare}>
               <Handle buttonStyle={{ width: 32, height: 32, gap: '0.2rem' }} />
             </HandleRoot>
           </Root>
         </Provider>
-        <Badge className="pointer-events-none absolute top-3 left-3 z-[2] rounded-md bg-black/75 px-2 py-1 font-mono text-xs font-medium text-foreground">
+        <span className="pointer-events-none absolute top-3 left-3 z-[2] rounded-md bg-black/60 px-2 py-1 text-xs text-white/80 backdrop-blur-sm">
           {t.original}
-        </Badge>
-        <Badge className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/75 px-2 py-1 font-mono text-xs font-medium text-foreground">
+        </span>
+        <span className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/60 px-2.5 py-1 text-sm font-semibold text-white backdrop-blur-sm" aria-live="polite">
           {look.name}
-        </Badge>
+        </span>
       </div>
-      {/* The five looks as a slim row of film boxes under the photo: the one on the photo is lit and
-          underlined, the others wait dimmed. */}
-      <div className="mt-3 flex items-center gap-1" role="group" aria-label={t.effects}>
-        {LANDING_LOOKS.map((item, at) => (
-          <button
-            key={item.effect}
-            type="button"
-            aria-pressed={at === index}
-            aria-label={item.name}
-            title={item.name}
-            onClick={() => setIndex(at)}
-            className="group relative rounded-md p-1 opacity-50 transition-opacity outline-none hover:opacity-100 focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-pressed:opacity-100"
-          >
-            <EffectIcon effect={{ id: item.effect, icon: '', cover: item.cover as Cover }} className="size-9 sm:size-10" />
-            <span className="absolute inset-x-2 -bottom-1 h-0.5 rounded-full bg-transparent transition-colors group-aria-pressed:bg-foreground" aria-hidden="true" />
-          </button>
-        ))}
-      </div>
-      <figcaption className="mt-3 text-xs leading-relaxed text-muted-foreground">
-        {t.site.heroCaption}{' '}
-        <a href={credit.source} target="_blank" rel="noreferrer" className="text-muted-foreground/70 hover:text-foreground">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <div className="flex items-end gap-2" role="group" aria-label={t.effects}>
+          {LANDING_LOOKS.map((item, at) => (
+            <button
+              key={item.effect}
+              type="button"
+              aria-pressed={at === index}
+              aria-label={item.name}
+              title={item.name}
+              onClick={() => setIndex(at)}
+              className="group relative rounded-md px-0.5 pt-1 pb-2 opacity-45 transition-[opacity,transform] duration-150 ease-out outline-none hover:opacity-90 focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-pressed:-translate-y-0.5 aria-pressed:opacity-100"
+            >
+              <EffectIcon effect={{ id: item.effect, icon: '', cover: item.cover as Cover }} className="size-9 sm:size-10" />
+              <span className="absolute inset-x-1 bottom-0 h-0.5 rounded-full bg-transparent transition-colors group-aria-pressed:bg-foreground" aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+        <a
+          href={credit.source}
+          target="_blank"
+          rel="noreferrer"
+          className="text-[11px] text-muted-foreground/60 hover:text-foreground sm:text-right"
+        >
           {credit.author} · {credit.license} · {credit.camera}
         </a>
-      </figcaption>
+      </div>
     </figure>
   );
 }

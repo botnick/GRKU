@@ -62,7 +62,7 @@ export const EXAMPLES: readonly { image: string; before?: string; beforeDetail?:
 const ROW_EXAMPLES: Partial<Record<ModuleKey, string>> = Object.fromEntries(
   [...EXAMPLES].reverse().map((example) => [example.module, example.image]),
 );
-ROW_EXAMPLES.filmLook = 'looks/portra-400.jpg';
+ROW_EXAMPLES.filmLook = 'hero/achensee-portra-400.jpg';
 
 /** A frame of the strip: the photo without the module on the left, with it on the right, under a handle. */
 export function Example({ before, beforeDetail = 'Off', after, alt, detail, compareLabel }: { before?: string; beforeDetail?: string; after: string; alt: string; detail: string; compareLabel: string }) {
