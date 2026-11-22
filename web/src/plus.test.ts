@@ -28,13 +28,14 @@ describe('takesSlot and usedSlots', () => {
   const positive = box('RICOH', 'POSITIVE');
   const lut = box('X', 'LUT', { imported: { kind: 'lut' } });
 
-  it('counts catalog looks outside the owned packs, never imports or camera looks', () => {
+  it('counts catalog looks outside the owned packs, camera looks too, never imports', () => {
     expect(takesSlot(portra, FREE)).toBe(true);
-    expect(takesSlot(positive, FREE)).toBe(false);
+    expect(takesSlot(positive, FREE)).toBe(true);
+    expect(takesSlot(positive, { ...FREE, packs: ['slide'] })).toBe(true);
     expect(takesSlot(lut, FREE)).toBe(false);
     expect(takesSlot(velvia, { ...FREE, packs: ['slide'] })).toBe(false);
     expect(takesSlot(portra, { ...FREE, plus: true })).toBe(false);
-    expect(usedSlots([portra, velvia, positive, lut], new Set([portra.id, velvia.id, positive.id, lut.id]), FREE)).toBe(2);
+    expect(usedSlots([portra, velvia, positive, lut], new Set([portra.id, velvia.id, positive.id, lut.id]), FREE)).toBe(3);
   });
 
   it('allows the free slots, 25 after the slots tier, and the card limit with the shelf', () => {
