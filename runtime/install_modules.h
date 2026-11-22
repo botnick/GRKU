@@ -574,7 +574,7 @@ static int install_pass(u32 code, u32 array, u32 pixels, const u32 *icon_bases, 
    modules, whatever they use and whatever their Enable is. */
 static int install_modules(u32 code, u32 array, u32 pixels, const u32 *icon_bases)
 {
-    u32 points = needed_points | POINT_MODE_DIAL | POINT_VIEWFINDER_OVERLAY, broken = 0;
+    u32 points = needed_points | POINT_MODE_DIAL | POINT_VIEWFINDER_OVERLAY | POINT_PICTURE_XMP, broken = 0;
     for (;;) {
         needed_points = points;
         int status = install_pass(code, array, pixels, icon_bases, broken);
