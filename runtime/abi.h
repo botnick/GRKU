@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6544
+#define GRKU_HOST_HEADER_SIZE 6548
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -153,9 +153,9 @@
 #define GRKU_DIAL_SLOT_WORDS 2U
 #define GRKU_DIAL_SLOT_KEY_BASE 992003000U
 /* The copy of the switch, Enable at Start, Distance Unit, Uncropped RAW,
-   Battery in Simple Display, Shutdown Screen, and Shutdown Screen Text
-   (GRKU_HOST_MANAGE_COPY, runtime/manage.h): each as its value + 1, or 0
-   without a copy. In the file of the sets, word w has the key
+   Battery in Simple Display, Shutdown Screen, Shutdown Screen Text, and GRKU
+   Info in Playback (GRKU_HOST_MANAGE_COPY, runtime/manage.h): each as its
+   value + 1, or 0 without a copy. In the file of the sets, word w has the key
    GRKU_MANAGE_COPY_KEY + w. */
 #define GRKU_MANAGE_COPY_SWITCH 0U
 #define GRKU_MANAGE_COPY_START 1U
@@ -164,7 +164,8 @@
 #define GRKU_MANAGE_COPY_BATTERY 4U
 #define GRKU_MANAGE_COPY_GOODBYE 5U
 #define GRKU_MANAGE_COPY_GOODBYE_TEXT 6U
-#define GRKU_MANAGE_COPY_WORDS 7U
+#define GRKU_MANAGE_COPY_PLAYBACK_INFO 7U
+#define GRKU_MANAGE_COPY_WORDS 8U
 #define GRKU_MANAGE_COPY_KEY 992003007U
 #define GRKU_DIAL_VALUE_ON 0U
 #define GRKU_DIAL_VALUE_OFF 1U
@@ -540,32 +541,32 @@
    position has, is the older value for each of them off. */
 #define GRKU_HOST_DIAL_SHARED_OFF 6484
 /* The copy of the switch, Enable at Start, Distance Unit, Uncropped RAW,
-   Battery in Simple Display, Shutdown Screen, and Shutdown Screen Text,
-   `MANAGE_COPY_WORDS` words (runtime/manage.h), right after
+   Battery in Simple Display, Shutdown Screen, Shutdown Screen Text, and GRKU
+   Info in Playback, `MANAGE_COPY_WORDS` words (runtime/manage.h), right after
    HOST_DIAL_SHARED_OFF, in the same file. INSTALL takes them from the copy
    before the main state file, and writes the values of the start here. */
 #define GRKU_HOST_MANAGE_COPY 6488
-#define GRKU_HOST_MANAGE_COPY_WORDS 7
+#define GRKU_HOST_MANAGE_COPY_WORDS 8
 /* The native Image Control type plus 1 when ADJ last opened, or 0 when it was
    not readable. A half-press on the native Image Control slot with another
    type selects that type, as OK does (runtime/menu.c). */
-#define GRKU_HOST_ADJ_IC_TYPE 6516
+#define GRKU_HOST_ADJ_IC_TYPE 6520
 /* Word index of the PERSIST buffer within modulecode, not a native address. */
-#define GRKU_HOST_PERSIST_WORD 6520
+#define GRKU_HOST_PERSIST_WORD 6524
 /* The record of the ADJ preview of a recipe whose Fn adjustments the live view
    takes from GRKU_HOST_PREVIEW_FN_BYTES, not from the record, while
    GRKU_HOST_PREVIEW is that record; else 0 (runtime/recipe_preview.h,
    runtime/processing.h). */
-#define GRKU_HOST_PREVIEW_FN 6524
+#define GRKU_HOST_PREVIEW_FN 6528
 /* Those adjustments: one stored byte each, in the order of RECORD_PARAMETERS.
    It follows GRKU_HOST_PREVIEW_FN. */
-#define GRKU_HOST_PREVIEW_FN_BYTES 6528
+#define GRKU_HOST_PREVIEW_FN_BYTES 6532
 #define GRKU_HOST_PREVIEW_FN_BYTES_WORDS 3
 /* The copy of the native settings record from the start of the ADJ preview of
    a recipe, in the services block, or 0 while no preview writes native
    settings. A capture of the current settings reads the native settings from
    it (runtime/recipes.h). */
-#define GRKU_HOST_RECIPE_PREVIEW 6540
+#define GRKU_HOST_RECIPE_PREVIEW 6544
 /* Consumer request ticket, 1..2147483647. Zero means no request. */
 #define GRKU_PERSIST_REQUEST 0
 /* Producer publishes this ticket after all payload stores are visible. */
@@ -1081,6 +1082,9 @@
 /* The Custom Shutdown Screen row of Display Settings, then its Shutdown Screen
    Text row. The values of both are TEXT_OFF and TEXT_ON. */
 #define TEXT_GOODBYE 83
-#define GRKU_TEXT_STRINGS 85
+/* The GRKU Info in Playback row of Display Settings. Its values are TEXT_OFF
+   and TEXT_ON. */
+#define TEXT_PLAYBACK_INFO 85
+#define GRKU_TEXT_STRINGS 86
 
 #endif
