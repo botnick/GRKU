@@ -7,7 +7,8 @@
    Each case stamps the same random planes in both builds: a main picture
    large enough that a mask cell spans several pixels, a screennail, and a
    thumbnail, with 4:2:2 or 4:2:0 chroma, each look and style, both
-   positions, each posture, color and monochrome. The planes must be equal
+   positions, each posture, color and monochrome, with random colors, sizes,
+   corners, glow, and captions. The planes must be equal
    byte for byte. Standard output names each case that differs, and the
    exit status is their number. */
 #include "grku.h"
@@ -138,9 +139,17 @@ int parity_main(void)
         for (u32 i = 0; i < PLANE_BYTES; ++i) memory[0][i] = memory[1][i] = (u8)next();
         now = (GrkuDateTime){(u16)(2000 + below(60)), (u8)(1 + below(12)), (u8)(1 + below(28)),
                               (u8)below(24), (u8)below(60), (u8)below(60), 0};
-        settings[SETTING_STYLE & 7U] = style;
-        settings[SETTING_LOOK & 7U] = look;
-        settings[SETTING_POSITION & 7U] = position;
+        settings[SETTING_STYLE & 15U] = style;
+        settings[SETTING_LOOK & 15U] = look;
+        settings[SETTING_POSITION & 15U] = position;
+        /* The light of COLOR 0 and 1 is the NEON one; the others, the glow,
+           the sizes, the corners, and the captions take the same code in
+           both builds around it. */
+        settings[SETTING_COLOR & 15U] = below(5);
+        settings[SETTING_SIZE & 15U] = below(4);
+        settings[SETTING_CORNER & 15U] = below(4);
+        settings[SETTING_GLOW & 15U] = below(3) == 0;
+        settings[SETTING_CAPTION & 15U] = below(8);
         {
             PictureSet a = planes(memory[0], half, mono, turns), b = planes(memory[1], half, mono, turns);
             date_apply(&a, style);

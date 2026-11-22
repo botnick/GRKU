@@ -136,6 +136,7 @@ int main(int argc, char **argv)
     grku_test_time = (GrkuDateTime){(u16)year, (u8)month, (u8)day, (u8)hour, (u8)minute, 0, 0};
     setting_set(SETTING_LOOK, b);
     setting_set(SETTING_POSITION, 0);
+    setting_set(SETTING_SIZE, 1); /* M, the default */
     date_apply(&set, a);
 #elif defined(RENDER_GLOW)
     setting_set(SETTING_BLOOM, a);

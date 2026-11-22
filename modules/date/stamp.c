@@ -414,10 +414,88 @@ static void bar(u8 *mask,u32 width,int x,u32 top,u32 m,int x0,int x1,u32 y0,u32 
         span(mask+(top+y)*width,width,x+x0+lean,x+x1+lean);
     }
 }
+/* The letters of a caption: fourteen segments, as an LED data back with
+   letters shows them. Bits: 0 a top, 1 b, 2 c, 3 d bottom, 4 e, 5 f, 6 g1
+   middle left, 7 g2 middle right, 8 the upper left diagonal, 9 the upper
+   middle bar, 10 the upper right diagonal, 11 the lower left diagonal, 12 the
+   lower middle bar, 13 the lower right diagonal. */
+static const u16 letters14[26]={
+    0x00f7,0x128f,0x0039,0x120f,0x00f9,0x0071,0x00bd,0x00f6,0x1209,0x001e,0x2470,0x0038,0x0536,
+    0x2136,0x003f,0x00f3,0x203f,0x20f3,0x00ed,0x1201,0x003e,0x0c30,0x2836,0x2d00,0x1500,0x0c09
+};
+/* A heart in a caption (I ♥ GR). */
+#define HEART '\x01'
+/* A space between the words of a caption: wider than the space between the
+   fields of a date in the GR1s look. */
+#define WORD_SPACE '\x02'
+/* A diagonal stroke from (xa, ya) to (xb, yb) (x Q8 cells, y rows of the
+   glyph), `tw` wide across, leaning as the bars do. */
+static void diagonal(u8 *mask,u32 width,int x,u32 top,u32 m,int xa,u32 ya,int xb,u32 yb,int tw) {
+    u32 y, span_rows=yb>ya ? yb-ya : 1;
+    for(y=ya;y<=yb;++y) {
+        int at=(int)(y-ya), d=xb-xa, c, lean=(int)((m-y)*31);
+        c=xa+(d<0 ? -(int)divide((u32)(-d)*(u32)at,span_rows) : (int)divide((u32)d*(u32)at,span_rows));
+        span(mask+(top+y)*width,width,x+c-tw/2+lean,x+c+tw/2+lean);
+    }
+}
+/* The integer square root. */
+static u32 root(u32 v) {
+    u32 r=0, bit=1U<<30;
+    while(bit>v) bit>>=2;
+    while(bit) {
+        if(v>=r+bit) { v-=r+bit; r=(r>>1)+bit; } else r>>=1;
+        bit>>=2;
+    }
+    return r;
+}
+/* A filled heart of the classic look: two lobes and a point, in the box of
+   a digit. */
+static void classic_heart(u8 *mask,u32 width,int x,u32 top,u32 m,int w) {
+    u32 y, y0=(m*5)>>4, lobe=(m*5)>>4, tip=m-((m*3)>>5);
+    int r=(w*27)>>7, cx=w>>1, off=(w*31)>>7;
+    for(y=y0;y<tip;++y) {
+        int lean=(int)((m-y)*31), yc=(int)(y<<8)+128, cy=(int)((y0+(lobe>>1))<<8)+128, dy=yc-cy;
+        u8 *row=mask+(top+y)*width;
+        if(dy<r && dy>-r) {
+            int half=(int)root((u32)(r*r-dy*dy));
+            span(row,width,x+cx-off-half+lean,x+cx-off+half+lean);
+            span(row,width,x+cx+off-half+lean,x+cx+off+half+lean);
+        }
+        if(yc>=cy) {
+            int full=off+r, half=full-(int)divide((u32)full*(u32)(yc-cy),(u32)(((int)tip<<8)-cy));
+            if(half>0) span(row,width,x+cx-half+lean,x+cx+half+lean);
+        }
+    }
+}
 static void classic_glyph(u8 *mask,u32 width,char c,int x,u32 top,u32 m) {
     int w=(int)((m*36045)>>8), t=(int)((m*8520)>>8), g=(int)((m*1966)>>8);
     u32 rows=(u32)t>>8, half=m>>1, bits;
     if(!rows) rows=1;
+    if(c==HEART) { classic_heart(mask,width,x,top,m,w); return; }
+    if(c>='A' && c<='Z') {
+        /* The middle bars and the diagonals end inside the frame of the
+           digit; a diagonal is wider across than a bar, as it slants. */
+        int mid, tw=(t*5)>>2, l, r;
+        w=(w*11)>>3;
+        mid=w>>1; l=t+g; r=w-t-g;
+        u32 upper=(rows>>1)+1, lower=m-(rows>>1)-1;
+        bits=letters14[c-'A'];
+        if(bits&1) bar(mask,width,x,top,m,t+g,w-t-g,0,rows);
+        if(bits&8) bar(mask,width,x,top,m,t+g,w-t-g,m-rows,m);
+        if(bits&64) bar(mask,width,x,top,m,t+g,bits&128 ? w-t-g : mid+(t>>1),half-(rows>>1),half-(rows>>1)+rows);
+        if((bits&128) && !(bits&64)) bar(mask,width,x,top,m,mid-(t>>1),w-t-g,half-(rows>>1),half-(rows>>1)+rows);
+        if(bits&32) bar(mask,width,x,top,m,0,t,upper,half-1);
+        if(bits&2) bar(mask,width,x,top,m,w-t,w,upper,half-1);
+        if(bits&16) bar(mask,width,x,top,m,0,t,half+1,lower);
+        if(bits&4) bar(mask,width,x,top,m,w-t,w,half+1,lower);
+        if(bits&512) bar(mask,width,x,top,m,mid-(t>>1),mid+(t>>1),bits&1 ? rows : upper,half);
+        if(bits&4096) bar(mask,width,x,top,m,mid-(t>>1),mid+(t>>1),half,bits&8 ? m-rows : lower);
+        if(bits&256) diagonal(mask,width,x,top,m,l+(tw>>1),upper,mid,half-1,tw);
+        if(bits&1024) diagonal(mask,width,x,top,m,r-(tw>>1),upper,mid,half-1,tw);
+        if(bits&2048) diagonal(mask,width,x,top,m,mid,half+1,l+(tw>>1),lower,tw);
+        if(bits&8192) diagonal(mask,width,x,top,m,mid,half+1,r-(tw>>1),lower,tw);
+        return;
+    }
     if(c=='\'') { bar(mask,width,x,top,m,(int)(m*13),(int)(m*13)+t,0,(m*19661)>>16); return; }
     if(c==':') {
         bar(mask,width,x,top,m,0,t,(m*19661)>>16,((m*19661)>>16)+rows);
@@ -439,13 +517,24 @@ static void classic_glyph(u8 *mask,u32 width,char c,int x,u32 top,u32 m) {
    them: digits, then the apostrophe and the colon. One byte for each of the 7
    rows, bit 4 the left column. The zero is slashed. The apostrophe fills the
    right 2 columns of its cell, and the colon the left 2. */
-static const u8 dots[12][7]={
+static const u8 dots[40][7]={
     {0x0e,0x11,0x13,0x15,0x19,0x11,0x0e},{0x04,0x0c,0x04,0x04,0x04,0x04,0x0e},
     {0x0e,0x11,0x01,0x02,0x04,0x08,0x1f},{0x1f,0x02,0x04,0x02,0x01,0x11,0x0e},
     {0x02,0x06,0x0a,0x12,0x1f,0x02,0x02},{0x1f,0x10,0x1e,0x01,0x01,0x11,0x0e},
     {0x06,0x08,0x10,0x1e,0x11,0x11,0x0e},{0x1f,0x01,0x02,0x04,0x08,0x08,0x08},
     {0x0e,0x11,0x11,0x0e,0x11,0x11,0x0e},{0x0e,0x11,0x11,0x0f,0x01,0x02,0x0c},
-    {0x03,0x01,0x02,0x00,0x00,0x00,0x00},{0x00,0x18,0x18,0x00,0x18,0x18,0x00}
+    {0x03,0x01,0x02,0x00,0x00,0x00,0x00},{0x00,0x18,0x18,0x00,0x18,0x18,0x00},
+    /* A to Z, the heart, and the exclamation mark of a caption. */
+    {0x0e,0x11,0x11,0x11,0x1f,0x11,0x11},{0x1e,0x11,0x11,0x1e,0x11,0x11,0x1e},{0x0e,0x11,0x10,0x10,0x10,0x11,0x0e},
+    {0x1c,0x12,0x11,0x11,0x11,0x12,0x1c},{0x1f,0x10,0x10,0x1e,0x10,0x10,0x1f},{0x1f,0x10,0x10,0x1e,0x10,0x10,0x10},
+    {0x0e,0x11,0x10,0x17,0x11,0x11,0x0f},{0x11,0x11,0x11,0x1f,0x11,0x11,0x11},{0x0e,0x04,0x04,0x04,0x04,0x04,0x0e},
+    {0x07,0x02,0x02,0x02,0x02,0x12,0x0c},{0x11,0x12,0x14,0x18,0x14,0x12,0x11},{0x10,0x10,0x10,0x10,0x10,0x10,0x1f},
+    {0x11,0x1b,0x15,0x15,0x11,0x11,0x11},{0x11,0x11,0x19,0x15,0x13,0x11,0x11},{0x0e,0x11,0x11,0x11,0x11,0x11,0x0e},
+    {0x1e,0x11,0x11,0x1e,0x10,0x10,0x10},{0x0e,0x11,0x11,0x11,0x15,0x12,0x0d},{0x1e,0x11,0x11,0x1e,0x14,0x12,0x11},
+    {0x0f,0x10,0x10,0x0e,0x01,0x01,0x1e},{0x1f,0x04,0x04,0x04,0x04,0x04,0x04},{0x11,0x11,0x11,0x11,0x11,0x11,0x0e},
+    {0x11,0x11,0x11,0x11,0x11,0x0a,0x04},{0x11,0x11,0x11,0x15,0x15,0x15,0x0a},{0x11,0x11,0x0a,0x04,0x0a,0x11,0x11},
+    {0x11,0x11,0x11,0x0a,0x04,0x04,0x04},{0x1f,0x01,0x02,0x04,0x08,0x10,0x1f},{0x00,0x0a,0x1f,0x1f,0x0e,0x04,0x00},
+    {0x04,0x04,0x04,0x04,0x04,0x00,0x04}
 };
 /* A blank digit cell: the GR1s look pads one-digit fields with it. */
 #define BLANK_DIGIT '_'
@@ -472,8 +561,8 @@ static void dot(u8 *mask,u32 width,u32 height,int cx,int cy,int rx,int ry) {
 }
 static void dots_glyph(u8 *mask,u32 width,u32 height,char c,int x,u32 top,u32 m) {
     int row=pitch_row(m), column=pitch_column(m), rx=(column*115)>>8, ry=(row*73)>>8;
-    u32 i, j, k=c=='\'' ? 10 : c==':' ? 11 : (u32)(c-'0');
-    if(k>11) return;
+    u32 i, j, k=c=='\'' ? 10 : c==':' ? 11 : c>='A' && c<='Z' ? 12+(u32)(c-'A') : c==HEART ? 38 : c=='!' ? 39 : (u32)(c-'0');
+    if(k>39) return;
     for(j=0;j<7;++j) for(i=0;i<5;++i)
         if(dots[k][j]&(0x10>>i))
             dot(mask,width,height,x+(int)i*column+(column>>1),(int)(top<<8)+(int)j*row+(row>>1),rx,ry);
@@ -508,12 +597,14 @@ static void look_margins(u32 look,u32 short_side,u32 size,u32 *right,u32 *bottom
 static int advance(char c,u32 m,u32 look) {
     if(look==LOOK_DOTS) {
         int column=pitch_column(m);
-        if((c>='0' && c<='9') || c==BLANK_DIGIT) return column*7;
+        if((c>='0' && c<='9') || c==BLANK_DIGIT || (c>='A' && c<='Z') || c==HEART || c=='!') return column*7;
         if(c=='\'') return (column*1587)>>8;
+        if(c==WORD_SPACE) return column*5;
         return c==':' ? column*4 : (column*461)>>8;
     }
-    if(c>='0' && c<='9') return (int)((m*54395)>>16)<<8;
-    return (int)(c==' ' ? (m*22938)>>16 : (m*19661)>>16)<<8;
+    if(c>='A' && c<='Z') return (int)(((m*54395)>>16)+((m*13500)>>16))<<8;
+    if((c>='0' && c<='9') || c==HEART) return (int)((m*54395)>>16)<<8;
+    return (int)(c==' ' || c==WORD_SPACE ? (m*22938)>>16 : (m*19661)>>16)<<8;
 }
 /* The width of the text in cells, without the gap after its last digit, and
    with the lean of the classic digits. Every style ends in a digit. */
@@ -531,8 +622,9 @@ static void glyph(u8 *mask,u32 width,u32 height,char c,int x,u32 top,u32 m,u32 l
 
 /* GR II: the 1-bit digits of the GR II date imprint, 16 x 24 cells, rows 3 to
    20 (the others are empty), bit 15 the left column. Order: slash, colon,
-   0 to 9. */
-static const u16 gr2_glyphs[12][18]={
+   0 to 9, then the letters of a caption, drawn after the dot letters of GR1s with
+   the strokes of these digits: A to Z, the exclamation mark, and the heart. */
+static const u16 gr2_glyphs[40][18]={
     {0,0,0,0x000c,0x001c,0x0038,0x0070,0x00e0,0x01c0,0x0380,0x0700,0x0e00,0x1c00,0x3800,0x3000,0,0,0},
     {0,0,0,0,0x0300,0x0300,0,0,0,0,0,0,0x0300,0x0300,0,0,0,0},
     {0x03c0,0x07e0,0x0e70,0x1c38,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1c38,0x0e70,0x07e0,0x03c0},
@@ -544,7 +636,35 @@ static const u16 gr2_glyphs[12][18]={
     {0x03c0,0x07e0,0x0e70,0x1c38,0x1818,0x1800,0x1800,0x1800,0x1fe0,0x1ff0,0x1838,0x1818,0x1818,0x1818,0x1c38,0x0e70,0x07e0,0x03c0},
     {0x1ff8,0x1ff8,0x1818,0x0030,0x0030,0x0060,0x0060,0x00c0,0x00c0,0x0180,0x0180,0x0300,0x0300,0x0300,0x0300,0x0300,0x0300,0x0300},
     {0x03c0,0x07e0,0x0e70,0x1c38,0x1818,0x1818,0x1c38,0x0e70,0x07e0,0x07e0,0x0e70,0x1c38,0x1818,0x1818,0x1818,0x1c38,0x0ff0,0x07e0},
-    {0x03c0,0x07e0,0x0e70,0x1c38,0x1818,0x1818,0x1818,0x1c18,0x0ff8,0x07f8,0x0018,0x0018,0x0018,0x1818,0x1c38,0x0e70,0x07e0,0x03c0}
+    {0x03c0,0x07e0,0x0e70,0x1c38,0x1818,0x1818,0x1818,0x1c18,0x0ff8,0x07f8,0x0018,0x0018,0x0018,0x1818,0x1c38,0x0e70,0x07e0,0x03c0},
+    {0x07e0,0x0ff0,0x0c30,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1ff8,0x1ff8,0x1818,0x1818,0x1818,0x1818,0x1818}, /* A */
+    {0x1fe0,0x1ff0,0x1830,0x1818,0x1818,0x1818,0x1818,0x1830,0x1ff0,0x1ff0,0x1830,0x1818,0x1818,0x1818,0x1818,0x1830,0x1ff0,0x1fe0}, /* B */
+    {0x07e0,0x0ff0,0x0c30,0x1818,0x1818,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1818,0x1818,0x0c30,0x0ff0,0x07e0}, /* C */
+    {0x1f80,0x1fc0,0x18c0,0x1860,0x1870,0x1838,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1838,0x1870,0x1860,0x18c0,0x1fc0,0x1f80}, /* D */
+    {0x1ff8,0x1ff8,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1fe0,0x1fe0,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1ff8,0x1ff8}, /* E */
+    {0x1ff8,0x1ff8,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1fe0,0x1fe0,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800}, /* F */
+    {0x07e0,0x0ff0,0x0c30,0x1818,0x1818,0x1800,0x1800,0x1800,0x19f8,0x19f8,0x1818,0x1818,0x1818,0x1818,0x1818,0x0c18,0x0ff8,0x07f8}, /* G */
+    {0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1ff8,0x1ff8,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818}, /* H */
+    {0x07e0,0x07e0,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x07e0,0x07e0}, /* I */
+    {0x01f8,0x01f8,0x0060,0x0060,0x0060,0x0060,0x0060,0x0060,0x0060,0x0060,0x0060,0x0060,0x0060,0x1860,0x1860,0x0cc0,0x0fc0,0x0780}, /* J */
+    {0x1818,0x1838,0x1830,0x1860,0x18e0,0x19c0,0x1980,0x1b00,0x1f00,0x1f00,0x1b00,0x1980,0x19c0,0x18e0,0x1860,0x1830,0x1838,0x1818}, /* K */
+    {0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1ff8,0x1ff8}, /* L */
+    {0x1818,0x1818,0x1818,0x1e78,0x1ff8,0x1bd8,0x1998,0x1998,0x1998,0x1998,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818}, /* M */
+    {0x1818,0x1818,0x1818,0x1818,0x1818,0x1e18,0x1e18,0x1b18,0x1b98,0x19d8,0x18d8,0x1878,0x1878,0x1818,0x1818,0x1818,0x1818,0x1818}, /* N */
+    {0x07e0,0x0ff0,0x0c30,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x0c30,0x0ff0,0x07e0}, /* O */
+    {0x1fe0,0x1ff0,0x1830,0x1818,0x1818,0x1818,0x1818,0x1830,0x1ff0,0x1fe0,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800,0x1800}, /* P */
+    {0x07e0,0x0ff0,0x0c30,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1998,0x19f8,0x18f0,0x1860,0x0cf0,0x0ff8,0x0798}, /* Q */
+    {0x1fe0,0x1ff0,0x1830,0x1818,0x1818,0x1818,0x1818,0x1830,0x1ff0,0x1fe0,0x1980,0x1980,0x19c0,0x18e0,0x1860,0x1830,0x1838,0x1818}, /* R */
+    {0x07f8,0x0ff8,0x0c00,0x1800,0x1800,0x1800,0x1800,0x0c00,0x0fe0,0x07f0,0x0030,0x0018,0x0018,0x0018,0x0018,0x0030,0x1ff0,0x1fe0}, /* S */
+    {0x1ff8,0x1ff8,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180}, /* T */
+    {0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x0c30,0x0ff0,0x07e0}, /* U */
+    {0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1c38,0x0e70,0x0660,0x03c0,0x03c0,0x0180}, /* V */
+    {0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1998,0x1998,0x1998,0x1998,0x1998,0x1998,0x1998,0x0ff0,0x0ff0,0x0660}, /* W */
+    {0x1818,0x1818,0x1818,0x1818,0x1c38,0x0e70,0x0660,0x03c0,0x03c0,0x03c0,0x03c0,0x0660,0x0e70,0x1c38,0x1818,0x1818,0x1818,0x1818}, /* X */
+    {0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x1818,0x0c30,0x0e70,0x07e0,0x03c0,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180}, /* Y */
+    {0x1ff8,0x1ff8,0x0018,0x0018,0x0038,0x0070,0x0060,0x00c0,0x01c0,0x0380,0x0300,0x0600,0x0e00,0x1c00,0x1800,0x1800,0x1ff8,0x1ff8}, /* Z */
+    {0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0x0180,0,0,0,0x0180,0x0180}, /* ! */
+    {0,0,0,0x0e70,0x1ff8,0x1ff8,0x1ff8,0x1ff8,0x0ff0,0x0ff0,0x07e0,0x07e0,0x03c0,0x03c0,0x0180,0x0180,0,0} /* heart */
 };
 /* Digits without leading zeros, as a data back prints them. */
 static char *number(char *o,u32 v) {
@@ -584,13 +704,39 @@ static u32 date_text(char *o,const u8 *dt,u32 style,u32 pad) {
 static u32 clamp255(int v) { return v<0 ? 0 : v>255 ? 255 : (u32)v; }
 /* Screen blend of light l over value v: v + (255 - v) * l / 255. */
 static u32 screen(u32 v,u32 l) { return v+((((255-v)*l)*257+32768)>>16); }
-/* GR1s digits on color film: mostly opaque yellow (RGB 245, 235, 100) with a
-   yellow glow, as its color negatives show them. */
-#define DOTS_R 245
-#define DOTS_G 235
-#define DOTS_B 100
+/* The color of the light of a mask look (the setting COLOR): the red,
+   green, and blue light of the core and of the halo, Q8 of each, and for the
+   GR1s look the opaque color that its core paints over the picture (alpha
+   0 for none). `neon` marks the classic orange, which date_light_blocks
+   computes. `open` keeps the green and blue light of the GR1s yellow
+   unclamped, as it always was: its opaque core covers what passes 255. A
+   monochrome picture takes white light in the luma, whatever the color. */
+typedef struct { u16 core[3], halo[3]; u8 paint[3], alpha, neon, open; } Tint;
+/* Classic: an amber core in a red-orange halo. GR1s: mostly opaque yellow
+   (RGB 245, 235, 100) with a yellow glow, as its color negatives show them.
+   Then the colors of the setting: orange, white, sepia, and LED yellow. */
+#define COLOR_STANDARD 0U
+#define COLOR_ORANGE 1U
+#define COLOR_WHITE 2U
+#define COLOR_SEPIA 3U
+#define COLOR_LED 4U
+#define COLORS 5U
+static const Tint classic_tints[COLORS]={
+    {{256,150,40},{180,40,0},{0,0,0},0,1,0},
+    {{256,150,40},{180,40,0},{0,0,0},0,1,0},
+    {{256,256,256},{165,158,140},{0,0,0},0,0,0},
+    {{256,176,100},{160,88,24},{0,0,0},0,0,0},
+    {{256,236,64},{190,156,16},{0,0,0},0,0,0},
+};
+static const Tint dots_tints[COLORS]={
+    {{256,235,100},{180,150,20},{245,235,100},210,0,1},
+    {{256,168,52},{180,64,0},{250,160,52},210,0,0},
+    {{256,256,256},{170,168,156},{250,250,246},210,0,0},
+    {{256,184,112},{160,96,28},{222,172,112},210,0,0},
+    {{256,240,60},{190,166,12},{255,222,46},210,0,0},
+};
 /* Add the stamp light to one pixel pair that shares Cb and Cr. */
-static void light_pair(const Plane *p,u32 x,u32 y,const u32 *core,const u32 *halo,u32 mono,u32 chroma,u32 look) {
+static void light_pair(const Plane *p,u32 x,u32 y,const u32 *core,const u32 *halo,u32 mono,u32 chroma,const Tint *t) {
     /* A picture byte store may alias the plane and the light, so the pair
        reads them into locals first. A stamp lights thousands of pairs. */
     volatile u8 *luma=GRKU_BYTES(p->y+y*p->pitch+x), *crow=GRKU_BYTES(chroma_row(p,y)+x);
@@ -600,18 +746,23 @@ static void light_pair(const Plane *p,u32 x,u32 y,const u32 *core,const u32 *hal
     /* The chroma terms of the pair, for both pixels. */
     int rc=(91881*cr)>>16, gc=(22554*cb+46802*cr)>>16, bc=(116130*cb)>>16;
     for(i=0;i<2;++i) {
-        u32 lr=k[i]+((h[i]*180)>>8), lg, lb, v=luma[i], r, g, b;
-        if(lr>255) lr=255;
-        /* White light: the red channel holds the full core and halo. */
-        if(mono) { yv[i]=screen(v,lr); continue; }
-        if(look==LOOK_DOTS) { lg=((k[i]*235)>>8)+((h[i]*150)>>8); lb=((k[i]*100)>>8)+((h[i]*20)>>8); }
-        else { lg=((k[i]*150)>>8)+((h[i]*40)>>8); lb=(k[i]*40)>>8; }
-        r=screen(clamp255((int)v+rc),lr);
+        u32 lr, lg, lb, v=luma[i], r, g, b;
+        /* White light: the full core and the halo of the red light. */
+        if(mono) {
+            lr=k[i]+((h[i]*180)>>8);
+            yv[i]=screen(v,lr>255 ? 255 : lr);
+            continue;
+        }
+        lr=((k[i]*t->core[0])>>8)+((h[i]*t->halo[0])>>8);
+        lg=((k[i]*t->core[1])>>8)+((h[i]*t->halo[1])>>8);
+        lb=((k[i]*t->core[2])>>8)+((h[i]*t->halo[2])>>8);
+        r=screen(clamp255((int)v+rc),lr>255 ? 255 : lr);
+        if(!t->open) { if(lg>255) lg=255; if(lb>255) lb=255; }
         g=screen(clamp255((int)v-gc),lg);
         b=screen(clamp255((int)v+bc),lb);
-        if(look==LOOK_DOTS) {
-            u32 a=(k[i]*210)>>8;
-            r=(r*(256-a)+DOTS_R*a)>>8; g=(g*(256-a)+DOTS_G*a)>>8; b=(b*(256-a)+DOTS_B*a)>>8;
+        if(t->alpha) {
+            u32 a=(k[i]*t->alpha)>>8;
+            r=(r*(256-a)+t->paint[0]*a)>>8; g=(g*(256-a)+t->paint[1]*a)>>8; b=(b*(256-a)+t->paint[2]*a)>>8;
         }
         yv[i]=(19595*r+38470*g+7471*b+32768)>>16;
         sb+=(int)(-11059*(int)r-21709*(int)g+32768*(int)b);
@@ -626,10 +777,10 @@ static void light_pair(const Plane *p,u32 x,u32 y,const u32 *core,const u32 *hal
 }
 /* Add the light of `pairs` pixel pairs of row y from column x (even): the
    core and halo light of each pixel. A pair without light stays as it is. */
-static void light_row(const Plane *p,u32 x,u32 y,const u8 *core,const u8 *halo,u32 pairs,u32 mono,u32 chroma,u32 look) {
+static void light_row(const Plane *p,u32 x,u32 y,const u8 *core,const u8 *halo,u32 pairs,u32 mono,u32 chroma,const Tint *t) {
     u32 i=0;
 #if DATE_NEON
-    if(look!=LOOK_DOTS) {
+    if(t->neon) {
         u32 blocks=pairs/DATE_BLOCK_PAIRS;
         date_light_blocks((u8 *)(p->y+y*p->pitch+x),(u8 *)(chroma_row(p,y)+x),core,halo,blocks,
                           mono ? DATE_LIGHT_MONO : chroma ? DATE_LIGHT_COLOR : DATE_LIGHT_LUMA);
@@ -638,7 +789,7 @@ static void light_row(const Plane *p,u32 x,u32 y,const u8 *core,const u8 *halo,u
 #endif
     for(;i<pairs;++i) {
         u32 c[2]={core[2*i],core[2*i+1]}, l[2]={halo[2*i],halo[2*i+1]};
-        if(c[0]|c[1]|l[0]|l[1]) light_pair(p,x+2*i,y,c,l,mono,chroma,look);
+        if(c[0]|c[1]|l[0]|l[1]) light_pair(p,x+2*i,y,c,l,mono,chroma,t);
     }
 }
 /* The horizontal blend of one row of `mw` mask cells, `column` bytes apart,
@@ -662,59 +813,102 @@ static void blend_row(u8 *out,const u8 *core,const u8 *halo,int column,u32 mw,u3
    of the JPEG encoder task has no room for them. A mask for a `turned`
    picture also draws across its rows (mask_view). */
 static u32 stamp_rows(u32 w,u32 h,u32 f) { return 4*w*f+2*ROW_PIXELS+h; }
-static u32 stamp_bytes(u32 mw,u32 mh,u32 f,u32 ss,u32 turned) {
-    u32 rows=ss==1 ? stamp_rows(mw,mh,f) : 0;
-    if(ss==1 && turned && stamp_rows(mh,mw,f)>rows) rows=stamp_rows(mh,mw,f);
-    return mw*mh*2+(rows>BLUR_BYTES ? rows : BLUR_BYTES);
-}
 _Static_assert(2*ROW_PIXELS_VALUE<=BLUR_BYTES,"The light of a row fits in the blur workspace");
+/* How a mask look prints (the settings LOOK, COLOR, SIZE, and GLOW): the
+   look, its light, the size (Q8 of the size M), and whether a soft glow
+   surrounds the strokes. */
+typedef struct { u32 look; const Tint *tint; u32 scale, glow; } Ink;
+/* The digit height of a mask look in pixels, for the short side of the
+   picture. */
+static u32 stamp_size(u32 short_side,const Ink *ink) {
+    u32 size=(((short_side*look_size(ink->look))>>8)*ink->scale)>>16;
+    return size<look_least(ink->look) ? look_least(ink->look) : size;
+}
+/* The soft glow (GLOW): a wide blur of the strokes, three times the halo
+   (seven for the thin halo of the dots), twice as strong, under the
+   halo. */
+#define GLOW_GAIN 512U
+static u32 glow_radius(u32 m,u32 look) {
+    u32 r=look_halo(m,look)*(look==LOOK_DOTS ? 7U : 3U);
+    return r>BLUR_RADIUS ? BLUR_RADIUS : r;
+}
+/* The bytes of a mask: the glow takes one more mask in the workspace while
+   the masks render. */
+static u32 stamp_bytes(u32 mw,u32 mh,u32 f,u32 ss,u32 turned,u32 glow) {
+    u32 rows=ss==1 ? stamp_rows(mw,mh,f) : 0, work;
+    if(ss==1 && turned && stamp_rows(mh,mw,f)>rows) rows=stamp_rows(mh,mw,f);
+    work=rows>BLUR_BYTES ? rows : BLUR_BYTES;
+    if(glow && mw*mh+BLUR_BYTES>work) work=mw*mh+BLUR_BYTES;
+    return mw*mh*2+work;
+}
 /* A rendered stamp mask and where it lies on its picture: one cell spans
    f / ss pixels, and cell (0,0) is at (ox, oy) of the visible area turned
-   upright (upright), whose top left is (0, 0). */
-typedef struct { const u8 *core,*halo; u32 mw,mh,f,ss; int ox,oy; u32 look; } Stamp;
-/* The mask of a stamp at the bottom right of an upright visible area of
-   width x height pixels (look_size), in `scratch`. Small pictures (the
+   upright (upright), whose top left is (0, 0). The text spans columns
+   `left` to `right` of the upright area. */
+typedef struct { const u8 *core,*halo; u32 mw,mh,f,ss; int ox,oy; const Tint *tint; int left,right; } Stamp;
+/* Where the text of a stamp goes on the upright area: its right edge at x
+   (`right`), else its left edge; its bottom edge at y (`bottom`), else its
+   top edge. */
+typedef struct { int x,y; u32 right,bottom; } Anchor;
+/* The mask of a stamp on an upright visible area of width x height pixels
+   (stamp_size), in `scratch`, with its text at `at`. Small pictures (the
    screennail that playback shows first, and the thumbnail) render the mask at
    twice their resolution and average 2 x 2 cells per pixel, so their strokes
    stay as sharp as on the main picture: there, one mask cell spans several
    pixels instead. Returns 0 when the mask does not fit. */
-static u32 stamp_mask(u8 *scratch,u32 width,u32 height,const char *text,u32 n,u32 look,u32 turned,Stamp *out) {
-    u32 size, f, ss=1, m, pad, cw, mw, mh, margin, rise;
+static u32 stamp_mask(u8 *scratch,u32 width,u32 height,const char *text,u32 n,const Ink *ink,u32 turned,const Anchor *at,Stamp *out) {
+    u32 size, f, ss=1, m, pad, cw, mw, mh, look=ink->look;
     u32 i, x, y, total;
-    int caret;
-    u8 *core=scratch, *halo, *copy;
-    size=((width<height ? width : height)*look_size(look))>>16;
-    if(size<look_least(look)) size=look_least(look);
+    int caret, ox, oy;
+    u8 *core=scratch, *halo, *copy, *wide=0;
+    size=stamp_size(width<height ? width : height,ink);
     for(i=0;i<2;++i) {
         u32 cells=i ? STAMP_CELLS_LONG : STAMP_CELLS;
         f=size<=cells ? 1 : divide(size+cells-1,cells);
         ss=f==1 && 2*size<=cells ? 2 : 1;
         m=ss==2 ? 2*size : divide(size+f/2,f);
-        pad=look_halo(m,look)*2+2;
+        pad=(ink->glow ? glow_radius(m,look) : look_halo(m,look))*2+2;
         total=text_width(text,n,m,look);
         cw=total+1;
         mw=cw+2*pad; mh=m+2*pad;
-        if(mw<=BLUR_WIDTH && stamp_bytes(mw,mh,f,ss,turned)<=GRKU_PLANE_SCRATCH) break;
+        if(mw<=BLUR_WIDTH && stamp_bytes(mw,mh,f,ss,turned,ink->glow)<=GRKU_PLANE_SCRATCH) break;
     }
-    if(mw>BLUR_WIDTH || mh>BLUR_WIDTH || stamp_bytes(mw,mh,f,ss,turned)>GRKU_PLANE_SCRATCH) return 0;
-    look_margins(look,width<height ? width : height,size,&margin,&rise);
-    if((((mw-pad)*f)>>(ss-1))+margin>width || (((mh-pad)*f)>>(ss-1))+rise>height) return 0;
+    if(mw>BLUR_WIDTH || mh>BLUR_WIDTH || stamp_bytes(mw,mh,f,ss,turned,ink->glow)>GRKU_PLANE_SCRATCH) return 0;
+    /* The mask origin: the text box is cells pad to mw - pad across. */
+    ox=at->x-(int)((((at->right ? mw-pad : pad))*f)>>(ss-1));
+    oy=at->y-(int)((((at->bottom ? mh-pad : pad))*f)>>(ss-1));
+    if(at->right ? ox<0 : ox+(int)((mw*f)>>(ss-1))>(int)width) return 0;
+    if(at->bottom ? oy<0 : oy+(int)((mh*f)>>(ss-1))>(int)height) return 0;
     halo=core+mw*mh;
     copy=halo+mw*mh;
     for(i=0;i<mw*mh;++i) core[i]=0;
     for(i=0,caret=(int)pad<<8;i<n;++i) { glyph(core,mw,mh,text[i],caret,pad,m,look); caret+=advance(text[i],m,look); }
     for(i=0;i<mw*mh;++i) halo[i]=core[i];
-    /* Classic strokes soften with a core blur. The dots are anti-aliased. */
+    if(ink->glow) {
+        wide=copy;
+        copy=wide+mw*mh;
+        for(i=0;i<mw*mh;++i) wide[i]=core[i];
+    }
+    /* Classic strokes soften with a core blur. The dots are anti-aliased. With
+       the glow, a mask cell spans more pixels (the wide blur needs room), so
+       the strokes keep their edges without the core blur. */
     for(y=0;y<mh;++y) {
-        if(look!=LOOK_DOTS) blur_line(core+y*mw,1,mw,1,copy);
+        if(look!=LOOK_DOTS && !wide) blur_line(core+y*mw,1,mw,1,copy);
         blur_line(halo+y*mw,1,mw,look_halo(m,look),copy);
+        if(wide) blur_line(wide+y*mw,1,mw,glow_radius(m,look),copy);
     }
     for(x=0;x<mw;++x) {
-        if(look!=LOOK_DOTS) blur_line(core+x,mw,mh,1,copy);
+        if(look!=LOOK_DOTS && !wide) blur_line(core+x,mw,mh,1,copy);
         blur_line(halo+x,mw,mh,look_halo(m,look),copy);
+        if(wide) blur_line(wide+x,mw,mh,glow_radius(m,look),copy);
     }
-    *out=(Stamp){core,halo,mw,mh,f,ss,(int)width-(int)margin-(int)(((mw-pad)*f)>>(ss-1)),
-                 (int)height-(int)rise-(int)(((mh-pad)*f)>>(ss-1)),look};
+    if(wide)
+        for(i=0;i<mw*mh;++i) {
+            u32 g=(wide[i]*GLOW_GAIN)>>8;
+            if(g>255) g=255;
+            if(g>halo[i]) halo[i]=(u8)g;
+        }
+    *out=(Stamp){core,halo,mw,mh,f,ss,ox,oy,ink->tint,ox+(int)((pad*f)>>(ss-1)),ox+(int)(((mw-pad)*f)>>(ss-1))};
     return 1;
 }
 /* A mask as a picture shows it: cell (a, b), a across and b down, is at
@@ -742,7 +936,7 @@ static MaskView mask_view(const Stamp *st,u32 turns) {
    with cell (0, 0) at pixel (ox, oy) of the plane; `work` is the scratch
    after the masks (stamp_bytes). Returns the column of cell (0, 0), on an
    even column so CbCr pairs line up. */
-static int stamp_draw(u8 *work,const Plane *p,const MaskView *v,u32 f,int ox,int oy,u32 mono,u32 look) {
+static int stamp_draw(u8 *work,const Plane *p,const MaskView *v,u32 f,int ox,int oy,u32 mono,const Tint *tint) {
     u32 x, y, sy, dy, step, w=v->w, h=v->h, cols=w*f, shown=0xffffffffU, start, end;
     /* The horizontal blends of the two mask rows that a picture row
        samples, for each column: f picture rows sample the same pair, so
@@ -799,7 +993,7 @@ static int stamp_draw(u8 *work,const Plane *p,const MaskView *v,u32 f,int ox,int
                         row_halo[j]=(u8)((ht*(65536-ty)+hb*ty)>>16);
                     }
                 }
-                light_row(p,(u32)(ox+(int)x),(u32)py,row_core,row_halo,pairs,mono,chroma,look);
+                light_row(p,(u32)(ox+(int)x),(u32)py,row_core,row_halo,pairs,mono,chroma,tint);
             }
         }
         if(++dy==f) { dy=0; ++sy; }
@@ -808,11 +1002,12 @@ static int stamp_draw(u8 *work,const Plane *p,const MaskView *v,u32 f,int ox,int
 }
 /* The stamp on the main picture of a landscape shot, in the layout of its
    mask. Returns 1 and describes the mask in `out` when it drew. */
-static u32 stamp(u8 *scratch,const Plane *p,const char *text,u32 n,u32 mono,u32 look,Stamp *out) {
+static u32 stamp(u8 *scratch,const Plane *p,const char *text,u32 n,u32 mono,const Ink *ink,const Anchor *at,Stamp *out) {
     u32 x, y, mw, mh;
     const u8 *core, *halo;
+    const Tint *look=ink->tint;
     u8 *lit;
-    if(!stamp_mask(scratch,p->right-p->left,p->bottom-p->top,text,n,look,0,out)) return 0;
+    if(!stamp_mask(scratch,p->right-p->left,p->bottom-p->top,text,n,ink,0,at,out)) return 0;
     core=out->core; halo=out->halo; mw=out->mw; mh=out->mh;
     if(out->ss==1) {
         MaskView v=mask_view(out,0);
@@ -909,7 +1104,7 @@ static void sample_products(const Plane *src,const Stamp *st,u32 turns,u32 rf,lo
    dst samples the mask at four points, so the stamp keeps the same place and
    the same total width as on the main picture, only softer on a smaller
    picture. A picture that `turns` quarter turns show upright gets the stamp
-   at the bottom right of its upright view, turned with it. */
+   at its place on the upright view, turned with it. */
 static void stamp_sample(const Plane *dst,const Plane *src,const Stamp *st,u32 mono,u32 turns) {
     u32 sw=src->right-src->left, sh=src->bottom-src->top, dw=dst->right-dst->left, dh=dst->bottom-dst->top;
     u32 kx=divide(sw<<16,dw), ky=divide(sh<<16,dh), rx=divide(dw<<16,sw), ry=divide(dh<<16,sh);
@@ -971,7 +1166,7 @@ static void stamp_sample(const Plane *dst,const Plane *src,const Stamp *st,u32 m
                 row_core[j]=(u8)(c>255 ? 255 : c);
                 row_halo[j]=(u8)(halo>>2);
             }
-            light_row(dst,x,y,row_core,row_halo,pairs,mono,chroma,st->look);
+            light_row(dst,x,y,row_core,row_halo,pairs,mono,chroma,st->tint);
         }
     }
 }
@@ -1001,29 +1196,42 @@ static u32 gr2_ink(const char *text,u32 n,u32 x,u32 y) {
     char c;
     if(i>=n || y<3 || y>20) return 0;
     c=text[i];
-    k=c=='/' ? 0 : c==':' ? 1 : c>='0' && c<='9' ? (u32)(c-'0')+2 : 12;
-    return k<12 && (gr2_glyphs[k][y-3]>>(15-(x&15))&1);
+    k=c=='/' ? 0 : c==':' ? 1 : c>='0' && c<='9' ? (u32)(c-'0')+2 :
+      c>='A' && c<='Z' ? (u32)(c-'A')+12 : c=='!' ? 38 : c==HEART ? 39 : 40;
+    return k<40 && (gr2_glyphs[k][y-3]>>(15-(x&15))&1);
 }
 /* The GR II imprint, painted on `dst` with the geometry of the main picture
    `src`. A glyph pixel spans short side / GR2_SHORT pixels of the main picture
    (Q16 `s`), so the digits keep the size of the GR II imprint on its 3264-row
    pictures, where a glyph pixel is 3 x 3 pixels: 18 rows of digits are about
    1.65% of the short side. A picture with at most GR2_SHORT rows gets 1 x 1
-   pixels. The text ends 3 cells before the right edge, and the cells end 48
-   glyph pixels above the bottom. The pixels get flat orange (Y 146, Cb 46,
-   Cr 225), or white luma on a monochrome picture. Each picture samples the
-   geometry at 2 x 2 points for each pixel. */
+   pixels (the size M; SIZE scales it). The text ends 3 cells before the
+   right edge (or starts 3 cells after the left edge), `off` cells in all
+   with the cells of the text that comes before it on the line, and the cells
+   end 48 glyph pixels above the bottom (or start 48 below the top), `lift`
+   more for a caption on the line above the date (below it at the top). The
+   pixels get flat orange (Y 146, Cb 46, Cr 225), or the color of COLOR, or
+   white luma on a monochrome picture. Each picture samples the geometry at
+   2 x 2 points for each pixel. */
 #define GR2_SHORT 1088U
-#define GR2_Y 146
-#define GR2_CB 46
-#define GR2_CR 225
-static void gr2_paint(const Plane *dst,const Plane *src,const char *text,u32 n,u32 mono,u32 turns) {
+typedef struct { u32 s, off, right, bottom; u8 y, cb, cr; u32 lift; } Gr2;
+/* Y, Cb, Cr of each color: orange twice, white, sepia (RGB 214, 170, 118),
+   and LED yellow (RGB 255, 214, 40). */
+static const u8 gr2_colors[COLORS][3]={{146,46,225},{146,46,225},{235,128,128},{177,95,154},{206,34,163}};
+/* The glyph pixel of the GR II imprint in pixels of the main picture (Q16),
+   for the short side of the main picture and the size (Q8 of M). */
+static u32 gr2_scale(u32 short_side,u32 scale) {
+    return ((short_side>GR2_SHORT ? divide(short_side<<16,GR2_SHORT) : 65536)*scale)>>8;
+}
+static void gr2_paint(const Plane *dst,const Plane *src,const char *text,u32 n,u32 mono,u32 turns,const Gr2 *g) {
     u32 sw=src->right-src->left, sh=src->bottom-src->top, dw=dst->right-dst->left, dh=dst->bottom-dst->top;
-    u32 short_side=sw<sh ? sw : sh, s=short_side>GR2_SHORT ? divide(short_side<<16,GR2_SHORT) : 65536;
+    u32 s=g->s;
     u32 kx, ky, rs, x, y, k, q;
     int bx, by, x0, x1, y0, y1, box[4];
     /* The text box in the upright view (upright). */
-    bx=(int)(turns&1 ? sh : sw)-(int)((16*(n+3)*s)>>16); by=(int)(turns&1 ? sw : sh)-(int)((72*s)>>16);
+    bx=g->right ? (int)(turns&1 ? sh : sw)-(int)((16*(n+g->off)*s)>>16) : (int)((16*g->off*s)>>16);
+    by=g->bottom ? (int)(turns&1 ? sw : sh)-(int)(((72+g->lift)*s)>>16) : (int)(((48+g->lift)*s)>>16);
+    if(bx+(int)((16*n*s)>>16)>(int)(turns&1 ? sh : sw) || by+(int)((24*s)>>16)>(int)(turns&1 ? sw : sh)) return;
     if(bx<0 || by<0) return;
     kx=divide(sw<<16,dw); ky=divide(sh<<16,dh); rs=divide(0xffffffffU,s)+1;
     /* The box of the ink rows in dst pixels. */
@@ -1057,16 +1265,67 @@ static void gr2_paint(const Plane *dst,const Plane *src,const char *text,u32 n,u
             }
             if(!most) continue;
             for(k=0;k<2;++k) {
-                u32 at=y*dst->pitch+x+k, v=BYTE(dst->y,at), target=mono ? 255 : GR2_Y;
+                u32 at=y*dst->pitch+x+k, v=BYTE(dst->y,at), target=mono ? 255 : g->y;
                 BYTE(dst->y,at)=(u8)((int)v+(((int)target-(int)v)*(int)cover[k])/4);
             }
             if(!mono && chroma) {
                 u32 cb=BYTE(crow,x), cr=BYTE(crow,x+1);
-                BYTE(crow,x)=(u8)((int)cb+((GR2_CB-(int)cb)*(int)most)/4);
-                BYTE(crow,x+1)=(u8)((int)cr+((GR2_CR-(int)cr)*(int)most)/4);
+                BYTE(crow,x)=(u8)((int)cb+((g->cb-(int)cb)*(int)most)/4);
+                BYTE(crow,x+1)=(u8)((int)cr+((g->cr-(int)cr)*(int)most)/4);
             }
         }
     }
+}
+/* The captions (CAPTION): Off, then the texts that print next to the date.
+   HEART prints a heart. */
+static const char *const captions[]={0,"THANK YOU","HAPPY BIRTHDAY","I \x01 GR","I \x01 YOU","GOOD TIMES","HOLIDAY","CHEERS"};
+#define CAPTIONS (sizeof captions/sizeof captions[0])
+#define CAPTION_CHARS 24U
+/* SIZE: S, M, M-L, and L, in Q8 of M, the size of each look before 1.9. */
+static const u16 scales[4]={192,256,320,384};
+/* CORNER: where the line of the date and the caption goes, on the sensor
+   frame (POSITION Film) or on the picture turned upright (Upright). The
+   caption comes before the date on the line. Split puts the date at the
+   bottom left and the caption at the bottom right. */
+#define CORNER_BOTTOM_RIGHT 0U
+#define CORNER_BOTTOM_LEFT 1U
+#define CORNER_TOP_RIGHT 2U
+#define CORNER_SPLIT 3U
+/* A setting of the module, or `fallback` past its values. */
+static u32 setting_below(u32 handle,u32 values,u32 fallback) {
+    u32 v=setting_get(handle);
+    return v<values ? v : fallback;
+}
+/* One text of a mask look on each picture of the set, with its text box
+   at `at` of the upright main picture; the text box across in *left and
+   *right. Returns 0 when it does not fit. */
+static u32 mask_part(PictureSet *set,u32 main,u32 turns,const char *text,u32 n,const Ink *ink,const Anchor *at,int *left,int *right) {
+    const Plane *p=&set->planes[main];
+    Stamp st;
+    u32 i;
+    if(!n) return 0;
+    if(!turns) {
+        if(!stamp(set->scratch,p,text,n,set->mono,ink,at,&st)) return 0;
+        for(i=0;i<set->count;++i)
+            if(i!=main) stamp_sample(&set->planes[i],p,&st,set->mono,0);
+    } else {
+        /* A turned picture renders the mask upright. The smaller pictures
+           sample it; the main picture draws it turned back (mask_view),
+           cell for cell as a landscape picture does. */
+        u32 w=p->right-p->left, h=p->bottom-p->top;
+        if(!stamp_mask(set->scratch,turns&1 ? h : w,turns&1 ? w : h,text,n,ink,1,at,&st)) return 0;
+        for(i=0;i<set->count;++i)
+            if(i!=main || st.ss!=1) stamp_sample(&set->planes[i],p,&st,set->mono,turns);
+        if(st.ss==1) {
+            MaskView v=mask_view(&st,turns);
+            int box[4];
+            stored_box(p,turns,st.ox,st.oy,st.ox+(int)(st.mw*st.f),st.oy+(int)(st.mh*st.f),box);
+            (void)stamp_draw(set->scratch+2*st.mw*st.mh,p,&v,st.f,box[0],box[1],set->mono,st.tint);
+        }
+    }
+    *left=st.left;
+    *right=st.right;
+    return 1;
 }
 /* The largest picture draws the stamp. The smaller ones scale its mask, so
    playback keeps the stamp's place and width when it switches from the
@@ -1076,41 +1335,80 @@ void date_apply(PictureSet *set, u32 style)
 {
     GrkuDateTime now;
     const u8 *dt = (const u8 *)&now;
-    u32 n, i, main = 0, look = setting_get(SETTING_LOOK);
+    u32 n, cn = 0, i, main = 0, look = setting_get(SETTING_LOOK);
+    u32 color = setting_below(SETTING_COLOR, COLORS, 0), scale = scales[setting_below(SETTING_SIZE, 4, 1)];
+    u32 corner = setting_below(SETTING_CORNER, 4, 0), glow = setting_get(SETTING_GLOW) == 1;
+    u32 caption = setting_below(SETTING_CAPTION, CAPTIONS, 0), w, h, short_side;
     /* Upright: the stamp follows the posture of the camera. Film: it stays
-       at the bottom right of the sensor frame, as on film. */
+       at the corner of the sensor frame, as on film. */
     u32 turns = setting_get(SETTING_POSITION) ? set->turns & 3 : 0;
-    char text[20];
-    Stamp st;
+    char text[20], words[CAPTION_CHARS];
     local_time(&now);
     for (i = 1; i < set->count; ++i)
         if (set->planes[i].width * set->planes[i].height > set->planes[main].width * set->planes[main].height) main = i;
+    if (caption)
+        for (const char *c = captions[caption]; *c && cn < CAPTION_CHARS; ++c) words[cn++] = *c == ' ' ? WORD_SPACE : *c;
+    w = set->planes[main].right - set->planes[main].left;
+    h = set->planes[main].bottom - set->planes[main].top;
+    short_side = w < h ? w : h;
+    if (turns & 1) { u32 t = w; w = h; h = t; }
+    /* A caption that does not fit before the date on its line goes on a line
+       of its own at the same corner: above the date at the bottom, below it
+       at the top. Split has room for both. */
     if (look == LOOK_GR2) {
+        /* The date ends 3 cells from the edge; a caption before it leaves one
+           empty cell. A caption line is 30 glyph pixels from the date line. */
+        Gr2 date = {gr2_scale(short_side, scale), 3, 1, corner != CORNER_TOP_RIGHT,
+                    gr2_colors[color][0], gr2_colors[color][1], gr2_colors[color][2], 0};
+        Gr2 words_at = date;
+        u32 one;
         n = gr2_text(text, dt, style);
-        for (i = 0; i < set->count; ++i) gr2_paint(&set->planes[i], &set->planes[main], text, n, set->mono, turns);
+        one = !cn || corner == CORNER_SPLIT || ((16 * (n + cn + 7) * date.s) >> 16) <= w;
+        if (!one) words_at.lift = 30;
+        if (corner == CORNER_BOTTOM_LEFT) {
+            words_at.right = date.right = 0;
+            if (cn && one) date.off = 3 + cn + 1;
+        } else if (corner == CORNER_SPLIT) {
+            date.right = 0;
+        } else if (one) {
+            words_at.off = 3 + n + 1;
+        }
+        for (i = 0; i < set->count; ++i) {
+            gr2_paint(&set->planes[i], &set->planes[main], text, n, set->mono, turns, &date);
+            if (cn) gr2_paint(&set->planes[i], &set->planes[main], words, cn, set->mono, turns, &words_at);
+        }
         return;
     }
     n = date_text(text, dt, style, look == LOOK_DOTS);
-    if (!turns) {
-        if (stamp(set->scratch, &set->planes[main], text, n, set->mono, look, &st))
-            for (i = 0; i < set->count; ++i)
-                if (i != main) stamp_sample(&set->planes[i], &set->planes[main], &st, set->mono, 0);
-        return;
-    }
-    /* A turned picture renders the mask upright. The smaller pictures sample
-       it; the main picture draws it turned back (mask_view), cell for cell as
-       a landscape picture does. */
     {
-        const Plane *p = &set->planes[main];
-        u32 w = p->right - p->left, h = p->bottom - p->top;
-        if (!stamp_mask(set->scratch, turns & 1 ? h : w, turns & 1 ? w : h, text, n, look, 1, &st)) return;
-        for (i = 0; i < set->count; ++i)
-            if (i != main || st.ss != 1) stamp_sample(&set->planes[i], p, &st, set->mono, turns);
-        if (st.ss == 1) {
-            MaskView v = mask_view(&st, turns);
-            int box[4];
-            stored_box(p, turns, st.ox, st.oy, st.ox + (int)(st.mw * st.f), st.oy + (int)(st.mh * st.f), box);
-            (void)stamp_draw(set->scratch + 2 * st.mw * st.mh, p, &v, st.f, box[0], box[1], set->mono, look);
+        Ink ink = {look, look == LOOK_DOTS ? &dots_tints[color] : &classic_tints[color], scale, glow};
+        u32 size = stamp_size(short_side, &ink), side, edge, one;
+        /* The caption and the date are one digit height apart on a line, and
+           a caption line is 1.6 digit heights from the date line. */
+        int gap = (int)size, line = (int)((size * 8) / 5), left, right, y;
+        Anchor at;
+        look_margins(look, short_side, size, &side, &edge);
+        one = !cn || corner == CORNER_SPLIT ||
+              2 * side + text_width(words, cn, size, look) + size + text_width(text, n, size, look) <= w;
+        y = corner == CORNER_TOP_RIGHT ? (int)edge : (int)h - (int)edge;
+        at.y = y;
+        at.bottom = corner != CORNER_TOP_RIGHT;
+        at.right = corner != CORNER_BOTTOM_LEFT && corner != CORNER_SPLIT;
+        at.x = at.right ? (int)w - (int)side : (int)side;
+        if (corner == CORNER_BOTTOM_LEFT && one) {
+            if (mask_part(set, main, turns, words, cn, &ink, &at, &left, &right)) at.x = right + gap;
+            (void)mask_part(set, main, turns, text, n, &ink, &at, &left, &right);
+            return;
         }
+        if (!mask_part(set, main, turns, text, n, &ink, &at, &left, &right) || !cn) return;
+        if (corner == CORNER_SPLIT) {
+            at.x = (int)w - (int)side;
+            at.right = 1;
+        } else if (one) {
+            at.x = left - gap;
+        } else {
+            at.y = at.bottom ? y - line : y + line;
+        }
+        (void)mask_part(set, main, turns, words, cn, &ink, &at, &left, &right);
     }
 }

@@ -15,3 +15,23 @@ values = ["フィルム", "正位置"]
 [settings.ICON]
 label = "アイコン表示"
 values = ["オン", "オフ"]
+
+[settings.COLOR]
+label = "日付の色"
+values = ["標準", "オレンジ", "白", "セピア", "LEDイエロー"]
+
+[settings.SIZE]
+label = "日付サイズ"
+values = ["S", "M", "M-L", "L"]
+
+[settings.CORNER]
+label = "日付配置"
+values = ["右下", "左下", "右上", "下部左右"]
+
+[settings.GLOW]
+label = "日付の光彩"
+values = ["オフ", "オン"]
+
+[settings.CAPTION]
+label = "キャプション"
+values = ["オフ", "THANK YOU", "HAPPY BIRTHDAY", "I <3 GR", "I <3 YOU", "GOOD TIMES", "HOLIDAY", "CHEERS"]
