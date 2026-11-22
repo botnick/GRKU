@@ -683,18 +683,23 @@ static void render_step(u32 controller,u32 step) {
     frame_preview(h,controller,ADJ_MOVIE(controller)==1);
     h[GRKU_HOST_MENU_REBUILDING/4]=0;
 }
+/* The next ADJ session opens at the row of this module (menu_reopen).
+   STATE.TXT keeps the module across power-off (CORE.ADJ_MODULE). The pages
+   of a session set the module without a count (menu_open), and the resident
+   loader saves only after a count. So the count follows the module of the
+   last export, which the loader saved or saves next: a session that ends on
+   another module counts once. */
+static void leave_module(volatile u32 *h) {
+    u32 before=h[GRKU_HOST_MODULE/4];
+    if(h[GRKU_HOST_MENU_LEVEL/4]==MENU_ROOT) h[GRKU_HOST_MODULE/4]=root_module(h,h[GRKU_HOST_MENU_CURSOR/4]);
+    if(h[GRKU_HOST_PERSIST_WORD/4])
+        before=services_word(h,SERVICES_PERSIST)[(GRKU_PERSIST_CORE+4U*(GRKU_CORE_ADJ_MODULE-GRKU_CORE_SETTING_BASE))/4];
+    if(h[GRKU_HOST_MODULE/4]!=before) GRKU_STATE_CHANGED(h);
+}
 static void leave(u32 controller) {
     volatile u32 *h=menu_header();
     if(!private_mode(controller)) return;
-    /* The next ADJ session opens at the row of this module (menu_reopen).
-       STATE.TXT keeps the module across power-off (CORE.ADJ_MODULE). */
-    if(h[GRKU_HOST_MENU_LEVEL/4]==MENU_ROOT) {
-        u32 module=root_module(h,h[GRKU_HOST_MENU_CURSOR/4]);
-        if(h[GRKU_HOST_MODULE/4]!=module) {
-            h[GRKU_HOST_MODULE/4]=module;
-            GRKU_STATE_CHANGED(h);
-        }
-    }
+    leave_module(h);
     h[GRKU_HOST_MENU_LEVEL/4]=0; h[GRKU_HOST_MENU_REBUILDING/4]=1;
     /* The preview of a recipe ends: GRKU leaves without OK. */
     recipe_preview_show(h,RECIPE_NONE);

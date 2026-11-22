@@ -22,10 +22,19 @@ dsaved = 0
 dchangeslast = dchanges
 filesearch 'C:\GRKU\STATE.TXT'
 if result = 0 saved = changes - 1
+hint = 0
+quiet = 0 - 1
+idle = 0
 profile = registry[66]
 if profile <> 0 goto profile_watch
 :watch
 mpause 2000
+hint = registry[64] + registry[978] + registry[1010]
+if hint <> quiet idle = 30
+idle = idle + 1
+if idle <= 30 goto watch
+idle = 0
+quiet = hint - 1
 call capture
 if captured = 0 goto watch_state_saved
 if changes <> last goto watch_state_release
@@ -54,6 +63,11 @@ rstamp = rchanges
 call save_recipes
 :watch_recipes_saved
 rchangeslast = rchanges
+if captured = 0 goto watch
+if changes <> saved goto watch
+if rchanges <> rsaved goto watch
+if dchanges <> dsaved goto watch
+quiet = hint
 goto watch
 :save_state
 if stateok = 0 goto save_state_end
@@ -386,276 +400,276 @@ pperiod = 0
 pframes = registry[7]
 pname0 = ''
 pc = (tailarea[61092] >> 0) and 255
-if pc = 0 goto profile_name0_end
+if pc = 0 goto pnend0
 code2str ps pc
 strconcat pname0 ps
 pc = (tailarea[61092] >> 8) and 255
-if pc = 0 goto profile_name0_end
+if pc = 0 goto pnend0
 code2str ps pc
 strconcat pname0 ps
 pc = (tailarea[61092] >> 16) and 255
-if pc = 0 goto profile_name0_end
+if pc = 0 goto pnend0
 code2str ps pc
 strconcat pname0 ps
 pc = (tailarea[61092] >> 24) and 255
-if pc = 0 goto profile_name0_end
+if pc = 0 goto pnend0
 code2str ps pc
 strconcat pname0 ps
 pc = (tailarea[61093] >> 0) and 255
-if pc = 0 goto profile_name0_end
+if pc = 0 goto pnend0
 code2str ps pc
 strconcat pname0 ps
 pc = (tailarea[61093] >> 8) and 255
-if pc = 0 goto profile_name0_end
+if pc = 0 goto pnend0
 code2str ps pc
 strconcat pname0 ps
 pc = (tailarea[61093] >> 16) and 255
-if pc = 0 goto profile_name0_end
+if pc = 0 goto pnend0
 code2str ps pc
 strconcat pname0 ps
 pc = (tailarea[61093] >> 24) and 255
-if pc = 0 goto profile_name0_end
+if pc = 0 goto pnend0
 code2str ps pc
 strconcat pname0 ps
-:profile_name0_end
+:pnend0
 pname1 = ''
 pc = (tailarea[61096] >> 0) and 255
-if pc = 0 goto profile_name1_end
+if pc = 0 goto pnend1
 code2str ps pc
 strconcat pname1 ps
 pc = (tailarea[61096] >> 8) and 255
-if pc = 0 goto profile_name1_end
+if pc = 0 goto pnend1
 code2str ps pc
 strconcat pname1 ps
 pc = (tailarea[61096] >> 16) and 255
-if pc = 0 goto profile_name1_end
+if pc = 0 goto pnend1
 code2str ps pc
 strconcat pname1 ps
 pc = (tailarea[61096] >> 24) and 255
-if pc = 0 goto profile_name1_end
+if pc = 0 goto pnend1
 code2str ps pc
 strconcat pname1 ps
 pc = (tailarea[61097] >> 0) and 255
-if pc = 0 goto profile_name1_end
+if pc = 0 goto pnend1
 code2str ps pc
 strconcat pname1 ps
 pc = (tailarea[61097] >> 8) and 255
-if pc = 0 goto profile_name1_end
+if pc = 0 goto pnend1
 code2str ps pc
 strconcat pname1 ps
 pc = (tailarea[61097] >> 16) and 255
-if pc = 0 goto profile_name1_end
+if pc = 0 goto pnend1
 code2str ps pc
 strconcat pname1 ps
 pc = (tailarea[61097] >> 24) and 255
-if pc = 0 goto profile_name1_end
+if pc = 0 goto pnend1
 code2str ps pc
 strconcat pname1 ps
-:profile_name1_end
+:pnend1
 pname2 = ''
 pc = (tailarea[61100] >> 0) and 255
-if pc = 0 goto profile_name2_end
+if pc = 0 goto pnend2
 code2str ps pc
 strconcat pname2 ps
 pc = (tailarea[61100] >> 8) and 255
-if pc = 0 goto profile_name2_end
+if pc = 0 goto pnend2
 code2str ps pc
 strconcat pname2 ps
 pc = (tailarea[61100] >> 16) and 255
-if pc = 0 goto profile_name2_end
+if pc = 0 goto pnend2
 code2str ps pc
 strconcat pname2 ps
 pc = (tailarea[61100] >> 24) and 255
-if pc = 0 goto profile_name2_end
+if pc = 0 goto pnend2
 code2str ps pc
 strconcat pname2 ps
 pc = (tailarea[61101] >> 0) and 255
-if pc = 0 goto profile_name2_end
+if pc = 0 goto pnend2
 code2str ps pc
 strconcat pname2 ps
 pc = (tailarea[61101] >> 8) and 255
-if pc = 0 goto profile_name2_end
+if pc = 0 goto pnend2
 code2str ps pc
 strconcat pname2 ps
 pc = (tailarea[61101] >> 16) and 255
-if pc = 0 goto profile_name2_end
+if pc = 0 goto pnend2
 code2str ps pc
 strconcat pname2 ps
 pc = (tailarea[61101] >> 24) and 255
-if pc = 0 goto profile_name2_end
+if pc = 0 goto pnend2
 code2str ps pc
 strconcat pname2 ps
-:profile_name2_end
+:pnend2
 pname3 = ''
 pc = (tailarea[61104] >> 0) and 255
-if pc = 0 goto profile_name3_end
+if pc = 0 goto pnend3
 code2str ps pc
 strconcat pname3 ps
 pc = (tailarea[61104] >> 8) and 255
-if pc = 0 goto profile_name3_end
+if pc = 0 goto pnend3
 code2str ps pc
 strconcat pname3 ps
 pc = (tailarea[61104] >> 16) and 255
-if pc = 0 goto profile_name3_end
+if pc = 0 goto pnend3
 code2str ps pc
 strconcat pname3 ps
 pc = (tailarea[61104] >> 24) and 255
-if pc = 0 goto profile_name3_end
+if pc = 0 goto pnend3
 code2str ps pc
 strconcat pname3 ps
 pc = (tailarea[61105] >> 0) and 255
-if pc = 0 goto profile_name3_end
+if pc = 0 goto pnend3
 code2str ps pc
 strconcat pname3 ps
 pc = (tailarea[61105] >> 8) and 255
-if pc = 0 goto profile_name3_end
+if pc = 0 goto pnend3
 code2str ps pc
 strconcat pname3 ps
 pc = (tailarea[61105] >> 16) and 255
-if pc = 0 goto profile_name3_end
+if pc = 0 goto pnend3
 code2str ps pc
 strconcat pname3 ps
 pc = (tailarea[61105] >> 24) and 255
-if pc = 0 goto profile_name3_end
+if pc = 0 goto pnend3
 code2str ps pc
 strconcat pname3 ps
-:profile_name3_end
+:pnend3
 pname4 = ''
 pc = (tailarea[61108] >> 0) and 255
-if pc = 0 goto profile_name4_end
+if pc = 0 goto pnend4
 code2str ps pc
 strconcat pname4 ps
 pc = (tailarea[61108] >> 8) and 255
-if pc = 0 goto profile_name4_end
+if pc = 0 goto pnend4
 code2str ps pc
 strconcat pname4 ps
 pc = (tailarea[61108] >> 16) and 255
-if pc = 0 goto profile_name4_end
+if pc = 0 goto pnend4
 code2str ps pc
 strconcat pname4 ps
 pc = (tailarea[61108] >> 24) and 255
-if pc = 0 goto profile_name4_end
+if pc = 0 goto pnend4
 code2str ps pc
 strconcat pname4 ps
 pc = (tailarea[61109] >> 0) and 255
-if pc = 0 goto profile_name4_end
+if pc = 0 goto pnend4
 code2str ps pc
 strconcat pname4 ps
 pc = (tailarea[61109] >> 8) and 255
-if pc = 0 goto profile_name4_end
+if pc = 0 goto pnend4
 code2str ps pc
 strconcat pname4 ps
 pc = (tailarea[61109] >> 16) and 255
-if pc = 0 goto profile_name4_end
+if pc = 0 goto pnend4
 code2str ps pc
 strconcat pname4 ps
 pc = (tailarea[61109] >> 24) and 255
-if pc = 0 goto profile_name4_end
+if pc = 0 goto pnend4
 code2str ps pc
 strconcat pname4 ps
-:profile_name4_end
+:pnend4
 pname5 = ''
 pc = (tailarea[61112] >> 0) and 255
-if pc = 0 goto profile_name5_end
+if pc = 0 goto pnend5
 code2str ps pc
 strconcat pname5 ps
 pc = (tailarea[61112] >> 8) and 255
-if pc = 0 goto profile_name5_end
+if pc = 0 goto pnend5
 code2str ps pc
 strconcat pname5 ps
 pc = (tailarea[61112] >> 16) and 255
-if pc = 0 goto profile_name5_end
+if pc = 0 goto pnend5
 code2str ps pc
 strconcat pname5 ps
 pc = (tailarea[61112] >> 24) and 255
-if pc = 0 goto profile_name5_end
+if pc = 0 goto pnend5
 code2str ps pc
 strconcat pname5 ps
 pc = (tailarea[61113] >> 0) and 255
-if pc = 0 goto profile_name5_end
+if pc = 0 goto pnend5
 code2str ps pc
 strconcat pname5 ps
 pc = (tailarea[61113] >> 8) and 255
-if pc = 0 goto profile_name5_end
+if pc = 0 goto pnend5
 code2str ps pc
 strconcat pname5 ps
 pc = (tailarea[61113] >> 16) and 255
-if pc = 0 goto profile_name5_end
+if pc = 0 goto pnend5
 code2str ps pc
 strconcat pname5 ps
 pc = (tailarea[61113] >> 24) and 255
-if pc = 0 goto profile_name5_end
+if pc = 0 goto pnend5
 code2str ps pc
 strconcat pname5 ps
-:profile_name5_end
+:pnend5
 pname6 = ''
 pc = (tailarea[61116] >> 0) and 255
-if pc = 0 goto profile_name6_end
+if pc = 0 goto pnend6
 code2str ps pc
 strconcat pname6 ps
 pc = (tailarea[61116] >> 8) and 255
-if pc = 0 goto profile_name6_end
+if pc = 0 goto pnend6
 code2str ps pc
 strconcat pname6 ps
 pc = (tailarea[61116] >> 16) and 255
-if pc = 0 goto profile_name6_end
+if pc = 0 goto pnend6
 code2str ps pc
 strconcat pname6 ps
 pc = (tailarea[61116] >> 24) and 255
-if pc = 0 goto profile_name6_end
+if pc = 0 goto pnend6
 code2str ps pc
 strconcat pname6 ps
 pc = (tailarea[61117] >> 0) and 255
-if pc = 0 goto profile_name6_end
+if pc = 0 goto pnend6
 code2str ps pc
 strconcat pname6 ps
 pc = (tailarea[61117] >> 8) and 255
-if pc = 0 goto profile_name6_end
+if pc = 0 goto pnend6
 code2str ps pc
 strconcat pname6 ps
 pc = (tailarea[61117] >> 16) and 255
-if pc = 0 goto profile_name6_end
+if pc = 0 goto pnend6
 code2str ps pc
 strconcat pname6 ps
 pc = (tailarea[61117] >> 24) and 255
-if pc = 0 goto profile_name6_end
+if pc = 0 goto pnend6
 code2str ps pc
 strconcat pname6 ps
-:profile_name6_end
+:pnend6
 pname7 = ''
 pc = (tailarea[61120] >> 0) and 255
-if pc = 0 goto profile_name7_end
+if pc = 0 goto pnend7
 code2str ps pc
 strconcat pname7 ps
 pc = (tailarea[61120] >> 8) and 255
-if pc = 0 goto profile_name7_end
+if pc = 0 goto pnend7
 code2str ps pc
 strconcat pname7 ps
 pc = (tailarea[61120] >> 16) and 255
-if pc = 0 goto profile_name7_end
+if pc = 0 goto pnend7
 code2str ps pc
 strconcat pname7 ps
 pc = (tailarea[61120] >> 24) and 255
-if pc = 0 goto profile_name7_end
+if pc = 0 goto pnend7
 code2str ps pc
 strconcat pname7 ps
 pc = (tailarea[61121] >> 0) and 255
-if pc = 0 goto profile_name7_end
+if pc = 0 goto pnend7
 code2str ps pc
 strconcat pname7 ps
 pc = (tailarea[61121] >> 8) and 255
-if pc = 0 goto profile_name7_end
+if pc = 0 goto pnend7
 code2str ps pc
 strconcat pname7 ps
 pc = (tailarea[61121] >> 16) and 255
-if pc = 0 goto profile_name7_end
+if pc = 0 goto pnend7
 code2str ps pc
 strconcat pname7 ps
 pc = (tailarea[61121] >> 24) and 255
-if pc = 0 goto profile_name7_end
+if pc = 0 goto pnend7
 code2str ps pc
 strconcat pname7 ps
-:profile_name7_end
+:pnend7
 filesearch 'C:\GRKU\PROFILE.LOG'
 if result != 0 goto profile_append
 filecreate pfh 'C:\GRKU\PROFILE.LOG'
@@ -698,6 +712,11 @@ rstamp = rchanges
 call save_recipes
 :profile_poll_recipes_saved
 rchangeslast = rchanges
+if captured = 0 goto profile_poll
+if changes <> saved goto profile_poll
+if rchanges <> rsaved goto profile_poll
+if dchanges <> dsaved goto profile_poll
+quiet = hint
 goto profile_poll
 :profile_write
 ppolls = 0
