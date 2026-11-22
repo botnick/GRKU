@@ -1,6 +1,6 @@
 import { siteUrl } from '../catalog';
 import type { Language, Strings } from '../i18n';
-import { docUrl, guideUrl, REPOSITORY, UPSTREAM } from '../links';
+import { docUrl, guideUrl, REPOSITORY } from '../links';
 
 const LINK = 'text-muted-foreground hover:text-foreground hover:underline underline-offset-4';
 
@@ -65,13 +65,6 @@ export function SiteFooter({
         <div className="flex flex-col gap-2 border-t border-border pt-6 text-[13px] text-muted-foreground">
           <p className="font-medium text-foreground">{t.riskShort}</p>
           <p className="max-w-[80ch]">{t.trademarks}</p>
-          <p>
-            <b className="font-semibold text-foreground">GRKU {t.landing.edition}</b> — {t.landing.fork[0]}
-            <a className="underline underline-offset-4 hover:text-foreground" href={UPSTREAM}>
-              {t.landing.fork[1]}
-            </a>
-            {t.landing.fork[2]}
-          </p>
           <a className="w-fit font-mono hover:text-foreground" href={releaseUrl}>
             GRKU {version}
           </a>
