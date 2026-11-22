@@ -22,17 +22,20 @@ export function pageLink(language: Language, navigate: Navigate, page: SitePage,
 }
 
 /**
- * The page of the old anchors of the one-page site: `/#looks` and `/#install` are on the install
- * page now. The GRKU Plus links of the key email and the pay QR open it too, where the looks unlock.
+ * The page of the old anchors of the one-page site: each step of the install has its own page
+ * now. The GRKU Plus links of the key email and the pay QR open the looks, where the looks unlock.
  */
 export function anchorPage(hash: string): SitePage | null {
   if (/^#(plus|pay)=/.test(hash)) return 'install';
   switch (hash) {
     case '#looks':
-    case '#modules':
-    case '#camera':
-    case '#install':
       return 'install';
+    case '#camera':
+      return 'camera';
+    case '#modules':
+      return 'modules';
+    case '#install':
+      return 'write';
     default:
       return null;
   }

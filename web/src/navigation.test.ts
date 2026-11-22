@@ -3,9 +3,9 @@ import { anchorPage, pageLink } from './navigation';
 
 describe('anchorPage', () => {
   it('sends the anchors of the one-page site to their pages', () => {
-    expect(anchorPage('#install')).toBe('install');
-    expect(anchorPage('#modules')).toBe('install');
-    expect(anchorPage('#camera')).toBe('install');
+    expect(anchorPage('#install')).toBe('write');
+    expect(anchorPage('#modules')).toBe('modules');
+    expect(anchorPage('#camera')).toBe('camera');
     expect(anchorPage('#looks')).toBe('install');
     expect(anchorPage('#plus=abc')).toBe('install');
     expect(anchorPage('#pay=abcdefghij')).toBe('install');

@@ -53,13 +53,33 @@ export function fastbootPath(language: Language): string {
 }
 
 /**
- * The pages of the site under each language path: the home page, and the install page, where the
- * visitor chooses the film looks, the camera, and the modules, and writes the card. `/install/`
- * is the Thai install page and `/en/install/` the English one.
+ * The pages of the site under each language path: the home page, and the four steps of the
+ * install: the film looks (`/install/`), the camera, the modules, and the card write.
+ * `/install/` is the Thai first step and `/en/install/` the English one.
  */
-export const SITE_PAGES = { home: '', install: 'install/' } as const;
+export const SITE_PAGES = {
+  home: '',
+  install: 'install/',
+  camera: 'install/camera/',
+  modules: 'install/modules/',
+  write: 'install/write/',
+} as const;
 
 export type SitePage = keyof typeof SITE_PAGES;
+
+/** The steps of the install, in order. The first is the film looks. */
+export const INSTALL_STEPS = ['install', 'camera', 'modules', 'write'] as const satisfies readonly SitePage[];
+
+export type InstallStep = (typeof INSTALL_STEPS)[number];
+
+export const isInstallStep = (page: SitePage): page is InstallStep => page !== 'home';
+
+/**
+ * The pages that search engines index, with hreflang links and sitemap entries: the home page
+ * and the first step. The later steps hold only the controls of one step, so they ask not to be
+ * indexed and lead search engines on to the first step.
+ */
+export const INDEXED_PAGES: readonly SitePage[] = ['home', 'install'];
 
 const PAGE_NAMES = Object.keys(SITE_PAGES) as SitePage[];
 

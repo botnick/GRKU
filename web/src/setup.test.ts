@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CAMERAS } from './cameras';
 import { DEFAULT_ENABLED, MODULES, MODULES_MAX } from './modules';
-import { loadCamera, loadModules, saveCamera, saveModules } from './setup';
+import { loadCamera, loadModules, loadProgress, saveCamera, saveModules, saveProgress, visitStep } from './setup';
 
 /** A storage in memory. */
 function memory(): Pick<Storage, 'getItem' | 'setItem'> {
@@ -40,5 +40,19 @@ describe('camera', () => {
     saveCamera(storage, 'gone');
     expect(loadCamera(storage)).toBe(CAMERAS[0]!.key);
     expect(loadCamera(null)).toBe(CAMERAS[0]!.key);
+  });
+});
+
+describe('install progress', () => {
+  it('keeps the furthest and the last step', () => {
+    const storage = memory();
+    expect(loadProgress(storage)).toEqual({ furthest: 'install', last: 'install' });
+    let progress = visitStep(loadProgress(storage), 'modules');
+    progress = visitStep(progress, 'camera');
+    expect(progress).toEqual({ furthest: 'modules', last: 'camera' });
+    saveProgress(storage, progress);
+    expect(loadProgress(storage)).toEqual(progress);
+    storage.setItem('grku.installStep', '{"furthest":"nope","last":"write"}');
+    expect(loadProgress(storage)).toEqual({ furthest: 'install', last: 'install' });
   });
 });

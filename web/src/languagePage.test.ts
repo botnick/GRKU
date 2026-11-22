@@ -45,6 +45,16 @@ describe('site pages', () => {
     expect(pagePath('zh-Hant', 'install')).toBe('/zh-hant/install/');
   });
 
+  it('puts each step of the install on its own page', () => {
+    expect(pagePath('th', 'camera')).toBe('/install/camera/');
+    expect(pagePath('ja', 'modules')).toBe('/ja/install/modules/');
+    expect(pagePath('en', 'write')).toBe('/en/install/write/');
+    expect(pathPage('/ko/install/write')).toBe('write');
+    expect(pathPage('/install/camera/')).toBe('camera');
+    expect(pathLanguage('/zh-hans/install/modules/')).toBe('zh-Hans');
+    expect(pathLanguage('/install/write/')).toBe('th');
+  });
+
   it('reads the page and the language of an address', () => {
     expect(pathPage('/')).toBe('home');
     expect(pathPage('/en/')).toBe('home');
@@ -153,6 +163,12 @@ describe('edge worker', () => {
     vi.stubGlobal('__SITE_HEADERS__', {});
     const thai = await edge.fetch(request('/install/', { 'Accept-Language': 'th' }), { ASSETS: assets });
     expect(thai.status).toBe(200);
+  });
+
+  it('sends a visitor of a Thai step to the same step of their language', async () => {
+    const response = await edge.fetch(request('/install/modules/', { 'Accept-Language': 'ko' }), { ASSETS: assets });
+    expect(response.status).toBe(302);
+    expect(response.headers.get('Location')).toBe('https://grku.app/ko/install/modules/');
   });
 
   it('leaves a language page as it is', async () => {

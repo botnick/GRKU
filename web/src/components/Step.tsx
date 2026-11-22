@@ -10,7 +10,10 @@ export function StepHeading({
   description,
   aside,
   className,
+  level: Heading = 'h2',
 }: {
+  /** The heading level: h1 where the step is a page of its own. */
+  level?: 'h1' | 'h2';
   /** The ID of the title, which the step is labelled by and the masthead links to. */
   id: string;
   /** The number of the step, as the page text names it ("Step 1"). */
@@ -29,9 +32,9 @@ export function StepHeading({
         <p className="font-mono text-xs font-medium tracking-[0.04em] text-brand" aria-label={label}>
           {number}
         </p>
-        <h2 id={id} className="mt-1.5 text-[clamp(26px,2.6vw,34px)] leading-[1.15] font-semibold tracking-[-0.02em]">
+        <Heading id={id} className="mt-1.5 text-[clamp(26px,2.6vw,34px)] leading-[1.15] font-semibold tracking-[-0.02em]">
           {title}
-        </h2>
+        </Heading>
         {description && <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{description}</p>}
       </div>
       {aside && <div className="flex shrink-0 items-center gap-3">{aside}</div>}
@@ -53,6 +56,7 @@ export function Step({
   children,
   className,
   ref,
+  level,
 }: Parameters<typeof StepHeading>[0] & { children: ReactNode; ref?: Ref<HTMLElement> }) {
   return (
     <section
@@ -61,7 +65,7 @@ export function Step({
       aria-labelledby={`${id}-title`}
       className={cn('scroll-mt-28 md:scroll-mt-20 border-t border-border py-12 lg:py-16', className)}
     >
-      <StepHeading id={`${id}-title`} number={number} label={label} title={title} description={description} aside={aside} className="mb-8" />
+      <StepHeading level={level} id={`${id}-title`} number={number} label={label} title={title} description={description} aside={aside} className="mb-8" />
       {children}
     </section>
   );

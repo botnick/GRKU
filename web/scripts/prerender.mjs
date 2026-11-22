@@ -83,7 +83,7 @@ async function edgeWorker(headers) {
 }
 
 const template = readFileSync(join(dist, 'index.html'), 'utf8');
-const { render, LANGUAGES, LANGUAGE_PATHS, SITE_PAGES, STRINGS, VERSION, pagePath, pageText } = await renderer();
+const { render, LANGUAGES, LANGUAGE_PATHS, SITE_PAGES, INDEXED_PAGES, STRINGS, VERSION, pagePath, pageText } = await renderer();
 const pageNames = Object.keys(SITE_PAGES);
 const codes = LANGUAGES.map((language) => language.code);
 /** The Open Graph locale of each language. */
@@ -168,11 +168,15 @@ function page(code, name) {
   html = replaceOne(html, /(<meta name="twitter:description" content=")[^"]*(")/, `$1${description}$2`);
   const locales = codes.filter((other) => other !== code).map((other) => `<meta property="og:locale:alternate" content="${LOCALES[other]}" />`).join('\n    ');
   html = replaceOne(html, /<meta property="og:locale" content="[^"]*" \/>/, `<meta property="og:locale" content="${LOCALES[code]}" />\n    ${locales}`);
+  // The later steps of the install hold only the controls of one step: search engines skip them
+  // and follow their links to the first step, which carries the hreflang links and the sitemap entry.
+  const indexed = INDEXED_PAGES.includes(name);
   const head = [
     `<link rel="canonical" href="${pageUrl(code, name)}" />`,
-    alternates(name),
+    ...(indexed ? [alternates(name)] : []),
     `<script type="application/ld+json">${structuredData(code, name)}</script>`,
   ].join('\n    ');
+  if (!indexed) html = replaceOne(html, /(<meta name="robots" content=")[^"]*(")/, '$1noindex, follow$2');
   html = replaceOne(html, /<\/head>/, `  ${head}\n  </head>`);
   return replaceOne(html, /<div id="root"><\/div>/, `<div id="root">${render(code, name)}</div>`);
 }
@@ -232,7 +236,7 @@ notFound = replaceOne(
 );
 writeFileSync(join(dist, '404.html'), notFound);
 
-const urls = pageNames
+const urls = INDEXED_PAGES
   .flatMap((name) =>
     codes.map(
       (code) =>

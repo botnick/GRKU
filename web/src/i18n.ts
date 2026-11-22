@@ -147,6 +147,17 @@ const en = {
   /** The document title. */
   /** The three pages of the site: home, looks, and install. */
   site: {
+    back: 'Back',
+    nextStep: (step: string) => `Next: ${step}`,
+    change: 'Change',
+    stepsLabel: 'Install steps',
+    summaryTitle: 'What goes on the card',
+    cameraTitle: 'Choose your camera · Install GRKU',
+    cameraDescription: 'Step 2 of installing GRKU: choose your RICOH GR III, IIIx, or IV and check its firmware version.',
+    modulesTitle: 'Choose the modules · Install GRKU',
+    modulesDescription: 'Step 3 of installing GRKU: choose the modules for the camera menu, such as Framing, Crop, Grain, and Recipes.',
+    writeTitle: 'Write the SD card · Install GRKU',
+    writeDescription: 'Step 4 of installing GRKU: write it straight to your SD card or download GRKU.zip, then start it on the camera.',
     toolTitle: 'Choose GR camera tones and film looks, then install them · GRKU',
     toolDescription: 'Preview more than 150 GR camera tones and film looks on a sample photo or your own DNG, choose the ones for your RICOH GR III, IIIx, or IV, and write them to the SD card or download GRKU.zip. No firmware flashing.',
     toolHeading: 'Choose GR camera tones and install them',
@@ -859,6 +870,17 @@ const zhHans: Strings = {
   /** End of the workbench and GRKU Plus. */
   language: '语言',
   site: {
+    back: '返回',
+    nextStep: (step: string) => `下一步：${step}`,
+    change: '更改',
+    stepsLabel: '安装步骤',
+    summaryTitle: '写入存储卡的内容',
+    cameraTitle: '选择相机 · 安装 GRKU',
+    cameraDescription: 'GRKU 安装第 2 步：选择您的 RICOH GR III、IIIx 或 IV 并确认固件版本。',
+    modulesTitle: '选择模块 · 安装 GRKU',
+    modulesDescription: 'GRKU 安装第 3 步：选择相机菜单模块，如构图、裁切、颗粒及配方。',
+    writeTitle: '写入 SD 卡 · 安装 GRKU',
+    writeDescription: 'GRKU 安装第 4 步：直接写入 SD 卡或下载 GRKU.zip，随后在相机上启动。',
     toolTitle: '选择 GR 影调与胶片模拟并安装 · GRKU',
     toolDescription: '在样张或您自己的 DNG 照片上预览 150 多种 GR 影调与胶片模拟，挑选适用于 RICOH GR III、IIIx 或 IV 的配置，直接写入 SD 卡或下载 GRKU.zip。无需刷写固件。',
     toolHeading: '选择并安装 GR 影调',
@@ -1496,6 +1518,17 @@ const zhHant: Strings = {
   /** End of the workbench and GRKU Plus. */
   language: '語言',
   site: {
+    back: '返回',
+    nextStep: (step: string) => `下一步：${step}`,
+    change: '變更',
+    stepsLabel: '安裝步驟',
+    summaryTitle: '寫入記憶卡內容',
+    cameraTitle: '選擇相機 · 安裝 GRKU',
+    cameraDescription: '安裝 GRKU 第 2 步：選擇您的 RICOH GR III、IIIx 或 IV，並確認韌體版本。',
+    modulesTitle: '選擇模組 · 安裝 GRKU',
+    modulesDescription: '安裝 GRKU 第 3 步：為相機選單選擇模組，如構圖、裁切、顆粒感及色彩配方。',
+    writeTitle: '寫入 SD 卡 · 安裝 GRKU',
+    writeDescription: '安裝 GRKU 第 4 步：直接寫入 SD 卡或下載 GRKU.zip，接著在相機上啟動。',
     toolTitle: '選擇 GR 色調與底片風格並安裝 · GRKU',
     toolDescription: '在範例照片或您自己的 DNG 上預覽超過 150 種 GR 色調與底片風格，挑選適用於 RICOH GR III、IIIx 或 IV 的風格，並寫入 SD 卡或下載 GRKU.zip。無需刷寫韌體。',
     toolHeading: '選擇 GR 色調並安裝',
@@ -2133,6 +2166,17 @@ const ja: Strings = {
   /** End of the workbench and GRKU Plus. */
   language: '言語',
   site: {
+    back: '戻る',
+    nextStep: (step: string) => `次へ: ${step}`,
+    change: '変更',
+    stepsLabel: 'インストール手順',
+    summaryTitle: 'カードへの書き込み内容',
+    cameraTitle: 'カメラの選択 · GRKUのインストール',
+    cameraDescription: 'GRKUのインストール 手順2: お使いのRICOH GR III、IIIx、またはIVを選択し、ファームウェアのバージョンを確認します。',
+    modulesTitle: 'モジュールの選択 · GRKUのインストール',
+    modulesDescription: 'GRKUのインストール 手順3: フレーミング、クロップ、粒状感、レシピなど、カメラメニューに表示するモジュールを選択します。',
+    writeTitle: 'SDカードへの書き込み · GRKUのインストール',
+    writeDescription: 'GRKUのインストール 手順4: SDカードへ直接書き込むかGRKU.zipをダウンロードし、カメラで起動します。',
     toolTitle: 'GRの色味・フィルム調を選んでインストール · GRKU',
     toolDescription: '150種類以上のGRの色味やフィルム調を、サンプル写真やお手持ちのDNGでプレビュー。RICOH GR III、IIIx、IV向けに好みの設定を選び、SDカードへの書き込みまたはGRKU.zipのダウンロードが可能です。ファームウェアの書き換えは不要です。',
     toolHeading: 'GRの色味・フィルム調を選んでインストール',
@@ -2774,6 +2818,17 @@ const ko: Strings = {
   /** End of the workbench and GRKU Plus. */
   language: '언어',
   site: {
+    back: '뒤로',
+    nextStep: (step: string) => `다음: ${step}`,
+    change: '변경',
+    stepsLabel: '설치 단계',
+    summaryTitle: 'SD 카드 저장 항목',
+    cameraTitle: '카메라 선택 · GRKU 설치',
+    cameraDescription: 'GRKU 설치 2단계: RICOH GR III, IIIx 또는 IV를 선택하고 펌웨어 버전을 확인하십시오.',
+    modulesTitle: '모듈 선택 · GRKU 설치',
+    modulesDescription: 'GRKU 설치 3단계: 프레이밍, 크롭, 그레인, 레시피 등 카메라 메뉴에 추가할 모듈을 선택하십시오.',
+    writeTitle: 'SD 카드 쓰기 · GRKU 설치',
+    writeDescription: 'GRKU 설치 4단계: SD 카드에 바로 쓰거나 GRKU.zip을 다운로드한 후 카메라에서 실행하십시오.',
     toolTitle: 'GR 색감 및 필름 룩 선택 및 설치 · GRKU',
     toolDescription: '샘플 사진이나 보유한 DNG 파일로 150개 이상의 GR 색감 및 필름 룩을 미리 확인해 보세요. RICOH GR III, IIIx, IV용으로 원하는 설정을 선택하여 SD 카드에 바로 저장하거나 GRKU.zip으로 다운로드할 수 있습니다. 펌웨어 변경은 필요하지 않습니다.',
     toolHeading: 'GR 색감 선택 및 설치',
@@ -3430,6 +3485,17 @@ const th: Strings = {
   language: 'Language',
   /** The document title. */
   site: {
+    back: 'ย้อนกลับ',
+    nextStep: (step: string) => `ถัดไป: ${step}`,
+    change: 'เปลี่ยน',
+    stepsLabel: 'ขั้นตอนการติดตั้ง',
+    summaryTitle: 'สิ่งที่จะลงในการ์ด',
+    cameraTitle: 'เลือกรุ่นกล้อง · ติดตั้ง GRKU',
+    cameraDescription: 'ขั้นตอนที่ 2 ของการติดตั้ง GRKU: เลือกรุ่น RICOH GR III, IIIx หรือ IV ของคุณ และตรวจสอบเวอร์ชันเฟิร์มแวร์',
+    modulesTitle: 'เลือกโมดูล · ติดตั้ง GRKU',
+    modulesDescription: 'ขั้นตอนที่ 3 ของการติดตั้ง GRKU: เลือกโมดูลสำหรับเมนูกล้อง เช่น Framing, Crop, Grain และสูตรสี',
+    writeTitle: 'บันทึกลงการ์ด SD · ติดตั้ง GRKU',
+    writeDescription: 'ขั้นตอนที่ 4 ของการติดตั้ง GRKU: บันทึกลงการ์ด SD โดยตรง หรือดาวน์โหลด GRKU.zip แล้วเริ่มใช้งานบนกล้อง',
     toolTitle: 'เลือกโทนกล้อง GR และลุคฟิล์ม แล้วติดตั้ง · GRKU',
     toolDescription: 'พรีวิวโทนกล้อง GR และลุคฟิล์มกว่า 150 แบบบนรูปตัวอย่างหรือไฟล์ DNG ของคุณ เลือกโทนที่ชอบสำหรับ RICOH GR III, IIIx หรือ IV แล้วเขียนลงการ์ด SD หรือดาวน์โหลด GRKU.zip โดยไม่ต้องแฟลชเฟิร์มแวร์',
     toolHeading: 'เลือกโทนกล้อง GR แล้วติดตั้ง',
@@ -4070,6 +4136,12 @@ export function pageText(language: Language, page: PageName = 'home'): { title: 
       return { title: `${strings.fastboot.title} · GRKU`, description: strings.fastboot.lead, path: fastbootPath(language) };
     case 'install':
       return { title: strings.site.toolTitle, description: strings.site.toolDescription, path: pagePath(language, page) };
+    case 'camera':
+      return { title: strings.site.cameraTitle, description: strings.site.cameraDescription, path: pagePath(language, page) };
+    case 'modules':
+      return { title: strings.site.modulesTitle, description: strings.site.modulesDescription, path: pagePath(language, page) };
+    case 'write':
+      return { title: strings.site.writeTitle, description: strings.site.writeDescription, path: pagePath(language, page) };
     default:
       return { title: strings.title, description: strings.description, path: LANGUAGE_PATHS[language] };
   }

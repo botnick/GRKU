@@ -6,7 +6,7 @@ import type { Language } from './i18n';
 import type { SitePage } from './languagePage';
 
 export { LANGUAGES, pageText, STRINGS } from './i18n';
-export { LANGUAGE_PATHS, pagePath, SITE_PAGES } from './languagePage';
+export { INDEXED_PAGES, LANGUAGE_PATHS, pagePath, SITE_PAGES } from './languagePage';
 
 export const VERSION = __GRKU_VERSION__;
 

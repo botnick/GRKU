@@ -2,6 +2,7 @@
 // page and a later visit start from them. The film looks keep their own key (selection.ts).
 import { CAMERAS, type Camera } from './cameras';
 import { ALL_MODULES, DEFAULT_ENABLED, MODULES_MAX, type ModuleKey } from './modules';
+import { INSTALL_STEPS, type InstallStep } from './languagePage';
 
 const MODULES_KEY = 'grku.modules';
 const CAMERA_KEY = 'grku.camera';
@@ -43,5 +44,43 @@ export function saveCamera(storage: Pick<Storage, 'setItem'> | null, key: Camera
     storage?.setItem(CAMERA_KEY, key);
   } catch {
     // A convenience: without storage, the next visit starts from the first camera.
+  }
+}
+
+const STEP_KEY = 'grku.installStep';
+
+/**
+ * The furthest step of the install that the visitor reached, and the last one they saw, so the
+ * step indicator opens the steps already reached and Install in the header goes back there.
+ */
+export interface StepProgress {
+  furthest: InstallStep;
+  last: InstallStep;
+}
+
+const FIRST: StepProgress = { furthest: 'install', last: 'install' };
+
+export function loadProgress(storage: Pick<Storage, 'getItem'> | null): StepProgress {
+  try {
+    const value = JSON.parse(storage?.getItem(STEP_KEY) ?? 'null') as Partial<StepProgress> | null;
+    const known = (step: unknown): step is InstallStep => INSTALL_STEPS.some((item) => item === step);
+    if (value && known(value.furthest) && known(value.last)) return { furthest: value.furthest, last: value.last };
+  } catch {
+    // An unreadable value is the same as none.
+  }
+  return FIRST;
+}
+
+/** The progress after a visit of `step`. */
+export function visitStep(progress: StepProgress, step: InstallStep): StepProgress {
+  const furthest = INSTALL_STEPS.indexOf(step) > INSTALL_STEPS.indexOf(progress.furthest) ? step : progress.furthest;
+  return { furthest, last: step };
+}
+
+export function saveProgress(storage: Pick<Storage, 'setItem'> | null, progress: StepProgress) {
+  try {
+    storage?.setItem(STEP_KEY, JSON.stringify(progress));
+  } catch {
+    // A convenience: without storage, Install in the header opens the first step.
   }
 }

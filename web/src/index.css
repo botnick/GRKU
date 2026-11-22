@@ -181,3 +181,10 @@
     outline-offset: 2px;
   }
 }
+
+/* A step of the install comes in with a short fade (only without reduced motion, `motion-safe:`). */
+@keyframes step-in {
+  from {
+    opacity: 0;
+  }
+}

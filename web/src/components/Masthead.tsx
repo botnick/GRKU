@@ -24,8 +24,11 @@ export function Masthead({
   releaseUrl,
   page,
   link,
+  installStep,
 }: {
   strings: Strings;
+  /** The step of the install that Install opens: the last one the visitor saw. */
+  installStep: SitePage;
   /** The page that shows. */
   page: SitePage;
   link: PageLink;
@@ -59,7 +62,11 @@ export function Masthead({
       ['home', t.site.home],
       ['install', t.install],
     ] as const
-  ).map(([name, text]) => ({ name, text, current: name === page }));
+  ).map(([name, text]) => ({
+    name: name === 'install' ? installStep : name,
+    text,
+    current: name === 'home' ? page === 'home' : page !== 'home',
+  }));
   return (
     <header className="sticky top-0 z-30 border-b border-border/80 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-4 px-gutter">

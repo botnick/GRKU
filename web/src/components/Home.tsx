@@ -9,6 +9,7 @@ import type { Cover } from '../catalog';
 import type { Language, Strings } from '../i18n';
 import { LANDING_LOOKS, LANDING_PHOTOS, landingImage } from '../landing';
 import type { PageLink } from '../navigation';
+import type { SitePage } from '../languagePage';
 import { SAMPLES } from '../preview/samples';
 import { cameraTerms, RECIPE_STRINGS } from '../recipeStrings';
 import { useCatalog } from '../useCatalog';
@@ -106,15 +107,15 @@ function HeroCompare({ strings: t }: { strings: Strings }) {
   );
 }
 
-/** A primary and a secondary link to the looks page and the install page. */
-function Actions({ strings: t, link, className }: { strings: Strings; link: PageLink; className?: string }) {
+/** A primary and a secondary link: the looks, the first step of the install, and the step of the install the visitor reached. */
+function Actions({ strings: t, link, installStep, className }: { strings: Strings; link: PageLink; installStep: SitePage; className?: string }) {
   return (
     <div className={cn('flex flex-wrap items-center gap-3', className)}>
       <Button asChild variant="brand" size="lg" className="h-11 px-6 text-[15px]">
         <a {...link('install')}>{t.chooseLooks}</a>
       </Button>
       <Button asChild variant="outline" size="lg" className="h-11 px-6 text-[15px]">
-        <a {...link('install', '#install')}>{t.install}</a>
+        <a {...link(installStep)}>{t.install}</a>
       </Button>
     </div>
   );
@@ -164,6 +165,7 @@ export function Home({
   language,
   link,
   canWrite,
+  installStep,
   onPlus,
   news,
   faq,
@@ -173,6 +175,8 @@ export function Home({
   link: PageLink;
   /** Whether this browser writes to a card, which the line under the actions tells. */
   canWrite: boolean;
+  /** The step of the install that Install opens. */
+  installStep: SitePage;
   /** Opens GRKU Plus. */
   onPlus: () => void;
   news: ReactNode;
@@ -190,7 +194,7 @@ export function Home({
             <Headline text={t.lead[0] ?? ''} />
           </h1>
           <p className="mt-4 max-w-[30em] text-[clamp(16px,1.3vw,19px)] leading-relaxed text-muted-foreground">{t.lead[1]}</p>
-          <Actions strings={t} link={link} className="mt-8" />
+          <Actions strings={t} link={link} installStep={installStep} className="mt-8" />
           <p className="mt-6 max-w-[40em] text-sm leading-relaxed text-muted-foreground">
             {t.landing.supports(SUPPORTED_CAMERAS)} {canWrite ? t.landing.installNote : t.landing.installNoteZip}
           </p>
@@ -317,7 +321,7 @@ export function Home({
           {t.site.ctaTitle}
         </h2>
         <p className="max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground">{t.site.ctaText}</p>
-        <Actions strings={t} link={link} className="mt-2" />
+        <Actions strings={t} link={link} installStep={installStep} className="mt-2" />
       </section>
     </>
   );
