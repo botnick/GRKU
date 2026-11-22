@@ -1070,9 +1070,11 @@
 /* The Uncropped RAW row of GRKU Settings. Its On and Off are TEXT_ON and
    TEXT_OFF. */
 #define TEXT_RAW 80
-/* The Battery in Simple Display row of GRKU Settings. Its values are TEXT_OFF
-   and TEXT_ON. */
+/* The Battery in Simple Display row of Display Settings. Its values are
+   TEXT_OFF and TEXT_ON. */
 #define TEXT_BATTERY 81
-#define GRKU_TEXT_STRINGS 82
+/* The Display Settings row of GRKU Settings and the title of its page. */
+#define TEXT_DISPLAY 82
+#define GRKU_TEXT_STRINGS 83
 
 #endif
