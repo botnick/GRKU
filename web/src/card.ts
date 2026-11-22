@@ -67,7 +67,7 @@ export const RECIPE_FILE = 'GRKU/RECIPES.TXT';
  * the recipes of this file to `RECIPE_FILE` once. A card write has no use for it and deletes it.
  */
 export const RECIPES_PACKAGE = 'SCRIPT/GRKU/RECIPES.BIN';
-/** The picture of Custom Shutdown Screen (`grku_core::goodbye`), which the site reads and writes. */
+/** The picture of Shutdown Screen (`grku_core::goodbye`), which the site reads and writes. */
 export const SHUTDOWN_PICTURE = 'GRKU/GOODBYE.JPG';
 
 /**

@@ -153,9 +153,9 @@
 #define GRKU_DIAL_SLOT_WORDS 2U
 #define GRKU_DIAL_SLOT_KEY_BASE 992003000U
 /* The copy of the switch, Enable at Start, Distance Unit, Uncropped RAW,
-   Battery in Simple Display, Shutdown Screen, Shutdown Screen Text, and GRKU
-   Info in Playback (GRKU_HOST_MANAGE_COPY, runtime/manage.h): each as its
-   value + 1, or 0 without a copy. In the file of the sets, word w has the key
+   Battery in Simple Display, Custom Picture, Show Text, and GRKU Info in
+   Playback (GRKU_HOST_MANAGE_COPY, runtime/manage.h): each as its value + 1,
+   or 0 without a copy. In the file of the sets, word w has the key
    GRKU_MANAGE_COPY_KEY + w. */
 #define GRKU_MANAGE_COPY_SWITCH 0U
 #define GRKU_MANAGE_COPY_START 1U
@@ -541,8 +541,8 @@
    position has, is the older value for each of them off. */
 #define GRKU_HOST_DIAL_SHARED_OFF 6484
 /* The copy of the switch, Enable at Start, Distance Unit, Uncropped RAW,
-   Battery in Simple Display, Shutdown Screen, Shutdown Screen Text, and GRKU
-   Info in Playback, `MANAGE_COPY_WORDS` words (runtime/manage.h), right after
+   Battery in Simple Display, Custom Picture, Show Text, and GRKU Info in
+   Playback, `MANAGE_COPY_WORDS` words (runtime/manage.h), right after
    HOST_DIAL_SHARED_OFF, in the same file. INSTALL takes them from the copy
    before the main state file, and writes the values of the start here. */
 #define GRKU_HOST_MANAGE_COPY 6488
@@ -1077,14 +1077,15 @@
 /* The Battery in Simple Display row of Display Settings. Its values are
    TEXT_OFF and TEXT_ON. */
 #define TEXT_BATTERY 81
-/* The Display Settings row of GRKU Settings and the title of its page. */
+/* The rows of the groups of GRKU Settings and the titles of their pages:
+   Display Settings, Shooting Settings, then Shutdown Screen. */
 #define TEXT_DISPLAY 82
-/* The Custom Shutdown Screen row of Display Settings, then its Shutdown Screen
-   Text row. The values of both are TEXT_OFF and TEXT_ON. */
-#define TEXT_GOODBYE 83
+/* The Custom Picture row of Shutdown Screen, then its Show Text row. The
+   values of both are TEXT_OFF and TEXT_ON. */
+#define TEXT_GOODBYE 85
 /* The GRKU Info in Playback row of Display Settings. Its values are TEXT_OFF
    and TEXT_ON. */
-#define TEXT_PLAYBACK_INFO 85
-#define GRKU_TEXT_STRINGS 86
+#define TEXT_PLAYBACK_INFO 87
+#define GRKU_TEXT_STRINGS 88
 
 #endif
