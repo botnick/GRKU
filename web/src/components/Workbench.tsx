@@ -746,21 +746,19 @@ export function Workbench({
             <div className="mb-2 flex items-center justify-between gap-3 text-[13px]">
               <span className="font-medium">
                 {t.onCard} · <span className="tabular-nums">{checked.size}</span>
-                {/* Where the count comes from: the free slots, Plus, the camera looks, and imports. */}
+                {/* Where the count comes from: the free slots (camera looks among them), Plus, and imports. */}
                 {(() => {
-                  const parts = { free: 0, plus: 0, camera: 0, imported: 0 };
+                  const parts = { free: 0, plus: 0, imported: 0 };
                   for (const effect of listed) {
                     if (!checked.has(effect.id)) continue;
                     const kind = filmKind(effect);
-                    if (kind === 'camera') parts.camera += 1;
-                    else if (kind === 'imported') parts.imported += 1;
+                    if (kind === 'imported') parts.imported += 1;
                     else if (unlockedBy(effect, owned)) parts.plus += 1;
                     else parts.free += 1;
                   }
                   const text = [
                     parts.free ? t.onCardFree(parts.free) : '',
                     parts.plus ? t.onCardPlus(parts.plus) : '',
-                    parts.camera ? t.onCardCamera(parts.camera) : '',
                     parts.imported ? t.onCardImported(parts.imported) : '',
                   ].filter(Boolean);
                   return text.length > 1 ? (
@@ -859,13 +857,15 @@ export function Workbench({
                 ) : (
                   <button
                     type="button"
-                    className={cn('flex w-full flex-1 flex-col items-center gap-1.5 rounded-md pt-0.5 text-center', RING)}
+                    className={cn('flex w-full flex-1 flex-col items-center gap-1.5 rounded-md pt-0.5 text-center select-none', RING)}
                     aria-pressed={isPreviewed}
                     aria-label={isChecked ? `${t.previewOf(effect.name)} · ${t.onCard}` : t.previewOf(effect.name)}
                     onPointerEnter={() => prefetch(effect)}
                     onFocus={() => prefetch(effect)}
                     onPointerDown={() => startPreview(effect)}
                     onClick={() => showEffect(effect)}
+                    // A double click puts the look on the card, or takes it off, as the add button does.
+                    onDoubleClick={() => (isChecked || canAdd(effect) ? toggle(effect) : onPlus())}
                   >
                     {body}
                   </button>

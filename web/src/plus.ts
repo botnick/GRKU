@@ -1,7 +1,6 @@
 /**
  * GRKU Plus on the site. The free library puts any FREE_SLOTS looks of the catalog on the card,
- * and Positive GRII never takes a slot; imports and the effects already on a card never do
- * either. A purchase adds slots, a pack of films that take no slot, or the whole shelf. What a
+ * camera looks among them; imports and the effects already on a card never take a slot. A purchase adds slots, a pack of films that take no slot, or the whole shelf. What a
  * visitor owns is an Entitlement, read from the Plus service with the key that a purchase gives;
  * this browser keeps the key. The service is services/plus; it issues the PromptPay payload, checks
  * the bank slip, and signs the keys.
@@ -71,8 +70,8 @@ export interface Entitlement {
 export const FREE: Entitlement = { packs: [], slots: FREE_SLOTS, plus: false, paid: 0 };
 
 /**
- * The looks on the card before the first change: Positive GRII, which takes no slot, and six
- * popular films, so the first visit has room to add more.
+ * The looks on the card before the first change: Positive GRII and six popular films, so the
+ * first visit has room to add more.
  */
 export const DEFAULT_LOOKS: readonly string[] = [
   'positive-film-grii-v1',
@@ -86,7 +85,7 @@ export const DEFAULT_LOOKS: readonly string[] = [
 
 type Classified = Parameters<typeof filmKind>[0];
 
-/** The pack of a catalog look, or null for a look of the camera itself, which is always free. */
+/** The pack of a catalog look, or null for a look of the camera itself, which no pack holds. */
 export function packOf(effect: Classified): Pack | null {
   switch (filmKind(effect)) {
     case 'mono':
@@ -110,8 +109,9 @@ export function packOf(effect: Classified): Pack | null {
 /** Whether putting `effect` on the card takes one of the slots of `owned`. */
 export function takesSlot(effect: Effect | CardEffect, owned: Entitlement): boolean {
   if (owned.plus || effect.imported || effect.card) return false;
+  // A camera look is in no pack, so it always takes a free slot, as any other look outside the packs.
   const pack = packOf(effect);
-  return pack !== null && !owned.packs.includes(pack);
+  return pack === null || !owned.packs.includes(pack);
 }
 
 /** How many slot-taking looks `owned` allows on the card. */
