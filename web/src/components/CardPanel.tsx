@@ -194,6 +194,8 @@ interface ChangesProps {
   termsUrl: string;
   /** The label and the text of the change of the recipe library, or null without one. */
   recipes?: { label: string; text: string } | null;
+  /** The label of the change of the shutdown picture. */
+  shutdown?: string;
 }
 
 function Change({ label, items, separator }: { label: string; items: readonly string[]; separator: string }) {
@@ -228,6 +230,7 @@ export function CardChangesView({
   camera,
   firmware,
   recipes = null,
+  shutdown = '',
 }: ChangesProps) {
   const fresh = changes.grku !== 'same';
   const any = hasChanges(changes);
@@ -282,6 +285,12 @@ export function CardChangesView({
           <>
             <dt>{recipes.label}</dt>
             <dd>{recipes.text}</dd>
+          </>
+        )}
+        {changes.shutdown !== 'same' && (
+          <>
+            <dt>{shutdown}</dt>
+            <dd>{changes.shutdown === 'write' ? t.shutdown.changeWrite : t.shutdown.changeRemove}</dd>
           </>
         )}
         {changes.scriptsOn && (

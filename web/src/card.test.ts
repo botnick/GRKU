@@ -266,6 +266,7 @@ describe('planChanges', () => {
       removeEffects: [],
       updateEffects: [],
       recipes: 'same',
+      shutdown: 'same',
     });
     const changes = planChanges(state, '1.3.1', ['DATE'], effects(state, ['CCCCCCCC.GRF']));
     expect(changes).toEqual({
@@ -276,6 +277,7 @@ describe('planChanges', () => {
       removeModules: ['GUIDES'],
       addEffects: ['CCCCCCCC.GRF'],
       recipes: 'same',
+      shutdown: 'same',
       removeEffects: ['AAAAAAAA.GRF'],
       updateEffects: [],
     });
@@ -325,6 +327,7 @@ describe('planChanges', () => {
       removeModules: ['FRAMING', 'DATE', 'GRAIN'],
       addEffects: ['CCCCCCCC.GRF'],
       recipes: 'same',
+      shutdown: 'same',
       removeEffects: ['AAAAAAAA.GRF'],
       updateEffects: [],
     });
@@ -340,6 +343,17 @@ describe('planChanges', () => {
     expect(cardStarted(state)).toBe(false);
     expect(planChanges(state, '1.3.1', ['GUIDES'], null).grku).toBe('same');
     expect(planChanges(state, '1.3.0', ['GUIDES'], null).grku).toBe('update');
+  });
+
+  it('reads the shutdown picture of the card, and a change of it is a change', async () => {
+    const card = await current();
+    expect((await readCard(card)).shutdownPicture).toBeNull();
+    await card.put('GRKU/GOODBYE.JPG', 'jpeg');
+    const state = await readCard(card);
+    expect(new TextDecoder().decode(state.shutdownPicture!)).toBe('jpeg');
+    const changes = planChanges(state, '1.3.0', ['GUIDES'], null, 'same', 'remove');
+    expect(changes).toMatchObject({ grku: 'same', shutdown: 'remove' });
+    expect(hasChanges(changes)).toBe(true);
   });
 
   it('turns SD scripts back on, and deletes GRKit 1.2 after GRKit 1.3 moved its effects', async () => {
