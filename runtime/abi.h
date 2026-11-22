@@ -408,7 +408,9 @@
 #define GRKU_HOST_LEGACY_TONE_OWNER 972
 /* CORE.ASPECT_MODE: 0 crops photos, 1 draws a composition frame only. */
 #define GRKU_HOST_ASPECT_MODE 976
-/* Native aspect + 1 at the last live-view bind, or 0 before the first bind. */
+/* The last live-view bind: the native aspect + 1 in the low byte, or 0 before
+   the first bind, and above it the binds since the live view last looked for
+   something to draw (runtime/viewfinder.h). */
 #define GRKU_HOST_FRAME_NATIVE 980
 /* The Framing ratio of the RAW development in playback (a CORE.ASPECT value),
    or 0 for its native aspect. The start of a development clears it
