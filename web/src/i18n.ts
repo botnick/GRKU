@@ -3220,12 +3220,12 @@ const th: Strings = {
   /** End of the workbench and GRKU Plus. */
   language: 'Language',
   /** The document title. */
-  title: 'GRKU: ฟิล์มลุคและสัดส่วน XPan สำหรับ RICOH GR III, IIIx และ IV',
+  title: 'GRKU: โทนกล้อง GR และสูตรสีฟิล์มสำหรับ RICOH GR III, IIIx, IV',
   /** The search result and link preview text of the page. */
   description:
-    'ฟิล์มลุค ครอป XPan ประทับวันที่ ประกายแสง และเกรนสำหรับ RICOH GR III, IIIx และ IV ใช้สูตรจำลองสีฟิล์มหรือ LUT ของคุณเองโดยไม่ต้องแฟลชเฟิร์มแวร์',
+    'รวมโทนกล้อง GR และสูตรสีฟิล์มกว่า 150 แบบสำหรับ Ricoh GR ทั้ง Kodak, Fujifilm, CineStill และ Positive Film เขียนลงการ์ด SD ได้ฟรีผ่านเบราว์เซอร์ ไม่ต้องแฟลชเฟิร์มแวร์',
   /** The hero lines under the GRKU heading, one line each. */
-  lead: ['ฟิล์มลุคสำหรับ RICOH GR ของคุณ', 'ทำงานจากการ์ด SD โดยไม่แตะต้องเฟิร์มแวร์'] as readonly string[],
+  lead: ['โทนกล้อง GR และสูตรสีฟิล์มสำหรับ RICOH GR', 'ทำงานจากการ์ด SD โดยไม่แตะต้องเฟิร์มแวร์'] as readonly string[],
   /** The landing page above the installer. */
   landing: {
     fact: 'โหลดประมาณเก้าวินาทีหลังเปิดเครื่อง ล้างการ์ดแล้วกล้องจะกลับสู่ค่าเดิมจากโรงงาน',
@@ -3241,7 +3241,7 @@ const th: Strings = {
     installNoteZip: 'ดาวน์โหลด GRKU.zip แล้วคัดลอกไฟล์ลงในการ์ด SD ของคุณ',
     /** The supported cameras under the install button, as one sentence before the install note. */
     supports: (cameras: string) => `ใช้ได้กับ ${cameras}`,
-    looks: 'ฟิล์มลุค',
+    looks: 'โทน GR และฟิล์มลุค',
     lookNote: 'ภาพตัวอย่างเป็นการจำลองคร่าวๆ คุณสามารถนำเข้า LUT ของตัวเองได้ด้วย',
     framingText: 'ถ่ายภาพสัดส่วน XPan และสัดส่วนภาพอื่นๆ หน้าจอส่วนที่อยู่นอกกรอบจะมืดลง',
     display: 'Display',
@@ -3521,6 +3521,18 @@ const th: Strings = {
   ] as readonly RichText[],
   faqTitle: 'FAQ',
   faq: [
+    {
+      q: 'โทน GR คืออะไร และใส่โทนลงกล้อง Ricoh GR ได้อย่างไร?',
+      a: ['โทน GR คือการปรับโทนสีภาพที่นำมาใช้กับกล้อง RICOH GR โดยมักได้แรงบันดาลใจจากฟิล์ม เช่น Kodak Portra, Fujifilm หรือ CineStill เลือกโทนที่ชอบจากหน้านี้ ดูตัวอย่างภาพของแต่ละโทน แล้วเขียนลงการ์ด SD จากนั้นเลือกโทนที่ต้องการในเมนู ADJ ของกล้อง ก็จะเห็นโทนสีในหน้าจอ Live View ก่อนกดชัตเตอร์'],
+    },
+    {
+      q: 'มีโทนกล้อง GR และสูตรสีแบบไหนให้เลือกบ้าง?',
+      a: ['มีโทนให้เลือกกว่า 150 แบบ ทั้ง Kodak Portra, Gold, Ektar, Tri-X, ฟิล์มและการจำลองสีฟิล์มจาก Fujifilm, CineStill 800T, ฟิล์มภาพยนตร์, ฟิล์มสไลด์, ภาพขาวดำ, Polaroid และ Positive Film สูตรสีดั้งเดิมจาก RICOH นอกจากนี้ยังมีสูตรสีจากชุมชนที่ตั้งค่า Image Control และสมดุลแสงขาวของกล้องให้พร้อมใช้งาน'],
+    },
+    {
+      q: 'โทน GR ใช้ฟรีหรือเปล่า?',
+      a: ['ใช้ฟรีได้ ดูตัวอย่างโทนทั้งหมดได้โดยไม่มีค่าใช้จ่าย และเขียนโทนลงการ์ดได้ฟรี 10 โทน ส่วน GRKU Plus จะเพิ่มจำนวนช่องสำหรับบันทึกโทนและเปิดให้ใช้ชุดฟิล์มได้ครบมากขึ้น สำหรับคนที่อยากสนับสนุนโปรเจกต์'],
+    },
     {
       q: 'ไม่พบ GRKU ในเมนู ADJ',
       a: [
