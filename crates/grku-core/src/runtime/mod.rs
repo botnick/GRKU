@@ -60,7 +60,7 @@ pub const NATIVE_SETTING_VALUES: usize = 64;
 /// or 2 to this many rows. The native settings page shows one row more
 /// (`SETTING_ROWS` in `runtime/core.h`): in MENU, the Enable row of the
 /// module comes first.
-pub const NATIVE_SETTING_ROWS: usize = 5;
+pub const NATIVE_SETTING_ROWS: usize = 9;
 /// The words of the tail array: the picture scratch, the menu text, and the
 /// live-view labels (`abi::TAIL_SIZE`).
 pub const TAIL_WORDS: usize = crate::abi::TAIL_SIZE / 4;
