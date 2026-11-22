@@ -1404,7 +1404,7 @@ export function App({
       {isInstallStep(page) && (
         <StepBar strings={t} page={page} link={link} blocked={stepBlocked(page)} />
       )}
-      <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} />
+      <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} link={link} />
       {/* Room under the footer for the bar of the install steps. */}
       {isInstallStep(page) && <div className="h-16" aria-hidden="true" />}
       <PlusSheet

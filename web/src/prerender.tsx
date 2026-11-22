@@ -2,7 +2,9 @@
 // of each language, so the HTML of the page holds its text before the script runs.
 import { renderToString } from 'react-dom/server';
 import { App } from './App';
-import type { Language } from './i18n';
+import { SiteFooter } from './components/SiteFooter';
+import { STRINGS, type Language } from './i18n';
+import { REPOSITORY } from './links';
 import type { SitePage } from './languagePage';
 
 export { LANGUAGES, pageText, STRINGS } from './i18n';
@@ -13,4 +15,19 @@ export const VERSION = __GRKU_VERSION__;
 /** The markup of `page` in `language`, as a browser without a card or storage shows it first. */
 export function render(language: Language, page: SitePage = 'home'): string {
   return renderToString(<App initialLanguage={language} initialPage={page} />);
+}
+
+/**
+ * The header links and the footer of the document pages in `language`, which
+ * scripts/build-docs.mjs puts around each document, so they match the pages of the site.
+ */
+export function docChrome(language: Language): { home: string; install: string; footer: string } {
+  const t = STRINGS[language];
+  return {
+    home: t.site.home,
+    install: t.install,
+    footer: renderToString(
+      <SiteFooter strings={t} language={language} version={VERSION} releaseUrl={`${REPOSITORY}/releases#release-v${VERSION}`} />,
+    ),
+  };
 }

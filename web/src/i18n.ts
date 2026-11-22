@@ -148,6 +148,9 @@ const en = {
   /** The document title. */
   /** The three pages of the site: home, looks, and install. */
   site: {
+    footerHelp: 'Help',
+    footerProject: 'Project',
+    footerLegal: 'Legal',
     /** One plain line for each module on the extras step; the home page keeps the full text (modulesText). */
     plain: {
       framing: 'Shoot wide panoramas like an XPan, or square photos.',
@@ -903,6 +906,9 @@ const zhHans: Strings = {
   /** End of the workbench and GRKU Plus. */
   language: '语言',
   site: {
+    footerHelp: '帮助',
+    footerProject: '项目',
+    footerLegal: '法律信息',
     plain: {
       framing: '拍摄 XPan 风格的宽幅全景照片或方形照片。',
       crop: '通过裁切照片，获得 50 mm 等更长焦距镜头的拍摄效果。',
@@ -1582,6 +1588,9 @@ const zhHant: Strings = {
   /** End of the workbench and GRKU Plus. */
   language: '語言',
   site: {
+    footerHelp: '說明',
+    footerProject: '專案',
+    footerLegal: '法律資訊',
     plain: {
       framing: '拍攝 XPan 般的寬幅全景照片，或正方形照片。',
       crop: '透過裁切，呈現 50 mm 等較長焦距鏡頭的拍攝效果。',
@@ -2261,6 +2270,9 @@ const ja: Strings = {
   /** End of the workbench and GRKU Plus. */
   language: '言語',
   site: {
+    footerHelp: 'ヘルプ',
+    footerProject: 'プロジェクト',
+    footerLegal: 'ライセンス・規約',
     plain: {
       framing: 'XPanのようなパノラマ写真や、正方形の写真を撮影できます。',
       crop: 'クロップして、50 mmなどの望遠レンズで撮影したような画角にできます。',
@@ -2944,6 +2956,9 @@ const ko: Strings = {
   /** End of the workbench and GRKU Plus. */
   language: '언어',
   site: {
+    footerHelp: '도움말',
+    footerProject: '프로젝트',
+    footerLegal: '법적 고지',
     plain: {
       framing: 'XPan처럼 넓은 파노라마 사진이나 정사각형 사진을 촬영합니다.',
       crop: '사진을 잘라 50mm 렌즈처럼 더 긴 초점 거리의 느낌을 냅니다.',
@@ -3642,6 +3657,9 @@ const th: Strings = {
   language: 'Language',
   /** The document title. */
   site: {
+    footerHelp: 'ช่วยเหลือ',
+    footerProject: 'โปรเจกต์',
+    footerLegal: 'ข้อกฎหมาย',
     plain: {
       framing: 'ถ่ายภาพพาโนรามาแบบ XPan หรือภาพสี่เหลี่ยมจัตุรัส',
       crop: 'ได้ภาพเหมือนใช้เลนส์ซูมระยะไกล เช่น 50 mm ด้วยการตัดขอบภาพ',

@@ -17,6 +17,8 @@ const web = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(web, 'dist');
 // Inside web/, so the Node build resolves react and the other packages from web/node_modules.
 const server = join(web, 'node_modules', '.cache', 'grku-prerender');
+/** The header links and the footer of the document pages in each language, for scripts/build-docs.mjs. */
+const DOC_CHROME = join(web, 'node_modules', '.cache', 'grku-doc-chrome.json');
 
 /** The `content` or text of an HTML attribute or element. */
 const escape = (text) =>
@@ -83,7 +85,7 @@ async function edgeWorker(headers) {
 }
 
 const template = readFileSync(join(dist, 'index.html'), 'utf8');
-const { render, LANGUAGES, LANGUAGE_PATHS, SITE_PAGES, INDEXED_PAGES, STRINGS, VERSION, pagePath, pageText } = await renderer();
+const { render, docChrome, LANGUAGES, LANGUAGE_PATHS, SITE_PAGES, INDEXED_PAGES, STRINGS, VERSION, pagePath, pageText } = await renderer();
 const pageNames = Object.keys(SITE_PAGES);
 const codes = LANGUAGES.map((language) => language.code);
 /** The Open Graph locale of each language. */
@@ -250,6 +252,9 @@ writeFileSync(
   join(dist, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`,
 );
+
+// The header links and the footer of the document pages, which scripts/build-docs.mjs reads.
+writeFileSync(DOC_CHROME, JSON.stringify(Object.fromEntries(codes.map((code) => [code, docChrome(code)]))));
 
 await edgeWorker(siteHeaders(join(dist, '_headers')));
 rmSync(server, { recursive: true, force: true });
