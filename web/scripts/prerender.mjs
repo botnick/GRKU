@@ -1,9 +1,11 @@
 // Writes the language pages, the sitemap, the 404 page, and the edge worker after `vite build`.
 //
 // Search engines and link previews read the HTML that the server sends. The page renders in the
-// browser, so this script renders the first screen of each language into its own page:
-// dist/index.html (English) and dist/<language>/index.html. Each page names the others with
-// hreflang links. The edge worker sends a visitor of the root page to the page of their language.
+// browser, so this script renders the first screen of each page of each language into its own
+// file: the home page, the looks page, and the install page, at dist/index.html,
+// dist/looks/index.html, and dist/install/index.html for Thai, and under dist/<language>/ for the
+// others. Each page names its other languages with hreflang links. The edge worker sends a visitor
+// of a Thai page to the same page of their language.
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -75,23 +77,27 @@ async function edgeWorker(headers) {
       lib: { entry: 'src/edge.ts', formats: ['es'], fileName: () => '_worker.js' },
     },
   });
-  // Only the root page runs the worker. Pages serves the other files directly.
-  writeFileSync(join(dist, '_routes.json'), `${JSON.stringify({ version: 1, include: ['/'], exclude: [] }, null, 2)}\n`);
+  // Only the Thai pages run the worker. Pages serves the other files directly.
+  const include = Object.keys(SITE_PAGES).map((name) => pagePath('th', name));
+  writeFileSync(join(dist, '_routes.json'), `${JSON.stringify({ version: 1, include, exclude: [] }, null, 2)}\n`);
 }
 
 const template = readFileSync(join(dist, 'index.html'), 'utf8');
-const { render, LANGUAGES, LANGUAGE_PATHS, STRINGS, VERSION, pageText } = await renderer();
+const { render, LANGUAGES, LANGUAGE_PATHS, SITE_PAGES, STRINGS, VERSION, pagePath, pageText } = await renderer();
+const pageNames = Object.keys(SITE_PAGES);
 const codes = LANGUAGES.map((language) => language.code);
 /** The Open Graph locale of each language. */
 const LOCALES = { th: 'th_TH', en: 'en_US', 'zh-Hans': 'zh_CN', 'zh-Hant': 'zh_TW', ja: 'ja_JP', ko: 'ko_KR' };
-const pageUrl = (code) => `${SITE}${LANGUAGE_PATHS[code]}`;
-const alternates = [
-  ...codes.map((code) => `<link rel="alternate" hreflang="${code}" href="${pageUrl(code)}" />`),
-  `<link rel="alternate" hreflang="x-default" href="${pageUrl('en')}" />`,
-].join('\n    ');
+const pageUrl = (code, name = 'home') => `${SITE}${pagePath(code, name)}`;
+const alternates = (name) =>
+  [
+    ...codes.map((code) => `<link rel="alternate" hreflang="${code}" href="${pageUrl(code, name)}" />`),
+    `<link rel="alternate" hreflang="x-default" href="${pageUrl('en', name)}" />`,
+  ].join('\n    ');
 
-function structuredData(code) {
+function structuredData(code, name) {
   const strings = STRINGS[code];
+  const text = pageText(code, name);
   const data = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -106,10 +112,10 @@ function structuredData(code) {
       { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'GRKU', url: `${SITE}/`, inLanguage: codes, publisher: { '@id': `${SITE}/#organization` } },
       {
         '@type': 'WebPage',
-        '@id': `${pageUrl(code)}#webpage`,
-        url: pageUrl(code),
-        name: strings.title,
-        description: strings.description,
+        '@id': `${pageUrl(code, name)}#webpage`,
+        url: pageUrl(code, name),
+        name: text.title,
+        description: text.description,
         inLanguage: code,
         isPartOf: { '@id': `${SITE}/#website` },
         primaryImageOfPage: { '@type': 'ImageObject', url: `${SITE}/og.jpg`, width: 1200, height: 630 },
@@ -130,8 +136,8 @@ function structuredData(code) {
         publisher: { '@id': `${SITE}/#organization` },
         sameAs: ['https://github.com/botnick/GRKU'],
       },
-      // The FAQ of the page, as Google and the answer engines read it.
-      {
+      // The FAQ of the home page, as Google and the answer engines read it.
+      name === 'home' && {
         '@type': 'FAQPage',
         '@id': `${pageUrl(code)}#faq`,
         inLanguage: code,
@@ -141,21 +147,21 @@ function structuredData(code) {
           acceptedAnswer: { '@type': 'Answer', text: item.a.join(' ') },
         })),
       },
-    ],
+    ].filter(Boolean),
   };
   // A JSON-LD block ends at `</script>`, so `<` never appears as itself.
   return JSON.stringify(data).replaceAll('<', '\\u003c');
 }
 
-function page(code) {
-  const strings = STRINGS[code];
-  const title = escape(strings.title);
-  const description = escape(strings.description);
+function page(code, name) {
+  const text = pageText(code, name);
+  const title = escape(text.title);
+  const description = escape(text.description);
   let html = template;
   html = replaceOne(html, /<html lang="[^"]*">/, `<html lang="${code}">`);
   html = replaceOne(html, /<title>[^<]*<\/title>/, `<title>${title}</title>`);
   html = replaceOne(html, /(<meta\s+name="description"\s+content=")[^"]*(")/, `$1${description}$2`);
-  html = replaceOne(html, /(<meta property="og:url" content=")[^"]*(")/, `$1${pageUrl(code)}$2`);
+  html = replaceOne(html, /(<meta property="og:url" content=")[^"]*(")/, `$1${pageUrl(code, name)}$2`);
   html = replaceOne(html, /(<meta property="og:title" content=")[^"]*(")/, `$1${title}$2`);
   html = replaceOne(html, /(<meta property="og:description" content=")[^"]*(")/, `$1${description}$2`);
   html = replaceOne(html, /(<meta name="twitter:title" content=")[^"]*(")/, `$1${title}$2`);
@@ -163,12 +169,12 @@ function page(code) {
   const locales = codes.filter((other) => other !== code).map((other) => `<meta property="og:locale:alternate" content="${LOCALES[other]}" />`).join('\n    ');
   html = replaceOne(html, /<meta property="og:locale" content="[^"]*" \/>/, `<meta property="og:locale" content="${LOCALES[code]}" />\n    ${locales}`);
   const head = [
-    `<link rel="canonical" href="${pageUrl(code)}" />`,
-    alternates,
-    `<script type="application/ld+json">${structuredData(code)}</script>`,
+    `<link rel="canonical" href="${pageUrl(code, name)}" />`,
+    alternates(name),
+    `<script type="application/ld+json">${structuredData(code, name)}</script>`,
   ].join('\n    ');
   html = replaceOne(html, /<\/head>/, `  ${head}\n  </head>`);
-  return replaceOne(html, /<div id="root"><\/div>/, `<div id="root">${render(code)}</div>`);
+  return replaceOne(html, /<div id="root"><\/div>/, `<div id="root">${render(code, name)}</div>`);
 }
 
 /** The value of an HTML attribute as the browser reads it. */
@@ -199,11 +205,13 @@ function allowStyleAttributes(file, pages) {
 
 const pages = [];
 for (const code of codes) {
-  const file = join(dist, `.${LANGUAGE_PATHS[code]}`, 'index.html');
-  mkdirSync(dirname(file), { recursive: true });
-  const html = page(code);
-  writeFileSync(file, html);
-  pages.push(html);
+  for (const name of pageNames) {
+    const file = join(dist, `.${pagePath(code, name)}`, 'index.html');
+    mkdirSync(dirname(file), { recursive: true });
+    const html = page(code, name);
+    writeFileSync(file, html);
+    pages.push(html);
+  }
 }
 
 allowStyleAttributes(join(dist, '_headers'), pages);
@@ -224,12 +232,14 @@ notFound = replaceOne(
 );
 writeFileSync(join(dist, '404.html'), notFound);
 
-const urls = codes
-  .map(
-    (code) =>
-      `  <url>\n    <loc>${pageUrl(code)}</loc>\n${codes
-        .map((other) => `    <xhtml:link rel="alternate" hreflang="${other}" href="${pageUrl(other)}"/>`)
-        .join('\n')}\n    <xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl('en')}"/>\n  </url>`,
+const urls = pageNames
+  .flatMap((name) =>
+    codes.map(
+      (code) =>
+        `  <url>\n    <loc>${pageUrl(code, name)}</loc>\n${codes
+          .map((other) => `    <xhtml:link rel="alternate" hreflang="${other}" href="${pageUrl(other, name)}"/>`)
+          .join('\n')}\n    <xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl('en', name)}"/>\n  </url>`,
+    ),
   )
   .join('\n');
 writeFileSync(

@@ -6,7 +6,8 @@ import { loadLastCard } from './cardStore';
 import { loadImports } from './import/store';
 import { loadFonts } from './fonts';
 import { pageLanguage, showLanguage, takeLegacyLanguage } from './i18n';
-import { LANGUAGE_PATHS } from './languagePage';
+import { pagePath, pathPage } from './languagePage';
+import { anchorPage } from './navigation';
 // The site serves its fonts itself, so a page view sends no request to a font host.
 // loadFonts adds the Chinese, Japanese, or Korean fonts when a page in that language needs them.
 import '@fontsource/inter/400.css';
@@ -19,12 +20,19 @@ import '@fontsource/ibm-plex-sans-condensed/700.css';
 import './index.css';
 
 const language = pageLanguage();
+let page = pathPage(location.pathname) ?? 'home';
+// The steps of the one-page site have their own pages now: `/#install` opens the install page.
+const moved = page === 'home' ? anchorPage(location.hash) : null;
+if (moved) {
+  history.replaceState(history.state, '', `${pagePath(language, moved)}${location.search}${location.hash}`);
+  page = moved;
+}
 // A visitor who chose a language before each language had its own page goes to that page once.
 const legacy = takeLegacyLanguage();
-if (legacy !== null && legacy !== language && location.pathname === '/') {
-  location.replace(`${LANGUAGE_PATHS[legacy]}${location.search}${location.hash}`);
+if (legacy !== null && legacy !== language && pagePath('th', page) === location.pathname) {
+  location.replace(`${pagePath(legacy, page)}${location.search}${location.hash}`);
 }
-showLanguage(language, false);
+showLanguage(language, page);
 loadFonts(language);
 
 /** The result of `task`, or `fallback` when the store is slow, so it does not hold the page back. */
@@ -42,7 +50,7 @@ const soon = <T,>(task: Promise<T>, fallback: T) =>
   // replaces it.
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <App initialLanguage={language} initialImports={imports} initialCard={lastCard} />
+      <App initialLanguage={language} initialPage={page} initialImports={imports} initialCard={lastCard} />
     </StrictMode>,
   );
 }

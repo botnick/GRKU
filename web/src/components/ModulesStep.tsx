@@ -1,11 +1,9 @@
-import { useRef, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -27,7 +25,7 @@ import tileDiffusion from '../../../modules/diffusion/tiles/0-module.png';
 import tileRecipes from '../../../modules/recipes/tiles/0-module.png';
 
 /** The menu tile of each module, as the camera shows it. */
-const TILES: Record<ModuleKey, string> = {
+export const TILES: Record<ModuleKey, string> = {
   filmLook: tileFilmLook,
   framing: tileFraming,
   crop: tileCrop,
@@ -41,10 +39,10 @@ const TILES: Record<ModuleKey, string> = {
   recipes: tileRecipes,
 };
 
-type Photo = keyof typeof LANDING_PHOTOS;
+export type Photo = keyof typeof LANDING_PHOTOS;
 
 /** The example photos of the modules: the image in public/landing/, the module, the setting, the photo. */
-const EXAMPLES: readonly { image: string; before?: string; beforeDetail?: (t: Strings) => string; module: ModuleKey; detail: (t: Strings) => string; photo: Photo }[] = [
+export const EXAMPLES: readonly { image: string; before?: string; beforeDetail?: (t: Strings) => string; module: ModuleKey; detail: (t: Strings) => string; photo: Photo }[] = [
   { image: 'framing-xpan.jpg', before: 'framing-xpan-before.jpg', module: 'framing', detail: () => 'XPan 65:24', photo: 'achensee' },
   { image: 'crop-50.jpg', before: 'crop-50-before.jpg', module: 'crop', detail: () => '50mm', photo: 'tram' },
   { image: 'guides-thirds.jpg', before: 'guides-thirds-before.jpg', module: 'guides', detail: (t) => t.landing.guideRows[1] ?? '', photo: 'clouds' },
@@ -61,7 +59,7 @@ const EXAMPLES: readonly { image: string; before?: string; beforeDetail?: (t: St
 ];
 
 /** A frame of the strip: the photo without the module on the left, with it on the right, under a handle. */
-function Example({ before, beforeDetail = 'Off', after, alt, detail, compareLabel }: { before?: string; beforeDetail?: string; after: string; alt: string; detail: string; compareLabel: string }) {
+export function Example({ before, beforeDetail = 'Off', after, alt, detail, compareLabel }: { before?: string; beforeDetail?: string; after: string; alt: string; detail: string; compareLabel: string }) {
   const comparison = useReactCompareSlider({ clip: 'itemTwo' });
   const frame = 'relative aspect-[3/2] overflow-hidden rounded-lg bg-black';
   if (!before) {
@@ -95,7 +93,7 @@ function Example({ before, beforeDetail = 'Off', after, alt, detail, compareLabe
 
 /**
  * The modules of the camera menu: a card per module to turn it on, the menu as the camera will
- * show it, and example photos of what the modules do.
+ * show it. The home page shows the example photos (`EXAMPLES`).
  */
 export function ModulesStep({
   strings: t,
@@ -126,14 +124,6 @@ export function ModulesStep({
 }) {
   const visible = modules.filter((module) => enabled.has(module.key));
   const full = visible.length >= MODULES_MAX;
-  const strip = useRef<HTMLDivElement>(null);
-  /** Scrolls the example strip by one frame. */
-  function scrollExamples(direction: 1 | -1) {
-    const node = strip.current;
-    if (!node) return;
-    const frame = node.querySelector('figure');
-    node.scrollBy({ left: direction * ((frame?.clientWidth ?? 400) + 16), behavior: 'smooth' });
-  }
   return (
     <div className="flex flex-col gap-10">
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
@@ -160,7 +150,7 @@ export function ModulesStep({
                     </Label>
                     <Switch id={`module-${module.key}`} checked={on} disabled={!on && full} onCheckedChange={() => onToggle(module.key)} aria-label={t.moduleNames[module.key]} />
                   </div>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t.modulesText[module.key]}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{module.key === 'filmLook' ? t.site.filmLookText : t.modulesText[module.key]}</p>
                   {!on && full && <p className="mt-1 text-[13px] font-medium text-foreground/80">{t.modulesFullHint}</p>}
                   {module.key === 'filmLook' && emptyLooks && <p className="mt-1 text-sm text-destructive">{t.filmLookEmpty}</p>}
                 </div>
@@ -196,40 +186,6 @@ export function ModulesStep({
         </Card>
       </div>
       {recipes}
-
-      <div>
-        <div className="mb-3 flex items-center justify-between gap-4">
-          <h3 className="text-sm font-medium text-muted-foreground">{t.examples}</h3>
-          <div className="flex items-center gap-1">
-            <Button type="button" variant="outline" size="icon" className="size-8" aria-label={t.compare} onClick={() => scrollExamples(-1)}>
-              <ChevronLeft className="size-4" aria-hidden="true" />
-            </Button>
-            <Button type="button" variant="outline" size="icon" className="size-8" aria-label={t.compare} onClick={() => scrollExamples(1)}>
-              <ChevronRight className="size-4" aria-hidden="true" />
-            </Button>
-          </div>
-        </div>
-        <div ref={strip} className="-mx-gutter flex gap-4 overflow-x-auto px-gutter pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(90deg,#000_0,#000_calc(100%-56px),transparent)]" role="group" aria-label={t.examples}>
-          {EXAMPLES.map((example, index) => {
-            const title = t.moduleNames[example.module];
-            const detail = example.detail(t);
-            const credit = LANDING_PHOTOS[example.photo];
-            return (
-              <figure key={example.image} className="m-0 w-[min(420px,82vw)] shrink-0">
-                <Example before={example.before} beforeDetail={example.beforeDetail?.(t)} after={example.image} alt={`${title} — ${detail}`} detail={detail} compareLabel={t.compare} />
-                <figcaption className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-2.5 text-sm text-muted-foreground">
-                  <span className="font-mono text-xs text-muted-foreground/70">{String(index + 1).padStart(2, '0')}</span>
-                  <b className="font-semibold text-foreground">{title}</b>
-                  <span>{detail}</span>
-                  <a className="w-full text-xs text-muted-foreground/70 hover:text-foreground" href={credit.source} target="_blank" rel="noreferrer">
-                    {credit.author} · {credit.license} · {credit.camera}
-                  </a>
-                </figcaption>
-              </figure>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 }

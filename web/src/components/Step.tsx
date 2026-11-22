@@ -59,7 +59,7 @@ export function Step({
       ref={ref}
       id={id}
       aria-labelledby={`${id}-title`}
-      className={cn('scroll-mt-20 border-t border-border py-12 lg:py-16', className)}
+      className={cn('scroll-mt-28 md:scroll-mt-20 border-t border-border py-12 lg:py-16', className)}
     >
       <StepHeading id={`${id}-title`} number={number} label={label} title={title} description={description} aside={aside} className="mb-8" />
       {children}

@@ -52,10 +52,40 @@ export function fastbootPath(language: Language): string {
   return `${LANGUAGE_PATHS[language]}${FASTBOOT_PAGE}`;
 }
 
-/** The language of the page at `pathname`, a language page or its fast-boot page. Any other path is English. */
+/**
+ * The pages of the site under each language path: the home page, the looks page with the
+ * workbench, and the install page. `/looks/` is the Thai looks page and `/en/looks/` the English one.
+ */
+export const SITE_PAGES = { home: '', looks: 'looks/', install: 'install/' } as const;
+
+export type SitePage = keyof typeof SITE_PAGES;
+
+const PAGE_NAMES = Object.keys(SITE_PAGES) as SitePage[];
+
+/** The address of `page` in `language`. */
+export function pagePath(language: Language, page: SitePage): string {
+  return `${LANGUAGE_PATHS[language]}${SITE_PAGES[page]}`;
+}
+
+/** The page at `pathname`, or null for an address that is no page of the site. */
+export function pathPage(pathname: string): SitePage | null {
+  const path = normalized(pathname);
+  for (const code of CODES) {
+    for (const page of PAGE_NAMES) {
+      if (pagePath(code, page) === path) return page;
+    }
+  }
+  return null;
+}
+
+/** The language of the page at `pathname`, a page of a language or its fast-boot page. Any other path is Thai. */
 export function pathLanguage(pathname: string): Language {
   const path = normalized(pathname);
-  return CODES.find((code) => LANGUAGE_PATHS[code] === path || fastbootPath(code) === path) ?? 'th';
+  return (
+    CODES.find(
+      (code) => fastbootPath(code) === path || PAGE_NAMES.some((page) => pagePath(code, page) === path),
+    ) ?? 'th'
+  );
 }
 
 /** Countries where Traditional Chinese is the usual script. */

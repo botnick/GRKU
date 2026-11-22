@@ -1,5 +1,5 @@
 import { Suspense, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { FileText, TriangleAlert } from 'lucide-react';
+import { ArrowRight, FileText, TriangleAlert } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -53,7 +53,7 @@ import {
   PREVIEW_TARGET,
   type Camera,
 } from './cameras';
-import { loadCatalog, MAX_EFFECTS, type Catalog, type CardEffect, type ImportedEffect, type PackageEffect } from './catalog';
+import { loadCatalog, MAX_EFFECTS, type Catalog, type CardEffect, type Effect, type ImportedEffect, type PackageEffect } from './catalog';
 import {
   CardChangesView,
   CardConnect,
@@ -72,7 +72,11 @@ import { Masthead } from './components/Masthead';
 import { ModulesStep } from './components/ModulesStep';
 import { PackageOpen, type PackageStatus } from './components/PackageOpen';
 import { PlusSheet } from './components/PlusSheet';
-import { DOC_PATHS, LANGUAGE_PATHS } from './languagePage';
+import { DOC_PATHS, LANGUAGE_PATHS, pagePath, pathLanguage, pathPage, type SitePage } from './languagePage';
+import { pageLink, type Navigate, type PageLink } from './navigation';
+import { loadCamera, loadModules, saveCamera, saveModules } from './setup';
+import { Home } from './components/Home';
+import { EffectIcon } from './components/EffectIcon';
 import { RichText } from './components/RichText';
 import { SiteFooter } from './components/SiteFooter';
 import { WhatsNew } from './components/WhatsNew';
@@ -86,8 +90,8 @@ import { restoreImports } from './import/lut';
 import { importsForCamera, NATIVE_LOOKS } from './import/native';
 import { isLutImportId } from './import/names';
 import { deleteImport, saveImport, updateImport } from './import/store';
-import { applyLanguage, STRINGS, type Language, type Strings } from './i18n';
-import { DEFAULT_ENABLED, MODULES, MODULES_MAX, planModules, type ModuleKey } from './modules';
+import { applyLanguage, showLanguage, STRINGS, type Language, type Strings } from './i18n';
+import { MODULES, MODULES_MAX, planModules, type ModuleKey } from './modules';
 import {
   buildCardFiles,
   buildPackage,
@@ -144,21 +148,41 @@ const megabytes = (bytes: number) => (bytes / 1_000_000).toFixed(1);
 
 export function App({
   initialLanguage,
+  initialPage = 'home',
   initialImports = [],
   initialCard = null,
 }: {
   /** The language of the page address. */
   initialLanguage: Language;
+  /** The page of the address: home, looks, or install. */
+  initialPage?: SitePage;
   initialImports?: readonly ImportedEffect[];
   /** The card connected on an earlier visit, which a click reconnects. */
   initialCard?: CardDirectory | null;
 }) {
   const [language, setLanguage] = useState<Language>(initialLanguage);
-  const [cameraKey, setCameraKey] = useState(CAMERAS[0]!.key);
+  // The three pages share this state, so a move between them keeps the looks, the modules, the
+  // camera, and the connected card. The browser storage keeps them for a reload and the next visit.
+  const [page, setPage] = useState<SitePage>(initialPage);
+  // The element that a move to a page shows, by the hash of its link, or the top of the page.
+  const [scrollTarget, setScrollTarget] = useState<{ hash: string } | null>(() =>
+    typeof location === 'undefined' || !location.hash ? null : { hash: location.hash },
+  );
+  const [cameraKey, setCameraKeyState] = useState(() => loadCamera(browserStorage()));
   // The ZIP download has no card to read the effects from, so the choice of the last visit
   // comes back.
   const [selection, setSelection] = useState<Selection>(() => loadSelection(browserStorage()));
-  const [enabled, setEnabled] = useState<ReadonlySet<ModuleKey>>(DEFAULT_ENABLED);
+  const [enabled, setEnabledState] = useState<ReadonlySet<ModuleKey>>(() => loadModules(browserStorage()));
+
+  function setCameraKey(key: Camera['key']) {
+    setCameraKeyState(key);
+    saveCamera(browserStorage(), key);
+  }
+
+  function setEnabled(next: ReadonlySet<ModuleKey>) {
+    setEnabledState(next);
+    saveModules(browserStorage(), next);
+  }
   // Effects fitted from LUTs and native looks read on this page. This browser keeps them for the
   // next visit.
   const [allImported, setImported] = useState<readonly ImportedEffect[]>(initialImports);
@@ -256,9 +280,40 @@ export function App({
 
   function chooseLanguage(next: Language) {
     loadFonts(next);
-    applyLanguage(next);
+    applyLanguage(next, page);
     setLanguage(next);
   }
+
+  /** Shows `next` without a reload, as a new entry of the history. */
+  const navigate: Navigate = (next, hash = '') => {
+    history.pushState(null, '', `${pagePath(language, next)}${hash}`);
+    showLanguage(language, next);
+    setPage(next);
+    setScrollTarget({ hash });
+  };
+  const link: PageLink = (next, hash) => pageLink(language, navigate, next, hash);
+
+  // Back and forward show the page of the address, in its language.
+  useEffect(() => {
+    function back() {
+      const next = pathPage(location.pathname) ?? 'home';
+      const nextLanguage = pathLanguage(location.pathname);
+      loadFonts(nextLanguage);
+      showLanguage(nextLanguage, next);
+      setLanguage(nextLanguage);
+      setPage(next);
+      setScrollTarget({ hash: location.hash });
+    }
+    addEventListener('popstate', back);
+    return () => removeEventListener('popstate', back);
+  }, []);
+
+  useEffect(() => {
+    if (!scrollTarget) return;
+    const target = scrollTarget.hash ? document.getElementById(scrollTarget.hash.slice(1)) : null;
+    if (target) target.scrollIntoView({ block: 'start' });
+    else window.scrollTo(0, 0);
+  }, [scrollTarget]);
 
   /** A change of the selection makes the result of a download or a card write stale. */
   function resetBuild() {
@@ -994,210 +1049,264 @@ export function App({
     </div>
   );
 
+  const openPlus = () => {
+    setPlusStart('tiers');
+    setPlusOpen(true);
+  };
+
   return (
     <>
-      {(appBrowser || cardHintKind) && (
+      {(appBrowser || (page === 'install' && cardHintKind)) && (
         <div className="bg-foreground px-gutter py-2.5 text-center text-[13px] leading-snug text-balance text-background" role="note">
           {appBrowser ? t.appBrowser : cardHintKind === 'computer' ? t.cardComputer : t.cardBrowser}
         </div>
       )}
-      <Masthead strings={t} language={language} onLanguage={chooseLanguage} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} />
-      <main id="top" className="mx-auto w-full max-w-[1280px] px-gutter pb-8">
-        <Workbench
-          strings={t}
-          selection={selection}
-          onSelectionChange={changeSelection}
-          imported={imported}
-          onImport={addImported}
-          onRemove={removeImported}
-          onEdit={editImported}
-          cardEffects={active ? cardExtra : []}
-          onCard={active && active.state.install !== 'none' ? new Set(active.effects.keys()) : null}
-          changedOnCard={active ? changedImports(active, imported) : undefined}
-          canWrite={canWrite}
-          owned={owned}
-          onPlus={() => {
-            setPlusStart('tiers');
-            setPlusOpen(true);
-          }}
-          plusKey={plusKey}
-          onOtherKey={() => {
-            setPlusStart('key');
-            setPlusOpen(true);
-          }}
-          onForgetKey={dropKey}
-          notice={!available.includes('filmLook') ? t.effectsUnavailable(camera.name) : !plan.includeEffects ? t.effectsOff : null}
-        />
-
-        <Step id="modules" number={t.step(2)} title={t.modules} description={t.landing.moduleListText} ref={prefetchInView} className="mt-14">
-          <ModulesStep
+      <Masthead
+        strings={t}
+        language={language}
+        onLanguage={chooseLanguage}
+        version={__GRKU_VERSION__}
+        releaseUrl={RELEASE_URL}
+        page={page}
+        link={link}
+      />
+      <main id="top" className={cn('mx-auto w-full max-w-[1280px] px-gutter', page === 'looks' ? 'pb-28' : 'pb-8')}>
+        {page === 'home' && (
+          <Home
             strings={t}
-            modules={offered}
-            enabled={enabled}
-            onToggle={toggleModule}
-            installed={active && active.state.install !== 'none' ? cardModules(active.state) : null}
-            planned={plan.modules}
-            emptyLooks={enabled.has('filmLook') && selection?.size === 0}
-            lookCount={effectCount ?? '…'}
-            recipes={
-              available.includes('recipes') && enabled.has('recipes') ? (
-                <ErrorBoundary resetKey={String(catalogAttempt)} fallback={<p className={ERROR}>{t.loadError}</p>}>
-                  <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
-                    <RecipesWithEffects
-                      strings={t}
-                      language={language}
-                      family={family}
-                      library={recipeLibrary.library}
-                      onChange={recipeLibrary.change}
-                      cardRecipes={recipeLibrary.cardChoice}
-                      onCardChoice={recipeLibrary.chooseCard}
-                      selection={selection}
-                      filmLook={plan.includeEffects}
-                      onSelectionChange={changeSelection}
-                      others={[...imported, ...(active ? cardExtra : [])]}
-                      grainModule={plan.modules.includes('GRAIN')}
-                      glowModule={plan.modules.includes('GLOW')}
-                      borderModule={plan.modules.includes('BORDER')}
-                      dial={
-                        // A card shows and writes its own dial; a ZIP package carries the choice
-                        // of this browser.
-                        !recipeLibrary.packageRecipes
-                          ? null
-                          : mode === 'zip'
-                            ? { shown: recipeLibrary.zipDial, canKeep: true, onChange: recipeLibrary.changeZipDial }
-                            : active
-                              ? {
-                                  shown: recipeLibrary.shownDial(active),
-                                  canKeep: false,
-                                  // The settings that the camera saved in a user mode stay a
-                                  // choice while the person tries another value.
-                                  saved: active.dial.map((value) => value === DIAL_SAVED),
-                                  onChange: (u: number, value: number | null) => {
-                                    if (value !== null) recipeLibrary.changeDial(active, u, value);
-                                  },
-                                }
-                              : null
-                      }
-                    />
-                  </Suspense>
-                </ErrorBoundary>
-              ) : null
-            }
+            language={language}
+            link={link}
+            canWrite={canWrite}
+            onPlus={openPlus}
+            news={<WhatsNew language={language} />}
+            faq={<Faq strings={t} />}
           />
-        </Step>
+        )}
 
-        <Step id="camera" number={t.step(3)} title={t.camera} description={cardCamera ? undefined : t.firmwareNote}>
-          {cardCamera ? (
-            <dl className={FACTS}>
-              <dt className={FACT_LABEL}>{t.camera}</dt>
-              <dd className={FACT_VALUE}>
-                {cardCamera.options.length > 1 ? (
-                  <span className="inline-flex flex-wrap gap-2" role="group" aria-label={t.camera}>
-                    {cardCamera.options.map((option) => (
-                      <Button
-                        key={option.key}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="aria-pressed:border-foreground aria-pressed:bg-secondary"
-                        aria-pressed={option === cardCamera.selected}
-                        disabled={cardTask.kind !== 'idle'}
-                        onClick={() => chooseCamera(option.key)}
-                      >
-                        {option.name}
-                      </Button>
-                    ))}
-                  </span>
-                ) : (
-                  cardCamera.selected.name
-                )}
-              </dd>
-              <dt className={FACT_LABEL}>{t.firmware}</dt>
-              <dd className={FACT_VALUE}>{cardCamera.firmware}</dd>
-              <dt className={FACT_LABEL}>{t.cardName}</dt>
-              <dd className={FACT_VALUE}>{card?.state.name || '—'}</dd>
-            </dl>
-          ) : (
-            <RadioGroup
-              name="camera"
-              value={camera.key}
-              aria-labelledby="camera-title"
-              className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
-              onValueChange={(next) => chooseCamera(next as Camera['key'])}
-            >
-              {CAMERAS.map((item) => (
-                <ChoiceCard
-                  key={item.key}
-                  htmlFor={`camera-${item.key}`}
-                  control={
-                    <RadioGroupItem
-                      id={`camera-${item.key}`}
-                      value={item.key}
-                      className="mt-1"
-                      disabled={!item.support || (!!lockedCameras && !lockedCameras.includes(item))}
-                    />
-                  }
+        {page === 'looks' && (
+          <>
+            <Workbench
+              strings={t}
+              selection={selection}
+              onSelectionChange={changeSelection}
+              imported={imported}
+              onImport={addImported}
+              onRemove={removeImported}
+              onEdit={editImported}
+              cardEffects={active ? cardExtra : []}
+              onCard={active && active.state.install !== 'none' ? new Set(active.effects.keys()) : null}
+              changedOnCard={active ? changedImports(active, imported) : undefined}
+              owned={owned}
+              onPlus={openPlus}
+              plusKey={plusKey}
+              onOtherKey={() => {
+                setPlusStart('key');
+                setPlusOpen(true);
+              }}
+              onForgetKey={dropKey}
+              notice={!available.includes('filmLook') ? t.effectsUnavailable(camera.name) : !plan.includeEffects ? t.effectsOff : null}
+            />
+            <ContinueBar strings={t} count={checkedCount} link={link} />
+          </>
+        )}
+
+        {page === 'install' && (
+          <>
+            <header className="pt-[clamp(24px,5vh,56px)] pb-10">
+              <h1 className="text-[clamp(30px,3.4vw,44px)] leading-[1.1] font-semibold tracking-[-0.02em] [:root[lang=th]_&]:leading-[1.3] [:root[lang=th]_&]:tracking-normal">
+                {t.install}
+              </h1>
+              <p className="mt-4 max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground">
+                {canWrite ? t.landing.installNote : t.landing.installNoteZip}
+              </p>
+              <LooksSummary
+                strings={t}
+                effects={
+                  previewCatalog
+                    ? [...previewCatalog.effects, ...imported, ...(active ? cardExtra : [])].filter((effect) =>
+                        resolveSelection(
+                          selection,
+                          previewCatalog.effects.map((item) => item.id),
+                          [...imported, ...(active ? cardExtra : [])].map((item) => item.id),
+                        ).has(effect.id),
+                      )
+                    : null
+                }
+                notice={!available.includes('filmLook') ? t.effectsUnavailable(camera.name) : !plan.includeEffects ? t.effectsOff : null}
+                link={link}
+              />
+            </header>
+
+            <Step id="camera" number={t.step(2)} title={t.camera} description={cardCamera ? undefined : t.firmwareNote}>
+              {cardCamera ? (
+                <dl className={FACTS}>
+                  <dt className={FACT_LABEL}>{t.camera}</dt>
+                  <dd className={FACT_VALUE}>
+                    {cardCamera.options.length > 1 ? (
+                      <span className="inline-flex flex-wrap gap-2" role="group" aria-label={t.camera}>
+                        {cardCamera.options.map((option) => (
+                          <Button
+                            key={option.key}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="aria-pressed:border-foreground aria-pressed:bg-secondary"
+                            aria-pressed={option === cardCamera.selected}
+                            disabled={cardTask.kind !== 'idle'}
+                            onClick={() => chooseCamera(option.key)}
+                          >
+                            {option.name}
+                          </Button>
+                        ))}
+                      </span>
+                    ) : (
+                      cardCamera.selected.name
+                    )}
+                  </dd>
+                  <dt className={FACT_LABEL}>{t.firmware}</dt>
+                  <dd className={FACT_VALUE}>{cardCamera.firmware}</dd>
+                  <dt className={FACT_LABEL}>{t.cardName}</dt>
+                  <dd className={FACT_VALUE}>{card?.state.name || '—'}</dd>
+                </dl>
+              ) : (
+                <RadioGroup
+                  name="camera"
+                  value={camera.key}
+                  aria-labelledby="camera-title"
+                  className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+                  onValueChange={(next) => chooseCamera(next as Camera['key'])}
                 >
-                  <span className="font-semibold">{item.name}</span>
-                  {item.support && (
-                    <span className="text-sm text-muted-foreground">
-                      {t.firmware} {item.support.firmware}
-                    </span>
-                  )}
-                  {!item.support && (
-                    <Badge variant="outline" className="w-fit">
-                      {t.planned}
-                    </Badge>
-                  )}
-                  {item.support?.noEffects && <span className="text-sm text-muted-foreground">{t.noEffects}</span>}
-                </ChoiceCard>
-              ))}
-            </RadioGroup>
-          )}
-        </Step>
+                  {CAMERAS.map((item) => (
+                    <ChoiceCard
+                      key={item.key}
+                      htmlFor={`camera-${item.key}`}
+                      control={
+                        <RadioGroupItem
+                          id={`camera-${item.key}`}
+                          value={item.key}
+                          className="mt-1"
+                          disabled={!item.support || (!!lockedCameras && !lockedCameras.includes(item))}
+                        />
+                      }
+                    >
+                      <span className="font-semibold">{item.name}</span>
+                      {item.support && (
+                        <span className="text-sm text-muted-foreground">
+                          {t.firmware} {item.support.firmware}
+                        </span>
+                      )}
+                      {!item.support && (
+                        <Badge variant="outline" className="w-fit">
+                          {t.planned}
+                        </Badge>
+                      )}
+                      {item.support?.noEffects && <span className="text-sm text-muted-foreground">{t.noEffects}</span>}
+                    </ChoiceCard>
+                  ))}
+                </RadioGroup>
+              )}
+            </Step>
 
-        <Step id="install" number={t.step(4)} title={t.install} description={canWrite ? t.landing.installNote : t.landing.installNoteZip}>
-          <Alert className="mb-8 border-2 border-destructive bg-destructive/15 px-5 py-5 shadow-[inset_6px_0_0_0_var(--destructive)] sm:px-6 has-[>svg]:grid-cols-[calc(var(--spacing)*7)_1fr] has-[>svg]:gap-x-4 [&>svg]:size-7 [&>svg]:translate-y-0">
-            <TriangleAlert className="text-destructive" strokeWidth={2.5} aria-hidden="true" />
-            <AlertTitle className="text-xl font-bold tracking-tight text-destructive sm:text-2xl">{t.riskTitle}</AlertTitle>
-            <AlertDescription className="mt-1 max-w-[80ch] text-base leading-relaxed text-foreground">{t.riskText}</AlertDescription>
-          </Alert>
-          <dl className="mb-8 grid gap-5 sm:grid-cols-3">
-            {t.landing.facts.map(([title, text]) => (
-              <div key={title} className="flex flex-col gap-1 border-l-2 border-brand/70 pl-4">
-                <dt className="font-medium">{title}</dt>
-                <dd className="text-sm leading-relaxed text-muted-foreground">{text}</dd>
+            <Step id="modules" number={t.step(3)} title={t.modules} description={t.landing.moduleListText} ref={prefetchInView}>
+              <ModulesStep
+                strings={t}
+                modules={offered}
+                enabled={enabled}
+                onToggle={toggleModule}
+                installed={active && active.state.install !== 'none' ? cardModules(active.state) : null}
+                planned={plan.modules}
+                emptyLooks={enabled.has('filmLook') && selection?.size === 0}
+                lookCount={effectCount ?? '…'}
+                recipes={
+                  available.includes('recipes') && enabled.has('recipes') ? (
+                    <ErrorBoundary resetKey={String(catalogAttempt)} fallback={<p className={ERROR}>{t.loadError}</p>}>
+                      <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
+                        <RecipesWithEffects
+                          strings={t}
+                          language={language}
+                          family={family}
+                          library={recipeLibrary.library}
+                          onChange={recipeLibrary.change}
+                          cardRecipes={recipeLibrary.cardChoice}
+                          onCardChoice={recipeLibrary.chooseCard}
+                          selection={selection}
+                          filmLook={plan.includeEffects}
+                          onSelectionChange={changeSelection}
+                          others={[...imported, ...(active ? cardExtra : [])]}
+                          grainModule={plan.modules.includes('GRAIN')}
+                          glowModule={plan.modules.includes('GLOW')}
+                          borderModule={plan.modules.includes('BORDER')}
+                          dial={
+                            // A card shows and writes its own dial; a ZIP package carries the choice
+                            // of this browser.
+                            !recipeLibrary.packageRecipes
+                              ? null
+                              : mode === 'zip'
+                                ? { shown: recipeLibrary.zipDial, canKeep: true, onChange: recipeLibrary.changeZipDial }
+                                : active
+                                  ? {
+                                      shown: recipeLibrary.shownDial(active),
+                                      canKeep: false,
+                                      // The settings that the camera saved in a user mode stay a
+                                      // choice while the person tries another value.
+                                      saved: active.dial.map((value) => value === DIAL_SAVED),
+                                      onChange: (u: number, value: number | null) => {
+                                        if (value !== null) recipeLibrary.changeDial(active, u, value);
+                                      },
+                                    }
+                                  : null
+                          }
+                        />
+                      </Suspense>
+                    </ErrorBoundary>
+                  ) : null
+                }
+              />
+            </Step>
+
+            <Step id="install" number={t.step(4)} title={t.install}>
+              <Alert className="mb-8 border-2 border-destructive bg-destructive/15 px-5 py-5 shadow-[inset_6px_0_0_0_var(--destructive)] sm:px-6 has-[>svg]:grid-cols-[calc(var(--spacing)*7)_1fr] has-[>svg]:gap-x-4 [&>svg]:size-7 [&>svg]:translate-y-0">
+                <TriangleAlert className="text-destructive" strokeWidth={2.5} aria-hidden="true" />
+                <AlertTitle className="text-xl font-bold tracking-tight text-destructive sm:text-2xl">{t.riskTitle}</AlertTitle>
+                <AlertDescription className="mt-1 max-w-[80ch] text-base leading-relaxed text-foreground">{t.riskText}</AlertDescription>
+              </Alert>
+              <dl className="mb-8 grid gap-5 sm:grid-cols-3">
+                {t.landing.facts.map(([title, text]) => (
+                  <div key={title} className="flex flex-col gap-1 border-l-2 border-brand/70 pl-4">
+                    <dt className="font-medium">{title}</dt>
+                    <dd className="text-sm leading-relaxed text-muted-foreground">{text}</dd>
+                  </div>
+                ))}
+              </dl>
+              <div className={cn('grid items-start gap-x-10 gap-y-6', (!canWrite || mode === 'zip') && 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]')}>
+              <div className="min-w-0">
+              {canWrite ? (
+                <Tabs value={mode} onValueChange={(value) => chooseMode(value as InstallMode)}>
+                  <TabsList className="mb-2 h-10">
+                    <TabsTrigger value="card" className="px-4">
+                      {t.modeCard}
+                    </TabsTrigger>
+                    <TabsTrigger value="zip" className="px-4">
+                      {t.modeZip}
+                    </TabsTrigger>
+                  </TabsList>
+                  <p className={`${NOTE} mb-6`}>{mode === 'card' ? t.modeCardText : t.modeZipText}</p>
+                  <TabsContent value="card">{cardFlow}</TabsContent>
+                  <TabsContent value="zip">{zipFlow}</TabsContent>
+                </Tabs>
+              ) : (
+                zipFlow
+              )}
               </div>
-            ))}
-          </dl>
-          <div className={cn('grid items-start gap-x-10 gap-y-6', (!canWrite || mode === 'zip') && 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]')}>
-          <div className="min-w-0">
-          {canWrite ? (
-            <Tabs value={mode} onValueChange={(value) => chooseMode(value as InstallMode)}>
-              <TabsList className="mb-2 h-10">
-                <TabsTrigger value="card" className="px-4">
-                  {t.modeCard}
-                </TabsTrigger>
-                <TabsTrigger value="zip" className="px-4">
-                  {t.modeZip}
-                </TabsTrigger>
-              </TabsList>
-              <p className={`${NOTE} mb-6`}>{mode === 'card' ? t.modeCardText : t.modeZipText}</p>
-              <TabsContent value="card">{cardFlow}</TabsContent>
-              <TabsContent value="zip">{zipFlow}</TabsContent>
-            </Tabs>
-          ) : (
-            zipFlow
-          )}
-          </div>
-          {(!canWrite || mode === 'zip') && <div className="hidden lg:block">{zipSteps}</div>}
-          </div>
-        </Step>
-
-        <WhatsNew language={language} />
-        <Faq strings={t} />
+              {(!canWrite || mode === 'zip') && <div className="hidden lg:block">{zipSteps}</div>}
+              </div>
+            </Step>
+          </>
+        )}
       </main>
       <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} />
+      {/* Room for the bar of the looks page under the footer. */}
+      {page === 'looks' && <div className="h-16" aria-hidden="true" />}
       <PlusSheet
         open={plusOpen}
         onOpenChange={setPlusOpen}
@@ -1212,7 +1321,7 @@ export function App({
         payOrder={payOrder}
         termsHref={`${LANGUAGE_PATHS[language]}${DOC_PATHS.TERMS}`}
         language={language}
-        onBrowse={() => document.getElementById('looks')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+        onBrowse={() => navigate('looks', '#looks')}
       />
     </>
   );
@@ -1368,4 +1477,70 @@ function RecipesWithEffects({
     }
   }
   return <RecipesPanel {...rest} effectNames={effectNames} packageEffects={packageEffects} onAddPreset={addPreset} />;
+}
+
+/**
+ * The bar at the bottom of the looks page: how many looks go on the card, and the way on to the
+ * install page, which keeps them.
+ */
+function ContinueBar({ strings: t, count, link }: { strings: Strings; count: number | null; link: PageLink }) {
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between gap-4 px-gutter">
+        <p className="min-w-0 truncate text-sm text-muted-foreground tabular-nums">
+          {count === null ? t.loading : t.slotsUsed(count, MAX_EFFECTS)}
+        </p>
+        <Button asChild size="lg" className="h-11 shrink-0 px-5 text-[15px]">
+          <a {...link('install')}>
+            {t.site.continueInstall}
+            <ArrowRight aria-hidden="true" />
+          </a>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/** The looks that go on the card, at the top of the install page, with the way back to change them. */
+function LooksSummary({
+  strings: t,
+  effects,
+  notice,
+  link,
+}: {
+  strings: Strings;
+  /** The looks on the card, or null before the catalog loads. */
+  effects: readonly (Effect | CardEffect)[] | null;
+  /** Why the package takes no looks, if it takes none. */
+  notice: string | null;
+  link: PageLink;
+}) {
+  return (
+    <div className="mt-8 flex flex-col gap-4 rounded-2xl border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
+        <p className="flex items-baseline gap-2 font-medium">
+          {t.effects}
+          {effects && <span className="font-mono text-[13px] text-muted-foreground tabular-nums">{t.slotsUsed(effects.length, MAX_EFFECTS)}</span>}
+        </p>
+        {notice ? (
+          <p className="mt-2 text-sm text-muted-foreground">{notice}</p>
+        ) : effects === null ? (
+          <p className="mt-2 text-sm text-muted-foreground">{t.loading}</p>
+        ) : effects.length === 0 ? (
+          <p className="mt-2 text-sm text-destructive">{t.site.noLooks}</p>
+        ) : (
+          <ul className="mt-3 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={t.onCard}>
+            {effects.map((effect) => (
+              <li key={effect.id} className="shrink-0" title={effect.name}>
+                <EffectIcon effect={effect} className="size-11" />
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <Button asChild variant="outline" className="shrink-0 self-start sm:self-auto">
+        <a {...link('looks')}>{t.site.changeLooks}</a>
+      </Button>
+    </div>
+  );
 }

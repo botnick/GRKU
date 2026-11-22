@@ -4,13 +4,17 @@ import { Button } from '@/components/ui/button';
 import { LANGUAGES, type Language, type Strings } from '../i18n';
 import { REPOSITORY } from '../links';
 import { newsStrings } from '../whatsNew';
+import type { SitePage } from '../languagePage';
+import type { PageLink } from '../navigation';
+import { cn } from '@/lib/utils';
 
 /** The version whose news this browser opened (the dot on the version goes). */
 const SEEN_KEY = 'grku.seenNews';
 
 /**
- * The header: the wordmark with its red period and the version, the links to the steps, the
- * language, and the repository. It stays at the top while the page scrolls.
+ * The header: the wordmark with its red period and the version, the links to the three pages, the
+ * language, and the repository. It stays at the top while the page scrolls. On a phone the page
+ * links take a row of their own under it.
  */
 export function Masthead({
   strings: t,
@@ -18,8 +22,13 @@ export function Masthead({
   onLanguage,
   version,
   releaseUrl,
+  page,
+  link,
 }: {
   strings: Strings;
+  /** The page that shows. */
+  page: SitePage;
+  link: PageLink;
   language: Language;
   onLanguage: (language: Language) => void;
   version: string;
@@ -44,18 +53,29 @@ export function Masthead({
   };
   const news = newsStrings(language);
   const label = LANGUAGES.find((item) => item.code === language)?.label ?? language;
+  const newsLink = link('home', '#news');
+  const pages = (
+    [
+      ['home', t.site.home],
+      ['looks', t.effects],
+      ['install', t.install],
+    ] as const
+  ).map(([name, text]) => ({ name, text, current: name === page }));
   return (
     <header className="sticky top-0 z-30 border-b border-border/80 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-4 px-gutter">
         <div className="flex items-baseline gap-1">
-          <a href="#top" className="no-underline">
+          <a {...link('home')} className="no-underline">
             <span className="text-[22px] leading-none font-extrabold tracking-[-0.03em]">
               GRKU<span className="text-brand">.</span>
             </span>
           </a>
           <a
-            href="#news"
-            onClick={seen}
+            href={newsLink.href}
+            onClick={(event) => {
+              seen();
+              newsLink.onClick(event);
+            }}
             title={news.navLabel}
             className="relative rounded-full px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground no-underline hover:bg-accent hover:text-foreground"
           >
@@ -64,15 +84,15 @@ export function Masthead({
           </a>
         </div>
         <nav className="hidden items-center gap-1 md:flex" aria-label="GRKU">
-          {[
-            ['#looks', t.effects],
-            ['#modules', t.modules],
-            ['#install', t.install],
-            ['#news', news.navLabel],
-            ['#faq', t.faqTitle],
-          ].map(([href, text]) => (
-            <Button key={href} asChild variant="ghost" size="sm" className="text-[13px] text-muted-foreground hover:text-foreground">
-              <a href={href} onClick={href === '#news' ? seen : undefined}>
+          {pages.map(({ name, text, current }) => (
+            <Button
+              key={name}
+              asChild
+              variant="ghost"
+              size="sm"
+              className={cn('text-[13px] text-muted-foreground hover:text-foreground', current && 'bg-accent text-foreground')}
+            >
+              <a {...link(name)} aria-current={current ? 'page' : undefined}>
                 {text}
               </a>
             </Button>
@@ -106,6 +126,21 @@ export function Masthead({
           </a>
         </div>
       </div>
+      <nav className="mx-auto flex h-10 max-w-[1280px] items-stretch gap-4 overflow-x-auto px-gutter md:hidden" aria-label="GRKU">
+        {pages.map(({ name, text, current }) => (
+          <a
+            key={name}
+            {...link(name)}
+            aria-current={current ? 'page' : undefined}
+            className={cn(
+              'flex shrink-0 items-center border-b-2 border-transparent text-[13px] whitespace-nowrap text-muted-foreground no-underline',
+              current && 'border-foreground text-foreground',
+            )}
+          >
+            {text}
+          </a>
+        ))}
+      </nav>
     </header>
   );
 }

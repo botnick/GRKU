@@ -5,7 +5,7 @@ import { RichText } from './RichText';
 /** The questions of the page, one open at a time. */
 export function Faq({ strings: t }: { strings: Strings }) {
   return (
-    <section id="faq" aria-labelledby="faq-title" className="scroll-mt-20 border-t border-border py-12 lg:py-16">
+    <section id="faq" aria-labelledby="faq-title" className="scroll-mt-28 md:scroll-mt-20 border-t border-border py-12 lg:py-16">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
         <h2 id="faq-title" className="text-[clamp(26px,2.6vw,34px)] leading-[1.15] font-semibold tracking-[-0.02em]">
           {t.faqTitle}

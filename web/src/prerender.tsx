@@ -1,17 +1,16 @@
-// The entry that scripts/prerender.mjs builds for Node. It renders the first screen of each
-// language page, so the HTML of the page holds its text before the script runs.
+// The entry that scripts/prerender.mjs builds for Node. It renders the first screen of each page
+// of each language, so the HTML of the page holds its text before the script runs.
 import { renderToString } from 'react-dom/server';
 import { App } from './App';
 import type { Language } from './i18n';
+import type { SitePage } from './languagePage';
 
 export { LANGUAGES, pageText, STRINGS } from './i18n';
-export { LANGUAGE_PATHS } from './languagePage';
+export { LANGUAGE_PATHS, pagePath, SITE_PAGES } from './languagePage';
 
 export const VERSION = __GRKU_VERSION__;
 
-/** The markup of the page in `language`, as a browser without a card or storage shows it first. */
-export function render(language: Language): string {
-  return renderToString(<App initialLanguage={language} />);
+/** The markup of `page` in `language`, as a browser without a card or storage shows it first. */
+export function render(language: Language, page: SitePage = 'home'): string {
+  return renderToString(<App initialLanguage={language} initialPage={page} />);
 }
-
-/** The markup of the fast-boot firmware page in `language`. */

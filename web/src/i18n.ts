@@ -1,6 +1,6 @@
 import type { Grade } from './catalog';
 import type { NativeProblem } from './import/native';
-import { cookieValue, fastbootPath, isLanguage, LANGUAGE_COOKIE, LANGUAGE_PATHS, pathLanguage } from './languagePage';
+import { cookieValue, fastbootPath, isLanguage, LANGUAGE_COOKIE, LANGUAGE_PATHS, pagePath, pathLanguage, type SitePage } from './languagePage';
 
 export const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -145,6 +145,27 @@ const en = {
   /** End of the workbench and GRKU Plus. */
   language: 'Language',
   /** The document title. */
+  /** The three pages of the site: home, looks, and install. */
+  site: {
+    home: 'Home',
+    looksTitle: 'GR camera tones and film looks: preview them on your photo · GRKU',
+    looksDescription: 'Preview more than 150 GR camera tones and film looks on a sample photo or your own DNG, then choose the ones that go on the SD card of your RICOH GR III, IIIx, or IV.',
+    looksHeading: 'GR camera tones and film looks',
+    looksLead: 'Press a box to see the look on the photo, on a sample or your own DNG. Add the ones you want to the card, then go on to install.',
+    continueInstall: 'Continue to install',
+    installTitle: 'Install GRKU on RICOH GR III, IIIx, and IV · GRKU',
+    installDescription: 'Choose your camera and modules, then write GRKU straight to the SD card or download GRKU.zip. No firmware flashing.',
+    changeLooks: 'Change looks',
+    noLooks: 'No film looks on the card yet',
+    heroCaption: 'One photo, five looks. Drag the line to compare with the base development.',
+    shelfText: 'Every look in the library has its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and GRKU\'s own Positive GRII. Ten go on the card for free, and you can swap them any time.',
+    featuresTitle: 'What GRKU adds to the camera',
+    recipesTitle: 'Recipes and the mode dial',
+    camerasTitle: 'Supported cameras',
+    ctaTitle: 'See each look on your own photo first',
+    ctaText: 'Every look previews free on a sample or your own DNG. Nothing goes on the card until you install.',
+    filmLookText: 'The film looks you chose, with live-view preview.',
+  },
   title: 'GRKU: film looks and XPan for RICOH GR III, IIIx, and IV',
   /** The search result and link preview text of the page. */
   description:
@@ -813,6 +834,26 @@ const zhHans: Strings = {
   riskShort: '非官方且实验性。使用风险自负。',
   /** End of the workbench and GRKU Plus. */
   language: '语言',
+  site: {
+    home: '首页',
+    looksTitle: 'GR 相机色调与胶片风格：在照片上预览 · GRKU',
+    looksDescription: '在示例照片或自己的 DNG 照片上预览 150 多种 GR 相机色调与胶片风格，然后选择要安装到 RICOH GR III、IIIx 或 IV 相机 SD 卡中的风格。',
+    looksHeading: 'GR 相机色调与胶片风格',
+    looksLead: '点击胶片盒，在示例照片或自己的 DNG 照片上查看效果。将喜欢的风格添加到卡片中，然后继续安装。',
+    continueInstall: '继续安装',
+    installTitle: '在 RICOH GR III、IIIx 和 IV 上安装 GRKU · GRKU',
+    installDescription: '选择相机型号和模块，然后将 GRKU 直接写入 SD 卡，或下载 GRKU.zip。无需刷写固件。',
+    changeLooks: '更改胶片风格',
+    noLooks: '卡片中尚未添加胶片风格',
+    heroCaption: '一张照片，五种风格。拖动分隔线，与基础显影效果进行对比。',
+    shelfText: '资料库中的每种风格都有自己的胶片盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及 GRKU 自有的 Positive GRII。可免费将其中 10 种添加到卡片中，随时更换。',
+    featuresTitle: 'GRKU 为相机带来的功能',
+    recipesTitle: '配方与模式转盘',
+    camerasTitle: '支持的相机',
+    ctaTitle: '先在自己的照片上预览每种风格',
+    ctaText: '所有风格均可在示例照片或自己的 DNG 照片上免费预览。安装之前，不会有任何内容写入卡片。',
+    filmLookText: '已选择的胶片风格，并支持实时取景预览。',
+  },
   title: 'GRKU：理光 GR III / IIIx / IV 胶片滤镜与 XPan 宽幅，无需刷机',
   description:
     '为理光 GR III、GR IIIx、GR IV 加上胶片滤镜（胶片模拟）、XPan 宽幅等画幅、日期水印、光晕和颗粒，也能导入自己的 LUT。从 SD 卡加载，无需刷机。',
@@ -1409,6 +1450,26 @@ const zhHant: Strings = {
   riskShort: '非官方實驗性產品。請自行承擔使用風險。',
   /** End of the workbench and GRKU Plus. */
   language: '語言',
+  site: {
+    home: '首頁',
+    looksTitle: 'GR 相機色調與底片風格：在您的照片上預覽 · GRKU',
+    looksDescription: '在範例照片或自己的 DNG 檔案上預覽 150 種以上的 GR 相機色調與底片風格，再挑選想安裝到 RICOH GR III、IIIx 或 IV 記憶卡的風格。',
+    looksHeading: 'GR 相機色調與底片風格',
+    looksLead: '點選底片盒，即可在範例照片或自己的 DNG 檔案上預覽效果。將喜歡的風格加入記憶卡清單，再繼續安裝。',
+    continueInstall: '繼續安裝',
+    installTitle: '在 RICOH GR III、IIIx 與 IV 上安裝 GRKU · GRKU',
+    installDescription: '選擇相機型號與模組，接著將 GRKU 直接寫入 SD 記憶卡，或下載 GRKU.zip。不需要刷寫韌體。',
+    changeLooks: '變更底片風格',
+    noLooks: '記憶卡中尚未選擇底片風格',
+    heroCaption: '一張照片，五種風格。拖曳分隔線，比較與原始影像處理效果的差異。',
+    shelfText: '資料庫中的每種風格都有專屬底片盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及 GRKU 自製的 Positive GRII。免費選擇十種風格存入記憶卡，隨時都能更換。',
+    featuresTitle: 'GRKU 為相機增添的功能',
+    recipesTitle: '色彩配方與模式轉盤',
+    camerasTitle: '支援的相機型號',
+    ctaTitle: '先在自己的照片上預覽各種風格',
+    ctaText: '所有風格都能免費在範例照片或自己的 DNG 檔案上預覽。安裝前，不會有任何內容寫入記憶卡。',
+    filmLookText: '所選的底片風格，並可即時預覽。',
+  },
   title: 'GRKU：理光 GR III / IIIx / IV 底片濾鏡與 XPan 比例，不改韌體',
   description:
     '為理光 GR III、GR IIIx、GR IV 加上底片濾鏡（底片模擬）、XPan 等畫面比例、日期浮水印、光暈與顆粒，也能匯入自己的 LUT。從 SD 卡執行，不改韌體。',
@@ -2005,6 +2066,26 @@ const ja: Strings = {
   riskShort: '非公式・実験的なアドオンです。自己責任でご利用ください。',
   /** End of the workbench and GRKU Plus. */
   language: '言語',
+  site: {
+    home: 'ホーム',
+    looksTitle: 'GRの色調とフィルムルック：お手持ちの写真で仕上がりをプレビュー · GRKU',
+    looksDescription: '150種類以上のGR向け色調・フィルムルックを、サンプル写真やお持ちのDNGファイルでプレビュー。RICOH GR III、IIIx、IVのSDカードに書き込むルックを選択できます。',
+    looksHeading: 'GRの色調とフィルムルック',
+    looksLead: 'フィルム箱を選択して、サンプル写真やお持ちのDNGファイルで仕上がりを確認。カードに追加したいルックを選び、インストールへ進みます。',
+    continueInstall: 'インストールへ進む',
+    installTitle: 'RICOH GR III、IIIx、IVにGRKUをインストール · GRKU',
+    installDescription: 'カメラとモジュールを選択し、SDカードに直接書き込むかGRKU.zipをダウンロード。ファームウェアの書き換えは不要です。',
+    changeLooks: 'ルックを変更',
+    noLooks: 'カードにフィルムルックが追加されていません',
+    heroCaption: '1枚の写真に、5つのルック。ラインをドラッグしてベース現像と比較できます。',
+    shelfText: 'ライブラリの各ルックには専用のフィルム箱を用意しています（Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid、GRKUオリジナルのPositive GRII）。10種類まで無料でカードに保存でき、いつでも入れ替え可能です。',
+    featuresTitle: 'GRKUがカメラに追加する機能',
+    recipesTitle: 'レシピとモードダイヤル',
+    camerasTitle: '対応カメラ',
+    ctaTitle: 'まずはお手持ちの写真でルックを確認',
+    ctaText: 'すべてのルックをサンプルやお持ちのDNG写真で無料プレビューできます。インストールするまでカードには何も書き込まれません。',
+    filmLookText: '選択したフィルムルックをライブビューでプレビューできます。',
+  },
   title: 'GRKU：RICOH GR III / IIIx / IV にフィルム風の色味と XPan を',
   description:
     'RICOH GR III・GR IIIx・GR IV に、フィルム風の色味、XPan などのアスペクト比、日付写し込み、グロー、粒状感を追加します。フィルムシミュレーションのレシピも、自分の LUT も使えます。ファームウェアの書き換えは不要です。',
@@ -2605,6 +2686,26 @@ const ko: Strings = {
   riskShort: '비공식 및 실험적. 사용자 책임 하에 사용.',
   /** End of the workbench and GRKU Plus. */
   language: '언어',
+  site: {
+    home: '홈',
+    looksTitle: 'GR 카메라 톤과 필름 룩: 사진에서 미리 보기 · GRKU',
+    looksDescription: '150가지가 넘는 GR 카메라 톤과 필름 룩을 샘플 사진이나 직접 촬영한 DNG에서 미리 보고, RICOH GR III, IIIx 또는 IV의 SD 카드에 넣을 룩을 선택하세요.',
+    looksHeading: 'GR 카메라 톤과 필름 룩',
+    looksLead: '각 룩의 필름 상자를 눌러 샘플 사진이나 직접 촬영한 DNG에서 효과를 확인하세요. 원하는 룩을 카드에 추가한 다음 설치를 진행하세요.',
+    continueInstall: '설치 계속하기',
+    installTitle: 'RICOH GR III, IIIx 및 IV에 GRKU 설치 · GRKU',
+    installDescription: '카메라와 모듈을 선택한 다음 GRKU를 SD 카드에 바로 기록하거나 GRKU.zip을 다운로드하세요. 펌웨어 플래싱은 필요하지 않습니다.',
+    changeLooks: '룩 변경',
+    noLooks: '카드에 선택된 필름 룩이 없습니다',
+    heroCaption: '한 장의 사진, 다섯 가지 룩. 분할선을 움직여 기본 현상 결과와 비교하세요.',
+    shelfText: '라이브러리의 모든 룩에는 고유한 필름 상자가 있습니다. Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, 그리고 GRKU 자체 개발 Positive GRII까지. 10개를 무료로 카드에 넣을 수 있으며 언제든 바꿀 수 있습니다.',
+    featuresTitle: 'GRKU가 카메라에 더하는 기능',
+    recipesTitle: '레시피와 모드 다이얼',
+    camerasTitle: '지원 카메라',
+    ctaTitle: '내 사진에서 각 룩을 먼저 확인하세요',
+    ctaText: '모든 룩을 샘플 사진이나 직접 촬영한 DNG에서 무료로 미리 볼 수 있습니다. 설치하기 전까지는 카드에 아무것도 기록되지 않습니다.',
+    filmLookText: '선택한 필름 룩을 라이브 뷰에서 미리 볼 수 있습니다.',
+  },
   title: 'GRKU: RICOH GR III, IIIx, IV용 필름 룩과 XPan, 펌웨어 수정 없이',
   description:
     'RICOH GR III, GR IIIx, GR IV에 필름 룩, XPan 등 여러 비율, 날짜 각인, 글로우, 입자감을 더합니다. 필름 레시피를 쓰거나 가지고 있는 LUT를 가져올 수 있습니다. 펌웨어는 수정하지 않습니다.',
@@ -3220,6 +3321,26 @@ const th: Strings = {
   /** End of the workbench and GRKU Plus. */
   language: 'Language',
   /** The document title. */
+  site: {
+    home: 'หน้าหลัก',
+    looksTitle: 'โทนกล้อง GR และลุคฟิล์ม: ลองดูบนภาพถ่ายของคุณ · GRKU',
+    looksDescription: 'ลองดูโทนกล้อง GR และลุคฟิล์มกว่า 150 แบบบนภาพตัวอย่างหรือไฟล์ DNG ของคุณเอง แล้วเลือกโทนที่ต้องการใส่ลงในการ์ด SD ของ RICOH GR III, IIIx หรือ IV',
+    looksHeading: 'โทนกล้อง GR และลุคฟิล์ม',
+    looksLead: 'กดที่กล่องฟิล์มเพื่อดูโทนสีบนภาพตัวอย่างหรือไฟล์ DNG ของคุณเอง เลือกแบบที่ชอบใส่ลงในการ์ด แล้วไปขั้นตอนติดตั้ง',
+    continueInstall: 'ไปต่อเพื่อติดตั้ง',
+    installTitle: 'ติดตั้ง GRKU บน RICOH GR III, IIIx และ IV · GRKU',
+    installDescription: 'เลือกกล้องและโมดูลที่ต้องการ แล้วเขียน GRKU ลงในการ์ด SD โดยตรง หรือดาวน์โหลด GRKU.zip ได้เลย ไม่ต้องแฟลชเฟิร์มแวร์',
+    changeLooks: 'เปลี่ยนลุคฟิล์ม',
+    noLooks: 'ยังไม่มีลุคฟิล์มในการ์ด',
+    heroCaption: 'ภาพเดียว 5 ฟิล์มลุค ลากเส้นแบ่งเพื่อเปรียบเทียบกับภาพตั้งต้น',
+    shelfText: 'ฟิล์มลุคแต่ละแบบในคลังมีกรอบกล่องเป็นของตัวเอง ทั้ง Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid และ Positive GRII ฟิล์มลุคที่ GRKU สร้างขึ้นเอง เลือกใส่การ์ดได้ฟรี 10 แบบ และเปลี่ยนได้ทุกเมื่อ',
+    featuresTitle: 'GRKU เพิ่มอะไรให้กล้องของคุณบ้าง',
+    recipesTitle: 'สูตรสีและแป้นเลือกโหมด',
+    camerasTitle: 'กล้องที่รองรับ',
+    ctaTitle: 'ลองดูลุคฟิล์มแต่ละแบบบนภาพถ่ายของคุณก่อน',
+    ctaText: 'ลองดูตัวอย่างลุคฟิล์มทุกแบบได้ฟรี ทั้งบนภาพตัวอย่างและไฟล์ DNG ของคุณเอง จะไม่มีอะไรถูกใส่ลงในการ์ดจนกว่าคุณจะติดตั้ง',
+    filmLookText: 'ฟิล์มลุคที่คุณเลือก พร้อมดูตัวอย่างบนไลฟ์วิว',
+  },
   title: 'GRKU: โทนกล้อง GR และสูตรสีฟิล์มสำหรับ RICOH GR III, IIIx, IV',
   /** The search result and link preview text of the page. */
   description:
@@ -3809,30 +3930,40 @@ function saveLanguage(language: Language): void {
   document.cookie = `${LANGUAGE_COOKIE}=${language}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
 }
 
-/** Sets the language, the title, and the description of the document. */
-/** The title, the description, and the address of a page: the language page, or with `fastboot` its fast-boot firmware page. */
-export function pageText(language: Language, fastboot = false): { title: string; description: string; path: string } {
-  const strings = STRINGS[language];
-  return fastboot
-    ? { title: `${strings.fastboot.title} · GRKU`, description: strings.fastboot.lead, path: fastbootPath(language) }
-    : { title: strings.title, description: strings.description, path: LANGUAGE_PATHS[language] };
-}
+/** A page of the site, or the fast-boot firmware page of a language. */
+export type PageName = SitePage | 'fastboot';
 
-export function showLanguage(language: Language, fastboot = false): void {
-  const page = pageText(language, fastboot);
-  document.documentElement.lang = language;
-  document.title = page.title;
-  document.querySelector('meta[name="description"]')?.setAttribute('content', page.description);
-  // The canonical address stays on grku.app, also for a preview deployment of the site.
-  const canonical = document.querySelector('link[rel="canonical"]');
-  if (canonical) {
-    canonical.setAttribute('href', new URL(page.path, canonical.getAttribute('href') ?? location.href).href);
+/** The title, the description, and the address of a page of the site in `language`. */
+export function pageText(language: Language, page: PageName = 'home'): { title: string; description: string; path: string } {
+  const strings = STRINGS[language];
+  switch (page) {
+    case 'fastboot':
+      return { title: `${strings.fastboot.title} · GRKU`, description: strings.fastboot.lead, path: fastbootPath(language) };
+    case 'looks':
+      return { title: strings.site.looksTitle, description: strings.site.looksDescription, path: pagePath(language, page) };
+    case 'install':
+      return { title: strings.site.installTitle, description: strings.site.installDescription, path: pagePath(language, page) };
+    default:
+      return { title: strings.title, description: strings.description, path: LANGUAGE_PATHS[language] };
   }
 }
 
-/** Applies a language, moves to its page address, and remembers it for the next visit. */
-export function applyLanguage(language: Language, fastboot = false): void {
-  history.replaceState(history.state, '', `${pageText(language, fastboot).path}${location.search}${location.hash}`);
-  showLanguage(language, fastboot);
+/** Sets the language, the title, the description, and the canonical address of the document. */
+export function showLanguage(language: Language, page: PageName = 'home'): void {
+  const text = pageText(language, page);
+  document.documentElement.lang = language;
+  document.title = text.title;
+  document.querySelector('meta[name="description"]')?.setAttribute('content', text.description);
+  // The canonical address stays on grku.app, also for a preview deployment of the site.
+  const canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical) {
+    canonical.setAttribute('href', new URL(text.path, canonical.getAttribute('href') ?? location.href).href);
+  }
+}
+
+/** Applies a language, moves to the address of `page` in it, and remembers it for the next visit. */
+export function applyLanguage(language: Language, page: PageName = 'home'): void {
+  history.replaceState(history.state, '', `${pageText(language, page).path}${location.search}${location.hash}`);
+  showLanguage(language, page);
   saveLanguage(language);
 }

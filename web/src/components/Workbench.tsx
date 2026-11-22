@@ -8,7 +8,7 @@ import {
   type ChangeEvent,
   type ReactNode,
 } from 'react';
-import { Check, KeyRound, LoaderCircle, Lock, Plus, Search, Sparkles, TriangleAlert, Upload, X } from 'lucide-react';
+import { Check, KeyRound, LoaderCircle, Lock, Plus, Search, Sparkles, Upload, X } from 'lucide-react';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -20,10 +20,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { LaunchOffer } from './LaunchOffer';
-import { CAMERAS, PREVIEW_TARGET } from '../cameras';
+import { PREVIEW_TARGET } from '../cameras';
 import { effectUrl, MAX_EFFECTS, previewTable, type CardEffect, type Catalog, type Effect, type ImportedEffect } from '../catalog';
 import { brandOf, FILM_KINDS, filmKind, type FilmKind } from '../filmKind';
-import { sentences, type Strings } from '../i18n';
+import type { Strings } from '../i18n';
 import { editable } from '../import/edit';
 import { LANDING_HERO, landingImage } from '../landing';
 import { inLaunch, ownedLines, packCounts, PRICES, REGULAR_PRICES, slotsOf, takesSlot, unlockedBy, usedSlots, type Entitlement } from '../plus';
@@ -38,28 +38,9 @@ import { BrandSwatch } from './BrandMark';
 import { EffectIcon } from './EffectIcon';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ImportDialog, type ImportDialogHandle } from './ImportDialog';
-import { StepHeading } from './Step';
 
 /** GRKU's own look, which the page shows first. */
 const FIRST_LOOK = 'positive-film-grii-v1';
-
-/** The headline with each brand name (RICOH GR…) as its own inline box, so the brand stays on one line. */
-function Headline({ text }: { text: string }) {
-  return text.split(/(RICOH GR[\w ]*?(?= |$))/).map((part, index) =>
-    /^RICOH GR/.test(part) ? (
-      <span key={index} className="inline-block" lang="en">
-        {part}
-      </span>
-    ) : (
-      <span key={index}>{part}</span>
-    ),
-  );
-}
-
-/** The cameras that GRKU supports, by the names of the installer. */
-const SUPPORTED_CAMERAS = CAMERAS.filter((camera) => camera.support)
-  .map((camera) => camera.name)
-  .join(' · ');
 
 /** The name of a kind of film in the filters. */
 function kindLabel(kind: FilmKind, t: Strings): string {
@@ -120,8 +101,6 @@ interface Props {
   onCard: ReadonlySet<string> | null;
   /** The IDs of the imports whose file on the card differs, such as after a new name. */
   changedOnCard?: ReadonlySet<string>;
-  /** Whether this browser writes to a card, which the line under the headline tells. */
-  canWrite: boolean;
   /** What the visitor owns of GRKU Plus. */
   owned: Entitlement;
   /** Opens GRKU Plus. */
@@ -166,7 +145,6 @@ export function Workbench({
   cardEffects,
   onCard,
   changedOnCard,
-  canWrite,
   owned,
   onPlus,
   plusKey = null,
@@ -369,32 +347,21 @@ export function Workbench({
       aria-labelledby="looks-title"
       ref={ownPhoto}
     >
-      {/* The headline. */}
-      <div id={LANDING_HERO} className="min-w-0 pt-[clamp(28px,6vh,72px)] lg:col-start-1 lg:row-start-1">
-        <h1 className="text-balance text-[clamp(38px,4.6vw,60px)] leading-[1.06] font-bold tracking-[-0.025em] [:root[lang=th]_&]:leading-[1.22] [:root[lang=th]_&]:tracking-normal">
-          <Headline text={t.lead[0] ?? ''} />
+      {/* The heading of the looks page. */}
+      <div id={LANDING_HERO} className="min-w-0 pt-[clamp(24px,5vh,56px)] lg:col-start-1 lg:row-start-1">
+        <p className="font-mono text-xs font-medium tracking-[0.04em] text-brand">{t.step(1)}</p>
+        <h1
+          id="looks-title"
+          className="mt-2 text-balance text-[clamp(30px,3.4vw,44px)] leading-[1.1] font-semibold tracking-[-0.02em] [:root[lang=th]_&]:leading-[1.3] [:root[lang=th]_&]:tracking-normal"
+        >
+          {t.site.looksHeading}
         </h1>
-        <p className="mt-4 max-w-[30em] text-[clamp(16px,1.3vw,19px)] leading-relaxed text-muted-foreground">{t.lead[1]}</p>
-        <div className="mt-7 flex flex-wrap items-center gap-3">
-          <Button asChild variant="brand" size="lg" className="h-11 px-6 text-[15px]">
-            <a href="#looks">{t.chooseLooks}</a>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="h-11 px-6 text-[15px]">
-            <a href="#install">{t.install}</a>
-          </Button>
-        </div>
-        <p className="mt-5 max-w-[40em] text-sm leading-relaxed text-muted-foreground">
-          {sentences(t.landing.supports(SUPPORTED_CAMERAS), canWrite ? t.landing.installNote : t.landing.installNoteZip)}
-        </p>
-        <p className="mt-3 flex items-start gap-2 text-sm font-medium">
-          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden="true" />
-          {t.riskShort}
-        </p>
+        <p className="mt-4 max-w-[40em] text-[15px] leading-relaxed text-muted-foreground">{t.site.looksLead}</p>
       </div>
 
       {/* The photograph, which stays in view while the shelf scrolls. */}
       <aside
-        className="sticky top-14 z-20 -mx-gutter min-w-0 bg-background px-gutter pt-3 pb-3 lg:top-[72px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:self-start lg:px-0 lg:pt-[clamp(28px,6vh,72px)] lg:pb-0"
+        className="sticky top-24 z-20 -mx-gutter min-w-0 bg-background px-gutter pt-3 pb-3 lg:top-[72px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:self-start lg:px-0 lg:pt-[clamp(28px,6vh,72px)] lg:pb-0"
         aria-label={t.preview}
       >
         <div className="relative">
@@ -492,14 +459,10 @@ export function Workbench({
       </aside>
 
       {/* The shelf. */}
-      <div id="looks" className="min-w-0 scroll-mt-20 lg:col-start-1 lg:row-start-2">
-        <StepHeading
-          id="looks-title"
-          number={t.step(1)}
-          title={t.effects}
-          className="mb-5"
-          aside={
-            <>
+      <div id="looks" className="min-w-0 scroll-mt-28 md:scroll-mt-20 lg:col-start-1 lg:row-start-2">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-border pt-6">
+          <h2 className="text-lg font-semibold">{t.effects}</h2>
+          <div className="flex shrink-0 items-center gap-3">
               <div className="flex items-center gap-3">
                 <Progress value={Math.min(100, (used / Math.max(slots, 1)) * 100)} className="w-20 [&>div]:bg-brand" aria-hidden="true" />
                 <span className="text-sm tabular-nums">
@@ -513,9 +476,8 @@ export function Workbench({
                   {t.plus.getMore}
                 </Button>
               )}
-            </>
-          }
-        />
+          </div>
+        </div>
         {(() => {
           const lines = ownedLines(owned, t.plus, catalog ? packCounts(catalog.effects) : null);
           if (lines.length === 0) return null;
