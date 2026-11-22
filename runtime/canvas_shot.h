@@ -142,7 +142,7 @@ static u32 canvas_bytes(u32 recipe,u32 offset) {
    takes the border of its still build from the shot ring instead. */
 static u32 canvas_current(volatile u32 *h) {
     if(!(h[GRKU_HOST_CAPABILITIES/4]&GRKU_CORE_BORDER_BIT)) return 0;
-    return (h[GRKU_HOST_BORDER/4]&0xffU)|(h[GRKU_HOST_BORDER_COLOR/4]&0xffU)<<8;
+    return (picture_header_word(GRKU_HOST_BORDER)&0xffU)|(picture_header_word(GRKU_HOST_BORDER_COLOR)&0xffU)<<8;
 }
 
 /* Step 1: before the first stripe of a shot, the layout of its canvas. The
