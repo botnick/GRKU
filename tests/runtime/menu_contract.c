@@ -284,11 +284,11 @@ static unsigned test_goodbye_file(const char *path, unsigned char *head, unsigne
 }
 #define GOODBYE_FILE(path, head, size, read) test_goodbye_file((path), (head), (size), (read))
 /* The photo that playback shows (runtime/playback_info.h): its path, its
-   file, its Image Control tag, and the controller of playback; the reads of
+   file, and the controller of playback; the reads of
    the file, the redraws of the canvas, and the timers of the poll. */
 static const char *playback_test_path;
 static unsigned char playback_test_file[8192];
-static unsigned playback_test_bytes, playback_test_tone, playback_test_controller;
+static unsigned playback_test_bytes, playback_test_controller;
 static unsigned playback_reads, playback_redraws, playback_timers;
 static unsigned test_playback_file(const unsigned char *path, unsigned offset, unsigned char *buf, unsigned size)
 {
@@ -301,7 +301,6 @@ static unsigned test_playback_file(const unsigned char *path, unsigned offset, u
 }
 #define PLAYBACK_FILE(path, offset, buf, size) test_playback_file((path), (offset), (buf), (size))
 #define PLAYBACK_PATH_SHOWN(path) (strcpy((char *)(path), playback_test_path), 1U)
-#define PLAYBACK_TONE() (playback_test_tone)
 #define PLAYBACK_CONTROLLER_OF() (playback_test_controller)
 #define PLAYBACK_INVALIDATE(view) ((void)(view), ++playback_redraws)
 #define PLAYBACK_TIMER_START(ms) ((void)(ms), 0x20000U + ++playback_timers)
@@ -5659,28 +5658,22 @@ static void playback_test_jpeg(unsigned exif, const char *packet)
     memcpy(playback_test_file + at + 4 + sizeof namespace, packet ? packet : "", n);
     playback_test_bytes = at + 4 + sizeof namespace + n;
 }
-/* Item i of the list of playback: its name and its value. */
-static int playback_item(u32 i, u32 name, const char *value)
+/* Item i of the list of playback: its name. */
+static int playback_item(u32 i, u32 name)
 {
     volatile u32 *item = DETAIL_ITEM_AT(services_word(test_header, SERVICES_PLAYBACK + PLAYBACK_DETAILS), i);
-    return DETAIL_NAME(item[DETAIL_ITEM_META / 4]) == name &&
-           same((const u16 *)(item + DETAIL_ITEM_VALUE / 4), value);
+    return DETAIL_NAME(item[DETAIL_ITEM_META / 4]) == name;
 }
-/* The second page of the detailed information of playback lists the GRKU
-   settings of the photo: the look of its GRKU code, then the settings that
-   grku:State holds on, with the text of their properties. The poll reads
-   each photo once, at most twice, and a photo of an older GRKU gives its
-   look only, a photo without GRKU nothing. Off reads nothing. */
+/* The first page of the detailed information of playback shows the GRKU
+   settings of the photo that grku:State holds on and whose property the
+   packet has. The poll reads each photo once, at most twice, and a photo of
+   an older GRKU or without GRKU gives nothing. Off reads nothing. */
 static void playback_lists_the_grku_settings_of_a_photo(void)
 {
     volatile u32 *h = test_header, *count;
     u32 c = TEST_OBJECTS + 8 * GRKU_RECORD_SIZE, i;
     install_stock_tab(10, 3);
     count = services_word(h, SERVICES_PLAYBACK + PLAYBACK_DETAILS);
-    h[GRKU_HOST_COUNT / 4] = 2;
-    h[GRKU_HOST_RECORDS / 4] = TEST_OBJECTS;
-    HALF(TEST_OBJECTS + GRKU_RECORD_SIZE, GRKU_RECORD_CODE) = 0x8123;
-    for (i = 0; "Portra"[i]; ++i) HALF(TEST_OBJECTS + GRKU_RECORD_SIZE, GRKU_RECORD_NAME + 2 * i) = (u16)"Portra"[i];
     settings_memory[0] = 18;
     settings_memory[2 + 17 * 3 + 1] = MANAGE_PLAYBACK_INFO_ON;
     settings_memory[2 + 17 * 3 + 2] = MANAGE_PLAYBACK_INFO_VALUES;
@@ -5689,30 +5682,23 @@ static void playback_lists_the_grku_settings_of_a_photo(void)
     WORD(c, CONTROLLER_ID) = PLAYBACK_SINGLE;
     WORD(c, ADJ_CANVAS) = TEST_OBJECTS + 9 * GRKU_RECORD_SIZE;
     BYTE(c, PLAYBACK_DISPLAY) = PLAYBACK_DETAIL;
-    BYTE(c, PLAYBACK_DISPLAY + 1) = PLAYBACK_SECOND_PAGE;
+    BYTE(c, PLAYBACK_DISPLAY + 1) = PLAYBACK_INFO_PAGE;
     playback_test_controller = c;
     playback_reads = playback_redraws = 0;
     /* A photo with the state, whose packet is past the first read. */
     playback_test_path = "C:\\DCIM\\100RICOH\\R0000001.JPG";
-    playback_test_tone = 0x10000U | (0x8123U - 0x100U);
     playback_test_jpeg(5000, "<x:xmpmeta><rdf:Description grku:FilmLook=\"Portra\" grku:Grain=\"Medium\" "
                              "grku:GrainSize=\"Auto\" grku:Border=\"Thin\" grku:BorderColor=\"White\" "
                              "grku:Crop=\"35mm\" grku:State=\"790270076=2,977751003=0,862826181=1,360900158=0,"
                              "660632122=0\"/></x:xmpmeta>");
     playback_info_controller(h, PLAYBACK_SINGLE);
-    assert(playback_timers == 1 && playback_reads == 2 && playback_redraws == 1 && count[0] == 3);
-    assert(playback_item(0, DETAIL_NAME_FILM_LOOK, "Portra") && playback_item(1, DETAIL_NAME_GRAIN, "Medium, size Auto") &&
-           playback_item(2, DETAIL_NAME_BORDER, "Thin, White"));
+    assert(playback_timers == 1 && playback_reads == 2 && playback_redraws == 1 && count[0] == 2);
+    assert(playback_item(0, DETAIL_NAME_GRAIN) && playback_item(1, DETAIL_NAME_BORDER));
     assert(services_word(h, SERVICES_PLAYBACK + PLAYBACK_CONTROLLER)[0] == c);
     assert(playback_info_fired(h, 0x20000U + playback_timers) && playback_reads == 2);
-    /* A photo of an older GRKU: no packet. */
+    /* A photo of an older GRKU or without GRKU: no packet. */
     playback_test_path = "C:\\DCIM\\100RICOH\\R0000002.JPG";
     playback_test_jpeg(100, 0);
-    assert(playback_info_fired(h, 0x20000U + playback_timers) && count[0] == 1 &&
-           playback_item(0, DETAIL_NAME_FILM_LOOK, "Portra"));
-    /* A photo without GRKU. */
-    playback_test_path = "C:\\DCIM\\100RICOH\\R0000003.JPG";
-    playback_test_tone = 3;
     assert(playback_info_fired(h, 0x20000U + playback_timers) && count[0] == 0);
     /* Off: no read, and the live view gets no controller. */
     settings_memory[2 + 17 * 3 + 1] = MANAGE_PLAYBACK_INFO_OFF;

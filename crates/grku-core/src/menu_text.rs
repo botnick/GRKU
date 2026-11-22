@@ -105,7 +105,7 @@ struct Words {
     /// power-off. Its values are the Off and On of the switch.
     shutdown_text: &'static str,
     /// The GRKU Info in Playback row of Display Settings: the GRKU settings
-    /// of a photo on the second page of the detailed information of
+    /// of a photo as icons on the first page of the detailed information of
     /// playback. Its values are the Off and On of the switch.
     playback_info: &'static str,
     /// The MENU row that orders the module pages in the GRKU root of ADJ.
