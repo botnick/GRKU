@@ -4,7 +4,7 @@ import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Progress } from '@/components/ui/progress';
+import { ChevronDown } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { Strings } from '../i18n';
@@ -57,6 +57,12 @@ export const EXAMPLES: readonly { image: string; before?: string; beforeDetail?:
   // Grain comes from the camera itself, so the comparison is Weak against Extra Strong.
   { image: 'grain-4.jpg', before: 'grain-1.jpg', beforeDetail: (t) => t.landing.grainLevels[0] ?? '', module: 'grain', detail: (t) => t.landing.grainLevels[3] ?? '', photo: 'tram' },
 ];
+
+/** The photo of each module in its row: the example of the module, where it has one. */
+const ROW_EXAMPLES: Partial<Record<ModuleKey, string>> = Object.fromEntries(
+  [...EXAMPLES].reverse().map((example) => [example.module, example.image]),
+);
+ROW_EXAMPLES.filmLook = 'looks/portra-400.jpg';
 
 /** A frame of the strip: the photo without the module on the left, with it on the right, under a handle. */
 export function Example({ before, beforeDetail = 'Off', after, alt, detail, compareLabel }: { before?: string; beforeDetail?: string; after: string; alt: string; detail: string; compareLabel: string }) {
@@ -128,20 +134,26 @@ export function ModulesStep({
     <div className="flex flex-col gap-10">
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
         <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-end gap-3 text-sm tabular-nums">
-          <Progress value={Math.min(100, (visible.length / MODULES_MAX) * 100)} className="w-20 [&>div]:bg-brand" aria-hidden="true" />
-          <span>
-            <b className="font-semibold">{visible.length}</b>
-            <span className="text-muted-foreground"> / {MODULES_MAX}</span>
-          </span>
-        </div>
-        {full && <p className="m-0 text-right text-[13px] text-muted-foreground">{t.modulesFull(MODULES_MAX)}</p>}
+        <p className="m-0 text-sm text-muted-foreground tabular-nums">{t.site.menuPlaces(visible.length, MODULES_MAX)}</p>
+        {full && <p className="m-0 text-[13px] text-muted-foreground">{t.modulesFull(MODULES_MAX)}</p>}
         <ul role="group" aria-label={t.modules} className="divide-y divide-border overflow-hidden rounded-xl border bg-card">
           {modules.map((module) => {
             const on = enabled.has(module.key);
             return (
               <li key={module.key} className={cn('flex items-start gap-4 p-4 transition-opacity', !on && 'opacity-60')}>
-                <img src={TILES[module.key]} alt="" width="40" height="40" className="mt-0.5 size-10 shrink-0 rounded-[3px] [image-rendering:pixelated]" />
+                {/* What the module does, on a photo where there is one, with its menu tile in the corner. */}
+                <span className="relative flex aspect-[3/2] w-24 shrink-0 items-center justify-center overflow-hidden rounded-md bg-black/40 sm:w-28">
+                  {ROW_EXAMPLES[module.key] ? (
+                    <img src={landingImage(ROW_EXAMPLES[module.key]!)} alt="" width="1200" height="800" loading="lazy" className="absolute inset-0 size-full object-cover" />
+                  ) : null}
+                  <img
+                    src={TILES[module.key]}
+                    alt=""
+                    width="40"
+                    height="40"
+                    className={cn('rounded-[3px] [image-rendering:pixelated]', ROW_EXAMPLES[module.key] ? 'absolute bottom-1 left-1 size-6 ring-1 ring-black/60' : 'size-10')}
+                  />
+                </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-4">
                     <Label htmlFor={`module-${module.key}`} className="flex cursor-pointer flex-wrap items-center gap-2 text-[15px] font-semibold">
@@ -150,7 +162,7 @@ export function ModulesStep({
                     </Label>
                     <Switch id={`module-${module.key}`} checked={on} disabled={!on && full} onCheckedChange={() => onToggle(module.key)} aria-label={t.moduleNames[module.key]} />
                   </div>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{module.key === 'filmLook' ? t.site.filmLookText : t.modulesText[module.key]}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{module.key === 'filmLook' ? t.site.filmLookText : (t.site.plain[module.key] ?? t.modulesText[module.key])}</p>
                   {!on && full && <p className="mt-1 text-[13px] font-medium text-foreground/80">{t.modulesFullHint}</p>}
                   {module.key === 'filmLook' && emptyLooks && <p className="mt-1 text-sm text-destructive">{t.filmLookEmpty}</p>}
                 </div>
@@ -185,7 +197,17 @@ export function ModulesStep({
           <CardFooter className="px-5 pt-2 pb-3 text-xs text-muted-foreground/70">{t.landing.menuCaption}</CardFooter>
         </Card>
       </div>
-      {recipes}
+      {/* The recipes wait folded: most people keep the ones the card has. */}
+      {recipes && (
+        <details className="group rounded-xl border bg-card">
+          <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 font-medium [&::-webkit-details-marker]:hidden">
+            <img src={TILES.recipes} alt="" width="40" height="40" className="size-6 rounded-[3px] [image-rendering:pixelated]" />
+            {t.site.chooseRecipes}
+            <ChevronDown className="ml-auto size-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+          </summary>
+          <div className="border-t px-4 py-5">{recipes}</div>
+        </details>
+      )}
     </div>
   );
 }

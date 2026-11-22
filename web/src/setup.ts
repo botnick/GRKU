@@ -84,3 +84,12 @@ export function saveProgress(storage: Pick<Storage, 'setItem'> | null, progress:
     // A convenience: without storage, Install in the header opens the first step.
   }
 }
+
+/** Whether this browser kept a camera that the visitor chose. */
+export function hasCamera(storage: Pick<Storage, 'getItem'> | null): boolean {
+  try {
+    return !!storage?.getItem(CAMERA_KEY);
+  } catch {
+    return false;
+  }
+}

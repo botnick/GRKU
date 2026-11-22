@@ -1,6 +1,5 @@
 import { Suspense, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { ArrowLeft, ArrowRight, FileText, TriangleAlert } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ArrowLeft, ArrowRight, Check, ChevronDown, FileText, TriangleAlert } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -66,6 +65,7 @@ import {
   type InstallMode,
 } from './components/CardPanel';
 import { ChoiceCard } from './components/ChoiceCard';
+import { CameraArt, FOCAL_LENGTH } from './components/CameraArt';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Faq } from './components/Faq';
 import { Masthead } from './components/Masthead';
@@ -84,7 +84,7 @@ import {
   type SitePage,
 } from './languagePage';
 import { pageLink, type Navigate, type PageLink } from './navigation';
-import { loadCamera, loadModules, loadProgress, saveCamera, saveModules, saveProgress, visitStep } from './setup';
+import { hasCamera, loadCamera, loadModules, loadProgress, saveCamera, saveModules, saveProgress, visitStep } from './setup';
 import { Home } from './components/Home';
 import { RichText } from './components/RichText';
 import { SiteFooter } from './components/SiteFooter';
@@ -189,6 +189,9 @@ export function App({
     typeof location === 'undefined' || !location.hash ? null : { hash: location.hash },
   );
   const [cameraKey, setCameraKeyState] = useState(() => loadCamera(browserStorage()));
+  // Whether the visitor chose the camera, or a card or a package told it. Until then the camera
+  // step asks, and the last step waits for the answer.
+  const [cameraChosen, setCameraChosen] = useState(() => hasCamera(browserStorage()));
   // The ZIP download has no card to read the effects from, so the choice of the last visit
   // comes back.
   const [selection, setSelection] = useState<Selection>(() => loadSelection(browserStorage()));
@@ -196,6 +199,7 @@ export function App({
 
   function setCameraKey(key: Camera['key']) {
     setCameraKeyState(key);
+    setCameraChosen(true);
     saveCamera(browserStorage(), key);
   }
 
@@ -911,39 +915,55 @@ export function App({
     </AccordionItem>
   );
 
-  // What to do with the ZIP: four steps with the card and the camera as they will look.
-  // It stands out once the ZIP is ready.
-  const zipSteps = (
-    <div className={cn('rounded-2xl border bg-card p-5', build.state === 'ready' && 'border-brand/60 bg-brand/[0.06]')}>
-      <p className="m-0 text-base font-semibold">{t.zipNextTitle}</p>
-      <ol className="m-0 mt-3 flex list-none flex-col gap-2 p-0 text-sm leading-relaxed">
-        {[t.zipNext1, t.zipNext2, t.zipNext3, t.zipNext4].map((step, index) => (
-          <li key={step} className="flex gap-3">
-            <StepNumber n={index + 1} />
-            <span>{step}</span>
+  // The write or the download is done: the step says so and leads on to the camera.
+  const finished = mode === 'card' && canWrite ? applyMessage?.tone === 'ok' : build.state === 'ready';
+
+  // What to do on the camera afterwards, numbered, with the card and the camera as they will look.
+  // It stands out once the card is written or the ZIP is here.
+  const cameraStepLines =
+    mode === 'card' && canWrite ? [t.cardStepInsert, t.cardDoneFirst, t.zipNext4] : [t.zipNext1, t.zipNext2, t.zipNext3, t.zipNext4];
+  const cameraStepImages: Record<number, readonly [string, number, number]> =
+    mode === 'card' && canWrite
+      ? { 1: [cameraMenuImage, 580, 318], 2: [cameraAdjImage, 580, 318] }
+      : { 1: [CARD_IMAGES[camera.key] ?? CARD_IMAGES.gr4!, 340, 178], 2: [cameraMenuImage, 580, 318], 3: [cameraAdjImage, 580, 318] };
+  const cameraSteps = (
+    <section
+      aria-labelledby="camera-steps"
+      className={cn('rounded-2xl border bg-card p-5 transition-colors lg:sticky lg:top-24', finished && 'border-foreground/30')}
+    >
+      <h2 id="camera-steps" className="text-base font-semibold">
+        {t.site.thenTitle}
+      </h2>
+      <ol className="mt-4 flex list-none flex-col gap-5 p-0">
+        {cameraStepLines.map((line, index) => (
+          <li key={line} className="flex gap-3">
+            <StepNumber n={index + 1} className="mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm leading-relaxed">{line}</p>
+              {cameraStepImages[index] && (
+                <img
+                  src={cameraStepImages[index]![0]}
+                  alt=""
+                  width={cameraStepImages[index]![1]}
+                  height={cameraStepImages[index]![2]}
+                  loading="lazy"
+                  className="mt-3 h-auto w-full rounded-lg"
+                />
+              )}
+            </div>
           </li>
         ))}
       </ol>
-      {/* The card after step 2 and the camera in steps 3 and 4, in one row. */}
-      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {([[2, CARD_IMAGES[camera.key] ?? CARD_IMAGES.gr4, 340, 178], [3, cameraMenuImage, 580, 318], [4, cameraAdjImage, 580, 318]] as const).map(([n, src, w, h]) => (
-          <figure key={n} className="relative m-0">
-            <StepNumber n={n} className="absolute -top-2 -left-2 z-10 ring-2 ring-card" />
-            <img src={src} alt="" width={w} height={h} className="h-auto w-full rounded-lg" />
-          </figure>
-        ))}
-        {/* The full guide fills the fourth cell. */}
-        <a
-          href={guidePdfUrl(camera.id, language)}
-          target="_blank"
-          rel="noreferrer"
-          className={cn('flex min-h-24 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border text-sm font-medium transition-colors hover:border-brand/60 hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-ring')}
-        >
-          <FileText className="size-6 text-muted-foreground" aria-hidden="true" />
-          {t.zipGuideButton}
-        </a>
-      </div>
-    </div>
+      <a
+        href={guidePdfUrl(camera.id, language)}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-5 inline-flex items-center gap-2 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+      >
+        <FileText className="size-4" aria-hidden="true" />
+        {t.zipGuideButton}
+      </a>
+    </section>
   );
 
   const zipFlow = (
@@ -951,16 +971,6 @@ export function App({
       <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-6">
       {packageOpen}
-      <dl className={FACTS}>
-        <dt className={FACT_LABEL}>{t.camera}</dt>
-        <dd className={FACT_VALUE}>{camera.name}</dd>
-        <dt className={FACT_LABEL}>{t.firmware}</dt>
-        <dd className={FACT_VALUE}>{support?.firmware ?? '—'}</dd>
-        <dt className={FACT_LABEL}>{t.effectCount}</dt>
-        <dd className={FACT_VALUE}>{effectCount ?? '—'}</dd>
-        <dt className={FACT_LABEL}>{t.modules}</dt>
-        <dd className={FACT_VALUE}>{moduleNames.length > 0 ? moduleNames.join(t.listSeparator) : '—'}</dd>
-      </dl>
       <div className="flex flex-col items-start gap-3">
         <Button
           type="button"
@@ -989,7 +999,6 @@ export function App({
         {build.state === 'ready' && packageLinks}
       </div>
       </div>
-      <div className="lg:hidden">{zipSteps}</div>
       <div>
       <Accordion type="single" collapsible className="w-full border-t border-border">
         {guide('install', t.install, t.steps)}
@@ -1088,7 +1097,7 @@ export function App({
 
   /** Why the visitor cannot go on from `step` yet, or null. */
   function stepBlocked(step: InstallStep): string | null {
-    if (step === 'camera' && !support) return t.effectsUnavailable(camera.name);
+    if (step === 'camera' && !cameraChosen) return t.site.cameraPick;
     if (step === 'modules') {
       if (plan.visible.length === 0) return t.noModules;
       if (plan.includeEffects && effectCount === 0) return t.filmLookEmpty;
@@ -1160,7 +1169,7 @@ export function App({
               />
             )}
             {page === 'camera' && (
-              <Step id="camera" number={t.step(2)} title={t.camera} description={cardCamera ? undefined : t.firmwareNote} level="h1" className="border-t-0 pt-8 lg:pt-10">
+              <Step id="camera" title={t.site.cameraQuestion} description={cardCamera ? undefined : t.site.cameraHelp} level="h1" className="border-t-0 pt-8 lg:pt-10">
                 {cardCamera ? (
                   <dl className={FACTS}>
                     <dt className={FACT_LABEL}>{t.camera}</dt>
@@ -1192,29 +1201,39 @@ export function App({
                     <dd className={FACT_VALUE}>{card?.state.name || '—'}</dd>
                   </dl>
                 ) : (
+                  <>
                   <RadioGroup
                     name="camera"
-                    value={camera.key}
+                    value={cameraChosen ? camera.key : ''}
                     aria-labelledby="camera-title"
-                    className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+                    className="grid grid-cols-2 gap-3 lg:grid-cols-4"
                     onValueChange={(next) => chooseCamera(next as Camera['key'])}
                   >
                     {CAMERAS.map((item) => (
                       <ChoiceCard
                         key={item.key}
                         htmlFor={`camera-${item.key}`}
+                        className="relative flex-col items-stretch gap-0 p-0"
                         control={
                           <RadioGroupItem
                             id={`camera-${item.key}`}
                             value={item.key}
-                            className="mt-1"
+                            className="absolute top-3 left-3"
                             disabled={!item.support || (!!lockedCameras && !lockedCameras.includes(item))}
                           />
                         }
                       >
-                        <span className="font-semibold">{item.name}</span>
+                        {/* The camera drawn large, then its name, its lens, and the firmware it needs. */}
+                        <span className="flex items-center justify-center rounded-t-xl bg-black/30 px-6 pt-8 pb-4">
+                          <CameraArt camera={item.key} className="max-w-[180px]" />
+                        </span>
+                        <span className="flex flex-col gap-1 p-4">
+                          <span className="flex flex-wrap items-baseline gap-x-2 font-semibold">
+                            {item.name}
+                            <span className="font-mono text-xs font-normal text-muted-foreground">{FOCAL_LENGTH[item.key]}</span>
+                          </span>
                         {item.support && (
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-[13px] text-muted-foreground">
                             {t.firmware} {item.support.firmware}
                           </span>
                         )}
@@ -1223,15 +1242,27 @@ export function App({
                             {t.planned}
                           </Badge>
                         )}
-                        {item.support?.noEffects && <span className="text-sm text-muted-foreground">{t.noEffects}</span>}
+                        {item.support?.noEffects && <span className="text-[13px] text-muted-foreground">{t.noEffects}</span>}
+                        </span>
                       </ChoiceCard>
                     ))}
                   </RadioGroup>
+                  {/* How to read the firmware version, for those who do not know it. */}
+                  <details className="group mt-6 max-w-[64ch] rounded-xl border bg-card px-4 py-3 text-sm">
+                    <summary className="cursor-pointer list-none font-medium marker:hidden [&::-webkit-details-marker]:hidden">
+                      <span className="inline-flex items-center gap-2">
+                        <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+                        {t.site.firmwareHow}
+                      </span>
+                    </summary>
+                    <p className="mt-2 pl-6 leading-relaxed text-muted-foreground">{t.site.firmwareHowText}</p>
+                  </details>
+                  </>
                 )}
               </Step>
             )}
             {page === 'modules' && (
-              <Step id="modules" number={t.step(3)} title={t.modules} description={t.landing.moduleListText} ref={prefetchInView} level="h1" className="border-t-0 pt-8 lg:pt-10">
+              <Step id="modules" title={t.site.extrasQuestion} description={t.site.extrasHelp} ref={prefetchInView} level="h1" className="border-t-0 pt-8 lg:pt-10">
                 <ModulesStep
                   strings={t}
                   modules={offered}
@@ -1289,57 +1320,89 @@ export function App({
               </Step>
             )}
             {page === 'write' && (
-              <Step id="install" number={t.step(4)} title={t.install} ref={prefetchInView} level="h1" className="border-t-0 pt-8 lg:pt-10">
-                <WriteSummary
-                  strings={t}
-                  link={link}
-                  looks={plan.includeEffects ? effectCount : 0}
-                  camera={camera.name}
-                  firmware={support?.firmware ?? '—'}
-                  modules={moduleNames}
-                />
-                <Alert className="mb-8 border-2 border-destructive bg-destructive/15 px-5 py-5 shadow-[inset_6px_0_0_0_var(--destructive)] sm:px-6 has-[>svg]:grid-cols-[calc(var(--spacing)*7)_1fr] has-[>svg]:gap-x-4 [&>svg]:size-7 [&>svg]:translate-y-0">
-                  <TriangleAlert className="text-destructive" strokeWidth={2.5} aria-hidden="true" />
-                  <AlertTitle className="text-xl font-bold tracking-tight text-destructive sm:text-2xl">{t.riskTitle}</AlertTitle>
-                  <AlertDescription className="mt-1 max-w-[80ch] text-base leading-relaxed text-foreground">{t.riskText}</AlertDescription>
-                </Alert>
-                <dl className="mb-8 grid gap-5 sm:grid-cols-3">
-                  {t.landing.facts.map(([title, text]) => (
-                    <div key={title} className="flex flex-col gap-1 border-l-2 border-brand/70 pl-4">
-                      <dt className="font-medium">{title}</dt>
-                      <dd className="text-sm leading-relaxed text-muted-foreground">{text}</dd>
-                    </div>
-                  ))}
-                </dl>
-                <div className={cn('grid items-start gap-x-10 gap-y-6', (!canWrite || mode === 'zip') && 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]')}>
-                <div className="min-w-0">
-                {canWrite ? (
-                  <Tabs value={mode} onValueChange={(value) => chooseMode(value as InstallMode)}>
-                    <TabsList className="mb-2 h-10">
-                      <TabsTrigger value="card" className="px-4">
-                        {t.modeCard}
-                      </TabsTrigger>
-                      <TabsTrigger value="zip" className="px-4">
-                        {t.modeZip}
-                      </TabsTrigger>
-                    </TabsList>
-                    <p className={`${NOTE} mb-6`}>{mode === 'card' ? t.modeCardText : t.modeZipText}</p>
-                    <TabsContent value="card">{cardFlow}</TabsContent>
-                    <TabsContent value="zip">{zipFlow}</TabsContent>
-                  </Tabs>
+              <Step id="install" title={t.site.writeQuestion} description={t.site.writeHelp} ref={prefetchInView} level="h1" className="border-t-0 pt-8 lg:pt-10">
+                {!cameraChosen ? (
+                  // The card needs the camera: the step sends the visitor back to choose it.
+                  <div className="flex flex-col items-start gap-4 rounded-2xl border bg-card p-6">
+                    <p className="text-base font-medium">{t.site.cameraPick}</p>
+                    <Button asChild>
+                      <a {...link('camera')}>
+                        <ArrowLeft aria-hidden="true" />
+                        {t.site.cameraQuestion}
+                      </a>
+                    </Button>
+                  </div>
                 ) : (
-                  zipFlow
+                  <>
+                    {finished && (
+                      <div className="mb-8 flex items-start gap-4 rounded-2xl border border-foreground/20 bg-card p-5 motion-safe:animate-[step-in_240ms_ease-out] sm:p-6" role="status">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
+                          <Check className="size-5" strokeWidth={2.5} aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-lg font-semibold">{mode === 'card' && canWrite ? t.site.doneTitle : t.ready}</p>
+                          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t.site.doneText}</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+                      <div className="min-w-0">
+                        <WriteSummary
+                          strings={t}
+                          link={link}
+                          looks={plan.includeEffects ? effectCount : 0}
+                          camera={camera.name}
+                          firmware={support?.firmware ?? '—'}
+                          modules={moduleNames}
+                        />
+                        {/* What the visitor needs at hand, before the one action of the step. */}
+                        <div className="mb-8">
+                          <h2 className="text-sm font-medium text-muted-foreground">{t.site.needTitle}</h2>
+                          <ul className="mt-2 flex flex-col gap-1.5 text-sm">
+                            {[t.cardReader, ...(canWrite && mode === 'card' ? [t.cardComputer] : []), t.site.needBattery].map((item) => (
+                              <li key={item} className="flex items-start gap-2">
+                                <Check className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        {canWrite ? (
+                          <Tabs value={mode} onValueChange={(value) => chooseMode(value as InstallMode)}>
+                            <TabsList className="mb-2 h-10">
+                              <TabsTrigger value="card" className="px-4">
+                                {t.modeCard}
+                              </TabsTrigger>
+                              <TabsTrigger value="zip" className="px-4">
+                                {t.modeZip}
+                              </TabsTrigger>
+                            </TabsList>
+                            <p className={`${NOTE} mb-6`}>{mode === 'card' ? t.modeCardText : t.modeZipText}</p>
+                            <TabsContent value="card">{cardFlow}</TabsContent>
+                            <TabsContent value="zip">{zipFlow}</TabsContent>
+                          </Tabs>
+                        ) : (
+                          zipFlow
+                        )}
+                        {/* The risk, said once and quietly, under the action. */}
+                        <p className="mt-10 flex max-w-[72ch] items-start gap-3 border-t border-border pt-6 text-[13px] leading-relaxed text-muted-foreground">
+                          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
+                          <span>
+                            <b className="font-medium text-foreground">{t.riskTitle}.</b> {t.riskText}
+                          </span>
+                        </p>
+                      </div>
+                      {cameraSteps}
+                    </div>
+                  </>
                 )}
-                </div>
-                {(!canWrite || mode === 'zip') && <div className="hidden lg:block">{zipSteps}</div>}
-                </div>
               </Step>
             )}
           </div>
         )}
       </main>
       {isInstallStep(page) && (
-        <StepBar strings={t} page={page} link={link} count={page === 'install' ? checkedCount : undefined} blocked={stepBlocked(page)} />
+        <StepBar strings={t} page={page} link={link} blocked={stepBlocked(page)} />
       )}
       <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} />
       {/* Room under the footer for the bar of the install steps. */}
@@ -1524,7 +1587,7 @@ function stepName(step: InstallStep, t: Strings): string {
     case 'camera':
       return t.camera;
     case 'modules':
-      return t.modules;
+      return t.site.extras;
     case 'write':
       return t.install;
   }
@@ -1629,7 +1692,7 @@ function StepBar({
         )}
         <div className="flex min-w-0 items-center justify-end gap-3">
           {blocked ? (
-            <p className="min-w-0 text-right text-[13px] leading-snug text-destructive" role="status">
+            <p className="min-w-0 text-right text-[13px] leading-snug text-muted-foreground" role="status">
               {blocked}
             </p>
           ) : (
@@ -1679,7 +1742,7 @@ function WriteSummary({
   const rows: [InstallStep, string, string][] = [
     ['install', t.effects, looks === null ? '…' : t.slotsUsed(looks, MAX_EFFECTS)],
     ['camera', t.camera, `${camera} · ${t.firmware} ${firmware}`],
-    ['modules', t.modules, modules.length > 0 ? modules.join(t.listSeparator) : '—'],
+    ['modules', t.site.extras, modules.length > 0 ? modules.join(t.listSeparator) : '—'],
   ];
   return (
     <section aria-labelledby="summary-title" className="mb-8 rounded-2xl border bg-card px-5 py-4">

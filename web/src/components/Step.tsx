@@ -16,8 +16,8 @@ export function StepHeading({
   level?: 'h1' | 'h2';
   /** The ID of the title, which the step is labelled by and the masthead links to. */
   id: string;
-  /** The number of the step, as the page text names it ("Step 1"). */
-  number: string;
+  /** The number of the step, as the page text names it ("Step 1"). A step of the install wizard has the step indicator instead. */
+  number?: string;
   /** The text of the number, for screen readers. */
   label?: string;
   title: ReactNode;
@@ -29,10 +29,21 @@ export function StepHeading({
   return (
     <header className={cn('flex flex-wrap items-end justify-between gap-x-8 gap-y-4', className)}>
       <div className="min-w-0 max-w-[60ch]">
-        <p className="font-mono text-xs font-medium tracking-[0.04em] text-brand" aria-label={label}>
-          {number}
-        </p>
-        <Heading id={id} className="mt-1.5 text-[clamp(26px,2.6vw,34px)] leading-[1.15] font-semibold tracking-[-0.02em]">
+        {number && (
+          <p className="font-mono text-xs font-medium tracking-[0.04em] text-brand" aria-label={label}>
+            {number}
+          </p>
+        )}
+        <Heading
+          id={id}
+          className={cn(
+            number && 'mt-1.5',
+            'font-semibold tracking-[-0.02em] text-balance',
+            Heading === 'h1'
+              ? 'text-[clamp(30px,3.4vw,44px)] leading-[1.1] [:root[lang=th]_&]:leading-[1.3] [:root[lang=th]_&]:tracking-normal'
+              : 'text-[clamp(26px,2.6vw,34px)] leading-[1.15]',
+          )}
+        >
           {title}
         </Heading>
         {description && <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{description}</p>}

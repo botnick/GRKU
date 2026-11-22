@@ -80,26 +80,27 @@ function HeroCompare({ strings: t }: { strings: Strings }) {
           {look.name}
         </Badge>
       </div>
-      <div className="mt-4 flex gap-2" role="group" aria-label={t.effects}>
+      {/* The five looks as a slim row of film boxes under the photo: the one on the photo is lit and
+          underlined, the others wait dimmed. */}
+      <div className="mt-3 flex items-center gap-1" role="group" aria-label={t.effects}>
         {LANDING_LOOKS.map((item, at) => (
           <button
             key={item.effect}
             type="button"
             aria-pressed={at === index}
+            aria-label={item.name}
+            title={item.name}
             onClick={() => setIndex(at)}
-            className={cn(
-              'flex max-w-[84px] min-w-0 flex-1 flex-col items-center gap-1.5 rounded-lg border p-1.5 pt-2 text-center transition-colors outline-none hover:border-input focus-visible:ring-[3px] focus-visible:ring-ring/50',
-              at === index ? 'border-brand ring-2 ring-brand/70' : 'border-border bg-card',
-            )}
+            className="group relative rounded-md p-1 opacity-50 transition-opacity outline-none hover:opacity-100 focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-pressed:opacity-100"
           >
-            <EffectIcon effect={{ id: item.effect, icon: '', cover: item.cover as Cover }} className="size-11 sm:size-12" />
-            <span className="line-clamp-2 text-[11px] leading-[1.25] font-medium">{item.name}</span>
+            <EffectIcon effect={{ id: item.effect, icon: '', cover: item.cover as Cover }} className="size-9 sm:size-10" />
+            <span className="absolute inset-x-2 -bottom-1 h-0.5 rounded-full bg-transparent transition-colors group-aria-pressed:bg-foreground" aria-hidden="true" />
           </button>
         ))}
       </div>
-      <figcaption className="mt-3 text-[13px] leading-relaxed text-muted-foreground">
+      <figcaption className="mt-3 text-xs leading-relaxed text-muted-foreground">
         {t.site.heroCaption}{' '}
-        <a href={credit.source} target="_blank" rel="noreferrer" className="text-muted-foreground/80 hover:text-foreground">
+        <a href={credit.source} target="_blank" rel="noreferrer" className="text-muted-foreground/70 hover:text-foreground">
           {credit.author} · {credit.license} · {credit.camera}
         </a>
       </figcaption>
@@ -185,7 +186,7 @@ export function Home({
   const r = cameraTerms(RECIPE_STRINGS[language], language);
   return (
     <>
-      <section className="grid items-center gap-x-14 gap-y-10 pt-[clamp(32px,7vh,88px)] pb-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:pb-16" aria-labelledby="home-title">
+      <section className="grid items-center gap-x-14 gap-y-10 pt-[clamp(32px,7vh,88px)] pb-12 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:pb-16" aria-labelledby="home-title">
         <div className="min-w-0">
           <h1
             id="home-title"

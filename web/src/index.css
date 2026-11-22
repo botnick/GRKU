@@ -188,3 +188,11 @@
     opacity: 0;
   }
 }
+
+/* A look that goes on the card settles into the strip (only without reduced motion). */
+@keyframes box-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.92);
+  }
+}
