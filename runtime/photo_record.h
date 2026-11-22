@@ -11,7 +11,7 @@
 
    The includer defines u8, u32, core_divide, the header fields, settings_table,
    setting_value, and runtime/develop_settings.h. */
-#define PHOTO_RECORD_NS "https://grkit.app/ns/1.0/"
+#define PHOTO_RECORD_NS "https://grku.app/ns/1.0/"
 static const char photo_record_head[] =
     "<?xpacket begin=\"\xef\xbb\xbf\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>"
     "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\">"

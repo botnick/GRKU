@@ -628,6 +628,14 @@
 #define GRKU_CORE_RECIPE_BIT 0x800
 #define GRKU_CORE_SETTING_WORDS 0,208,48,240,976,1040,1044,4044,188,1084,1088,0
 #define GRKU_CORE_SETTING_VALUES 0,9,5,4,2,5,2,6,19,4,2,0
+/* The state file ID of each CORE setting that has a header word, or 0
+   (grku_core::runtime::state_key_id). */
+#define GRKU_CORE_SETTING_IDS 0U,484706023U,790270076U,977751003U,826089556U,660632122U,618415657U,458876999U,697053196U,862826181U,360900158U,0U
+/* The XMP packet of a photo (grku_core::photo_xmp, runtime/photo_xmp.h): its
+   namespace, and each setting that changes the picture: its state file ID, its
+   core handle or 0, and its property. */
+#define GRKU_PHOTO_XMP_NAMESPACE "https://grku.app/ns/1.0/"
+#define GRKU_PHOTO_XMP_SETTINGS {790270076U,0x102U,"Grain"},{977751003U,0x103U,"GrainSize"},{73603892U,0x0U,"Bloom"},{979977653U,0x0U,"Halation"},{208924775U,0x0U,"HalationColor"},{862826181U,0x109U,"Border"},{360900158U,0x10aU,"BorderColor"},{484706023U,0x101U,"Framing"},{660632122U,0x105U,"Crop"},{157666443U,0x0U,"DateImprint"},{247126882U,0x0U,"DateLook"},{330071171U,0x0U,"DatePosition"}
 
 /* An Image Control record. The records follow the header. */
 #define GRKU_RECORD_SIZE 0x1100
