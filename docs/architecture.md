@@ -101,7 +101,7 @@ Each feature is a module, `<ID>.GRM`, linked at power-on. The same file runs on 
 | `GUIDES` | the guides |
 | `DATE` | the date imprint |
 | `GLOW` | independent Bloom and Halation around the highlights of each recorded picture |
-| `DIFFUSE` | the glow of a highlight diffusion filter, with a Black Mist veil over the shadows and an anamorphic Streak from point lights, on each recorded picture |
+| `DIFFUSE` | the glow of a highlight diffusion filter, with a Black Mist veil over the shadows and an anamorphic Streak from point lights, and on its own Film Softness, the softness of a film scan, on each recorded picture |
 | `BORDER` | a page of `CORE.BORDER` and `CORE.BORDER_COLOR`: a white or black border around each recorded picture: the picture keeps all its pixels, and the JPEG grows by the border |
 | `GRAIN` | a page of `CORE.GRAIN` and `CORE.GRAIN_SIZE` |
 | `RECIPES` | a page of `CORE.RECIPE` ([Recipes](#recipes)) |

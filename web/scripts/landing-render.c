@@ -2,7 +2,8 @@
    site (build-landing.mjs). It builds like `grku module test`, with this file
    in place of the module's test.c: the module sources, their generated
    descriptor, and the SDK host harness. One of RENDER_DATE, RENDER_GLOW,
-   RENDER_LEAK, RENDER_DIFFUSION, or RENDER_BORDER selects the module.
+   RENDER_LEAK, RENDER_DIFFUSION, RENDER_SOFTNESS, or RENDER_BORDER selects the
+   module.
 
    landing-render IN.rgb WIDTH HEIGHT OUT.rgb A [B [C]]
    IN and OUT hold 8-bit RGB pixels, row by row.
@@ -10,6 +11,8 @@
    Glow: A = Bloom, B = Halation (0 Off, 1 to 3), C = the scene EV at ISO 100.
    Light Leak: A = LOOK (1 Custom, 2 Faded, 3 Dusty, 4 Leaky, 5 Expired).
    Diffusion: A = STRENGTH (1 to 3), B = MIST (0 to 2), C = STREAK (0 to 2).
+   Film Softness (Diffusion): A = SOFTNESS (1 Low, 2 Medium, 3 High), B = 1
+   for a monochrome picture.
    Border: A = STYLE (1 white 3%, 2 white 6%, 3 black 3%, 4 black 6%). */
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,6 +27,8 @@ void glow_apply(PictureSet *set, u32 value);
 void leak_apply(PictureSet *set, u32 look);
 #elif defined(RENDER_DIFFUSION)
 void diffusion_apply(PictureSet *set, u32 strength);
+#elif defined(RENDER_SOFTNESS)
+void softness_apply(PictureSet *set, u32 level);
 #elif defined(RENDER_BORDER)
 void border_apply(PictureSet *set, u32 style);
 #else
@@ -154,6 +159,11 @@ int main(int argc, char **argv)
     setting_set(SETTING_MIST, b);
     setting_set(SETTING_STREAK, (u32)c);
     diffusion_apply(&set, a);
+#elif defined(RENDER_SOFTNESS)
+    (void)c;
+    setting_set(SETTING_SOFTNESS, a);
+    set.mono = b;
+    softness_apply(&set, a);
 #elif defined(RENDER_BORDER)
     setting_set(SETTING_STYLE, a);
     border_apply(&set, a);

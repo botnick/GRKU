@@ -1,8 +1,14 @@
 title = "柔光鏡"
-rows = ["關閉", "1/8", "1/4", "1/2"]
+
+[children.FILTER]
+title = "濾鏡"
+
+[children.SOFTNESS]
+title = "柔和度"
 
 [settings.STRENGTH]
 label = "強度"
+values = ["關閉", "1/8", "1/4", "1/2"]
 
 [settings.MIST]
 label = "黑柔"
@@ -11,3 +17,7 @@ values = ["關閉", "輕", "重"]
 [settings.STREAK]
 label = "拉絲光"
 values = ["關閉", "藍色", "琥珀色"]
+
+[settings.SOFTNESS]
+label = "底片柔和度"
+values = ["關閉", "弱", "中", "強"]

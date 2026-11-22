@@ -28,7 +28,7 @@ GRKU 是一个独立项目，由 [BOTNICK](https://github.com/botnick) 首先为
 - **Date Imprint**：在照片上印日期，有经典、GR1s 点阵或 GR II 样式。
 - **Glow**：灯光和高光周围的柔光（Bloom），以及模拟电影胶片配色的橙红色光晕（Halation）。
 - **Light Leak**：暗角、灰尘和毛发、漏光、划痕，或 Faded、Dusty、Leaky 和 Expired 预设。每张照片上的分布都不同。
-- **Diffusion**：黑柔滤镜（Black Pro-Mist）效果，强度可选 1/8、1/4 或 1/2，阴影上的 Black Mist 薄纱感，以及点光源的变形宽银幕横向眩光。
+- **Diffusion**：黑柔滤镜（Black Pro-Mist）效果，强度可选 1/8、1/4 或 1/2，阴影上的 Black Mist 薄纱感，以及点光源的变形宽银幕横向眩光；此外还可单独使用胶片柔和度（弱、中、强），呈现胶片扫描般的柔和质感。
 - **Grain**：四档强度，四种大小。
 - **Border**：为整张照片添加窄、宽或拍立得样式的黑白边框；JPEG 图像尺寸随边框扩展，完整保留照片全部像素。
 - **Enable at Start**：每次开机时开启、关闭或保持上次退出时的状态。

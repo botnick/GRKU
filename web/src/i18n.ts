@@ -410,7 +410,7 @@ const en = {
     glow: 'Bloom and film halation with independent strengths, used alone or together. No live-view preview.',
     lightLeak:
       'A vignette, dust and hairs, a light leak, and scratches on photos, each Off, Light, Medium, or Strong, or the Faded, Dusty, Leaky, and Expired presets. They fall differently on every shot. No live-view preview.',
-    diffusion: 'The glow of a Black Pro-Mist diffusion filter at 1/8, 1/4, or 1/2, with an optional Black Mist veil over the shadows and a blue or amber anamorphic streak from point lights. No live-view preview.',
+    diffusion: 'The glow of a Black Pro-Mist diffusion filter at 1/8, 1/4, or 1/2, with an optional Black Mist veil over the shadows and a blue or amber anamorphic streak from point lights. Film Softness (Low, Medium, High) works on its own: fine detail fades and highlights roll off at their edges, as on a film scan. No live-view preview.',
     grain: "Film grain from the camera's grain stage, in four strengths. Photos only.",
     border: 'A white or black border around each photo. The photo keeps every pixel.',
     recipes: 'Save looks and settings as recipes and switch in ADJ. Add popular ones here.',
@@ -1053,7 +1053,7 @@ const zhHans: Strings = {
     glow: '柔光与胶片光晕，可独立调节或叠加使用，无法实时预览。',
     lightLeak:
       '在照片上加入暗角、灰尘与毛发、漏光和划痕，各分弱、中、强三档，也可选用褪色、灰尘、漏光、过期预设。每张照片的效果各不相同，无法实时预览。',
-    diffusion: '黑柔滤镜的高光柔光，分 1/8、1/4、1/2 三档，可加黑柔雾化提亮暗部，以及点光源的蓝色或琥珀色横向拉丝光。无法实时预览。',
+    diffusion: '黑柔滤镜的高光柔光，分 1/8、1/4、1/2 三档，可加黑柔雾化提亮暗部，以及点光源的蓝色或琥珀色横向拉丝光。胶片柔和度（弱、中、强）可单独生效：精细细节淡化，高光边缘柔和过渡，呈现如胶片扫描般的效果。无法实时预览。',
     grain: '相机内置的颗粒感，分弱、中、强、特强四档。仅用于照片。',
     border: '给每张照片加上白色或黑色边框，照片本身不缩小也不裁切。',
     recipes: '把风格和白平衡等设置存成配方，在 ADJ 中一步切换。也可添加本站的热门配方。',
@@ -1649,7 +1649,7 @@ const zhHant: Strings = {
     glow: '柔光與底片光暈，可獨立調整或疊加使用，實時顯示中無法預覽。',
     lightLeak:
       '在照片上加入暗角、灰塵與毛髮、漏光和刮痕，各分弱、中、強三段，也可選用褪色、灰塵、漏光、過期預設。每張照片的效果各不相同，實時顯示中無法預覽。',
-    diffusion: '黑柔濾鏡的亮部柔光，分 1/8、1/4、1/2 三段，可加黑柔霧化提亮暗部，以及點光源的藍色或琥珀色橫向拉絲光。實時顯示中無法預覽。',
+    diffusion: '黑柔濾鏡的亮部柔光，分 1/8、1/4、1/2 三段，可加黑柔霧化提亮暗部，以及點光源的藍色或琥珀色橫向拉絲光。底片柔和度（弱、中、強）可單獨使用：精細細節淡化，高光邊緣柔和過渡，如同底片掃描效果。實時顯示中無法預覽。',
     grain: '相機內建的粒紋感，分弱、中、強、特強四段。僅用於照片。',
     border: '為每張照片加上白色或黑色邊框，照片本身不縮小也不裁切。',
     recipes: '把風格和白平衡等設定存成配方，在 ADJ 中一步切換。也可加入本站的熱門配方。',
@@ -2249,7 +2249,7 @@ const ja: Strings = {
     glow: 'ブルームとハレーションを個別に調整・併用できます。ライブビューには反映されません。',
     lightLeak:
       '周辺減光、ダストと毛、光漏れ、キズを写真に加えます。それぞれ弱・中・強の 3 段階で、退色、ダスト、光漏れ、期限切れのプリセットもあります。写り方は 1 枚ごとに変わります。ライブビューには反映されません。',
-    diffusion: 'ブラックプロミストのようにハイライトをにじませます（1/8・1/4・1/2）。ブラックミストで暗部を持ち上げ、ストリークで点光源にブルーまたはアンバーの横方向のフレアを加えられます。ライブビューには反映されません。',
+    diffusion: 'ブラックプロミストのようにハイライトをにじませます（1/8・1/4・1/2）。ブラックミストで暗部を持ち上げ、ストリークで点光源にブルーまたはアンバーの横方向のフレアを加えられます。「フィルムソフトネス（弱・中・強）」は単独でも機能します。フィルムスキャン時と同様に、細部の描写が和らぎ、ハイライトの境界が緩やかにロールオフします。ライブビューには反映されません。',
     grain: 'カメラ内蔵の粒状感を、弱・中・強・特強の 4 段階で加えます。静止画のみ。',
     border: '写真に白または黒のボーダーを付けます。写真は縮小も切り取りもしません。',
     recipes: 'ルックや WB などをレシピに保存し、ADJ で一度に切り替え。人気レシピも追加可。',
@@ -2846,7 +2846,7 @@ const ko: Strings = {
     glow: '블룸과 필름 헐레이션의 강도를 따로 정하고, 하나만 쓰거나 함께 쓸 수 있습니다. 라이브 뷰에서는 미리 볼 수 없습니다.',
     lightLeak:
       '사진에 비네팅, 먼지와 털, 빛샘, 스크래치를 더합니다. 각각 약, 중, 강 3단계이며, 빛바램, 먼지, 빛샘, 만료 프리셋도 있습니다. 사진마다 다르게 나타나고, 라이브 뷰에서는 미리 볼 수 없습니다.',
-    diffusion: '블랙 프로미스트 필터처럼 하이라이트를 번지게 합니다(1/8, 1/4, 1/2). 블랙 미스트로 어두운 부분을 띄우고, 스트릭으로 점광원에 블루 또는 앰버의 가로 플레어를 더할 수 있습니다. 라이브 뷰에서는 미리 볼 수 없습니다.',
+    diffusion: '블랙 프로미스트 필터처럼 하이라이트를 번지게 합니다(1/8, 1/4, 1/2). 블랙 미스트로 어두운 부분을 띄우고, 스트릭으로 점광원에 블루 또는 앰버의 가로 플레어를 더할 수 있습니다. 필름 부드러움(약, 중, 강)은 독립적으로 작동하며, 필름 스캔과 같이 미세한 디테일이 부드러워지고 하이라이트의 가장자리가 자연스럽게 번집니다. 라이브 뷰에서는 미리 볼 수 없습니다.',
     grain: '카메라 자체의 입자감을 약, 중, 강, 매우 강 4단계로 더합니다. 사진에만 적용됩니다.',
     border: '사진에 흰색 또는 검은색 테두리를 넣습니다. 사진은 줄이거나 자르지 않습니다.',
     recipes: '룩과 화이트 밸런스 등을 레시피로 저장해 ADJ에서 바로 전환. 인기 레시피도 추가.',
@@ -3485,7 +3485,7 @@ const th: Strings = {
     glow: 'แสงฟุ้งและขอบแสงเรืองแบบฟิล์ม ปรับความแรงแยกกันได้ จะใช้เดี่ยวๆ หรือใช้ร่วมกันก็ได้ ไม่มีตัวอย่างบนไลฟ์วิว',
     lightLeak:
       'ขอบมืด ฝุ่นและเส้นขน แสงรั่ว และรอยขีดข่วนบนภาพ ปรับแยกได้ทั้ง Off, Light, Medium หรือ Strong หรือเลือกพรีเซ็ต Faded, Dusty, Leaky และ Expired โดยสุ่มตำแหน่งใหม่ทุกครั้งที่ถ่าย ไม่มีตัวอย่างบนไลฟ์วิว',
-    diffusion: 'ประกายแสงแบบฟิลเตอร์ Black Pro-Mist ระดับ 1/8, 1/4 หรือ 1/2 เลือกเปิดม่านแสง Black Mist ในส่วนเงา และเส้นแสงอนามอร์ฟิกสีน้ำเงินหรือสีอำพันจากจุดไฟได้ ไม่มีตัวอย่างบนไลฟ์วิว',
+    diffusion: 'ประกายแสงแบบฟิลเตอร์ Black Pro-Mist ระดับ 1/8, 1/4 หรือ 1/2 เลือกเปิดม่านแสง Black Mist ในส่วนเงา และเส้นแสงอนามอร์ฟิกสีน้ำเงินหรือสีอำพันจากจุดไฟได้ ความนุ่มแบบฟิล์ม (ต่ำ, ปานกลาง, สูง) ทำงานแยกอิสระ: รายละเอียดเล็กน้อยจะจางลงและส่วนสว่างจะค่อยๆ ละมุนที่ขอบ เหมือนการสแกนฟิล์ม ไม่มีตัวอย่างบนไลฟ์วิว',
     grain: "เกรนฟิล์มจากระบบสร้างเกรนของกล้อง ปรับได้ 4 ระดับ สำหรับภาพนิ่งเท่านั้น",
     border: 'ใส่กรอบสีขาวหรือสีดำรอบภาพ โดยคงขนาดภาพไว้ครบทุกพิกเซล',
     recipes: 'บันทึกโทนภาพและการตั้งค่าเป็นสูตรสี แล้วสลับใช้ผ่านปุ่ม ADJ เพิ่มสูตรสียอดนิยมได้ที่นี่',
