@@ -32,6 +32,7 @@ import { PhotoLoader } from '../preview/raw';
 import { forget, prefetchTable, preview, type PreviewEffect, type Source } from '../preview/render';
 import { DEFAULT_SAMPLE, SAMPLES, sampleOf } from '../preview/samples';
 import { importFit, resolveSelection, selectImport, type Selection } from '../selection';
+import { gridLooks } from '../gridPage';
 import { STOCKS } from '../stocks';
 import { useCatalog } from '../useCatalog';
 import { EditDialog, type EditDialogHandle } from './EditDialog';
@@ -206,6 +207,14 @@ export function Workbench({
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState<FilmKind | 'all'>('all');
   const [brand, setBrand] = useState('all');
+  // The pages of the grid that show. A new search or filter starts again at the first page.
+  const [pages, setPages] = useState(1);
+  const [filterKey, setFilterKey] = useState('');
+  const nextFilterKey = `${query}\n${kind}\n${brand}`;
+  if (filterKey !== nextFilterKey) {
+    setFilterKey(nextFilterKey);
+    setPages(1);
+  }
   const kinds = FILM_KINDS.filter((item) => listed.some((effect) => filmKind(effect) === item));
   const brands = [...new Set(listed.map(brandOf).filter(Boolean))].sort();
   const needle = query.trim().toLowerCase();
@@ -220,6 +229,10 @@ export function Workbench({
           .toLowerCase()
           .includes(needle)),
   );
+  // The grid shows whole pages of the matching looks (gridPage.ts), and always the previewed look.
+  const importTile = !!catalog?.baseGamma;
+  const shownLooks = gridLooks(visible, pages, importTile, visible.findIndex((effect) => effect.id === requestedId));
+
 
   const shown = effects.find((effect) => effect.id === previewId) ?? effects[0] ?? null;
   const requested = effects.find((effect) => effect.id === requestedId) ?? shown;
@@ -831,7 +844,7 @@ export function Workbench({
           </div>
         )}
 
-        <ul className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-6 xl:grid-cols-7" aria-label={t.effects}>
+        <ul className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-6 " aria-label={t.effects}>
           {!catalog &&
             !error &&
             Array.from({ length: 21 }, (_, index) => (
@@ -840,7 +853,7 @@ export function Workbench({
           {catalog && visible.length === 0 && (
             <li className="col-span-full py-10 text-center text-muted-foreground">{t.noMatches}</li>
           )}
-          {visible.map((effect) => {
+          {shownLooks.map((effect) => {
             const isChecked = checked.has(effect.id);
             const isPreviewed = effect.id === requested?.id;
             const stock = STOCKS[effect.id];
@@ -936,6 +949,19 @@ export function Workbench({
             </li>
           )}
         </ul>
+        {shownLooks.length < visible.length && (
+          <div className="mt-4 flex flex-col items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto sm:min-w-48"
+              onClick={() => setPages((current) => current + 1)}
+            >
+              {t.loadMore}
+            </Button>
+            <span className="text-[13px] text-muted-foreground tabular-nums">{t.shownOf(shownLooks.length, visible.length)}</span>
+          </div>
+        )}
         <p className="mt-4 text-[13px] text-muted-foreground">
           {t.countLimit(MAX_EFFECTS)}
           {onCard && ` ${t.effectsCardNote}`}

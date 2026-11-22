@@ -164,6 +164,8 @@ const en = {
   /** The full-screen button of the preview (from GRKit). */
   fullScreen: 'Full screen',
   exitFullScreen: 'Exit full screen',
+  /** Under the look grid: shows the next page of looks. */
+  loadMore: 'Load more',
   /** One line about the film of a look, under its name in the preview (from GRKit; Thai through Gemini). */
   lookHints: {
     'portra-400-endura-v1': 'Natural skin tones and fine grain that hold up in mixed light. Kodak’s everyday portrait film at ISO 400.',
@@ -873,6 +875,7 @@ const zhHans: Strings = {
   },
   fullScreen: '全屏',
   exitFullScreen: '退出全屏',
+  loadMore: '加载更多',
   lookHints: {
     'portra-400-endura-v1': '自然肤色、细腻颗粒，混合光下也稳。柯达常用的 ISO 400 人像负片。',
     'gold-200-premier-v1': '温暖饱和的日常色彩，颗粒细；曝光差一点也较宽容。',
@@ -1509,6 +1512,7 @@ const zhHant: Strings = {
   },
   fullScreen: '全螢幕',
   exitFullScreen: '結束全螢幕',
+  loadMore: '載入更多',
   lookHints: {
     'portra-400-endura-v1': '自然膚色、細膩顆粒，混合光下也穩。柯達常用的 ISO 400 人像負片。',
     'gold-200-premier-v1': '溫暖飽和的日常色彩，顆粒細；曝光差一點也較寬容。',
@@ -2145,6 +2149,7 @@ const ja: Strings = {
   },
   fullScreen: '全画面',
   exitFullScreen: '全画面を終了',
+  loadMore: 'さらに読み込む',
   lookHints: {
     'portra-400-endura-v1': '自然な肌色と細かい粒子。混光でも安定しやすい、コダック定番の ISO 400 ポートレートネガ。',
     'gold-200-premier-v1': 'あたたかく鮮やかな日常の色味。粒子が細く、露出が少しずれても比較的寛容。',
@@ -2785,6 +2790,7 @@ const ko: Strings = {
   },
   fullScreen: '전체 화면',
   exitFullScreen: '전체 화면 종료',
+  loadMore: '더 불러오기',
   lookHints: {
     'portra-400-endura-v1': '자연스러운 피부톤과 고운 입자. 혼합광에서도 안정적인 코닥 ISO 400 인물용 네거티브.',
     'gold-200-premier-v1': '따뜻하고 포화된 일상 색감. 입자가 곱고, 노출이 조금 빗나가도 비교적 관대함.',
@@ -3440,6 +3446,7 @@ const th: Strings = {
   },
   fullScreen: 'เต็มหน้าจอ',
   exitFullScreen: 'ออกจากเต็มหน้าจอ',
+  loadMore: 'โหลดเพิ่มเติม',
   lookHints: {
     'portra-400-endura-v1': 'ฟิล์มลุคที่ให้โทนสีผิวธรรมชาติและเกรนละเอียด ใช้ได้ดีแม้ในสภาพแสงที่หลากหลาย เป็นฟิล์มพอร์ตเทรตมาตรฐานที่ ISO 400 จาก Kodak',
     'gold-200-premier-v1': 'ฟิล์มลุคสีสันสดใสแบบอบอุ่น มีเกรนละเอียด ถ่ายง่ายแม้จะพลาดเรื่องค่าแสงไปบ้าง',
