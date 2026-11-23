@@ -18,6 +18,7 @@ import type { PageLink } from "../navigation";
 import { CameraBackArt, ComputerArt, CopyArt, InsertArt } from "./GuideArt";
 import { RichText } from "./RichText";
 import { StepHeading } from "./Step";
+import { signed } from "../signature";
 
 /** A section of the guide: a hairline above, the heading, then the body. */
 const SECTION =
@@ -278,7 +279,7 @@ export function Guide({
             {g.heading}
           </h1>
           <p className="mt-4 max-w-[34em] text-[clamp(16px,1.3vw,18px)] leading-relaxed text-muted-foreground">
-            {g.lead}
+            {signed(g.lead, language)}
           </p>
           {/* Where the install happens, first: the install page of this site, with its button. */}
           <div className="mt-6 max-w-[40em] rounded-xl border border-brand/40 bg-brand/5 p-4 sm:p-5">

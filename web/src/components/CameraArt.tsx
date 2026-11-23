@@ -17,7 +17,7 @@ export function CameraArt({ camera, className }: { camera: string; className?: s
   const wide = FOCAL_LENGTH[camera] !== '40mm';
   const lens = wide ? 22 : 25;
   return (
-    <svg viewBox="0 0 160 96" className={cn('h-auto w-full', className)} aria-hidden="true" focusable="false">
+    <svg viewBox="0 0 160 96" className={cn('h-auto w-full', className)} aria-hidden="true" focusable="false" data-grku="BOTNICK">
       {/* The shutter and the power button on the top plate. */}
       <rect x="112" y="11" width="16" height="6" rx="2" fill="#3a3a3a" />
       <rect x="92" y="13" width="10" height="4" rx="1.5" fill="#383838" />

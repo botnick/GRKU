@@ -16,6 +16,9 @@ import './index.css';
 import { loadFonts } from './fonts';
 import { pathLanguage } from './languagePage';
 
+// The build signature (HANDOFF.md, Signatures). The prerendered page carries it already.
+document.documentElement.dataset.grku ||= __GRKU_SIG__;
+
 // The Thai fonts load at once, not with the app: their styles are small, and a Thai page sets all
 // its text in them. The Chinese, Japanese, and Korean styles are large (about 100 KB each), so they
 // load with the app (main.tsx), after the photo; the text shows in the system font until then.

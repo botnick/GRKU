@@ -520,6 +520,7 @@ export function Workbench({
   return (
     <section
       className="grid gap-x-10 gap-y-6 lg:grid-cols-2 lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-x-14"
+      data-grku={__GRKU_SIG__}
       aria-labelledby="looks-title"
       ref={ownPhoto}
     >

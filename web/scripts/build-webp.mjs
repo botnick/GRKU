@@ -8,6 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { signPaths } from './image-rights.mjs';
 
 const LANDING = fileURLToPath(new URL('../public/landing/', import.meta.url));
 const IMAGES = fileURLToPath(new URL('../../resources/images/', import.meta.url));
@@ -39,4 +40,6 @@ mkdirSync(ASSETS, { recursive: true });
 for (const name of ['camera-adj', 'camera-menu']) {
   webp(join(IMAGES, `${name}.png`), join(ASSETS, `${name}.webp`), '-q', '82');
 }
+// The rights of GRKU in the metadata of each picture (HANDOFF.md, Signatures).
+signPaths([LANDING, SAMPLES, ASSETS]);
 console.log(`WebP: ${count} landing pictures, the sample thumbnails, 2 camera screens.`);

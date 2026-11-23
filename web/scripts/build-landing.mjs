@@ -20,6 +20,7 @@ import jpeg from 'jpeg-js';
 import { LANDING_LOOKS } from '../src/landing-data.ts';
 import { applyLinearLut } from '../src/preview/lut.ts';
 import { linearSample } from './linear-sample.mjs';
+import { signPaths } from './image-rights.mjs';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const OUTPUT = fileURLToPath(new URL('../public/landing/', import.meta.url));
@@ -293,3 +294,5 @@ try {
 } finally {
   rmSync(work, { recursive: true, force: true });
 }
+// The rights of GRKU in the metadata of each picture (HANDOFF.md, Signatures).
+signPaths([OUTPUT, RECIPES]);

@@ -1230,6 +1230,7 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
+        data-grku={__GRKU_SIG__}
         onKeyDown={onKeyDown}
         onEscapeKeyDown={(event) => {
           if (selected) {

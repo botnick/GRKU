@@ -27,6 +27,7 @@ function Art({
     <svg
       viewBox={viewBox}
       className={cn("h-auto w-full", className)}
+      data-grku="BOTNICK"
       aria-hidden="true"
       focusable="false"
     >

@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 import { execFileSync } from 'node:child_process';
+import { signFile } from './image-rights.mjs';
 import { LANDING_LOOKS } from '../src/landing-data.ts';
 import { decodeLinear } from '../src/preview/linear.ts';
 import { applyLinearLut } from '../src/preview/lut.ts';
@@ -47,5 +48,6 @@ for (const [slug, path] of tables) {
   const ppm = Buffer.concat([Buffer.from(`P6\n${image.width} ${image.height}\n255\n`), rgb]);
   const jpg = execFileSync('cjpeg', ['-quality', QUALITY, '-optimize', '-progressive'], { input: ppm, maxBuffer: 1 << 26 });
   writeFileSync(join(OUTPUT, `${sample}-${slug}.jpg`), jpg);
+  signFile(join(OUTPUT, `${sample}-${slug}.jpg`));
 }
 console.log(`Hero: ${sample}, ${image.width} x ${image.height}, ${tables.length} pictures.`);

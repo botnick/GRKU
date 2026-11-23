@@ -10,6 +10,7 @@ import { marked } from 'marked';
 import { DOC_PATHS, LANGUAGE_PATHS, pagePath } from '../src/languagePage.ts';
 import { alternates, alternateTags, localeTags, SITE, sitemapUrl } from '../src/seo.ts';
 import { lastModified } from './lastmod.mjs';
+import { BUILD_SIGNATURE } from './build-signature.mjs';
 const web = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const root = resolve(web, '..');
 const dist = join(web, 'dist');
@@ -120,10 +121,11 @@ function page(name, code) {
     .join('');
   const note = language !== code && ENGLISH_NOTE[code] ? `<p class="doc-lang-note" lang="${code}">${ENGLISH_NOTE[code]}</p>` : '';
   return `<!doctype html>
-<html lang="${code}">
+<html lang="${code}" data-grku="${BUILD_SIGNATURE}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="BOTNICK" />
     <title>${escape(title)} · GRKU</title>
     <meta name="description" content="${escape(description)}" />
     <meta property="og:type" content="article" />

@@ -11,6 +11,7 @@ import type { PageLink } from '../navigation';
 import type { SitePage } from '../languagePage';
 import { cameraTerms, RECIPE_STRINGS } from '../recipeStrings';
 import { useCatalog } from '../useCatalog';
+import { MARK, signed } from '../signature';
 import { EffectIcon } from './EffectIcon';
 import { Example, EXAMPLES, TILES } from './ModuleExamples';
 import cameraAdjImage from '../assets/camera-adj.webp';
@@ -205,8 +206,9 @@ export function Home({
             className="text-balance text-[clamp(38px,4.6vw,60px)] leading-[1.06] font-bold tracking-[-0.025em] [:root[lang=th]_&]:leading-[1.22] [:root[lang=th]_&]:tracking-normal"
           >
             <Headline text={t.lead[0] ?? ''} />
+            {MARK}
           </h1>
-          <p className="mt-4 max-w-[30em] text-[clamp(16px,1.3vw,19px)] leading-relaxed text-muted-foreground">{t.lead[1]}</p>
+          <p className="mt-4 max-w-[30em] text-[clamp(16px,1.3vw,19px)] leading-relaxed text-muted-foreground">{signed(t.lead[1] ?? '', language)}</p>
           <Actions strings={t} link={link} installStep={installStep} className="mt-8" />
           <p className="mt-6 max-w-[40em] text-sm leading-relaxed text-muted-foreground">
             {t.landing.supports(SUPPORTED_CAMERAS)} {canWrite ? t.landing.installNote : t.landing.installNoteZip}
@@ -258,7 +260,7 @@ export function Home({
                     {subtitle && <span className="font-normal text-muted-foreground"> · {subtitle}</span>}
                   </span>
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.modulesText[example.module]}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{signed(t.modulesText[example.module], language)}</p>
                 <a className="mt-2 text-xs text-muted-foreground hover:text-foreground" href={credit.source} target="_blank" rel="noreferrer">
                   {credit.author} · {credit.license} · {credit.camera}
                 </a>

@@ -221,7 +221,7 @@ function page(code, name) {
   const title = escape(text.title);
   const description = escape(text.description);
   let html = preloadFonts(template, code);
-  html = replaceOne(html, /<html lang="[^"]*">/, `<html lang="${code}">`);
+  html = replaceOne(html, /<html lang="[^"]*"/, `<html lang="${code}"`);
   html = replaceOne(html, /<title>[^<]*<\/title>/, `<title>${title}</title>`);
   html = replaceOne(html, /(<meta\s+name="description"\s+content=")[^"]*(")/, `$1${description}$2`);
   html = replaceOne(html, /(<meta property="og:url" content=")[^"]*(")/, `$1${pageUrl(code, name)}$2`);

@@ -60,6 +60,8 @@
 }
 
 :root {
+  /* The build signature (vite.config.ts writes the version and commit in). HANDOFF.md, Signatures. */
+  --grku-sig: "GRKU·BOTNICK";
   --radius: 0.625rem;
   --gutter: clamp(16px, 4vw, 56px);
   --font-language: 'Inter';

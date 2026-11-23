@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin, type PreviewServer, type ViteDevServer } from 'vite';
 import { addPlausible, allowPlausible, plausibleOrigin } from './plausible.ts';
+import { BUILD_SIGNATURE } from './scripts/build-signature.mjs';
 
 /**
  * The GRKU version from the workspace Cargo.toml. The Release workflow builds the site
@@ -95,6 +96,24 @@ function preloadFonts(): Plugin {
 }
 
 /**
+ * The build signature (scripts/build-signature.mjs) in the styles, as --grku-sig on :root
+ * (src/index.css), and on the <html> of the page, as data-grku. See HANDOFF.md, Signatures.
+ */
+function signature(): Plugin {
+  return {
+    name: 'grku-signature',
+    enforce: 'pre',
+    transform(code, id) {
+      if (!id.endsWith('/src/index.css')) return;
+      return code.replace('"GRKU·BOTNICK"', JSON.stringify(BUILD_SIGNATURE));
+    },
+    transformIndexHtml(html) {
+      return html.replace(/<html lang="([^"]*)">/, `<html lang="$1" data-grku="${BUILD_SIGNATURE}">`);
+    },
+  };
+}
+
+/**
  * Adds Plausible analytics to the build when PLAUSIBLE_HOST gives the Plausible origin, and
  * extends the Content-Security-Policy of `_headers` for it. The Release workflow sets it.
  */
@@ -125,10 +144,11 @@ export default defineConfig({
     react(),
     woff2Only(),
     preloadFonts(),
+    signature(),
     siteData(process.env.GRKU_SITE_DATA ?? '../dist/site-data'),
     plausible(process.env.PLAUSIBLE_HOST || undefined),
   ],
-  define: { __GRKU_VERSION__: JSON.stringify(workspaceVersion()) },
+  define: { __GRKU_VERSION__: JSON.stringify(workspaceVersion()), __GRKU_SIG__: JSON.stringify(BUILD_SIGNATURE) },
   // The landing page shows the camera screens of the README from resources/images.
   server: { fs: { allow: ['.', '../resources/images'] } },
   build: {

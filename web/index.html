@@ -38,6 +38,7 @@
     <meta name="theme-color" content="#f5f4ef" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#171717" media="(prefers-color-scheme: dark)" />
     <script id="theme">(function(){var d=document.documentElement,m=matchMedia('(prefers-color-scheme: light)'),c={light:'#f5f4ef',dark:'#171717'};function p(){try{var v=localStorage.getItem('grku.theme');return v==='light'||v==='dark'?v:'system'}catch(e){return'system'}}function a(){var t=p();if(t==='system')t=m.matches?'light':'dark';d.setAttribute('data-theme',t);document.querySelectorAll('meta[name="theme-color"]').forEach(function(e){e.setAttribute('content',c[t])})}a();m.addEventListener('change',function(){if(p()==='system')a()});addEventListener('storage',function(e){if(e.key==='grku.theme'||e.key===null)a()})})()</script>
+    <meta name="author" content="BOTNICK" />
     <meta name="application-name" content="GRKU" />
     <meta name="apple-mobile-web-app-title" content="GRKU" />
     <!-- Icons: the SVG for browsers that take it, the ICO (16, 32, 48) for the rest, PNGs for Android and iOS. -->
