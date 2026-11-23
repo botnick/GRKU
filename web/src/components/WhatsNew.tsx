@@ -54,7 +54,7 @@ export function WhatsNew({ language }: { language: Language }) {
               <AccordionItem key={release.version} value={release.version}>
                 <AccordionTrigger className="py-3.5 text-left hover:no-underline">
                   <span className="flex items-baseline gap-3">
-                    <span className="font-mono text-[15px] font-medium">v{release.version}</span>
+                    <span className="font-mono text-[15px] font-medium">v{release.version}</span>{' '}
                     <time dateTime={release.date} className="text-[13px] font-normal text-muted-foreground">
                       {formatDate(release.date, language)}
                     </time>

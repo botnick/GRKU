@@ -4,6 +4,7 @@ import {
   acceptedLanguages,
   INDEXED_PAGES,
   isInstallStep,
+  isCrawler,
   cookieValue,
   fastbootPath,
   isFastbootPath,
@@ -121,11 +122,49 @@ describe('visitorLanguage', () => {
     expect(visitorLanguage(visitor({ acceptLanguage: 'zh-CN', country: 'TW' }))).toBe('zh-Hans');
   });
 
-  it('uses the country when the browser sends no language', () => {
-    expect(visitorLanguage(visitor({ country: 'KR' }))).toBe('ko');
-    expect(visitorLanguage(visitor({ country: 'TW' }))).toBe('zh-Hant');
-    expect(visitorLanguage(visitor({ country: 'US' }))).toBe('en');
-    expect(visitorLanguage(visitor({}))).toBe('en');
+  it('keeps the page that was asked for when the browser sends no language, as search engines crawl', () => {
+    expect(visitorLanguage(visitor({ country: 'KR' }))).toBeNull();
+    expect(visitorLanguage(visitor({ country: 'US' }))).toBeNull();
+    expect(visitorLanguage(visitor({}))).toBeNull();
+    expect(visitorLanguage(visitor({ acceptLanguage: '*' }))).toBeNull();
+  });
+
+  it('keeps the page that was asked for when a crawler or a link preview asks', () => {
+    const googlebot = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
+    expect(visitorLanguage(visitor({ acceptLanguage: 'en-US', country: 'US', userAgent: googlebot }))).toBeNull();
+    expect(visitorLanguage(visitor({ acceptLanguage: 'ja', userAgent: 'facebookexternalhit/1.1;line-poker/1.0' }))).toBeNull();
+    expect(visitorLanguage(visitor({ acceptLanguage: 'ko', userAgent: 'Mozilla/5.0 (compatible; Yeti/1.1; +https://naver.me/spd)' }))).toBeNull();
+  });
+});
+
+describe('isCrawler', () => {
+  it('knows the search engines and the link previews', () => {
+    for (const agent of [
+      'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/120.0 Safari/537.36',
+      'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
+      'Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)',
+      'Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15 (Applebot/0.1)',
+      'Twitterbot/1.0',
+      'Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)',
+      'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)',
+      'WhatsApp/2.23.20.0',
+      'Mozilla/5.0 (compatible; ClaudeBot/1.0; +claudebot@anthropic.com)',
+      'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)',
+    ]) {
+      expect(isCrawler(agent), agent).toBe(true);
+    }
+  });
+
+  it('leaves browsers alone', () => {
+    for (const agent of [
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0',
+      'Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36 Line/14.19.1',
+    ]) {
+      expect(isCrawler(agent), agent).toBe(false);
+    }
+    expect(isCrawler(null)).toBe(false);
   });
 });
 
@@ -148,9 +187,24 @@ describe('edge worker', () => {
   });
 
   it('sends a visitor of English to the English page, not to the root', async () => {
-    const response = await edge.fetch(request('/', {}, 'US'), { ASSETS: assets });
+    const response = await edge.fetch(request('/', { 'Accept-Language': 'en-US,en;q=0.9' }, 'US'), { ASSETS: assets });
     expect(response.status).toBe(302);
     expect(response.headers.get('Location')).toBe('https://grku.app/en/');
+    expect(response.headers.get('Vary')).toBe('Accept-Language, Cookie, User-Agent');
+  });
+
+  it('serves the Thai pages to search engines, which crawl from abroad', async () => {
+    vi.stubGlobal('__SITE_HEADERS__', {});
+    // Googlebot crawls from the US without a language.
+    const plain = await edge.fetch(request('/', { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' }, 'US'), { ASSETS: assets });
+    expect(plain.status).toBe(200);
+    const english = await edge.fetch(
+      request('/guide/', { 'Accept-Language': 'en-US', 'User-Agent': 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)' }, 'US'),
+      { ASSETS: assets },
+    );
+    expect(english.status).toBe(200);
+    expect(english.headers.get('Vary')).toBe('Accept-Language, Cookie, User-Agent');
+    expect(assets.fetch).toHaveBeenCalledTimes(2);
   });
 
   it('serves the root page, which is Thai, to a visitor of Thai, with the site headers', async () => {
@@ -159,7 +213,7 @@ describe('edge worker', () => {
     expect(response.status).toBe(200);
     expect(await response.text()).toBe(page);
     expect(response.headers.get('Content-Security-Policy')).toBe("default-src 'self'");
-    expect(response.headers.get('Vary')).toBe('Accept-Language, Cookie');
+    expect(response.headers.get('Vary')).toBe('Accept-Language, Cookie, User-Agent');
   });
 
   it('sends the old looks pages to the install page of their language', async () => {

@@ -1,14 +1,14 @@
 # GRKU
 
-> GRKU adds film looks to the RICOH GR III, GR IIIx and GR IV from the SD card: film simulations of real films (Kodak, Fuji, Ilford, CineStill, Polaroid and more), XPan and other framings, crops, date stamps, glow, light leaks, diffusion and grain, with recipes that switch a whole look in one step. It never flashes the firmware: the camera runs a script from the card, and without the card the camera is as before. GRKU is an independent tool by Thai users for Ricoh GR owners and is not affiliated with Ricoh. The site is Thai first, with English, Japanese, Korean, Simplified and Traditional Chinese pages.
+> GRKU adds film looks to the RICOH GR III, GR IIIx and GR IV (often written GR3, GR3x, GR4) from the SD card: film simulations of real films (Kodak, Fuji, Ilford, CineStill, Polaroid and more), XPan and other framings, crops, date stamps, glow, light leaks, diffusion and grain, with film recipes that switch a whole look in one step. In Thai, these are searched as โทนกล้อง GR (GR camera tones), สูตรสี (color recipes) and ฟิล์มซิม (film simulation). It never flashes the firmware: the camera runs a script from the card, and without the card the camera is as before. GRKU is an independent tool by Thai users for Ricoh GR owners and is not affiliated with Ricoh. The site is Thai first, with English, Japanese, Korean, Simplified and Traditional Chinese pages.
 
 How it works: choose film looks and modules on the site, write them to the SD card (directly from the browser, or download a ZIP and copy it), turn the camera on, and press ADJ to pick a look while shooting. GRKU Plus (one-time payment by Thai PromptPay) unlocks more looks on the card; everything else is free.
 
 ## Pages
 
 - [GRKU (Thai)](https://grku.app/): the home page: what GRKU does, the modules with example photos, the cameras, and the FAQ
-- [Install](https://grku.app/en/install/): every film look, previewed on a sample photo or your own DNG, then the camera, the modules, the recipes, and the SD card write or the GRKU.zip download
-- [How to install](https://grku.app/en/guide/): the install in plain steps with drawings: writing the SD card from Chrome or Edge or copying GRKU.zip, holding MENU at the first power-on, using ADJ, updating, uninstalling, and what to do when something goes wrong
+- [Install (English)](https://grku.app/en/install/), [Thai](https://grku.app/install/): every film look, previewed on a sample photo or your own DNG, then the camera, the modules, the recipes, and the SD card write or the GRKU.zip download
+- [How to install (English)](https://grku.app/en/guide/), [Thai](https://grku.app/guide/): the install in plain steps with drawings: writing the SD card from Chrome or Edge or copying GRKU.zip, holding MENU at the first power-on, using ADJ, updating, uninstalling, and what to do when something goes wrong
 - [GRKU (English)](https://grku.app/en/)
 - [GRKU (日本語)](https://grku.app/ja/)
 - [GRKU (한국어)](https://grku.app/ko/)
@@ -24,4 +24,7 @@ How it works: choose film looks and modules on the site, write them to the SD ca
 - Firmware: GR III 2.10, 2.20, 2.21; GR IIIx 1.60, 1.70, 1.71; GR IV 1.11, 1.20, 1.21; GR IV Monochrome 1.00, 1.10, 1.11
 - Install: no firmware change; files on the SD card only; remove the card or the files to go back
 - A card holds 40 film looks at a time from a library of 145; recipes save a look with its settings and the mode dial U1 to U3 can hold them
+- Free: every look previews free and ten looks go on the card free; GRKU Plus is optional
+- Popular looks: Kodak Portra 400, Gold 200, Ektar 100, Tri-X, Fujifilm Classic Chrome, Classic Neg, Velvia, Acros, CineStill 800T, RICOH Positive Film
+- Modules: Framing (XPan 65:24, 16:9, 1:1 and more), Crop (35, 40, 50, 70 mm; 50 to 100 mm on GR IIIx), Date Imprint, Glow, Light Leak, Diffusion, Grain, Border, Recipes
 - Feedback and problem reports: support@grku.app

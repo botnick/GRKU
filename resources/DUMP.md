@@ -39,9 +39,9 @@ If the folder has neither file, the camera did not run the tool. Make sure that 
 ## Send the files
 
 1. Zip the `SCRIPT/GRDUMP` folder.
-2. Attach the ZIP to a [GitHub issue](mailto:support@grku.app). Give the camera model and the firmware version.
+2. Email the ZIP to [support@grku.app](mailto:support@grku.app). Give the camera model and the firmware version.
 
-If the developer asked for the dump in an issue, attach the ZIP to that issue. The ZIP is about 20 MB; GitHub accepts files up to 25 MB.
+If the developer asked you for the dump, reply to that email with the ZIP. The ZIP is about 20 MB; if your email service does not take a file that large, send a link to it from a file sharing service instead.
 
 ## Restore the card
 
