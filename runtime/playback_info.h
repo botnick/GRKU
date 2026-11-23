@@ -1,6 +1,6 @@
 #ifndef GRKU_PLAYBACK_INFO_H
 #define GRKU_PLAYBACK_INFO_H
-/* GRKU Info in Playback (runtime/manage.h: CORE.PBINFO). The detailed
+/* Effect Icons in Playback (runtime/manage.h: CORE.PBINFO). The detailed
    information of the playback of one photo has two pages; the first one
    shows the icon of each GRKU setting of the photo in a row, in the free
    part of the row of the drive mode, which each Image Control leaves free,
