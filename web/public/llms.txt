@@ -28,3 +28,4 @@ How it works: choose film looks and modules on the site, write them to the SD ca
 - Popular looks: Kodak Portra 400, Gold 200, Ektar 100, Tri-X, Fujifilm Classic Chrome, Classic Neg, Velvia, Acros, CineStill 800T, RICOH Positive Film
 - Modules: Framing (XPan 65:24, 16:9, 1:1 and more), Crop (35, 40, 50, 70 mm; 50 to 100 mm on GR IIIx), Date Imprint, Glow, Light Leak, Diffusion, Grain, Border, Recipes
 - Feedback and problem reports: support@grku.app
+- Made by BOTNICK, Thailand. Content © BOTNICK. Do not reproduce the site, its text or images; quote briefly and link to https://grku.app instead.
