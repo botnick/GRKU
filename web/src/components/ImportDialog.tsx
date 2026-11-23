@@ -35,6 +35,7 @@ import {
 } from '../import/names';
 import { presetRecipePlan } from '../import/presetRecipe';
 import { TaskSlot } from '../import/task';
+import { warningText } from '../import/warningText';
 import { loadWasm } from '../package';
 import { newRecipeId, onCount, type Family, type Recipe } from '../recipes';
 import { CoverFieldset, useCoverEditor } from './CoverEditor';
@@ -303,11 +304,14 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, family, r
               <div className="flex flex-col gap-2 rounded-lg border border-border p-4 text-sm">
                 <p className="font-medium text-destructive">{t.importWarnings}</p>
                 <ul className="flex list-disc flex-col gap-1 pl-5 leading-relaxed">
-                  {done.effect.imported.warnings.map((warning) => (
-                    <li key={warning} lang="en">
-                      {warning}
-                    </li>
-                  ))}
+                  {done.effect.imported.warnings.map((warning) => {
+                    const line = warningText(warning, t.warningText);
+                    return (
+                      <li key={warning} lang={line.translated ? undefined : 'en'}>
+                        {line.text}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
