@@ -3,7 +3,7 @@ crates/grku-core/assets/tiles, 40 x 40 RGBA with binary alpha. A list tile keeps
 the native list icons (38 x 36, gray rim, dark body) and shows a small color picture of what
 the row does: a film canister for Film Look, a landscape cropped to the ratio for Framing, the
 guide lines over a landscape for Guides, an orange date stamp for Date Imprint, a street lamp
-at night for Glow, and a grainy picture for Grain. The viewfinder tiles (vf-*) stay marks with
+at night for Glow, and a grainy picture for Grain; Film Softness softens a landscape. The viewfinder tiles (vf-*) stay marks with
 a black outline, so they read over any live view.
 
     python3 scripts/menu-tiles.py sheet OUT.png   # every tile at 4x, for review
@@ -14,7 +14,7 @@ Needs Pillow (`python3 -m pip install pillow`). Text is Roboto Condensed Bold
 """
 import pathlib, random, sys
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 BOLD = str(REPO / 'crates' / 'grku-core' / 'assets' / 'RobotoCondensed-Bold.ttf')
@@ -769,6 +769,21 @@ def diffusion_tile(level):
     return binarize(img)
 
 
+def softness_tile(level):
+    """A small landscape as a film scan shows it: sharp, then softer with each level of Film
+    Softness (0 module, 1 Low, 2 Medium, 3 High)."""
+    img = frame()
+    x0, y0, x1, y1 = (3, 4, 36, 35) if level == 0 else (4, 5, 35, 24)
+    c = canvas()
+    landscape(c, x0, y0, x1, y1)
+    radius = [0.9, 0.45, 0.9, 1.5][level] * SS
+    c = c.filter(ImageFilter.GaussianBlur(radius))
+    paste(img, c, clip=(x0, y0, x1, y1))
+    if level:
+        bars(img, 3, level, x0=12, bottom=34)
+    return binarize(img)
+
+
 def all_tiles():
     tiles = {}
     tiles['modules/film-look/tiles/0-module.png'] = film_look_module()
@@ -806,6 +821,10 @@ def all_tiles():
     if (REPO / 'modules/diffusion').is_dir():
         for level, name in enumerate(['0-module', '1-eighth', '2-quarter', '3-half']):
             tiles[f'modules/diffusion/tiles/{name}.png'] = diffusion_tile(level)
+        tiles['modules/diffusion/tiles/off-filter.png'] = strike(dim(diffusion_tile(2)))
+        for level, name in enumerate(['low', 'medium', 'high'], 1):
+            tiles[f'modules/diffusion/tiles/softness-{name}.png'] = softness_tile(level)
+        tiles['modules/diffusion/tiles/off-softness.png'] = strike(dim(softness_tile(2)))
     tiles['crates/grku-core/assets/tiles/grk.png'] = grk_tile()
     tiles['crates/grku-core/assets/tiles/ver.png'] = version_tile()
     tiles['crates/grku-core/assets/tiles/mod.png'] = modules_tile()

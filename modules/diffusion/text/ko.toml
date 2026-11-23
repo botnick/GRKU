@@ -1,8 +1,14 @@
 title = "디퓨전"
-rows = ["꺼짐", "1/8", "1/4", "1/2"]
+
+[children.FILTER]
+title = "필터"
+
+[children.SOFTNESS]
+title = "부드러움"
 
 [settings.STRENGTH]
 label = "강도"
+values = ["꺼짐", "1/8", "1/4", "1/2"]
 
 [settings.MIST]
 label = "블랙 미스트"
@@ -11,3 +17,7 @@ values = ["꺼짐", "약", "강"]
 [settings.STREAK]
 label = "스트릭"
 values = ["꺼짐", "블루", "앰버"]
+
+[settings.SOFTNESS]
+label = "필름 부드러움"
+values = ["꺼짐", "약", "중", "강"]

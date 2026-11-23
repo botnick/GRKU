@@ -28,7 +28,7 @@ GRKU는 [BOTNICK](https://github.com/botnick)이 태국의 GR 사용자들을 �
 - **Date Imprint**: 클래식, GR1s 도트 매트릭스, 또는 GR II 스타일로 사진에 날짜를 인쇄합니다.
 - **Glow**: 조명과 하이라이트 주변의 Bloom, 영화 필름 색상의 적주황색 후광인 Halation.
 - **Light Leak**: 비네트, 먼지와 머리카락, 라이트 리크, 스크래치, 또는 Faded, Dusty, Leaky, Expired 프리셋. 매 촬영마다 다르게 나타납니다.
-- **Diffusion**: 1/8, 1/4, 1/2 강도의 Black Pro-Mist 필터, 섀도 위의 Black Mist 베일, 점 광원의 아나모픽 스트릭.
+- **Diffusion**: 1/8, 1/4, 1/2 강도의 Black Pro-Mist 필터, 섀도 위의 Black Mist 베일, 점 광원의 아나모픽 스트릭. 또한 단독으로 사용할 수 있는 필름 부드러움(약, 중, 강)은 필름 스캔 특유의 은은한 부드러움을 표현합니다.
 - **Grain**: 네 가지 강도, 네 가지 크기.
 - **Border**: 사진 전체에 얇게, 넓게 또는 인스턴트 스타일의 흰색/검은색 테두리를 적용합니다. 원본 픽셀을 그대로 유지한 채 테두리만큼 JPEG 크기가 확장됩니다.
 - **Enable at Start**: 전원을 켤 때마다 GRKU를 켜짐, 꺼짐, 또는 마지막 상태 그대로 유지.

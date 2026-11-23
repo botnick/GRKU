@@ -1,8 +1,14 @@
 title = "ディフュージョン"
-rows = ["オフ", "1/8", "1/4", "1/2"]
+
+[children.FILTER]
+title = "フィルター"
+
+[children.SOFTNESS]
+title = "ソフトネス"
 
 [settings.STRENGTH]
 label = "強度"
+values = ["オフ", "1/8", "1/4", "1/2"]
 
 [settings.MIST]
 label = "ブラックミスト"
@@ -11,3 +17,7 @@ values = ["オフ", "弱", "強"]
 [settings.STREAK]
 label = "ストリーク"
 values = ["オフ", "ブルー", "アンバー"]
+
+[settings.SOFTNESS]
+label = "フィルムソフトネス"
+values = ["オフ", "弱", "中", "強"]

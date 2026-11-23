@@ -623,6 +623,91 @@ fn synthetic_grain_neon_parity() -> Result<()> {
     Ok(())
 }
 
+/// The NEON code of Film Softness (`modules/diffusion/softness_kernels.c`)
+/// gives the bytes of its C code: the test program
+/// `modules/diffusion/neon_parity.c` links softness.c and its kernels built
+/// with NEON and built with `SOFT_SCALAR`, runs the kernels and the filter
+/// on the same random inputs with both, and runs under qemu-arm
+/// (`GRKU_QEMU_ARM`).
+#[test]
+#[ignore = "Requires ARM-capable Clang and LLD and qemu-arm; run with --ignored"]
+fn synthetic_softness_neon_parity() -> Result<()> {
+    let tools = tools()?;
+    let directory = tempfile::tempdir()?;
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let diffusion = root.join("modules/diffusion");
+    let sdk = root.join("runtime/sdk");
+    let compile = |source: &str, object: &str, mode: &str, extra: &[&str]| -> Result<()> {
+        toolchain::run(
+            &tools.clang,
+            toolchain::CAMERA_TARGET
+                .iter()
+                .map(|flag| flag.to_string())
+                .chain(
+                    [
+                        mode,
+                        "-O2",
+                        "-ffreestanding",
+                        "-fno-builtin",
+                        "-fno-stack-protector",
+                        "-c",
+                    ]
+                    .map(String::from),
+                )
+                .chain(extra.iter().map(|flag| flag.to_string()))
+                .chain([
+                    "-I".into(),
+                    sdk.display().to_string(),
+                    diffusion.join(source).display().to_string(),
+                    "-o".into(),
+                    directory.path().join(object).display().to_string(),
+                ]),
+        )
+    };
+    let scalar = [
+        "-DSOFT_SCALAR",
+        "-Dsoftness_apply=scalar_softness_apply",
+        "-Dsoft_column=scalar_soft_column",
+        "-Dsoft_row=scalar_soft_row",
+    ];
+    compile("softness.c", "neon.o", "-mthumb", &[])?;
+    compile("softness_kernels.c", "neon_kernels.o", "-mthumb", &[])?;
+    compile("softness.c", "scalar.o", "-mthumb", &scalar)?;
+    compile("softness_kernels.c", "scalar_kernels.o", "-mthumb", &scalar)?;
+    // ARM mode: the entry point of the program.
+    compile("neon_parity.c", "parity.o", "-marm", &[])?;
+    let program = directory.path().join("parity");
+    toolchain::run(
+        &tools.lld,
+        ["-static", "-e", "_start", "-o"]
+            .map(String::from)
+            .into_iter()
+            .chain([program.display().to_string()])
+            .chain(
+                [
+                    "parity.o",
+                    "neon.o",
+                    "neon_kernels.o",
+                    "scalar.o",
+                    "scalar_kernels.o",
+                ]
+                .map(|object| directory.path().join(object).display().to_string()),
+            ),
+    )?;
+    let qemu = std::env::var("GRKU_QEMU_ARM").unwrap_or_else(|_| "qemu-arm".into());
+    let result = std::process::Command::new(&qemu)
+        .arg(&program)
+        .output()
+        .with_context(|| format!("Run {qemu}"))?;
+    let output = String::from_utf8_lossy(&result.stdout);
+    ensure!(
+        result.status.success() && output.contains("NEON == C"),
+        "Film Softness: {output}{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    Ok(())
+}
+
 /// Defaults are optional, bounded by the setting range, and emitted into the SDK descriptor.
 #[test]
 fn module_setting_defaults_are_validated() -> Result<()> {
