@@ -41,7 +41,7 @@ export function WhatsNew({ language }: { language: Language }) {
           <article className="rounded-xl border border-border bg-card p-5 sm:p-6">
             <header className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <h3 className="font-mono text-[18px] font-semibold">v{latest.version}</h3>
-              <span className="rounded-full bg-brand/15 px-2 py-0.5 text-[12px] font-medium text-brand">{text.latest}</span>
+              <span className="rounded-full bg-brand/15 light:bg-brand/10 px-2 py-0.5 text-[12px] font-medium text-brand">{text.latest}</span>
               <time dateTime={latest.date} className="text-[13px] text-muted-foreground">
                 {formatDate(latest.date, language)}
               </time>
@@ -54,7 +54,7 @@ export function WhatsNew({ language }: { language: Language }) {
               <AccordionItem key={release.version} value={release.version}>
                 <AccordionTrigger className="py-3.5 text-left hover:no-underline">
                   <span className="flex items-baseline gap-3">
-                    <span className="font-mono text-[15px] font-medium">v{release.version}</span>
+                    <span className="font-mono text-[15px] font-medium">v{release.version}</span>{' '}
                     <time dateTime={release.date} className="text-[13px] font-normal text-muted-foreground">
                       {formatDate(release.date, language)}
                     </time>

@@ -5,7 +5,7 @@ import type { Language } from "./i18n";
 
 const en = {
   /** Browser tab title and search result title of the install guide page. */
-  title: "How to install GRKU on a RICOH GR · GRKU",
+  title: "How to install film looks on a RICOH GR III, IIIx, IV · GRKU",
   /** Search result and link preview description of the install guide page. */
   description:
     "Install GRKU step by step: write it to the SD card from Chrome or Edge, or copy GRKU.zip yourself, then start it once on the camera. How to update and uninstall, too.",
@@ -116,9 +116,9 @@ const en = {
 export type GuideStrings = typeof en;
 
 const th: GuideStrings = {
-  title: "วิธีติดตั้ง GRKU บน RICOH GR · GRKU",
+  title: "วิธีลงโทนกล้อง GR และสูตรสีสำหรับ RICOH GR III, IIIx, IV · GRKU",
   description:
-    "ติดตั้ง GRKU ทีละขั้นตอน: เขียนไฟล์ลงการ์ด SD ผ่าน Chrome หรือ Edge หรือคัดลอกไฟล์จาก GRKU.zip เอง แล้วเปิด GRKU บนกล้องหนึ่งครั้ง พร้อมวิธีอัปเดตและถอนการติดตั้ง",
+    "ขั้นตอนการลงโทนฟิล์มและสูตรสี GRKU ลงการ์ด SD ผ่านเบราว์เซอร์ Chrome หรือ Edge หรือก๊อปปี้ไฟล์ GRKU.zip เอง พร้อมวิธีตั้งค่าผ่าน MENU และการใช้งานใน ADJ รวมถึงวิธีอัปเดตและลบออก",
   heading: "วิธีติดตั้ง GRKU",
   whereTitle: "ติดตั้งได้ที่ไหน",
   whereText:

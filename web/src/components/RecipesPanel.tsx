@@ -367,10 +367,10 @@ function RecipeDetails({
                 </HandleRoot>
               </Root>
             </Provider>
-            <Badge className="pointer-events-none absolute top-2 left-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">
+            <Badge className="pointer-events-none absolute top-2 left-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-photo-foreground">
               {r.presetBefore}
             </Badge>
-            <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">
+            <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-photo-foreground">
               {r.presetAfter}
             </Badge>
           </div>

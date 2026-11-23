@@ -63,7 +63,7 @@ export function Example({ before, beforeDetail = 'Off', after, alt, detail, comp
     return (
       <div className={frame}>
         <img {...landingPicture(after, EXAMPLE_SIZES)} alt={alt} width="1200" height="800" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
-        <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">{detail}</Badge>
+        <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-photo-foreground">{detail}</Badge>
       </div>
     );
   }
@@ -82,8 +82,8 @@ export function Example({ before, beforeDetail = 'Off', after, alt, detail, comp
           </HandleRoot>
         </Root>
       </Provider>
-      <Badge className="pointer-events-none absolute top-2 left-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">{beforeDetail}</Badge>
-      <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">{detail}</Badge>
+      <Badge className="pointer-events-none absolute top-2 left-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-photo-foreground">{beforeDetail}</Badge>
+      <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-photo-foreground">{detail}</Badge>
     </div>
   );
 }

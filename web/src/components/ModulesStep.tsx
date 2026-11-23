@@ -93,7 +93,7 @@ export function ModulesStep({
         </div>
 
         <Card
-          className="gap-0 rounded-2xl border-input bg-[#0c0c0c] py-0 shadow-[0_24px_60px_rgba(0,0,0,0.5)] lg:sticky lg:top-20"
+          className="theme-dark gap-0 rounded-2xl border-input bg-[#0c0c0c] py-0 shadow-[0_24px_60px_rgba(0,0,0,0.5)] light:shadow-[0_24px_60px_rgba(40,30,10,0.18)] lg:sticky lg:top-20"
           role="img"
           aria-label={t.landing.menuCaption}
         >

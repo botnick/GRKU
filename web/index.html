@@ -32,7 +32,12 @@
     <meta name="twitter:image" content="https://grku.app/og.jpg" />
     <meta name="twitter:image:alt" content="GRKU: the wordmark with a red period, the tagline GR ของคุณ ในแบบที่ชอบ, and a shelf of film boxes" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="theme-color" content="#171717" />
+    <!-- Light and dark: the device chooses until the visitor does in the header (src/theme.ts). The
+         script sets the theme before the first paint; without it, the stylesheet follows the device. -->
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f5f4ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#171717" media="(prefers-color-scheme: dark)" />
+    <script id="theme">(function(){var d=document.documentElement,m=matchMedia('(prefers-color-scheme: light)'),c={light:'#f5f4ef',dark:'#171717'};function p(){try{var v=localStorage.getItem('grku.theme');return v==='light'||v==='dark'?v:'system'}catch(e){return'system'}}function a(){var t=p();if(t==='system')t=m.matches?'light':'dark';d.setAttribute('data-theme',t);document.querySelectorAll('meta[name="theme-color"]').forEach(function(e){e.setAttribute('content',c[t])})}a();m.addEventListener('change',function(){if(p()==='system')a()});addEventListener('storage',function(e){if(e.key==='grku.theme'||e.key===null)a()})})()</script>
     <meta name="application-name" content="GRKU" />
     <meta name="apple-mobile-web-app-title" content="GRKU" />
     <!-- Icons: the SVG for browsers that take it, the ICO (16, 32, 48) for the rest, PNGs for Android and iOS. -->

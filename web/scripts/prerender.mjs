@@ -11,8 +11,8 @@ import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from 'vite';
+import { lastModified } from './lastmod.mjs';
 
-const SITE = 'https://grku.app';
 const web = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(web, 'dist');
 // Inside web/, so the Node build resolves react and the other packages from web/node_modules.
@@ -88,17 +88,36 @@ async function edgeWorker(headers) {
 }
 
 const template = readFileSync(join(dist, 'index.html'), 'utf8');
-const { render, docChrome, LANGUAGES, LANGUAGE_PATHS, SITE_PAGES, INDEXED_PAGES, STRINGS, VERSION, pagePath, pageText } = await renderer();
+const {
+  render,
+  docChrome,
+  LANGUAGES,
+  LANGUAGE_PATHS,
+  SITE_PAGES,
+  INDEXED_PAGES,
+  STRINGS,
+  VERSION,
+  SITE,
+  pagePath,
+  pageText,
+  alternates: hreflangLinks,
+  alternateTags,
+  localeTags,
+  sitemapXml,
+} = await renderer();
 const pageNames = Object.keys(SITE_PAGES);
 const codes = LANGUAGES.map((language) => language.code);
-/** The Open Graph locale of each language. */
-const LOCALES = { th: 'th_TH', en: 'en_US', 'zh-Hans': 'zh_CN', 'zh-Hant': 'zh_TW', ja: 'ja_JP', ko: 'ko_KR' };
 const pageUrl = (code, name = 'home') => `${SITE}${pagePath(code, name)}`;
-const alternates = (name) =>
-  [
-    ...codes.map((code) => `<link rel="alternate" hreflang="${code}" href="${pageUrl(code, name)}" />`),
-    `<link rel="alternate" hreflang="x-default" href="${pageUrl('en', name)}" />`,
-  ].join('\n    ');
+/** The hreflang links of a page: every language, and English for the others. */
+const alternates = (name) => hreflangLinks(Object.fromEntries(codes.map((code) => [code, pageUrl(code, name)])));
+/** The files that each indexed page comes from, relative to web/, for the <lastmod> of the sitemap. */
+const PAGE_SOURCES = {
+  home: ['src/i18n.ts', 'src/components/Home.tsx', 'src/components/Faq.tsx', 'src/whatsNew.ts', 'src/landing-data.ts', 'src/cameras.ts'],
+  install: ['src/i18n.ts', 'src/components/Workbench.tsx', 'src/cameras.ts'],
+  guide: ['src/guide.ts', 'src/components/Guide.tsx', 'src/components/GuideArt.tsx'],
+};
+/** The name of a page in its breadcrumb: its title without the name of the site. */
+const crumb = (title) => title.replace(/\s*·\s*GRKU$/, '');
 
 function structuredData(code, name) {
   const strings = STRINGS[code];
@@ -111,6 +130,7 @@ function structuredData(code, name) {
         '@id': `${SITE}/#organization`,
         name: 'GRKU',
         url: `${SITE}/`,
+        email: 'support@grku.app',
         logo: { '@type': 'ImageObject', url: `${SITE}/icons/icon-512.png`, width: 512, height: 512 },
       },
       { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'GRKU', url: `${SITE}/`, inLanguage: codes, publisher: { '@id': `${SITE}/#organization` } },
@@ -122,11 +142,14 @@ function structuredData(code, name) {
         description: text.description,
         inLanguage: code,
         isPartOf: { '@id': `${SITE}/#website` },
+        about: { '@id': `${pageUrl(code)}#app` },
         primaryImageOfPage: { '@type': 'ImageObject', url: `${SITE}/og.jpg`, width: 1200, height: 630 },
+        ...(name === 'home' ? {} : { breadcrumb: { '@id': `${pageUrl(code, name)}#breadcrumb` } }),
       },
-      {
+      // The app, described once in each language: on the home page and the first step of the install.
+      (name === 'home' || name === 'install') && {
         '@type': 'SoftwareApplication',
-        '@id': `${SITE}/#app`,
+        '@id': `${pageUrl(code)}#app`,
         name: 'GRKU',
         url: pageUrl(code),
         description: strings.description,
@@ -138,6 +161,23 @@ function structuredData(code, name) {
         isAccessibleForFree: true,
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
         publisher: { '@id': `${SITE}/#organization` },
+      },
+      // Home › page, in the language of the page.
+      name !== 'home' && {
+        '@type': 'BreadcrumbList',
+        '@id': `${pageUrl(code, name)}#breadcrumb`,
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'GRKU', item: pageUrl(code) },
+          ...(name === 'install' || name === 'guide'
+            ? []
+            : [{ '@type': 'ListItem', position: 2, name: crumb(pageText(code, 'install').title), item: pageUrl(code, 'install') }]),
+          {
+            '@type': 'ListItem',
+            position: name === 'install' || name === 'guide' ? 2 : 3,
+            name: crumb(text.title),
+            item: pageUrl(code, name),
+          },
+        ],
       },
       // The FAQ of the home page, as Google and the answer engines read it.
       name === 'home' && {
@@ -187,14 +227,16 @@ function page(code, name) {
   html = replaceOne(html, /(<meta property="og:description" content=")[^"]*(")/, `$1${description}$2`);
   html = replaceOne(html, /(<meta name="twitter:title" content=")[^"]*(")/, `$1${title}$2`);
   html = replaceOne(html, /(<meta name="twitter:description" content=")[^"]*(")/, `$1${description}$2`);
-  const locales = codes.filter((other) => other !== code).map((other) => `<meta property="og:locale:alternate" content="${LOCALES[other]}" />`).join('\n    ');
-  html = replaceOne(html, /<meta property="og:locale" content="[^"]*" \/>/, `<meta property="og:locale" content="${LOCALES[code]}" />\n    ${locales}`);
+  html = replaceOne(html, /<meta property="og:locale" content="[^"]*" \/>/, localeTags(code, codes));
+  // The picture of the link preview, described in the language of the page.
+  const imageAlt = escape(STRINGS[code].site.ogImageAlt);
+  html = html.replace(/(<meta (?:property="og:image:alt"|name="twitter:image:alt") content=")[^"]*(")/g, `$1${imageAlt}$2`);
   // The later steps of the install hold only the controls of one step: search engines skip them
   // and follow their links to the first step, which carries the hreflang links and the sitemap entry.
   const indexed = INDEXED_PAGES.includes(name);
   const head = [
     `<link rel="canonical" href="${pageUrl(code, name)}" />`,
-    ...(indexed ? [alternates(name)] : []),
+    ...(indexed ? [alternateTags(alternates(name))] : []),
     `<script type="application/ld+json">${structuredData(code, name)}</script>`,
   ].join('\n    ');
   if (!indexed) html = replaceOne(html, /(<meta name="robots" content=")[^"]*(")/, '$1noindex, follow$2');
@@ -228,6 +270,21 @@ function allowStyleAttributes(file, pages) {
   writeFileSync(file, headers.replace(policy, `$1 'unsafe-hashes' ${hashes}`));
 }
 
+/**
+ * Allows the theme script of the head (index.html, src/theme.ts) in the Content-Security-Policy
+ * of `_headers`, by its hash. Every page carries it: the language pages, the 404 page, and the
+ * document pages of scripts/build-docs.mjs.
+ */
+function allowThemeScript(file, html) {
+  const script = /<script id="theme">([^<]*)<\/script>/.exec(html)?.[1];
+  if (!script) throw new Error('dist/index.html has no <script id="theme">');
+  const hash = `'sha256-${createHash('sha256').update(script).digest('base64')}'`;
+  const headers = readFileSync(file, 'utf8');
+  const policy = /(Content-Security-Policy:[^\n]*script-src 'self')/;
+  if (!policy.test(headers)) throw new Error("_headers has no script-src 'self' in its Content-Security-Policy");
+  writeFileSync(file, headers.replace(policy, `$1 ${hash}`));
+}
+
 const pages = [];
 for (const code of codes) {
   for (const name of pageNames) {
@@ -240,12 +297,17 @@ for (const code of codes) {
 }
 
 allowStyleAttributes(join(dist, '_headers'), pages);
+allowThemeScript(join(dist, '_headers'), template);
 
 // Pages serves 404.html with status 404 for a path without a file. Without it, Pages serves the
 // root page for every path, and search engines see each wrong address as a copy of the site.
 let notFound = template;
 notFound = replaceOne(notFound, /<title>[^<]*<\/title>/, '<title>Page not found · GRKU</title>');
-notFound = replaceOne(notFound, /<meta\s+name="description"[^>]*>/, '<meta name="robots" content="noindex" />');
+// One robots tag, noindex, and none of the link preview or description tags of the home page.
+notFound = replaceOne(notFound, /<meta name="robots" content="[^"]*" \/>/, '<meta name="robots" content="noindex" />');
+notFound = replaceOne(notFound, /\s*<meta\s+name="description"[^>]*>/, '');
+notFound = notFound.replace(/\s*<meta (?:property="og:[^"]*"|name="twitter:[^"]*") content="[^"]*" \/>/g, '');
+notFound = notFound.replace(/\s*<!-- (?:The link preview|Two pictures)[^>]*-->/g, '');
 notFound = notFound.replace(/\s*<script\b[^>]*\bsrc="[^"]*"[^>]*><\/script>/g, '');
 notFound = notFound.replace(/\s*<link rel="modulepreload"[^>]*>/g, '');
 notFound = replaceOne(
@@ -257,19 +319,15 @@ notFound = replaceOne(
 );
 writeFileSync(join(dist, '404.html'), notFound);
 
-const urls = INDEXED_PAGES
-  .flatMap((name) =>
-    codes.map(
-      (code) =>
-        `  <url>\n    <loc>${pageUrl(code, name)}</loc>\n${codes
-          .map((other) => `    <xhtml:link rel="alternate" hreflang="${other}" href="${pageUrl(other, name)}"/>`)
-          .join('\n')}\n    <xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl('en', name)}"/>\n  </url>`,
-    ),
-  )
-  .join('\n');
+// The sitemap of the indexed pages; scripts/build-docs.mjs adds the document pages.
 writeFileSync(
   join(dist, 'sitemap.xml'),
-  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`,
+  sitemapXml(
+    INDEXED_PAGES.flatMap((name) => {
+      const lastmod = lastModified(web, PAGE_SOURCES[name] ?? ['src']);
+      return codes.map((code) => ({ loc: pageUrl(code, name), lastmod, alternates: alternates(name) }));
+    }),
+  ),
 );
 
 // The header links and the footer of the document pages, which scripts/build-docs.mjs reads.

@@ -121,7 +121,7 @@ const rust = rustCrates();
 const text = [
   'GRKU site: third-party licenses\n',
   'The GRKU site contains the third-party software and fonts below.',
-  'The GRKU code is licensed under the MIT License. See LICENSE in https://github.com/ahonn/grku.\n',
+  'The GRKU code is licensed under the MIT License. See https://grku.app/en/licenses/.\n',
   section('JavaScript packages and fonts', javascript),
   section('Rust crates in the WebAssembly module', rust),
   '=== LibRaw in the RAW decoder WebAssembly module ===\n',

@@ -76,7 +76,7 @@ function HeroCompare({ strings: t }: { strings: Strings }) {
               <img {...heroImage('standard')} alt={`${t.samplePhoto} — ${t.original}`} width="1200" height="800" fetchPriority="high" />
             </Item>
             <Item item="itemTwo" className="comparison-effect">
-              <img {...heroImage(look.image)} alt={`${t.samplePhoto} — ${look.name}`} width="1200" height="800" />
+              <img {...heroImage(look.image)} alt={t.site.lookAlt(look.name, credit.camera)} width="1200" height="800" />
             </Item>
             <HandleRoot aria-label={t.compare}>
               <Handle buttonStyle={{ width: 32, height: 32, gap: '0.2rem' }} />
@@ -238,6 +238,7 @@ export function Home({
         <ul className="-mx-gutter mt-10 flex list-none snap-x snap-mandatory scroll-px-gutter gap-4 overflow-x-auto px-gutter pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
           {MODULE_EXAMPLES.map((example) => {
             const title = t.moduleNames[example.module];
+            const subtitle = t.site.moduleHeadings[example.module];
             const detail = example.detail(t);
             const credit = LANDING_PHOTOS[example.photo];
             return (
@@ -252,7 +253,10 @@ export function Home({
                 />
                 <h3 className="mt-4 flex items-center gap-3 text-[17px] font-semibold">
                   <img src={TILES[example.module]} alt="" width="40" height="40" className="size-8 shrink-0 rounded-[3px] [image-rendering:pixelated]" />
-                  {title}
+                  <span>
+                    {title}
+                    {subtitle && <span className="font-normal text-muted-foreground"> · {subtitle}</span>}
+                  </span>
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.modulesText[example.module]}</p>
                 <a className="mt-2 text-xs text-muted-foreground hover:text-foreground" href={credit.source} target="_blank" rel="noreferrer">

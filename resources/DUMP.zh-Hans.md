@@ -39,9 +39,9 @@ ZIP 中包含 `SD_ROOT/SCRIPT/STARTUP.TTL`、`SD_ROOT/SCRIPT/GRDUMP/DUMP.SH`、`
 ## 发送文件
 
 1. 把 `SCRIPT/GRDUMP` 文件夹压缩成 ZIP。
-2. 把 ZIP 附加到一个 [GitHub issue](mailto:support@grku.app) 中。写明相机型号和固件版本。
+2. 将 ZIP 文件通过电子邮件发送至 [support@grku.app](mailto:support@grku.app)。请附上相机型号及固件版本。
 
-如果开发者在某个 issue 中请你导出，把 ZIP 附加到那个 issue。ZIP 大小约为 20 MB；GitHub 支持上传最大 25 MB 的文件。
+若开发者向您索取转储文件，请回复该邮件并附上 ZIP。ZIP 大小约为 20 MB；若您的邮件服务无法发送如此大的附件，请改用网盘链接发送。
 
 ## 恢复存储卡
 
