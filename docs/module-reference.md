@@ -68,7 +68,7 @@ A setting reference is a key of `settings`, or a name of `uses` without its `?`.
 | `kind` | string | `"choice"` | `"choice"` lists setting values. `"settings"` opens native settings directly. `"group"` lists children, each with its own list of values. |
 | `setting` | string | required for `choice` | The setting of a choice page. Omit it for `settings` and `group`. |
 | `off_row` | boolean | `false` | Row 0 shows the core Off icon instead of the Off icon of the page. |
-| `settings` | array of strings | `[]` | Up to 5 native settings rows (`GRKU_SETTING_ROWS`). A choice page starts with its page setting. A settings page needs at least one row. |
+| `settings` | array of strings | `[]` | Up to 9 native settings rows (`GRKU_SETTING_ROWS`). A choice page starts with its page setting. A settings page needs at least one row. |
 | `options` | boolean | `false` | The settings page of the module in the GRKU section of MENU has an Options row, which turns each value of the page on or off in ADJ, or each effect for a page of `CORE.TONE` (`GRKU_CHOICE_OPTIONS`). A page of a setting with options needs `off_row` and at most 16 values. Without room on the settings page, its first rows leave it. With two options or more, the settings page also has an Order row, which orders them in ADJ: the values of the page, the effects, or the recipes. A page of `CORE.CROP` or `CORE.BORDER` has no Order row, because its values are steps of one scale. |
 | `children` | array of tables | `[]` | A group page has 1 to 4 children, in display order. Other page kinds have none. |
 | `off_icon` | table | none | Optional [icon source](#icon-sources) of row 0 (Off) of a choice page without `off_row`. Without it, row 0 shows tile 0. The root row shows tile 0 while the setting is 0. Other page kinds have none. |
@@ -87,7 +87,7 @@ A `group` page has no `setting`, `settings`, `off_row`, or `options`. Each `[[pa
 | Key | Type | Description |
 | --- | --- | --- |
 | `key` | string | A unique key with 1 to 15 characters `A`-`Z`, `0`-`9`, or `_`. It identifies the child title in the text files. |
-| `settings` | array of strings | The child's 1 to 5 native settings rows. The first setting has 2 to 64 values: 0 is Off, and the other values turn the child on. It must be available and cannot be an optional use. |
+| `settings` | array of strings | The child's 1 to 9 native settings rows. The first setting has 2 to 64 values: 0 is Off, and the other values turn the child on. It must be available and cannot be an optional use. |
 | `icon` | table | Optional [icon source](#icon-sources). Without it, child n uses tile n + 1. |
 
 This example uses two settings declared elsewhere in the manifest, each with the values Off, Weak, Medium, and Strong:
@@ -307,7 +307,7 @@ A registration connects a part of the module to an extension point of the core. 
 
 A `choice` page lists one row for each value of its setting in ADJ. OK on a row sets the value. ADJ shows a choice page when it has at least two rows. ADJ Order in GRKU Settings of MENU sets the module order. The installer rejects a page whose number of rows is not the number of values of its setting.
 
-A page of a setting of the module can also give 2 to 5 rows of a native settings page (`GRKU_SETTING_ROWS`), as `modules/date` does. The first row is the page setting, and the others are settings of the module or used settings. A row has at most 64 values (`GRKU_SETTING_ROW_VALUES`, since ABI 2.9; at most 8 before). A row with more than 8 values lists them on a longer value page. The text of a used setting gives its `values`. INSTALL leaves out the row of an optional used setting that no module has. Fn in ADJ opens this page.
+A page of a setting of the module can also give 2 to 9 rows of a native settings page (`GRKU_SETTING_ROWS`; at most 5 before GRKU 1.9: an earlier core rejects a page with more), as `modules/date` does. Rows past the fifth open the value page that the first row borrows, and their labels show in view slots, as the rows of ADJ Order do. In MENU, the Enable, Options, and Order rows come first, and the page shows at most 10 rows: the first settings rows leave a longer page. The first row is the page setting, and the others are settings of the module or used settings. A row has at most 64 values (`GRKU_SETTING_ROW_VALUES`, since ABI 2.9; at most 8 before). A row with more than 8 values lists them on a longer value page. The text of a used setting gives its `values`. INSTALL leaves out the row of an optional used setting that no module has. Fn in ADJ opens this page.
 
 A `settings` page shows one ADJ entry with its title and module tile. OK, Right, Fn, or a touch opens the native settings directly. Each row changes only its own setting. MENU shows Enable followed by the same rows.
 
@@ -496,7 +496,7 @@ ABI 2.9 gives `CORE.ASPECT` the value 8, 3:4, and lets a settings row have up to
 | Tiles of all loaded modules | 128 | 54 |
 | Rows of a choice page | 1 to 64 | build error, or 53 |
 | Children of a group page | 1 to 4 | build error, or 53 |
-| Rows of a native settings page | 5 | build error, or 53 |
+| Rows of a native settings page | 9 | build error, or 53 |
 | Values of a native settings row | 8 | 53 |
 | Event subscribers | 1 in each module | 53 |
 | Timers of all modules | 8 | `timer_start` returns 0 |

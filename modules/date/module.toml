@@ -45,12 +45,55 @@ values = 2
 saved = true
 public = true
 
-# Where the camera has a native settings page, it shows the style, the look,
-# the position, and the icon.
+# The color of the light: 0 standard (the color of each font: orange for
+# Classic and GR II, yellow for GR1s), 1 orange, 2 white, 3 sepia, 4 LED
+# yellow. A monochrome picture gets white light.
+[[settings]]
+key = "COLOR"
+values = 5
+saved = true
+public = true
+
+# The size of the text: 0 S, 1 M (the size before 1.9), 2 M-L, 3 L.
+[[settings]]
+key = "SIZE"
+values = 4
+default = 1
+saved = true
+public = true
+
+# Where the line of the date goes: 0 bottom right, 1 bottom left, 2 top
+# right, 3 split (the date at the bottom left, the caption at the bottom
+# right). POSITION still chooses the sensor frame or the upright picture.
+[[settings]]
+key = "CORNER"
+values = 4
+saved = true
+public = true
+
+# A soft glow around the text: 0 off, 1 on. GR II prints flat pixels and has
+# none.
+[[settings]]
+key = "GLOW"
+values = 2
+saved = true
+public = true
+
+# The caption before the date: 0 off, then the texts of stamp.c (captions).
+[[settings]]
+key = "CAPTION"
+values = 8
+saved = true
+public = true
+
+# Where the camera has a native settings page, it shows the style, the
+# placement, the look of the text, the caption, and the icon. In MENU, the
+# Options and Order rows leave room for seven of them: the style and the
+# position show only on the page that Fn opens in ADJ.
 [page]
 setting = "STYLE"
 off_row = true
-settings = ["STYLE", "LOOK", "POSITION", "ICON"]
+settings = ["STYLE", "POSITION", "CORNER", "SIZE", "LOOK", "COLOR", "GLOW", "CAPTION", "ICON"]
 # The Options row in MENU turns each style on or off in ADJ.
 options = true
 

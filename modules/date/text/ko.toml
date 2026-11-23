@@ -15,3 +15,23 @@ values = ["필름", "정방향"]
 [settings.ICON]
 label = "아이콘 표시"
 values = ["켜짐", "꺼짐"]
+
+[settings.COLOR]
+label = "날짜 색상"
+values = ["표준", "주황색", "흰색", "세피아", "LED 노랑"]
+
+[settings.SIZE]
+label = "날짜 크기"
+values = ["S", "M", "M-L", "L"]
+
+[settings.CORNER]
+label = "날짜 모서리"
+values = ["오른쪽 아래", "왼쪽 아래", "오른쪽 위", "하단 분할"]
+
+[settings.GLOW]
+label = "날짜 빛 번짐"
+values = ["꺼짐", "켜짐"]
+
+[settings.CAPTION]
+label = "캡션"
+values = ["꺼짐", "THANK YOU", "HAPPY BIRTHDAY", "I <3 GR", "I <3 YOU", "GOOD TIMES", "HOLIDAY", "CHEERS"]

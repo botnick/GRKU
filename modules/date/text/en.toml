@@ -15,3 +15,23 @@ values = ["Film", "Upright"]
 [settings.ICON]
 label = "Show Icon"
 values = ["On", "Off"]
+
+[settings.COLOR]
+label = "Date Color"
+values = ["Standard", "Orange", "White", "Sepia", "LED Yellow"]
+
+[settings.SIZE]
+label = "Date Size"
+values = ["S", "M", "M-L", "L"]
+
+[settings.CORNER]
+label = "Date Corner"
+values = ["Bottom Right", "Bottom Left", "Top Right", "Bottom Split"]
+
+[settings.GLOW]
+label = "Date Glow"
+values = ["Off", "On"]
+
+[settings.CAPTION]
+label = "Caption"
+values = ["Off", "THANK YOU", "HAPPY BIRTHDAY", "I <3 GR", "I <3 YOU", "GOOD TIMES", "HOLIDAY", "CHEERS"]

@@ -259,13 +259,22 @@ CHOICE_SETTING(1)
 CHOICE_SETTING(2)
 CHOICE_SETTING(3)
 CHOICE_SETTING(4)
+CHOICE_SETTING(5)
+CHOICE_SETTING(6)
+CHOICE_SETTING(7)
+CHOICE_SETTING(8)
 static const Setting choice_settings[SETTING_ROWS]={
     {choice_label_0,choice_rows,choice_value_0,choice_committed,choice_apply},
     {choice_label_1,choice_values_1,choice_value_1,choice_get_1,choice_set_1},
     {choice_label_2,choice_values_2,choice_value_2,choice_get_2,choice_set_2},
     {choice_label_3,choice_values_3,choice_value_3,choice_get_3,choice_set_3},
     {choice_label_4,choice_values_4,choice_value_4,choice_get_4,choice_set_4},
+    {choice_label_5,choice_values_5,choice_value_5,choice_get_5,choice_set_5},
+    {choice_label_6,choice_values_6,choice_value_6,choice_get_6,choice_set_6},
+    {choice_label_7,choice_values_7,choice_value_7,choice_get_7,choice_set_7},
+    {choice_label_8,choice_values_8,choice_value_8,choice_get_8,choice_set_8},
 };
+_Static_assert(GRM_SETTING_ROWS==9U,"A row of choice_settings for each settings row of a page");
 /* The page setting as the one row of a native value page, for the MENU row
    of a page without settings rows. Its values are the rows of the page. */
 static const u16 *choice_one_label(volatile u32 *h) { return choice_title(h); }

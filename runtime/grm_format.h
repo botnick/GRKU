@@ -49,7 +49,7 @@
 /* The most rows of a native settings page (a page has 0 to this many; with
    1, Fn opens no settings page, runtime/menu.c), and the most values of each
    row. */
-#define GRM_SETTING_ROWS 5U
+#define GRM_SETTING_ROWS 9U
 #define GRM_SETTING_ROW_VALUES 64U
 /* The stages of plane filters (runtime/sdk/grku.h). */
 #define GRM_STAGE_FRAME 20U

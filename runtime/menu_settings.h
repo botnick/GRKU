@@ -43,7 +43,7 @@ _Static_assert(SUBMENU_KIND_SIZE<=SETTINGS_LABELS &&
    entry in the private copy. */
 #define SETTINGS_BORROWED 5U
 #define SETTINGS_ALIAS 0U
-_Static_assert(SETTINGS_LABEL_ROWS==SETTING_ROWS &&
+_Static_assert(SETTINGS_LABEL_ROWS<=SETTING_ROWS &&
                SUBMENU_KIND_CONTROLLERS+4*SETTINGS_BORROWED<=SUBMENU_KIND_ROW_KINDS,
                "The entry holds the labels and controllers");
 static const u32 settings_pages[SETTINGS_BORROWED]=SETTINGS_PAGES;

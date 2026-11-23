@@ -480,7 +480,10 @@ fn synthetic_date_neon_parity() -> Result<()> {
     fs::write(
         directory.path().join("grku_module.h"),
         "#define SETTING_STYLE GRKU_SETTING(0)\n#define SETTING_LOOK GRKU_SETTING(1)\n\
-         #define SETTING_POSITION GRKU_SETTING(2)\n",
+         #define SETTING_POSITION GRKU_SETTING(2)\n#define SETTING_ICON GRKU_SETTING(3)\n\
+         #define SETTING_COLOR GRKU_SETTING(4)\n#define SETTING_SIZE GRKU_SETTING(5)\n\
+         #define SETTING_CORNER GRKU_SETTING(6)\n#define SETTING_GLOW GRKU_SETTING(7)\n\
+         #define SETTING_CAPTION GRKU_SETTING(8)\n",
     )?;
     let compile = |source: &str, object: &str, mode: &str, extra: &[&str]| -> Result<()> {
         toolchain::run(

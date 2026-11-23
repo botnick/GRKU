@@ -2586,15 +2586,15 @@ static void the_adj_order_page_moves_modules(void)
         volatile u32 *block = settings_block(test_header);
         static const u32 row_texts[] = SETTINGS_ROW_TEXTS, pages[] = SETTINGS_PAGES;
         const u32 kind = 0x21c, view = 0x59200000;
-        _Static_assert(sizeof(row_texts) / sizeof(row_texts[0]) == SETTING_ROWS, "A label for each row");
-        ((volatile u8 *)block)[SUBMENU_KIND_ROWS] = SETTING_ROWS;
+        _Static_assert(sizeof(row_texts) / sizeof(row_texts[0]) == SETTINGS_LABEL_ROWS, "A label for each row");
+        ((volatile u8 *)block)[SUBMENU_KIND_ROWS] = SETTINGS_LABEL_ROWS;
         block[SUBMENU_KIND_ROW_KINDS / 4] = kind;
-        assert(menu_settings_row_controller(kind, SETTING_ROWS - 1) == pages[SETTINGS_ALIAS]);
+        assert(menu_settings_row_controller(kind, SETTINGS_LABEL_ROWS - 1) == pages[SETTINGS_ALIAS]);
         assert(menu_settings_controller(pages[SETTINGS_ALIAS]) == pages[SETTINGS_ALIAS]);
-        assert(test_header[GRKU_HOST_SETTINGS / 4] == (MANAGE_MODULE + 1 | (SETTING_ROWS - 1) << SETTINGS_OPEN_ROW));
-        assert(settings_alias(test_header, SETTINGS_ALIAS) == SETTING_ROWS - 1 && settings_alias(test_header, 1) == 1);
+        assert(test_header[GRKU_HOST_SETTINGS / 4] == (MANAGE_MODULE + 1 | (SETTINGS_LABEL_ROWS - 1) << SETTINGS_OPEN_ROW));
+        assert(settings_alias(test_header, SETTINGS_ALIAS) == SETTINGS_LABEL_ROWS - 1 && settings_alias(test_header, 1) == 1);
         assert(menu_text_override(view, row_texts[SETTINGS_ALIAS]) ==
-               ((u32)(block + SETTINGS_LABELS / 4 + SETTING_ROWS * 2) | 1U));
+               ((u32)(block + SETTINGS_LABELS / 4 + SETTINGS_LABEL_ROWS * 2) | 1U));
         /* The last row is past the modules of the group: its value page
            moves no module, where that of the first row would. */
         assert(menu_settings_apply(2, 0, SETTINGS_ALIAS) == 1);
@@ -2604,10 +2604,10 @@ static void the_adj_order_page_moves_modules(void)
         /* The return reads the rows of the page again: its two modules.
            The six rows of this case are set again. */
         assert(((volatile u8 *)block)[SUBMENU_KIND_ROWS] == 2);
-        ((volatile u8 *)block)[SUBMENU_KIND_ROWS] = SETTING_ROWS;
+        ((volatile u8 *)block)[SUBMENU_KIND_ROWS] = SETTINGS_LABEL_ROWS;
         assert(menu_text_override(view, row_texts[SETTINGS_ALIAS]) == ((u32)(block + SETTINGS_LABELS / 4 + 2) | 1U));
-        assert(menu_text_override(view, row_texts[SETTING_ROWS - 1]) ==
-               ((u32)(block + SETTINGS_LABELS / 4 + SETTING_ROWS * 2) | 1U));
+        assert(menu_text_override(view, row_texts[SETTINGS_LABEL_ROWS - 1]) ==
+               ((u32)(block + SETTINGS_LABELS / 4 + SETTINGS_LABEL_ROWS * 2) | 1U));
         /* The value page of the first row is its own. */
         assert(menu_settings_row_controller(pages[SETTINGS_ALIAS], 0) == pages[SETTINGS_ALIAS]);
         assert(menu_settings_controller(pages[SETTINGS_ALIAS]) == pages[SETTINGS_ALIAS]);
@@ -3683,6 +3683,47 @@ static void the_framing_menu_page_lists_each_ratio_on_a_long_value_page(void)
     assert(page[1].get(h) == 0);
     *page_at(framing + PAGE_ROWS) = GRKU_CORE_ASPECT_VALUES;
 }
+/* A module page with nine settings rows, as Date Imprint has: Fn in ADJ
+   shows each row, the rows past the fifth borrow the value page of the
+   first and show their labels in view slots, and MENU shows Enable,
+   Options, and the last eight rows: the page setting leaves. */
+static void a_module_page_shows_nine_settings_rows(void)
+{
+    install_menu_pages();
+    volatile u32 *h = test_header, *menu = services_word(test_header, SERVICES_MENU);
+    const u32 guides = TEST_PAGE + 2 * TEST_PAGE_SIZE, rows = guides + 0x200;
+    const u32 style = rows + 160, extra = style + 7 * TEXT_LIST, last = extra + 3 * TEXT_LIST;
+    static const char *const values[] = {"On", "Off"};
+    const Setting *page;
+    for (u32 language = 0; language < GRKU_TEXT_LANGUAGES; ++language) {
+        *page_at(style + language * 4) = page_text("Style");
+        for (u32 value = 0; value < 6; ++value)
+            *page_at(style + TEXT_LIST + (value * GRKU_TEXT_LANGUAGES + language) * 4) = page_text(guide_names[value]);
+        *page_at(extra + language * 4) = page_text("Extra");
+        for (u32 value = 0; value < 2; ++value)
+            *page_at(extra + TEXT_LIST + (value * GRKU_TEXT_LANGUAGES + language) * 4) = page_text(values[value]);
+        *page_at(last + language * 4) = page_text("Ninth");
+    }
+    assert(last + TEXT_LIST <= guides + TEST_PAGE_SIZE);
+    *page_at(guides + PAGE_SETTING_ROWS) = 9;
+    for (u32 r = 0; r < 9; ++r) {
+        *page_at(rows + r * 16) = 16;
+        *page_at(rows + r * 16 + ROW_SETTING) = r ? 15 + (r - 1) % 3 : 0;
+        *page_at(rows + r * 16 + ROW_LABEL) = !r ? style : r == 8 ? last : extra;
+        *page_at(rows + r * 16 + ROW_VALUES) = (r ? extra : style) + TEXT_LIST;
+    }
+    settings_open(h, 2, 0);
+    page = settings_page(h);
+    assert(page == choice_settings && settings_rows(h) == 9);
+    assert(same(page[0].label(h), "Style") && same(page[8].label(h), "Ninth") && same(page[6].value_text(h, 1), "Off"));
+    menu[MENU_ROWS_LISTED / 4] = 2;
+    menu[MENU_ROWS_PAGE / 4] = 2;
+    settings_open(h, LISTED_PAGE, 0);
+    page = settings_page(h);
+    assert(settings_rows(h) == LISTED_ROWS && same(page[1].label(h), "Options"));
+    assert(same(page[2].label(h), "Extra") && same(page[LISTED_ROWS - 1].label(h), "Ninth"));
+    install_guide_rows(2);
+}
 static void the_guides_menu_page_lists_enable_options_and_settings(void)
 {
     install_menu_pages();
@@ -3699,7 +3740,7 @@ static void the_guides_menu_page_lists_enable_options_and_settings(void)
     /* The page shows: the change to the borrowed submenu. */
     assert(menu_settings_controller(SETTINGS_SUBMENU) == SETTINGS_SUBMENU);
     page = settings_page(h);
-    assert(page == listed_settings && settings_rows(h) == SETTING_ROWS);
+    assert(page == listed_settings && settings_rows(h) == SETTINGS_LABEL_ROWS);
     assert(same(page[0].label(h), "Enable") && same(page[1].label(h), "Options"));
     assert(same(page[2].label(h), "Style") && same(page[3].label(h), "Color"));
     assert(same(page[4].label(h), "Opacity") && same(page[5].label(h), "Hide with DISP"));
@@ -3710,9 +3751,9 @@ static void the_guides_menu_page_lists_enable_options_and_settings(void)
     /* The entry has room for the controllers and kinds of five rows. The
        last row keeps its label in the entry, and its value method after
        it. */
-    for (u32 i = 0; i < SETTING_ROWS - 1; ++i) assert(block[SUBMENU_KIND_CONTROLLERS / 4 + i] == pages[i]);
-    assert(((volatile u16 *)((volatile u8 *)block + SUBMENU_KIND_LABELS))[SETTING_ROWS - 1] == row_texts[SETTING_ROWS - 1]);
-    assert(block[SUBMENU_KIND_VALUES / 4 + 2 * (SETTING_ROWS - 1)] == (u32)(unsigned long)menu_settings_value_5);
+    for (u32 i = 0; i < SETTINGS_LABEL_ROWS - 1; ++i) assert(block[SUBMENU_KIND_CONTROLLERS / 4 + i] == pages[i]);
+    assert(((volatile u16 *)((volatile u8 *)block + SUBMENU_KIND_LABELS))[SETTINGS_LABEL_ROWS - 1] == row_texts[SETTINGS_LABEL_ROWS - 1]);
+    assert(block[SUBMENU_KIND_VALUES / 4 + 2 * (SETTINGS_LABEL_ROWS - 1)] == (u32)(unsigned long)menu_settings_value_5);
     assert(block[SUBMENU_KIND_ROW_KINDS / 4] == kind);
     /* The value method of the last row shows its value. */
     object_memory[ROW_VALUE_VIEW / 4] = view + 5;
@@ -3722,9 +3763,9 @@ static void the_guides_menu_page_lists_enable_options_and_settings(void)
     assert(menu_text_override(view + 5, SETTINGS_TITLE_TEXT) == ((u32)(block + SETTINGS_VIEWS / 4 + 5 * 3 + 1) | 1U));
     /* OK on the last row opens the value page of SETTINGS_ALIAS for the
        last row: its title, its values, and its setting. */
-    assert(menu_settings_row_controller(kind, SETTING_ROWS - 1) == pages[SETTINGS_ALIAS]);
+    assert(menu_settings_row_controller(kind, SETTINGS_LABEL_ROWS - 1) == pages[SETTINGS_ALIAS]);
     assert(menu_settings_controller(pages[SETTINGS_ALIAS]) == pages[SETTINGS_ALIAS]);
-    assert(h[GRKU_HOST_SETTINGS / 4] >> SETTINGS_OPEN_ROW == SETTING_ROWS - 1);
+    assert(h[GRKU_HOST_SETTINGS / 4] >> SETTINGS_OPEN_ROW == SETTINGS_LABEL_ROWS - 1);
     assert(menu_settings_count(0, 0, SETTINGS_ALIAS) == 3);
     /* A value page shows at most the rows that each SelectMenu has views for. */
     assert(settings_memory[2 + 17 * 3 + 2] == 2);
@@ -3761,13 +3802,13 @@ static void the_guides_menu_page_lists_enable_options_and_settings(void)
 #endif
     settings_memory[2 + 17 * 3 + 2] = 2;
     assert(menu_text_override(view, row_texts[SETTINGS_ALIAS]) ==
-           ((u32)(block + SETTINGS_LABELS / 4 + SETTING_ROWS * 2) | 1U));
+           ((u32)(block + SETTINGS_LABELS / 4 + SETTINGS_LABEL_ROWS * 2) | 1U));
     assert(menu_settings_apply(1, 0, SETTINGS_ALIAS) == 1 && settings_memory[2 + 17 * 3 + 1] == 1);
     assert(menu_settings_current(1, 0, SETTINGS_ALIAS) == 2 && menu_settings_current(0, 0, SETTINGS_ALIAS) == 1);
     settings_memory[2 + 17 * 3 + 1] = 0;
     /* The return to the page ends it, and the page reads its rows again. */
     assert(menu_settings_controller(SETTINGS_SUBMENU) == SETTINGS_SUBMENU);
-    assert(!(h[GRKU_HOST_SETTINGS / 4] & SETTINGS_OPEN_ROWS) && settings_rows(h) == SETTING_ROWS);
+    assert(!(h[GRKU_HOST_SETTINGS / 4] & SETTINGS_OPEN_ROWS) && settings_rows(h) == SETTINGS_LABEL_ROWS);
 }
 
 static void the_options_page_toggles_its_values(void)
@@ -4079,7 +4120,7 @@ static void the_order_page_orders_the_values_of_a_setting(void)
     /* Without the settings of the order, the page has no Order row. */
     settings_open(h, LISTED_PAGE, 0);
     page = settings_page(h);
-    assert(settings_rows(h) == SETTING_ROWS && same(page[2].label(h), "Style"));
+    assert(settings_rows(h) == SETTINGS_LABEL_ROWS && same(page[2].label(h), "Style"));
     settings_memory[0] = 24;
     for (u32 k = 18; k < 24; ++k) {
         settings_memory[2 + k * 3 + 1] = 0;
@@ -4088,7 +4129,7 @@ static void the_order_page_orders_the_values_of_a_setting(void)
     manage_memory[MANAGE_ORDERS / 4] = 18 + 1;
     /* Order takes a row of its own: the four settings stay. */
     settings_open(h, LISTED_PAGE, 0);
-    assert(settings_rows(h) == SETTING_ROWS + 1 && same(page[1].label(h), "Options"));
+    assert(settings_rows(h) == SETTINGS_LABEL_ROWS + 1 && same(page[1].label(h), "Options"));
     assert(same(page[2].label(h), "Order") && same(page[3].label(h), "Style") && same(page[6].label(h), "Hide with DISP"));
     assert(page[2].values(h) == 5 && same(page[2].value_text(h, 1), "2. Center"));
     second = option_label(h, 1);
@@ -6495,6 +6536,7 @@ int main(void)
     group_back_returns_to_the_menu_of_the_camera();
     the_framing_menu_page_lists_each_ratio_on_a_long_value_page();
     the_guides_menu_page_lists_enable_options_and_settings();
+    a_module_page_shows_nine_settings_rows();
     the_options_page_toggles_its_values();
 #if defined(FW_CHECK_ITEM) && defined(FW_MENU_TABS)
     the_options_page_shows_checkboxes();

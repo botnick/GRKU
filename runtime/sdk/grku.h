@@ -311,7 +311,7 @@ typedef struct {
    page of a setting with options has GRKU_CHOICE_OFF_ROW and at most 16
    values. */
 #define GRKU_CHOICE_OPTIONS 4U
-#define GRKU_SETTING_ROWS 5U
+#define GRKU_SETTING_ROWS 9U
 typedef struct GrkuPage {
     u32 size;
     u32 kind;

@@ -10,7 +10,7 @@ The official modules in `modules/` are complete examples:
 | `modules/guides` | an own setting, a choice page, and a layer |
 | `modules/framing` | a page, mask layer, and status icon of the capability `CORE.ASPECT` |
 | `modules/crop` | a page and mask layer of the capabilities `CORE.CROP` and `CORE.CROP_MODE` |
-| `modules/date` | four settings (the last, Show Icon, hides its status icon), a page, a status icon, and a plane filter |
+| `modules/date` | nine settings (Show Icon hides its status icon; color, size, corner, glow, and caption since 1.9), a page with nine native settings rows, a status icon, and a plane filter |
 | `modules/glow` | independent Enable, Strength, and Show Icon settings, strength icons shared by ADJ and the viewfinder, and a frame filter |
 | `modules/lightleak` | a choice page with presets and four strength rows on one native settings page, and a frame filter that follows the upright picture and is seeded from it |
 | `modules/diffusion` | a choice page with native settings rows, constant tables that a script generates, and a frame filter ported from a community module |

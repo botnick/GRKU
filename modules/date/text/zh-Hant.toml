@@ -15,3 +15,23 @@ values = ["底片", "擺正"]
 [settings.ICON]
 label = "圖示顯示"
 values = ["開啟", "關閉"]
+
+[settings.COLOR]
+label = "日期色彩"
+values = ["標準", "橙色", "白色", "棕褐色", "LED 黃色"]
+
+[settings.SIZE]
+label = "日期大小"
+values = ["S", "M", "M-L", "L"]
+
+[settings.CORNER]
+label = "日期角落"
+values = ["右下角", "左下角", "右上角", "底部左右分列"]
+
+[settings.GLOW]
+label = "日期光暈"
+values = ["關閉", "開啟"]
+
+[settings.CAPTION]
+label = "附加文字"
+values = ["關閉", "THANK YOU", "HAPPY BIRTHDAY", "I <3 GR", "I <3 YOU", "GOOD TIMES", "HOLIDAY", "CHEERS"]

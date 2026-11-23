@@ -186,8 +186,8 @@ static void option_move(volatile u32 *h,u32 from,u32 to) {
 #define LISTED_NONE 0x102U
 #define LISTED_ORDER 0x103U
 /* The Order row takes a row of its own, so the page shows as many settings
-   with it as without it. */
-#define LISTED_ROWS (SETTING_ROWS+1U)
+   with it as without it, up to the rows that the submenu builds. */
+#define LISTED_ROWS SUBMENU_ROWS
 _Static_assert(LISTED_ROWS<=SUBMENU_ROWS,"The submenu shows each row of the listed page");
 /* The entry of value `k` of a long value page (MENU_ROWS_VALUES). */
 static volatile u32 *value_entry(volatile u32 *h,u32 k) {
@@ -223,7 +223,7 @@ static u32 listed_kind(volatile u32 *h,u32 row,const Setting **base) {
     *base=listed_base(h,&n);
     options=options_count(h)!=0;
     order=order_count(h)!=0;
-    most=SETTING_ROWS+order;
+    most=SETTING_ROWS+order<LISTED_ROWS ? SETTING_ROWS+order : LISTED_ROWS;
     first=1+options+order+n>most ? 1+options+order+n-most : 0;
     if(!row) return LISTED_ENABLE;
     if(options && row==1) return LISTED_OPTIONS;
@@ -237,12 +237,13 @@ static u32 listed_child(volatile u32 *h,u32 row) {
     return base==group_settings && kind<LISTED_ENABLE ? group_child(h,kind) : MODULE_TOTAL;
 }
 static u32 listed_rows(volatile u32 *h) {
-    u32 n, options, order;
+    u32 n, options, order, most;
     if(listed(h)>=manage_count(h)) return 0;
     listed_base(h,&n);
     options=options_count(h)!=0;
     order=order_count(h)!=0;
-    return 1+options+order+n<SETTING_ROWS+order ? 1+options+order+n : SETTING_ROWS+order;
+    most=SETTING_ROWS+order<LISTED_ROWS ? SETTING_ROWS+order : LISTED_ROWS;
+    return 1+options+order+n<most ? 1+options+order+n : most;
 }
 static const u16 *enable_label(volatile u32 *h) { return text(h,TEXT_ENABLE); }
 /* The Options row shows no value. Its value page lists the options: a value
@@ -372,6 +373,7 @@ static void listed_set(volatile u32 *h,u32 row,u32 value) {
     static u32 listed_get_##n(volatile u32 *h) { return listed_get(h,n); } \
     static void listed_set_##n(volatile u32 *h,u32 value) { listed_set(h,n,value); }
 LISTED_ROW(0) LISTED_ROW(1) LISTED_ROW(2) LISTED_ROW(3) LISTED_ROW(4) LISTED_ROW(5) LISTED_ROW(6)
+LISTED_ROW(7) LISTED_ROW(8) LISTED_ROW(9)
 static const Setting listed_settings[LISTED_ROWS]={
     {listed_label_0,listed_values_0,listed_text_0,listed_get_0,listed_set_0},
     {listed_label_1,listed_values_1,listed_text_1,listed_get_1,listed_set_1},
@@ -380,7 +382,11 @@ static const Setting listed_settings[LISTED_ROWS]={
     {listed_label_4,listed_values_4,listed_text_4,listed_get_4,listed_set_4},
     {listed_label_5,listed_values_5,listed_text_5,listed_get_5,listed_set_5},
     {listed_label_6,listed_values_6,listed_text_6,listed_get_6,listed_set_6},
+    {listed_label_7,listed_values_7,listed_text_7,listed_get_7,listed_set_7},
+    {listed_label_8,listed_values_8,listed_text_8,listed_get_8,listed_set_8},
+    {listed_label_9,listed_values_9,listed_text_9,listed_get_9,listed_set_9},
 };
+_Static_assert(LISTED_ROWS==10U,"A row of listed_settings for each row of the listed page");
 /* Whether row `row` of a page opens the Fn adjustments instead of a value
    page. */
 static u32 settings_fn_row(volatile u32 *h,const Setting *page,u32 row) {

@@ -69,10 +69,11 @@ static uint16_t dng_rect[4], dng_full[4];
 static uint32_t dng_rect_shot, dng_rect_calls;
 #define PICTURE_DNG_RECT(factor,rect) do { dng_rect_shot = (factor); ++dng_rect_calls; \
     memcpy((rect),(factor) == 0x3f800000U && dng_full[0] ? dng_full : dng_rect,sizeof(dng_rect)); } while (0)
-/* The module settings: those of Date Imprint, STYLE (handle 0, 6 values) and
-   LOOK (handle 1, 3 values). */
+/* The module settings: those of Date Imprint, STYLE (handle 0, 6 values),
+   LOOK (handle 1, 3 values), POSITION, ICON, COLOR, SIZE, CORNER, GLOW, and
+   CAPTION (handles 2 to 8). */
 #define TEST_SETTINGS 0x5f000000U
-static uint32_t settings_memory[2 + 3 * 3];
+static uint32_t settings_memory[2 + 9 * 3];
 static volatile uint32_t *mapped_settings(uint32_t address)
 {
     assert(address == TEST_SETTINGS);
@@ -191,7 +192,13 @@ static void reset(void)
     header[GRKU_HOST_RECORDS / 4] = RECORDS;
     /* Date Imprint is loaded, and its settings are 0. */
     memset(settings_memory, 0, sizeof(settings_memory));
-    settings_memory[0] = 3; settings_memory[4] = 6; settings_memory[7] = 3; settings_memory[10] = 2;
+    {
+        static const uint32_t limits[9] = {6, 3, 2, 2, 5, 4, 4, 2, 8};
+        settings_memory[0] = 9;
+        for (unsigned i = 0; i < 9; ++i) settings_memory[2 + i * 3 + 2] = limits[i];
+        /* SIZE: M, its default. */
+        settings_memory[2 + 5 * 3 + 1] = 1;
+    }
     header[GRKU_HOST_MODULE_SETTINGS / 4] = TEST_SETTINGS;
     date_module(1);
     /* The Framing module uses CORE.ASPECT, so a stored crop applies. */
@@ -1657,7 +1664,8 @@ int main(void)
             Plane small = {planes[1].y, planes[1].c, 720, 480, planes[1].pitch, 0, 0, 0, 720, 480};
             encode_setup();
             fill_planes(40, 128, 128);
-            gr2_paint(&small, &main, "2026/10/17", 10, 0, 0);
+            const Gr2 g2 = {gr2_scale(4000, 256), 3, 1, 1, 146, 46, 225, 0};
+            gr2_paint(&small, &main, "2026/10/17", 10, 0, 0, &g2);
             struct box g = changes(1, 0);
             assert(g.lit && g.top >= 449 && g.top <= 450 && g.bottom >= 457 && g.bottom <= 459);
             assert(g.right <= 699 && g.right >= 696);
