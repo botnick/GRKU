@@ -95,7 +95,7 @@ import { restoreImports } from './import/lut';
 import { importsForCamera, NATIVE_LOOKS } from './import/native';
 import { isLutImportId } from './import/names';
 import { deleteImport, saveImport, updateImport } from './import/store';
-import { applyLanguage, showLanguage, STRINGS, type Language, type Strings } from './i18n';
+import { applyLanguage, loadStrings, showLanguage, STRINGS, type Language, type Strings } from './i18n';
 import { MODULES, MODULES_MAX, planModules, type ModuleKey } from './modules';
 import {
   buildCardFiles,
@@ -302,8 +302,11 @@ export function App({
 
   function chooseLanguage(next: Language) {
     loadFonts(next);
-    applyLanguage(next, page);
-    setLanguage(next);
+    // The text of the language downloads first; the page changes when it is there.
+    void loadStrings(next).then(() => {
+      applyLanguage(next, page);
+      setLanguage(next);
+    });
   }
 
   /** Shows `next` without a reload, as a new entry of the history. */
@@ -321,10 +324,11 @@ export function App({
 
   // Back and forward show the page of the address, in its language.
   useEffect(() => {
-    function back() {
+    async function back() {
       const next = pathPage(location.pathname) ?? 'home';
       const nextLanguage = pathLanguage(location.pathname);
       loadFonts(nextLanguage);
+      await loadStrings(nextLanguage);
       showLanguage(nextLanguage, next);
       startTransition(() => {
         setMoved(true);

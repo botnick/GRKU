@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { STRINGS } from "../i18n";
+import { loadAllStrings, STRINGS } from "../i18n";
 import { warningText } from "./warningText";
+
+await loadAllStrings();
 
 const th = STRINGS.th.warningText;
 const en = STRINGS.en.warningText;

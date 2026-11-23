@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { MODESET_TOKEN } from './cameras';
 import { GUIDE_STRINGS } from './guide';
-import { matchLanguage, pageText, STRINGS } from './i18n';
+import { loadAllStrings, matchLanguage, pageText, STRINGS } from './i18n';
+
+// Each language is its own module; the tests read them all.
+await loadAllStrings();
 
 describe('matchLanguage', () => {
   it('maps Chinese tags by script and region', () => {

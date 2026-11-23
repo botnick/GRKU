@@ -5,7 +5,7 @@ import { canWriteCards } from './card';
 import { loadLastCard } from './cardStore';
 import { loadImports } from './import/store';
 import { loadFonts } from './fonts';
-import { pageLanguage, showLanguage, takeLegacyLanguage } from './i18n';
+import { loadStrings, pageLanguage, showLanguage, takeLegacyLanguage } from './i18n';
 import { looksLanguage, pagePath, pathPage } from './languagePage';
 import { anchorPage } from './navigation';
 import { preloadPage, preloadOnIntent } from './parts';
@@ -24,7 +24,6 @@ const legacy = takeLegacyLanguage();
 if (legacy !== null && legacy !== language && pagePath('th', page) === location.pathname) {
   location.replace(`${pagePath(legacy, page)}${location.search}${location.hash}`);
 }
-showLanguage(language, page);
 loadFonts(language);
 
 /** The result of `task`, or `fallback` when the store is slow, so it does not hold the page back. */
@@ -34,11 +33,14 @@ const soon = <T,>(task: Promise<T>, fallback: T) =>
 {
   // The effects imported and the card connected on an earlier visit.
   // The part of this page downloads with the stored data, so the first render does not wait for it.
+  // The text of the page language is its own script (i18n.ts); it loads with them too.
   const [imports, lastCard] = await Promise.all([
     soon(loadImports(), []),
     canWriteCards() ? soon(loadLastCard(), null) : null,
     preloadPage(page).catch(() => {}),
+    loadStrings(language),
   ]);
+  showLanguage(language, page);
 
   // The build fills the root with the page of this language for search engines. The first render
   // replaces it.

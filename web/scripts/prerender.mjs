@@ -64,6 +64,8 @@ async function renderer() {
   const module = await import(pathToFileURL(join(server, 'prerender.js')).href);
   // The pages that load a part of the site on demand render it at once, as the browser does after main.tsx loads it.
   await module.preloadAll();
+  // The text of every language, each its own module (src/strings/).
+  await module.loadAllStrings();
   return module;
 }
 
