@@ -7,7 +7,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { marked } from 'marked';
-import { DOC_PATHS, LANGUAGE_PATHS } from '../src/languagePage.ts';
+import { DOC_PATHS, LANGUAGE_PATHS, pagePath } from '../src/languagePage.ts';
 
 const REPOSITORY = 'https://github.com/botnick/GRKU';
 
@@ -34,6 +34,10 @@ const ENGLISH_NOTE = {
 };
 
 const codes = Object.keys(LANGUAGE_PATHS);
+// The header links and the footer of the site in each language, from the prerender, so a document
+// page has the same chrome as the other pages.
+const chromeFile = join(web, 'node_modules', '.cache', 'grku-doc-chrome.json');
+const chrome = JSON.parse(readFileSync(chromeFile, 'utf8'));
 const template = readFileSync(join(dist, 'index.html'), 'utf8');
 // The site stylesheet of this build, for the tokens and the fonts.
 const stylesheet = /<link rel="stylesheet"[^>]*href="([^"]+\.css)"/.exec(template)?.[1];
@@ -93,11 +97,11 @@ function page(name, code) {
   const alternates = codes
     .map((other) => `<link rel="alternate" hreflang="${other}" href="${SITE}${LANGUAGE_PATHS[other]}${DOC_PATHS[name]}" />`)
     .join('\n    ');
-  const nav = Object.entries(DOC_PATHS)
-    .map(([other, path]) => {
-      const otherTitle = titleOf(readFileSync(source(other, code).file, 'utf8'));
-      return `<a href="${LANGUAGE_PATHS[code]}${path}"${other === name ? ' aria-current="page"' : ''}>${escape(otherTitle)}</a>`;
-    })
+  const nav = [
+    [LANGUAGE_PATHS[code], chrome[code].home],
+    [pagePath(code, 'install'), chrome[code].install],
+  ]
+    .map(([href, text]) => `<a href="${href}">${escape(text)}</a>`)
     .join('');
   const note = language !== code && ENGLISH_NOTE[code] ? `<p class="doc-lang-note" lang="${code}">${ENGLISH_NOTE[code]}</p>` : '';
   return `<!doctype html>
@@ -161,12 +165,7 @@ function page(name, code) {
       ${note}
       ${body}
     </main>
-    <footer class="doc-footer">
-      <div class="doc-footer-inner">
-        <a href="${LANGUAGE_PATHS[code]}">GRKU</a>
-        <a href="${REPOSITORY}" target="_blank" rel="noreferrer">GitHub</a>
-      </div>
-    </footer>
+    ${chrome[code].footer}
   </body>
 </html>
 `;

@@ -52,10 +52,79 @@ export function fastbootPath(language: Language): string {
   return `${LANGUAGE_PATHS[language]}${FASTBOOT_PAGE}`;
 }
 
-/** The language of the page at `pathname`, a language page or its fast-boot page. Any other path is English. */
+/**
+ * The pages of the site under each language path: the home page, and the four steps of the
+ * install: the film looks (`/install/`), the camera, the modules, and the card write.
+ * `/install/` is the Thai first step and `/en/install/` the English one.
+ */
+export const SITE_PAGES = {
+  home: '',
+  install: 'install/',
+  camera: 'install/camera/',
+  modules: 'install/modules/',
+  write: 'install/write/',
+} as const;
+
+export type SitePage = keyof typeof SITE_PAGES;
+
+/** The steps of the install, in order. The first is the film looks. */
+export const INSTALL_STEPS = ['install', 'camera', 'modules', 'write'] as const satisfies readonly SitePage[];
+
+export type InstallStep = (typeof INSTALL_STEPS)[number];
+
+export const isInstallStep = (page: SitePage): page is InstallStep => page !== 'home';
+
+/**
+ * The pages that search engines index, with hreflang links and sitemap entries: the home page
+ * and the first step. The later steps hold only the controls of one step, so they ask not to be
+ * indexed and lead search engines on to the first step.
+ */
+export const INDEXED_PAGES: readonly SitePage[] = ['home', 'install'];
+
+const PAGE_NAMES = Object.keys(SITE_PAGES) as SitePage[];
+
+/** The address of `page` in `language`. */
+export function pagePath(language: Language, page: SitePage): string {
+  return `${LANGUAGE_PATHS[language]}${SITE_PAGES[page]}`;
+}
+
+/**
+ * The looks page of an earlier version of the site, now the install page, which starts with the
+ * looks. The edge worker sends it there; a browser that loads it anyway shows the install page.
+ */
+const LOOKS_PAGE = 'looks/';
+
+/** The address of the old looks page in `language`. */
+export function looksPath(language: Language): string {
+  return `${LANGUAGE_PATHS[language]}${LOOKS_PAGE}`;
+}
+
+/** The language of `pathname` when it is an old looks page, else null. */
+export function looksLanguage(pathname: string): Language | null {
+  const path = normalized(pathname);
+  return CODES.find((code) => looksPath(code) === path) ?? null;
+}
+
+/** The page at `pathname`, or null for an address that is no page of the site. An old looks page is the install page. */
+export function pathPage(pathname: string): SitePage | null {
+  const path = normalized(pathname);
+  for (const code of CODES) {
+    for (const page of PAGE_NAMES) {
+      if (pagePath(code, page) === path) return page;
+    }
+  }
+  return looksLanguage(pathname) ? 'install' : null;
+}
+
+/** The language of the page at `pathname`, a page of a language or its fast-boot page. Any other path is Thai. */
 export function pathLanguage(pathname: string): Language {
   const path = normalized(pathname);
-  return CODES.find((code) => LANGUAGE_PATHS[code] === path || fastbootPath(code) === path) ?? 'th';
+  return (
+    CODES.find(
+      (code) =>
+        fastbootPath(code) === path || looksPath(code) === path || PAGE_NAMES.some((page) => pagePath(code, page) === path),
+    ) ?? 'th'
+  );
 }
 
 /** Countries where Traditional Chinese is the usual script. */

@@ -105,6 +105,10 @@ describe('importProps', () => {
     });
     expect(importProps('look', 'standard', false, { result: 'failed' }).format).toBe('other');
   });
+
+  it('names a Lightroom preset as xmp', () => {
+    expect(importProps('look.XMP', 'standard', false, { result: 'failed' }).format).toBe('xmp');
+  });
 });
 
 describe('nativeLooksProps', () => {

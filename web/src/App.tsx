@@ -1,6 +1,5 @@
 import { Suspense, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { FileText, TriangleAlert } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ArrowLeft, ArrowRight, Check, ChevronDown, FileText, TriangleAlert } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -33,7 +32,7 @@ import {
 } from './card';
 import { allowCard, forgetLastCard, saveLastCard } from './cardStore';
 import { useRecipeLibrary } from './recipeLibrary';
-import { effectCode, familyOf, withPreset, writeRecipeFile, type Family, type Recipe } from './recipes';
+import { cameraOrder, effectCode, familyOf, withPreset, writeRecipeFile, type Family, type Recipe } from './recipes';
 import { RecipesPanel } from './components/RecipesPanel';
 import {
   changedImports,
@@ -66,13 +65,27 @@ import {
   type InstallMode,
 } from './components/CardPanel';
 import { ChoiceCard } from './components/ChoiceCard';
+import { CameraArt, FOCAL_LENGTH } from './components/CameraArt';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Faq } from './components/Faq';
 import { Masthead } from './components/Masthead';
 import { ModulesStep } from './components/ModulesStep';
 import { PackageOpen, type PackageStatus } from './components/PackageOpen';
 import { PlusSheet } from './components/PlusSheet';
-import { DOC_PATHS, LANGUAGE_PATHS } from './languagePage';
+import {
+  DOC_PATHS,
+  INSTALL_STEPS,
+  isInstallStep,
+  LANGUAGE_PATHS,
+  pagePath,
+  pathLanguage,
+  pathPage,
+  type InstallStep,
+  type SitePage,
+} from './languagePage';
+import { pageLink, type Navigate, type PageLink } from './navigation';
+import { hasCamera, loadCamera, loadModules, loadProgress, saveCamera, saveModules, saveProgress, visitStep } from './setup';
+import { Home } from './components/Home';
 import { RichText } from './components/RichText';
 import { SiteFooter } from './components/SiteFooter';
 import { WhatsNew } from './components/WhatsNew';
@@ -86,8 +99,8 @@ import { restoreImports } from './import/lut';
 import { importsForCamera, NATIVE_LOOKS } from './import/native';
 import { isLutImportId } from './import/names';
 import { deleteImport, saveImport, updateImport } from './import/store';
-import { applyLanguage, STRINGS, type Language, type Strings } from './i18n';
-import { DEFAULT_ENABLED, MODULES, MODULES_MAX, planModules, type ModuleKey } from './modules';
+import { applyLanguage, showLanguage, STRINGS, type Language, type Strings } from './i18n';
+import { MODULES, MODULES_MAX, planModules, type ModuleKey } from './modules';
 import {
   buildCardFiles,
   buildPackage,
@@ -144,21 +157,56 @@ const megabytes = (bytes: number) => (bytes / 1_000_000).toFixed(1);
 
 export function App({
   initialLanguage,
+  initialPage = 'home',
   initialImports = [],
   initialCard = null,
 }: {
   /** The language of the page address. */
   initialLanguage: Language;
+  /** The page of the address: home, looks, or install. */
+  initialPage?: SitePage;
   initialImports?: readonly ImportedEffect[];
   /** The card connected on an earlier visit, which a click reconnects. */
   initialCard?: CardDirectory | null;
 }) {
   const [language, setLanguage] = useState<Language>(initialLanguage);
-  const [cameraKey, setCameraKey] = useState(CAMERAS[0]!.key);
+  // The three pages share this state, so a move between them keeps the looks, the modules, the
+  // camera, and the connected card. The browser storage keeps them for a reload and the next visit.
+  const [page, setPage] = useState<SitePage>(initialPage);
+  // The furthest step of the install that the visitor reached, and the last one, which Install
+  // in the header opens.
+  const [progress, setProgress] = useState(() => loadProgress(browserStorage()));
+  useEffect(() => {
+    if (!isInstallStep(page)) return;
+    setProgress((current) => {
+      const next = visitStep(current, page);
+      saveProgress(browserStorage(), next);
+      return next;
+    });
+  }, [page]);
+  // The element that a move to a page shows, by the hash of its link, or the top of the page.
+  const [scrollTarget, setScrollTarget] = useState<{ hash: string } | null>(() =>
+    typeof location === 'undefined' || !location.hash ? null : { hash: location.hash },
+  );
+  const [cameraKey, setCameraKeyState] = useState(() => loadCamera(browserStorage()));
+  // Whether the visitor chose the camera, or a card or a package told it. Until then the camera
+  // step asks, and the last step waits for the answer.
+  const [cameraChosen, setCameraChosen] = useState(() => hasCamera(browserStorage()));
   // The ZIP download has no card to read the effects from, so the choice of the last visit
   // comes back.
   const [selection, setSelection] = useState<Selection>(() => loadSelection(browserStorage()));
-  const [enabled, setEnabled] = useState<ReadonlySet<ModuleKey>>(DEFAULT_ENABLED);
+  const [enabled, setEnabledState] = useState<ReadonlySet<ModuleKey>>(() => loadModules(browserStorage()));
+
+  function setCameraKey(key: Camera['key']) {
+    setCameraKeyState(key);
+    setCameraChosen(true);
+    saveCamera(browserStorage(), key);
+  }
+
+  function setEnabled(next: ReadonlySet<ModuleKey>) {
+    setEnabledState(next);
+    saveModules(browserStorage(), next);
+  }
   // Effects fitted from LUTs and native looks read on this page. This browser keeps them for the
   // next visit.
   const [allImported, setImported] = useState<readonly ImportedEffect[]>(initialImports);
@@ -256,9 +304,57 @@ export function App({
 
   function chooseLanguage(next: Language) {
     loadFonts(next);
-    applyLanguage(next);
+    applyLanguage(next, page);
     setLanguage(next);
   }
+
+  /** Shows `next` without a reload, as a new entry of the history. */
+  const navigate: Navigate = (next, hash = '') => {
+    history.pushState(null, '', `${pagePath(language, next)}${hash}`);
+    showLanguage(language, next);
+    setPage(next);
+    setScrollTarget({ hash });
+  };
+  const link: PageLink = (next, hash) => pageLink(language, navigate, next, hash);
+
+  // Back and forward show the page of the address, in its language.
+  useEffect(() => {
+    function back() {
+      const next = pathPage(location.pathname) ?? 'home';
+      const nextLanguage = pathLanguage(location.pathname);
+      loadFonts(nextLanguage);
+      showLanguage(nextLanguage, next);
+      setLanguage(nextLanguage);
+      setPage(next);
+      setScrollTarget({ hash: location.hash });
+    }
+    addEventListener('popstate', back);
+    return () => removeEventListener('popstate', back);
+  }, []);
+
+  useEffect(() => {
+    if (!scrollTarget) return;
+    const target = () => (scrollTarget.hash ? document.getElementById(scrollTarget.hash.slice(1)) : null);
+    if (!target()) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    target()?.scrollIntoView({ block: 'start' });
+    // The looks above a step fill in as the catalog arrives, which moves the step down: it comes
+    // back into place for a moment, until the visitor scrolls.
+    const again = () => target()?.scrollIntoView({ block: 'start' });
+    const timers = [setTimeout(again, 400), setTimeout(again, 1200)];
+    const stop = () => timers.forEach(clearTimeout);
+    addEventListener('wheel', stop, { once: true, passive: true });
+    addEventListener('touchstart', stop, { once: true, passive: true });
+    addEventListener('keydown', stop, { once: true });
+    return () => {
+      stop();
+      removeEventListener('wheel', stop);
+      removeEventListener('touchstart', stop);
+      removeEventListener('keydown', stop);
+    };
+  }, [scrollTarget]);
 
   /** A change of the selection makes the result of a download or a card write stale. */
   function resetBuild() {
@@ -837,39 +933,55 @@ export function App({
     </AccordionItem>
   );
 
-  // What to do with the ZIP: four steps with the card and the camera as they will look.
-  // It stands out once the ZIP is ready.
-  const zipSteps = (
-    <div className={cn('rounded-2xl border bg-card p-5', build.state === 'ready' && 'border-brand/60 bg-brand/[0.06]')}>
-      <p className="m-0 text-base font-semibold">{t.zipNextTitle}</p>
-      <ol className="m-0 mt-3 flex list-none flex-col gap-2 p-0 text-sm leading-relaxed">
-        {[t.zipNext1, t.zipNext2, t.zipNext3, t.zipNext4].map((step, index) => (
-          <li key={step} className="flex gap-3">
-            <StepNumber n={index + 1} />
-            <span>{step}</span>
+  // The write or the download is done: the step says so and leads on to the camera.
+  const finished = mode === 'card' && canWrite ? applyMessage?.tone === 'ok' : build.state === 'ready';
+
+  // What to do on the camera afterwards, numbered, with the card and the camera as they will look.
+  // It stands out once the card is written or the ZIP is here.
+  const cameraStepLines =
+    mode === 'card' && canWrite ? [t.cardStepInsert, t.cardDoneFirst, t.zipNext4] : [t.zipNext1, t.zipNext2, t.zipNext3, t.zipNext4];
+  const cameraStepImages: Record<number, readonly [string, number, number]> =
+    mode === 'card' && canWrite
+      ? { 1: [cameraMenuImage, 580, 318], 2: [cameraAdjImage, 580, 318] }
+      : { 1: [CARD_IMAGES[camera.key] ?? CARD_IMAGES.gr4!, 340, 178], 2: [cameraMenuImage, 580, 318], 3: [cameraAdjImage, 580, 318] };
+  const cameraSteps = (
+    <section
+      aria-labelledby="camera-steps"
+      className={cn('rounded-2xl border bg-card p-5 transition-colors lg:sticky lg:top-24', finished && 'border-foreground/30')}
+    >
+      <h2 id="camera-steps" className="text-base font-semibold">
+        {t.site.thenTitle}
+      </h2>
+      <ol className="mt-4 flex list-none flex-col gap-5 p-0">
+        {cameraStepLines.map((line, index) => (
+          <li key={line} className="flex gap-3">
+            <StepNumber n={index + 1} className="mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm leading-relaxed">{line}</p>
+              {cameraStepImages[index] && (
+                <img
+                  src={cameraStepImages[index]![0]}
+                  alt=""
+                  width={cameraStepImages[index]![1]}
+                  height={cameraStepImages[index]![2]}
+                  loading="lazy"
+                  className="mt-3 h-auto w-full rounded-lg"
+                />
+              )}
+            </div>
           </li>
         ))}
       </ol>
-      {/* The card after step 2 and the camera in steps 3 and 4, in one row. */}
-      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {([[2, CARD_IMAGES[camera.key] ?? CARD_IMAGES.gr4, 340, 178], [3, cameraMenuImage, 580, 318], [4, cameraAdjImage, 580, 318]] as const).map(([n, src, w, h]) => (
-          <figure key={n} className="relative m-0">
-            <StepNumber n={n} className="absolute -top-2 -left-2 z-10 ring-2 ring-card" />
-            <img src={src} alt="" width={w} height={h} className="h-auto w-full rounded-lg" />
-          </figure>
-        ))}
-        {/* The full guide fills the fourth cell. */}
-        <a
-          href={guidePdfUrl(camera.id, language)}
-          target="_blank"
-          rel="noreferrer"
-          className={cn('flex min-h-24 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border text-sm font-medium transition-colors hover:border-brand/60 hover:bg-brand/5 focus-visible:outline-2 focus-visible:outline-ring')}
-        >
-          <FileText className="size-6 text-muted-foreground" aria-hidden="true" />
-          {t.zipGuideButton}
-        </a>
-      </div>
-    </div>
+      <a
+        href={guidePdfUrl(camera.id, language)}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-5 inline-flex items-center gap-2 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+      >
+        <FileText className="size-4" aria-hidden="true" />
+        {t.zipGuideButton}
+      </a>
+    </section>
   );
 
   const zipFlow = (
@@ -877,16 +989,6 @@ export function App({
       <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-6">
       {packageOpen}
-      <dl className={FACTS}>
-        <dt className={FACT_LABEL}>{t.camera}</dt>
-        <dd className={FACT_VALUE}>{camera.name}</dd>
-        <dt className={FACT_LABEL}>{t.firmware}</dt>
-        <dd className={FACT_VALUE}>{support?.firmware ?? '—'}</dd>
-        <dt className={FACT_LABEL}>{t.effectCount}</dt>
-        <dd className={FACT_VALUE}>{effectCount ?? '—'}</dd>
-        <dt className={FACT_LABEL}>{t.modules}</dt>
-        <dd className={FACT_VALUE}>{moduleNames.length > 0 ? moduleNames.join(t.listSeparator) : '—'}</dd>
-      </dl>
       <div className="flex flex-col items-start gap-3">
         <Button
           type="button"
@@ -915,7 +1017,6 @@ export function App({
         {build.state === 'ready' && packageLinks}
       </div>
       </div>
-      <div className="lg:hidden">{zipSteps}</div>
       <div>
       <Accordion type="single" collapsible className="w-full border-t border-border">
         {guide('install', t.install, t.steps)}
@@ -1012,190 +1113,301 @@ export function App({
     </div>
   );
 
+  /** Why the visitor cannot go on from `step` yet, or null. */
+  function stepBlocked(step: InstallStep): string | null {
+    if (step === 'camera' && !cameraChosen) return t.site.cameraPick;
+    if (step === 'modules') {
+      if (plan.visible.length === 0) return t.noModules;
+      if (plan.includeEffects && effectCount === 0) return t.filmLookEmpty;
+    }
+    return null;
+  }
+
+  const openPlus = () => {
+    setPlusStart('tiers');
+    setPlusOpen(true);
+  };
+
   return (
     <>
-      {(appBrowser || cardHintKind) && (
+      {(appBrowser || (page === 'install' && cardHintKind)) && (
         <div className="bg-foreground px-gutter py-2.5 text-center text-[13px] leading-snug text-balance text-background" role="note">
           {appBrowser ? t.appBrowser : cardHintKind === 'computer' ? t.cardComputer : t.cardBrowser}
         </div>
       )}
-      <Masthead strings={t} language={language} onLanguage={chooseLanguage} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} />
-      <main id="top" className="mx-auto w-full max-w-[1280px] px-gutter pb-8">
-        <Workbench
-          strings={t}
-          selection={selection}
-          onSelectionChange={changeSelection}
-          imported={imported}
-          onImport={addImported}
-          onRemove={removeImported}
-          onEdit={editImported}
-          cardEffects={active ? cardExtra : []}
-          onCard={active && active.state.install !== 'none' ? new Set(active.effects.keys()) : null}
-          changedOnCard={active ? changedImports(active, imported) : undefined}
-          canWrite={canWrite}
-          owned={owned}
-          onPlus={() => {
-            setPlusStart('tiers');
-            setPlusOpen(true);
-          }}
-          plusKey={plusKey}
-          onOtherKey={() => {
-            setPlusStart('key');
-            setPlusOpen(true);
-          }}
-          onForgetKey={dropKey}
-          notice={!available.includes('filmLook') ? t.effectsUnavailable(camera.name) : !plan.includeEffects ? t.effectsOff : null}
-        />
-
-        <Step id="modules" number={t.step(2)} title={t.modules} description={t.landing.moduleListText} ref={prefetchInView} className="mt-14">
-          <ModulesStep
+      <Masthead
+        strings={t}
+        language={language}
+        onLanguage={chooseLanguage}
+        version={__GRKU_VERSION__}
+        releaseUrl={RELEASE_URL}
+        page={page}
+        link={link}
+        installStep={progress.last}
+      />
+      <main id="top" className={cn('mx-auto w-full max-w-[1280px] px-gutter', isInstallStep(page) ? 'pb-28' : 'pb-8')}>
+        {page === 'home' && (
+          <Home
             strings={t}
-            modules={offered}
-            enabled={enabled}
-            onToggle={toggleModule}
-            installed={active && active.state.install !== 'none' ? cardModules(active.state) : null}
-            planned={plan.modules}
-            emptyLooks={enabled.has('filmLook') && selection?.size === 0}
-            lookCount={effectCount ?? '…'}
-            recipes={
-              available.includes('recipes') && enabled.has('recipes') ? (
-                <ErrorBoundary resetKey={String(catalogAttempt)} fallback={<p className={ERROR}>{t.loadError}</p>}>
-                  <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
-                    <RecipesWithEffects
-                      strings={t}
-                      language={language}
-                      family={family}
-                      library={recipeLibrary.library}
-                      onChange={recipeLibrary.change}
-                      cardRecipes={recipeLibrary.cardChoice}
-                      onCardChoice={recipeLibrary.chooseCard}
-                      selection={selection}
-                      filmLook={plan.includeEffects}
-                      onSelectionChange={changeSelection}
-                      others={[...imported, ...(active ? cardExtra : [])]}
-                      grainModule={plan.modules.includes('GRAIN')}
-                      glowModule={plan.modules.includes('GLOW')}
-                      borderModule={plan.modules.includes('BORDER')}
-                    />
-                  </Suspense>
-                </ErrorBoundary>
-              ) : null
-            }
+            language={language}
+            link={link}
+            canWrite={canWrite}
+            installStep={progress.last}
+            onPlus={openPlus}
+            news={<WhatsNew language={language} />}
+            faq={<Faq strings={t} />}
           />
-        </Step>
+        )}
 
-        <Step id="camera" number={t.step(3)} title={t.camera} description={cardCamera ? undefined : t.firmwareNote}>
-          {cardCamera ? (
-            <dl className={FACTS}>
-              <dt className={FACT_LABEL}>{t.camera}</dt>
-              <dd className={FACT_VALUE}>
-                {cardCamera.options.length > 1 ? (
-                  <span className="inline-flex flex-wrap gap-2" role="group" aria-label={t.camera}>
-                    {cardCamera.options.map((option) => (
-                      <Button
-                        key={option.key}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="aria-pressed:border-foreground aria-pressed:bg-secondary"
-                        aria-pressed={option === cardCamera.selected}
-                        disabled={cardTask.kind !== 'idle'}
-                        onClick={() => chooseCamera(option.key)}
-                      >
-                        {option.name}
-                      </Button>
-                    ))}
-                  </span>
+        {isInstallStep(page) && (
+          // The steps of the install, each its own page. A short fade marks the change of step.
+          <div key={page} className="motion-safe:animate-[step-in_160ms_ease-out]">
+            <StepIndicator strings={t} page={page} furthest={progress.furthest} link={link} />
+            {page === 'install' && (
+              <Workbench
+                strings={t}
+                selection={selection}
+                onSelectionChange={changeSelection}
+                imported={imported}
+                onImport={addImported}
+                onRemove={removeImported}
+                onEdit={editImported}
+                cardEffects={active ? cardExtra : []}
+                onCard={active && active.state.install !== 'none' ? new Set(active.effects.keys()) : null}
+                changedOnCard={active ? changedImports(active, imported) : undefined}
+                family={family}
+                recipes={recipeLibrary.library}
+                onAddRecipe={(recipe) => recipeLibrary.change(cameraOrder([...recipeLibrary.library, recipe]))}
+                owned={owned}
+                onPlus={openPlus}
+                plusKey={plusKey}
+                onOtherKey={() => {
+                  setPlusStart('key');
+                  setPlusOpen(true);
+                }}
+                onForgetKey={dropKey}
+                notice={!available.includes('filmLook') ? t.effectsUnavailable(camera.name) : !plan.includeEffects ? t.effectsOff : null}
+              />
+            )}
+            {page === 'camera' && (
+              <Step id="camera" title={t.site.cameraQuestion} description={cardCamera ? undefined : t.site.cameraHelp} level="h1" className="border-t-0 pt-8 lg:pt-10">
+                {cardCamera ? (
+                  <dl className={FACTS}>
+                    <dt className={FACT_LABEL}>{t.camera}</dt>
+                    <dd className={FACT_VALUE}>
+                      {cardCamera.options.length > 1 ? (
+                        <span className="inline-flex flex-wrap gap-2" role="group" aria-label={t.camera}>
+                          {cardCamera.options.map((option) => (
+                            <Button
+                              key={option.key}
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="aria-pressed:border-foreground aria-pressed:bg-secondary"
+                              aria-pressed={option === cardCamera.selected}
+                              disabled={cardTask.kind !== 'idle'}
+                              onClick={() => chooseCamera(option.key)}
+                            >
+                              {option.name}
+                            </Button>
+                          ))}
+                        </span>
+                      ) : (
+                        cardCamera.selected.name
+                      )}
+                    </dd>
+                    <dt className={FACT_LABEL}>{t.firmware}</dt>
+                    <dd className={FACT_VALUE}>{cardCamera.firmware}</dd>
+                    <dt className={FACT_LABEL}>{t.cardName}</dt>
+                    <dd className={FACT_VALUE}>{card?.state.name || '—'}</dd>
+                  </dl>
                 ) : (
-                  cardCamera.selected.name
+                  <>
+                  <RadioGroup
+                    name="camera"
+                    value={cameraChosen ? camera.key : ''}
+                    aria-labelledby="camera-title"
+                    className="grid grid-cols-2 gap-3 lg:grid-cols-4"
+                    onValueChange={(next) => chooseCamera(next as Camera['key'])}
+                  >
+                    {CAMERAS.map((item) => (
+                      <ChoiceCard
+                        key={item.key}
+                        htmlFor={`camera-${item.key}`}
+                        className="relative flex-col items-stretch gap-0 p-0"
+                        control={
+                          <RadioGroupItem
+                            id={`camera-${item.key}`}
+                            value={item.key}
+                            className="absolute top-3 left-3"
+                            disabled={!item.support || (!!lockedCameras && !lockedCameras.includes(item))}
+                          />
+                        }
+                      >
+                        {/* The camera drawn large, then its name, its lens, and the firmware it needs. */}
+                        <span className="flex items-center justify-center rounded-t-xl bg-black/30 px-6 pt-8 pb-4">
+                          <CameraArt camera={item.key} className="max-w-[180px]" />
+                        </span>
+                        <span className="flex flex-col gap-1 p-4">
+                          <span className="flex flex-wrap items-baseline gap-x-2 font-semibold">
+                            {item.name}
+                            <span className="font-mono text-xs font-normal text-muted-foreground">{FOCAL_LENGTH[item.key]}</span>
+                          </span>
+                        {item.support && (
+                          <span className="text-[13px] text-muted-foreground">
+                            {t.firmware} {item.support.firmware}
+                          </span>
+                        )}
+                        {!item.support && (
+                          <Badge variant="outline" className="w-fit">
+                            {t.planned}
+                          </Badge>
+                        )}
+                        {item.support?.noEffects && <span className="text-[13px] text-muted-foreground">{t.noEffects}</span>}
+                        </span>
+                      </ChoiceCard>
+                    ))}
+                  </RadioGroup>
+                  {/* How to read the firmware version, for those who do not know it. */}
+                  <details className="group mt-6 max-w-[64ch] rounded-xl border bg-card px-4 py-3 text-sm">
+                    <summary className="cursor-pointer list-none font-medium marker:hidden [&::-webkit-details-marker]:hidden">
+                      <span className="inline-flex items-center gap-2">
+                        <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+                        {t.site.firmwareHow}
+                      </span>
+                    </summary>
+                    <p className="mt-2 pl-6 leading-relaxed text-muted-foreground">{t.site.firmwareHowText}</p>
+                  </details>
+                  </>
                 )}
-              </dd>
-              <dt className={FACT_LABEL}>{t.firmware}</dt>
-              <dd className={FACT_VALUE}>{cardCamera.firmware}</dd>
-              <dt className={FACT_LABEL}>{t.cardName}</dt>
-              <dd className={FACT_VALUE}>{card?.state.name || '—'}</dd>
-            </dl>
-          ) : (
-            <RadioGroup
-              name="camera"
-              value={camera.key}
-              aria-labelledby="camera-title"
-              className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
-              onValueChange={(next) => chooseCamera(next as Camera['key'])}
-            >
-              {CAMERAS.map((item) => (
-                <ChoiceCard
-                  key={item.key}
-                  htmlFor={`camera-${item.key}`}
-                  control={
-                    <RadioGroupItem
-                      id={`camera-${item.key}`}
-                      value={item.key}
-                      className="mt-1"
-                      disabled={!item.support || (!!lockedCameras && !lockedCameras.includes(item))}
-                    />
+              </Step>
+            )}
+            {page === 'modules' && (
+              <Step id="modules" title={t.site.extrasQuestion} description={t.site.extrasHelp} ref={prefetchInView} level="h1" className="border-t-0 pt-8 lg:pt-10">
+                <ModulesStep
+                  strings={t}
+                  modules={offered}
+                  enabled={enabled}
+                  onToggle={toggleModule}
+                  installed={active && active.state.install !== 'none' ? cardModules(active.state) : null}
+                  planned={plan.modules}
+                  emptyLooks={enabled.has('filmLook') && selection?.size === 0}
+                  lookCount={effectCount ?? '…'}
+                  recipes={
+                    available.includes('recipes') && enabled.has('recipes') ? (
+                      <ErrorBoundary resetKey={String(catalogAttempt)} fallback={<p className={ERROR}>{t.loadError}</p>}>
+                        <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
+                          <RecipesWithEffects
+                            strings={t}
+                            language={language}
+                            family={family}
+                            library={recipeLibrary.library}
+                            onChange={recipeLibrary.change}
+                            cardRecipes={recipeLibrary.cardChoice}
+                            onCardChoice={recipeLibrary.chooseCard}
+                            selection={selection}
+                            filmLook={plan.includeEffects}
+                            onSelectionChange={changeSelection}
+                            others={[...imported, ...(active ? cardExtra : [])]}
+                            grainModule={plan.modules.includes('GRAIN')}
+                            glowModule={plan.modules.includes('GLOW')}
+                            borderModule={plan.modules.includes('BORDER')}
+                          />
+                        </Suspense>
+                      </ErrorBoundary>
+                    ) : null
                   }
-                >
-                  <span className="font-semibold">{item.name}</span>
-                  {item.support && (
-                    <span className="text-sm text-muted-foreground">
-                      {t.firmware} {item.support.firmware}
-                    </span>
-                  )}
-                  {!item.support && (
-                    <Badge variant="outline" className="w-fit">
-                      {t.planned}
-                    </Badge>
-                  )}
-                  {item.support?.noEffects && <span className="text-sm text-muted-foreground">{t.noEffects}</span>}
-                </ChoiceCard>
-              ))}
-            </RadioGroup>
-          )}
-        </Step>
-
-        <Step id="install" number={t.step(4)} title={t.install} description={canWrite ? t.landing.installNote : t.landing.installNoteZip}>
-          <Alert className="mb-8 border-2 border-destructive bg-destructive/15 px-5 py-5 shadow-[inset_6px_0_0_0_var(--destructive)] sm:px-6 has-[>svg]:grid-cols-[calc(var(--spacing)*7)_1fr] has-[>svg]:gap-x-4 [&>svg]:size-7 [&>svg]:translate-y-0">
-            <TriangleAlert className="text-destructive" strokeWidth={2.5} aria-hidden="true" />
-            <AlertTitle className="text-xl font-bold tracking-tight text-destructive sm:text-2xl">{t.riskTitle}</AlertTitle>
-            <AlertDescription className="mt-1 max-w-[80ch] text-base leading-relaxed text-foreground">{t.riskText}</AlertDescription>
-          </Alert>
-          <dl className="mb-8 grid gap-5 sm:grid-cols-3">
-            {t.landing.facts.map(([title, text]) => (
-              <div key={title} className="flex flex-col gap-1 border-l-2 border-brand/70 pl-4">
-                <dt className="font-medium">{title}</dt>
-                <dd className="text-sm leading-relaxed text-muted-foreground">{text}</dd>
-              </div>
-            ))}
-          </dl>
-          <div className={cn('grid items-start gap-x-10 gap-y-6', (!canWrite || mode === 'zip') && 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]')}>
-          <div className="min-w-0">
-          {canWrite ? (
-            <Tabs value={mode} onValueChange={(value) => chooseMode(value as InstallMode)}>
-              <TabsList className="mb-2 h-10">
-                <TabsTrigger value="card" className="px-4">
-                  {t.modeCard}
-                </TabsTrigger>
-                <TabsTrigger value="zip" className="px-4">
-                  {t.modeZip}
-                </TabsTrigger>
-              </TabsList>
-              <p className={`${NOTE} mb-6`}>{mode === 'card' ? t.modeCardText : t.modeZipText}</p>
-              <TabsContent value="card">{cardFlow}</TabsContent>
-              <TabsContent value="zip">{zipFlow}</TabsContent>
-            </Tabs>
-          ) : (
-            zipFlow
-          )}
+                />
+              </Step>
+            )}
+            {page === 'write' && (
+              <Step id="install" title={t.site.writeQuestion} description={t.site.writeHelp} ref={prefetchInView} level="h1" className="border-t-0 pt-8 lg:pt-10">
+                {!cameraChosen ? (
+                  // The card needs the camera: the step sends the visitor back to choose it.
+                  <div className="flex flex-col items-start gap-4 rounded-2xl border bg-card p-6">
+                    <p className="text-base font-medium">{t.site.cameraPick}</p>
+                    <Button asChild>
+                      <a {...link('camera')}>
+                        <ArrowLeft aria-hidden="true" />
+                        {t.site.cameraQuestion}
+                      </a>
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    {finished && (
+                      <div className="mb-8 flex items-start gap-4 rounded-2xl border border-foreground/20 bg-card p-5 motion-safe:animate-[step-in_240ms_ease-out] sm:p-6" role="status">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
+                          <Check className="size-5" strokeWidth={2.5} aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-lg font-semibold">{mode === 'card' && canWrite ? t.site.doneTitle : t.ready}</p>
+                          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t.site.doneText}</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+                      <div className="min-w-0">
+                        <WriteSummary
+                          strings={t}
+                          link={link}
+                          looks={plan.includeEffects ? effectCount : 0}
+                          camera={camera.name}
+                          firmware={support?.firmware ?? '—'}
+                          modules={moduleNames}
+                        />
+                        {/* What the visitor needs at hand, before the one action of the step. */}
+                        <div className="mb-8">
+                          <h2 className="text-sm font-medium text-muted-foreground">{t.site.needTitle}</h2>
+                          <ul className="mt-2 flex flex-col gap-1.5 text-sm">
+                            {[t.cardReader, ...(canWrite && mode === 'card' ? [t.cardComputer] : []), t.site.needBattery].map((item) => (
+                              <li key={item} className="flex items-start gap-2">
+                                <Check className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        {canWrite ? (
+                          <Tabs value={mode} onValueChange={(value) => chooseMode(value as InstallMode)}>
+                            <TabsList className="mb-2 h-10">
+                              <TabsTrigger value="card" className="px-4">
+                                {t.modeCard}
+                              </TabsTrigger>
+                              <TabsTrigger value="zip" className="px-4">
+                                {t.modeZip}
+                              </TabsTrigger>
+                            </TabsList>
+                            <p className={`${NOTE} mb-6`}>{mode === 'card' ? t.modeCardText : t.modeZipText}</p>
+                            <TabsContent value="card">{cardFlow}</TabsContent>
+                            <TabsContent value="zip">{zipFlow}</TabsContent>
+                          </Tabs>
+                        ) : (
+                          zipFlow
+                        )}
+                        {/* The risk, said once and quietly, under the action. */}
+                        <p className="mt-10 flex max-w-[72ch] items-start gap-3 border-t border-border pt-6 text-[13px] leading-relaxed text-muted-foreground">
+                          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
+                          <span>
+                            <b className="font-medium text-foreground">{t.riskTitle}.</b> {t.riskText}
+                          </span>
+                        </p>
+                      </div>
+                      {cameraSteps}
+                    </div>
+                  </>
+                )}
+              </Step>
+            )}
           </div>
-          {(!canWrite || mode === 'zip') && <div className="hidden lg:block">{zipSteps}</div>}
-          </div>
-        </Step>
-
-        <WhatsNew language={language} />
-        <Faq strings={t} />
+        )}
       </main>
-      <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} />
+      {isInstallStep(page) && (
+        <StepBar strings={t} page={page} link={link} blocked={stepBlocked(page)} />
+      )}
+      <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} link={link} />
+      {/* Room under the footer for the bar of the install steps. */}
+      {isInstallStep(page) && <div className="h-16" aria-hidden="true" />}
       <PlusSheet
         open={plusOpen}
         onOpenChange={setPlusOpen}
@@ -1210,7 +1422,7 @@ export function App({
         payOrder={payOrder}
         termsHref={`${LANGUAGE_PATHS[language]}${DOC_PATHS.TERMS}`}
         language={language}
-        onBrowse={() => document.getElementById('looks')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+        onBrowse={() => navigate('install', '#looks')}
       />
     </>
   );
@@ -1366,4 +1578,194 @@ function RecipesWithEffects({
     }
   }
   return <RecipesPanel {...rest} effectNames={effectNames} packageEffects={packageEffects} onAddPreset={addPreset} />;
+}
+
+/** The name of a step of the install, as the step indicator and the Next button show it. */
+function stepName(step: InstallStep, t: Strings): string {
+  switch (step) {
+    case 'install':
+      return t.effects;
+    case 'camera':
+      return t.camera;
+    case 'modules':
+      return t.site.extras;
+    case 'write':
+      return t.install;
+  }
+}
+
+/**
+ * The steps of the install at the top of each step: the steps up to the furthest one reached are
+ * links, the current one is marked, and the later ones wait.
+ */
+function StepIndicator({
+  strings: t,
+  page,
+  furthest,
+  link,
+}: {
+  strings: Strings;
+  page: InstallStep;
+  furthest: InstallStep;
+  link: PageLink;
+}) {
+  const reached = INSTALL_STEPS.indexOf(furthest);
+  return (
+    <nav aria-label={t.site.stepsLabel} className="-mx-gutter overflow-x-auto px-gutter pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ol className="flex min-w-max items-center gap-2 text-sm">
+        {INSTALL_STEPS.map((step, index) => {
+          const current = step === page;
+          const open = !current && index <= Math.max(reached, INSTALL_STEPS.indexOf(page));
+          const body = (
+            <>
+              <span
+                className={cn(
+                  'flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium tabular-nums',
+                  current ? 'border-foreground bg-foreground text-background' : 'border-border',
+                )}
+              >
+                {index + 1}
+              </span>
+              {/* On a phone only the current step shows its name, so the four steps fit. */}
+              <span className={cn(!current && 'max-sm:sr-only')}>{stepName(step, t)}</span>
+            </>
+          );
+          return (
+            <li key={step} className="flex items-center gap-2">
+              {index > 0 && <span className="h-px w-4 bg-border sm:w-8" aria-hidden="true" />}
+              {open ? (
+                <a
+                  {...link(step)}
+                  className="flex h-9 items-center gap-2 rounded-md px-2 text-muted-foreground no-underline transition-colors hover:bg-accent hover:text-foreground"
+                >
+                  {body}
+                </a>
+              ) : (
+                <span
+                  className={cn('flex h-9 items-center gap-2 px-2', current ? 'font-medium text-foreground' : 'text-muted-foreground/60')}
+                  aria-current={current ? 'step' : undefined}
+                >
+                  {body}
+                </span>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
+/**
+ * The bar at the bottom of each step: Back, the count of the looks on the first step, and Next
+ * with the name of the next step. A step that is not complete says why next to a disabled Next.
+ */
+function StepBar({
+  strings: t,
+  page,
+  link,
+  count,
+  blocked,
+}: {
+  strings: Strings;
+  page: InstallStep;
+  link: PageLink;
+  /** The looks on the card, on the first step; null while the catalog loads. */
+  count?: number | null;
+  /** Why the visitor cannot go on yet, or null. */
+  blocked: string | null;
+}) {
+  const index = INSTALL_STEPS.indexOf(page);
+  const previous = INSTALL_STEPS[index - 1];
+  const next = INSTALL_STEPS[index + 1];
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur-md">
+      <div className="mx-auto flex min-h-16 max-w-[1280px] items-center justify-between gap-3 px-gutter py-2.5">
+        {previous ? (
+          <Button asChild variant="ghost" className="h-10 shrink-0 px-3">
+            <a {...link(previous)}>
+              <ArrowLeft aria-hidden="true" />
+              {t.site.back}
+            </a>
+          </Button>
+        ) : (
+          <span />
+        )}
+        <div className="flex min-w-0 items-center justify-end gap-3">
+          {blocked ? (
+            <p className="min-w-0 text-right text-[13px] leading-snug text-muted-foreground" role="status">
+              {blocked}
+            </p>
+          ) : (
+            count !== undefined && (
+              <p className="hidden min-w-0 truncate text-sm text-muted-foreground tabular-nums sm:block">
+                {count === null ? t.loading : t.slotsUsed(count, MAX_EFFECTS)}
+              </p>
+            )
+          )}
+          {next &&
+            (blocked ? (
+              <Button size="lg" className="h-10 shrink-0 px-4" disabled>
+                {t.site.nextStep(stepName(next, t))}
+                <ArrowRight aria-hidden="true" />
+              </Button>
+            ) : (
+              <Button asChild size="lg" className="h-10 shrink-0 px-4">
+                <a {...link(next)}>
+                  {t.site.nextStep(stepName(next, t))}
+                  <ArrowRight aria-hidden="true" />
+                </a>
+              </Button>
+            ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** What the card will get, on the last step, with a link back to the step of each line. */
+function WriteSummary({
+  strings: t,
+  link,
+  looks,
+  camera,
+  firmware,
+  modules,
+}: {
+  strings: Strings;
+  link: PageLink;
+  /** The looks on the card; null while the catalog loads. */
+  looks: number | null;
+  camera: string;
+  firmware: string;
+  modules: readonly string[];
+}) {
+  const rows: [InstallStep, string, string][] = [
+    ['install', t.effects, looks === null ? '…' : t.slotsUsed(looks, MAX_EFFECTS)],
+    ['camera', t.camera, `${camera} · ${t.firmware} ${firmware}`],
+    ['modules', t.site.extras, modules.length > 0 ? modules.join(t.listSeparator) : '—'],
+  ];
+  return (
+    <section aria-labelledby="summary-title" className="mb-8 rounded-2xl border bg-card px-5 py-4">
+      <h2 id="summary-title" className="text-base font-semibold">
+        {t.site.summaryTitle}
+      </h2>
+      <dl className="mt-2 divide-y divide-border">
+        {rows.map(([step, label, value]) => (
+          <div key={step} className="flex items-baseline gap-4 py-3 text-sm">
+            {/* On a phone the label sits over the value; from the tablet up, beside it. */}
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5 sm:grid sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-4">
+              <dt className="text-muted-foreground">{label}</dt>
+              <dd className="min-w-0">{value}</dd>
+            </div>
+            <dd className="shrink-0">
+              <a {...link(step)} className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" aria-label={`${t.site.change}: ${label}`}>
+                {t.site.change}
+              </a>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
 }

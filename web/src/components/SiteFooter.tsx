@@ -1,26 +1,63 @@
+import type { ReactNode } from 'react';
 import { siteUrl } from '../catalog';
 import type { Language, Strings } from '../i18n';
-import { docUrl, guideUrl, REPOSITORY, UPSTREAM } from '../links';
+import { LANGUAGE_PATHS, pagePath } from '../languagePage';
+import { docUrl, guideUrl, REPOSITORY } from '../links';
+import type { PageLink } from '../navigation';
+import { newsStrings } from '../whatsNew';
 
-const LINK = 'text-muted-foreground hover:text-foreground hover:underline underline-offset-4';
+const LINK = 'text-muted-foreground transition-colors hover:text-foreground';
 
-/** The end of the page: the guides, the licenses, the trademarks, and the credit to GRKit, where GRKU's code began. */
+/** A labelled group of footer links. */
+function Group({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <h2 className="text-[13px] font-medium text-foreground">{title}</h2>
+      <ul className="flex flex-col gap-2 text-sm">{children}</ul>
+    </div>
+  );
+}
+
+/**
+ * The end of every page, the document pages too (scripts/build-docs.mjs renders it there): the
+ * wordmark with one line, then the links in three groups, help, the project, and the legal pages,
+ * each in the language of the page, and a quiet line with the risk and the trademarks.
+ * `link` moves between the pages of the site without a reload; without it the links are plain.
+ */
 export function SiteFooter({
   strings: t,
   language,
   version,
   releaseUrl,
+  link,
 }: {
   strings: Strings;
   language: Language;
   version: string;
   releaseUrl: string;
+  link?: PageLink;
 }) {
+  const install = link ? link('install') : { href: pagePath(language, 'install') };
+  const news = link ? link('home', '#news') : { href: `${LANGUAGE_PATHS[language]}#news` };
   return (
-    <footer className="border-t border-border py-10 text-sm">
-      <div className="mx-auto flex max-w-[1280px] flex-col gap-8 px-gutter">
-        <div className="grid gap-6 sm:grid-cols-3">
-          <ul className="flex flex-col gap-2">
+    <footer className="border-t border-border text-sm">
+      <div className="mx-auto flex max-w-[1280px] flex-col gap-10 px-gutter py-12">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
+          <div className="col-span-2 flex flex-col gap-3 sm:col-span-3 lg:col-span-1">
+            <a href={LANGUAGE_PATHS[language]} className="w-fit text-[20px] leading-none font-extrabold tracking-[-0.03em] text-foreground no-underline">
+              GRKU<span className="text-brand">.</span>
+            </a>
+            <p className="max-w-[36ch] text-sm leading-relaxed text-muted-foreground">{t.lead[1]}</p>
+            <a className="w-fit font-mono text-xs text-muted-foreground/70 hover:text-foreground" href={releaseUrl}>
+              GRKU {version}
+            </a>
+          </div>
+          <Group title={t.site.footerHelp}>
+            <li>
+              <a className={LINK} {...install}>
+                {t.card}
+              </a>
+            </li>
             <li>
               <a className={LINK} href={guideUrl('RECOVERY', language)}>
                 {t.recovery}
@@ -31,8 +68,13 @@ export function SiteFooter({
                 {t.firmwareDump}
               </a>
             </li>
-          </ul>
-          <ul className="flex flex-col gap-2">
+          </Group>
+          <Group title={t.site.footerProject}>
+            <li>
+              <a className={LINK} {...news}>
+                {newsStrings(language).navLabel}
+              </a>
+            </li>
             <li>
               <a className={LINK} href={`${REPOSITORY}/issues`}>
                 {t.feedback}
@@ -43,8 +85,13 @@ export function SiteFooter({
                 GitHub
               </a>
             </li>
-          </ul>
-          <ul className="flex flex-col gap-2">
+          </Group>
+          <Group title={t.site.footerLegal}>
+            <li>
+              <a className={LINK} href={guideUrl('TERMS', language)}>
+                {t.terms}
+              </a>
+            </li>
             <li>
               <a className={LINK} href={docUrl('LICENSES', language)}>
                 {t.licenses}
@@ -55,26 +102,11 @@ export function SiteFooter({
                 {t.thirdParty}
               </a>
             </li>
-            <li>
-              <a className={LINK} href={guideUrl('TERMS', language)}>
-                {t.terms}
-              </a>
-            </li>
-          </ul>
+          </Group>
         </div>
-        <div className="flex flex-col gap-2 border-t border-border pt-6 text-[13px] text-muted-foreground">
-          <p className="font-medium text-foreground">{t.riskShort}</p>
-          <p className="max-w-[80ch]">{t.trademarks}</p>
-          <p>
-            <b className="font-semibold text-foreground">GRKU {t.landing.edition}</b> — {t.landing.fork[0]}
-            <a className="underline underline-offset-4 hover:text-foreground" href={UPSTREAM}>
-              {t.landing.fork[1]}
-            </a>
-            {t.landing.fork[2]}
-          </p>
-          <a className="w-fit font-mono hover:text-foreground" href={releaseUrl}>
-            GRKU {version}
-          </a>
+        <div className="flex flex-col gap-1.5 border-t border-border pt-6 text-xs leading-relaxed text-muted-foreground/80">
+          <p className="text-muted-foreground">{t.riskShort}</p>
+          <p className="max-w-[90ch]">{t.trademarks}</p>
         </div>
       </div>
     </footer>

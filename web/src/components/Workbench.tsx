@@ -4,33 +4,34 @@ import {
   useCallback,
   useRef,
   useState,
+  useSyncExternalStore,
   useTransition,
   type ChangeEvent,
   type ReactNode,
 } from 'react';
-import { Check, KeyRound, LoaderCircle, Lock, Plus, Search, Sparkles, TriangleAlert, Upload, X } from 'lucide-react';
+import { Check, KeyRound, LoaderCircle, Lock, Maximize, Minimize, Plus, Search, Sparkles, Upload, X } from 'lucide-react';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import { LaunchOffer } from './LaunchOffer';
-import { CAMERAS, PREVIEW_TARGET } from '../cameras';
+import { PREVIEW_TARGET } from '../cameras';
 import { effectUrl, MAX_EFFECTS, previewTable, type CardEffect, type Catalog, type Effect, type ImportedEffect } from '../catalog';
 import { brandOf, FILM_KINDS, filmKind, type FilmKind } from '../filmKind';
-import { sentences, type Strings } from '../i18n';
+import type { Strings } from '../i18n';
 import { editable } from '../import/edit';
 import { LANDING_HERO, landingImage } from '../landing';
-import { inLaunch, ownedLines, packCounts, PRICES, REGULAR_PRICES, slotsOf, takesSlot, unlockedBy, usedSlots, type Entitlement } from '../plus';
+import { ownedLines, packCounts, slotsOf, takesSlot, unlockedBy, usedSlots, type Entitlement } from '../plus';
 import { PhotoLoader } from '../preview/raw';
 import { forget, prefetchTable, preview, type PreviewEffect, type Source } from '../preview/render';
 import { DEFAULT_SAMPLE, SAMPLES, sampleOf } from '../preview/samples';
 import { importFit, resolveSelection, selectImport, type Selection } from '../selection';
+import type { Family, Recipe } from '../recipes';
+import { gridLooks } from '../gridPage';
 import { STOCKS } from '../stocks';
 import { useCatalog } from '../useCatalog';
 import { EditDialog, type EditDialogHandle } from './EditDialog';
@@ -38,28 +39,21 @@ import { BrandSwatch } from './BrandMark';
 import { EffectIcon } from './EffectIcon';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ImportDialog, type ImportDialogHandle } from './ImportDialog';
-import { StepHeading } from './Step';
+
+function subscribeFullscreen(change: () => void): () => void {
+  document.addEventListener('fullscreenchange', change);
+  return () => document.removeEventListener('fullscreenchange', change);
+}
+
+/** The browser can show an element in full screen. iPhone Safari cannot. */
+const fullscreenEnabled = () => document.fullscreenEnabled === true;
+const neverChanges = () => () => undefined;
+
+/** Whether two sets hold the same IDs. */
+const sameSet = (a: ReadonlySet<string>, b: ReadonlySet<string>) => a.size === b.size && [...a].every((id) => b.has(id));
 
 /** GRKU's own look, which the page shows first. */
 const FIRST_LOOK = 'positive-film-grii-v1';
-
-/** The headline with each brand name (RICOH GR…) as its own inline box, so the brand stays on one line. */
-function Headline({ text }: { text: string }) {
-  return text.split(/(RICOH GR[\w ]*?(?= |$))/).map((part, index) =>
-    /^RICOH GR/.test(part) ? (
-      <span key={index} className="inline-block" lang="en">
-        {part}
-      </span>
-    ) : (
-      <span key={index}>{part}</span>
-    ),
-  );
-}
-
-/** The cameras that GRKU supports, by the names of the installer. */
-const SUPPORTED_CAMERAS = CAMERAS.filter((camera) => camera.support)
-  .map((camera) => camera.name)
-  .join(' · ');
 
 /** The name of a kind of film in the filters. */
 function kindLabel(kind: FilmKind, t: Strings): string {
@@ -120,8 +114,12 @@ interface Props {
   onCard: ReadonlySet<string> | null;
   /** The IDs of the imports whose file on the card differs, such as after a new name. */
   changedOnCard?: ReadonlySet<string>;
-  /** Whether this browser writes to a card, which the line under the headline tells. */
-  canWrite: boolean;
+  /** The camera line of the page, for a recipe from a Lightroom preset import. */
+  family: Family;
+  /** The recipe library of that camera line. */
+  recipes: readonly Recipe[];
+  /** Adds a recipe from a Lightroom preset import. */
+  onAddRecipe: (recipe: Recipe) => void;
   /** What the visitor owns of GRKU Plus. */
   owned: Entitlement;
   /** Opens GRKU Plus. */
@@ -166,7 +164,9 @@ export function Workbench({
   cardEffects,
   onCard,
   changedOnCard,
-  canWrite,
+  family,
+  recipes,
+  onAddRecipe,
   owned,
   onPlus,
   plusKey = null,
@@ -186,6 +186,12 @@ export function Workbench({
   const used = usedSlots(listed, checked, owned);
   const slots = slotsOf(owned);
   const full = used >= slots;
+  // The viewer, not the frame, goes to full screen (as on GRKit): an error replaces the frame, and
+  // the removal of the full-screen element would end full screen. The photo keeps its render size.
+  const [viewer, setViewer] = useState<HTMLDivElement | null>(null);
+  const canFullscreen = useSyncExternalStore(neverChanges, fullscreenEnabled, () => false);
+  const fullscreenElement = useSyncExternalStore(subscribeFullscreen, () => document.fullscreenElement, () => null);
+  const fullscreen = viewer !== null && fullscreenElement === viewer;
   // The effect that the frame shows, which changes in a transition when its preview is ready, and
   // the effect that the user pressed last, which the boxes and the text show at once.
   const [previewId, setPreviewId] = useState(FIRST_LOOK);
@@ -212,6 +218,14 @@ export function Workbench({
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState<FilmKind | 'all'>('all');
   const [brand, setBrand] = useState('all');
+  // The pages of the grid that show. A new search or filter starts again at the first page.
+  const [pages, setPages] = useState(1);
+  const [filterKey, setFilterKey] = useState('');
+  const nextFilterKey = `${query}\n${kind}\n${brand}`;
+  if (filterKey !== nextFilterKey) {
+    setFilterKey(nextFilterKey);
+    setPages(1);
+  }
   const kinds = FILM_KINDS.filter((item) => listed.some((effect) => filmKind(effect) === item));
   const brands = [...new Set(listed.map(brandOf).filter(Boolean))].sort();
   const needle = query.trim().toLowerCase();
@@ -226,6 +240,10 @@ export function Workbench({
           .toLowerCase()
           .includes(needle)),
   );
+  // The grid shows whole pages of the matching looks (gridPage.ts), and always the previewed look.
+  const importTile = !!catalog?.baseGamma;
+  const shownLooks = gridLooks(visible, pages, importTile, visible.findIndex((effect) => effect.id === requestedId));
+
 
   const shown = effects.find((effect) => effect.id === previewId) ?? effects[0] ?? null;
   const requested = effects.find((effect) => effect.id === requestedId) ?? shown;
@@ -335,6 +353,31 @@ export function Workbench({
   const requestedOn = !!requested && checked.has(requested.id);
   const credit = sample?.credit ?? SAMPLES[0]!.credit;
 
+  function toggleFullscreen() {
+    // A refusal, such as without a user gesture, leaves the page as it is.
+    if (fullscreen) document.exitFullscreen().catch(() => undefined);
+    else viewer?.requestFullscreen().catch(() => undefined);
+  }
+
+  /**
+   * Puts the shown looks on the card, as many as fit: room on the card, and a free slot for each
+   * look that takes one.
+   */
+  function addShown() {
+    const next = new Set(checked);
+    for (const effect of visible) {
+      if (next.size >= MAX_EFFECTS) break;
+      if (next.has(effect.id) || effect.card) continue;
+      if (takesSlot(effect, owned) && usedSlots(listed, next, owned) >= slots) continue;
+      next.add(effect.id);
+    }
+    if (next.size !== checked.size) onSelectionChange(next);
+  }
+  // The starter set: the looks that a new visitor finds on the card.
+  const starter = resolveSelection(null, catalog?.effects.map((effect) => effect.id) ?? []);
+  const canAddShown =
+    checked.size < MAX_EFFECTS && visible.some((effect) => !checked.has(effect.id) && !effect.card && canAdd(effect));
+
   function retryPreview() {
     forget(source);
     setPreviewAttempt((attempt) => attempt + 1);
@@ -369,35 +412,26 @@ export function Workbench({
       aria-labelledby="looks-title"
       ref={ownPhoto}
     >
-      {/* The headline. */}
-      <div id={LANDING_HERO} className="min-w-0 pt-[clamp(28px,6vh,72px)] lg:col-start-1 lg:row-start-1">
-        <h1 className="text-balance text-[clamp(38px,4.6vw,60px)] leading-[1.06] font-bold tracking-[-0.025em] [:root[lang=th]_&]:leading-[1.22] [:root[lang=th]_&]:tracking-normal">
-          <Headline text={t.lead[0] ?? ''} />
+      {/* The heading of the looks page. */}
+      <div id={LANDING_HERO} className="min-w-0 pt-[clamp(24px,5vh,56px)] lg:col-start-1 lg:row-start-1">
+        <h1
+          id="looks-title"
+          className="text-balance text-[clamp(30px,3.4vw,44px)] leading-[1.1] font-semibold tracking-[-0.02em] [:root[lang=th]_&]:leading-[1.3] [:root[lang=th]_&]:tracking-normal"
+        >
+          {t.site.toolHeading}
         </h1>
-        <p className="mt-4 max-w-[30em] text-[clamp(16px,1.3vw,19px)] leading-relaxed text-muted-foreground">{t.lead[1]}</p>
-        <div className="mt-7 flex flex-wrap items-center gap-3">
-          <Button asChild variant="brand" size="lg" className="h-11 px-6 text-[15px]">
-            <a href="#looks">{t.chooseLooks}</a>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="h-11 px-6 text-[15px]">
-            <a href="#install">{t.install}</a>
-          </Button>
-        </div>
-        <p className="mt-5 max-w-[40em] text-sm leading-relaxed text-muted-foreground">
-          {sentences(t.landing.supports(SUPPORTED_CAMERAS), canWrite ? t.landing.installNote : t.landing.installNoteZip)}
-        </p>
-        <p className="mt-3 flex items-start gap-2 text-sm font-medium">
-          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden="true" />
-          {t.riskShort}
-        </p>
+        <p className="mt-4 max-w-[40em] text-[15px] leading-relaxed text-muted-foreground">{t.site.looksLead}</p>
       </div>
 
       {/* The photograph, which stays in view while the shelf scrolls. */}
       <aside
-        className="sticky top-14 z-20 -mx-gutter min-w-0 bg-background px-gutter pt-3 pb-3 lg:top-[72px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:self-start lg:px-0 lg:pt-[clamp(28px,6vh,72px)] lg:pb-0"
+        className="sticky top-24 z-20 -mx-gutter min-w-0 bg-background px-gutter pt-3 pb-3 lg:top-[72px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:self-start lg:px-0 lg:pt-[clamp(28px,6vh,72px)] lg:pb-0"
         aria-label={t.preview}
       >
-        <div className="relative">
+        <div
+          ref={setViewer}
+          className="relative [&:fullscreen]:flex [&:fullscreen]:items-center [&:fullscreen]:justify-center [&:fullscreen]:bg-black"
+        >
         {shown && previewed ? (
           <ErrorBoundary
             resetKey={`${source.key}\n${shown.id}\n${previewAttempt}`}
@@ -429,10 +463,22 @@ export function Workbench({
           still
         )}
         {/* On a phone the name and the button lie over the photo, so the sticky block stays short. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] flex items-end justify-between gap-3 rounded-b-2xl bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 lg:hidden">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] flex items-end justify-between gap-3 rounded-b-2xl bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 lg:hidden [:fullscreen>&]:flex [:fullscreen>&]:rounded-none [:fullscreen>&]:p-5">
           <span className="min-w-0 truncate text-[15px] font-semibold text-white drop-shadow">{requested?.name ?? t.original}</span>
           <span className="pointer-events-auto">{addButton('sm')}</span>
         </div>
+        {canFullscreen && shown && (
+          <Button
+            type="button"
+            size="icon"
+            className="absolute top-3 left-3 z-[4] size-9 rounded-md bg-black/75 text-white hover:bg-black [:fullscreen>&]:top-5 [:fullscreen>&]:left-5"
+            aria-label={fullscreen ? t.exitFullScreen : t.fullScreen}
+            title={fullscreen ? t.exitFullScreen : t.fullScreen}
+            onClick={toggleFullscreen}
+          >
+            {fullscreen ? <Minimize aria-hidden="true" /> : <Maximize aria-hidden="true" />}
+          </Button>
+        )}
         </div>
         <div className="mt-5 hidden items-start justify-between gap-4 lg:flex">
           <div className="min-w-0">
@@ -442,6 +488,14 @@ export function Workbench({
               <p className="font-mono text-[13px] text-muted-foreground">{stockText(STOCKS[requested.id]!, t)}</p>
             )}
             {look && <p className="mt-0.5 text-sm text-muted-foreground">{look}</p>}
+            {requested && !requested.imported && t.lookHints[requested.id] && (
+              <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-muted-foreground">{t.lookHints[requested.id]}</p>
+            )}
+            {requested && onCard && (
+              <span className="mt-2 inline-flex">
+                <ChangeBadge on={onCard.has(requested.id)} checked={checked.has(requested.id)} changed={changedOnCard?.has(requested.id)} strings={t} />
+              </span>
+            )}
           </div>
           {addButton('default')}
         </div>
@@ -449,7 +503,7 @@ export function Workbench({
           <Button asChild variant="ghost" size="sm" className={cn('-ml-2.5 text-[13px]', FILE_FOCUS)}>
             <label htmlFor="photo-input">
               <Upload aria-hidden="true" />
-              <span>{t.upload}</span>
+              <span>{t.site.ownPhoto}</span>
             </label>
           </Button>
           <input id="photo-input" className="sr-only" type="file" accept=".dng,image/x-adobe-dng" onChange={openPhoto} />
@@ -492,30 +546,71 @@ export function Workbench({
       </aside>
 
       {/* The shelf. */}
-      <div id="looks" className="min-w-0 scroll-mt-20 lg:col-start-1 lg:row-start-2">
-        <StepHeading
-          id="looks-title"
-          number={t.step(1)}
-          title={t.effects}
-          className="mb-5"
-          aside={
-            <>
-              <div className="flex items-center gap-3">
-                <Progress value={Math.min(100, (used / Math.max(slots, 1)) * 100)} className="w-20 [&>div]:bg-brand" aria-hidden="true" />
-                <span className="text-sm tabular-nums">
-                  <b className="font-semibold">{used}</b>
-                  <span className="text-muted-foreground"> / {slots} {t.slotsLabel}</span>
-                </span>
-              </div>
-              {!owned.plus && (
-                <Button type="button" variant="brand" size="sm" onClick={onPlus}>
-                  <Sparkles aria-hidden="true" />
-                  {t.plus.getMore}
+      <div id="looks" className="min-w-0 scroll-mt-28 md:scroll-mt-20 lg:col-start-1 lg:row-start-2">
+        {/* The looks on the card: the count of the free places, the looks, and the way back to the starter set. */}
+        <section aria-labelledby="card-looks" className="mb-6 rounded-2xl border bg-card p-4 sm:p-5">
+          <div className="flex items-start justify-between gap-4">
+            <h2 id="card-looks" className="flex min-w-0 flex-col gap-x-2 text-base font-semibold sm:flex-row sm:items-baseline">
+              {t.onCard}
+              <span className="text-sm font-normal text-muted-foreground tabular-nums">
+                {owned.plus ? t.slotsUsed(checked.size, MAX_EFFECTS) : t.site.freeUsed(used, slots)}
+              </span>
+            </h2>
+            <div className="flex shrink-0 items-center gap-1">
+              {catalog && !sameSet(checked, starter) && (
+                <Button type="button" variant="ghost" size="xs" onClick={() => onSelectionChange(starter)}>
+                  {t.site.starterSet}
                 </Button>
               )}
-            </>
-          }
-        />
+              {checked.size > 0 && (
+                <Button type="button" variant="ghost" size="xs" onClick={() => onSelectionChange(new Set())}>
+                  {t.clear}
+                </Button>
+              )}
+            </div>
+          </div>
+          {checked.size > 0 ? (
+            <div className="mt-2">
+              <ul className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={t.onCard}>
+                {listed
+                  .filter((effect) => checked.has(effect.id))
+                  .map((effect) => (
+                    <li key={effect.id} className="relative shrink-0 pt-2 pr-2 motion-safe:animate-[box-in_220ms_ease-out]">
+                      <button
+                        type="button"
+                        className={cn('block rounded-md p-0.5', effect.id === requested?.id && 'ring-2 ring-brand/70', RING)}
+                        aria-label={t.previewOf(effect.name)}
+                        title={effect.name}
+                        onClick={() => {
+                          if (!effect.card) showEffect(effect);
+                        }}
+                      >
+                        <EffectIcon effect={effect} className="size-11" />
+                      </button>
+                      <button
+                        type="button"
+                        className={cn('absolute top-0 right-0 flex size-4 items-center justify-center rounded-full bg-muted text-foreground ring-2 ring-card hover:bg-brand hover:text-white', RING)}
+                        aria-label={t.removeOf(effect.name)}
+                        onClick={() => toggle(effect)}
+                      >
+                        <X className="size-2.5" strokeWidth={3} aria-hidden="true" />
+                      </button>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">{t.filmLookEmpty}</p>
+          )}
+          {!owned.plus && (
+            <p className="mt-2 text-[13px] text-muted-foreground">
+              {t.plus.title} ·{' '}
+              <button type="button" className="font-medium text-foreground underline-offset-4 hover:underline" onClick={onPlus}>
+                {t.plus.getMore}
+              </button>
+            </p>
+          )}
+        </section>
         {(() => {
           const lines = ownedLines(owned, t.plus, catalog ? packCounts(catalog.effects) : null);
           if (lines.length === 0) return null;
@@ -582,62 +677,6 @@ export function Workbench({
             </div>
           );
         })()}
-        {!owned.plus && ownedLines(owned, t.plus, null).length === 0 && (
-          <div className="mb-4 overflow-hidden rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/[0.16] via-card to-card">
-            <div className="flex flex-col gap-4 p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="flex items-center gap-2 text-lg font-semibold tracking-tight">
-                    <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground">
-                      <Sparkles className="size-4" aria-hidden="true" />
-                    </span>
-                    {t.plus.title}
-                  </p>
-                  <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-muted-foreground">{t.plus.lead}</p>
-                </div>
-                <Button type="button" variant="brand" className="hidden shrink-0 sm:inline-flex" onClick={onPlus}>
-                  <Sparkles aria-hidden="true" />
-                  {t.plus.getMore}
-                </Button>
-              </div>
-              <LaunchOffer strings={t} />
-              {/* The three tiers at a glance; each opens GRKU Plus. */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                {(() => {
-                  const counts = catalog ? packCounts(catalog.effects) : null;
-                  const total = catalog ? catalog.effects.length : 145;
-                  return [
-                    [t.plus.tierAll, PRICES.plus, true, t.plus.outcomeAll(total, MAX_EFFECTS), REGULAR_PRICES.plus],
-                    [t.plus.tierSlots, PRICES.slots25, false, t.plus.outcomeSlots(25), REGULAR_PRICES.slots25],
-                    [t.plus.tierPack, PRICES['pack:kodak'], false, t.plus.outcomePack(counts?.kodak ?? 16, t.plus.packs.kodak, 10, 10 + (counts?.kodak ?? 16)), REGULAR_PRICES['pack:kodak']],
-                  ] as const;
-                })().map(([name, price, featured, outcome, regular]) => (
-                  <button
-                    key={name}
-                    type="button"
-                    onClick={onPlus}
-                    className={cn(
-                      'flex flex-col items-start gap-1 rounded-xl border bg-background/60 px-3 py-3 text-left transition-colors hover:border-brand/60 hover:bg-background',
-                      featured ? 'border-brand shadow-[0_0_0_1px_var(--brand)]' : 'border-border',
-                    )}
-                  >
-                    <span className="text-xs text-muted-foreground">{name}</span>
-                    <span className="flex items-baseline gap-1.5">
-                      <span className={cn('text-xl font-semibold tabular-nums tracking-tight', featured && 'text-brand')}>฿{price}</span>
-                      {inLaunch() && regular > price && <s className="text-[12px] tabular-nums text-muted-foreground">฿{regular}</s>}
-                    </span>
-                    <span className="text-[11.5px] leading-snug text-muted-foreground">{outcome}</span>
-                  </button>
-                ))}
-              </div>
-              <Button type="button" variant="brand" size="lg" className="sm:hidden" onClick={onPlus}>
-                <Sparkles aria-hidden="true" />
-                {t.plus.getMore}
-              </Button>
-            </div>
-          </div>
-        )}
-
         {notice && (
           <Alert className="mb-4">
             <AlertDescription>{notice}</AlertDescription>
@@ -715,7 +754,14 @@ export function Workbench({
             </TabsList>
           </Tabs>
           <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-muted-foreground tabular-nums">
-            <span>{catalog ? t.shownOf(visible.length, listed.length) : error ? t.loadError : t.loading}</span>
+            <span className="flex items-center gap-2">
+              {catalog ? t.shownOf(visible.length, listed.length) : error ? t.loadError : t.loading}
+              {catalog && (needle || kind !== 'all' || brand !== 'all') && (
+                <Button type="button" variant="ghost" size="xs" disabled={!canAddShown} onClick={addShown}>
+                  {t.selectAll}
+                </Button>
+              )}
+            </span>
             {/* The key to the marks on the boxes. */}
             <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="flex items-center gap-1.5">
@@ -741,66 +787,8 @@ export function Workbench({
           )}
         </div>
 
-        {checked.size > 0 && (
-          <div className="mt-4 rounded-xl border bg-card/60 p-3">
-            <div className="mb-2 flex items-center justify-between gap-3 text-[13px]">
-              <span className="font-medium">
-                {t.onCard} · <span className="tabular-nums">{checked.size}</span>
-                {/* Where the count comes from: the free slots (camera looks among them), Plus, and imports. */}
-                {(() => {
-                  const parts = { free: 0, plus: 0, imported: 0 };
-                  for (const effect of listed) {
-                    if (!checked.has(effect.id)) continue;
-                    const kind = filmKind(effect);
-                    if (kind === 'imported') parts.imported += 1;
-                    else if (unlockedBy(effect, owned)) parts.plus += 1;
-                    else parts.free += 1;
-                  }
-                  const text = [
-                    parts.free ? t.onCardFree(parts.free) : '',
-                    parts.plus ? t.onCardPlus(parts.plus) : '',
-                    parts.imported ? t.onCardImported(parts.imported) : '',
-                  ].filter(Boolean);
-                  return text.length > 1 ? (
-                    <span className="ml-2 font-normal text-muted-foreground">({text.join(' · ')})</span>
-                  ) : null;
-                })()}
-              </span>
-              <Button type="button" variant="ghost" size="xs" onClick={() => onSelectionChange(new Set())}>
-                {t.clear}
-              </Button>
-            </div>
-            <ul className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={t.onCard}>
-              {listed
-                .filter((effect) => checked.has(effect.id))
-                .map((effect) => (
-                  <li key={effect.id} className="relative shrink-0 pt-2 pr-2">
-                    <button
-                      type="button"
-                      className={cn('block rounded-md p-0.5', effect.id === requested?.id && 'ring-2 ring-brand/70', RING)}
-                      aria-label={t.previewOf(effect.name)}
-                      title={effect.name}
-                      onClick={() => {
-                        if (!effect.card) showEffect(effect);
-                      }}
-                    >
-                      <EffectIcon effect={effect} className="size-11" />
-                    </button>
-                    <button
-                      type="button"
-                      className={cn('absolute top-0 right-0 flex size-4 items-center justify-center rounded-full bg-muted text-foreground ring-2 ring-card hover:bg-brand hover:text-white', RING)}
-                      aria-label={t.removeOf(effect.name)}
-                      onClick={() => toggle(effect)}
-                    >
-                      <X className="size-2.5" strokeWidth={3} aria-hidden="true" />
-                    </button>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        )}
 
-        <ul className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-6 xl:grid-cols-7" aria-label={t.effects}>
+        <ul className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-6 " aria-label={t.effects}>
           {!catalog &&
             !error &&
             Array.from({ length: 21 }, (_, index) => (
@@ -809,7 +797,7 @@ export function Workbench({
           {catalog && visible.length === 0 && (
             <li className="col-span-full py-10 text-center text-muted-foreground">{t.noMatches}</li>
           )}
-          {visible.map((effect) => {
+          {shownLooks.map((effect) => {
             const isChecked = checked.has(effect.id);
             const isPreviewed = effect.id === requested?.id;
             const stock = STOCKS[effect.id];
@@ -905,13 +893,26 @@ export function Workbench({
             </li>
           )}
         </ul>
+        {shownLooks.length < visible.length && (
+          <div className="mt-4 flex flex-col items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto sm:min-w-48"
+              onClick={() => setPages((current) => current + 1)}
+            >
+              {t.loadMore}
+            </Button>
+            <span className="text-[13px] text-muted-foreground tabular-nums">{t.shownOf(shownLooks.length, visible.length)}</span>
+          </div>
+        )}
         <p className="mt-4 text-[13px] text-muted-foreground">
           {t.countLimit(MAX_EFFECTS)}
           {onCard && ` ${t.effectsCardNote}`}
         </p>
 
         {catalog?.baseGamma && (
-          <ImportDialog ref={importer} strings={t} baseGamma={catalog.baseGamma} taken={taken} onImport={(effect) => importEffects([effect])} />
+          <ImportDialog ref={importer} strings={t} baseGamma={catalog.baseGamma} taken={taken} onImport={(effect) => importEffects([effect])} family={family} recipes={recipes} onAddRecipe={onAddRecipe} />
         )}
         <EditDialog ref={editor} strings={t} onSave={onEdit} />
       </div>
@@ -923,7 +924,7 @@ export function Workbench({
 function Frame({ busy = false, children }: { busy?: boolean; children: ReactNode }) {
   return (
     <div
-      className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-black shadow-[0_30px_80px_rgba(0,0,0,0.55)] ring-1 ring-white/[0.06]"
+      className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-black shadow-[0_30px_80px_rgba(0,0,0,0.55)] ring-1 ring-white/[0.06] [:fullscreen>&]:w-[min(100%,calc(100vh*3/2))] [:fullscreen>&]:rounded-none [:fullscreen>&]:shadow-none [:fullscreen>&]:ring-0"
       aria-busy={busy}
     >
       {children}

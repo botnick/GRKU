@@ -32,7 +32,7 @@ export function WhatsNew({ language }: { language: Language }) {
   const [latest, ...older] = RELEASES;
   if (!latest) return null;
   return (
-    <section id="news" aria-labelledby="news-title" className="scroll-mt-20 border-t border-border py-12 lg:py-16">
+    <section id="news" aria-labelledby="news-title" className="scroll-mt-28 md:scroll-mt-20 border-t border-border py-12 lg:py-16">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
         <div>
           <h2 id="news-title" className="text-[clamp(26px,2.6vw,34px)] leading-[1.15] font-semibold tracking-[-0.02em]">

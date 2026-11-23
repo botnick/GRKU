@@ -5,7 +5,9 @@ import {
   cookieValue,
   fastbootPath,
   isFastbootPath,
+  pagePath,
   pathLanguage,
+  pathPage,
   visitorLanguage,
   type Visitor,
 } from './languagePage';
@@ -32,6 +34,38 @@ describe('pathLanguage', () => {
     expect(fastbootPath('zh-Hant')).toBe('/zh-hant/fastboot/');
     expect(fastbootPath('en')).toBe('/en/fastboot/');
     expect(fastbootPath('th')).toBe('/fastboot/');
+  });
+});
+
+describe('site pages', () => {
+  it('puts the install page under each language path', () => {
+    expect(pagePath('th', 'home')).toBe('/');
+    expect(pagePath('th', 'install')).toBe('/install/');
+    expect(pagePath('en', 'install')).toBe('/en/install/');
+    expect(pagePath('zh-Hant', 'install')).toBe('/zh-hant/install/');
+  });
+
+  it('puts each step of the install on its own page', () => {
+    expect(pagePath('th', 'camera')).toBe('/install/camera/');
+    expect(pagePath('ja', 'modules')).toBe('/ja/install/modules/');
+    expect(pagePath('en', 'write')).toBe('/en/install/write/');
+    expect(pathPage('/ko/install/write')).toBe('write');
+    expect(pathPage('/install/camera/')).toBe('camera');
+    expect(pathLanguage('/zh-hans/install/modules/')).toBe('zh-Hans');
+    expect(pathLanguage('/install/write/')).toBe('th');
+  });
+
+  it('reads the page and the language of an address', () => {
+    expect(pathPage('/')).toBe('home');
+    expect(pathPage('/en/')).toBe('home');
+    expect(pathPage('/looks')).toBe('install');
+    expect(pathPage('/en/looks/')).toBe('install');
+    expect(pathPage('/ja/Install/')).toBe('install');
+    expect(pathPage('/faq/')).toBeNull();
+    expect(pathPage('/en/terms/')).toBeNull();
+    expect(pathLanguage('/looks/')).toBe('th');
+    expect(pathLanguage('/ko/looks/')).toBe('ko');
+    expect(pathLanguage('/en/install')).toBe('en');
   });
 });
 
@@ -112,6 +146,29 @@ describe('edge worker', () => {
     expect(await response.text()).toBe(page);
     expect(response.headers.get('Content-Security-Policy')).toBe("default-src 'self'");
     expect(response.headers.get('Vary')).toBe('Accept-Language, Cookie');
+  });
+
+  it('sends the old looks pages to the install page of their language', async () => {
+    const thai = await edge.fetch(request('/looks/', { 'Accept-Language': 'ja' }), { ASSETS: assets });
+    expect(thai.status).toBe(301);
+    expect(thai.headers.get('Location')).toBe('https://grku.app/install/');
+    const english = await edge.fetch(request('/en/looks?ref=x', {}), { ASSETS: assets });
+    expect(english.headers.get('Location')).toBe('https://grku.app/en/install/?ref=x');
+    expect(assets.fetch).not.toHaveBeenCalled();
+  });
+
+  it('sends a visitor of a Thai page to the same page of their language', async () => {
+    const install = await edge.fetch(request('/install/?ref=x', { 'Accept-Language': 'en' }), { ASSETS: assets });
+    expect(install.headers.get('Location')).toBe('https://grku.app/en/install/?ref=x');
+    vi.stubGlobal('__SITE_HEADERS__', {});
+    const thai = await edge.fetch(request('/install/', { 'Accept-Language': 'th' }), { ASSETS: assets });
+    expect(thai.status).toBe(200);
+  });
+
+  it('sends a visitor of a Thai step to the same step of their language', async () => {
+    const response = await edge.fetch(request('/install/modules/', { 'Accept-Language': 'ko' }), { ASSETS: assets });
+    expect(response.status).toBe(302);
+    expect(response.headers.get('Location')).toBe('https://grku.app/ko/install/modules/');
   });
 
   it('leaves a language page as it is', async () => {
