@@ -1,4 +1,4 @@
-import type { CardChanges } from './card';
+import { SHUTDOWN_PICTURE, type CardChanges, type CardFile } from './card';
 import { loadWasm } from './package';
 
 /** The size of the picture of Shutdown Screen (`grku_core::goodbye`). */
@@ -54,4 +54,108 @@ export function pictureChange(onCard: Uint8Array | null, choice: PictureChoice):
   if (choice === 'remove') return onCard ? 'remove' : 'same';
   const same = onCard !== null && onCard.length === choice.length && onCard.every((byte, i) => byte === choice[i]);
   return same ? 'same' : 'write';
+}
+
+/**
+ * The picture of the page for Shutdown Screen: the GRKU logo (`LOGO_PATH`), the picture of the
+ * user, no picture (the camera shows its own screen, and a write removes the file of the card),
+ * or the picture that the card has, left as it is.
+ */
+export type ShutdownKind = 'logo' | 'own' | 'none' | 'keep';
+
+/** The GRKU logo under the site root: a file of `shutdownPicture`, so the camera shows it as it is. */
+export const LOGO_PATH = 'shutdown/grku.jpg';
+
+const KIND_KEY = 'grku.shutdown';
+const OWN_KEY = 'grku.shutdownPicture';
+const KINDS: readonly ShutdownKind[] = ['logo', 'own', 'none', 'keep'];
+
+/** The choice of the last visit: the kind, or null before the first choice, and the picture of the user. */
+export function loadShutdown(storage: Pick<Storage, 'getItem'> | null): { kind: ShutdownKind | null; own: Uint8Array | null } {
+  let kind: ShutdownKind | null = null;
+  let own: Uint8Array | null = null;
+  try {
+    const saved = storage?.getItem(KIND_KEY) ?? null;
+    if (KINDS.includes(saved as ShutdownKind)) kind = saved as ShutdownKind;
+    const text = storage?.getItem(OWN_KEY) ?? null;
+    if (text) own = Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
+  } catch {
+    // An unreadable value is the same as none.
+  }
+  return { kind, own };
+}
+
+export function saveShutdownKind(storage: Pick<Storage, 'setItem'> | null, kind: ShutdownKind) {
+  try {
+    storage?.setItem(KIND_KEY, kind);
+  } catch {
+    // A convenience: without storage, the next visit starts from the default.
+  }
+}
+
+/** Keeps the picture of the user for the next visit, or forgets it. */
+export function saveOwnPicture(storage: Pick<Storage, 'setItem' | 'removeItem'> | null, bytes: Uint8Array | null) {
+  try {
+    if (!bytes) {
+      storage?.removeItem(OWN_KEY);
+      return;
+    }
+    let text = '';
+    for (const byte of bytes) text += String.fromCharCode(byte);
+    storage?.setItem(OWN_KEY, btoa(text));
+  } catch {
+    // A full storage keeps the picture for this visit only.
+  }
+}
+
+/**
+ * The kind that applies: the chosen one while it can apply, else the picture of the card where
+ * the card has one, so a card keeps a picture that the user never chose here, else the logo.
+ */
+export function shutdownKind(chosen: ShutdownKind | null, own: Uint8Array | null, onCard: Uint8Array | null): ShutdownKind {
+  if (chosen === 'own' && !own) chosen = null;
+  if (chosen === 'keep' && !onCard) chosen = null;
+  return chosen ?? (onCard ? 'keep' : 'logo');
+}
+
+/** The file of a kind, `remove` for no picture, or null to leave the card; the logo is null until it loads. */
+export function pictureFor(kind: ShutdownKind, logo: Uint8Array | null, own: Uint8Array | null): PictureChoice {
+  switch (kind) {
+    case 'logo':
+      return logo;
+    case 'own':
+      return own;
+    case 'none':
+      return 'remove';
+    case 'keep':
+      return null;
+  }
+}
+
+/** What a card write does for the planned change: the file to write, or the path to delete. */
+export function shutdownWrite(
+  change: CardChanges['shutdown'],
+  choice: PictureChoice,
+): { files: CardFile[]; remove: string[] } {
+  if (change === 'write' && choice instanceof Uint8Array) {
+    return { files: [{ path: SHUTDOWN_PICTURE, bytes: choice }], remove: [] };
+  }
+  return { files: [], remove: change === 'remove' ? [SHUTDOWN_PICTURE] : [] };
+}
+
+let logoFile: Promise<Uint8Array> | null = null;
+
+/** The file of the GRKU logo, fetched once; a failed fetch tries again at the next call. */
+export function loadLogo(url: string): Promise<Uint8Array> {
+  logoFile ??= fetch(url)
+    .then((response) => {
+      if (!response.ok) throw new Error(`Shutdown logo: ${response.status}`);
+      return response.arrayBuffer();
+    })
+    .then((buffer) => new Uint8Array(buffer))
+    .catch((error: unknown) => {
+      logoFile = null;
+      throw error;
+    });
+  return logoFile;
 }

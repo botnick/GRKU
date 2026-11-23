@@ -111,6 +111,7 @@ export function ModulesStep({
   emptyLooks,
   lookCount,
   recipes = null,
+  shutdown = null,
 }: {
   strings: Strings;
   /** The modules that the camera offers, in menu order. */
@@ -127,6 +128,8 @@ export function ModulesStep({
   lookCount: ReactNode;
   /** The recipes of the camera and the mode dial, while the Recipes module is on. */
   recipes?: ReactNode;
+  /** The picture that the camera shows when it turns off, under the modules. */
+  shutdown?: ReactNode;
 }) {
   const visible = modules.filter((module) => enabled.has(module.key));
   const full = visible.length >= MODULES_MAX;
@@ -170,6 +173,7 @@ export function ModulesStep({
             );
           })}
         </ul>
+        {shutdown}
         </div>
 
         <Card

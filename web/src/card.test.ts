@@ -21,6 +21,7 @@ import {
   type CardDirectory,
   type CardFileHandle,
 } from './card';
+import { pictureChange, shutdownWrite } from './shutdownPicture';
 
 const error = (name: string) => Object.assign(new Error(name), { name });
 
@@ -381,6 +382,36 @@ describe('planChanges', () => {
 });
 
 describe('applyChanges', () => {
+  it('writes the shutdown picture to the data folder, and removes it for no picture', async () => {
+    const card = await current();
+    const files = packageFiles(['GUIDES'], ['AAAAAAAA.GRF']);
+    for (const file of files) await card.put(file.path, new TextDecoder().decode(file.bytes));
+    card.log.length = 0;
+    const write = async (picture: Uint8Array | 'remove') => {
+      const state = await readCard(card);
+      const changes = planChanges(state, '1.3.0', ['GUIDES'], null, 'same', pictureChange(state.shutdownPicture, picture));
+      const goodbye = shutdownWrite(changes.shutdown, picture);
+      await applyChanges(card, state, [...files, ...goodbye.files], { add: [], remove: goodbye.remove });
+      return changes.shutdown;
+    };
+
+    expect(await write(bytes('logo'))).toBe('write');
+    expect(card.log).toEqual(['GRKU/GOODBYE.JPG']);
+    expect(card.text('GRKU/GOODBYE.JPG')).toBe('logo');
+    // The same picture again is no change, and another picture replaces it.
+    expect(await write(bytes('logo'))).toBe('same');
+    expect(await write(bytes('mine'))).toBe('write');
+    expect(card.text('GRKU/GOODBYE.JPG')).toBe('mine');
+
+    expect(await write('remove')).toBe('remove');
+    const tree = card.tree();
+    expect(tree).not.toContain('GRKU/GOODBYE.JPG');
+    expect(tree).not.toContain('GRKU/._GOODBYE.JPG');
+    expect(tree).toContain('GRKU/EFFECTS/AAAAAAAA.GRF');
+    // No picture on the card: nothing to remove.
+    expect(await write('remove')).toBe('same');
+  });
+
   it('writes only what differs, and deletes what the selection removes', async () => {
     const card = await current();
     // The card already has the files of a package with Guides and effect A.

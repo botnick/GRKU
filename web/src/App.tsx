@@ -52,7 +52,7 @@ import {
   PREVIEW_TARGET,
   type Camera,
 } from './cameras';
-import { loadCatalog, MAX_EFFECTS, type Catalog, type CardEffect, type ImportedEffect, type PackageEffect } from './catalog';
+import { loadCatalog, MAX_EFFECTS, siteUrl, type Catalog, type CardEffect, type ImportedEffect, type PackageEffect } from './catalog';
 import {
   CardChangesView,
   CardConnect,
@@ -70,6 +70,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { Faq } from './components/Faq';
 import { Masthead } from './components/Masthead';
 import { ModulesStep } from './components/ModulesStep';
+import { ShutdownDownload, ShutdownSection } from './components/ShutdownSection';
 import { PackageOpen, type PackageStatus } from './components/PackageOpen';
 import { PlusSheet } from './components/PlusSheet';
 import {
@@ -131,6 +132,19 @@ function StepNumber({ n, className }: { n: number; className?: string }) {
 const CARD_IMAGES: Record<string, string> = { gr3: cardGr3, gr3x: cardGr3x, gr4: cardGr4, gr4m: cardGr4 };
 import { fetchEntitlement, forgetKey, FREE, loadKey, packCounts, PlusError, saveKey, takeKeyFromHash, takeOrderFromHash, type Entitlement } from './plus';
 import { loadSelection, resolveSelection, saveSelection, type Selection } from './selection';
+import {
+  loadLogo,
+  loadShutdown,
+  LOGO_PATH,
+  pictureChange,
+  pictureFor,
+  saveOwnPicture,
+  saveShutdownKind,
+  shutdownKind,
+  shutdownWrite,
+  type PictureChoice,
+  type ShutdownKind,
+} from './shutdownPicture';
 import { TransferError } from './transfer';
 import { useCatalog } from './useCatalog';
 
@@ -277,6 +291,39 @@ export function App({
     storage: browserStorage,
     onChange: resetBuild,
   });
+
+  // The picture of Shutdown Screen: the choice of this browser, and the picture of the user.
+  const [shutdownSaved] = useState(() => loadShutdown(browserStorage()));
+  const [shutdownChosen, setShutdownChosen] = useState<ShutdownKind | null>(shutdownSaved.kind);
+  const [ownPicture, setOwnPicture] = useState<Uint8Array | null>(shutdownSaved.own);
+  const [logoPicture, setLogoPicture] = useState<Uint8Array | null>(null);
+  const logoUrl = siteUrl(LOGO_PATH);
+  const pictureOnCard = active?.state.shutdownPicture ?? null;
+  const pictureKind = shutdownKind(shutdownChosen, ownPicture, pictureOnCard);
+  const picture = pictureFor(pictureKind, logoPicture, ownPicture);
+  // The logo file waits for the steps that use it.
+  const needsLogo = page === 'modules' || page === 'write';
+  useEffect(() => {
+    if (!needsLogo || logoPicture) return;
+    let live = true;
+    loadLogo(logoUrl).then(
+      (bytes) => live && setLogoPicture(bytes),
+      (error: unknown) => console.error(error),
+    );
+    return () => {
+      live = false;
+    };
+  }, [needsLogo, logoPicture, logoUrl]);
+
+  function chooseShutdown(kind: ShutdownKind) {
+    setShutdownChosen(kind);
+    saveShutdownKind(browserStorage(), kind);
+  }
+
+  function chooseOwnPicture(bytes: Uint8Array) {
+    setOwnPicture(bytes);
+    saveOwnPicture(browserStorage(), bytes);
+  }
 
   function prefetch() {
     if (targets) prefetchPackage(targets, camera.id, language);
@@ -721,7 +768,7 @@ export function App({
   }
 
   /** The changes from the card to the selection: `checked` gives the checked effect IDs. */
-  function cardChanges(session: CardSession, checked: readonly string[]): CardChanges {
+  function cardChanges(session: CardSession, checked: readonly string[], shutdown: PictureChoice = picture): CardChanges {
     const changes = planChanges(
       session.state,
       __GRKU_VERSION__,
@@ -730,6 +777,7 @@ export function App({
         ? { before: [...session.effects.keys()], after: checked, changed: [...changedImports(session, imported)] }
         : null,
       recipeLibrary.cardChange(session),
+      pictureChange(session.state.shutdownPicture, shutdown),
     );
     return session.written && changes.grku === 'update' ? { ...changes, grku: 'same' } : changes;
   }
@@ -760,9 +808,13 @@ export function App({
         null,
         await leftOutEffects(effects),
       );
+      // The logo file of a write that starts before it arrived.
+      const shutdown =
+        pictureKind === 'logo' ? await loadLogo(logoUrl) : pictureFor(pictureKind, logoPicture, ownPicture);
       const changes = cardChanges(
         session,
         checked.map((effect) => effect.id),
+        shutdown,
       );
       const library = await libraryChanges(
         session,
@@ -778,6 +830,10 @@ export function App({
         files.push({ path: RECIPE_FILE, bytes: new TextEncoder().encode(text) });
         library.remove.push(RECIPES_PACKAGE);
       }
+      // The picture of Shutdown Screen goes to the data folder, or leaves it.
+      const goodbye = shutdownWrite(changes.shutdown, shutdown);
+      files.push(...goodbye.files);
+      library.remove.push(...goodbye.remove);
       await applyChanges(session.root, session.state, files, library, ({ written, total }) => {
         if (run !== cardRun.current) return;
         setCardTask(written < total ? { kind: 'writing', written, total } : { kind: 'finishing' });
@@ -1016,6 +1072,8 @@ export function App({
         </div>
         {build.state === 'ready' && packageLinks}
       </div>
+      {/* GRKU.zip holds no file of the data folder, so the picture downloads on its own. */}
+      {picture instanceof Uint8Array && <ShutdownDownload strings={t} picture={picture} />}
       </div>
       <div>
       <Accordion type="single" collapsible className="w-full border-t border-border">
@@ -1090,6 +1148,7 @@ export function App({
               termsUrl={guideUrl('TERMS', language)}
               camera={camera.name}
               firmware={support?.firmware ?? '—'}
+              shutdown={t.shutdown.title}
             />
           </Suspense>
         </ErrorBoundary>
@@ -1293,6 +1352,18 @@ export function App({
                   planned={plan.modules}
                   emptyLooks={enabled.has('filmLook') && selection?.size === 0}
                   lookCount={effectCount ?? '…'}
+                  shutdown={
+                    <ShutdownSection
+                      strings={t}
+                      kind={pictureKind}
+                      onKind={chooseShutdown}
+                      own={ownPicture}
+                      onOwn={chooseOwnPicture}
+                      logoUrl={logoUrl}
+                      onCard={pictureOnCard}
+                      firmware={support?.firmware ?? ''}
+                    />
+                  }
                   recipes={
                     available.includes('recipes') && enabled.has('recipes') ? (
                       <ErrorBoundary resetKey={String(catalogAttempt)} fallback={<p className={ERROR}>{t.loadError}</p>}>
@@ -1355,6 +1426,7 @@ export function App({
                           camera={camera.name}
                           firmware={support?.firmware ?? '—'}
                           modules={moduleNames}
+                          shutdown={t.shutdown[pictureKind]}
                         />
                         {/* What the visitor needs at hand, before the one action of the step. */}
                         <div className="mb-8">
@@ -1494,6 +1566,8 @@ interface ChangesSectionProps {
   changes: (session: CardSession, checked: readonly string[]) => CardChanges;
   modules: readonly string[];
   recipes: { label: string; text: string } | null;
+  /** The label of the change of the shutdown picture. */
+  shutdown: string;
   canWrite: boolean;
   busy: boolean;
   task: CardTask;
@@ -1731,6 +1805,7 @@ function WriteSummary({
   camera,
   firmware,
   modules,
+  shutdown,
 }: {
   strings: Strings;
   link: PageLink;
@@ -1739,11 +1814,14 @@ function WriteSummary({
   camera: string;
   firmware: string;
   modules: readonly string[];
+  /** The name of the picture of Shutdown Screen. */
+  shutdown: string;
 }) {
   const rows: [InstallStep, string, string][] = [
     ['install', t.effects, looks === null ? '…' : t.slotsUsed(looks, MAX_EFFECTS)],
     ['camera', t.camera, `${camera} · ${t.firmware} ${firmware}`],
     ['modules', t.site.extras, modules.length > 0 ? modules.join(t.listSeparator) : '—'],
+    ['modules', t.shutdown.title, shutdown],
   ];
   return (
     <section aria-labelledby="summary-title" className="mb-8 rounded-2xl border bg-card px-5 py-4">
@@ -1752,7 +1830,7 @@ function WriteSummary({
       </h2>
       <dl className="mt-2 divide-y divide-border">
         {rows.map(([step, label, value]) => (
-          <div key={step} className="flex items-baseline gap-4 py-3 text-sm">
+          <div key={label} className="flex items-baseline gap-4 py-3 text-sm">
             {/* On a phone the label sits over the value; from the tablet up, beside it. */}
             <div className="flex min-w-0 flex-1 flex-col gap-0.5 sm:grid sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-4">
               <dt className="text-muted-foreground">{label}</dt>
