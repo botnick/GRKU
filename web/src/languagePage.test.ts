@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import edge from './edge';
 import {
   acceptedLanguages,
+  INDEXED_PAGES,
+  isInstallStep,
   cookieValue,
   fastbootPath,
   isFastbootPath,
@@ -53,6 +55,18 @@ describe('site pages', () => {
     expect(pathPage('/install/camera/')).toBe('camera');
     expect(pathLanguage('/zh-hans/install/modules/')).toBe('zh-Hans');
     expect(pathLanguage('/install/write/')).toBe('th');
+  });
+
+  it('puts the install guide under each language path, indexed and outside the install steps', () => {
+    expect(pagePath('th', 'guide')).toBe('/guide/');
+    expect(pagePath('en', 'guide')).toBe('/en/guide/');
+    expect(pagePath('zh-Hans', 'guide')).toBe('/zh-hans/guide/');
+    expect(pathPage('/ja/guide')).toBe('guide');
+    expect(pathLanguage('/ko/guide/')).toBe('ko');
+    expect(isInstallStep('guide')).toBe(false);
+    expect(isInstallStep('write')).toBe(true);
+    expect(isInstallStep('home')).toBe(false);
+    expect(INDEXED_PAGES).toContain('guide');
   });
 
   it('reads the page and the language of an address', () => {

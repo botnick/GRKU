@@ -324,6 +324,10 @@ export function Home({
         </h2>
         <p className="max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground">{t.site.ctaText}</p>
         <Actions strings={t} link={link} installStep={installStep} className="mt-2" />
+        {/* The guide, for a visitor who wants to read the steps first. */}
+        <a {...link('guide')} className="mt-1 text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground">
+          {t.card}
+        </a>
       </section>
     </>
   );

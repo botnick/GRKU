@@ -1,6 +1,7 @@
 import type { ModuleKey } from './modules';
 import type { Grade } from './catalog';
 import type { NativeProblem } from './import/native';
+import { GUIDE_STRINGS } from './guide';
 import { cookieValue, fastbootPath, isLanguage, LANGUAGE_COOKIE, LANGUAGE_PATHS, pagePath, pathLanguage, type SitePage } from './languagePage';
 
 export const LANGUAGES = [
@@ -16,6 +17,13 @@ export type Language = (typeof LANGUAGES)[number]['code'];
 
 /** Text with inline code: a part that starts with a backtick is code. */
 export type RichText = readonly string[];
+
+/** A question of the FAQ. The install guide finds the ones it repeats by their `id`. */
+export interface FaqItem {
+  id?: 'adj' | 'format';
+  q: string;
+  a: RichText;
+}
 
 const en = {
   /** The workbench and GRKU Plus (grku-tools/i18n-merge.mjs). */
@@ -411,6 +419,27 @@ const en = {
     D: 'A different look. The camera cannot make this LUT.',
   } as Readonly<Record<Grade, string>>,
   importWarnings: 'Check before you use it:',
+  /** The notes of an import, by the English sentence of the importer (import/warningText.ts); {braces} are filled in. */
+  warningText: {
+    bridge: 'The look starts from the camera\'s Standard rendering and moves toward a neutral raw rendering, not Adobe Color.',
+    approx: '{names} are approximated with one fixed curve for the whole photo.',
+    skipped: 'Not carried over: {names}.',
+    noWb: 'The film look does not include the white balance.',
+    noTable: 'The profile table was skipped because the preset does not include it.',
+    rgbTable: 'RGBTable was skipped: {reason}.',
+    noProfile: 'The profile "{name}" was skipped because the preset does not include it.',
+    someProfile: 'Some settings of the profile were skipped.',
+    matrix: 'The fit reached the matrix limit of {limit}. The look mixes the color channels strongly and can show color noise at high ISO.',
+    noisy: 'The LUT image is noisy, as from grain or sharpening. Export it again with grain, sharpening, clarity, texture, dehaze, vignette, and noise reduction off.',
+    layout: 'The image was read as a LUT in {layout}, not as a HALD image.',
+    wrongInput: 'The LUT data suggests {guess} input, but the import used {input}.',
+    logGuess: 'The LUT data suggests {guess} input. Choose the input if you know it. A LUT for another camera log, such as S-Log3, LogC, C-Log, or N-Log, imports with wrong colors.',
+    logGuessAlso: 'The LUT data suggests {guess} input, and it fits {also} about as well. Choose the input if you know it. A LUT for another camera log, such as S-Log3, LogC, C-Log, or N-Log, imports with wrong colors.',
+    fall: 'Some saturated colors get darker as their exposure grows, by up to {n} L*, where the LUT keeps them brightening.',
+    lag: 'Some saturated colors stay darker and more saturated than in the LUT as their exposure grows, by up to {n} L*.',
+    step: 'Some saturated colors change abruptly between neighboring hues, by up to {n} dE2000 more than in the LUT.',
+    video: 'The LUT uses video levels. GRKU converts 64-940 of 1023, an assumption that Resolve does not document.',
+  },
   importAnother: 'Import another',
   done: 'Done',
   close: 'Close',
@@ -545,6 +574,7 @@ const en = {
   faqTitle: 'FAQ',
   faq: [
     {
+      id: 'adj',
       q: 'GRKU does not show up in ADJ.',
       a: [
         'GRKU loads about 8 to 10 seconds after power-on. It takes longer on GR IV and on the first start after an install or update. Wait, then press ADJ while you shoot and select the sixth entry, GRKU. The first time, SD scripts must be on: hold MENU while you turn the camera on.',
@@ -561,6 +591,7 @@ const en = {
       a: ['No. While a film look is on, it replaces Image Control. Your Image Control settings come back when you turn the look off.'],
     },
     {
+      id: 'format',
       q: 'What happens when I format the card?',
       a: ['A format deletes GRKU and its settings. Before a format, copy the ', '`GRKU', ' folder to a computer. After the format, install GRKU again, then copy the ', '`GRKU', ' folder back to the card root.'],
     },
@@ -586,7 +617,7 @@ const en = {
       q: 'Which GRKU version is on my card?',
       a: ['In the camera, open MENU. About GRKU is at the end of the GRKU section in the Customize tab.'],
     },
-  ] as readonly { q: string; a: RichText }[],
+  ] as readonly FaqItem[],
   /** The section of the fast-boot firmware: the text, then the patch of an official file. */
   fastboot: {
     title: 'Fast start',
@@ -1179,6 +1210,26 @@ const zhHans: Strings = {
     D: '观感不同，相机无法实现这个 LUT。',
   },
   importWarnings: '使用前请检查：',
+  warningText: {
+    bridge: '色彩风格基于相机的 Standard 渲染，并趋向中性 RAW 渲染，而非 Adobe Color。',
+    approx: '{names} 采用应用于整张照片的单条固定曲线进行近似处理。',
+    skipped: '未导入：{names}。',
+    noWb: '胶片风格不包含白平衡。',
+    noTable: '预设中未包含配置文件表，已跳过。',
+    rgbTable: '已跳过 RGBTable：{reason}。',
+    noProfile: '预设中未包含配置文件“{name}”，已跳过。',
+    someProfile: '已跳过配置文件的部分设置。',
+    matrix: '拟合已达矩阵上限 {limit}。该风格强烈混合颜色通道，高 ISO 下可能会产生彩色噪点。',
+    noisy: 'LUT 图像噪点较多（可能源于颗粒或锐化）。请关闭颗粒、锐化、清晰度、纹理、去雾、暗角和降噪后重新导出。',
+    layout: '图像已作为 {layout} 的 LUT 读取，而非 HALD 图像。',
+    wrongInput: 'LUT 数据指示输入可能为 {guess}，但导入时使用了 {input}。',
+    logGuess: 'LUT 数据指示输入可能为 {guess}。若已知输入源，请手动选择。用于其他相机 Log（如 S-Log3、LogC、C-Log 或 N-Log）的 LUT 导入后色彩会出现偏差。',
+    logGuessAlso: 'LUT 数据指示输入可能为 {guess}，且与 {also} 同样吻合。若已知输入源，请手动选择。用于其他相机 Log（如 S-Log3、LogC、C-Log 或 N-Log）的 LUT 导入后色彩会出现偏差。',
+    fall: '在 LUT 保持提亮的情况下，部分高饱和色彩随曝光增加反而变暗，最大相差 {n} L*。',
+    lag: '随曝光增加，部分高饱和色彩比 LUT 中更暗且饱和度更高，最大相差 {n} L*。',
+    step: '部分高饱和色彩在相邻色相之间变化生硬，与 LUT 相比色差最大增加 {n} dE2000。',
+    video: '该 LUT 采用视频电平。GRKU 转换 1023 中的 64-940，此假定未在 Resolve 文档中说明。',
+  },
   importAnother: '再导入一个',
   done: '完成',
   close: '关闭',
@@ -1287,6 +1338,7 @@ const zhHans: Strings = {
   faqTitle: '常见问题',
   faq: [
     {
+      id: 'adj',
       q: 'ADJ 里没有 GRKU？',
       a: [
         'GRKU 在开机后约 8 到 10 秒加载，GR IV 以及安装或更新后的第一次开机会更久。稍等片刻，然后在拍摄时按 ADJ，选择第 6 项 GRKU。首次使用前，需要按住 MENU 开机，打开 SD 脚本。',
@@ -1301,6 +1353,7 @@ const zhHans: Strings = {
       a: ['不会。打开胶片风格时，会代替影像控制；关闭后，原来的影像控制设置就会恢复。'],
     },
     {
+      id: 'format',
       q: '格式化存储卡会怎样？',
       a: ['格式化会删除 GRKU 及其设置。格式化前，请把 ', '`GRKU', ' 文件夹复制到电脑。格式化后，重新安装 GRKU，再把 ', '`GRKU', ' 文件夹复制回存储卡根目录。'],
     },
@@ -1887,6 +1940,26 @@ const zhHant: Strings = {
     D: '風格不同，相機無法重現這個 LUT。',
   },
   importWarnings: '使用前請檢查：',
+  warningText: {
+    bridge: '此風格以相機的 Standard 演算為基準，趨向中性 RAW 演算，而非 Adobe Color。',
+    approx: '{names} 以套用於整張相片的單一固定曲線近似處理。',
+    skipped: '未套用：{names}。',
+    noWb: '此風格不包含白平衡。',
+    noTable: '預設檔未包含描述檔表格，已略過。',
+    rgbTable: '已略過 RGBTable：{reason}。',
+    noProfile: '預設檔未包含描述檔「{name}」，已略過。',
+    someProfile: '已略過描述檔的部分設定。',
+    matrix: '擬合已達矩陣極限 {limit}。此風格大幅混合色版，高 ISO 下可能出現色彩雜訊。',
+    noisy: 'LUT 影像含有雜訊（如顆粒或銳化）。請關閉顆粒、銳化、清晰度、紋理、去朦朧、暈影和雜訊抑制後重新轉存。',
+    layout: '此影像判讀為 {layout} 格式的 LUT，而非 HALD 影像。',
+    wrongInput: 'LUT 資料顯示輸入應為 {guess}，但匯入時使用的是 {input}。',
+    logGuess: 'LUT 資料顯示輸入可能為 {guess}。若已知輸入類型，請手動選擇。若使用其他相機 log（例如 S-Log3、LogC、C-Log 或 N-Log）的 LUT，匯入時色彩會出錯。',
+    logGuessAlso: 'LUT 資料顯示輸入可能為 {guess}，且與 {also} 的吻合度相近。若已知輸入類型，請手動選擇。若使用其他相機 log（例如 S-Log3、LogC、C-Log 或 N-Log）的 LUT，匯入時色彩會出錯。',
+    fall: '部分飽和色彩隨曝光增加反而變暗，最多達 {n} L*，而在 LUT 中這些色彩應持續變亮。',
+    lag: '部分飽和色彩隨曝光增加，比 LUT 呈現更暗且更飽和的狀態，差距最高達 {n} L*。',
+    step: '相鄰色相間的部分飽和色彩出現驟變，比 LUT 多出最多 {n} dE2000。',
+    video: '此 LUT 使用視訊電平。GRKU 會轉換 1023 階中的 64-940，此假設未記載於 Resolve 說明文件中。',
+  },
   importAnother: '再匯入一個',
   done: '完成',
   close: '關閉',
@@ -1995,6 +2068,7 @@ const zhHant: Strings = {
   faqTitle: '常見問題',
   faq: [
     {
+      id: 'adj',
       q: 'ADJ 裡沒有 GRKU？',
       a: [
         'GRKU 在開機後約 8 到 10 秒載入，GR IV 以及安裝或更新後的第一次開機會更久。稍等片刻，然後在拍攝時按 ADJ，選擇第 6 項 GRKU。首次使用前，需要按住 MENU 開機，開啟 SD 腳本。',
@@ -2009,6 +2083,7 @@ const zhHant: Strings = {
       a: ['不會。開啟底片風格時，會取代影像控制；關閉後，原本的影像控制設定就會恢復。'],
     },
     {
+      id: 'format',
       q: '格式化記憶卡會怎樣？',
       a: ['格式化會刪除 GRKU 及其設定。格式化前，請把 ', '`GRKU', ' 資料夾複製到電腦。格式化後，重新安裝 GRKU，再把 ', '`GRKU', ' 資料夾複製回記憶卡根目錄。'],
     },
@@ -2596,6 +2671,26 @@ const ja: Strings = {
     D: '雰囲気が異なります。カメラではこの LUT を再現できません。',
   },
   importWarnings: '使用前に確認してください：',
+  warningText: {
+    bridge: 'このルックはカメラのStandard設定をベースに、Adobe ColorではなくニュートラルなRAW現像へ近づけます。',
+    approx: '{names}は写真全体に対する1本の固定カーブで近似されます。',
+    skipped: '反映されなかった項目: {names}',
+    noWb: 'フィルムルックにホワイトバランスは含まれません。',
+    noTable: 'プリセットに含まれていないため、プロファイルテーブルはスキップされました。',
+    rgbTable: 'RGBTableはスキップされました: {reason}',
+    noProfile: 'プリセットに含まれていないため、プロファイル「{name}」はスキップされました。',
+    someProfile: 'プロファイルの一部の設定がスキップされました。',
+    matrix: 'マトリクスの適合上限（{limit}）に達しました。カラーチャンネルの混合が強いため、高ISO時にカラーノイズが発生する場合があります。',
+    noisy: 'LUT画像に粒子やシャープネスによるノイズが含まれています。粒子、シャープネス、明瞭度、テクスチャ、かすみの除去、周辺光量補正、ノイズ低減を無効にして再エクスポートしてください。',
+    layout: '画像はHALD画像ではなく、{layout}のLUTとして読み込まれました。',
+    wrongInput: 'LUTデータは{guess}入力を示唆していますが、インポートでは{input}が使用されました。',
+    logGuess: 'LUTデータは{guess}入力を示唆しています。入力形式が明確な場合は選択してください。S-Log3、LogC、C-Log、N-Logなど他のカメラLog用LUTをインポートすると、意図しない色味になります。',
+    logGuessAlso: 'LUTデータは{guess}入力を示唆しており、{also}にもほぼ同等に適合します。入力形式が明確な場合は選択してください。S-Log3、LogC、C-Log、N-Logなど他のカメラLog用LUTをインポートすると、意図しない色味になります。',
+    fall: 'LUTでは明度が維持される露出域で、一部の高彩度色の明度が最大{n} L*低下します。',
+    lag: '露出が上がるにつれ、一部の高彩度色がLUTよりも暗く高彩度なまま推移します（最大{n} L*）。',
+    step: '隣接する色相間で、一部の高彩度色に急激な変化が見られます（LUT比で最大{n} dE2000）。',
+    video: 'このLUTはビデオレベルを使用しています。GRKUは1023段階中の64〜940として変換します（Resolveでは明記されていない仕様です）。',
+  },
   importAnother: 'もう 1 つ読み込む',
   done: '完了',
   close: '閉じる',
@@ -2707,6 +2802,7 @@ const ja: Strings = {
   faqTitle: 'よくある質問',
   faq: [
     {
+      id: 'adj',
       q: 'ADJ に GRKU が表示されない',
       a: [
         'GRKU は電源を入れてから約 8〜10 秒で読み込まれます。GR IV や、インストール・アップデート後の最初の起動ではもう少しかかります。少し待ってから、撮影画面で ADJ を押し、6 番目の項目「GRKU」を選びます。初回は SD スクリプトをオンにする必要があります。MENU ボタンを押したまま電源を入れてください。',
@@ -2721,6 +2817,7 @@ const ja: Strings = {
       a: ['いいえ。フィルムルックをオンにすると、イメージコントロールの代わりに使われます。フィルムルックをオフにすると、元のイメージコントロールの設定に戻ります。'],
     },
     {
+      id: 'format',
       q: 'カードをフォーマットするとどうなりますか？',
       a: ['フォーマットすると、GRKU とその設定が削除されます。フォーマットの前に ', '`GRKU', ' フォルダーをパソコンにコピーし、フォーマットの後で GRKU をもう一度インストールしてから、', '`GRKU', ' フォルダーをカードのルートに戻してください。'],
     },
@@ -3307,6 +3404,26 @@ const ko: Strings = {
     D: '분위기가 다릅니다. 카메라로는 이 LUT를 재현할 수 없습니다.',
   },
   importWarnings: '사용하기 전에 확인하세요:',
+  warningText: {
+    bridge: '이 룩은 카메라의 Standard 렌더링에서 시작하여 Adobe Color가 아닌 중립적인 raw 렌더링 방향으로 변환됩니다.',
+    approx: '{names}은(는) 사진 전체에 적용되는 단일 고정 커브로 근사 처리됩니다.',
+    skipped: '반영되지 않음: {names}.',
+    noWb: '필름 룩에는 화이트 밸런스가 포함되지 않습니다.',
+    noTable: '프리셋에 프로파일 테이블이 포함되어 있지 않아 건너뛰었습니다.',
+    rgbTable: 'RGBTable 제외됨: {reason}.',
+    noProfile: '프리셋에 "{name}" 프로파일이 포함되어 있지 않아 건너뛰었습니다.',
+    someProfile: '프로파일의 일부 설정을 건너뛰었습니다.',
+    matrix: '매트릭스 한계치인 {limit}에 도달했습니다. 색상 채널 혼합이 강하게 적용되어 고감도 ISO에서 컬러 노이즈가 발생할 수 있습니다.',
+    noisy: 'LUT 이미지에 그레인이나 샤프닝으로 인한 노이즈가 있습니다. 그레인, 샤프닝, 명료도, 텍스처, 디헤이즈, 비네팅 및 노이즈 감소를 끈 상태로 다시 내보내십시오.',
+    layout: '이미지를 HALD 이미지가 아닌 {layout} 형식의 LUT로 인식했습니다.',
+    wrongInput: 'LUT 데이터상 {guess} 입력으로 추정되나, {input}(으)로 가져왔습니다.',
+    logGuess: 'LUT 데이터상 {guess} 입력으로 추정됩니다. 입력 형식을 알고 있다면 직접 선택하십시오. S-Log3, LogC, C-Log, N-Log 등 다른 카메라 log용 LUT는 색상이 비정상적으로 변환됩니다.',
+    logGuessAlso: 'LUT 데이터상 {guess} 입력으로 추정되며, {also}에도 유사하게 일치합니다. 입력 형식을 알고 있다면 직접 선택하십시오. S-Log3, LogC, C-Log, N-Log 등 다른 카메라 log용 LUT는 색상이 비정상적으로 변환됩니다.',
+    fall: 'LUT 원본에서는 밝아져야 하는 채도 높은 일부 색상이 노출이 증가함에 따라 최대 {n} L*만큼 어두워집니다.',
+    lag: '채도 높은 일부 색상이 노출이 증가함에 따라 LUT 원본보다 최대 {n} L*만큼 더 어둡고 채도가 높은 상태로 유지됩니다.',
+    step: '채도 높은 일부 색상이 인접한 색조 간에 LUT 원본보다 최대 {n} dE2000 더 급격하게 변화합니다.',
+    video: '이 LUT는 비디오 레벨을 사용합니다. GRKU는 1023 단계 중 64-940 범위를 변환하며, 이는 Resolve 문서에 명시되지 않은 기준입니다.',
+  },
   importAnother: '하나 더 가져오기',
   done: '완료',
   close: '닫기',
@@ -3428,6 +3545,7 @@ const ko: Strings = {
   faqTitle: '자주 묻는 질문',
   faq: [
     {
+      id: 'adj',
       q: 'ADJ 모드에 GRKU가 보이지 않습니다.',
       a: [
         'GRKU은 전원을 켜고 8~10초쯤 뒤에 실행됩니다. GR IV나 설치·업데이트 후 처음 켤 때는 더 걸립니다. 잠시 기다린 뒤 촬영 중에 ADJ를 누르고 여섯 번째 항목인 GRKU를 선택하세요. 처음에는 SD 스크립트를 켜야 합니다. MENU 버튼을 누른 채 전원을 켜세요.',
@@ -3444,6 +3562,7 @@ const ko: Strings = {
       a: ['아니요. 필름 룩이 켜져 있는 동안 화상 컨트롤 대신 적용됩니다. 필름 룩을 끄면 원래 화상 컨트롤 설정으로 돌아갑니다.'],
     },
     {
+      id: 'format',
       q: '카드를 포맷하면 어떻게 되나요?',
       a: ['포맷하면 GRKU과 그 설정이 삭제됩니다. 포맷하기 전에 ', '`GRKU', ' 폴더를 컴퓨터에 복사해 두세요. 포맷한 뒤에는 GRKU을 다시 설치하고, ', '`GRKU', ' 폴더를 카드 최상위에 다시 복사하세요.'],
     },
@@ -4046,6 +4165,26 @@ const th: Strings = {
     D: 'ลุคต่างออกไป กล้องไม่สามารถสร้าง LUT นี้ได้',
   } as Readonly<Record<Grade, string>>,
   importWarnings: 'ตรวจสอบก่อนใช้งาน:',
+  warningText: {
+    bridge: 'โทนสีนี้เริ่มจากการประมวลผลแบบ Standard ของกล้องและปรับเข้าหาการประมวลผล raw แบบเป็นกลาง ไม่ใช่ Adobe Color',
+    approx: '{names} ถูกประมาณค่าด้วยเส้นเคิร์ฟเดียวคงที่ตลอดทั้งภาพ',
+    skipped: 'ไม่ได้นำเข้า: {names}',
+    noWb: 'โทนสีฟิล์มนี้ไม่รวมไวต์บาลานซ์',
+    noTable: 'ข้ามตารางโปรไฟล์เนื่องจากพรีเซ็ตไม่มีข้อมูลนี้',
+    rgbTable: 'ข้าม RGBTable: {reason}',
+    noProfile: 'ข้ามโปรไฟล์ "{name}" เนื่องจากพรีเซ็ตไม่มีข้อมูลนี้',
+    someProfile: 'การตั้งค่าบางส่วนของโปรไฟล์ถูกข้ามไป',
+    matrix: 'การปรับเทียบถึงขีดจำกัดเมทริกซ์ที่ {limit} โทนสีนี้ผสมช่องสัญญาณสีค่อนข้างมาก และอาจมี color noise ที่ ISO สูง',
+    noisy: 'ภาพ LUT มีนอยส์ เช่น จากเกรนหรือการเร่งความคมชัด ให้ส่งออกใหม่อีกครั้งโดยปิด grain, sharpening, clarity, texture, dehaze, vignette และ noise reduction',
+    layout: 'อ่านภาพเป็น LUT ในรูปแบบ {layout} ไม่ใช่ภาพ HALD',
+    wrongInput: 'ข้อมูล LUT บ่งชี้ว่าอินพุตน่าจะเป็น {guess} แต่การนำเข้าใช้ {input}',
+    logGuess: 'ข้อมูล LUT บ่งชี้ว่าอินพุตน่าจะเป็น {guess} เลือกอินพุตเองได้หากคุณทราบ LUT สำหรับ log ของกล้องรุ่นอื่น เช่น S-Log3, LogC, C-Log หรือ N-Log จะแสดงสีผิดเพี้ยนเมื่อนำเข้า',
+    logGuessAlso: 'ข้อมูล LUT บ่งชี้ว่าอินพุตน่าจะเป็น {guess} และเข้ากันได้กับ {also} พอๆ กัน เลือกอินพุตเองได้หากคุณทราบ LUT สำหรับ log ของกล้องรุ่นอื่น เช่น S-Log3, LogC, C-Log หรือ N-Log จะแสดงสีผิดเพี้ยนเมื่อนำเข้า',
+    fall: 'สีอิ่มตัวบางสีจะมืดลงเมื่อระดับแสงเพิ่มขึ้น สูงสุดถึง {n} L* ในขณะที่ LUT จะรักษาให้สว่างขึ้น',
+    lag: 'สีอิ่มตัวบางสีจะยังคงมืดและอิ่มตัวกว่าใน LUT เมื่อระดับแสงเพิ่มขึ้น สูงสุดถึง {n} L*',
+    step: 'สีอิ่มตัวบางสีเปลี่ยนเฉดสีกะทันหันระหว่างเฉดข้างเคียง มากกว่าใน LUT สูงสุดถึง {n} dE2000',
+    video: 'LUT นี้ใช้ช่วงสัญญาณแบบ video levels โดย GRKU จะแปลงช่วง 64-940 จาก 1023 ซึ่งเป็นค่าที่ Resolve ไม่ได้ระบุไว้ในเอกสาร',
+  },
   importAnother: 'นำเข้ารายการอื่น',
   done: 'เสร็จ',
   close: 'ปิด',
@@ -4192,6 +4331,7 @@ const th: Strings = {
       a: ['ใช้ฟรีได้ ดูตัวอย่างโทนทั้งหมดได้โดยไม่มีค่าใช้จ่าย และเขียนโทนลงการ์ดได้ฟรี 10 โทน ส่วน GRKU Plus จะเพิ่มจำนวนช่องสำหรับบันทึกโทนและเปิดให้ใช้ชุดฟิล์มได้ครบมากขึ้น สำหรับคนที่อยากสนับสนุนโปรเจกต์'],
     },
     {
+      id: 'adj',
       q: 'ไม่พบ GRKU ในเมนู ADJ',
       a: [
         'GRKU จะใช้เวลาโหลดประมาณ 8 ถึง 10 วินาทีหลังจากเปิดกล้อง โดยจะใช้เวลานานขึ้นในรุ่น GR IV และในการเปิดเครื่องครั้งแรกหลังติดตั้งหรืออัปเดต ให้รอสักครู่ จากนั้นกดปุ่ม ADJ ในหน้าถ่ายภาพแล้วเลือกช่องที่ 6 คือ GRKU สำหรับการใช้งานครั้งแรก ต้องเปิดใช้งานสคริปต์ในการ์ด SD ก่อน โดยกดปุ่ม MENU ค้างไว้ขณะเปิดกล้อง',
@@ -4208,6 +4348,7 @@ const th: Strings = {
       a: ['ไม่เปลี่ยน ขณะที่เปิดใช้ฟิล์มลุค ลุคจะทำงานแทนที่ Image Control ชั่วคราว เมื่อปิดฟิล์มลุค ค่า Image Control ที่ตั้งไว้ก็จะกลับมาเหมือนเดิม'],
     },
     {
+      id: 'format',
       q: 'จะเกิดอะไรขึ้นถ้าล้างการ์ด?',
       a: ['การล้างการ์ดจะลบ GRKU และการตั้งค่าทั้งหมดออกไป ก่อนล้างการ์ด ให้คัดลอกโฟลเดอร์ ', '`GRKU', ' เก็บไว้ในคอมพิวเตอร์ก่อน หลังจากล้างการ์ดเสร็จแล้ว ให้ติดตั้ง GRKU ใหม่อีกครั้ง แล้วคัดลอกโฟลเดอร์ ', '`GRKU', ' กลับไปไว้ที่ชั้นแรกสุดของการ์ด'],
     },
@@ -4233,7 +4374,7 @@ const th: Strings = {
       q: 'จะดูได้อย่างไรว่า GRKU ในการ์ดเป็นเวอร์ชันอะไร?',
       a: ['เปิด MENU ในกล้อง ข้อมูล About GRKU จะอยู่ท้ายสุดของหมวด GRKU ในแท็บตั้งค่ากำหนดเอง (Customize)'],
     },
-  ] as readonly { q: string; a: RichText }[],
+  ] as readonly FaqItem[],
   /** The section of the fast-boot firmware: the text, then the patch of an official file. */
   fastboot: {
     title: 'เริ่มทำงานเร็ว',
@@ -4505,6 +4646,8 @@ export function pageText(language: Language, page: PageName = 'home'): { title: 
       return { title: strings.site.modulesTitle, description: strings.site.modulesDescription, path: pagePath(language, page) };
     case 'write':
       return { title: strings.site.writeTitle, description: strings.site.writeDescription, path: pagePath(language, page) };
+    case 'guide':
+      return { title: GUIDE_STRINGS[language].title, description: GUIDE_STRINGS[language].description, path: pagePath(language, page) };
     default:
       return { title: strings.title, description: strings.description, path: LANGUAGE_PATHS[language] };
   }

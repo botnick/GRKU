@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { MODESET_TOKEN } from './cameras';
 import { FRAMING_RATIOS } from './generated/framing';
-import { matchLanguage, STRINGS } from './i18n';
+import { GUIDE_STRINGS } from './guide';
+import { matchLanguage, pageText, STRINGS } from './i18n';
 
 describe('matchLanguage', () => {
   it('maps Chinese tags by script and region', () => {
@@ -64,3 +65,33 @@ describe('STRINGS', () => {
   });
 });
 
+
+describe('GUIDE_STRINGS', () => {
+  it('gives the install guide the same text in each language, none of it empty', () => {
+    const keys = Object.keys(GUIDE_STRINGS.en).sort();
+    for (const language of Object.keys(STRINGS) as (keyof typeof STRINGS)[]) {
+      expect(Object.keys(GUIDE_STRINGS[language]).sort()).toEqual(keys);
+      for (const text of Object.values(GUIDE_STRINGS[language])) expect(text.trim()).not.toBe('');
+    }
+  });
+
+  it('gives the guide page its own title and address', () => {
+    expect(pageText('th', 'guide')).toEqual({ title: GUIDE_STRINGS.th.title, description: GUIDE_STRINGS.th.description, path: '/guide/' });
+    expect(pageText('en', 'guide').path).toBe('/en/guide/');
+    expect(pageText('ja', 'guide').title).not.toBe(pageText('ja', 'home').title);
+  });
+});
+
+describe('the strings that the install guide repeats', () => {
+  it('finds the same questions and install steps in each language', () => {
+    for (const language of Object.keys(STRINGS) as (keyof typeof STRINGS)[]) {
+      const strings = STRINGS[language];
+      expect(strings.faq.filter((item) => item.id === 'adj')).toHaveLength(1);
+      expect(strings.faq.filter((item) => item.id === 'format')).toHaveLength(1);
+      // The first step turns the camera off, in one sentence; the last names the ModeSet file.
+      expect(strings.steps[0]).toHaveLength(1);
+      expect(strings.steps[4]).toContain(MODESET_TOKEN);
+      expect(strings.removeSteps[0]!.join('')).toContain('SCRIPT');
+    }
+  });
+});
