@@ -381,6 +381,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
               >
                 <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-muted-foreground">
                   <li>{t.plus.newLooks}</li>
+                  <li>{t.plus.studioFull}</li>
                   <li>{t.plus.lifetime}</li>
                 </ul>
                 {owned.paid > 0 && !owned.plus && <p className="mt-2 text-[13px] text-muted-foreground">{t.plus.credit(owned.paid)}</p>}
