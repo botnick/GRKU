@@ -11,6 +11,20 @@ export interface Release {
 
 export const RELEASES: Release[] = [
   {
+    "version": "1.9.0",
+    "date": "2026-11-24",
+    "items": [
+      "190.1",
+      "190.2",
+      "190.3",
+      "190.4",
+      "190.5",
+      "190.6",
+      "190.7",
+      "190.8"
+    ]
+  },
+  {
     "version": "1.8.6",
     "date": "2026-11-13",
     "items": [
@@ -95,6 +109,14 @@ export const RELEASES: Release[] = [
 
 const STRINGS: Record<Language, Record<string, string>> = {
   "en": {
+    "190.1": "Date Imprint in five colors, four sizes, and four places, with an optional soft glow and a caption such as THANK YOU or HAPPY BIRTHDAY.",
+    "190.2": "Film Softness in Diffusion: the gentle softness of a film scan, Low, Medium, or High, and grain stays crisp.",
+    "190.3": "Choose the picture the camera shows as it turns off: the GRKU logo, your own photo, a ready-made design, or your own in GRKU Studio.",
+    "190.4": "GRKU Settings in MENU, in three groups: Shooting Settings, Display Settings, and Shutdown Screen. ADJ Order can give a module its own place in the ADJ toolbar.",
+    "190.5": "U1, U2, and U3 save your camera and GRKU settings together, and GRKU turns on or off at each of P, Av, Tv, M, and Sn.",
+    "190.6": "Playback shows the GRKU settings of a photo as icons, and each photo keeps them in its XMP. The live view can show the battery in the simplified info.",
+    "190.7": "RAW development in the camera has a GRKU row, Uncropped RAW keeps the whole sensor in each DNG, and Framing adds 3:4.",
+    "190.8": "Import a Lightroom preset as a film look, and fixes for crops, borders, recipes, and playback.",
     "186.1": "Four FUJIFILM recipes from Fuji X Weekly, measured like Reggie's Portra: Kodachrome 64, Gold 200, Tri-X 400, and Reggie's Superia.",
     "186.2": "A new Light Leak: warm light from an edge, a corner, or a band, strongest where it comes in, with bokeh orbs and lens ghosts. It no longer moves between the photo and its preview.",
     "186.3": "Light Leak scratches are more random, and the FUJIFILM looks come in the box of their film.",
@@ -130,6 +152,14 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "160.6": "GRKU starts faster when you turn the camera on."
   },
   "zh-Hans": {
+    "190.1": "Date Imprint 支持 5 种颜色、4 种尺寸与 4 处位置，可选柔光效果及如 THANK YOU 或 HAPPY BIRTHDAY 等文字说明。",
+    "190.2": "Diffusion 中新增 Film Softness：呈现胶片扫描般柔和的质感，可选 Low、Medium 或 High，同时保持颗粒清晰。",
+    "190.3": "自定义相机关机时显示的画面：可选择 GRKU 标志、自己的照片、预设设计，或在 GRKU Studio 中制作的设计。",
+    "190.4": "MENU 中的 GRKU Settings 分为三组：Shooting Settings、Display Settings 和 Shutdown Screen。通过 ADJ Order，可为模块指定其在 ADJ 工具栏中的位置。",
+    "190.5": "U1、U2 和 U3 可同时保存相机与 GRKU 设置。GRKU 还可分别设置在 P、Av、Tv、M 和 Sn 模式下启用或关闭。",
+    "190.6": "回放时以图标显示照片的 GRKU 设置，每张照片都会将这些设置保存在自己的 XMP 中。实时取景的简化信息显示中还可查看电池电量。",
+    "190.7": "相机内 RAW 显影新增 GRKU 设置项。Uncropped RAW 可在每个 DNG 中保留完整传感器画面，Framing 新增 3:4 画幅。",
+    "190.8": "可将 Lightroom 预设导入为胶片风格，并修复了裁切、边框、配方和回放方面的问题。",
     "186.1": "来自 Fuji X Weekly 的四款 FUJIFILM 配方，采用与 Reggie's Portra 相同的测光基准：Kodachrome 64、Gold 200、Tri-X 400 与 Reggie's Superia。",
     "186.2": "全新 Light Leak 效果：边缘、角落或条带状的暖光，入射处最强，伴有焦外光斑和镜头眩光。照片与预览效果现已完全一致，不再偏移。",
     "186.3": "Light Leak 划痕更加随机自然，FUJIFILM 色彩风格采用对应胶片包装盒图案呈现。",
@@ -165,6 +195,14 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "强 Glow 效果在大面积光源周围过渡更自然；执行 Rename 与 Delete 后配方标记仍会保留；优化 16 种正片胶片外观，使明亮肤色更加通透。"
   },
   "zh-Hant": {
+    "190.1": "Date Imprint 提供 5 種顏色、4 種尺寸與 4 種位置，可選用柔光效果，並能加入如 THANK YOU 或 HAPPY BIRTHDAY 等文字。",
+    "190.2": "Diffusion 新增 Film Softness，呈現底片掃描般的柔和質感，提供低、中、高三段強度，顆粒仍保持清晰。",
+    "190.3": "可選擇相機關機時顯示的畫面：GRKU 標誌、自己的照片、現成設計，或在 GRKU Studio 製作的自訂設計。",
+    "190.4": "MENU 中的 GRKU Settings 分為三組：Shooting Settings、Display Settings 及 Shutdown Screen。可透過 ADJ Order，將模組設為 ADJ 工具列中的獨立項目。",
+    "190.5": "U1、U2、U3 可一併儲存相機與 GRKU 設定，並可在 P、Av、Tv、M、Sn 各模式中分別設定 GRKU 的開啟或關閉狀態。",
+    "190.6": "播放時以圖示顯示照片的 GRKU 設定，並將設定儲存於每張照片的 XMP 中。即時顯示的簡易資訊可顯示電池電量。",
+    "190.7": "機內 RAW 處理新增 GRKU 項目；Uncropped RAW 可在每個 DNG 檔案中保留感光元件的完整影像；Framing 新增 3:4 比例。",
+    "190.8": "可將 Lightroom 預設集匯入為底片風格，並修正裁切、邊框、配方及播放相關問題。",
     "186.1": "四款源自 Fuji X Weekly 的 FUJIFILM 配方，採用與 Reggie's Portra 相同的測量標準：Kodachrome 64、Gold 200、Tri-X 400 與 Reggie's Superia。",
     "186.2": "全新 Light Leak 效果：暖色光線自邊緣、角落或呈光帶透入，入射處效果最強烈，伴隨散景光斑與鏡頭鬼影。照片與預覽畫面之間的位置不再偏移。",
     "186.3": "Light Leak 刮痕效果更隨機自然，FUJIFILM 色調外觀亦改以其底片盒包裝呈現。",
@@ -200,6 +238,14 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "強烈 Glow 在強光源周圍更顯自然均勻；Rename 與 Delete 後仍保留配方標記；16 款相紙底片外觀維持明亮膚色。"
   },
   "ja": {
+    "190.1": "Date Imprint：5色、4サイズ、4か所の配置に対応。ソフトグロー効果や、THANK YOU、HAPPY BIRTHDAYなどのキャプションを追加可能。",
+    "190.2": "DiffusionにFilm Softnessを追加。粒状感の鮮明さを保ちながら、フィルムスキャンのような穏やかな柔らかさを弱・中・強の3段階で設定できます。",
+    "190.3": "電源オフ時に表示する画像を選べます。GRKUロゴ、お好みの写真、用意されたデザインのほか、GRKU Studioで作成したデザインも使用できます。",
+    "190.4": "MENUにGRKU Settingsを追加。Shooting Settings、Display Settings、Shutdown Screenの3グループで構成されています。ADJ Orderでは、各モジュールをADJツールバーの個別の項目として配置できます。",
+    "190.5": "U1、U2、U3にカメラとGRKUの設定をまとめて保存できます。P、Av、Tv、M、SnごとにGRKUのオン／オフを設定できます。",
+    "190.6": "再生時に撮影画像のGRKU設定をアイコンで表示し、各画像のXMPにも保存します。ライブビューの簡易情報表示でバッテリー残量を表示できるようになりました。",
+    "190.7": "カメラ内RAW現像にGRKUの項目を追加。Uncropped RAWでは、センサー全域の画像データを各DNGに保存できます。Framingに3:4を追加しました。",
+    "190.8": "Lightroomのプリセットをフィルムルックとして読み込めるようになりました。クロップ、枠、レシピ、再生に関する不具合も修正しました。",
     "186.1": "Fuji X Weeklyによる4種類のFUJIFILMレシピを追加（Reggie's Portraと同様の測定に基づく）：Kodachrome 64、Gold 200、Tri-X 400、Reggie's Superia。",
     "186.2": "新しいLight Leak：端や四隅、帯状に差し込む温かみのある光。入射部が最も強く、玉ボケやゴーストも再現。撮影画像とプレビュー間での位置ズレも解消しました。",
     "186.3": "Light Leakのキズのランダム性を向上。FUJIFILMルックは各フィルムパッケージのデザインで表示されます。",
@@ -235,6 +281,14 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "強度の高いGlowが大きな光源の周囲でも均一に適用されるよう改善。RenameやDelete後もレシピマークが保持され、16種のプリントフィルムルックで明るいスキントーンが維持されます。"
   },
   "ko": {
+    "190.1": "5가지 색상, 4가지 크기, 4가지 위치를 지원하는 Date Imprint. 은은한 글로우 효과 및 THANK YOU, HAPPY BIRTHDAY 등의 캡션 선택 가능.",
+    "190.2": "Diffusion의 Film Softness: 필름 스캔처럼 부드러운 느낌을 Low, Medium, High 중에서 선택할 수 있습니다. 입자는 선명하게 유지됩니다.",
+    "190.3": "카메라 전원을 끌 때 표시할 화면을 선택할 수 있습니다. GRKU 로고, 직접 촬영한 사진, 기본 디자인 또는 GRKU Studio에서 만든 디자인을 사용할 수 있습니다.",
+    "190.4": "MENU에 GRKU Settings가 세 가지 그룹으로 정리됩니다: Shooting Settings, Display Settings, Shutdown Screen. ADJ Order에서 모듈이 ADJ 툴바에 표시될 위치를 지정할 수 있습니다.",
+    "190.5": "U1, U2, U3에 카메라 설정과 GRKU 설정을 함께 저장할 수 있습니다. P, Av, Tv, M, Sn 모드별로 GRKU를 켜거나 끌 수 있습니다.",
+    "190.6": "재생 화면에서 사진에 적용된 GRKU 설정을 아이콘으로 확인할 수 있으며, 각 사진의 XMP에도 설정이 저장됩니다. 라이브 뷰의 간략 정보 표시에서 배터리 잔량을 확인할 수 있습니다.",
+    "190.7": "카메라 내 RAW 현상에 GRKU 항목이 추가됩니다. Uncropped RAW는 각 DNG에 센서 전체 영역을 유지하며, Framing에 3:4 비율이 추가됩니다.",
+    "190.8": "Lightroom 프리셋을 필름 룩으로 가져올 수 있습니다. 크롭, 테두리, 레시피 및 재생 관련 문제도 수정했습니다.",
     "186.1": "Fuji X Weekly의 4가지 FUJIFILM 레시피 추가(Reggie's Portra와 동일한 방식으로 측정): Kodachrome 64, Gold 200, Tri-X 400, Reggie's Superia.",
     "186.2": "새로운 Light Leak: 가장자리, 모서리 또는 띠 형태로 유입되는 따뜻한 빛 효과 추가(빛이 들어오는 부분이 가장 강하며 보케 및 렌즈 고스트 포함). 사진과 미리보기 간에 위치가 달라지지 않습니다.",
     "186.3": "Light Leak의 스크래치가 더 무작위로 적용되며, FUJIFILM 룩은 해당 필름 패키지 디자인으로 제공됩니다.",
@@ -270,6 +324,14 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "강한 광원 주변에서도 강한 Glow 효과가 균일하게 유지되며, Rename 및 Delete 후에도 레시피 표시가 유지됩니다. 16종의 인화 필름 룩에서 밝은 피부 톤 표현이 유지됩니다."
   },
   "th": {
+    "190.1": "Date Imprint เลือกได้ 5 สี 4 ขนาด และ 4 ตำแหน่ง พร้อมตัวเลือกแสงฟุ้งละมุนและข้อความ เช่น THANK YOU หรือ HAPPY BIRTHDAY",
+    "190.2": "Film Softness ใน Diffusion: เพิ่มความนุ่มละมุนแบบฟิล์มสแกน เลือกได้ 3 ระดับ Low, Medium หรือ High โดยยังคงความคมชัดของเกรน",
+    "190.3": "เลือกรูปที่กล้องแสดงตอนปิดเครื่องได้ ทั้งโลโก้ GRKU รูปถ่ายของคุณ ดีไซน์สำเร็จรูป หรือสร้างดีไซน์เองใน GRKU Studio",
+    "190.4": "GRKU Settings ใน MENU แบ่งเป็น 3 กลุ่ม ได้แก่ Shooting Settings, Display Settings และ Shutdown Screen ส่วน ADJ Order ช่วยกำหนดตำแหน่งของแต่ละโมดูลในแถบ ADJ ได้",
+    "190.5": "U1, U2 และ U3 บันทึกการตั้งค่ากล้องและ GRKU ไว้ด้วยกัน และเลือกเปิดหรือปิด GRKU แยกตามโหมด P, Av, Tv, M และ Sn ได้",
+    "190.6": "ใน Playback จะแสดงการตั้งค่า GRKU ของแต่ละรูปเป็นไอคอน โดยรูปจะเก็บการตั้งค่าเหล่านี้ไว้ใน XMP ด้วย ส่วน Live View สามารถแสดงแบตเตอรี่ในโหมดแสดงข้อมูลแบบย่อได้",
+    "190.7": "การพัฒนา RAW ในกล้องมีเมนู GRKU เพิ่มเข้ามา ส่วน Uncropped RAW จะเก็บข้อมูลจากเซนเซอร์ทั้งหมดไว้ในแต่ละ DNG และ Framing เพิ่มอัตราส่วนภาพ 3:4",
+    "190.8": "นำเข้า Lightroom preset มาใช้เป็นโทนฟิล์ม พร้อมแก้ไขปัญหาเรื่องการครอป ขอบภาพ สูตรสี และ Playback",
     "186.1": "สูตรสี FUJIFILM 4 แบบจาก Fuji X Weekly วัดค่าแบบเดียวกับ Reggie's Portra: Kodachrome 64, Gold 200, Tri-X 400 และ Reggie's Superia",
     "186.2": "เอฟเฟกต์ Light Leak ใหม่: แสงอุ่นจากขอบภาพ มุมภาพ หรือเป็นแถบแสง สว่างชัดตรงจุดที่แสงเข้า พร้อมโบเก้กลมและแฟลร์เลนส์ และตำแหน่งจะไม่เลื่อนระหว่างรูปจริงกับภาพพรีวิวอีกต่อไป",
     "186.3": "รอยขีดข่วนของ Light Leak สุ่มได้เป็นธรรมชาติต่างกันมากขึ้น และโทนสี FUJIFILM มาพร้อมกล่องฟิล์มตรงรุ่น",
