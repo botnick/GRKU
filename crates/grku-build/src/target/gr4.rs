@@ -40,7 +40,9 @@ const GROUPS: &[&[HookSpec]] = &[
     common::CROP,
     common::SCALE,
     CROP_QUEUE,
-    CROP_LIVE,
+    // CROP_LIVE: off on GR IV, as in 1.8.6, until its live-view hooks run on a
+    // camera (window crop_live_3 found no match on a GR IV 1.11, 2026-11-12;
+    // the site window of the February 1.11 build never ran on a camera).
     common::DEVELOP_TONE,
     common::DEVELOP_ASPECT,
     common::DEVELOP_TOP_KINDS,
@@ -86,6 +88,7 @@ const CROP_QUEUE: &[HookSpec] = &[
 /// by 8192 for its zoom (`runtime/framing.S: crop_live`), then the entry of
 /// the function that makes the window of the live view from its zoom
 /// (`runtime/framing.S: crop_window`).
+#[allow(dead_code)] // off on GR IV for now (see the list above)
 const CROP_LIVE: &[HookSpec] = &[
     bl("crop_live_0", Framing, CaptureCrop),
     bl("crop_live_1", Framing, CaptureCrop),

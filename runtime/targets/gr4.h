@@ -430,9 +430,10 @@
 #define CROP_FOCALS 0,0,40,0,70
 /* The icon of no crop, which hides the live-view crop badge. */
 #define CROP_BADGE_OFF 0
-/* The live view zooms to the factor of a crop (runtime/framing.S:
-   crop_live). */
-#define CROP_LIVE_FACTOR 1
+/* The live view shows the camera's factor with the frame of a crop: the
+   live-view crop hooks (runtime/framing.S: crop_live) are off on GR IV
+   (crates/grku-build/src/target/gr4.rs: CROP_LIVE). */
+#define CROP_LIVE_FACTOR 0
 #define CROP_SHOT_COPY 0x4688
 /* The instruction that the shot hook displaces (runtime/framing.S). */
 #define CROP_SHOT_DISPLACED mov r1, r5

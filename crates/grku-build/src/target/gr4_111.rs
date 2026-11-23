@@ -39,8 +39,9 @@ pub const TARGET: Target = Target {
     // singleton, and the icon drawer is +0x10 in the icon manager singleton.
     relocation_bases: &[(0x55379610, 0x5537960c), (0x55082038, 0x55082028)],
     // Build 8 moves the byte fields 0x429 and 0x42a of a live-view object by
-    // 0x10 in the function of crop_live_3, so its window ends at the hook.
-    site_windows: &[0x5363b8d8],
+    // 0x10 in the function of crop_live_3, whose window would end at the hook
+    // (0x5363b8d8) while GR IV turns CROP_LIVE back on (gr4.rs).
+    site_windows: &[],
 };
 
 /// GR IV tables hold 0x22 entries for each of three model variants, which are
@@ -247,13 +248,13 @@ const SITES: &[Site] = &[
     ("crop_queue_post", 0x53726ed4, "0dc0a0e1"),
     ("crop_queue_release", 0x5371bac8, "0400a0e1"),
     // The BLs to the live-view crop factor before the zoom of the live view.
-    ("crop_live_0", 0x5362e498, "eca704eb"),
-    ("crop_live_1", 0x5363427c, "739004eb"),
-    ("crop_live_2", 0x53637fc8, "208104eb"),
-    ("crop_live_3", 0x5363b8d8, "dc7204eb"),
-    ("crop_live_4", 0x5363fb58, "3c6204eb"),
+    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_live_0", 0x5362e498, "eca704eb"),
+    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_live_1", 0x5363427c, "739004eb"),
+    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_live_2", 0x53637fc8, "208104eb"),
+    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_live_3", 0x5363b8d8, "dc7204eb"),
+    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_live_4", 0x5363fb58, "3c6204eb"),
     // The entry (`mov r12, sp`) of the function that makes the live-view window.
-    ("crop_window", 0x538876b8, "0dc0a0e1"),
+    // off on GR IV (gr4.rs CROP_LIVE):     ("crop_window", 0x538876b8, "0dc0a0e1"),
     ("menu_develop_count", 0x531a1530, "0dc0a0e1"),
     ("menu_develop_category", 0x5336ba38, "0530d0e5"),
     ("menu_develop_value", 0x5336ba68, "0dc0a0e1"),

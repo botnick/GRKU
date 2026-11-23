@@ -51,9 +51,6 @@ fn gr4_relocation_resolves_other_builds() -> Result<()> {
             (0x5323db68, 0x5323dc60),
             (0x533b7110, 0x533b72f0), // Parameter getter found through a caller.
             (0x5537960c, 0x5537962c), // Settings singleton.
-            // A crop hook in a function whose field offsets differ in this
-            // build (`Target::site_windows`).
-            (0x5363b8d8, 0x5363be60),
             (0x5500211c, 0x5500211c), // English slot does not move.
             (0x5501adbc, 0x5501adc4), // Standard record and native tables.
             (0x55053780, 0x55053788),
