@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { siteUrl } from '../catalog';
 import type { Language, Strings } from '../i18n';
 import { LANGUAGE_PATHS, pagePath } from '../languagePage';
-import { docUrl, guideUrl, REPOSITORY } from '../links';
+import { docUrl, FEEDBACK, guideUrl } from '../links';
 import type { PageLink } from '../navigation';
 import { newsStrings } from '../whatsNew';
 
@@ -76,13 +76,8 @@ export function SiteFooter({
               </a>
             </li>
             <li>
-              <a className={LINK} href={`${REPOSITORY}/issues`}>
+              <a className={LINK} href={FEEDBACK}>
                 {t.feedback}
-              </a>
-            </li>
-            <li>
-              <a className={LINK} href={REPOSITORY}>
-                GitHub
               </a>
             </li>
           </Group>

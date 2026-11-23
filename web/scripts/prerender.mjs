@@ -109,7 +109,6 @@ function structuredData(code, name) {
         name: 'GRKU',
         url: `${SITE}/`,
         logo: { '@type': 'ImageObject', url: `${SITE}/icons/icon-512.png`, width: 512, height: 512 },
-        sameAs: ['https://github.com/botnick/GRKU'],
       },
       { '@type': 'WebSite', '@id': `${SITE}/#website`, name: 'GRKU', url: `${SITE}/`, inLanguage: codes, publisher: { '@id': `${SITE}/#organization` } },
       {
@@ -136,7 +135,6 @@ function structuredData(code, name) {
         isAccessibleForFree: true,
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
         publisher: { '@id': `${SITE}/#organization` },
-        sameAs: ['https://github.com/botnick/GRKU'],
       },
       // The FAQ of the home page, as Google and the answer engines read it.
       name === 'home' && {

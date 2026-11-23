@@ -2,7 +2,7 @@
 
 僅適用於 RICOH GR III 與 GR III HDF 韌體 2.10。
 
-GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可能在啟動時停止回應。請在安裝前閱讀[復原指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。安裝 GRKU 即表示你接受[使用條款](https://grku.app/terms/)。
+GRKU 是實驗性軟體，不提供任何擔保。如果 GRKU 出錯，相機可能在啟動時停止回應。請在安裝前閱讀[復原指南](https://grku.app/zh-hant/recovery/)。安裝 GRKU 即表示你接受[使用條款](https://grku.app/terms/)。
 
 ## 安裝
 
@@ -69,7 +69,7 @@ GRKU 會將你的設定和效果保留在 `GRKU` 資料夾中，因此更新後�
 
 1. 開機後等待幾秒，直到拍攝畫面頂部顯示 **GRKU**。
 2. 確認記憶卡根目錄中有 `SCRIPT` 資料夾。
-3. 如果記憶卡中有 `SCRIPT/GRKU/INSTALL.ERR`，打開相機選單並確認安裝包是否適用於你相機的韌體版本。如果版本正確，請提交[裝置報告](https://github.com/botnick/GRKU/issues/new?template=device-report.yml)，並附上 `INSTALL.ERR`、`GRKU/REPORT.TXT` 以及 `GRKU/BOOT.TXT`（如果記憶卡中有）。
+3. 如果記憶卡中有 `SCRIPT/GRKU/INSTALL.ERR`，打開相機選單並確認安裝包是否適用於你相機的韌體版本。如果版本正確，請提交[裝置報告](mailto:support@grku.app)，並附上 `INSTALL.ERR`、`GRKU/REPORT.TXT` 以及 `GRKU/BOOT.TXT`（如果記憶卡中有）。
 4. GRKU 只能在 Ricoh 官方韌體上運作。
 
 ### 格式化記憶卡後 GRKU 停止運作
@@ -89,7 +89,7 @@ SD 指令碼設定會保持開啟。要關閉它：
 3. 插入記憶卡。按住 MENU 的同時開啟相機電源。等到相機自行關機。
 4. 從記憶卡根目錄移除 `00078350.588` 與 `DEVELOP.MOD`。
 
-如果相機在啟動時停止回應，請參閱[復原指南](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)。
+如果相機在啟動時停止回應，請參閱[復原指南](https://grku.app/zh-hant/recovery/)。
 
 GRKU 與 Ricoh 無關。
 

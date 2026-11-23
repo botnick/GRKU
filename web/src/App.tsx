@@ -93,7 +93,7 @@ import { WhatsNew } from './components/WhatsNew';
 import { Step } from './components/Step';
 import { TermsNote } from './components/TermsNote';
 import { Workbench } from './components/Workbench';
-import { guideUrl, REPOSITORY } from './links';
+import { FEEDBACK, guideUrl, releaseUrl } from './links';
 import { loadFonts } from './fonts';
 import { encodeLibrary, IMPORTS_FILE, nativeTone, readLibrary, withDetails, type LibraryDetails } from './import/library';
 import { restoreImports } from './import/lut';
@@ -136,9 +136,7 @@ import { TransferError } from './transfer';
 import { useCatalog } from './useCatalog';
 
 /** The Tally form for problems, feature ideas, and questions. A plain link, so the page loads nothing from Tally. */
-const FEEDBACK_FORM = `${REPOSITORY}/issues`;
 /** The release notes of the GRKU version that the site packages, on the releases page. */
-const RELEASE_URL = `${REPOSITORY}/releases#release-v${__GRKU_VERSION__}`;
 
 /** The steps of a guide. */
 const STEPS = 'flex max-w-[72ch] list-decimal flex-col gap-3 pl-6 leading-relaxed';
@@ -893,7 +891,7 @@ export function App({
     <ul className="flex flex-wrap gap-2">
       <li>
         <Button asChild variant="outline">
-          <a href={FEEDBACK_FORM}>{t.feedback}</a>
+          <a href={FEEDBACK}>{t.feedback}</a>
         </Button>
       </li>
     </ul>
@@ -1061,6 +1059,7 @@ export function App({
           <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
             <CardChangesSection
               strings={t}
+              releaseUrl={releaseUrl(language)}
               session={card}
               selection={selection}
               imported={imported}
@@ -1127,7 +1126,7 @@ export function App({
         language={language}
         onLanguage={chooseLanguage}
         version={__GRKU_VERSION__}
-        releaseUrl={RELEASE_URL}
+        releaseUrl={releaseUrl(language)}
         page={page}
         link={link}
         installStep={progress.last}
@@ -1414,7 +1413,7 @@ export function App({
       {isInstallStep(page) && (
         <StepBar strings={t} page={page} link={link} blocked={stepBlocked(page)} />
       )}
-      <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} link={link} />
+      <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={releaseUrl(language)} link={link} />
       {/* Room under the footer for the bar of the install steps. */}
       {isInstallStep(page) && <div className="h-16" aria-hidden="true" />}
       <PlusSheet
@@ -1496,6 +1495,7 @@ const IDLE: CardTask = { kind: 'idle' };
 
 interface ChangesSectionProps {
   strings: Strings;
+  releaseUrl: string;
   session: CardSession;
   selection: Selection;
   imported: readonly ImportedEffect[];
@@ -1529,7 +1529,7 @@ function useChecked(selection: Selection, others: readonly { id: string }[]) {
 }
 
 /** The changes from the card to the selection. Before the first change, it needs the catalog. */
-function CardChangesSection({ strings: t, session, selection, imported, cardEffects, changes, ...rest }: ChangesSectionProps) {
+function CardChangesSection({ strings: t, releaseUrl: release, session, selection, imported, cardEffects, changes, ...rest }: ChangesSectionProps) {
   const { catalog, checked } = useChecked(selection, [...imported, ...cardEffects]);
   const effects = [...catalog.effects, ...imported, ...cardEffects];
   const effectName = (id: string) => effects.find((effect) => effect.id === id)?.name ?? id;
@@ -1543,7 +1543,7 @@ function CardChangesSection({ strings: t, session, selection, imported, cardEffe
       session={session}
       changes={changes(session, [...checked])}
       version={__GRKU_VERSION__}
-      releaseUrl={RELEASE_URL}
+      releaseUrl={release}
       effectCount={checked.size}
       moduleName={moduleName}
       effectName={effectName}

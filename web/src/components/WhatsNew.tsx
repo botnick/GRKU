@@ -1,9 +1,6 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { Language } from '../i18n';
-import { REPOSITORY } from '../links';
 import { RELEASES, newsStrings, type Release } from '../whatsNew';
-
-const CHANGELOG = `${REPOSITORY}/blob/main/CHANGELOG.md`;
 
 function formatDate(date: string, language: Language): string {
   try {
@@ -39,9 +36,6 @@ export function WhatsNew({ language }: { language: Language }) {
             {text.title}
           </h2>
           <p className="mt-3 max-w-[40ch] text-[15px] leading-relaxed text-muted-foreground">{text.lead}</p>
-          <a href={CHANGELOG} className="mt-4 inline-block text-[14px] text-muted-foreground underline underline-offset-4 hover:text-foreground">
-            {text.full}
-          </a>
         </div>
         <div>
           <article className="rounded-xl border border-border bg-card p-5 sm:p-6">

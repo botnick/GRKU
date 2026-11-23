@@ -17,7 +17,7 @@
 
 ## รับเครื่องมือ
 
-ดาวน์โหลด [GRKU-dump.zip](https://github.com/botnick/GRKU/releases/latest/download/GRKU-dump.zip) ซึ่งเป็นไฟล์เดียวกันกับ `GRKU-<version>-dump.zip` ใน[รีลีสล่าสุด](https://github.com/botnick/GRKU/releases/latest)
+ดาวน์โหลด [GRKU-dump.zip](https://grku.app/downloads/GRKU-dump.zip) ซึ่งเป็นไฟล์เดียวกันกับ `GRKU-<version>-dump.zip` ใน[รีลีสล่าสุด](https://grku.app/#news)
 
 ไฟล์ ZIP ประกอบด้วย `SD_ROOT/SCRIPT/STARTUP.TTL`, `SD_ROOT/SCRIPT/GRDUMP/DUMP.SH`, `SD_ROOT/SCRIPT/GRDUMP/DUMP.BIN` และ `README.txt`
 
@@ -39,7 +39,7 @@
 ## ส่งไฟล์
 
 1. บีบอัดโฟลเดอร์ `SCRIPT/GRDUMP` เป็นไฟล์ ZIP
-2. แนบไฟล์ ZIP นั้นใน [GitHub issue](https://github.com/botnick/GRKU/issues/new) โดยระบุรุ่นกล้องและเวอร์ชันเฟิร์มแวร์
+2. แนบไฟล์ ZIP นั้นใน [GitHub issue](mailto:support@grku.app) โดยระบุรุ่นกล้องและเวอร์ชันเฟิร์มแวร์
 
 หากนักพัฒนาขอไฟล์ dump ไว้ใน issue ใด ให้แนบไฟล์ ZIP ใน issue นั้น ไฟล์ ZIP มีขนาดประมาณ 20 MB และ GitHub รองรับไฟล์ขนาดสูงสุดไม่เกิน 25 MB
 

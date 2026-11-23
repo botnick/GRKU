@@ -4,7 +4,7 @@ import { renderToString } from 'react-dom/server';
 import { App } from './App';
 import { SiteFooter } from './components/SiteFooter';
 import { STRINGS, type Language } from './i18n';
-import { REPOSITORY } from './links';
+import { releaseUrl } from './links';
 import type { SitePage } from './languagePage';
 
 export { LANGUAGES, pageText, STRINGS } from './i18n';
@@ -27,7 +27,7 @@ export function docChrome(language: Language): { home: string; install: string; 
     home: t.site.home,
     install: t.install,
     footer: renderToString(
-      <SiteFooter strings={t} language={language} version={VERSION} releaseUrl={`${REPOSITORY}/releases#release-v${VERSION}`} />,
+      <SiteFooter strings={t} language={language} version={VERSION} releaseUrl={releaseUrl(language)} />,
     ),
   };
 }

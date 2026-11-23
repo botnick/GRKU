@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { CAMERAS, MODESET_TOKEN } from '../cameras';
 import { GUIDE_STRINGS } from '../guide';
 import type { FaqItem, Language, RichText as Parts, Strings } from '../i18n';
-import { guideUrl, REPOSITORY } from '../links';
+import { FEEDBACK, guideUrl } from '../links';
 import type { PageLink } from '../navigation';
 import { CameraBackArt, ComputerArt, CopyArt, InsertArt } from './GuideArt';
 import { RichText } from './RichText';
@@ -340,7 +340,7 @@ export function Guide({ strings: t, language, link, canWrite }: { strings: Strin
                 <LifeBuoy className="size-4" aria-hidden="true" />
                 {t.recovery}
               </a>
-              <a href={`${REPOSITORY}/issues`} className="text-muted-foreground hover:text-foreground">
+              <a href={FEEDBACK} className="text-muted-foreground hover:text-foreground">
                 {t.feedback}
               </a>
             </div>

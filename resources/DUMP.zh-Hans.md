@@ -17,7 +17,7 @@
 
 ## 获取工具
 
-下载 [GRKU-dump.zip](https://github.com/botnick/GRKU/releases/latest/download/GRKU-dump.zip)。它与[最新版本](https://github.com/botnick/GRKU/releases/latest)中的 `GRKU-<版本>-dump.zip` 是同一个文件。
+下载 [GRKU-dump.zip](https://grku.app/downloads/GRKU-dump.zip)。它与[最新版本](https://grku.app/zh-hans/#news)中的 `GRKU-<版本>-dump.zip` 是同一个文件。
 
 ZIP 中包含 `SD_ROOT/SCRIPT/STARTUP.TTL`、`SD_ROOT/SCRIPT/GRDUMP/DUMP.SH`、`SD_ROOT/SCRIPT/GRDUMP/DUMP.BIN` 以及一个 `README.txt`。
 
@@ -39,7 +39,7 @@ ZIP 中包含 `SD_ROOT/SCRIPT/STARTUP.TTL`、`SD_ROOT/SCRIPT/GRDUMP/DUMP.SH`、`
 ## 发送文件
 
 1. 把 `SCRIPT/GRDUMP` 文件夹压缩成 ZIP。
-2. 把 ZIP 附加到一个 [GitHub issue](https://github.com/botnick/GRKU/issues/new) 中。写明相机型号和固件版本。
+2. 把 ZIP 附加到一个 [GitHub issue](mailto:support@grku.app) 中。写明相机型号和固件版本。
 
 如果开发者在某个 issue 中请你导出，把 ZIP 附加到那个 issue。ZIP 大小约为 20 MB；GitHub 支持上传最大 25 MB 的文件。
 

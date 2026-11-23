@@ -17,7 +17,7 @@
 
 ## ツールの入手
 
-[GRKU-dump.zip](https://github.com/botnick/GRKU/releases/latest/download/GRKU-dump.zip) をダウンロードします。[最新リリース](https://github.com/botnick/GRKU/releases/latest)の `GRKU-<バージョン>-dump.zip` と同じファイルです。
+[GRKU-dump.zip](https://grku.app/downloads/GRKU-dump.zip) をダウンロードします。[最新リリース](https://grku.app/ja/#news)の `GRKU-<バージョン>-dump.zip` と同じファイルです。
 
 ZIP には `SD_ROOT/SCRIPT/STARTUP.TTL`、`SD_ROOT/SCRIPT/GRDUMP/DUMP.SH`、`SD_ROOT/SCRIPT/GRDUMP/DUMP.BIN`、`README.txt` が含まれています。
 
@@ -39,7 +39,7 @@ ZIP には `SD_ROOT/SCRIPT/STARTUP.TTL`、`SD_ROOT/SCRIPT/GRDUMP/DUMP.SH`、`SD_
 ## ファイルを送る
 
 1. `SCRIPT/GRDUMP` フォルダーを ZIP に圧縮します。
-2. ZIP を [GitHub issue](https://github.com/botnick/GRKU/issues/new) に添付します。カメラの機種とファームウェアのバージョンを書きます。
+2. ZIP を [GitHub issue](mailto:support@grku.app) に添付します。カメラの機種とファームウェアのバージョンを書きます。
 
 開発者が issue で書き出しを依頼した場合は、その issue に ZIP を添付します。ZIP は約 20 MB です。GitHub は最大 25 MB のファイルを受け付けます。
 

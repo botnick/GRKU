@@ -3,7 +3,15 @@ import { DOC_PATHS, LANGUAGE_PATHS, type DocName } from './languagePage';
 
 export { DOC_PATHS, type DocName };
 
-export const REPOSITORY = 'https://github.com/botnick/GRKU';
+/** Where visitors send feedback and problem reports (the repository is private). */
+export const FEEDBACK = 'mailto:support@grku.app';
+/** The firmware dump tool, served by the site. */
+export const DUMP_DOWNLOAD = 'https://grku.app/downloads/GRKU-dump.zip';
+
+/** The changes of each version: the What's new list of the home page. */
+export function releaseUrl(language: Language): string {
+  return `${LANGUAGE_PATHS[language]}#news`;
+}
 /** The repository GRKU's code began from. */
 export const UPSTREAM = 'https://github.com/ahonn/GRKit';
 

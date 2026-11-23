@@ -17,7 +17,7 @@ For RICOH GR III, GR IIIx, GR IV, GR IV Monochrome, and their HDF models. The sa
 
 ## Get the tool
 
-Download [GRKU-dump.zip](https://github.com/botnick/GRKU/releases/latest/download/GRKU-dump.zip). It is the same file as `GRKU-<version>-dump.zip` in the [latest release](https://github.com/botnick/GRKU/releases/latest).
+Download [GRKU-dump.zip](https://grku.app/downloads/GRKU-dump.zip). It is the same file as `GRKU-<version>-dump.zip` in the [latest release](https://grku.app/en/#news).
 
 The ZIP holds `SD_ROOT/SCRIPT/STARTUP.TTL`, `SD_ROOT/SCRIPT/GRDUMP/DUMP.SH`, `SD_ROOT/SCRIPT/GRDUMP/DUMP.BIN`, and a `README.txt`.
 
@@ -39,7 +39,7 @@ If the folder has neither file, the camera did not run the tool. Make sure that 
 ## Send the files
 
 1. Zip the `SCRIPT/GRDUMP` folder.
-2. Attach the ZIP to a [GitHub issue](https://github.com/botnick/GRKU/issues/new). Give the camera model and the firmware version.
+2. Attach the ZIP to a [GitHub issue](mailto:support@grku.app). Give the camera model and the firmware version.
 
 If the developer asked for the dump in an issue, attach the ZIP to that issue. The ZIP is about 20 MB; GitHub accepts files up to 25 MB.
 
