@@ -24,7 +24,7 @@ export function coverCrop(width: number, height: number): { x: number; y: number
 }
 
 /** The JPEG of 720 by 480 RGBA pixels, as the camera shows it. */
-async function encode(pixels: Uint8ClampedArray): Promise<Uint8Array> {
+export async function encodePicture(pixels: Uint8ClampedArray): Promise<Uint8Array> {
   const wasm = await loadWasm();
   return wasm.shutdownPicture(new Uint8Array(pixels.buffer, pixels.byteOffset, pixels.byteLength));
 }
@@ -53,7 +53,7 @@ export async function makeDesignPicture(choice: DesignChoice): Promise<Uint8Arra
   const canvas = new OffscreenCanvas(PICTURE_WIDTH, PICTURE_HEIGHT);
   const context = canvas.getContext('2d')!;
   drawDesign(context, choice);
-  return encode(context.getImageData(0, 0, PICTURE_WIDTH, PICTURE_HEIGHT).data);
+  return encodePicture(context.getImageData(0, 0, PICTURE_WIDTH, PICTURE_HEIGHT).data);
 }
 
 /**
@@ -69,7 +69,7 @@ export async function makePicture(source: Blob): Promise<Uint8Array> {
     const crop = coverCrop(bitmap.width, bitmap.height);
     context.imageSmoothingQuality = 'high';
     context.drawImage(bitmap, crop.x, crop.y, crop.width, crop.height, 0, 0, PICTURE_WIDTH, PICTURE_HEIGHT);
-    return await encode(context.getImageData(0, 0, PICTURE_WIDTH, PICTURE_HEIGHT).data);
+    return await encodePicture(context.getImageData(0, 0, PICTURE_WIDTH, PICTURE_HEIGHT).data);
   } finally {
     bitmap.close();
   }
@@ -90,31 +90,56 @@ export function pictureChange(onCard: Uint8Array | null, choice: PictureChoice):
 
 /**
  * The picture of the page for Shutdown Screen: the GRKU logo (`LOGO_PATH`), a ready-made design
- * (`shutdownDesigns`), the picture of the user, no picture (the camera shows its own screen, and a write removes the file of the card),
+ * (`shutdownDesigns`), a picture made in GRKU Studio (`studio/`), the picture of the user, no picture (the camera shows its own screen, and a write removes the file of the card),
  * or the picture that the card has, left as it is.
  */
-export type ShutdownKind = 'logo' | 'design' | 'own' | 'none' | 'keep';
+export type ShutdownKind = 'logo' | 'design' | 'studio' | 'own' | 'none' | 'keep';
 
 /** The GRKU logo under the site root: a file of `shutdownPicture`, so the camera shows it as it is. */
 export const LOGO_PATH = 'shutdown/grku.jpg';
 
 const KIND_KEY = 'grku.shutdown';
 const OWN_KEY = 'grku.shutdownPicture';
-const KINDS: readonly ShutdownKind[] = ['logo', 'design', 'own', 'none', 'keep'];
+const STUDIO_KEY = 'grku.studioPicture';
+const KINDS: readonly ShutdownKind[] = ['logo', 'design', 'studio', 'own', 'none', 'keep'];
 
-/** The choice of the last visit: the kind, or null before the first choice, and the picture of the user. */
-export function loadShutdown(storage: Pick<Storage, 'getItem'> | null): { kind: ShutdownKind | null; own: Uint8Array | null } {
+function readBytes(storage: Pick<Storage, 'getItem'> | null, key: string): Uint8Array | null {
+  try {
+    const text = storage?.getItem(key) ?? null;
+    return text ? Uint8Array.from(atob(text), (char) => char.charCodeAt(0)) : null;
+  } catch {
+    // An unreadable value is the same as none.
+    return null;
+  }
+}
+
+function writeBytes(storage: Pick<Storage, 'setItem' | 'removeItem'> | null, key: string, bytes: Uint8Array | null) {
+  try {
+    if (!bytes) {
+      storage?.removeItem(key);
+      return;
+    }
+    let text = '';
+    for (const byte of bytes) text += String.fromCharCode(byte);
+    storage?.setItem(key, btoa(text));
+  } catch {
+    // A full storage keeps the picture for this visit only.
+  }
+}
+
+/**
+ * The choice of the last visit: the kind, or null before the first choice, the picture of the
+ * user, and the picture of the Studio.
+ */
+export function loadShutdown(storage: Pick<Storage, 'getItem'> | null): { kind: ShutdownKind | null; own: Uint8Array | null; studio: Uint8Array | null } {
   let kind: ShutdownKind | null = null;
-  let own: Uint8Array | null = null;
   try {
     const saved = storage?.getItem(KIND_KEY) ?? null;
     if (KINDS.includes(saved as ShutdownKind)) kind = saved as ShutdownKind;
-    const text = storage?.getItem(OWN_KEY) ?? null;
-    if (text) own = Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
   } catch {
     // An unreadable value is the same as none.
   }
-  return { kind, own };
+  return { kind, own: readBytes(storage, OWN_KEY), studio: readBytes(storage, STUDIO_KEY) };
 }
 
 export function saveShutdownKind(storage: Pick<Storage, 'setItem'> | null, kind: ShutdownKind) {
@@ -127,25 +152,21 @@ export function saveShutdownKind(storage: Pick<Storage, 'setItem'> | null, kind:
 
 /** Keeps the picture of the user for the next visit, or forgets it. */
 export function saveOwnPicture(storage: Pick<Storage, 'setItem' | 'removeItem'> | null, bytes: Uint8Array | null) {
-  try {
-    if (!bytes) {
-      storage?.removeItem(OWN_KEY);
-      return;
-    }
-    let text = '';
-    for (const byte of bytes) text += String.fromCharCode(byte);
-    storage?.setItem(OWN_KEY, btoa(text));
-  } catch {
-    // A full storage keeps the picture for this visit only.
-  }
+  writeBytes(storage, OWN_KEY, bytes);
+}
+
+/** Keeps the picture of the Studio, as drawn, for the next visit, or forgets it. */
+export function saveStudioPicture(storage: Pick<Storage, 'setItem' | 'removeItem'> | null, bytes: Uint8Array | null) {
+  writeBytes(storage, STUDIO_KEY, bytes);
 }
 
 /**
  * The kind that applies: the chosen one while it can apply, else the picture of the card where
  * the card has one, so a card keeps a picture that the user never chose here, else the logo.
  */
-export function shutdownKind(chosen: ShutdownKind | null, own: Uint8Array | null, onCard: Uint8Array | null): ShutdownKind {
+export function shutdownKind(chosen: ShutdownKind | null, own: Uint8Array | null, onCard: Uint8Array | null, studio: Uint8Array | null = null): ShutdownKind {
   if (chosen === 'own' && !own) chosen = null;
+  if (chosen === 'studio' && !studio) chosen = null;
   if (chosen === 'keep' && !onCard) chosen = null;
   return chosen ?? (onCard ? 'keep' : 'logo');
 }
@@ -159,12 +180,15 @@ export function pictureFor(
   logo: Uint8Array | null,
   own: Uint8Array | null,
   design: Uint8Array | null = null,
+  studio: Uint8Array | null = null,
 ): PictureChoice {
   switch (kind) {
     case 'logo':
       return logo;
     case 'design':
       return design;
+    case 'studio':
+      return studio;
     case 'own':
       return own;
     case 'none':

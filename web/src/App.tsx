@@ -131,7 +131,7 @@ function StepNumber({ n, className }: { n: number; className?: string }) {
 
 /** The card root after copying SD_ROOT, with the ModeSet file of each camera. */
 const CARD_IMAGES: Record<string, string> = { gr3: cardGr3, gr3x: cardGr3x, gr4: cardGr4, gr4m: cardGr4 };
-import { fetchEntitlement, forgetKey, FREE, loadKey, packCounts, PlusError, saveKey, takeKeyFromHash, takeOrderFromHash, type Entitlement } from './plus';
+import { fetchEntitlement, forgetKey, FREE, loadKey, packCounts, PlusError, saveKey, studioUnlocked, takeKeyFromHash, takeOrderFromHash, type Entitlement } from './plus';
 import { loadSelection, resolveSelection, saveSelection, type Selection } from './selection';
 import {
   loadLogo,
@@ -142,6 +142,7 @@ import {
   pictureFor,
   saveOwnPicture,
   saveShutdownKind,
+  saveStudioPicture,
   shutdownKind,
   shutdownWrite,
   type PictureChoice,
@@ -299,17 +300,19 @@ export function App({
   const [shutdownSaved] = useState(() => loadShutdown(browserStorage()));
   const [shutdownChosen, setShutdownChosen] = useState<ShutdownKind | null>(shutdownSaved.kind);
   const [ownPicture, setOwnPicture] = useState<Uint8Array | null>(shutdownSaved.own);
+  // The picture made in GRKU Studio, as drawn at its last Done.
+  const [studioPicture, setStudioPicture] = useState<Uint8Array | null>(shutdownSaved.studio);
   const [logoPicture, setLogoPicture] = useState<Uint8Array | null>(null);
   const logoUrl = siteUrl(LOGO_PATH);
   const pictureOnCard = active?.state.shutdownPicture ?? null;
-  const pictureKind = shutdownKind(shutdownChosen, ownPicture, pictureOnCard);
+  const pictureKind = shutdownKind(shutdownChosen, ownPicture, pictureOnCard, studioPicture);
   // The ready-made designs, and the file of the chosen one as it is drawn now.
   const [designs, setDesigns] = useState<DesignState>(() => loadDesigns(browserStorage()));
   const design = designChoice(designs);
   const designKey = JSON.stringify(design);
   const [designFile, setDesignFile] = useState<{ key: string; bytes: Uint8Array } | null>(null);
   const designPicture = designFile?.key === designKey ? designFile.bytes : null;
-  const picture = pictureFor(pictureKind, logoPicture, ownPicture, designPicture);
+  const picture = pictureFor(pictureKind, logoPicture, ownPicture, designPicture, studioPicture);
   // The logo file waits for the steps that use it.
   const needsLogo = page === 'modules' || page === 'write';
   useEffect(() => {
@@ -350,6 +353,11 @@ export function App({
   function chooseShutdown(kind: ShutdownKind) {
     setShutdownChosen(kind);
     saveShutdownKind(browserStorage(), kind);
+  }
+
+  function chooseStudioPicture(bytes: Uint8Array) {
+    setStudioPicture(bytes);
+    saveStudioPicture(browserStorage(), bytes);
   }
 
   function chooseOwnPicture(bytes: Uint8Array) {
@@ -846,7 +854,7 @@ export function App({
           ? await loadLogo(logoUrl)
           : pictureKind === 'design'
             ? (designPicture ?? (await makeDesignPicture(design)))
-            : pictureFor(pictureKind, logoPicture, ownPicture);
+            : pictureFor(pictureKind, logoPicture, ownPicture, null, studioPicture);
       const changes = cardChanges(
         session,
         checked.map((effect) => effect.id),
@@ -1406,6 +1414,11 @@ export function App({
                       firmware={support?.firmware ?? ''}
                       designs={designs}
                       onDesigns={chooseDesigns}
+                      studio={studioPicture}
+                      onStudio={chooseStudioPicture}
+                      plus={studioUnlocked(owned)}
+                      onPlus={openPlus}
+                      language={language}
                     />
                   }
                   recipes={

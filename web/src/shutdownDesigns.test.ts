@@ -7,6 +7,7 @@ import {
   designChoice,
   DESIGNS,
   drawDesign,
+  FREE_DESIGNS,
   limitText,
   loadDesigns,
   pixelFontHas,
@@ -14,6 +15,7 @@ import {
   type DesignContext,
 } from './shutdownDesigns';
 import { STRINGS } from './i18n';
+import { captionOf } from './studio/captions';
 
 /** A 2D context that records the fills and the text, and draws nothing. */
 function stubContext() {
@@ -60,6 +62,25 @@ describe('the designs of the shutdown screen', () => {
         }
       }
     }
+  });
+
+  it('tells the Studio where it draws its text, so the text lifts off as a layer', () => {
+    for (const design of DESIGNS) {
+      for (let theme = 0; theme < design.swatches.length; theme++) {
+        const caption = captionOf(design.id, theme)!;
+        expect(caption, design.id).toBeDefined();
+        expect(caption.y, design.id).toBeLessThanOrEqual(320);
+        expect(caption.color, design.id).toMatch(/^#[0-9A-Fa-f]{6}$/);
+        // The pixel font draws blocks, a spaced or turned text draws in parts: the others draw at the caption.
+        if (caption.font === 'pixel' || caption.spacing || caption.rotation) continue;
+        const { context, calls } = stubContext();
+        drawDesign(context, { id: design.id, theme, text: 'QX' });
+        const call = calls.find((c) => c.name === 'fillText' && c.args[0] === 'QX');
+        expect(call?.args.slice(1, 3), design.id).toEqual([caption.x, caption.y]);
+        expect(String((context as unknown as { fillStyle: string }).fillStyle).length).toBeGreaterThan(0);
+      }
+    }
+    expect(FREE_DESIGNS.every((id) => DESIGNS.some((design) => design.id === id))).toBe(true);
   });
 
   it('names each design in the page text', () => {

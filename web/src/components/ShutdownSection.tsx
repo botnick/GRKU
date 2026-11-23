@@ -1,11 +1,12 @@
-import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
-import { ImagePlus, Info, Power } from 'lucide-react';
+import { lazy, Suspense, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { ImagePlus, Info, Lock, Power, Sparkles, WandSparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
-import type { Strings } from '../i18n';
+import type { Language, Strings } from '../i18n';
+import { CameraText } from './CameraText';
 import { save } from '../package';
 import { makePicture, PICTURE_HEIGHT, PICTURE_NAME, PICTURE_WIDTH, prepareDesignFonts, type ShutdownKind } from '../shutdownPicture';
 import {
@@ -14,11 +15,15 @@ import {
   DESIGNS,
   drawDesign,
   findDesign,
+  FREE_DESIGNS,
   limitText,
   type Design,
   type DesignChoice,
   type DesignState,
 } from '../shutdownDesigns';
+
+/** GRKU Studio, with its fonts, stickers, and templates: loaded only when the visitor opens it. */
+const Studio = lazy(() => import('../studio/Studio'));
 
 /**
  * A design drawn on a canvas of `scale` times 720 by 480. It draws at once with the fonts at
@@ -115,28 +120,6 @@ function DesignControls({
   );
 }
 
-/**
- * The text that the camera draws over the picture: the bar of the shot counts and the firmware
- * version, at their places on the screen of 720 by 480. The preview shows where the picture stays
- * free of them.
- */
-function CameraText({ firmware }: { firmware: string }) {
-  const version = /\d+\.\d+/.exec(firmware)?.[0];
-  return (
-    <svg className="absolute inset-0 size-full fill-white font-mono" viewBox={`0 0 ${PICTURE_WIDTH} ${PICTURE_HEIGHT}`} aria-hidden="true">
-      <rect x="20" y="340" width="680" height="40" fill="#000" fillOpacity="0.45" />
-      <text x="360" y="371" textAnchor="middle" fontSize="30" textLength="545" lengthAdjust="spacingAndGlyphs">
-        Today : 0000000 &gt; Total: 0000000
-      </text>
-      {version && (
-        <text x="710" y="462" textAnchor="end" fontSize="30" textLength="176" lengthAdjust="spacingAndGlyphs">
-          FW Ver.{version}
-        </text>
-      )}
-    </svg>
-  );
-}
-
 function dataUrl(bytes: Uint8Array): string {
   let text = '';
   for (const byte of bytes) text += String.fromCharCode(byte);
@@ -150,8 +133,8 @@ export function savePicture(bytes: Uint8Array) {
 
 /**
  * The picture that the camera shows when it turns off (Shutdown Screen), as an extra of the
- * modules step: the GRKU logo, a picture of the user cropped to the screen, the camera's own
- * screen, or the picture that the card already has. The chosen picture shows with the text that
+ * modules step: the GRKU logo, a ready-made design, a picture made in GRKU Studio, a picture of
+ * the user cropped to the screen, the camera's own screen, or the picture that the card already has. The chosen picture shows with the text that
  * the camera draws over it.
  */
 export function ShutdownSection({
@@ -165,6 +148,11 @@ export function ShutdownSection({
   firmware,
   designs,
   onDesigns,
+  studio,
+  onStudio,
+  plus,
+  onPlus,
+  language,
 }: {
   strings: Strings;
   /** The kind that applies (`shutdownKind`). */
@@ -181,6 +169,14 @@ export function ShutdownSection({
   /** The designs of this browser: the chosen one, and the text and theme of each. */
   designs: DesignState;
   onDesigns: (state: DesignState) => void;
+  /** The picture made in the Studio, as the file for the card, or null before the first. */
+  studio: Uint8Array | null;
+  onStudio: (bytes: Uint8Array) => void;
+  /** Whether the visitor has GRKU Plus, which unlocks every design and the whole Studio. */
+  plus: boolean;
+  /** Opens the sheet of GRKU Plus. */
+  onPlus: () => void;
+  language: Language;
 }) {
   const t = strings.shutdown;
   const id = useId();
@@ -189,6 +185,18 @@ export function ShutdownSection({
   const [fileKey, setFileKey] = useState(0);
   const ownUrl = useMemo(() => (own ? dataUrl(own) : null), [own]);
   const cardUrl = useMemo(() => (onCard ? dataUrl(onCard) : null), [onCard]);
+  const studioUrl = useMemo(() => (studio ? dataUrl(studio) : null), [studio]);
+  // The Studio mounts at its first opening, and stays, so it opens at once the next time.
+  const [studioOpen, setStudioOpen] = useState(false);
+  const [studioMounted, setStudioMounted] = useState(false);
+  // The design of Plus that the visitor tapped without Plus.
+  const [lockedDesign, setLockedDesign] = useState<string | null>(null);
+  const designLocked = (design: string) => !plus && !FREE_DESIGNS.includes(design);
+
+  function openStudio() {
+    setStudioMounted(true);
+    setStudioOpen(true);
+  }
 
   async function choose(file: File | undefined) {
     // A new input, so the same file can be selected again.
@@ -207,6 +215,7 @@ export function ShutdownSection({
   function pick(next: string) {
     // Your picture without a picture yet asks for one first, and stays unchosen until it reads.
     if (next === 'own' && !own) input.current?.click();
+    else if (next === 'studio' && !studio) openStudio();
     else onKind(next as ShutdownKind);
   }
 
@@ -215,6 +224,7 @@ export function ShutdownSection({
   const options: { value: ShutdownKind; label: string; url: string | null; empty: ReactNode }[] = [
     { value: 'logo', label: t.logo, url: logoUrl, empty: null },
     { value: 'design', label: t.design, url: null, empty: designThumb },
+    { value: 'studio', label: t.studio, url: studioUrl, empty: <WandSparkles className="size-6" aria-hidden="true" /> },
     { value: 'own', label: t.own, url: ownUrl, empty: <ImagePlus className="size-6" aria-hidden="true" /> },
     ...(cardUrl ? [{ value: 'keep' as const, label: t.keep, url: cardUrl, empty: null }] : []),
     { value: 'none', label: t.none, url: null, empty: <Power className="size-6" aria-hidden="true" /> },
@@ -232,7 +242,7 @@ export function ShutdownSection({
         value={kind}
         onValueChange={pick}
         aria-labelledby={`${id}-title`}
-        className={cn('mt-4 grid gap-2 sm:gap-3', options.length > 4 ? 'grid-cols-2 sm:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4')}
+        className={cn('mt-4 grid grid-cols-2 gap-2 sm:gap-3', options.length > 6 ? 'sm:grid-cols-4 lg:grid-cols-7' : 'sm:grid-cols-3 lg:grid-cols-6')}
       >
         {options.map((option) => (
           <Label
@@ -275,11 +285,27 @@ export function ShutdownSection({
         </Button>
       )}
       {failed && <p className="mt-2 text-sm text-destructive">{t.failed}</p>}
+      {(kind === 'studio' || kind === 'design') && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <Button type="button" variant={kind === 'studio' ? 'default' : 'outline'} size="sm" onClick={openStudio}>
+            <WandSparkles aria-hidden="true" />
+            {kind === 'studio' ? t.studioEdit : t.studioOpen}
+          </Button>
+          <span className="text-xs text-muted-foreground">{t.studioNote}</span>
+        </div>
+      )}
 
       {kind === 'design' && (
         <RadioGroup
           value={designs.id}
-          onValueChange={(value) => onDesigns({ ...designs, id: value })}
+          onValueChange={(value) => {
+            // A design of Plus without Plus says so, and stays unchosen.
+            if (designLocked(value)) setLockedDesign(value);
+            else {
+              setLockedDesign(null);
+              onDesigns({ ...designs, id: value });
+            }
+          }}
           aria-label={t.design}
           className={cn(
             // On a phone, a strip that scrolls across the width of the card (no wider than it), from the tablet up a grid.
@@ -298,15 +324,31 @@ export function ShutdownSection({
               )}
             >
               <DesignCanvas choice={designChoice(designs, design.id)} scale={1 / 3} className="block aspect-[3/2] w-full" />
+              {designLocked(design.id) && (
+                <span className="pointer-events-none absolute top-1 right-1 inline-flex items-center gap-0.5 rounded-full bg-foreground/85 px-1.5 py-0.5 text-[10px] leading-none font-semibold text-background">
+                  <Lock className="size-2.5" aria-hidden="true" />
+                  {t.plus}
+                </span>
+              )}
               <RadioGroupItem
                 id={`${id}-design-${design.id}`}
                 value={design.id}
-                aria-label={t.designs[design.id as keyof typeof t.designs]}
+                aria-label={designLocked(design.id) ? `${t.designs[design.id as keyof typeof t.designs]} (GRKU Plus)` : t.designs[design.id as keyof typeof t.designs]}
                 className="sr-only"
               />
             </Label>
           ))}
         </RadioGroup>
+      )}
+      {kind === 'design' && lockedDesign && (
+        <div role="status" className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border border-brand/40 bg-brand/5 px-3 py-2 text-sm">
+          <Lock className="size-4 shrink-0" aria-hidden="true" />
+          <span className="min-w-0 flex-1">{t.lockedDesign.replace('${name}', t.designs[lockedDesign as keyof typeof t.designs] ?? lockedDesign)}</span>
+          <Button type="button" variant="brand" size="sm" onClick={onPlus}>
+            <Sparkles aria-hidden="true" />
+            {t.seePlus}
+          </Button>
+        </div>
       )}
 
       <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-start">
@@ -331,6 +373,31 @@ export function ShutdownSection({
           </p>
         </div>
       </div>
+      {studioMounted && (
+        <Suspense
+          fallback={
+            <div role="status" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 text-sm font-medium text-white">
+              {t.studioLoading}
+            </div>
+          }
+        >
+          <Studio
+            open={studioOpen}
+            onOpenChange={setStudioOpen}
+            strings={strings}
+            language={language}
+            plus={plus}
+            onPlus={onPlus}
+            firmware={firmware}
+            ownPicture={own}
+            start={designChoice(designs)}
+            onDone={(bytes) => {
+              onStudio(bytes);
+              onKind('studio');
+            }}
+          />
+        </Suspense>
+      )}
     </section>
   );
 }

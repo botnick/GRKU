@@ -322,3 +322,11 @@ export function unlockedBy(effect: Classified, owned: Entitlement): boolean {
   const pack = packOf(effect);
   return pack !== null && owned.packs.includes(pack);
 }
+
+/**
+ * Whether GRKU Studio opens in full: every template, sticker, font, and frame, and any number of
+ * layers. The whole shelf (`plus`) includes it; a pack or more slots buys film looks only.
+ */
+export function studioUnlocked(owned: Entitlement): boolean {
+  return owned.plus;
+}

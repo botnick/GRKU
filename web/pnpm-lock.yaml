@@ -11,6 +11,9 @@ importers:
       '@colorhythm/libraw-wasm':
         specifier: 1.1.1
         version: 1.1.1
+      '@fontsource/chonburi':
+        specifier: 5.3.0
+        version: 5.3.0
       '@fontsource/ibm-plex-mono':
         specifier: 5.3.0
         version: 5.3.0
@@ -26,9 +29,15 @@ importers:
       '@fontsource/inter':
         specifier: 5.2.8
         version: 5.2.8
+      '@fontsource/itim':
+        specifier: 5.3.0
+        version: 5.3.0
       '@fontsource/jetbrains-mono':
         specifier: 5.2.8
         version: 5.2.8
+      '@fontsource/mali':
+        specifier: 5.3.0
+        version: 5.3.0
       '@fontsource/noto-sans-jp':
         specifier: 5.3.1
         version: 5.3.1
@@ -41,6 +50,9 @@ importers:
       '@fontsource/noto-sans-tc':
         specifier: 5.3.1
         version: 5.3.1
+      '@fontsource/sriracha':
+        specifier: 5.3.0
+        version: 5.3.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -129,6 +141,9 @@ packages:
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
+  '@fontsource/chonburi@5.3.0':
+    resolution: {integrity: sha512-DSien8lmj6Todr+J5T8vRNATWSr5eBISC5OPKWU7y6oS00ak6gUF4q0dX80ASpJO7XPEcQ5bA9kKAMPkNMavXQ==}
+
   '@fontsource/ibm-plex-mono@5.3.0':
     resolution: {integrity: sha512-eTgnZjZEGk1QtD3ZstF+Vclo2HLAni8YMy34/DxllwZvyz1lR/1RF/xTiAquOBO7MvqBx8D2Ig2WCPMVfdZu7Q==}
 
@@ -144,8 +159,14 @@ packages:
   '@fontsource/inter@5.2.8':
     resolution: {integrity: sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg==}
 
+  '@fontsource/itim@5.3.0':
+    resolution: {integrity: sha512-y3m8RZeRCclnuQHgiRYIitCKc7iOthBo2SBYY8aDuyToKwGAvRMvBXHy6mdYceJbamRQrShEspXzkXTMDN20nQ==}
+
   '@fontsource/jetbrains-mono@5.2.8':
     resolution: {integrity: sha512-6w8/SG4kqvIMu7xd7wt6x3idn1Qux3p9N62s6G3rfldOUYHpWcc2FKrqf+Vo44jRvqWj2oAtTHrZXEP23oSKwQ==}
+
+  '@fontsource/mali@5.3.0':
+    resolution: {integrity: sha512-/H7zdnFcBUdLh7mPUCLWfCoQVgtvnVKrlHjknq90kltPvUcu0nC9ybne4z2rzTghV9ez9N7nRDvRZesODB/YbQ==}
 
   '@fontsource/noto-sans-jp@5.3.1':
     resolution: {integrity: sha512-9NNBB/M9PextLYVXGSfIaLZsPnrt5UDw8g2B6T0M775H2yb/oekApSjuS1XKOP7FPcMMEnTavR5rJGDM66qKtA==}
@@ -158,6 +179,9 @@ packages:
 
   '@fontsource/noto-sans-tc@5.3.1':
     resolution: {integrity: sha512-kiOTKRnkEV4dsMqfmIuH3TnkYp5Rqq2f4LgAArx0Y5eVzCebU2TgWup5TWCWWSk28nBf4mgunLTyQP+xQ74gcQ==}
+
+  '@fontsource/sriracha@5.3.0':
+    resolution: {integrity: sha512-0JjwrC1/BXsSXMEcmmtyoQut1/gy/+wGBP1wiSPaPXvHr1yBmmU2Kl8drBSpRtvRD4Rm9Bb2/FdDK3x4yQ364g==}
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -1771,6 +1795,8 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
+  '@fontsource/chonburi@5.3.0': {}
+
   '@fontsource/ibm-plex-mono@5.3.0': {}
 
   '@fontsource/ibm-plex-sans-condensed@5.3.0': {}
@@ -1781,7 +1807,11 @@ snapshots:
 
   '@fontsource/inter@5.2.8': {}
 
+  '@fontsource/itim@5.3.0': {}
+
   '@fontsource/jetbrains-mono@5.2.8': {}
+
+  '@fontsource/mali@5.3.0': {}
 
   '@fontsource/noto-sans-jp@5.3.1': {}
 
@@ -1790,6 +1820,8 @@ snapshots:
   '@fontsource/noto-sans-sc@5.3.1': {}
 
   '@fontsource/noto-sans-tc@5.3.1': {}
+
+  '@fontsource/sriracha@5.3.0': {}
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { coverCrop, loadShutdown, pictureChange, pictureFor, saveOwnPicture, saveShutdownKind, shutdownKind, shutdownWrite } from './shutdownPicture';
+import { coverCrop, loadShutdown, pictureChange, pictureFor, saveOwnPicture, saveShutdownKind, saveStudioPicture, shutdownKind, shutdownWrite } from './shutdownPicture';
 
 describe('the shutdown picture', () => {
   it('takes the center of a source at the ratio of the screen', () => {
@@ -40,6 +40,9 @@ describe('the shutdown choice', () => {
     expect(shutdownKind('own', new Uint8Array([1]), null)).toBe('own');
     expect(shutdownKind('keep', null, null)).toBe('logo');
     expect(shutdownKind('design', null, card)).toBe('design');
+    // A Studio picture applies once the Studio made one.
+    expect(shutdownKind('studio', null, card)).toBe('keep');
+    expect(shutdownKind('studio', null, null, new Uint8Array([4]))).toBe('studio');
   });
 
   it('gives the file of each kind', () => {
@@ -50,6 +53,9 @@ describe('the shutdown choice', () => {
     const design = new Uint8Array([3]);
     expect(pictureFor('design', logo, own, design)).toBe(design);
     expect(pictureFor('design', logo, own)).toBeNull();
+    const studio = new Uint8Array([4]);
+    expect(pictureFor('studio', logo, own, design, studio)).toBe(studio);
+    expect(pictureFor('studio', logo, own)).toBeNull();
     expect(pictureFor('own', logo, own)).toBe(own);
     expect(pictureFor('none', logo, own)).toBe('remove');
     expect(pictureFor('keep', logo, own)).toBeNull();
@@ -65,16 +71,21 @@ describe('the shutdown choice', () => {
 
   it('keeps the choice and the picture of the user in this browser', () => {
     const storage = memory();
-    expect(loadShutdown(storage)).toEqual({ kind: null, own: null });
+    expect(loadShutdown(storage)).toEqual({ kind: null, own: null, studio: null });
     saveShutdownKind(storage, 'design');
     expect(loadShutdown(storage).kind).toBe('design');
     saveShutdownKind(storage, 'own');
     saveOwnPicture(storage, new Uint8Array([0, 255, 128]));
-    expect(loadShutdown(storage)).toEqual({ kind: 'own', own: new Uint8Array([0, 255, 128]) });
+    expect(loadShutdown(storage)).toEqual({ kind: 'own', own: new Uint8Array([0, 255, 128]), studio: null });
+    saveShutdownKind(storage, 'studio');
+    saveStudioPicture(storage, new Uint8Array([7, 8]));
+    expect(loadShutdown(storage)).toMatchObject({ kind: 'studio', studio: new Uint8Array([7, 8]) });
+    saveStudioPicture(storage, null);
+    expect(loadShutdown(storage).studio).toBeNull();
     saveOwnPicture(storage, null);
     expect(loadShutdown(storage).own).toBeNull();
     storage.setItem('grku.shutdown', 'other');
     expect(loadShutdown(storage).kind).toBeNull();
-    expect(loadShutdown(null)).toEqual({ kind: null, own: null });
+    expect(loadShutdown(null)).toEqual({ kind: null, own: null, studio: null });
   });
 });

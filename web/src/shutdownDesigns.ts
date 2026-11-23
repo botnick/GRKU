@@ -42,6 +42,8 @@ export interface Design {
   /** The swatch colors of each theme; the first theme is the default. */
   swatches: readonly (readonly string[])[];
   draw: (context: DesignContext, theme: number, text: string) => void;
+  /** The colors of each theme, by name, for GRKU Studio (`studio/captions.ts`). */
+  themes: readonly Readonly<Record<string, unknown>>[];
 }
 
 function design<T extends Theme>(spec: {
@@ -50,11 +52,13 @@ function design<T extends Theme>(spec: {
   themes: readonly T[];
   draw: (context: DesignContext, theme: T, text: string) => void;
 }): Design {
+  const pick = (theme: number) => spec.themes[theme] ?? spec.themes[0]!;
   return {
     id: spec.id,
     text: spec.text,
     swatches: spec.themes.map((theme) => theme.swatch),
-    draw: (context, theme, text) => spec.draw(context, spec.themes[theme] ?? spec.themes[0]!, text),
+    draw: (context, theme, text) => spec.draw(context, pick(theme), text),
+    themes: spec.themes as unknown as readonly Readonly<Record<string, unknown>>[],
   };
 }
 
@@ -250,6 +254,24 @@ const GLYPHS: Record<string, string> = {
 /** Whether the pixel font has each character of `value`, in capitals. */
 export function pixelFontHas(value: string): boolean {
   return [...value.toUpperCase()].every((char) => char in GLYPHS);
+}
+
+/** The width of `value` in the pixel font, in blocks. */
+export function pixelBlocks(value: string): number {
+  return Math.max(0, [...value].length * 6 - 1);
+}
+
+/** Draws `value` in the pixel font, its top left at `x`, `y`, in blocks of `size`; a character the font lacks draws as `?`. */
+export function drawPixelText(context: DesignContext, value: string, x: number, y: number, size: number, color: string) {
+  let left = x;
+  context.fillStyle = color;
+  for (const char of value.toUpperCase()) {
+    const rows = (GLYPHS[char] ?? GLYPHS['?']!).split('|');
+    rows.forEach((row, r) => {
+      for (let c = 0; c < 5; c++) if (row[c] === '#') context.fillRect(left + c * size, y + r * size, size, size);
+    });
+    left += 6 * size;
+  }
 }
 
 /** Draws `value` in the pixel font, centered on `x`, its top at `y`, in blocks of up to `block`. */
@@ -806,6 +828,12 @@ const clouds = design({
 
 /** The designs, in the order of the gallery. */
 export const DESIGNS = [sunset, moon, cat, clouds, flowers, polaroid, film, receipt, seeYou, sun, pixel] as const satisfies readonly Design[];
+
+/**
+ * The designs that come with the free library; the others are part of GRKU Plus. A design chosen
+ * before stays chosen, as everything else that Plus unlocks.
+ */
+export const FREE_DESIGNS: readonly string[] = ['sunset', 'moon', 'cat', 'clouds', 'sun'];
 
 export function findDesign(id: string): Design | undefined {
   return DESIGNS.find((design) => design.id === id);
