@@ -131,7 +131,7 @@ function PictureStep({
 }) {
   return (
     <li className="flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-card">
-      <div className="border-b border-border bg-[#141414] p-4">{art}</div>
+      <div className="border-b border-border bg-art p-4">{art}</div>
       <div className="flex gap-3 p-5">
         <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand text-[13px] font-semibold text-brand-foreground">
           {n}
@@ -197,7 +197,7 @@ function Way({
         <div className="mt-8 pl-11">{start}</div>
       </div>
       {/* On a phone the drawing comes first, above the steps it shows. */}
-      <div className="order-first rounded-2xl border bg-[#141414] p-5 lg:sticky lg:top-24 lg:order-none lg:p-8">
+      <div className="order-first rounded-2xl border bg-art p-5 lg:sticky lg:top-24 lg:order-none lg:p-8">
         {art}
       </div>
     </div>

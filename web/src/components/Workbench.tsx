@@ -935,7 +935,7 @@ function Frame({ busy = false, children }: { busy?: boolean; children: ReactNode
 /** The name of the look over the frame. */
 function LookName({ children }: { children: ReactNode }) {
   return (
-    <Badge className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/75 px-2 py-1 font-mono text-xs font-medium text-foreground">
+    <Badge className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/75 px-2 py-1 font-mono text-xs font-medium text-photo-foreground">
       {children}
     </Badge>
   );
@@ -975,7 +975,7 @@ function PreviewFrame({ source, effect, compareLabel, busy, status, originalLabe
       <LookName>{effectName}</LookName>
       {status && (
         <span
-          className="pointer-events-none absolute bottom-4 left-1/2 z-[3] inline-flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 rounded-md bg-black/80 px-3.5 py-2 text-[13px] whitespace-nowrap text-foreground"
+          className="pointer-events-none absolute bottom-4 left-1/2 z-[3] inline-flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 rounded-md bg-black/80 px-3.5 py-2 text-[13px] whitespace-nowrap text-photo-foreground"
           role="status"
         >
           <LoaderCircle className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />

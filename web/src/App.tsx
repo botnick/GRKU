@@ -1233,7 +1233,7 @@ export function App({
                         }
                       >
                         {/* The camera drawn large, then its name, its lens, and the firmware it needs. */}
-                        <span className="flex items-center justify-center rounded-t-xl bg-black/30 px-6 pt-8 pb-4">
+                        <span className="flex items-center justify-center rounded-t-xl bg-black/30 px-6 light:bg-art pt-8 pb-4">
                           <CameraArt camera={item.key} className="max-w-[180px]" />
                         </span>
                         <span className="flex flex-col gap-1 p-4">
@@ -1651,7 +1651,7 @@ function StepIndicator({
                 </a>
               ) : (
                 <span
-                  className={cn('flex h-9 items-center gap-2 px-2', current ? 'font-medium text-foreground' : 'text-muted-foreground/60')}
+                  className={cn('flex h-9 items-center gap-2 px-2', current ? 'font-medium text-foreground' : 'text-muted-foreground/60 light:text-muted-foreground')}
                   aria-current={current ? 'step' : undefined}
                 >
                   {body}

@@ -48,7 +48,7 @@ export function SiteFooter({
               GRKU<span className="text-brand">.</span>
             </a>
             <p className="max-w-[36ch] text-sm leading-relaxed text-muted-foreground">{t.lead[1]}</p>
-            <a className="w-fit font-mono text-xs text-muted-foreground/70 hover:text-foreground" href={releaseUrl}>
+            <a className="w-fit font-mono text-xs text-muted-foreground/70 light:text-muted-foreground hover:text-foreground" href={releaseUrl}>
               GRKU {version}
             </a>
           </div>

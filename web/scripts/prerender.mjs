@@ -207,6 +207,21 @@ function allowStyleAttributes(file, pages) {
   writeFileSync(file, headers.replace(policy, `$1 'unsafe-hashes' ${hashes}`));
 }
 
+/**
+ * Allows the theme script of the head (index.html, src/theme.ts) in the Content-Security-Policy
+ * of `_headers`, by its hash. Every page carries it: the language pages, the 404 page, and the
+ * document pages of scripts/build-docs.mjs.
+ */
+function allowThemeScript(file, html) {
+  const script = /<script id="theme">([^<]*)<\/script>/.exec(html)?.[1];
+  if (!script) throw new Error('dist/index.html has no <script id="theme">');
+  const hash = `'sha256-${createHash('sha256').update(script).digest('base64')}'`;
+  const headers = readFileSync(file, 'utf8');
+  const policy = /(Content-Security-Policy:[^\n]*script-src 'self')/;
+  if (!policy.test(headers)) throw new Error("_headers has no script-src 'self' in its Content-Security-Policy");
+  writeFileSync(file, headers.replace(policy, `$1 ${hash}`));
+}
+
 const pages = [];
 for (const code of codes) {
   for (const name of pageNames) {
@@ -219,6 +234,7 @@ for (const code of codes) {
 }
 
 allowStyleAttributes(join(dist, '_headers'), pages);
+allowThemeScript(join(dist, '_headers'), template);
 
 // Pages serves 404.html with status 404 for a path without a file. Without it, Pages serves the
 // root page for every path, and search engines see each wrong address as a copy of the site.

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Monitor, Moon, Sun } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { LANGUAGES, type Language, type Strings } from '../i18n';
@@ -6,13 +7,48 @@ import { newsStrings } from '../whatsNew';
 import { isInstallStep, type SitePage } from '../languagePage';
 import type { PageLink } from '../navigation';
 import { cn } from '@/lib/utils';
+import { THEME_PREFERENCES, themeStrings, useThemePreference, type ThemePreference } from '../theme';
+
+const THEME_ICONS = { system: Monitor, light: Sun, dark: Moon } as const;
+
+/** The theme of the page: System (the device), Light, or Dark, as an icon beside the language. */
+function ThemeMenu({ language }: { language: Language }) {
+  const [preference, choose] = useThemePreference();
+  const ts = themeStrings(language);
+  const Icon = THEME_ICONS[preference];
+  return (
+    <Select value={preference} onValueChange={(next) => choose(next as ThemePreference)}>
+      <SelectTrigger
+        size="sm"
+        className="h-8 gap-1 border-transparent bg-transparent px-2 text-[13px] shadow-none hover:bg-accent [&>svg:last-child]:hidden"
+        aria-label={`${ts.theme}: ${ts[preference]}`}
+        title={ts.theme}
+      >
+        <SelectValue>
+          <Icon className="size-4 text-foreground" aria-hidden="true" />
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent position="popper" align="end">
+        {THEME_PREFERENCES.map((item) => {
+          const ItemIcon = THEME_ICONS[item];
+          return (
+            <SelectItem key={item} value={item}>
+              <ItemIcon className="size-4" aria-hidden="true" />
+              {ts[item]}
+            </SelectItem>
+          );
+        })}
+      </SelectContent>
+    </Select>
+  );
+}
 
 /** The version whose news this browser opened (the dot on the version goes). */
 const SEEN_KEY = 'grku.seenNews';
 
 /**
  * The header: the wordmark with its red period and the version, the links to the three pages, the
- * language, and the repository. It stays at the top while the page scrolls. On a phone the page
+ * language, the theme, and the repository. It stays at the top while the page scrolls. On a phone the page
  * links take a row of their own under it.
  */
 export function Masthead({
@@ -117,6 +153,7 @@ export function Masthead({
               ))}
             </SelectContent>
           </Select>
+          <ThemeMenu language={language} />
           <a href={releaseUrl} className="sr-only">
             GRKU {version}
           </a>
