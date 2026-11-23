@@ -75,6 +75,10 @@ GRKU and grku.app are provided "as is", without warranty of any kind. We do not 
 
 You use GRKU at your own risk. To the maximum extent that the applicable law permits, we are not liable for damage to the camera or the SD card, for lost photos or data, or for other loss that comes from the use of GRKU, of grku.app, or of GRKU Plus. For GRKU Plus, our liability to you is limited to the amount you paid for the purchase in question. These terms do not exclude a liability that the applicable law does not permit to exclude, and they do not limit the rights that Thai consumer protection law gives you and that cannot be waived.
 
+## Content of the site
+
+The text, photos, and drawings of grku.app are © BOTNICK. The MIT License covers the GRKU software, not the content of the site. Do not copy the site, its text, or its pictures without our written permission; you may quote a short part with a link to https://grku.app.
+
 ## Trademarks and affiliation
 
 GRKU is an independent project. It is not affiliated with or endorsed by Ricoh Company, Ltd., PromptPay, TrueMoney, EasySlip, or any bank, and not by Kodak, Fujifilm, Ilford, or any other maker of film. Camera, film, and payment names are trademarks of their owners and are used only to say what GRKU works with.
