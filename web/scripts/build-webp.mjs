@@ -3,7 +3,7 @@
 // Each JPEG of public/landing/ (scripts/build-landing.mjs and scripts/build-hero.mjs write them)
 // gets a WebP of its own size and smaller ones for phones and thumbnails (`-720.webp`, `-360.webp`). The camera
 // pictures of resources/images that the page shows become WebPs in src/assets/. Run it after
-// either script. It needs cwebp of libwebp.
+// either script, or after a new sample of public/samples. It needs cwebp of libwebp.
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 const LANDING = fileURLToPath(new URL('../public/landing/', import.meta.url));
 const IMAGES = fileURLToPath(new URL('../../resources/images/', import.meta.url));
 const ASSETS = fileURLToPath(new URL('../src/assets/', import.meta.url));
+const SAMPLES = fileURLToPath(new URL('../public/samples/', import.meta.url));
 /** The widths of the smaller copies: a phone screen at twice its pixels, and a thumbnail. src/landing.ts names them. */
 const WIDTHS = [720, 360];
 
@@ -28,9 +29,14 @@ for (const entry of readdirSync(LANDING, { recursive: true, withFileTypes: true 
   count += 1;
 }
 
+// The thumbnails of the preview samples, 80 pixels wide on the page: 160 pixels for a sharp screen.
+for (const name of readdirSync(SAMPLES)) {
+  if (name.endsWith('.jpg')) webp(join(SAMPLES, name), join(SAMPLES, name.replace(/\.jpg$/, '-160.webp')), '-q', '75', '-resize', '160', '0');
+}
+
 // The camera screens: flat drawing with a photo inside, which a lossy WebP keeps sharp.
 mkdirSync(ASSETS, { recursive: true });
 for (const name of ['camera-adj', 'camera-menu']) {
   webp(join(IMAGES, `${name}.png`), join(ASSETS, `${name}.webp`), '-q', '82');
 }
-console.log(`WebP: ${count} landing pictures, 2 camera screens.`);
+console.log(`WebP: ${count} landing pictures, the sample thumbnails, 2 camera screens.`);

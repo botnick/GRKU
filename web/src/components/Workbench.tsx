@@ -647,7 +647,9 @@ export function Workbench({
           </div>
           {addButton("default")}
         </div>
-        {!owned.plus && requested && !requested.imported && (
+        {/* Shown also before the catalog arrives (and in the prerendered page), so the photo
+            column keeps its height and the looks below do not move. */}
+        {!owned.plus && !requested?.imported && (
           <button
             type="button"
             onClick={onPlus}
@@ -747,11 +749,13 @@ export function Workbench({
               onClick={() => showSample(item.source)}
             >
               <img
-                src={item.thumbnail}
+                src={item.thumbnail.replace(/\.jpg$/, "-160.webp")}
                 alt=""
-                width="360"
-                height="240"
+                width="160"
+                height="107"
                 loading="lazy"
+                decoding="async"
+                fetchPriority="low"
                 className="size-full object-cover"
               />
             </button>
