@@ -48,7 +48,7 @@ export function SiteFooter({
               GRKU<span className="text-brand">.</span>
             </a>
             <p className="max-w-[36ch] text-sm leading-relaxed text-muted-foreground">{t.lead[1]}</p>
-            <a className="w-fit font-mono text-xs text-muted-foreground/70 hover:text-foreground" href={releaseUrl}>
+            <a className="w-fit font-mono text-xs text-muted-foreground hover:text-foreground" href={releaseUrl}>
               GRKU {version}
             </a>
           </div>
@@ -99,7 +99,7 @@ export function SiteFooter({
             </li>
           </Group>
         </div>
-        <div className="flex flex-col gap-1.5 border-t border-border pt-6 text-xs leading-relaxed text-muted-foreground/80">
+        <div className="flex flex-col gap-1.5 border-t border-border pt-6 text-xs leading-relaxed text-muted-foreground">
           <p className="text-muted-foreground">{t.riskShort}</p>
           <p className="max-w-[90ch]">{t.trademarks}</p>
         </div>

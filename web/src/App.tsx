@@ -1667,7 +1667,7 @@ function StepIndicator({
                 </a>
               ) : (
                 <span
-                  className={cn('flex h-9 items-center gap-2 px-2', current ? 'font-medium text-foreground' : 'text-muted-foreground/60')}
+                  className={cn('flex h-9 items-center gap-2 px-2', current ? 'font-medium text-foreground' : 'text-muted-foreground')}
                   aria-current={current ? 'step' : undefined}
                 >
                   {body}

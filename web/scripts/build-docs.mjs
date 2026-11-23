@@ -155,6 +155,8 @@ function page(name, code) {
     <link rel="stylesheet" href="/docs.css" />
   </head>
   <body class="doc-page">
+    <!-- Plain mail links: Cloudflare adds no decoding script. -->
+    <!--email_off-->
     <header class="doc-header">
       <div class="doc-header-inner">
         <a class="doc-brand" href="${LANGUAGE_PATHS[code]}">GRKU<span>.</span></a>
@@ -166,6 +168,7 @@ function page(name, code) {
       ${body}
     </main>
     ${chrome[code].footer}
+    <!--/email_off-->
   </body>
 </html>
 `;

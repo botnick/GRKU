@@ -111,6 +111,9 @@ interface Props {
   notice?: string | null;
 }
 
+/** The grid of looks, which the kind tabs filter: the tabs have no panels of their own. */
+const LOOK_GRID = 'look-grid';
+
 const RING = 'outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50';
 /** The ring of a file button whose hidden input has the keyboard focus. */
 const FILE_FOCUS =
@@ -533,7 +536,7 @@ export function Workbench({
             </button>
           ))}
         </div>
-        <p className="mt-1 hidden text-[13px] text-muted-foreground/80 lg:block">{t.previewNote}</p>
+        <p className="mt-1 hidden text-[13px] text-muted-foreground lg:block">{t.previewNote}</p>
       </aside>
 
       {/* The shelf. */}
@@ -578,13 +581,16 @@ export function Workbench({
                       >
                         <EffectIcon effect={effect} className="size-11" />
                       </button>
+                      {/* A 24 px target for a finger, with the small round mark in its corner. */}
                       <button
                         type="button"
-                        className={cn('absolute top-0 right-0 flex size-4 items-center justify-center rounded-full bg-muted text-foreground ring-2 ring-card hover:bg-brand hover:text-white', RING)}
+                        className="group/remove absolute top-0 right-0 flex size-6 items-start justify-end rounded-full outline-none"
                         aria-label={t.removeOf(effect.name)}
                         onClick={() => toggle(effect)}
                       >
-                        <X className="size-2.5" strokeWidth={3} aria-hidden="true" />
+                        <span className="flex size-4 items-center justify-center rounded-full bg-muted text-foreground ring-2 ring-card group-hover/remove:bg-brand group-hover/remove:text-white group-focus-visible/remove:ring-[3px] group-focus-visible/remove:ring-ring/50">
+                          <X className="size-2.5" strokeWidth={3} aria-hidden="true" />
+                        </span>
                       </button>
                     </li>
                   ))}
@@ -734,11 +740,11 @@ export function Workbench({
               className="h-auto w-full max-w-full justify-start gap-0 overflow-x-auto border-b border-border p-0 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               aria-label={t.searchEffects}
             >
-              <TabsTrigger value="all" className="h-8 flex-none px-3 text-[13px]">
+              <TabsTrigger value="all" aria-controls={LOOK_GRID} className="h-8 flex-none px-3 text-[13px]">
                 {t.filterAll}
               </TabsTrigger>
               {kinds.map((item) => (
-                <TabsTrigger key={item} value={item} className="h-8 flex-none px-3 text-[13px]">
+                <TabsTrigger key={item} value={item} aria-controls={LOOK_GRID} className="h-8 flex-none px-3 text-[13px]">
                   {kindLabel(item, t)}
                 </TabsTrigger>
               ))}
@@ -779,7 +785,7 @@ export function Workbench({
         </div>
 
 
-        <ul className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-6 " aria-label={t.effects}>
+        <ul id={LOOK_GRID} className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-6 " aria-label={t.effects}>
           {!catalog &&
             !error &&
             Array.from({ length: 21 }, (_, index) => (

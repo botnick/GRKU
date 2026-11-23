@@ -56,11 +56,11 @@ export function ModulesStep({
         <div className="flex flex-col gap-3">
         <p className="m-0 text-sm text-muted-foreground tabular-nums">{t.site.menuPlaces(visible.length, MODULES_MAX)}</p>
         {full && <p className="m-0 text-[13px] text-muted-foreground">{t.modulesFull(MODULES_MAX)}</p>}
-        <ul role="group" aria-label={t.modules} className="divide-y divide-border overflow-hidden rounded-xl border bg-card">
+        <ul aria-label={t.modules} className="divide-y divide-border overflow-hidden rounded-xl border bg-card">
           {modules.map((module) => {
             const on = enabled.has(module.key);
             return (
-              <li key={module.key} className={cn('flex items-start gap-4 p-4 transition-opacity', !on && 'opacity-60')}>
+              <li key={module.key} className={cn('flex items-start gap-4 p-4 transition-opacity', !on && 'opacity-80')}>
                 {/* What the module does, on a photo where there is one, with its menu tile in the corner. */}
                 <span className="relative flex aspect-[3/2] w-24 shrink-0 items-center justify-center overflow-hidden rounded-md bg-black/40 sm:w-28">
                   {ROW_EXAMPLES[module.key] ? (
@@ -114,7 +114,7 @@ export function ModulesStep({
               {visible.length === 0 && <li className="px-2.5 py-3 text-sm text-destructive">{t.noModules}</li>}
             </ul>
           </CardContent>
-          <CardFooter className="px-5 pt-2 pb-3 text-xs text-muted-foreground/70">{t.landing.menuCaption}</CardFooter>
+          <CardFooter className="px-5 pt-2 pb-3 text-xs text-muted-foreground">{t.landing.menuCaption}</CardFooter>
         </Card>
       </div>
       {/* The recipes wait folded: most people keep the ones the card has. */}
