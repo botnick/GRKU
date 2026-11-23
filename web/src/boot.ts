@@ -16,8 +16,11 @@ import './index.css';
 import { loadFonts } from './fonts';
 import { pathLanguage } from './languagePage';
 
-// The fonts of a Thai, Chinese, Japanese, or Korean page load at once, not with the app.
-loadFonts(pathLanguage(location.pathname));
+// The Thai fonts load at once, not with the app: their styles are small, and a Thai page sets all
+// its text in them. The Chinese, Japanese, and Korean styles are large (about 100 KB each), so they
+// load with the app (main.tsx), after the photo; the text shows in the system font until then.
+const language = pathLanguage(location.pathname);
+if (language === 'th') loadFonts(language);
 
 const EVENTS = ['pointerdown', 'keydown', 'touchstart'] as const;
 let started = false;
