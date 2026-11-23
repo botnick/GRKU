@@ -53,8 +53,9 @@ export function fastbootPath(language: Language): string {
 }
 
 /**
- * The pages of the site under each language path: the home page, and the four steps of the
- * install: the film looks (`/install/`), the camera, the modules, and the card write.
+ * The pages of the site under each language path: the home page, the four steps of the
+ * install: the film looks (`/install/`), the camera, the modules, and the card write, and the
+ * install guide, which tells the same in plain steps with pictures.
  * `/install/` is the Thai first step and `/en/install/` the English one.
  */
 export const SITE_PAGES = {
@@ -63,6 +64,7 @@ export const SITE_PAGES = {
   camera: 'install/camera/',
   modules: 'install/modules/',
   write: 'install/write/',
+  guide: 'guide/',
 } as const;
 
 export type SitePage = keyof typeof SITE_PAGES;
@@ -72,14 +74,14 @@ export const INSTALL_STEPS = ['install', 'camera', 'modules', 'write'] as const 
 
 export type InstallStep = (typeof INSTALL_STEPS)[number];
 
-export const isInstallStep = (page: SitePage): page is InstallStep => page !== 'home';
+export const isInstallStep = (page: SitePage): page is InstallStep => (INSTALL_STEPS as readonly SitePage[]).includes(page);
 
 /**
- * The pages that search engines index, with hreflang links and sitemap entries: the home page
- * and the first step. The later steps hold only the controls of one step, so they ask not to be
+ * The pages that search engines index, with hreflang links and sitemap entries: the home page,
+ * the first step, and the install guide. The later steps hold only the controls of one step, so they ask not to be
  * indexed and lead search engines on to the first step.
  */
-export const INDEXED_PAGES: readonly SitePage[] = ['home', 'install'];
+export const INDEXED_PAGES: readonly SitePage[] = ['home', 'install', 'guide'];
 
 const PAGE_NAMES = Object.keys(SITE_PAGES) as SitePage[];
 

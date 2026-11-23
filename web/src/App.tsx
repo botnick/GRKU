@@ -1,5 +1,5 @@
 import { Suspense, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { ArrowLeft, ArrowRight, Check, ChevronDown, FileText, TriangleAlert } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, BookOpen, ChevronDown, FileText, TriangleAlert } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -68,6 +68,7 @@ import { ChoiceCard } from './components/ChoiceCard';
 import { CameraArt, FOCAL_LENGTH } from './components/CameraArt';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Faq } from './components/Faq';
+import { Guide } from './components/Guide';
 import { Masthead } from './components/Masthead';
 import { ModulesStep } from './components/ModulesStep';
 import { PackageOpen, type PackageStatus } from './components/PackageOpen';
@@ -954,11 +955,15 @@ export function App({
           </li>
         ))}
       </ol>
+      <a {...link('guide')} className="mt-5 flex w-fit items-center gap-2 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+        <BookOpen className="size-4" aria-hidden="true" />
+        {t.card}
+      </a>
       <a
         href={guidePdfUrl(camera.id, language)}
         target="_blank"
         rel="noreferrer"
-        className="mt-5 inline-flex items-center gap-2 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        className="mt-2 inline-flex items-center gap-2 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
       >
         <FileText className="size-4" aria-hidden="true" />
         {t.zipGuideButton}
@@ -1140,6 +1145,8 @@ export function App({
             faq={<Faq strings={t} />}
           />
         )}
+
+        {page === 'guide' && <Guide strings={t} language={language} link={link} canWrite={canWrite} />}
 
         {isInstallStep(page) && (
           // The steps of the install, each its own page. A short fade marks the change of step.

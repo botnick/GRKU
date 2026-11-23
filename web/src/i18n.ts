@@ -1,6 +1,7 @@
 import type { ModuleKey } from './modules';
 import type { Grade } from './catalog';
 import type { NativeProblem } from './import/native';
+import { GUIDE_STRINGS } from './guide';
 import { cookieValue, fastbootPath, isLanguage, LANGUAGE_COOKIE, LANGUAGE_PATHS, pagePath, pathLanguage, type SitePage } from './languagePage';
 
 export const LANGUAGES = [
@@ -16,6 +17,13 @@ export type Language = (typeof LANGUAGES)[number]['code'];
 
 /** Text with inline code: a part that starts with a backtick is code. */
 export type RichText = readonly string[];
+
+/** A question of the FAQ. The install guide finds the ones it repeats by their `id`. */
+export interface FaqItem {
+  id?: 'adj' | 'format';
+  q: string;
+  a: RichText;
+}
 
 const en = {
   /** The workbench and GRKU Plus (grku-tools/i18n-merge.mjs). */
@@ -566,6 +574,7 @@ const en = {
   faqTitle: 'FAQ',
   faq: [
     {
+      id: 'adj',
       q: 'GRKU does not show up in ADJ.',
       a: [
         'GRKU loads about 8 to 10 seconds after power-on. It takes longer on GR IV and on the first start after an install or update. Wait, then press ADJ while you shoot and select the sixth entry, GRKU. The first time, SD scripts must be on: hold MENU while you turn the camera on.',
@@ -582,6 +591,7 @@ const en = {
       a: ['No. While a film look is on, it replaces Image Control. Your Image Control settings come back when you turn the look off.'],
     },
     {
+      id: 'format',
       q: 'What happens when I format the card?',
       a: ['A format deletes GRKU and its settings. Before a format, copy the ', '`GRKU', ' folder to a computer. After the format, install GRKU again, then copy the ', '`GRKU', ' folder back to the card root.'],
     },
@@ -607,7 +617,7 @@ const en = {
       q: 'Which GRKU version is on my card?',
       a: ['In the camera, open MENU. About GRKU is at the end of the GRKU section in the Customize tab.'],
     },
-  ] as readonly { q: string; a: RichText }[],
+  ] as readonly FaqItem[],
   /** The section of the fast-boot firmware: the text, then the patch of an official file. */
   fastboot: {
     title: 'Fast start',
@@ -1306,6 +1316,7 @@ const zhHans: Strings = {
   faqTitle: '常见问题',
   faq: [
     {
+      id: 'adj',
       q: 'ADJ 里没有 GRKU？',
       a: [
         'GRKU 在开机后约 8 到 10 秒加载，GR IV 以及安装或更新后的第一次开机会更久。稍等片刻，然后在拍摄时按 ADJ，选择第 6 项 GRKU。首次使用前，需要按住 MENU 开机，打开 SD 脚本。',
@@ -1320,6 +1331,7 @@ const zhHans: Strings = {
       a: ['不会。打开胶片风格时，会代替影像控制；关闭后，原来的影像控制设置就会恢复。'],
     },
     {
+      id: 'format',
       q: '格式化存储卡会怎样？',
       a: ['格式化会删除 GRKU 及其设置。格式化前，请把 ', '`GRKU', ' 文件夹复制到电脑。格式化后，重新安装 GRKU，再把 ', '`GRKU', ' 文件夹复制回存储卡根目录。'],
     },
@@ -2013,6 +2025,7 @@ const zhHant: Strings = {
   faqTitle: '常見問題',
   faq: [
     {
+      id: 'adj',
       q: 'ADJ 裡沒有 GRKU？',
       a: [
         'GRKU 在開機後約 8 到 10 秒載入，GR IV 以及安裝或更新後的第一次開機會更久。稍等片刻，然後在拍攝時按 ADJ，選擇第 6 項 GRKU。首次使用前，需要按住 MENU 開機，開啟 SD 腳本。',
@@ -2027,6 +2040,7 @@ const zhHant: Strings = {
       a: ['不會。開啟底片風格時，會取代影像控制；關閉後，原本的影像控制設定就會恢復。'],
     },
     {
+      id: 'format',
       q: '格式化記憶卡會怎樣？',
       a: ['格式化會刪除 GRKU 及其設定。格式化前，請把 ', '`GRKU', ' 資料夾複製到電腦。格式化後，重新安裝 GRKU，再把 ', '`GRKU', ' 資料夾複製回記憶卡根目錄。'],
     },
@@ -2724,6 +2738,7 @@ const ja: Strings = {
   faqTitle: 'よくある質問',
   faq: [
     {
+      id: 'adj',
       q: 'ADJ に GRKU が表示されない',
       a: [
         'GRKU は電源を入れてから約 8〜10 秒で読み込まれます。GR IV や、インストール・アップデート後の最初の起動ではもう少しかかります。少し待ってから、撮影画面で ADJ を押し、6 番目の項目「GRKU」を選びます。初回は SD スクリプトをオンにする必要があります。MENU ボタンを押したまま電源を入れてください。',
@@ -2738,6 +2753,7 @@ const ja: Strings = {
       a: ['いいえ。フィルムルックをオンにすると、イメージコントロールの代わりに使われます。フィルムルックをオフにすると、元のイメージコントロールの設定に戻ります。'],
     },
     {
+      id: 'format',
       q: 'カードをフォーマットするとどうなりますか？',
       a: ['フォーマットすると、GRKU とその設定が削除されます。フォーマットの前に ', '`GRKU', ' フォルダーをパソコンにコピーし、フォーマットの後で GRKU をもう一度インストールしてから、', '`GRKU', ' フォルダーをカードのルートに戻してください。'],
     },
@@ -3444,6 +3460,7 @@ const ko: Strings = {
   faqTitle: '자주 묻는 질문',
   faq: [
     {
+      id: 'adj',
       q: 'ADJ 모드에 GRKU가 보이지 않습니다.',
       a: [
         'GRKU은 전원을 켜고 8~10초쯤 뒤에 실행됩니다. GR IV나 설치·업데이트 후 처음 켤 때는 더 걸립니다. 잠시 기다린 뒤 촬영 중에 ADJ를 누르고 여섯 번째 항목인 GRKU를 선택하세요. 처음에는 SD 스크립트를 켜야 합니다. MENU 버튼을 누른 채 전원을 켜세요.',
@@ -3460,6 +3477,7 @@ const ko: Strings = {
       a: ['아니요. 필름 룩이 켜져 있는 동안 화상 컨트롤 대신 적용됩니다. 필름 룩을 끄면 원래 화상 컨트롤 설정으로 돌아갑니다.'],
     },
     {
+      id: 'format',
       q: '카드를 포맷하면 어떻게 되나요?',
       a: ['포맷하면 GRKU과 그 설정이 삭제됩니다. 포맷하기 전에 ', '`GRKU', ' 폴더를 컴퓨터에 복사해 두세요. 포맷한 뒤에는 GRKU을 다시 설치하고, ', '`GRKU', ' 폴더를 카드 최상위에 다시 복사하세요.'],
     },
@@ -4207,6 +4225,7 @@ const th: Strings = {
       a: ['ใช้ฟรีได้ ดูตัวอย่างโทนทั้งหมดได้โดยไม่มีค่าใช้จ่าย และเขียนโทนลงการ์ดได้ฟรี 10 โทน ส่วน GRKU Plus จะเพิ่มจำนวนช่องสำหรับบันทึกโทนและเปิดให้ใช้ชุดฟิล์มได้ครบมากขึ้น สำหรับคนที่อยากสนับสนุนโปรเจกต์'],
     },
     {
+      id: 'adj',
       q: 'ไม่พบ GRKU ในเมนู ADJ',
       a: [
         'GRKU จะใช้เวลาโหลดประมาณ 8 ถึง 10 วินาทีหลังจากเปิดกล้อง โดยจะใช้เวลานานขึ้นในรุ่น GR IV และในการเปิดเครื่องครั้งแรกหลังติดตั้งหรืออัปเดต ให้รอสักครู่ จากนั้นกดปุ่ม ADJ ในหน้าถ่ายภาพแล้วเลือกช่องที่ 6 คือ GRKU สำหรับการใช้งานครั้งแรก ต้องเปิดใช้งานสคริปต์ในการ์ด SD ก่อน โดยกดปุ่ม MENU ค้างไว้ขณะเปิดกล้อง',
@@ -4223,6 +4242,7 @@ const th: Strings = {
       a: ['ไม่เปลี่ยน ขณะที่เปิดใช้ฟิล์มลุค ลุคจะทำงานแทนที่ Image Control ชั่วคราว เมื่อปิดฟิล์มลุค ค่า Image Control ที่ตั้งไว้ก็จะกลับมาเหมือนเดิม'],
     },
     {
+      id: 'format',
       q: 'จะเกิดอะไรขึ้นถ้าล้างการ์ด?',
       a: ['การล้างการ์ดจะลบ GRKU และการตั้งค่าทั้งหมดออกไป ก่อนล้างการ์ด ให้คัดลอกโฟลเดอร์ ', '`GRKU', ' เก็บไว้ในคอมพิวเตอร์ก่อน หลังจากล้างการ์ดเสร็จแล้ว ให้ติดตั้ง GRKU ใหม่อีกครั้ง แล้วคัดลอกโฟลเดอร์ ', '`GRKU', ' กลับไปไว้ที่ชั้นแรกสุดของการ์ด'],
     },
@@ -4248,7 +4268,7 @@ const th: Strings = {
       q: 'จะดูได้อย่างไรว่า GRKU ในการ์ดเป็นเวอร์ชันอะไร?',
       a: ['เปิด MENU ในกล้อง ข้อมูล About GRKU จะอยู่ท้ายสุดของหมวด GRKU ในแท็บตั้งค่ากำหนดเอง (Customize)'],
     },
-  ] as readonly { q: string; a: RichText }[],
+  ] as readonly FaqItem[],
   /** The section of the fast-boot firmware: the text, then the patch of an official file. */
   fastboot: {
     title: 'เริ่มทำงานเร็ว',
@@ -4499,6 +4519,8 @@ export function pageText(language: Language, page: PageName = 'home'): { title: 
       return { title: strings.site.modulesTitle, description: strings.site.modulesDescription, path: pagePath(language, page) };
     case 'write':
       return { title: strings.site.writeTitle, description: strings.site.writeDescription, path: pagePath(language, page) };
+    case 'guide':
+      return { title: GUIDE_STRINGS[language].title, description: GUIDE_STRINGS[language].description, path: pagePath(language, page) };
     default:
       return { title: strings.title, description: strings.description, path: LANGUAGE_PATHS[language] };
   }

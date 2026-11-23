@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { LANGUAGES, type Language, type Strings } from '../i18n';
 import { REPOSITORY } from '../links';
 import { newsStrings } from '../whatsNew';
-import type { SitePage } from '../languagePage';
+import { isInstallStep, type SitePage } from '../languagePage';
 import type { PageLink } from '../navigation';
 import { cn } from '@/lib/utils';
 
@@ -65,7 +65,7 @@ export function Masthead({
   ).map(([name, text]) => ({
     name: name === 'install' ? installStep : name,
     text,
-    current: name === 'home' ? page === 'home' : page !== 'home',
+    current: name === 'home' ? page === 'home' : isInstallStep(page),
   }));
   return (
     <header className="sticky top-0 z-30 border-b border-border/80 bg-background/85 backdrop-blur-md">

@@ -37,7 +37,7 @@ export function SiteFooter({
   releaseUrl: string;
   link?: PageLink;
 }) {
-  const install = link ? link('install') : { href: pagePath(language, 'install') };
+  const guide = link ? link('guide') : { href: pagePath(language, 'guide') };
   const news = link ? link('home', '#news') : { href: `${LANGUAGE_PATHS[language]}#news` };
   return (
     <footer className="border-t border-border text-sm">
@@ -54,7 +54,7 @@ export function SiteFooter({
           </div>
           <Group title={t.site.footerHelp}>
             <li>
-              <a className={LINK} {...install}>
+              <a className={LINK} {...guide}>
                 {t.card}
               </a>
             </li>
