@@ -30,6 +30,7 @@ import { PhotoLoader } from '../preview/raw';
 import { forget, prefetchTable, preview, type PreviewEffect, type Source } from '../preview/render';
 import { DEFAULT_SAMPLE, SAMPLES, sampleOf } from '../preview/samples';
 import { importFit, resolveSelection, selectImport, type Selection } from '../selection';
+import type { Family, Recipe } from '../recipes';
 import { gridLooks } from '../gridPage';
 import { STOCKS } from '../stocks';
 import { useCatalog } from '../useCatalog';
@@ -113,6 +114,12 @@ interface Props {
   onCard: ReadonlySet<string> | null;
   /** The IDs of the imports whose file on the card differs, such as after a new name. */
   changedOnCard?: ReadonlySet<string>;
+  /** The camera line of the page, for a recipe from a Lightroom preset import. */
+  family: Family;
+  /** The recipe library of that camera line. */
+  recipes: readonly Recipe[];
+  /** Adds a recipe from a Lightroom preset import. */
+  onAddRecipe: (recipe: Recipe) => void;
   /** What the visitor owns of GRKU Plus. */
   owned: Entitlement;
   /** Opens GRKU Plus. */
@@ -157,6 +164,9 @@ export function Workbench({
   cardEffects,
   onCard,
   changedOnCard,
+  family,
+  recipes,
+  onAddRecipe,
   owned,
   onPlus,
   plusKey = null,
@@ -902,7 +912,7 @@ export function Workbench({
         </p>
 
         {catalog?.baseGamma && (
-          <ImportDialog ref={importer} strings={t} baseGamma={catalog.baseGamma} taken={taken} onImport={(effect) => importEffects([effect])} />
+          <ImportDialog ref={importer} strings={t} baseGamma={catalog.baseGamma} taken={taken} onImport={(effect) => importEffects([effect])} family={family} recipes={recipes} onAddRecipe={onAddRecipe} />
         )}
         <EditDialog ref={editor} strings={t} onSave={onEdit} />
       </div>

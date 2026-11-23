@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
@@ -24,6 +25,7 @@ import {
   coverFromFile,
   INPUT_NAMES,
   INPUTS,
+  isPreset,
   lutAccept,
   nameFromFile,
   validCover,
@@ -31,7 +33,10 @@ import {
   type CoverFields,
   type Input as LutInput,
 } from '../import/names';
+import { presetRecipePlan } from '../import/presetRecipe';
 import { TaskSlot } from '../import/task';
+import { loadWasm } from '../package';
+import { newRecipeId, onCount, type Family, type Recipe } from '../recipes';
 import { CoverFieldset, useCoverEditor } from './CoverEditor';
 import { CoverIcon } from './EffectIcon';
 
@@ -43,6 +48,12 @@ interface Props {
   /** Adds the effect to the page. Returns true when the effect stays unchecked because the
    * package already has `MAX_EFFECTS` checked effects. */
   onImport: (effect: ImportedEffect) => boolean;
+  /** The camera line of the page, for a recipe from a Lightroom preset. */
+  family: Family;
+  /** The recipe library of that camera line. */
+  recipes: readonly Recipe[];
+  /** Adds a recipe to that library. */
+  onAddRecipe: (recipe: Recipe) => void;
   ref?: Ref<ImportDialogHandle>;
 }
 
@@ -56,7 +67,13 @@ type Status =
   /** `fraction`: the progress of the fit, from 0 to 1. */
   | { state: 'importing'; fraction: number }
   | { state: 'failed'; message: string }
-  | { state: 'done'; effect: ImportedEffect<LutImport>; full: boolean };
+  | {
+      state: 'done';
+      effect: ImportedEffect<LutImport>;
+      full: boolean;
+      /** A line about the recipe from the preset, or null when none was made. */
+      recipeNote: string | null;
+    };
 
 /** `auto` uses the input that the LUT data suggests (`guessInput`). */
 type InputChoice = 'auto' | LutInput;
@@ -77,7 +94,7 @@ const FILE_FOCUS =
  * icon that the user can edit, then describes how closely the effect follows the LUT and shows
  * the warnings.
  */
-export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Props) {
+export function ImportDialog({ strings: t, baseGamma, taken, onImport, family, recipes, onAddRecipe, ref }: Props) {
   const ids = useId();
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -88,6 +105,8 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
   const coverEditor = useCoverEditor(EMPTY_COVER);
   const { cover } = coverEditor;
   const [status, setStatus] = useState<Status>({ state: 'idle' });
+  // On by default: a Lightroom preset also adds a recipe with its exposure, grain, and white balance.
+  const [addRecipe, setAddRecipe] = useState(true);
   // A new key empties the file input for the next import.
   const [fileKey, setFileKey] = useState(0);
   // Only the newest guess, fit, and cover check change the dialog.
@@ -103,8 +122,10 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
   );
 
   const importing = status.state === 'importing';
-  const reading = choice === 'auto' && guessed === null;
-  const input: LutInput = choice === 'auto' ? (guessed ?? 'standard') : choice;
+  const preset = file !== null && isPreset(file.name);
+  // A preset has no input encoding: the fit always uses Standard.
+  const reading = !preset && choice === 'auto' && guessed === null;
+  const input: LutInput = preset ? 'standard' : choice === 'auto' ? (guessed ?? 'standard') : choice;
   const badName = file !== null && !validName(name);
   const ready =
     file !== null &&
@@ -123,6 +144,7 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
     coverEditor.cancel();
     void coverEditor.show(EMPTY_COVER);
     setStatus({ state: 'idle' });
+    setAddRecipe(true);
     setFileKey((key) => key + 1);
   }
 
@@ -150,6 +172,12 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
     }
     setName(nameFromFile(chosen.name));
     void fillCover(coverFromFile(chosen.name));
+    // A preset has no input to guess: it imports over Standard.
+    if (isPreset(chosen.name)) {
+      guess.cancel();
+      setGuessed('standard');
+      return;
+    }
     setGuessed(null);
     try {
       const found = await guess.run((signal) => guessInput(chosen, baseGamma, signal));
@@ -196,7 +224,8 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
         warnings: warnings.length,
       });
       const full = onImport(imported.value);
-      setStatus({ state: 'done', effect: imported.value, full });
+      const recipeNote = await addPresetRecipe(imported.value, addRecipe);
+      setStatus({ state: 'done', effect: imported.value, full, recipeNote });
     } catch (error) {
       console.error(error);
       trackImport(file.name, input, choice !== 'auto', { result: 'failed' });
@@ -204,6 +233,34 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
         state: 'failed',
         message: error instanceof Error ? error.message : String(error),
       });
+    }
+  }
+
+  /**
+   * Adds a recipe from the hints of a preset when the box is on, and returns the line for the
+   * done view. Returns null without hints, with the box off, or when the hints make no recipe.
+   */
+  async function addPresetRecipe(effect: ImportedEffect<LutImport>, wanted: boolean): Promise<string | null> {
+    const hints = effect.imported.hints;
+    if (!wanted || !hints || !isPreset(effect.imported.source)) return null;
+    try {
+      const { recipeFromPreset } = await loadWasm();
+      const text = recipeFromPreset(hints, family, effect.name, effect.id);
+      if (text == null) return null;
+      const recipe = JSON.parse(text) as Recipe;
+      const plan = presetRecipePlan(true, true, recipes.length, onCount(recipes));
+      if (plan === 'full') return t.importRecipeFull;
+      onAddRecipe({
+        ...recipe,
+        id: newRecipeId(new Set(recipes.map((item) => item.id))),
+        enabled: plan === 'add',
+        hidden: false,
+        name: effect.name,
+      });
+      return t.importRecipeAdded(effect.name);
+    } catch (error) {
+      console.error(error);
+      return null;
     }
   }
 
@@ -237,10 +294,11 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
               <div className="flex min-w-0 flex-col gap-1 text-sm text-muted-foreground">
                 <p className="text-base font-semibold text-foreground">{done.effect.name}</p>
                 <p>{t.fitText[done.effect.imported.grade]}</p>
-                <p>{t.importUsed(INPUT_NAMES[done.effect.imported.input])}</p>
+                {!isPreset(done.effect.imported.source) && <p>{t.importUsed(INPUT_NAMES[done.effect.imported.input])}</p>}
               </div>
             </div>
             {done.full && <p className="text-sm text-muted-foreground">{t.importUnchecked(MAX_EFFECTS)}</p>}
+            {done.recipeNote && <p className="text-sm text-muted-foreground">{done.recipeNote}</p>}
             {done.effect.imported.warnings.length > 0 && (
               <div className="flex flex-col gap-2 rounded-lg border border-border p-4 text-sm">
                 <p className="font-medium text-destructive">{t.importWarnings}</p>
@@ -290,9 +348,25 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
                 disabled={importing}
                 onChange={chooseFile}
               />
+              {preset && <p className="text-sm text-muted-foreground">{t.importPresetNote}</p>}
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            {preset && (
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  id={`${ids}-recipe`}
+                  className="mt-0.5"
+                  checked={addRecipe}
+                  disabled={importing}
+                  onCheckedChange={(value) => setAddRecipe(value === true)}
+                />
+                <Label htmlFor={`${ids}-recipe`} className="leading-snug font-normal">
+                  {t.importPresetRecipe}
+                </Label>
+              </div>
+            )}
+
+            <div className={cn('grid gap-4', !preset && 'sm:grid-cols-2')}>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor={`${ids}-name`}>{t.importName}</Label>
                 <Input
@@ -311,6 +385,7 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
                   </p>
                 )}
               </div>
+              {!preset && (
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor={`${ids}-input`}>{t.importInput}</Label>
                 <Select
@@ -336,6 +411,7 @@ export function ImportDialog({ strings: t, baseGamma, taken, onImport, ref }: Pr
                   </p>
                 )}
               </div>
+              )}
             </div>
 
             <CoverFieldset strings={t} editor={coverEditor} disabled={importing} />

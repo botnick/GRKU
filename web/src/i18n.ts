@@ -352,7 +352,13 @@ const en = {
   importHint: "Can't find your film?",
   importTitle: 'Import a LUT',
   importNote: 'This browser keeps the file for later visits.',
-  importFile: 'Choose a .cube, PNG, or TIFF file',
+  importFile: 'Choose a .cube, PNG, TIFF, or .xmp file',
+  importPresetNote:
+    'Lightroom preset: GRKU reads the color settings. Settings that change with each photo are only approximate.',
+  importPresetRecipe:
+    'Also add a recipe with the exposure, grain, and white balance of the preset',
+  importRecipeAdded: (name: string) => `Added the recipe ${name}.`,
+  importRecipeFull: 'The recipe library is full, so no recipe was added.',
   importName: 'Film look name',
   importNameNote: '1 to 16 characters: English letters, digits, spaces, and symbols.',
   importInput: 'LUT input',
@@ -564,7 +570,7 @@ const en = {
     },
     {
       q: 'Can I use my own LUT or Lightroom preset?',
-      a: ['Yes. Select Import a LUT in Film Looks. For a Lightroom preset, the import window tells you how to turn it into a LUT image.'],
+      a: ['Yes. Select Import a LUT in Film Looks, then choose a .cube file or a Lightroom .xmp preset.'],
     },
     {
       q: 'Can I use these looks in Lightroom?',
@@ -1098,7 +1104,12 @@ const zhHans: Strings = {
   importHint: '没有想要的胶片？',
   importTitle: '导入 LUT',
   importNote: '文件留在本浏览器，下次打开还在。',
-  importFile: '选择 .cube、PNG 或 TIFF 文件',
+  importFile: '选择 .cube、PNG、TIFF 或 .xmp 文件',
+  importPresetNote:
+    'Lightroom 预设：GRKU 读取其中的调色设置。随照片变化的设置只能近似。',
+  importPresetRecipe: '同时添加带有预设曝光、颗粒和白平衡的配方',
+  importRecipeAdded: (name) => `已添加配方 ${name}。`,
+  importRecipeFull: '配方库已满，未添加配方。',
   importName: '胶片风格名称',
   importNameNote: '1 到 16 个字符：英文字母、数字、空格和符号。',
   importInput: 'LUT 输入',
@@ -1277,7 +1288,7 @@ const zhHans: Strings = {
     },
     {
       q: '能用我自己的 LUT 或 Lightroom 预设吗？',
-      a: ['可以。在“胶片风格”中选择“导入 LUT”。Lightroom 预设的转换方法见导入窗口中的说明。'],
+      a: ['可以。在“胶片风格”中选择“导入 LUT”，然后选择 .cube 文件或 Lightroom 的 .xmp 预设。'],
     },
     {
       q: '能在 Lightroom 里使用这些风格吗？',
@@ -1780,7 +1791,12 @@ const zhHant: Strings = {
   importHint: '沒有想要的底片？',
   importTitle: '匯入 LUT',
   importNote: '檔案留在本瀏覽器，下次開啟還在。',
-  importFile: '選擇 .cube、PNG 或 TIFF 檔案',
+  importFile: '選擇 .cube、PNG、TIFF 或 .xmp 檔案',
+  importPresetNote:
+    'Lightroom 預設集：GRKU 讀取其中的調色設定。隨照片變化的設定只能近似。',
+  importPresetRecipe: '同時新增帶有預設集曝光、顆粒和白平衡的配方',
+  importRecipeAdded: (name) => `已新增配方 ${name}。`,
+  importRecipeFull: '配方庫已滿，未新增配方。',
   importName: '底片風格名稱',
   importNameNote: '1 到 16 個字元：英文字母、數字、空白和符號。',
   importInput: 'LUT 輸入',
@@ -1959,7 +1975,7 @@ const zhHant: Strings = {
     },
     {
       q: '能用我自己的 LUT 或 Lightroom 預設集嗎？',
-      a: ['可以。在「底片風格」中選擇「匯入 LUT」。Lightroom 預設集的轉換方法見匯入視窗中的說明。'],
+      a: ['可以。在「底片風格」中選擇「匯入 LUT」，然後選擇 .cube 檔案或 Lightroom 的 .xmp 預設集。'],
     },
     {
       q: '能在 Lightroom 裡使用這些風格嗎？',
@@ -2462,7 +2478,12 @@ const ja: Strings = {
   importHint: 'お探しのフィルムがない場合は',
   importTitle: 'LUT を読み込む',
   importNote: 'このブラウザーに保存され、次回も使えます。',
-  importFile: '.cube・PNG・TIFF ファイルを選択',
+  importFile: '.cube・PNG・TIFF・.xmp ファイルを選択',
+  importPresetNote:
+    'Lightroom プリセット：GRKU は色の設定を読み取ります。写真ごとに変わる設定は近似です。',
+  importPresetRecipe: 'プリセットの露出・粒状・ホワイトバランスのレシピも追加する',
+  importRecipeAdded: (name) => `レシピ「${name}」を追加しました。`,
+  importRecipeFull: 'レシピライブラリがいっぱいのため、レシピは追加されませんでした。',
   importName: 'フィルムルック名',
   importNameNote: '半角英数字・スペース・記号で 1〜16 文字。',
   importInput: 'LUT の入力',
@@ -2645,7 +2666,7 @@ const ja: Strings = {
     },
     {
       q: '自分の LUT や Lightroom のプリセットを使えますか？',
-      a: ['はい。「フィルムルック」の「LUT を読み込む」を選びます。Lightroom のプリセットを LUT 画像にする方法は、読み込みウィンドウに説明があります。'],
+      a: ['はい。「フィルムルック」の「LUT を読み込む」を選び、.cube ファイルまたは Lightroom の .xmp プリセットを選択してください。'],
     },
     {
       q: 'これらのルックを Lightroom で使えますか？',
@@ -3148,7 +3169,12 @@ const ko: Strings = {
   importHint: '원하는 필름이 없나요?',
   importTitle: 'LUT 가져오기',
   importNote: '파일은 이 브라우저에 저장되어 다음에 방문해도 남아 있습니다.',
-  importFile: '.cube, PNG, TIFF 파일 선택',
+  importFile: '.cube, PNG, TIFF, .xmp 파일 선택',
+  importPresetNote:
+    'Lightroom 프리셋: GRKU가 색상 설정을 읽습니다. 사진마다 달라지는 설정은 근사치입니다.',
+  importPresetRecipe: '프리셋의 노출, 그레인, 화이트 밸런스가 담긴 레시피도 추가',
+  importRecipeAdded: (name) => `레시피 ${name}을(를) 추가했습니다.`,
+  importRecipeFull: '레시피 라이브러리가 가득 차서 레시피를 추가하지 않았습니다.',
   importName: '필름 룩 이름',
   importNameNote: '1~16자: 영문, 숫자, 공백, 기호.',
   importInput: 'LUT 입력',
@@ -3342,7 +3368,7 @@ const ko: Strings = {
     },
     {
       q: '가지고 있는 LUT나 Lightroom 프리셋을 쓸 수 있나요?',
-      a: ['네. 필름 룩에서 LUT 가져오기를 선택하세요. Lightroom 프리셋을 LUT 이미지로 바꾸는 방법은 가져오기 창에 안내되어 있습니다.'],
+      a: ['네. 필름 룩에서 LUT 가져오기를 선택한 뒤, .cube 파일 또는 Lightroom .xmp 프리셋을 고르세요.'],
     },
     {
       q: '이 룩을 Lightroom에서 쓸 수 있나요?',
@@ -3857,7 +3883,11 @@ const th: Strings = {
   importHint: "ไม่เจอฟิล์มที่ต้องการ?",
   importTitle: 'นำเข้า LUT',
   importNote: 'เบราว์เซอร์นี้จะเก็บไฟล์ไว้ใช้ในครั้งถัดไป',
-  importFile: 'เลือกไฟล์ .cube, PNG หรือ TIFF',
+  importFile: 'เลือกไฟล์ .cube, PNG, TIFF หรือ .xmp',
+  importPresetNote: 'พรีเซ็ต Lightroom: GRKU จะอ่านค่าสีต่าง ๆ ส่วนการตั้งค่าที่เปลี่ยนไปตามแต่ละรูปจะเป็นค่าประมาณเท่านั้น',
+  importPresetRecipe: 'เพิ่มสูตรสีพร้อมค่าแสง เกรน และสมดุลแสงขาวจากพรีเซ็ต',
+  importRecipeAdded: (name) => `เพิ่มสูตรสี ${name} เรียบร้อยแล้ว`,
+  importRecipeFull: 'คลังสูตรสีเต็มแล้ว ไม่สามารถเพิ่มสูตรสีใหม่ได้',
   importName: 'ชื่อฟิล์มลุค',
   importNameNote: '1 ถึง 16 ตัวอักษร: ภาษาอังกฤษ ตัวเลข เว้นวรรค และสัญลักษณ์',
   importInput: 'อินพุตของ LUT',
@@ -4081,7 +4111,7 @@ const th: Strings = {
     },
     {
       q: 'ใช้ LUT หรือพรีเซ็ต Lightroom ของตัวเองได้ไหม?',
-      a: ['ได้ ให้เลือก นำเข้า LUT ในหมวดฟิล์มลุค สำหรับพรีเซ็ตของ Lightroom ในหน้าต่างนำเข้าจะมีวิธีแปลงพรีเซ็ตให้เป็นภาพ LUT บอกไว้'],
+      a: ['ได้ เลือก "นำเข้า LUT" ใน "ฟิล์มลุค" แล้วเลือกไฟล์ .cube หรือพรีเซ็ต Lightroom .xmp'],
     },
     {
       q: 'นำลุคเหล่านี้ไปใช้ใน Lightroom ได้ไหม?',

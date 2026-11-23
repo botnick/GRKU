@@ -32,7 +32,7 @@ import {
 } from './card';
 import { allowCard, forgetLastCard, saveLastCard } from './cardStore';
 import { useRecipeLibrary } from './recipeLibrary';
-import { DIAL_SAVED, effectCode, familyOf, withPreset, writeRecipeFile, type Family, type Recipe } from './recipes';
+import { cameraOrder, DIAL_SAVED, effectCode, familyOf, withPreset, writeRecipeFile, type Family, type Recipe } from './recipes';
 import { RecipesPanel } from './components/RecipesPanel';
 import {
   changedImports,
@@ -1157,6 +1157,9 @@ export function App({
                 cardEffects={active ? cardExtra : []}
                 onCard={active && active.state.install !== 'none' ? new Set(active.effects.keys()) : null}
                 changedOnCard={active ? changedImports(active, imported) : undefined}
+                family={family}
+                recipes={recipeLibrary.library}
+                onAddRecipe={(recipe) => recipeLibrary.change(cameraOrder([...recipeLibrary.library, recipe]))}
                 owned={owned}
                 onPlus={openPlus}
                 plusKey={plusKey}
