@@ -17,7 +17,7 @@
 
 ## 도구 받기
 
-[GRKU-dump.zip](https://github.com/botnick/GRKU/releases/latest/download/GRKU-dump.zip)을 다운로드합니다. [최신 릴리스](https://github.com/botnick/GRKU/releases/latest)의 `GRKU-<버전>-dump.zip`과 같은 파일입니다.
+[GRKU-dump.zip](https://grku.app/downloads/GRKU-dump.zip)을 다운로드합니다. [최신 릴리스](https://grku.app/ko/#news)의 `GRKU-<버전>-dump.zip`과 같은 파일입니다.
 
 ZIP에는 `SD_ROOT/SCRIPT/STARTUP.TTL`, `SD_ROOT/SCRIPT/GRDUMP/DUMP.SH`, `SD_ROOT/SCRIPT/GRDUMP/DUMP.BIN`, 그리고 `README.txt`가 들어 있습니다.
 
@@ -39,9 +39,9 @@ ZIP에는 `SD_ROOT/SCRIPT/STARTUP.TTL`, `SD_ROOT/SCRIPT/GRDUMP/DUMP.SH`, `SD_ROO
 ## 파일 보내기
 
 1. `SCRIPT/GRDUMP` 폴더를 ZIP으로 압축합니다.
-2. ZIP을 [GitHub issue](https://github.com/botnick/GRKU/issues/new)에 첨부합니다. 카메라 모델과 펌웨어 버전을 적습니다.
+2. ZIP 파일을 [support@grku.app](mailto:support@grku.app)로 보내주세요. 카메라 모델명과 펌웨어 버전을 함께 기재해 주십시오.
 
-개발자가 issue에서 덤프를 요청했다면 그 issue에 ZIP을 첨부합니다. ZIP 파일의 크기는 약 20 MB이며, GitHub에서는 최대 25 MB까지 파일을 첨부할 수 있습니다.
+개발자가 덤프 파일을 요청한 경우, 해당 이메일에 대한 답장으로 ZIP 파일을 첨부해 보내주세요. ZIP 파일 용량은 약 20MB입니다. 사용하는 이메일 서비스에서 대용량 파일 첨부가 불가능할 경우, 파일 공유 서비스의 링크를 대신 보내주시기 바랍니다.
 
 ## 카드를 원래대로 되돌리기
 

@@ -9,9 +9,26 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
+/* The light page: a theme of its own (data-theme="light", which the script in the head sets from
+   the choice in the header and the device), or, with the script off, a device that prefers light.
+   The dark page is the brand page and the default; `dark:` stays the shadcn class variant, which
+   the site never sets. */
+@custom-variant light {
+  &:where([data-theme='light'], [data-theme='light'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: light) {
+    &:where(:root:not([data-theme]), :root:not([data-theme]) *) {
+      @slot;
+    }
+  }
+}
+
+/* The dark page, and the dark things on a light page: the camera screen and the drawings of the
+   camera and the computer (`theme-dark`), which keep the colors of the dark page. */
+:root,
+.theme-dark {
   color-scheme: dark;
-  --radius: 0.625rem;
   --background: #171717;
   --foreground: #f7f7f2;
   --card: #1f1f1f;
@@ -30,14 +47,60 @@
   --border: #2c2c2c;
   --input: #3a3a3a;
   --ring: #d94135;
-  --brand: #d94135;
+  /* The red of the brand in three parts on the dark page: a deeper red under white text (buttons,
+     fills; 5:1), a lighter red for red text on the dark (5.8:1), and the red of the logo itself
+     for the period of the wordmark. */
+  --brand: #c93a2f;
   --brand-foreground: #ffffff;
+  --brand-text: #f0675a;
+  --brand-mark: #d94135;
+}
+.theme-dark {
+  color: var(--foreground);
+}
+
+:root {
+  --radius: 0.625rem;
   --gutter: clamp(16px, 4vw, 56px);
   --font-language: 'Inter';
   /* The typeface of the page: Inter, with the font of the page language beside it. A Thai page
      is set in IBM Plex Sans Thai throughout, Latin letters included, so a headline that mixes
      scripts keeps one weight and one rhythm. */
   --font-page: 'Inter', var(--font-language), ui-sans-serif, system-ui, sans-serif;
+  /* The text on a photograph, over a dark label, in both themes. */
+  --photo-foreground: #f7f7f2;
+  /* The ground of the drawings of the camera and the computer (GuideArt, CameraArt): the drawn
+     things stay dark, on a dark panel or on a light gray table. */
+  --art: #141414;
+
+  /* Light: warm paper, the ink of the dark page for text, and a deeper red, so that red text and
+     white text on red keep 4.5:1 on paper. */
+  @variant light {
+    color-scheme: light;
+    --background: #f5f4ef;
+    --foreground: #171717;
+    --card: #fbfaf7;
+    --card-foreground: #171717;
+    --popover: #fdfcfa;
+    --popover-foreground: #171717;
+    --primary: #171717;
+    --primary-foreground: #f7f7f2;
+    --secondary: #ebe9e2;
+    --secondary-foreground: #171717;
+    --muted: #ebe9e2;
+    --muted-foreground: #5f5e58;
+    --accent: #e6e3db;
+    --accent-foreground: #171717;
+    --destructive: #b42318;
+    --border: #dedad0;
+    --input: #c9c4b8;
+    --ring: #b8352a;
+    --brand: #b8352a;
+    --brand-foreground: #ffffff;
+    --brand-text: #b8352a;
+    --brand-mark: #b8352a;
+    --art: #e6e3da;
+  }
 }
 
 /* The font of the page language, beside Inter. fonts.ts loads its files. */
@@ -79,6 +142,10 @@
   --color-ring: var(--ring);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-brand-text: var(--brand-text);
+  --color-brand-mark: var(--brand-mark);
+  --color-photo-foreground: var(--photo-foreground);
+  --color-art: var(--art);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -163,7 +230,7 @@
   }
   .image-comparison .__rcs-handle-button,
   .image-comparison .__rcs-handle-line {
-    color: var(--foreground);
+    color: var(--photo-foreground);
   }
   /* The arrows of the handle, in proportion to its small button. The library sets their size
      inline, so only !important overrides it. */

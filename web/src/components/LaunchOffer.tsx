@@ -25,17 +25,17 @@ export function LaunchOffer({ strings: t, className }: { strings: Strings; class
       )}
     >
       <div className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-[12px] font-medium text-brand">{t.plus.launchTitle}</span>
+        <span className="text-[12px] font-medium text-brand-text">{t.plus.launchTitle}</span>
         <span className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{t.plus.launchOff(maxOff)}</span>
         <span className="text-[12px] leading-snug text-muted-foreground">{t.plus.launchAfter}</span>
       </div>
       <div className="flex shrink-0 flex-col items-center rounded-lg border border-brand/30 bg-background/60 px-3 py-2 text-center">
         {days !== null && days <= 1 ? (
-          <span className="text-sm font-semibold text-brand">{t.plus.launchLastDay}</span>
+          <span className="text-sm font-semibold text-brand-text">{t.plus.launchLastDay}</span>
         ) : (
           <>
             <span className="text-[11px] text-muted-foreground">{t.plus.launchEndsIn}</span>
-            <span className="text-2xl leading-none font-semibold tabular-nums text-brand">{days ?? '–'}</span>
+            <span className="text-2xl leading-none font-semibold tabular-nums text-brand-text">{days ?? '–'}</span>
             <span className="text-[11px] text-muted-foreground">{t.plus.launchDays}</span>
           </>
         )}

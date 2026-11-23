@@ -1,39 +1,62 @@
-import { useState, type ReactNode } from 'react';
-import { ArrowRight, Check, LifeBuoy } from 'lucide-react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
-import { CAMERAS, MODESET_TOKEN } from '../cameras';
-import { GUIDE_STRINGS } from '../guide';
-import type { FaqItem, Language, RichText as Parts, Strings } from '../i18n';
-import { guideUrl, REPOSITORY } from '../links';
-import type { PageLink } from '../navigation';
-import { CameraBackArt, ComputerArt, CopyArt, InsertArt } from './GuideArt';
-import { RichText } from './RichText';
-import { StepHeading } from './Step';
+import { useState, type ReactNode } from "react";
+import { ArrowRight, Check, LifeBuoy } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { CAMERAS, MODESET_TOKEN } from "../cameras";
+import { GUIDE_STRINGS } from "../guide";
+import type { FaqItem, Language, RichText as Parts, Strings } from "../i18n";
+import { FEEDBACK, guideUrl } from "../links";
+import type { PageLink } from "../navigation";
+import { CameraBackArt, ComputerArt, CopyArt, InsertArt } from "./GuideArt";
+import { RichText } from "./RichText";
+import { StepHeading } from "./Step";
 
 /** A section of the guide: a hairline above, the heading, then the body. */
-const SECTION = 'scroll-mt-28 md:scroll-mt-20 border-t border-border py-12 lg:py-16';
-const NOTE = 'mt-1.5 text-sm leading-relaxed text-muted-foreground';
+const SECTION =
+  "scroll-mt-28 md:scroll-mt-20 border-t border-border py-12 lg:py-16";
+const NOTE = "mt-1.5 text-sm leading-relaxed text-muted-foreground";
 
 /** The cameras that GRKU supports, by the names of the installer. */
-const SUPPORTED_CAMERAS = CAMERAS.filter((camera) => camera.support).map((camera) => camera.name);
+const SUPPORTED_CAMERAS = CAMERAS.filter((camera) => camera.support).map(
+  (camera) => camera.name,
+);
 
 /** The ModeSet file of each camera, each once, for the steps that name it. */
-const MODESETS = [...new Set(CAMERAS.flatMap((camera) => (camera.support ? [camera.support.modeset] : [])))].join(' / ');
+const MODESETS = [
+  ...new Set(
+    CAMERAS.flatMap((camera) =>
+      camera.support ? [camera.support.modeset] : [],
+    ),
+  ),
+].join(" / ");
 
 /** Install text with the ModeSet file of the cameras in place of its token. */
-const withModeset = (parts: Parts): Parts => parts.map((part) => (part === MODESET_TOKEN ? `\`${MODESETS}` : part));
+const withModeset = (parts: Parts): Parts =>
+  parts.map((part) => (part === MODESET_TOKEN ? `\`${MODESETS}` : part));
 
 /** A button of the install as the page shows it, so the visitor knows what to look for. */
-function ButtonShape({ children, outline = false }: { children: ReactNode; outline?: boolean }) {
+function ButtonShape({
+  children,
+  outline = false,
+}: {
+  children: ReactNode;
+  outline?: boolean;
+}) {
   return (
     <span
       className={cn(
-        'mt-2.5 inline-flex h-8 w-fit items-center rounded-md px-3 text-[13px] font-medium select-none',
-        outline ? 'border border-input text-foreground' : 'bg-brand text-brand-foreground',
+        "mt-2.5 inline-flex h-8 w-fit items-center rounded-md px-3 text-[13px] font-medium select-none",
+        outline
+          ? "border border-input text-foreground"
+          : "bg-brand text-brand-foreground",
       )}
     >
       {children}
@@ -42,10 +65,25 @@ function ButtonShape({ children, outline = false }: { children: ReactNode; outli
 }
 
 /** One numbered step: the number on a line that joins the steps, the text, and what goes with it. */
-function Item({ n, text, children, last = false }: { n: number; text: ReactNode; children?: ReactNode; last?: boolean }) {
+function Item({
+  n,
+  text,
+  children,
+  last = false,
+}: {
+  n: number;
+  text: ReactNode;
+  children?: ReactNode;
+  last?: boolean;
+}) {
   return (
     <li className="relative flex gap-4 pb-7 last:pb-0">
-      {!last && <span className="absolute top-8 bottom-1 left-[13px] w-px bg-border" aria-hidden="true" />}
+      {!last && (
+        <span
+          className="absolute top-8 bottom-1 left-[13px] w-px bg-border"
+          aria-hidden="true"
+        />
+      )}
       <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand text-[13px] font-semibold text-brand-foreground">
         {n}
       </span>
@@ -58,11 +96,20 @@ function Item({ n, text, children, last = false }: { n: number; text: ReactNode;
 }
 
 /** A list of steps; each entry is the text and what goes under it. */
-function Steps({ items }: { items: readonly (readonly [ReactNode, ReactNode?])[] }) {
+function Steps({
+  items,
+}: {
+  items: readonly (readonly [ReactNode, ReactNode?])[];
+}) {
   return (
     <ol className="m-0 flex list-none flex-col p-0">
       {items.map(([text, extra], index) => (
-        <Item key={index} n={index + 1} text={text} last={index === items.length - 1}>
+        <Item
+          key={index}
+          n={index + 1}
+          text={text}
+          last={index === items.length - 1}
+        >
           {extra}
         </Item>
       ))}
@@ -71,10 +118,20 @@ function Steps({ items }: { items: readonly (readonly [ReactNode, ReactNode?])[]
 }
 
 /** A step with its picture on a card: the cards of the camera stand in a row from the tablet up. */
-function PictureStep({ n, art, text, children }: { n: number; art: ReactNode; text: ReactNode; children?: ReactNode }) {
+function PictureStep({
+  n,
+  art,
+  text,
+  children,
+}: {
+  n: number;
+  art: ReactNode;
+  text: ReactNode;
+  children?: ReactNode;
+}) {
   return (
     <li className="flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-card">
-      <div className="border-b border-border bg-[#141414] p-4">{art}</div>
+      <div className="border-b border-border bg-art p-4">{art}</div>
       <div className="flex gap-3 p-5">
         <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand text-[13px] font-semibold text-brand-foreground">
           {n}
@@ -89,7 +146,17 @@ function PictureStep({ n, art, text, children }: { n: number; art: ReactNode; te
 }
 
 /** A tab of the two ways to put GRKU on the card: its name, a line under it, and a badge. */
-function WayTab({ value, title, text, badge }: { value: string; title: string; text: string; badge?: string }) {
+function WayTab({
+  value,
+  title,
+  text,
+  badge,
+}: {
+  value: string;
+  title: string;
+  text: string;
+  badge?: string;
+}) {
   return (
     <TabsTrigger
       value={value}
@@ -98,18 +165,31 @@ function WayTab({ value, title, text, badge }: { value: string; title: string; t
       <span className="flex flex-wrap items-center gap-2 text-[15px] font-semibold text-foreground">
         {title}
         {badge && (
-          <Badge variant="outline" className="border-brand/60 text-[11px] font-medium text-brand">
+          <Badge
+            variant="outline"
+            className="border-brand/60 text-[11px] font-medium text-brand-text"
+          >
             {badge}
           </Badge>
         )}
       </span>
-      <span className="text-[13px] leading-snug font-normal text-muted-foreground">{text}</span>
+      <span className="text-[13px] leading-snug font-normal text-muted-foreground">
+        {text}
+      </span>
     </TabsTrigger>
   );
 }
 
 /** A way on a computer and its drawing: the steps at the left, the drawing at the right. */
-function Way({ art, steps, start }: { art: ReactNode; steps: ReactNode; start: ReactNode }) {
+function Way({
+  art,
+  steps,
+  start,
+}: {
+  art: ReactNode;
+  steps: ReactNode;
+  start: ReactNode;
+}) {
   return (
     <div className="grid items-start gap-x-14 gap-y-8 pt-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)]">
       <div className="min-w-0">
@@ -117,7 +197,9 @@ function Way({ art, steps, start }: { art: ReactNode; steps: ReactNode; start: R
         <div className="mt-8 pl-11">{start}</div>
       </div>
       {/* On a phone the drawing comes first, above the steps it shows. */}
-      <div className="order-first rounded-2xl border bg-[#141414] p-5 lg:sticky lg:top-24 lg:order-none lg:p-8">{art}</div>
+      <div className="order-first rounded-2xl border bg-art p-5 lg:sticky lg:top-24 lg:order-none lg:p-8">
+        {art}
+      </div>
     </div>
   );
 }
@@ -127,48 +209,67 @@ function Way({ art, steps, start }: { art: ReactNode; steps: ReactNode; start: R
  * to use it, then updates, the uninstall, and what to do when something goes wrong. It tells the
  * steps of the install with drawings; the install itself is the wizard at /install/.
  */
-export function Guide({ strings: t, language, link, canWrite }: { strings: Strings; language: Language; link: PageLink; canWrite: boolean }) {
+export function Guide({
+  strings: t,
+  language,
+  link,
+  canWrite,
+}: {
+  strings: Strings;
+  language: Language;
+  link: PageLink;
+  canWrite: boolean;
+}) {
   const g = GUIDE_STRINGS[language];
-  const [way, setWay] = useState('card');
+  const [way, setWay] = useState("card");
   const start = (
     <Button asChild variant="brand" size="lg" className="h-11 px-6 text-[15px]">
-      <a {...link('install')}>
+      <a {...link("install")}>
         {g.start}
         <ArrowRight aria-hidden="true" />
       </a>
     </Button>
   );
   const contents = [
-    ['put', g.putTitle],
-    ['camera', g.cameraTitle],
-    ['use', g.useTitle],
-    ['update', g.updateTitle],
-    ['uninstall', t.uninstallButton],
-    ['help', g.helpTitle],
+    ["put", g.putTitle],
+    ["camera", g.cameraTitle],
+    ["use", g.useTitle],
+    ["update", g.updateTitle],
+    ["uninstall", t.uninstallButton],
+    ["help", g.helpTitle],
   ] as const;
   // The questions of the FAQ that the guide repeats; their place in the FAQ differs by language.
-  const faq = (id: FaqItem['id']) => t.faq.filter((item) => item.id === id).map((item) => ({ q: item.q, a: <RichText parts={item.a} /> }));
+  const faq = (id: FaqItem["id"]) =>
+    t.faq
+      .filter((item) => item.id === id)
+      .map((item) => ({ q: item.q, a: <RichText parts={item.a} /> }));
   const help: readonly { q: string; a: ReactNode }[] = [
-    ...faq('adj'),
+    ...faq("adj"),
     { q: g.modeSetQ, a: g.modeSetA },
     { q: g.firmwareQ, a: g.firmwareA },
     {
       q: g.stuckQ,
       a: (
         <>
-          {g.stuckA}{' '}
-          <a href={guideUrl('RECOVERY', language)} className="text-foreground underline underline-offset-4 hover:text-brand">
+          {g.stuckA}{" "}
+          <a
+            href={guideUrl("RECOVERY", language)}
+            className="text-foreground underline underline-offset-4 hover:text-brand-text"
+          >
             {t.recovery}
           </a>
         </>
       ),
     },
-    ...faq('format'),
+    ...faq("format"),
   ];
 
   return (
     <>
-      <section className="grid items-start gap-x-14 gap-y-10 pt-[clamp(32px,6vh,72px)] pb-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:pb-16" aria-labelledby="guide-title">
+      <section
+        className="grid items-start gap-x-14 gap-y-10 pt-[clamp(32px,6vh,72px)] pb-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:pb-16"
+        aria-labelledby="guide-title"
+      >
         <div className="min-w-0">
           <h1
             id="guide-title"
@@ -176,7 +277,25 @@ export function Guide({ strings: t, language, link, canWrite }: { strings: Strin
           >
             {g.heading}
           </h1>
-          <p className="mt-4 max-w-[34em] text-[clamp(16px,1.3vw,18px)] leading-relaxed text-muted-foreground">{g.lead}</p>
+          <p className="mt-4 max-w-[34em] text-[clamp(16px,1.3vw,18px)] leading-relaxed text-muted-foreground">
+            {g.lead}
+          </p>
+          {/* Where the install happens, first: the install page of this site, with its button. */}
+          <div className="mt-6 max-w-[40em] rounded-xl border border-brand/40 bg-brand/5 p-4 sm:p-5">
+            <h2 className="text-[15px] font-semibold">{g.whereTitle}</h2>
+            <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
+              {g.whereText}
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+              {start}
+              <a
+                {...link("install")}
+                className="font-mono text-[13px] text-muted-foreground underline underline-offset-4 hover:text-foreground"
+              >
+                grku.app/install
+              </a>
+            </div>
+          </div>
           <nav className="mt-8" aria-label={g.onThisPage}>
             <p className="text-[13px] text-muted-foreground">{g.onThisPage}</p>
             <ol className="mt-2 flex list-none flex-wrap gap-2 p-0">
@@ -186,7 +305,11 @@ export function Guide({ strings: t, language, link, canWrite }: { strings: Strin
                     href={`#${id}`}
                     className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[13px] text-muted-foreground no-underline transition-colors hover:border-input hover:text-foreground"
                   >
-                    {index < 3 && <span className="font-mono text-[11px] text-brand">{index + 1}</span>}
+                    {index < 3 && (
+                      <span className="font-mono text-[11px] text-brand-text">
+                        {index + 1}
+                      </span>
+                    )}
                     {title}
                   </a>
                 </li>
@@ -195,46 +318,87 @@ export function Guide({ strings: t, language, link, canWrite }: { strings: Strin
           </nav>
         </div>
         <div className="rounded-2xl border bg-card p-5 sm:p-6">
-          <h2 className="text-sm font-medium text-muted-foreground">{t.site.needTitle}</h2>
+          <h2 className="text-sm font-medium text-muted-foreground">
+            {t.site.needTitle}
+          </h2>
           <ul className="mt-3 flex list-none flex-col gap-3 p-0 text-[15px]">
             {[
-              [g.needCamera, SUPPORTED_CAMERAS.join(' · ')],
+              [g.needCamera, SUPPORTED_CAMERAS.join(" · ")],
               [g.needCard, null],
               [t.cardReader, null],
               [t.site.needBattery, null],
             ].map(([item, detail]) => (
               <li key={item} className="flex items-start gap-2.5">
-                <Check className="mt-1 size-4 shrink-0 text-brand" aria-hidden="true" />
+                <Check
+                  className="mt-1 size-4 shrink-0 text-brand-text"
+                  aria-hidden="true"
+                />
                 <span className="min-w-0">
                   {item}
-                  {detail && <span className="mt-0.5 block text-[13px] leading-relaxed text-muted-foreground">{detail}</span>}
+                  {detail && (
+                    <span className="mt-0.5 block text-[13px] leading-relaxed text-muted-foreground">
+                      {detail}
+                    </span>
+                  )}
                 </span>
               </li>
             ))}
           </ul>
-          <p className="mt-4 border-t border-border pt-4 text-[13px] leading-relaxed text-muted-foreground">{t.firmwareNote}</p>
+          <p className="mt-4 border-t border-border pt-4 text-[13px] leading-relaxed text-muted-foreground">
+            {t.firmwareNote}
+          </p>
         </div>
       </section>
 
       <section id="put" className={SECTION} aria-labelledby="put-title">
-        <StepHeading id="put-title" number={t.step(1)} title={g.putTitle} description={g.putLead} className="mb-8" />
+        <StepHeading
+          id="put-title"
+          number={t.step(1)}
+          title={g.putTitle}
+          description={g.putLead}
+          className="mb-8"
+        />
         <Tabs value={way} onValueChange={setWay}>
           <TabsList className="grid w-full max-w-[760px] grid-cols-1 gap-3 bg-transparent p-0 group-data-[orientation=horizontal]/tabs:h-auto sm:grid-cols-2">
-            <WayTab value="card" title={t.modeCard} text={g.cardSub} badge={t.recommended} />
+            <WayTab
+              value="card"
+              title={t.modeCard}
+              text={g.cardSub}
+              badge={t.recommended}
+            />
             <WayTab value="zip" title={t.modeZip} text={t.modeZipText} />
           </TabsList>
           {/* Both ways stay in the page, so search engines and a page without the script read them. */}
-          <TabsContent value="card" forceMount className="data-[state=inactive]:hidden">
+          <TabsContent
+            value="card"
+            forceMount
+            className="data-[state=inactive]:hidden"
+          >
             <Way
               art={<ComputerArt />}
               start={start}
               steps={
                 <Steps
                   items={[
-                    [g.openSite, !canWrite && <p className={NOTE}>{t.cardComputer}</p>],
+                    [
+                      g.openSite,
+                      <>
+                        <a
+                          {...link("install")}
+                          className="mt-1.5 inline-flex w-fit items-center gap-1.5 font-mono text-[13px] text-brand-text underline underline-offset-4"
+                        >
+                          grku.app/install
+                          <ArrowRight className="size-3.5" aria-hidden="true" />
+                        </a>
+                        {!canWrite && <p className={NOTE}>{t.cardComputer}</p>}
+                      </>,
+                    ],
                     [g.reader, <p className={NOTE}>{t.cardReader}</p>],
                     [g.pick],
-                    [g.connect, <ButtonShape outline>{t.cardConnect}</ButtonShape>],
+                    [
+                      g.connect,
+                      <ButtonShape outline>{t.cardConnect}</ButtonShape>,
+                    ],
                     [
                       g.write,
                       <>
@@ -250,14 +414,27 @@ export function Guide({ strings: t, language, link, canWrite }: { strings: Strin
               }
             />
           </TabsContent>
-          <TabsContent value="zip" forceMount className="data-[state=inactive]:hidden">
+          <TabsContent
+            value="zip"
+            forceMount
+            className="data-[state=inactive]:hidden"
+          >
             <Way
               art={<CopyArt />}
               start={start}
               steps={
                 <Steps
                   items={[
-                    [g.pick],
+                    [
+                      g.pick,
+                      <a
+                        {...link("install")}
+                        className="mt-1.5 inline-flex w-fit items-center gap-1.5 font-mono text-[13px] text-brand-text underline underline-offset-4"
+                      >
+                        grku.app/install
+                        <ArrowRight className="size-3.5" aria-hidden="true" />
+                      </a>,
+                    ],
                     [g.download, <ButtonShape>{t.download}</ButtonShape>],
                     [t.zipNext1, <p className={NOTE}>{g.unzipNote}</p>],
                     [t.zipNext2, <p className={NOTE}>{g.copyNote}</p>],
@@ -271,13 +448,31 @@ export function Guide({ strings: t, language, link, canWrite }: { strings: Strin
       </section>
 
       <section id="camera" className={SECTION} aria-labelledby="camera-title">
-        <StepHeading id="camera-title" number={t.step(2)} title={g.cameraTitle} description={g.cameraLead} className="mb-8" />
+        <StepHeading
+          id="camera-title"
+          number={t.step(2)}
+          title={g.cameraTitle}
+          description={g.cameraLead}
+          className="mb-8"
+        />
         <ol className="m-0 grid list-none gap-5 p-0 md:grid-cols-3">
-          <PictureStep n={1} art={<InsertArt />} text={`${t.steps[0]![0]} ${t.cardStepInsert}`} />
-          <PictureStep n={2} art={<CameraBackArt screen="modeset" press={['menu', 'power']} />} text={t.cardEnable}>
+          <PictureStep
+            n={1}
+            art={<InsertArt />}
+            text={`${t.steps[0]![0]} ${t.cardStepInsert}`}
+          />
+          <PictureStep
+            n={2}
+            art={<CameraBackArt screen="modeset" press={["menu", "power"]} />}
+            text={t.cardEnable}
+          >
             <p className={NOTE}>{g.modeSetNote}</p>
           </PictureStep>
-          <PictureStep n={3} art={<CameraBackArt screen="loaded" />} text={g.powerOn}>
+          <PictureStep
+            n={3}
+            art={<CameraBackArt screen="loaded" />}
+            text={g.powerOn}
+          >
             <p className={NOTE}>{g.firstSlow}</p>
           </PictureStep>
         </ol>
@@ -290,21 +485,51 @@ export function Guide({ strings: t, language, link, canWrite }: { strings: Strin
       </section>
 
       <section id="use" className={SECTION} aria-labelledby="use-title">
-        <StepHeading id="use-title" number={t.step(3)} title={g.useTitle} description={g.useLead} className="mb-8" />
+        <StepHeading
+          id="use-title"
+          number={t.step(3)}
+          title={g.useTitle}
+          description={g.useLead}
+          className="mb-8"
+        />
         <ol className="m-0 grid list-none gap-5 p-0 md:grid-cols-3">
-          <PictureStep n={1} art={<CameraBackArt screen="adj" press={['adj']} />} text={g.adj} />
-          <PictureStep n={2} art={<CameraBackArt screen="look" press={['grku']} />} text={g.sixth} />
-          <PictureStep n={3} art={<CameraBackArt screen="look" press={['ok']} />} text={g.look} />
+          <PictureStep
+            n={1}
+            art={<CameraBackArt screen="adj" press={["adj"]} />}
+            text={g.adj}
+          />
+          <PictureStep
+            n={2}
+            art={<CameraBackArt screen="look" press={["grku"]} />}
+            text={g.sixth}
+          />
+          <PictureStep
+            n={3}
+            art={<CameraBackArt screen="look" press={["ok"]} />}
+            text={g.look}
+          />
         </ol>
-        <p className="mt-6 max-w-[80ch] text-sm leading-relaxed text-muted-foreground">{g.menu}</p>
+        <p className="mt-6 max-w-[80ch] text-sm leading-relaxed text-muted-foreground">
+          {g.menu}
+        </p>
       </section>
 
       <div className="grid gap-x-14 border-t border-border lg:grid-cols-2">
-        <section id="update" className="scroll-mt-28 py-12 md:scroll-mt-20 lg:py-16" aria-labelledby="update-title">
-          <StepHeading id="update-title" title={g.updateTitle} className="mb-6" />
+        <section
+          id="update"
+          className="scroll-mt-28 py-12 md:scroll-mt-20 lg:py-16"
+          aria-labelledby="update-title"
+        >
+          <StepHeading
+            id="update-title"
+            title={g.updateTitle}
+            className="mb-6"
+          />
           <p className="text-[15px] leading-relaxed">{g.withBrowser}</p>
           <ButtonShape>{t.cardApplyUpdate}</ButtonShape>
-          <h3 className="mt-8 text-sm font-medium text-muted-foreground">{g.byHand}</h3>
+          <h3 className="mt-8 text-sm font-medium text-muted-foreground">
+            {g.byHand}
+          </h3>
           <ol className="mt-3 flex list-decimal flex-col gap-2 pl-5 text-[15px] leading-relaxed">
             {t.updateSteps.map((parts, index) => (
               <li key={index}>
@@ -312,14 +537,24 @@ export function Guide({ strings: t, language, link, canWrite }: { strings: Strin
               </li>
             ))}
           </ol>
-          <p className={cn(NOTE, 'mt-4')}>{g.updateKeep}</p>
+          <p className={cn(NOTE, "mt-4")}>{g.updateKeep}</p>
         </section>
-        <section id="uninstall" className="scroll-mt-28 border-t border-border py-12 md:scroll-mt-20 lg:border-t-0 lg:py-16" aria-labelledby="uninstall-title">
-          <StepHeading id="uninstall-title" title={t.uninstallButton} className="mb-6" />
+        <section
+          id="uninstall"
+          className="scroll-mt-28 border-t border-border py-12 md:scroll-mt-20 lg:border-t-0 lg:py-16"
+          aria-labelledby="uninstall-title"
+        >
+          <StepHeading
+            id="uninstall-title"
+            title={t.uninstallButton}
+            className="mb-6"
+          />
           <p className="text-[15px] leading-relaxed">{g.withBrowser}</p>
           <ButtonShape outline>{t.uninstallButton}</ButtonShape>
           <p className={NOTE}>{t.uninstallText}</p>
-          <h3 className="mt-8 text-sm font-medium text-muted-foreground">{g.byHand}</h3>
+          <h3 className="mt-8 text-sm font-medium text-muted-foreground">
+            {g.byHand}
+          </h3>
           <p className="mt-3 text-[15px] leading-relaxed">
             <RichText parts={t.removeSteps[0]!} />
           </p>
@@ -332,15 +567,24 @@ export function Guide({ strings: t, language, link, canWrite }: { strings: Strin
       <section id="help" className={SECTION} aria-labelledby="help-title">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
           <div className="min-w-0">
-            <h2 id="help-title" className="text-[clamp(26px,2.6vw,34px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance">
+            <h2
+              id="help-title"
+              className="text-[clamp(26px,2.6vw,34px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance"
+            >
               {g.helpTitle}
             </h2>
             <div className="mt-5 flex flex-col items-start gap-2 text-sm">
-              <a href={guideUrl('RECOVERY', language)} className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground">
+              <a
+                href={guideUrl("RECOVERY", language)}
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
+              >
                 <LifeBuoy className="size-4" aria-hidden="true" />
                 {t.recovery}
               </a>
-              <a href={`${REPOSITORY}/issues`} className="text-muted-foreground hover:text-foreground">
+              <a
+                href={FEEDBACK}
+                className="text-muted-foreground hover:text-foreground"
+              >
                 {t.feedback}
               </a>
             </div>
@@ -348,19 +592,31 @@ export function Guide({ strings: t, language, link, canWrite }: { strings: Strin
           <Accordion type="single" collapsible className="w-full">
             {help.map((item, index) => (
               <AccordionItem key={item.q} value={`help-${index}`}>
-                <AccordionTrigger className="py-4 text-left text-[15px] font-medium hover:no-underline">{item.q}</AccordionTrigger>
-                <AccordionContent className="max-w-[68ch] text-[15px] leading-relaxed text-muted-foreground">{item.a}</AccordionContent>
+                <AccordionTrigger className="py-4 text-left text-[15px] font-medium hover:no-underline">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="max-w-[68ch] text-[15px] leading-relaxed text-muted-foreground">
+                  {item.a}
+                </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
         </div>
       </section>
 
-      <section className={cn(SECTION, 'flex flex-col items-start gap-4')} aria-labelledby="guide-start-title">
-        <h2 id="guide-start-title" className="text-[clamp(26px,2.6vw,34px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance">
+      <section
+        className={cn(SECTION, "flex flex-col items-start gap-4")}
+        aria-labelledby="guide-start-title"
+      >
+        <h2
+          id="guide-start-title"
+          className="text-[clamp(26px,2.6vw,34px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance"
+        >
           {t.site.ctaTitle}
         </h2>
-        <p className="max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground">{t.site.ctaText}</p>
+        <p className="max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground">
+          {t.site.ctaText}
+        </p>
         <div className="mt-2">{start}</div>
       </section>
     </>

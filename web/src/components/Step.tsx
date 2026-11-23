@@ -30,7 +30,7 @@ export function StepHeading({
     <header className={cn('flex flex-wrap items-end justify-between gap-x-8 gap-y-4', className)}>
       <div className="min-w-0 max-w-[60ch]">
         {number && (
-          <p className="font-mono text-xs font-medium tracking-[0.04em] text-brand" aria-label={label}>
+          <p className="font-mono text-xs font-medium tracking-[0.04em] text-brand-text" aria-label={label}>
             {number}
           </p>
         )}

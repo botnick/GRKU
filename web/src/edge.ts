@@ -35,15 +35,17 @@ export default {
         cookie: request.headers.get('Cookie'),
         acceptLanguage: request.headers.get('Accept-Language'),
         country: request.cf?.country ?? null,
+        userAgent: request.headers.get('User-Agent'),
       });
       // The root pages are the pages of one language (Thai); every other language has its own path.
-      // A visitor of that language gets the root page itself; a redirect to it would loop.
-      const target = pagePath(language, page);
-      if (target !== url.pathname) {
+      // A visitor of that language, a crawler, and a request without a language get the root page
+      // itself; a redirect to it would loop.
+      const target = language && pagePath(language, page);
+      if (target && target !== url.pathname) {
         url.pathname = target;
         return new Response(null, {
           status: 302,
-          headers: { Location: url.href, 'Cache-Control': 'private, no-store', Vary: 'Accept-Language, Cookie' },
+          headers: { Location: url.href, 'Cache-Control': 'private, no-store', Vary: 'Accept-Language, Cookie, User-Agent' },
         });
       }
     }
@@ -52,7 +54,7 @@ export default {
     for (const [name, value] of Object.entries(__SITE_HEADERS__)) {
       if (!response.headers.has(name)) response.headers.set(name, value);
     }
-    response.headers.append('Vary', 'Accept-Language, Cookie');
+    response.headers.append('Vary', 'Accept-Language, Cookie, User-Agent');
     return response;
   },
 };

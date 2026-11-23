@@ -17,6 +17,7 @@ import { MAX_EFFECTS } from '../catalog';
 import { cn } from '@/lib/utils';
 import { LaunchOffer } from './LaunchOffer';
 import type { Language, Strings } from '../i18n';
+import { useTheme } from '../theme';
 import {
   amountDue,
   createOrder,
@@ -83,6 +84,7 @@ interface Props {
  */
 export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey, onForget, startOn = 'tiers', packCounts, payOrder = null, termsHref, language, onBrowse, libraryLooks }: Props) {
   const ids = useId();
+  const theme = useTheme();
   const [view, setView] = useState<View>('tiers');
   useEffect(() => {
     if (open && (view === 'tiers' || view === 'key')) setView(startOn);
@@ -445,7 +447,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
               <Checkbox id={`${ids}-agree`} checked={agreed} onCheckedChange={(value) => setAgreed(value === true)} className="mt-0.5" />
               <span>
                 {t.plus.acceptTerms[0]}
-                <a href={termsHref} target="_blank" rel="noreferrer" className="font-medium text-brand hover:text-brand/80">
+                <a href={termsHref} target="_blank" rel="noreferrer" className="font-medium text-brand-text hover:text-brand-text/80">
                   {t.plus.acceptTerms[1]}
                 </a>
                 {t.plus.acceptTerms[2]}
@@ -457,7 +459,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
             </p>
             {TURNSTILE_SITEKEY && (
               <div className="flex flex-col gap-1">
-                <Turnstile siteKey={TURNSTILE_SITEKEY} action="plus-order" onToken={setHuman} resetKey={humanReset} language={TURNSTILE_LANGUAGES[language]} />
+                <Turnstile siteKey={TURNSTILE_SITEKEY} action="plus-order" onToken={setHuman} resetKey={humanReset} theme={theme} language={TURNSTILE_LANGUAGES[language]} />
                 {!human && <p className="text-[12px] text-muted-foreground">{t.plus.humanCheck}</p>}
               </div>
             )}
@@ -496,10 +498,10 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
               return (
                 // A card in the layout of the Thai QR Payment standard: whose money it is, how much, and
                 // a watermark with the buyer and the order across it, so a forwarded copy tells on itself.
-                <div className="relative overflow-hidden rounded-xl bg-white text-neutral-900 shadow-sm">
+                <div className="relative overflow-hidden rounded-xl bg-white text-neutral-900 shadow-sm light:ring-1 light:ring-border">
                   <div className="relative z-[1] flex items-center gap-3 px-4 py-3" style={{ background: NAVY }}>
                     <span className="flex size-12 shrink-0 items-center justify-center rounded-md bg-white/15">
-                      <span className="flex size-9 items-center justify-center rounded bg-[#171717] font-sans text-[15px] font-extrabold text-white">G<span className="text-brand">.</span></span>
+                      <span className="flex size-9 items-center justify-center rounded bg-[#171717] font-sans text-[15px] font-extrabold text-white">G<span className="text-[#d94135]">.</span></span>
                     </span>
                     <span className="font-sans text-[22px] leading-[1.05] font-extrabold tracking-wide text-white">THAI QR<br />PAYMENT</span>
                   </div>
@@ -527,7 +529,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
                       )}
                       {qr && (
                         <span className="absolute top-1/2 left-1/2 flex size-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md bg-white" aria-hidden="true">
-                          <span className="flex size-7 items-center justify-center rounded bg-[#171717] font-sans text-[12px] font-extrabold text-white">G<span className="text-brand">.</span></span>
+                          <span className="flex size-7 items-center justify-center rounded bg-[#171717] font-sans text-[12px] font-extrabold text-white">G<span className="text-[#d94135]">.</span></span>
                         </span>
                       )}
                     </div>
@@ -594,7 +596,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
 
             {!phoneMode && (
               <div className="flex items-center gap-4 rounded-xl border bg-card p-3">
-                <div className="shrink-0 overflow-hidden rounded-lg bg-white p-1.5">
+                <div className="shrink-0 overflow-hidden rounded-lg bg-white p-1.5 light:ring-1 light:ring-border">
                   {phoneQr ? <img src={phoneQr} alt="" width="96" height="96" className="block size-24" /> : <div className="size-24" />}
                 </div>
                 <div className="flex min-w-0 flex-col gap-1">
@@ -778,7 +780,7 @@ function TierCard({
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="flex items-center justify-between gap-3">
           <span className="font-semibold">{title}</span>
-          {owned ? <Badge variant="outline">{ownedLabel}</Badge> : <span className={cn(selected && 'text-brand')}>{price}</span>}
+          {owned ? <Badge variant="outline">{ownedLabel}</Badge> : <span className={cn(selected && 'text-brand-text')}>{price}</span>}
         </span>
         {/* One line of what the tier gives, in looks; the longer description stays for screen readers. */}
         <span className="mt-1 text-sm leading-snug text-muted-foreground">{outcome}</span>

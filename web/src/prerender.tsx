@@ -4,11 +4,13 @@ import { renderToString } from 'react-dom/server';
 import { App } from './App';
 import { SiteFooter } from './components/SiteFooter';
 import { STRINGS, type Language } from './i18n';
-import { REPOSITORY } from './links';
+import { releaseUrl } from './links';
 import type { SitePage } from './languagePage';
 
-export { LANGUAGES, pageText, STRINGS } from './i18n';
+export { LANGUAGES, loadAllStrings, pageText, STRINGS } from './i18n';
+export { preloadAll } from './parts';
 export { INDEXED_PAGES, LANGUAGE_PATHS, pagePath, SITE_PAGES } from './languagePage';
+export { alternates, alternateTags, localeTags, SITE, sitemapXml } from './seo';
 
 export const VERSION = __GRKU_VERSION__;
 
@@ -18,16 +20,17 @@ export function render(language: Language, page: SitePage = 'home'): string {
 }
 
 /**
- * The header links and the footer of the document pages in `language`, which
+ * The header links, the link preview image text, and the footer of the document pages in `language`, which
  * scripts/build-docs.mjs puts around each document, so they match the pages of the site.
  */
-export function docChrome(language: Language): { home: string; install: string; footer: string } {
+export function docChrome(language: Language): { home: string; install: string; imageAlt: string; footer: string } {
   const t = STRINGS[language];
   return {
     home: t.site.home,
     install: t.install,
+    imageAlt: t.site.ogImageAlt,
     footer: renderToString(
-      <SiteFooter strings={t} language={language} version={VERSION} releaseUrl={`${REPOSITORY}/releases#release-v${VERSION}`} />,
+      <SiteFooter strings={t} language={language} version={VERSION} releaseUrl={releaseUrl(language)} />,
     ),
   };
 }

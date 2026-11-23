@@ -15,7 +15,7 @@ Steps
 5. On a computer, open SCRIPT/GRDUMP on the card. DUMP.OK shows a complete dump.
    DUMP.ERR shows a failure.
 6. Zip the SCRIPT/GRDUMP folder and send it to the developer.
-   Guide: https://github.com/botnick/GRKU/blob/main/resources/DUMP.md
+   Guide: https://grku.app/en/firmware-dump/
 7. Delete SCRIPT/GRDUMP. Restore the SCRIPT folder from your backup.
 
 
@@ -35,5 +35,5 @@ SD 脚本必须已开启。安装过 GRKU 的相机已经开启。
 5. 在电脑上打开卡里的 SCRIPT/GRDUMP。有 DUMP.OK 表示导出完成，
    有 DUMP.ERR 表示导出失败。
 6. 把 SCRIPT/GRDUMP 文件夹压缩后发给开发者。
-   指南：https://github.com/botnick/GRKU/blob/main/resources/DUMP.zh-Hans.md
+   指南：https://grku.app/zh-hans/firmware-dump/
 7. 删除 SCRIPT/GRDUMP，用备份恢复 SCRIPT 文件夹。

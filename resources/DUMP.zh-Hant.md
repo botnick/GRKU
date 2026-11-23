@@ -17,7 +17,7 @@
 
 ## 取得工具
 
-下載 [GRKU-dump.zip](https://github.com/botnick/GRKU/releases/latest/download/GRKU-dump.zip)。它與[最新版本](https://github.com/botnick/GRKU/releases/latest)中的 `GRKU-<版本>-dump.zip` 是同一個檔案。
+下載 [GRKU-dump.zip](https://grku.app/downloads/GRKU-dump.zip)。它與[最新版本](https://grku.app/zh-hant/#news)中的 `GRKU-<版本>-dump.zip` 是同一個檔案。
 
 ZIP 內包含 `SD_ROOT/SCRIPT/STARTUP.TTL`、`SD_ROOT/SCRIPT/GRDUMP/DUMP.SH`、`SD_ROOT/SCRIPT/GRDUMP/DUMP.BIN` 以及一個 `README.txt`。
 
@@ -39,9 +39,9 @@ ZIP 內包含 `SD_ROOT/SCRIPT/STARTUP.TTL`、`SD_ROOT/SCRIPT/GRDUMP/DUMP.SH`、`
 ## 傳送檔案
 
 1. 把 `SCRIPT/GRDUMP` 資料夾壓縮成 ZIP。
-2. 把 ZIP 附加到一個 [GitHub issue](https://github.com/botnick/GRKU/issues/new) 中。寫明相機型號和韌體版本。
+2. 將 ZIP 檔以電子郵件寄至 [support@grku.app](mailto:support@grku.app)，並註明相機型號與韌體版本。
 
-如果開發者在某個 issue 中請你匯出，把 ZIP 附加到那個 issue。ZIP 約 20 MB；GitHub 接受最大 25 MB 的檔案。
+若開發者曾向您索取轉存檔，請直接回覆該郵件並附加 ZIP 檔。ZIP 檔大小約為 20 MB；若您的電子郵件服務無法傳送如此大的檔案，請改為提供檔案分享服務的連結。
 
 ## 還原記憶卡
 

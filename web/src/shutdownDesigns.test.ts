@@ -14,8 +14,10 @@ import {
   saveDesigns,
   type DesignContext,
 } from './shutdownDesigns';
-import { STRINGS } from './i18n';
+import { loadAllStrings, STRINGS } from './i18n';
 import { captionOf } from './studio/captions';
+
+await loadAllStrings();
 
 /** A 2D context that records the fills and the text, and draws nothing. */
 function stubContext() {

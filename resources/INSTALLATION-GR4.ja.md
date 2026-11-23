@@ -2,7 +2,7 @@
 
 RICOH GR IV および GR IV HDF ファームウェア 1.11 専用です。
 
-GRKU は試験的なソフトウェアで、保証はありません。GRKU に問題があると、カメラが起動中に止まることがあります。インストール前に[復旧ガイド](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)をお読みください。GRKU をインストールした時点で、[利用規約](https://grku.app/terms/)に同意したものとみなされます。
+GRKU は試験的なソフトウェアで、保証はありません。GRKU に問題があると、カメラが起動中に止まることがあります。インストール前に[復旧ガイド](https://grku.app/ja/recovery/)をお読みください。GRKU をインストールした時点で、[利用規約](https://grku.app/terms/)に同意したものとみなされます。
 
 ## インストール
 
@@ -65,7 +65,7 @@ GRKU は設定とエフェクトを `GRKU` フォルダーに保存するため�
 
 1. 電源を入れて、撮影画面の上部に **GRKU** が表示されるまで数秒待ちます。
 2. カードのルートに `SCRIPT` フォルダーがあることを確認します。
-3. カードに `SCRIPT/GRKU/INSTALL.ERR` がある場合は、カメラのメニューで、対応するファームウェアのバージョンが表示されていることを確認します。対応している場合は、`INSTALL.ERR`、`GRKU/REPORT.TXT`、`GRKU/BOOT.TXT`（ある場合）を添えて[デバイスレポート](https://github.com/botnick/GRKU/issues/new?template=device-report.yml)を送ってください。
+3. カードに `SCRIPT/GRKU/INSTALL.ERR` がある場合は、カメラのメニューで、対応するファームウェアのバージョンが表示されていることを確認します。対応している場合は、`INSTALL.ERR`、`GRKU/REPORT.TXT`、`GRKU/BOOT.TXT`（ある場合）を添えて[デバイスレポート](mailto:support@grku.app)を送ってください。
 4. GRKU は Ricoh の公式ファームウェアでのみ動作します。
 
 ### カードをフォーマットした後、GRKU が動かない
@@ -85,7 +85,7 @@ SD スクリプトの設定はオンのままです。オフにするには：
 3. カードを入れます。MENU ボタンを押したまま電源を入れ、電源が自動で切れるまで待ちます。
 4. カードのルートから `00078560.636` と `DEVELOP.MOD` を削除します。
 
-起動の途中でカメラが止まった場合は、[復旧ガイド](https://github.com/botnick/GRKU/blob/main/resources/RECOVERY.md)を参照してください。
+起動の途中でカメラが止まった場合は、[復旧ガイド](https://grku.app/ja/recovery/)を参照してください。
 
 GRKU は Ricoh と提携していません。
 

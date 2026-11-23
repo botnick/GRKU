@@ -6,17 +6,21 @@ import { cn } from '@/lib/utils';
 import { CAMERAS, PREVIEW_TARGET } from '../cameras';
 import type { Cover } from '../catalog';
 import type { Language, Strings } from '../i18n';
-import { LANDING_LOOKS, LANDING_PHOTOS, landingImage } from '../landing';
+import { LANDING_LOOKS, LANDING_PHOTOS, landingPicture } from '../landing';
 import type { PageLink } from '../navigation';
 import type { SitePage } from '../languagePage';
 import { cameraTerms, RECIPE_STRINGS } from '../recipeStrings';
 import { useCatalog } from '../useCatalog';
 import { EffectIcon } from './EffectIcon';
-import { Example, EXAMPLES, TILES } from './ModulesStep';
-import cameraAdjImage from '../../../resources/images/camera-adj.png';
+import { Example, EXAMPLES, TILES } from './ModuleExamples';
+import cameraAdjImage from '../assets/camera-adj.webp';
 
-/** A section of the home page: a hairline above, the heading, then the body. */
-const SECTION = 'scroll-mt-28 md:scroll-mt-20 border-t border-border py-12 lg:py-16';
+/**
+ * A section of the home page: a hairline above, the heading, then the body. The browser lays out
+ * and paints a section only near the screen (`content-visibility`), so the first screen shows sooner.
+ */
+const SECTION =
+  'scroll-mt-28 md:scroll-mt-20 border-t border-border py-12 lg:py-16 [content-visibility:auto] [contain-intrinsic-size:auto_720px]';
 const H2 = 'text-[clamp(26px,2.6vw,34px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance';
 const LEAD = 'mt-3 max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground';
 
@@ -48,7 +52,9 @@ const SHELF_SIZE = 23;
 
 /** The photo of the hero, a sample of the looks page (scripts/build-hero.mjs renders its looks). */
 const HERO_PHOTO = 'achensee';
-const heroImage = (slug: string) => landingImage(`hero/${HERO_PHOTO}-${slug}.jpg`);
+/** The width of the hero photo: the wider column from a tablet up, the page width on a phone. */
+const HERO_SIZES = '(min-width: 1280px) 720px, (min-width: 1024px) 57vw, calc(100vw - 32px)';
+const heroImage = (slug: string) => landingPicture(`hero/${HERO_PHOTO}-${slug}.jpg`, HERO_SIZES);
 
 /**
  * The first screen: one GR photo developed with five looks of the library, against the base
@@ -67,10 +73,10 @@ function HeroCompare({ strings: t }: { strings: Strings }) {
         <Provider {...comparison}>
           <Root className="image-comparison">
             <Item item="itemOne">
-              <img src={heroImage('standard')} alt={`${t.samplePhoto} — ${t.original}`} width="1200" height="800" fetchPriority="high" />
+              <img {...heroImage('standard')} alt={`${t.samplePhoto} — ${t.original}`} width="1200" height="800" fetchPriority="high" />
             </Item>
             <Item item="itemTwo" className="comparison-effect">
-              <img src={heroImage(look.image)} alt={`${t.samplePhoto} — ${look.name}`} width="1200" height="800" fetchPriority="high" />
+              <img {...heroImage(look.image)} alt={t.site.lookAlt(look.name, credit.camera)} width="1200" height="800" />
             </Item>
             <HandleRoot aria-label={t.compare}>
               <Handle buttonStyle={{ width: 32, height: 32, gap: '0.2rem' }} />
@@ -105,7 +111,7 @@ function HeroCompare({ strings: t }: { strings: Strings }) {
           href={credit.source}
           target="_blank"
           rel="noreferrer"
-          className="text-[11px] text-muted-foreground/60 hover:text-foreground sm:text-right"
+          className="text-[11px] text-muted-foreground hover:text-foreground sm:text-right"
         >
           {credit.author} · {credit.license} · {credit.camera}
         </a>
@@ -232,6 +238,7 @@ export function Home({
         <ul className="-mx-gutter mt-10 flex list-none snap-x snap-mandatory scroll-px-gutter gap-4 overflow-x-auto px-gutter pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
           {MODULE_EXAMPLES.map((example) => {
             const title = t.moduleNames[example.module];
+            const subtitle = t.site.moduleHeadings[example.module];
             const detail = example.detail(t);
             const credit = LANDING_PHOTOS[example.photo];
             return (
@@ -246,10 +253,13 @@ export function Home({
                 />
                 <h3 className="mt-4 flex items-center gap-3 text-[17px] font-semibold">
                   <img src={TILES[example.module]} alt="" width="40" height="40" className="size-8 shrink-0 rounded-[3px] [image-rendering:pixelated]" />
-                  {title}
+                  <span>
+                    {title}
+                    {subtitle && <span className="font-normal text-muted-foreground"> · {subtitle}</span>}
+                  </span>
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.modulesText[example.module]}</p>
-                <a className="mt-2 text-xs text-muted-foreground/70 hover:text-foreground" href={credit.source} target="_blank" rel="noreferrer">
+                <a className="mt-2 text-xs text-muted-foreground hover:text-foreground" href={credit.source} target="_blank" rel="noreferrer">
                   {credit.author} · {credit.license} · {credit.camera}
                 </a>
               </li>
@@ -267,7 +277,7 @@ export function Home({
           <p className={LEAD}>{r.introCamera}</p>
         </div>
         <figure className="m-0 min-w-0">
-          <img src={cameraAdjImage} alt={t.landing.adjCaption} width="1160" height="636" loading="lazy" className="h-auto w-full rounded-2xl" />
+          <img src={cameraAdjImage} alt={t.landing.adjCaption} width="1160" height="636" loading="lazy" decoding="async" className="h-auto w-full rounded-2xl" />
           <figcaption className="mt-3 text-[13px] text-muted-foreground">
             {t.landing.adjCaption} {t.landing.menuCaption}
           </figcaption>

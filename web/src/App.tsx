@@ -1,4 +1,4 @@
-import { Suspense, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { startTransition, Suspense, use, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowLeft, ArrowRight, Check, BookOpen, ChevronDown, FileText, TriangleAlert } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -33,7 +33,7 @@ import {
 import { allowCard, forgetLastCard, saveLastCard } from './cardStore';
 import { useRecipeLibrary } from './recipeLibrary';
 import { cameraOrder, effectCode, familyOf, withPreset, writeRecipeFile, type Family, type Recipe } from './recipes';
-import { RecipesPanel } from './components/RecipesPanel';
+import type { RecipesPanelProps } from './components/RecipesPanel';
 import {
   changedImports,
   extraCardEffects,
@@ -68,12 +68,8 @@ import { ChoiceCard } from './components/ChoiceCard';
 import { CameraArt, FOCAL_LENGTH } from './components/CameraArt';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Faq } from './components/Faq';
-import { Guide } from './components/Guide';
 import { Masthead } from './components/Masthead';
-import { ModulesStep } from './components/ModulesStep';
-import { ShutdownDownload, ShutdownSection } from './components/ShutdownSection';
 import { PackageOpen, type PackageStatus } from './components/PackageOpen';
-import { PlusSheet } from './components/PlusSheet';
 import {
   DOC_PATHS,
   INSTALL_STEPS,
@@ -87,21 +83,19 @@ import {
 } from './languagePage';
 import { pageLink, type Navigate, type PageLink } from './navigation';
 import { hasCamera, loadCamera, loadModules, loadProgress, saveCamera, saveModules, saveProgress, visitStep } from './setup';
-import { Home } from './components/Home';
 import { RichText } from './components/RichText';
 import { SiteFooter } from './components/SiteFooter';
 import { WhatsNew } from './components/WhatsNew';
 import { Step } from './components/Step';
 import { TermsNote } from './components/TermsNote';
-import { Workbench } from './components/Workbench';
-import { guideUrl, REPOSITORY } from './links';
+import { FEEDBACK, guideUrl, releaseUrl } from './links';
 import { loadFonts } from './fonts';
 import { encodeLibrary, IMPORTS_FILE, nativeTone, readLibrary, withDetails, type LibraryDetails } from './import/library';
 import { restoreImports } from './import/lut';
 import { importsForCamera, NATIVE_LOOKS } from './import/native';
 import { isLutImportId } from './import/names';
 import { deleteImport, saveImport, updateImport } from './import/store';
-import { applyLanguage, showLanguage, STRINGS, type Language, type Strings } from './i18n';
+import { applyLanguage, loadStrings, showLanguage, STRINGS, type Language, type Strings } from './i18n';
 import { MODULES, MODULES_MAX, planModules, type ModuleKey } from './modules';
 import {
   buildCardFiles,
@@ -119,8 +113,8 @@ import { cn } from '@/lib/utils';
 import cardGr3 from '../../resources/images/card-gr3.png';
 import cardGr3x from '../../resources/images/card-gr3x.png';
 import cardGr4 from '../../resources/images/card-gr4.png';
-import cameraMenuImage from '../../resources/images/camera-menu.png';
-import cameraAdjImage from '../../resources/images/camera-adj.png';
+import cameraMenuImage from './assets/camera-menu.webp';
+import cameraAdjImage from './assets/camera-adj.webp';
 
 /** A step number in a red circle. */
 function StepNumber({ n, className }: { n: number; className?: string }) {
@@ -151,11 +145,10 @@ import {
 import { designChoice, loadDesigns, saveDesigns, type DesignState } from './shutdownDesigns';
 import { TransferError } from './transfer';
 import { useCatalog } from './useCatalog';
+import { Guide, Home, ModulesStep, PlusSheet, RecipesPanel, ShutdownDownload, ShutdownSection, Workbench } from './parts';
 
 /** The Tally form for problems, feature ideas, and questions. A plain link, so the page loads nothing from Tally. */
-const FEEDBACK_FORM = `${REPOSITORY}/issues`;
 /** The release notes of the GRKU version that the site packages, on the releases page. */
-const RELEASE_URL = `${REPOSITORY}/releases#release-v${__GRKU_VERSION__}`;
 
 /** The steps of a guide. */
 const STEPS = 'flex max-w-[72ch] list-decimal flex-col gap-3 pl-6 leading-relaxed';
@@ -191,6 +184,9 @@ export function App({
   // The three pages share this state, so a move between them keeps the looks, the modules, the
   // camera, and the connected card. The browser storage keeps them for a reload and the next visit.
   const [page, setPage] = useState<SitePage>(initialPage);
+  // Whether the visitor moved to another page in place. The fade of a new step marks only such a
+  // move: the first page shows at once, so its photo and heading count as painted when they arrive.
+  const [moved, setMoved] = useState(false);
   // The furthest step of the install that the visitor reached, and the last one, which Install
   // in the header opens.
   const [progress, setProgress] = useState(() => loadProgress(browserStorage()));
@@ -391,29 +387,40 @@ export function App({
 
   function chooseLanguage(next: Language) {
     loadFonts(next);
-    applyLanguage(next, page);
-    setLanguage(next);
+    // The text of the language downloads first; the page changes when it is there.
+    void loadStrings(next).then(() => {
+      applyLanguage(next, page);
+      setLanguage(next);
+    });
   }
 
   /** Shows `next` without a reload, as a new entry of the history. */
   const navigate: Navigate = (next, hash = '') => {
     history.pushState(null, '', `${pagePath(language, next)}${hash}`);
     showLanguage(language, next);
-    setPage(next);
-    setScrollTarget({ hash });
+    // A transition keeps the current page on screen while the part of the next one downloads.
+    startTransition(() => {
+      setMoved(true);
+      setPage(next);
+      setScrollTarget({ hash });
+    });
   };
   const link: PageLink = (next, hash) => pageLink(language, navigate, next, hash);
 
   // Back and forward show the page of the address, in its language.
   useEffect(() => {
-    function back() {
+    async function back() {
       const next = pathPage(location.pathname) ?? 'home';
       const nextLanguage = pathLanguage(location.pathname);
       loadFonts(nextLanguage);
+      await loadStrings(nextLanguage);
       showLanguage(nextLanguage, next);
-      setLanguage(nextLanguage);
-      setPage(next);
-      setScrollTarget({ hash: location.hash });
+      startTransition(() => {
+        setMoved(true);
+        setLanguage(nextLanguage);
+        setPage(next);
+        setScrollTarget({ hash: location.hash });
+      });
     }
     addEventListener('popstate', back);
     return () => removeEventListener('popstate', back);
@@ -959,6 +966,9 @@ export function App({
   // A phone that scanned the pay QR of another page opens this page with the order to pay.
   const [payOrder] = useState<string | null>(() => takeOrderFromHash());
   const [plusOpen, setPlusOpen] = useState(() => payOrder !== null);
+  // GRKU Plus downloads its part when it first opens, and stays mounted for its closing animation.
+  const [plusMounted, setPlusMounted] = useState(plusOpen);
+  if (plusOpen && !plusMounted) setPlusMounted(true);
   const [plusStart, setPlusStart] = useState<'tiers' | 'key'>('tiers');
   useEffect(() => {
     if (!plusKey) return;
@@ -1010,7 +1020,7 @@ export function App({
     <ul className="flex flex-wrap gap-2">
       <li>
         <Button asChild variant="outline">
-          <a href={FEEDBACK_FORM}>{t.feedback}</a>
+          <a href={FEEDBACK}>{t.feedback}</a>
         </Button>
       </li>
     </ul>
@@ -1121,7 +1131,11 @@ export function App({
         {build.state === 'ready' && packageLinks}
       </div>
       {/* GRKU.zip holds no file of the data folder, so the picture downloads on its own. */}
-      {picture instanceof Uint8Array && <ShutdownDownload strings={t} picture={picture} />}
+      {picture instanceof Uint8Array && (
+        <Suspense fallback={null}>
+          <ShutdownDownload strings={t} picture={picture} />
+        </Suspense>
+      )}
       </div>
       <div>
       <Accordion type="single" collapsible className="w-full border-t border-border">
@@ -1180,6 +1194,7 @@ export function App({
           <Suspense fallback={<p className={STATUS}>{t.loading}</p>}>
             <CardChangesSection
               strings={t}
+              releaseUrl={releaseUrl(language)}
               session={card}
               selection={selection}
               imported={imported}
@@ -1247,12 +1262,14 @@ export function App({
         language={language}
         onLanguage={chooseLanguage}
         version={__GRKU_VERSION__}
-        releaseUrl={RELEASE_URL}
+        releaseUrl={releaseUrl(language)}
         page={page}
         link={link}
         installStep={progress.last}
       />
       <main id="top" className={cn('mx-auto w-full max-w-[1280px] px-gutter', isInstallStep(page) ? 'pb-28' : 'pb-8')}>
+        {/* Shown only when a page part is not loaded yet, such as after a lost connection. */}
+        <Suspense fallback={<p className={cn(STATUS, 'min-h-[60vh] py-16')}>{t.loading}</p>}>
         {page === 'home' && (
           <Home
             strings={t}
@@ -1270,7 +1287,7 @@ export function App({
 
         {isInstallStep(page) && (
           // The steps of the install, each its own page. A short fade marks the change of step.
-          <div key={page} className="motion-safe:animate-[step-in_160ms_ease-out]">
+          <div key={page} className={cn(moved && 'motion-safe:animate-[step-in_160ms_ease-out]')}>
             <StepIndicator strings={t} page={page} furthest={progress.furthest} link={link} />
             {page === 'install' && (
               <Workbench
@@ -1354,7 +1371,7 @@ export function App({
                         }
                       >
                         {/* The camera drawn large, then its name, its lens, and the firmware it needs. */}
-                        <span className="flex items-center justify-center rounded-t-xl bg-black/30 px-6 pt-8 pb-4">
+                        <span className="flex items-center justify-center rounded-t-xl bg-black/30 px-6 light:bg-art pt-8 pb-4">
                           <CameraArt camera={item.key} className="max-w-[180px]" />
                         </span>
                         <span className="flex flex-col gap-1 p-4">
@@ -1530,13 +1547,16 @@ export function App({
             )}
           </div>
         )}
+        </Suspense>
       </main>
       {isInstallStep(page) && (
         <StepBar strings={t} page={page} link={link} blocked={stepBlocked(page)} />
       )}
-      <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={RELEASE_URL} link={link} />
+      <SiteFooter strings={t} language={language} version={__GRKU_VERSION__} releaseUrl={releaseUrl(language)} link={link} />
       {/* Room under the footer for the bar of the install steps. */}
       {isInstallStep(page) && <div className="h-16" aria-hidden="true" />}
+      {plusMounted && (
+      <Suspense fallback={null}>
       <PlusSheet
         open={plusOpen}
         onOpenChange={setPlusOpen}
@@ -1553,6 +1573,8 @@ export function App({
         language={language}
         onBrowse={() => navigate('install', '#looks')}
       />
+      </Suspense>
+      )}
     </>
   );
 }
@@ -1616,6 +1638,7 @@ const IDLE: CardTask = { kind: 'idle' };
 
 interface ChangesSectionProps {
   strings: Strings;
+  releaseUrl: string;
   session: CardSession;
   selection: Selection;
   imported: readonly ImportedEffect[];
@@ -1651,7 +1674,7 @@ function useChecked(selection: Selection, others: readonly { id: string }[]) {
 }
 
 /** The changes from the card to the selection. Before the first change, it needs the catalog. */
-function CardChangesSection({ strings: t, session, selection, imported, cardEffects, changes, ...rest }: ChangesSectionProps) {
+function CardChangesSection({ strings: t, releaseUrl: release, session, selection, imported, cardEffects, changes, ...rest }: ChangesSectionProps) {
   const { catalog, checked } = useChecked(selection, [...imported, ...cardEffects]);
   const effects = [...catalog.effects, ...imported, ...cardEffects];
   const effectName = (id: string) => effects.find((effect) => effect.id === id)?.name ?? id;
@@ -1665,7 +1688,7 @@ function CardChangesSection({ strings: t, session, selection, imported, cardEffe
       session={session}
       changes={changes(session, [...checked])}
       version={__GRKU_VERSION__}
-      releaseUrl={RELEASE_URL}
+      releaseUrl={release}
       effectCount={checked.size}
       moduleName={moduleName}
       effectName={effectName}
@@ -1684,7 +1707,7 @@ function RecipesWithEffects({
   filmLook,
   onSelectionChange,
   ...rest
-}: Omit<Parameters<typeof RecipesPanel>[0], 'effectNames' | 'packageEffects' | 'onAddPreset'> & {
+}: Omit<RecipesPanelProps, 'effectNames' | 'packageEffects' | 'onAddPreset'> & {
   selection: Selection;
   others: readonly { id: string; name: string }[];
   /** The package has Film Look, so it holds the checked effects. */
@@ -1773,7 +1796,7 @@ function StepIndicator({
                 </a>
               ) : (
                 <span
-                  className={cn('flex h-9 items-center gap-2 px-2', current ? 'font-medium text-foreground' : 'text-muted-foreground/60')}
+                  className={cn('flex h-9 items-center gap-2 px-2', current ? 'font-medium text-foreground' : 'text-muted-foreground')}
                   aria-current={current ? 'step' : undefined}
                 >
                   {body}

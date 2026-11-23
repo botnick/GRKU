@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { siteUrl } from '../catalog';
 import type { Language, Strings } from '../i18n';
 import { LANGUAGE_PATHS, pagePath } from '../languagePage';
-import { docUrl, guideUrl, REPOSITORY } from '../links';
+import { docUrl, FEEDBACK, guideUrl } from '../links';
 import type { PageLink } from '../navigation';
 import { newsStrings } from '../whatsNew';
 
@@ -45,10 +45,10 @@ export function SiteFooter({
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
           <div className="col-span-2 flex flex-col gap-3 sm:col-span-3 lg:col-span-1">
             <a href={LANGUAGE_PATHS[language]} className="w-fit text-[20px] leading-none font-extrabold tracking-[-0.03em] text-foreground no-underline">
-              GRKU<span className="text-brand">.</span>
+              GRKU<span className="text-brand-mark">.</span>
             </a>
             <p className="max-w-[36ch] text-sm leading-relaxed text-muted-foreground">{t.lead[1]}</p>
-            <a className="w-fit font-mono text-xs text-muted-foreground/70 hover:text-foreground" href={releaseUrl}>
+            <a className="w-fit font-mono text-xs text-muted-foreground hover:text-foreground" href={releaseUrl}>
               GRKU {version}
             </a>
           </div>
@@ -76,13 +76,8 @@ export function SiteFooter({
               </a>
             </li>
             <li>
-              <a className={LINK} href={`${REPOSITORY}/issues`}>
+              <a className={LINK} href={FEEDBACK}>
                 {t.feedback}
-              </a>
-            </li>
-            <li>
-              <a className={LINK} href={REPOSITORY}>
-                GitHub
               </a>
             </li>
           </Group>
@@ -104,7 +99,7 @@ export function SiteFooter({
             </li>
           </Group>
         </div>
-        <div className="flex flex-col gap-1.5 border-t border-border pt-6 text-xs leading-relaxed text-muted-foreground/80">
+        <div className="flex flex-col gap-1.5 border-t border-border pt-6 text-xs leading-relaxed text-muted-foreground">
           <p className="text-muted-foreground">{t.riskShort}</p>
           <p className="max-w-[90ch]">{t.trademarks}</p>
         </div>

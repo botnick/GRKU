@@ -2,7 +2,7 @@
 // it must not touch the DOM at import time.
 import type { Language } from './i18n';
 
-/** The address of each language page. English is the root page, which other visitors also get. */
+/** The address of each language page. Thai is the root page; the edge worker sends visitors of other languages to theirs. */
 export const LANGUAGE_PATHS: Readonly<Record<Language, string>> = {
   th: '/',
   en: '/en/',
@@ -176,16 +176,18 @@ export function cookieValue(cookies: string, name: string): string | null {
   return null;
 }
 
-/** The language of the countries where most visitors read it. */
-const COUNTRY_LANGUAGES: Readonly<Record<string, Language>> = {
-  CN: 'zh-Hans',
-  TW: 'zh-Hant',
-  HK: 'zh-Hant',
-  MO: 'zh-Hant',
-  JP: 'ja',
-  KR: 'ko',
-  TH: 'th',
-};
+/**
+ * Search engine crawlers and link preview fetchers. They get the page at the address they ask
+ * for, the same page a visitor of its language gets, so every language page is indexed and a
+ * shared link previews in the language of the link. Some of them send an Accept-Language header.
+ */
+const CRAWLER =
+  /bot\b|bot\/|crawl|spider|slurp|yeti|baidu|yandex|sogou|bytespider|petalbot|facebookexternalhit|meta-externalagent|twitterbot|slackbot|discordbot|linkedinbot|whatsapp|telegrambot|lighthouse|google-inspectiontool|googleother|embedly|skypeuripreview|pinterest|redditbot|applebot|duckduck|qwant|semrush|ahrefs|ia_archiver/i;
+
+/** Whether the User-Agent header names a crawler or a link preview fetcher. */
+export function isCrawler(userAgent: string | null): boolean {
+  return userAgent !== null && CRAWLER.test(userAgent);
+}
 
 export interface Visitor {
   /** The Cookie header. */
@@ -194,17 +196,23 @@ export interface Visitor {
   acceptLanguage: string | null;
   /** The country of the visitor's IP address, as an ISO 3166-1 alpha-2 code. */
   country: string | null;
+  /** The User-Agent header. */
+  userAgent?: string | null;
 }
 
 /**
- * The language page for a visitor of the root page. A language that the visitor chose comes
- * first, then the browser languages. The country of the IP address decides only when the
- * browser sends no language, and it picks the script of a bare `zh`.
+ * The language page for a visitor of a root page, or null to serve the root page itself (Thai).
+ * A language that the visitor chose comes first, then the browser languages; the country picks
+ * only the script of a bare `zh`. A request without either, which is how search engines crawl,
+ * and any crawler or link preview get the page they asked for, so the Thai pages stay reachable.
  */
-export function visitorLanguage({ cookie, acceptLanguage, country }: Visitor): Language {
+export function visitorLanguage({ cookie, acceptLanguage, country, userAgent = null }: Visitor): Language | null {
+  if (isCrawler(userAgent)) return null;
   const chosen = cookie === null ? null : cookieValue(cookie, LANGUAGE_COOKIE);
   if (isLanguage(chosen)) return chosen;
+  // A visitor in Thailand reads Thai, also with a phone set to English; the language menu changes it.
+  if (country === 'TH') return 'th';
   const tags = acceptedLanguages(acceptLanguage ?? '');
   if (tags.length > 0) return matchLanguage(tags, country);
-  return (country && COUNTRY_LANGUAGES[country]) || 'en';
+  return null;
 }

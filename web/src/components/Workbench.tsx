@@ -8,41 +8,97 @@ import {
   useTransition,
   type ChangeEvent,
   type ReactNode,
-} from 'react';
-import { Check, KeyRound, LoaderCircle, Lock, Maximize, Minimize, Plus, Search, Sparkles, Upload, X } from 'lucide-react';
-import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
-import { useReactCompareSlider } from 'react-compare-slider/hooks';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
-import { PREVIEW_TARGET } from '../cameras';
-import { effectUrl, MAX_EFFECTS, previewTable, type CardEffect, type Catalog, type Effect, type ImportedEffect } from '../catalog';
-import { brandOf, FILM_KINDS, filmKind, type FilmKind } from '../filmKind';
-import type { Strings } from '../i18n';
-import { editable } from '../import/edit';
-import { LANDING_HERO, landingImage } from '../landing';
-import { ownedLines, packCounts, slotsOf, takesSlot, unlockedBy, usedSlots, type Entitlement } from '../plus';
-import { PhotoLoader } from '../preview/raw';
-import { forget, prefetchTable, preview, type PreviewEffect, type Source } from '../preview/render';
-import { DEFAULT_SAMPLE, SAMPLES, sampleOf } from '../preview/samples';
-import { importFit, resolveSelection, selectImport, type Selection } from '../selection';
-import type { Family, Recipe } from '../recipes';
-import { gridLooks } from '../gridPage';
-import { STOCKS } from '../stocks';
-import { useCatalog } from '../useCatalog';
-import { EditDialog, type EditDialogHandle } from './EditDialog';
-import { BrandSwatch } from './BrandMark';
-import { EffectIcon } from './EffectIcon';
-import { ErrorBoundary } from './ErrorBoundary';
-import { ImportDialog, type ImportDialogHandle } from './ImportDialog';
+} from "react";
+import {
+  Check,
+  KeyRound,
+  LoaderCircle,
+  Lock,
+  Maximize,
+  Minimize,
+  Plus,
+  Search,
+  Sparkles,
+  Upload,
+  X,
+} from "lucide-react";
+import {
+  Handle,
+  HandleRoot,
+  Item,
+  Provider,
+  Root,
+} from "react-compare-slider/components";
+import { useReactCompareSlider } from "react-compare-slider/hooks";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { PREVIEW_TARGET } from "../cameras";
+import {
+  effectUrl,
+  MAX_EFFECTS,
+  previewTable,
+  type CardEffect,
+  type Catalog,
+  type Effect,
+  type ImportedEffect,
+} from "../catalog";
+import { brandOf, FILM_KINDS, filmKind, type FilmKind } from "../filmKind";
+import type { Strings } from "../i18n";
+import { editable } from "../import/edit";
+import { LANDING_HERO, landingPicture } from "../landing";
+import {
+  inLaunch,
+  ownedLines,
+  packCounts,
+  PRICES,
+  REGULAR_PRICES,
+  slotsOf,
+  takesSlot,
+  unlockedBy,
+  usedSlots,
+  type Entitlement,
+} from "../plus";
+import { LaunchOffer } from "./LaunchOffer";
+import { PhotoLoader } from "../preview/raw";
+import {
+  forget,
+  prefetchTable,
+  preview,
+  type PreviewEffect,
+  type Source,
+} from "../preview/render";
+import { DEFAULT_SAMPLE, SAMPLES, sampleOf } from "../preview/samples";
+import {
+  importFit,
+  resolveSelection,
+  selectImport,
+  type Selection,
+} from "../selection";
+import type { Family, Recipe } from "../recipes";
+import { gridLooks } from "../gridPage";
+import { STOCKS } from "../stocks";
+import { useCatalog } from "../useCatalog";
+import { EditDialog, type EditDialogHandle } from "./EditDialog";
+import { BrandSwatch } from "./BrandMark";
+import { EffectIcon } from "./EffectIcon";
+import { ChangeBadge } from "./ChangeBadge";
+import { ErrorBoundary } from "./ErrorBoundary";
+import { ImportDialog, type ImportDialogHandle } from "./ImportDialog";
 
 function subscribeFullscreen(change: () => void): () => void {
-  document.addEventListener('fullscreenchange', change);
-  return () => document.removeEventListener('fullscreenchange', change);
+  document.addEventListener("fullscreenchange", change);
+  return () => document.removeEventListener("fullscreenchange", change);
 }
 
 /** The browser can show an element in full screen. iPhone Safari cannot. */
@@ -50,51 +106,37 @@ const fullscreenEnabled = () => document.fullscreenEnabled === true;
 const neverChanges = () => () => undefined;
 
 /** Whether two sets hold the same IDs. */
-const sameSet = (a: ReadonlySet<string>, b: ReadonlySet<string>) => a.size === b.size && [...a].every((id) => b.has(id));
+const sameSet = (a: ReadonlySet<string>, b: ReadonlySet<string>) =>
+  a.size === b.size && [...a].every((id) => b.has(id));
 
 /** GRKU's own look, which the page shows first. */
-const FIRST_LOOK = 'positive-film-grii-v1';
+const FIRST_LOOK = "positive-film-grii-v1";
 
 /** The name of a kind of film in the filters. */
 function kindLabel(kind: FilmKind, t: Strings): string {
   switch (kind) {
-    case 'negative': return t.kindNegative;
-    case 'slide': return t.kindSlide;
-    case 'mono': return t.kindMono;
-    case 'cine': return t.kindCine;
-    case 'instant': return t.kindInstant;
-    case 'camera': return t.kindCamera;
-    case 'imported': return t.kindImported;
+    case "negative":
+      return t.kindNegative;
+    case "slide":
+      return t.kindSlide;
+    case "mono":
+      return t.kindMono;
+    case "cine":
+      return t.kindCine;
+    case "instant":
+      return t.kindInstant;
+    case "camera":
+      return t.kindCamera;
+    case "imported":
+      return t.kindImported;
   }
 }
 
 /** The film number, then the print film of a cine look: "5219 · 2393 print". */
 function stockText(stock: (typeof STOCKS)[string] & {}, t: Strings): string {
-  return stock.print ? `${stock.film} · ${t.printFilm(stock.print)}` : stock.film;
-}
-
-/** The change badge of an effect or a module: what a write to the card does with it. */
-export function ChangeBadge({
-  on,
-  checked,
-  changed = false,
-  strings: t,
-}: {
-  on: boolean;
-  checked: boolean;
-  /** The file on the card differs from the effect of the page. */
-  changed?: boolean;
-  strings: Strings;
-}) {
-  if (checked && !on) return <Badge variant="outline">{t.changeAdds}</Badge>;
-  if (!checked && on)
-    return (
-      <Badge variant="outline" className="border-destructive text-destructive">
-        {t.changeRemoves}
-      </Badge>
-    );
-  if (checked && changed) return <Badge variant="outline">{t.changeUpdates}</Badge>;
-  return null;
+  return stock.print
+    ? `${stock.film} · ${t.printFilm(stock.print)}`
+    : stock.film;
 }
 
 interface Props {
@@ -134,10 +176,13 @@ interface Props {
   notice?: string | null;
 }
 
-const RING = 'outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50';
+/** The grid of looks, which the kind tabs filter: the tabs have no panels of their own. */
+const LOOK_GRID = "look-grid";
+
+const RING = "outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50";
 /** The ring of a file button whose hidden input has the keyboard focus. */
 const FILE_FOCUS =
-  '[&:has(+input:focus-visible)]:border-ring [&:has(+input:focus-visible)]:ring-[3px] [&:has(+input:focus-visible)]:ring-ring/50';
+  "[&:has(+input:focus-visible)]:border-ring [&:has(+input:focus-visible)]:ring-[3px] [&:has(+input:focus-visible)]:ring-ring/50";
 
 /**
  * The first screen and the first step in one: the headline, the photograph that renders the
@@ -147,7 +192,10 @@ const FILE_FOCUS =
 /** The mark of a look the buyer owns through GRKU Plus: a sparkle, not a price tag. */
 function PlusMark() {
   return (
-    <span className="flex size-4 items-center justify-center rounded-full bg-background text-brand ring-1 ring-brand/60" aria-hidden="true">
+    <span
+      className="flex size-4 items-center justify-center rounded-full bg-background text-brand-text ring-1 ring-brand/60"
+      aria-hidden="true"
+    >
       <Sparkles className="size-2.5" strokeWidth={2.5} />
     </span>
   );
@@ -175,13 +223,17 @@ export function Workbench({
   notice,
 }: Props) {
   const { catalog, error, retry } = useCatalog(PREVIEW_TARGET);
-  const effects: readonly Effect[] = catalog ? [...catalog.effects, ...imported] : imported;
+  const effects: readonly Effect[] = catalog
+    ? [...catalog.effects, ...imported]
+    : imported;
   const checked = resolveSelection(
     selection,
     catalog?.effects.map((effect) => effect.id) ?? [],
     [...imported, ...cardEffects].map((effect) => effect.id),
   );
-  const taken = new Set([...effects, ...cardEffects].map((effect) => effect.id));
+  const taken = new Set(
+    [...effects, ...cardEffects].map((effect) => effect.id),
+  );
   const listed = [...effects, ...cardEffects];
   const used = usedSlots(listed, checked, owned);
   const slots = slotsOf(owned);
@@ -189,8 +241,16 @@ export function Workbench({
   // The viewer, not the frame, goes to full screen (as on GRKit): an error replaces the frame, and
   // the removal of the full-screen element would end full screen. The photo keeps its render size.
   const [viewer, setViewer] = useState<HTMLDivElement | null>(null);
-  const canFullscreen = useSyncExternalStore(neverChanges, fullscreenEnabled, () => false);
-  const fullscreenElement = useSyncExternalStore(subscribeFullscreen, () => document.fullscreenElement, () => null);
+  const canFullscreen = useSyncExternalStore(
+    neverChanges,
+    fullscreenEnabled,
+    () => false,
+  );
+  const fullscreenElement = useSyncExternalStore(
+    subscribeFullscreen,
+    () => document.fullscreenElement,
+    () => null,
+  );
   const fullscreen = viewer !== null && fullscreenElement === viewer;
   // The effect that the frame shows, which changes in a transition when its preview is ready, and
   // the effect that the user pressed last, which the boxes and the text show at once.
@@ -215,38 +275,52 @@ export function Workbench({
   const [isPending, startTransition] = useTransition();
   const photoCount = useRef(0);
   // The filters of the shelf: a search, a kind of film, a brand.
-  const [query, setQuery] = useState('');
-  const [kind, setKind] = useState<FilmKind | 'all'>('all');
-  const [brand, setBrand] = useState('all');
+  const [query, setQuery] = useState("");
+  const [kind, setKind] = useState<FilmKind | "all">("all");
+  const [brand, setBrand] = useState("all");
   // The pages of the grid that show. A new search or filter starts again at the first page.
   const [pages, setPages] = useState(1);
-  const [filterKey, setFilterKey] = useState('');
+  const [filterKey, setFilterKey] = useState("");
   const nextFilterKey = `${query}\n${kind}\n${brand}`;
   if (filterKey !== nextFilterKey) {
     setFilterKey(nextFilterKey);
     setPages(1);
   }
-  const kinds = FILM_KINDS.filter((item) => listed.some((effect) => filmKind(effect) === item));
+  const kinds = FILM_KINDS.filter((item) =>
+    listed.some((effect) => filmKind(effect) === item),
+  );
   const brands = [...new Set(listed.map(brandOf).filter(Boolean))].sort();
   const needle = query.trim().toLowerCase();
   const visible = listed.filter(
     (effect) =>
-      (kind === 'all' || filmKind(effect) === kind) &&
-      (brand === 'all' || brandOf(effect) === brand) &&
+      (kind === "all" || filmKind(effect) === kind) &&
+      (brand === "all" || brandOf(effect) === brand) &&
       (!needle ||
-        [effect.name, brandOf(effect), effect.cover?.name, effect.cover?.number, 'look' in effect ? effect.look : '']
+        [
+          effect.name,
+          brandOf(effect),
+          effect.cover?.name,
+          effect.cover?.number,
+          "look" in effect ? effect.look : "",
+        ]
           .filter(Boolean)
-          .join(' ')
+          .join(" ")
           .toLowerCase()
           .includes(needle)),
   );
   // The grid shows whole pages of the matching looks (gridPage.ts), and always the previewed look.
   const importTile = !!catalog?.baseGamma;
-  const shownLooks = gridLooks(visible, pages, importTile, visible.findIndex((effect) => effect.id === requestedId));
+  const shownLooks = gridLooks(
+    visible,
+    pages,
+    importTile,
+    visible.findIndex((effect) => effect.id === requestedId),
+  );
 
-
-  const shown = effects.find((effect) => effect.id === previewId) ?? effects[0] ?? null;
-  const requested = effects.find((effect) => effect.id === requestedId) ?? shown;
+  const shown =
+    effects.find((effect) => effect.id === previewId) ?? effects[0] ?? null;
+  const requested =
+    effects.find((effect) => effect.id === requestedId) ?? shown;
   const previewOf = (effect: Effect, loaded: Catalog): PreviewEffect => ({
     id: effect.id,
     table: previewTable(loaded.target, effect),
@@ -256,15 +330,19 @@ export function Workbench({
   const previewed = shown && catalog ? previewOf(shown, catalog) : null;
   // The target look of the pressed effect: the catalog text, the LUT and the fit of an import.
   const look = !requested
-    ? ''
-    : requested.imported?.kind === 'native'
+    ? ""
+    : requested.imported?.kind === "native"
       ? t.nativeFrom(requested.imported.version)
-      : requested.imported?.kind === 'restored'
+      : requested.imported?.kind === "restored"
         ? t.restoredFrom(requested.imported.source)
         : requested.imported
           ? `${requested.imported.source} · ${t.fitText[requested.imported.grade]}`
           : (t.looks[requested.id] ?? requested.look);
-  const waiting = decoding ? t.decodingPhoto : isPending && requested ? t.previewRendering(requested.name) : null;
+  const waiting = decoding
+    ? t.decodingPhoto
+    : isPending && requested
+      ? t.previewRendering(requested.name)
+      : null;
 
   function toggle(effect: Effect | CardEffect) {
     const next = new Set(checked);
@@ -295,7 +373,8 @@ export function Workbench({
 
   /** Starts the preview at the press, before the click, which comes at the release. */
   function startPreview(effect: Effect) {
-    if (catalog) preview(source, previewOf(effect, catalog)).catch(() => undefined);
+    if (catalog)
+      preview(source, previewOf(effect, catalog)).catch(() => undefined);
   }
 
   /** Adds imports of one source and checks them if they follow it closely and the package has
@@ -328,7 +407,7 @@ export function Workbench({
 
   async function openPhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    event.target.value = '';
+    event.target.value = "";
     if (!file) return;
     setPhotoError(false);
     setDecoding(true);
@@ -336,7 +415,10 @@ export function Workbench({
       const image = await loader.open(file);
       // A replacement, sample selection, or unmount cancelled this request.
       if (!image) return;
-      const next: Source = { key: `photo-${++photoCount.current}`, load: async () => image };
+      const next: Source = {
+        key: `photo-${++photoCount.current}`,
+        load: async () => image,
+      };
       const previous = photo.current;
       photo.current = next;
       startTransition(() => setSource(next));
@@ -368,41 +450,70 @@ export function Workbench({
     for (const effect of visible) {
       if (next.size >= MAX_EFFECTS) break;
       if (next.has(effect.id) || effect.card) continue;
-      if (takesSlot(effect, owned) && usedSlots(listed, next, owned) >= slots) continue;
+      if (takesSlot(effect, owned) && usedSlots(listed, next, owned) >= slots)
+        continue;
       next.add(effect.id);
     }
     if (next.size !== checked.size) onSelectionChange(next);
   }
   // The starter set: the looks that a new visitor finds on the card.
-  const starter = resolveSelection(null, catalog?.effects.map((effect) => effect.id) ?? []);
+  const starter = resolveSelection(
+    null,
+    catalog?.effects.map((effect) => effect.id) ?? [],
+  );
   const canAddShown =
-    checked.size < MAX_EFFECTS && visible.some((effect) => !checked.has(effect.id) && !effect.card && canAdd(effect));
+    checked.size < MAX_EFFECTS &&
+    visible.some(
+      (effect) => !checked.has(effect.id) && !effect.card && canAdd(effect),
+    );
 
   function retryPreview() {
     forget(source);
     setPreviewAttempt((attempt) => attempt + 1);
   }
 
-  const addButton = (size: 'sm' | 'default') =>
+  const addButton = (size: "sm" | "default") =>
     requested && (
       <Button
         type="button"
-        variant={requestedOn ? 'secondary' : 'brand'}
+        variant={requestedOn ? "secondary" : "brand"}
         size={size}
         className="shrink-0"
         aria-pressed={requestedOn}
         disabled={!requestedOn && checked.size >= MAX_EFFECTS}
-        onClick={() => (requestedOn || canAdd(requested) ? toggle(requested) : onPlus())}
+        onClick={() =>
+          requestedOn || canAdd(requested) ? toggle(requested) : onPlus()
+        }
       >
-        {requestedOn ? <Check aria-hidden="true" /> : canAdd(requested) ? <Plus aria-hidden="true" /> : <Lock aria-hidden="true" />}
+        {requestedOn ? (
+          <Check aria-hidden="true" />
+        ) : canAdd(requested) ? (
+          <Plus aria-hidden="true" />
+        ) : (
+          <Lock aria-hidden="true" />
+        )}
         {requestedOn ? t.onCard : t.addToCard}
       </Button>
     );
 
-  const still = (
-    <Frame>
-      <img src={landingImage('looks/standard.jpg')} alt={`${t.samplePhoto} — ${t.original}`} className="absolute inset-0 size-full object-cover" />
+  // The first sample in the Standard development, a picture of the site: the page shows it until
+  // the preview of that sample is ready, so the photo is there as the page opens.
+  const still = (busy: boolean) => (
+    <Frame busy={busy}>
+      <img
+        {...landingPicture("looks/standard.jpg", PHOTO_SIZES)}
+        alt={`${t.samplePhoto} — ${t.original}`}
+        width="1200"
+        height="800"
+        fetchPriority="high"
+        className="absolute inset-0 size-full object-cover"
+      />
       <LookName>{t.original}</LookName>
+      {busy && (
+        <span className="pointer-events-none absolute bottom-4 left-1/2 z-[3] -translate-x-1/2 rounded-md bg-black/80 p-2 text-photo-foreground">
+          <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" />
+        </span>
+      )}
     </Frame>
   );
 
@@ -413,14 +524,19 @@ export function Workbench({
       ref={ownPhoto}
     >
       {/* The heading of the looks page. */}
-      <div id={LANDING_HERO} className="min-w-0 pt-[clamp(24px,5vh,56px)] lg:col-start-1 lg:row-start-1">
+      <div
+        id={LANDING_HERO}
+        className="min-w-0 pt-[clamp(24px,5vh,56px)] lg:col-start-1 lg:row-start-1"
+      >
         <h1
           id="looks-title"
           className="text-balance text-[clamp(30px,3.4vw,44px)] leading-[1.1] font-semibold tracking-[-0.02em] [:root[lang=th]_&]:leading-[1.3] [:root[lang=th]_&]:tracking-normal"
         >
           {t.site.toolHeading}
         </h1>
-        <p className="mt-4 max-w-[40em] text-[15px] leading-relaxed text-muted-foreground">{t.site.looksLead}</p>
+        <p className="mt-4 max-w-[40em] text-[15px] leading-relaxed text-muted-foreground">
+          {t.site.looksLead}
+        </p>
       </div>
 
       {/* The photograph, which stays in view while the shelf scrolls. */}
@@ -432,83 +548,166 @@ export function Workbench({
           ref={setViewer}
           className="relative [&:fullscreen]:flex [&:fullscreen]:items-center [&:fullscreen]:justify-center [&:fullscreen]:bg-black"
         >
-        {shown && previewed ? (
-          <ErrorBoundary
-            resetKey={`${source.key}\n${shown.id}\n${previewAttempt}`}
-            fallback={
-              <Frame>
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-center text-sm">
-                  <p>{t.previewError}</p>
-                  <Button type="button" variant="outline" size="sm" onClick={retryPreview}>
-                    {t.retryPreview}
-                  </Button>
-                </div>
-              </Frame>
-            }
-          >
-            <Suspense fallback={<Placeholder text={sourceLabel} busy />}>
-              <PreviewFrame
-                source={source}
-                effect={previewed}
-                compareLabel={t.compare}
-                busy={isPending || decoding}
-                status={waiting}
-                originalLabel={t.original}
-                originalAlt={sourceLabel}
-                effectName={shown.name}
-              />
-            </Suspense>
-          </ErrorBoundary>
-        ) : (
-          still
-        )}
-        {/* On a phone the name and the button lie over the photo, so the sticky block stays short. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] flex items-end justify-between gap-3 rounded-b-2xl bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 lg:hidden [:fullscreen>&]:flex [:fullscreen>&]:rounded-none [:fullscreen>&]:p-5">
-          <span className="min-w-0 truncate text-[15px] font-semibold text-white drop-shadow">{requested?.name ?? t.original}</span>
-          <span className="pointer-events-auto">{addButton('sm')}</span>
-        </div>
-        {canFullscreen && shown && (
-          <Button
-            type="button"
-            size="icon"
-            className="absolute top-3 left-3 z-[4] size-9 rounded-md bg-black/75 text-white hover:bg-black [:fullscreen>&]:top-5 [:fullscreen>&]:left-5"
-            aria-label={fullscreen ? t.exitFullScreen : t.fullScreen}
-            title={fullscreen ? t.exitFullScreen : t.fullScreen}
-            onClick={toggleFullscreen}
-          >
-            {fullscreen ? <Minimize aria-hidden="true" /> : <Maximize aria-hidden="true" />}
-          </Button>
-        )}
+          {shown && previewed ? (
+            <ErrorBoundary
+              resetKey={`${source.key}\n${shown.id}\n${previewAttempt}`}
+              fallback={
+                <Frame>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-center text-sm">
+                    <p>{t.previewError}</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={retryPreview}
+                    >
+                      {t.retryPreview}
+                    </Button>
+                  </div>
+                </Frame>
+              }
+            >
+              <Suspense
+                fallback={
+                  source === DEFAULT_SAMPLE ? (
+                    still(true)
+                  ) : (
+                    <Placeholder text={sourceLabel} busy />
+                  )
+                }
+              >
+                <PreviewFrame
+                  source={source}
+                  effect={previewed}
+                  compareLabel={t.compare}
+                  busy={isPending || decoding}
+                  status={waiting}
+                  originalLabel={t.original}
+                  originalAlt={sourceLabel}
+                  effectName={shown.name}
+                />
+              </Suspense>
+            </ErrorBoundary>
+          ) : (
+            still(false)
+          )}
+          {/* On a phone the name and the button lie over the photo, so the sticky block stays short. */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] flex items-end justify-between gap-3 rounded-b-2xl bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 lg:hidden [:fullscreen>&]:flex [:fullscreen>&]:rounded-none [:fullscreen>&]:p-5">
+            <span className="min-w-0 truncate text-[15px] font-semibold text-white drop-shadow">
+              {requested?.name ?? t.original}
+            </span>
+            <span className="pointer-events-auto">{addButton("sm")}</span>
+          </div>
+          {canFullscreen && shown && (
+            <Button
+              type="button"
+              size="icon"
+              className="absolute top-3 left-3 z-[4] size-9 rounded-md bg-black/75 text-white hover:bg-black [:fullscreen>&]:top-5 [:fullscreen>&]:left-5"
+              aria-label={fullscreen ? t.exitFullScreen : t.fullScreen}
+              title={fullscreen ? t.exitFullScreen : t.fullScreen}
+              onClick={toggleFullscreen}
+            >
+              {fullscreen ? (
+                <Minimize aria-hidden="true" />
+              ) : (
+                <Maximize aria-hidden="true" />
+              )}
+            </Button>
+          )}
         </div>
         <div className="mt-5 hidden items-start justify-between gap-4 lg:flex">
           <div className="min-w-0">
             <p className="text-xs text-muted-foreground">{t.previewing}</p>
-            <h2 className="truncate text-xl font-semibold">{requested?.name ?? t.original}</h2>
+            <h2 className="truncate text-xl font-semibold">
+              {requested?.name ?? t.original}
+            </h2>
             {requested && STOCKS[requested.id] && (
-              <p className="font-mono text-[13px] text-muted-foreground">{stockText(STOCKS[requested.id]!, t)}</p>
+              <p className="font-mono text-[13px] text-muted-foreground">
+                {stockText(STOCKS[requested.id]!, t)}
+              </p>
             )}
-            {look && <p className="mt-0.5 text-sm text-muted-foreground">{look}</p>}
+            {look && (
+              <p className="mt-0.5 text-sm text-muted-foreground">{look}</p>
+            )}
             {requested && !requested.imported && t.lookHints[requested.id] && (
-              <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-muted-foreground">{t.lookHints[requested.id]}</p>
+              <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-muted-foreground">
+                {t.lookHints[requested.id]}
+              </p>
             )}
             {requested && onCard && (
               <span className="mt-2 inline-flex">
-                <ChangeBadge on={onCard.has(requested.id)} checked={checked.has(requested.id)} changed={changedOnCard?.has(requested.id)} strings={t} />
+                <ChangeBadge
+                  on={onCard.has(requested.id)}
+                  checked={checked.has(requested.id)}
+                  changed={changedOnCard?.has(requested.id)}
+                  strings={t}
+                />
               </span>
             )}
           </div>
-          {addButton('default')}
+          {addButton("default")}
         </div>
+        {/* Shown also before the catalog arrives (and in the prerendered page), so the photo
+            column keeps its height and the looks below do not move. */}
+        {!owned.plus && !requested?.imported && (
+          <button
+            type="button"
+            onClick={onPlus}
+            className="mt-3 flex w-full items-center gap-3 rounded-xl border border-brand/40 bg-brand/[0.08] px-4 py-3 text-left transition-colors hover:border-brand hover:bg-brand/[0.14]"
+          >
+            <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground">
+              <Sparkles className="size-4" aria-hidden="true" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold">
+                {t.plus.title}
+              </span>
+              <span className="block text-[13px] leading-snug text-muted-foreground">
+                {t.plus.outcomeAll(
+                  catalog ? catalog.effects.length : 150,
+                  MAX_EFFECTS,
+                )}
+              </span>
+            </span>
+            <span className="flex shrink-0 flex-col items-end">
+              <span className="text-lg font-semibold text-brand-text tabular-nums">
+                ฿{PRICES.plus}
+              </span>
+              {inLaunch() && REGULAR_PRICES.plus > PRICES.plus && (
+                <s className="text-[12px] text-muted-foreground tabular-nums">
+                  ฿{REGULAR_PRICES.plus}
+                </s>
+              )}
+            </span>
+          </button>
+        )}
         <div className="mt-2 hidden flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted-foreground lg:flex">
-          <Button asChild variant="ghost" size="sm" className={cn('-ml-2.5 text-[13px]', FILE_FOCUS)}>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className={cn("-ml-2.5 text-[13px]", FILE_FOCUS)}
+          >
             <label htmlFor="photo-input">
               <Upload aria-hidden="true" />
               <span>{t.site.ownPhoto}</span>
             </label>
           </Button>
-          <input id="photo-input" className="sr-only" type="file" accept=".dng,image/x-adobe-dng" onChange={openPhoto} />
+          <input
+            id="photo-input"
+            className="sr-only"
+            type="file"
+            accept=".dng,image/x-adobe-dng"
+            onChange={openPhoto}
+          />
           {!sample && (
-            <Button type="button" variant="ghost" size="sm" className="text-[13px]" onClick={() => showSample()}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-[13px]"
+              onClick={() => showSample()}
+            >
               {t.useSample}
             </Button>
           )}
@@ -517,7 +716,12 @@ export function Workbench({
               {t.photoError}
             </span>
           ) : sample ? (
-            <a href={credit.source} target="_blank" rel="noreferrer" className="hover:text-foreground">
+            <a
+              href={credit.source}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-foreground"
+            >
               {credit.author} · {credit.license} · {credit.camera}
             </a>
           ) : (
@@ -525,45 +729,83 @@ export function Workbench({
           )}
         </div>
         {/* The sample photos: a street, a tram, a neon night, a lake, a temple, a beach. */}
-        <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label={t.samplePhotos}>
+        <div
+          className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          role="group"
+          aria-label={t.samplePhotos}
+        >
           {SAMPLES.map((item) => (
             <button
               key={item.source.key}
               type="button"
               className={cn(
-                'relative aspect-[3/2] w-16 shrink-0 overflow-hidden rounded-md ring-1 ring-black/20 transition-opacity hover:opacity-100 sm:w-20',
-                source === item.source ? 'opacity-100 ring-2 ring-brand' : 'opacity-60',
+                "relative aspect-[3/2] w-16 shrink-0 overflow-hidden rounded-md ring-1 ring-black/20 transition-opacity hover:opacity-100 sm:w-20",
+                source === item.source
+                  ? "opacity-100 ring-2 ring-brand"
+                  : "opacity-60",
               )}
               aria-label={`${item.credit.title} · ${item.credit.camera}`}
               aria-pressed={source === item.source}
               onClick={() => showSample(item.source)}
             >
-              <img src={item.thumbnail} alt="" width="360" height="240" loading="lazy" className="size-full object-cover" />
+              <img
+                src={item.thumbnail.replace(/\.jpg$/, "-160.webp")}
+                alt=""
+                width="160"
+                height="107"
+                loading="lazy"
+                decoding="async"
+                fetchPriority="low"
+                className="size-full object-cover"
+              />
             </button>
           ))}
         </div>
-        <p className="mt-1 hidden text-[13px] text-muted-foreground/80 lg:block">{t.previewNote}</p>
+        <p className="mt-1 hidden text-[13px] text-muted-foreground lg:block">
+          {t.previewNote}
+        </p>
       </aside>
 
       {/* The shelf. */}
-      <div id="looks" className="min-w-0 scroll-mt-28 md:scroll-mt-20 lg:col-start-1 lg:row-start-2">
+      <div
+        id="looks"
+        className="min-w-0 scroll-mt-28 md:scroll-mt-20 lg:col-start-1 lg:row-start-2"
+      >
         {/* The looks on the card: the count of the free places, the looks, and the way back to the starter set. */}
-        <section aria-labelledby="card-looks" className="mb-6 rounded-2xl border bg-card p-4 sm:p-5">
+        <section
+          aria-labelledby="card-looks"
+          className="mb-6 rounded-2xl border bg-card p-4 sm:p-5"
+        >
           <div className="flex items-start justify-between gap-4">
-            <h2 id="card-looks" className="flex min-w-0 flex-col gap-x-2 text-base font-semibold sm:flex-row sm:items-baseline">
+            <h2
+              id="card-looks"
+              className="flex min-w-0 flex-col gap-x-2 text-base font-semibold sm:flex-row sm:items-baseline"
+            >
               {t.onCard}
               <span className="text-sm font-normal text-muted-foreground tabular-nums">
-                {owned.plus ? t.slotsUsed(checked.size, MAX_EFFECTS) : t.site.freeUsed(used, slots)}
+                {owned.plus
+                  ? t.slotsUsed(checked.size, MAX_EFFECTS)
+                  : t.site.freeUsed(used, slots)}
               </span>
             </h2>
             <div className="flex shrink-0 items-center gap-1">
               {catalog && !sameSet(checked, starter) && (
-                <Button type="button" variant="ghost" size="xs" onClick={() => onSelectionChange(starter)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => onSelectionChange(starter)}
+                >
                   {t.site.starterSet}
                 </Button>
               )}
               {checked.size > 0 && (
-                <Button type="button" variant="ghost" size="xs" onClick={() => onSelectionChange(new Set())}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => onSelectionChange(new Set())}
+                >
                   {t.clear}
                 </Button>
               )}
@@ -571,14 +813,24 @@ export function Workbench({
           </div>
           {checked.size > 0 ? (
             <div className="mt-2">
-              <ul className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label={t.onCard}>
+              <ul
+                className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                aria-label={t.onCard}
+              >
                 {listed
                   .filter((effect) => checked.has(effect.id))
                   .map((effect) => (
-                    <li key={effect.id} className="relative shrink-0 pt-2 pr-2 motion-safe:animate-[box-in_220ms_ease-out]">
+                    <li
+                      key={effect.id}
+                      className="relative shrink-0 pt-2 pr-2 motion-safe:animate-[box-in_220ms_ease-out]"
+                    >
                       <button
                         type="button"
-                        className={cn('block rounded-md p-0.5', effect.id === requested?.id && 'ring-2 ring-brand/70', RING)}
+                        className={cn(
+                          "block rounded-md p-0.5",
+                          effect.id === requested?.id && "ring-2 ring-brand/70",
+                          RING,
+                        )}
                         aria-label={t.previewOf(effect.name)}
                         title={effect.name}
                         onClick={() => {
@@ -587,37 +839,173 @@ export function Workbench({
                       >
                         <EffectIcon effect={effect} className="size-11" />
                       </button>
+                      {/* A 24 px target for a finger, with the small round mark in its corner. */}
                       <button
                         type="button"
-                        className={cn('absolute top-0 right-0 flex size-4 items-center justify-center rounded-full bg-muted text-foreground ring-2 ring-card hover:bg-brand hover:text-white', RING)}
+                        className="group/remove absolute top-0 right-0 flex size-6 items-start justify-end rounded-full outline-none"
                         aria-label={t.removeOf(effect.name)}
                         onClick={() => toggle(effect)}
                       >
-                        <X className="size-2.5" strokeWidth={3} aria-hidden="true" />
+                        <span className="flex size-4 items-center justify-center rounded-full bg-muted text-foreground ring-2 ring-card group-hover/remove:bg-brand group-hover/remove:text-white group-focus-visible/remove:ring-[3px] group-focus-visible/remove:ring-ring/50">
+                          <X
+                            className="size-2.5"
+                            strokeWidth={3}
+                            aria-hidden="true"
+                          />
+                        </span>
                       </button>
                     </li>
                   ))}
               </ul>
             </div>
           ) : (
-            <p className="mt-2 text-sm text-muted-foreground">{t.filmLookEmpty}</p>
-          )}
-          {!owned.plus && (
-            <p className="mt-2 text-[13px] text-muted-foreground">
-              {t.plus.title} ·{' '}
-              <button type="button" className="font-medium text-foreground underline-offset-4 hover:underline" onClick={onPlus}>
-                {t.plus.getMore}
-              </button>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t.filmLookEmpty}
             </p>
           )}
+          {/* The free places as a bar: it turns red as the card fills, where Plus is the way on. */}
+          {!owned.plus && (
+            <div
+              className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted"
+              aria-hidden="true"
+            >
+              <div
+                className={cn(
+                  "h-full rounded-full transition-[width]",
+                  used >= slots - 2 ? "bg-brand" : "bg-foreground/40",
+                )}
+                style={{
+                  width: `${Math.min(100, (used / Math.max(1, slots)) * 100)}%`,
+                }}
+              />
+            </div>
+          )}
         </section>
+        {!owned.plus && ownedLines(owned, t.plus, null).length === 0 && (
+          <div className="mb-4 overflow-hidden rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/[0.16] via-card to-card">
+            <div className="flex flex-col gap-4 p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+                    <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground">
+                      <Sparkles className="size-4" aria-hidden="true" />
+                    </span>
+                    {t.plus.title}
+                  </p>
+                  <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-muted-foreground">
+                    {t.plus.lead}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="brand"
+                  className="hidden shrink-0 sm:inline-flex"
+                  onClick={onPlus}
+                >
+                  <Sparkles aria-hidden="true" />
+                  {t.plus.getMore}
+                </Button>
+              </div>
+              <LaunchOffer strings={t} />
+              {/* The three tiers at a glance; each opens GRKU Plus. */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                {(() => {
+                  const counts = catalog ? packCounts(catalog.effects) : null;
+                  const total = catalog ? catalog.effects.length : 145;
+                  return [
+                    [
+                      t.plus.tierAll,
+                      PRICES.plus,
+                      true,
+                      t.plus.outcomeAll(total, MAX_EFFECTS),
+                      REGULAR_PRICES.plus,
+                    ],
+                    [
+                      t.plus.tierSlots,
+                      PRICES.slots25,
+                      false,
+                      t.plus.outcomeSlots(25),
+                      REGULAR_PRICES.slots25,
+                    ],
+                    [
+                      t.plus.tierPack,
+                      PRICES["pack:kodak"],
+                      false,
+                      t.plus.outcomePack(
+                        counts?.kodak ?? 16,
+                        t.plus.packs.kodak,
+                        10,
+                        10 + (counts?.kodak ?? 16),
+                      ),
+                      REGULAR_PRICES["pack:kodak"],
+                    ],
+                  ] as const;
+                })().map(([name, price, featured, outcome, regular]) => (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={onPlus}
+                    className={cn(
+                      "flex flex-col items-start gap-1 rounded-xl border bg-background/60 px-3 py-3 text-left transition-colors hover:border-brand/60 hover:bg-background",
+                      featured
+                        ? "border-brand shadow-[0_0_0_1px_var(--brand)]"
+                        : "border-border",
+                    )}
+                  >
+                    <span className="text-xs text-muted-foreground">
+                      {name}
+                    </span>
+                    <span className="flex items-baseline gap-1.5">
+                      <span
+                        className={cn(
+                          "text-xl font-semibold tabular-nums tracking-tight",
+                          featured && "text-brand-text",
+                        )}
+                      >
+                        ฿{price}
+                      </span>
+                      {inLaunch() && regular > price && (
+                        <s className="text-[12px] tabular-nums text-muted-foreground">
+                          ฿{regular}
+                        </s>
+                      )}
+                    </span>
+                    <span className="text-[11.5px] leading-snug text-muted-foreground">
+                      {outcome}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <Button
+                type="button"
+                variant="brand"
+                size="lg"
+                className="sm:hidden"
+                onClick={onPlus}
+              >
+                <Sparkles aria-hidden="true" />
+                {t.plus.getMore}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {(() => {
-          const lines = ownedLines(owned, t.plus, catalog ? packCounts(catalog.effects) : null);
+          const lines = ownedLines(
+            owned,
+            t.plus,
+            catalog ? packCounts(catalog.effects) : null,
+          );
           if (lines.length === 0) return null;
           // Bought looks are unlocked, not placed: this puts the ones not yet on the card there, as many as fit.
-          const bought = listed.filter((effect) => !effect.card && unlockedBy(effect, owned));
+          const bought = listed.filter(
+            (effect) => !effect.card && unlockedBy(effect, owned),
+          );
           const notOnCard = bought.filter((effect) => !checked.has(effect.id));
-          const fits = Math.min(notOnCard.length, Math.max(0, MAX_EFFECTS - checked.size));
+          const fits = Math.min(
+            notOnCard.length,
+            Math.max(0, MAX_EFFECTS - checked.size),
+          );
           const addOwned = () => {
             const next = new Set(checked);
             for (const effect of notOnCard.slice(0, fits)) next.add(effect.id);
@@ -643,33 +1031,64 @@ export function Workbench({
                     <span
                       className="inline-flex h-7 items-center gap-1.5 rounded-md border bg-background/60 px-2 font-mono text-xs tabular-nums text-muted-foreground"
                       title={t.plus.keyInUse(plusKey)}
-                      aria-label={t.plus.keyInUse(`${plusKey.slice(0, 4)}-•••-${plusKey.slice(-4)}`)}
+                      aria-label={t.plus.keyInUse(
+                        `${plusKey.slice(0, 4)}-•••-${plusKey.slice(-4)}`,
+                      )}
                     >
                       <KeyRound className="size-3.5" aria-hidden="true" />
                       {`${plusKey.slice(0, 4)}-•••-${plusKey.slice(-4)}`}
                     </span>
                     {onOtherKey && (
-                      <Button type="button" variant="outline" size="xs" className="h-7" onClick={onOtherKey}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="xs"
+                        className="h-7"
+                        onClick={onOtherKey}
+                      >
                         {t.plus.useOtherKey}
                       </Button>
                     )}
                     {onForgetKey && (
-                      <Button type="button" variant="ghost" size="xs" className="h-7 text-muted-foreground hover:text-destructive" onClick={onForgetKey}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="xs"
+                        className="h-7 text-muted-foreground hover:text-destructive"
+                        onClick={onForgetKey}
+                      >
                         {t.plus.forget}
                       </Button>
                     )}
                   </div>
                 )}
-                {fits > 0 && <p className="m-0 mt-2 text-[13px] leading-snug text-muted-foreground">{t.plus.ownedHint}</p>}
                 {fits > 0 && (
-                  <Button type="button" variant="brand" size="sm" className="mt-3" onClick={addOwned}>
+                  <p className="m-0 mt-2 text-[13px] leading-snug text-muted-foreground">
+                    {t.plus.ownedHint}
+                  </p>
+                )}
+                {fits > 0 && (
+                  <Button
+                    type="button"
+                    variant="brand"
+                    size="sm"
+                    className="mt-3"
+                    onClick={addOwned}
+                  >
                     <Plus aria-hidden="true" />
-                    {notOnCard.length === bought.length ? t.plus.addOwned(fits) : t.plus.addOwnedRest(fits)}
+                    {notOnCard.length === bought.length
+                      ? t.plus.addOwned(fits)
+                      : t.plus.addOwnedRest(fits)}
                   </Button>
                 )}
               </div>
               {!owned.plus && (
-                <Button type="button" variant="outline" className="shrink-0" onClick={onPlus}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="shrink-0"
+                  onClick={onPlus}
+                >
                   <Sparkles aria-hidden="true" />
                   {t.plus.addMore}
                 </Button>
@@ -699,7 +1118,10 @@ export function Workbench({
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <div className="relative min-w-0 flex-1">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <Search
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                aria-hidden="true"
+              />
               <Input
                 type="search"
                 className="h-10 bg-card pl-10 text-[15px]"
@@ -710,9 +1132,12 @@ export function Workbench({
               />
             </div>
             <Select value={brand} onValueChange={setBrand}>
-              <SelectTrigger className="h-10 w-40 shrink-0 bg-card data-[size=default]:h-10" aria-label={t.allBrands}>
+              <SelectTrigger
+                className="h-10 w-40 shrink-0 bg-card data-[size=default]:h-10"
+                aria-label={t.allBrands}
+              >
                 <SelectValue>
-                  {brand === 'all' ? (
+                  {brand === "all" ? (
                     t.allBrands
                   ) : (
                     <span className="flex items-center gap-2">
@@ -737,17 +1162,30 @@ export function Workbench({
             </Select>
           </div>
           {/* The kinds of film on one line, the chosen one underlined; the line scrolls on a phone. */}
-          <Tabs value={kind} onValueChange={(value) => setKind(value as FilmKind | 'all')} className="-mx-gutter min-w-0 px-gutter lg:mx-0 lg:px-0">
+          <Tabs
+            value={kind}
+            onValueChange={(value) => setKind(value as FilmKind | "all")}
+            className="-mx-gutter min-w-0 px-gutter lg:mx-0 lg:px-0"
+          >
             <TabsList
               variant="line"
               className="h-auto w-full max-w-full justify-start gap-0 overflow-x-auto border-b border-border p-0 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               aria-label={t.searchEffects}
             >
-              <TabsTrigger value="all" className="h-8 flex-none px-3 text-[13px]">
+              <TabsTrigger
+                value="all"
+                aria-controls={LOOK_GRID}
+                className="h-8 flex-none px-3 text-[13px]"
+              >
                 {t.filterAll}
               </TabsTrigger>
               {kinds.map((item) => (
-                <TabsTrigger key={item} value={item} className="h-8 flex-none px-3 text-[13px]">
+                <TabsTrigger
+                  key={item}
+                  value={item}
+                  aria-controls={LOOK_GRID}
+                  className="h-8 flex-none px-3 text-[13px]"
+                >
                   {kindLabel(item, t)}
                 </TabsTrigger>
               ))}
@@ -755,9 +1193,19 @@ export function Workbench({
           </Tabs>
           <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-muted-foreground tabular-nums">
             <span className="flex items-center gap-2">
-              {catalog ? t.shownOf(visible.length, listed.length) : error ? t.loadError : t.loading}
-              {catalog && (needle || kind !== 'all' || brand !== 'all') && (
-                <Button type="button" variant="ghost" size="xs" disabled={!canAddShown} onClick={addShown}>
+              {catalog
+                ? t.shownOf(visible.length, listed.length)
+                : error
+                  ? t.loadError
+                  : t.loading}
+              {catalog && (needle || kind !== "all" || brand !== "all") && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="xs"
+                  disabled={!canAddShown}
+                  onClick={addShown}
+                >
                   {t.selectAll}
                 </Button>
               )}
@@ -765,7 +1213,10 @@ export function Workbench({
             {/* The key to the marks on the boxes. */}
             <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="flex items-center gap-1.5">
-                <span className="flex size-4 items-center justify-center rounded-full bg-foreground text-background" aria-hidden="true">
+                <span
+                  className="flex size-4 items-center justify-center rounded-full bg-foreground text-background"
+                  aria-hidden="true"
+                >
                   <Check className="size-2.5" strokeWidth={3} />
                 </span>
                 {t.onCard}
@@ -781,21 +1232,36 @@ export function Workbench({
             </span>
           </div>
           {error && (
-            <Button type="button" variant="outline" size="sm" className="self-start" onClick={retry}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="self-start"
+              onClick={retry}
+            >
               {t.retryLoad}
             </Button>
           )}
         </div>
 
-
-        <ul className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-6 " aria-label={t.effects}>
+        <ul
+          id={LOOK_GRID}
+          className="mt-4 grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-6 "
+          aria-label={t.effects}
+        >
           {!catalog &&
             !error &&
             Array.from({ length: 21 }, (_, index) => (
-              <li key={index} className="aspect-[5/6] animate-pulse rounded-lg border bg-card" aria-hidden="true" />
+              <li
+                key={index}
+                className="aspect-[5/6] animate-pulse rounded-lg border bg-card"
+                aria-hidden="true"
+              />
             ))}
           {catalog && visible.length === 0 && (
-            <li className="col-span-full py-10 text-center text-muted-foreground">{t.noMatches}</li>
+            <li className="col-span-full py-10 text-center text-muted-foreground">
+              {t.noMatches}
+            </li>
           )}
           {shownLooks.map((effect) => {
             const isChecked = checked.has(effect.id);
@@ -803,24 +1269,42 @@ export function Workbench({
             const stock = STOCKS[effect.id];
             // The box and one line of name: the preview pane tells the rest. The stock and the
             // kind are in the tooltip of the card.
-            const detail = [effect.card ? t.cardOnlyEffect : effect.monochrome ? t.mono : t.color, stock ? stockText(stock, t) : null]
+            const detail = [
+              effect.card
+                ? t.cardOnlyEffect
+                : effect.monochrome
+                  ? t.mono
+                  : t.color,
+              stock ? stockText(stock, t) : null,
+            ]
               .filter(Boolean)
-              .join(' · ');
+              .join(" · ");
             const body = (
               <>
                 {/* A look on the card shows faded with a check over the box: it is taken, the
                     row above lists it, and a press still previews it. */}
                 <span className="relative">
-                  <EffectIcon effect={effect} className={cn('size-14 transition-opacity sm:size-16', isChecked && 'opacity-35 grayscale-[60%]')} />
+                  <EffectIcon
+                    effect={effect}
+                    className={cn(
+                      "size-14 transition-opacity sm:size-16",
+                      isChecked && "opacity-35 grayscale-[60%]",
+                    )}
+                  />
                   {isChecked && (
-                    <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+                    <span
+                      className="absolute inset-0 flex items-center justify-center"
+                      aria-hidden="true"
+                    >
                       <span className="flex size-7 items-center justify-center rounded-full bg-foreground text-background shadow-sm">
                         <Check className="size-4" strokeWidth={3} />
                       </span>
                     </span>
                   )}
                 </span>
-                <span className="line-clamp-2 w-full text-center text-[11px] leading-[1.25] font-medium">{effect.name}</span>
+                <span className="line-clamp-2 w-full text-center text-[11px] leading-[1.25] font-medium">
+                  {effect.name}
+                </span>
               </>
             );
             return (
@@ -828,49 +1312,81 @@ export function Workbench({
                 key={effect.id}
                 title={`${effect.name} · ${detail}`}
                 className={cn(
-                  'relative flex flex-col rounded-lg border bg-card p-1.5 pt-2 transition-colors hover:border-input',
-                  isChecked && 'bg-card/40 text-muted-foreground',
-                  isPreviewed && 'border-brand ring-2 ring-brand/70 hover:border-brand',
+                  "relative flex flex-col rounded-lg border bg-card p-1.5 pt-2 transition-colors hover:border-input",
+                  isChecked && "bg-card/40 text-muted-foreground",
+                  isPreviewed &&
+                    "border-brand ring-2 ring-brand/70 hover:border-brand",
                 )}
                 data-checked={isChecked || undefined}
                 data-previewed={isPreviewed || undefined}
               >
                 {unlockedBy(effect, owned) && (
-                  <span className="absolute top-1 left-1 z-10" title={t.plus.legendPlus}>
+                  <span
+                    className="absolute top-1 left-1 z-10"
+                    title={t.plus.legendPlus}
+                  >
                     <PlusMark />
                   </span>
                 )}
                 {effect.card ? (
-                  <div className="flex w-full flex-1 flex-col items-center gap-1.5 pt-0.5 text-center">{body}</div>
+                  <div className="flex w-full flex-1 flex-col items-center gap-1.5 pt-0.5 text-center">
+                    {body}
+                  </div>
                 ) : (
                   <button
                     type="button"
-                    className={cn('flex w-full flex-1 flex-col items-center gap-1.5 rounded-md pt-0.5 text-center select-none', RING)}
+                    className={cn(
+                      "flex w-full flex-1 flex-col items-center gap-1.5 rounded-md pt-0.5 text-center select-none",
+                      RING,
+                    )}
                     aria-pressed={isPreviewed}
-                    aria-label={isChecked ? `${t.previewOf(effect.name)} · ${t.onCard}` : t.previewOf(effect.name)}
+                    aria-label={
+                      isChecked
+                        ? `${t.previewOf(effect.name)} · ${t.onCard}`
+                        : t.previewOf(effect.name)
+                    }
                     onPointerEnter={() => prefetch(effect)}
                     onFocus={() => prefetch(effect)}
                     onPointerDown={() => startPreview(effect)}
                     onClick={() => showEffect(effect)}
                     // A double click puts the look on the card, or takes it off, as the add button does.
-                    onDoubleClick={() => (isChecked || canAdd(effect) ? toggle(effect) : onPlus())}
+                    onDoubleClick={() =>
+                      isChecked || canAdd(effect) ? toggle(effect) : onPlus()
+                    }
                   >
                     {body}
                   </button>
                 )}
                 {onCard && (
                   <span className="absolute -top-1.5 -left-1.5 scale-90">
-                    <ChangeBadge on={onCard.has(effect.id)} checked={isChecked} changed={changedOnCard?.has(effect.id)} strings={t} />
+                    <ChangeBadge
+                      on={onCard.has(effect.id)}
+                      checked={isChecked}
+                      changed={changedOnCard?.has(effect.id)}
+                      strings={t}
+                    />
                   </span>
                 )}
                 {effect.imported && (
                   <span className="mt-1 flex justify-center gap-0.5">
                     {editable(effect) && (
-                      <Button type="button" variant="ghost" size="xs" aria-label={t.editOf(effect.name)} onClick={() => editor.current?.open(effect)}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="xs"
+                        aria-label={t.editOf(effect.name)}
+                        onClick={() => editor.current?.open(effect)}
+                      >
                         {t.editEffect}
                       </Button>
                     )}
-                    <Button type="button" variant="ghost" size="xs" aria-label={t.removeOf(effect.name)} onClick={() => onRemove(effect)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="xs"
+                      aria-label={t.removeOf(effect.name)}
+                      onClick={() => onRemove(effect)}
+                    >
                       {t.removeEffect}
                     </Button>
                   </span>
@@ -882,13 +1398,21 @@ export function Workbench({
             <li className="flex flex-col rounded-lg border border-dashed p-1.5 pt-2">
               <button
                 type="button"
-                className={cn('flex w-full flex-1 flex-col items-center justify-center gap-1.5 rounded-md pt-0.5 text-center text-muted-foreground hover:text-foreground', RING)}
+                className={cn(
+                  "flex w-full flex-1 flex-col items-center justify-center gap-1.5 rounded-md pt-0.5 text-center text-muted-foreground hover:text-foreground",
+                  RING,
+                )}
                 onClick={() => importer.current?.open()}
               >
-                <span className="flex size-9 items-center justify-center rounded-full border" aria-hidden="true">
+                <span
+                  className="flex size-9 items-center justify-center rounded-full border"
+                  aria-hidden="true"
+                >
                   <Plus className="size-4" />
                 </span>
-                <span className="w-full truncate text-[11px] leading-tight font-medium">{t.importOpen}</span>
+                <span className="w-full truncate text-[11px] leading-tight font-medium">
+                  {t.importOpen}
+                </span>
               </button>
             </li>
           )}
@@ -903,7 +1427,9 @@ export function Workbench({
             >
               {t.loadMore}
             </Button>
-            <span className="text-[13px] text-muted-foreground tabular-nums">{t.shownOf(shownLooks.length, visible.length)}</span>
+            <span className="text-[13px] text-muted-foreground tabular-nums">
+              {t.shownOf(shownLooks.length, visible.length)}
+            </span>
           </div>
         )}
         <p className="mt-4 text-[13px] text-muted-foreground">
@@ -912,7 +1438,16 @@ export function Workbench({
         </p>
 
         {catalog?.baseGamma && (
-          <ImportDialog ref={importer} strings={t} baseGamma={catalog.baseGamma} taken={taken} onImport={(effect) => importEffects([effect])} family={family} recipes={recipes} onAddRecipe={onAddRecipe} />
+          <ImportDialog
+            ref={importer}
+            strings={t}
+            baseGamma={catalog.baseGamma}
+            taken={taken}
+            onImport={(effect) => importEffects([effect])}
+            family={family}
+            recipes={recipes}
+            onAddRecipe={onAddRecipe}
+          />
         )}
         <EditDialog ref={editor} strings={t} onSave={onEdit} />
       </div>
@@ -920,8 +1455,18 @@ export function Workbench({
   );
 }
 
+/** The width of the photograph: the right column on a computer, the page width on a phone. */
+const PHOTO_SIZES =
+  "(min-width: 1280px) 590px, (min-width: 1024px) 46vw, calc(100vw - 32px)";
+
 /** The frame of the photograph: a 3:2 picture over the dark, which clips what it holds. */
-function Frame({ busy = false, children }: { busy?: boolean; children: ReactNode }) {
+function Frame({
+  busy = false,
+  children,
+}: {
+  busy?: boolean;
+  children: ReactNode;
+}) {
   return (
     <div
       className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-black shadow-[0_30px_80px_rgba(0,0,0,0.55)] ring-1 ring-white/[0.06] [:fullscreen>&]:w-[min(100%,calc(100vh*3/2))] [:fullscreen>&]:rounded-none [:fullscreen>&]:shadow-none [:fullscreen>&]:ring-0"
@@ -935,7 +1480,7 @@ function Frame({ busy = false, children }: { busy?: boolean; children: ReactNode
 /** The name of the look over the frame. */
 function LookName({ children }: { children: ReactNode }) {
   return (
-    <Badge className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/75 px-2 py-1 font-mono text-xs font-medium text-foreground">
+    <Badge className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/75 px-2 py-1 font-mono text-xs font-medium text-photo-foreground">
       {children}
     </Badge>
   );
@@ -954,31 +1499,49 @@ interface FrameProps {
 }
 
 /** The baseline development on the left and the effect on the right, under a handle. */
-function PreviewFrame({ source, effect, compareLabel, busy, status, originalLabel, originalAlt, effectName }: FrameProps) {
+function PreviewFrame({
+  source,
+  effect,
+  compareLabel,
+  busy,
+  status,
+  originalLabel,
+  originalAlt,
+  effectName,
+}: FrameProps) {
   const result = use(preview(source, effect));
-  const comparison = useReactCompareSlider({ clip: 'itemTwo' });
+  const comparison = useReactCompareSlider({ clip: "itemTwo" });
   return (
     <Frame busy={busy}>
       <Provider {...comparison}>
         <Root className="image-comparison">
           <Item item="itemOne">
-            <img src={result.original} alt={`${originalAlt} — ${originalLabel}`} />
+            <img
+              src={result.original}
+              alt={`${originalAlt} — ${originalLabel}`}
+            />
           </Item>
           <Item item="itemTwo" className="comparison-effect">
-            <img src={result.processed} alt={`${originalAlt} — ${effectName}`} />
+            <img
+              src={result.processed}
+              alt={`${originalAlt} — ${effectName}`}
+            />
           </Item>
           <HandleRoot aria-label={compareLabel}>
-            <Handle buttonStyle={{ width: 32, height: 32, gap: '0.2rem' }} />
+            <Handle buttonStyle={{ width: 32, height: 32, gap: "0.2rem" }} />
           </HandleRoot>
         </Root>
       </Provider>
       <LookName>{effectName}</LookName>
       {status && (
         <span
-          className="pointer-events-none absolute bottom-4 left-1/2 z-[3] inline-flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 rounded-md bg-black/80 px-3.5 py-2 text-[13px] whitespace-nowrap text-foreground"
+          className="pointer-events-none absolute bottom-4 left-1/2 z-[3] inline-flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 rounded-md bg-black/80 px-3.5 py-2 text-[13px] whitespace-nowrap text-photo-foreground"
           role="status"
         >
-          <LoaderCircle className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
+          <LoaderCircle
+            className="size-3.5 shrink-0 animate-spin"
+            aria-hidden="true"
+          />
           <span className="truncate">{status}</span>
         </span>
       )}
@@ -990,7 +1553,12 @@ function Placeholder({ text, busy = false }: { text: string; busy?: boolean }) {
   return (
     <Frame busy={busy}>
       <span className="absolute inset-0 flex items-center justify-center gap-2.5 font-mono text-[13px] text-muted-foreground">
-        {busy && <LoaderCircle className="size-3.5 shrink-0 animate-spin" aria-hidden="true" />}
+        {busy && (
+          <LoaderCircle
+            className="size-3.5 shrink-0 animate-spin"
+            aria-hidden="true"
+          />
+        )}
         {text}
       </span>
     </Frame>

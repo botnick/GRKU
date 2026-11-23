@@ -24,6 +24,17 @@ export function landingImage(name: string): string {
   return siteUrl(`landing/${name}`);
 }
 
+/**
+ * The attributes of an `img` of the landing JPEG `name` (`hero/achensee-standard.jpg`): its WebP
+ * copies of scripts/build-webp.mjs, 360, 720, and 1200 pixels wide, so the browser downloads the
+ * one that fits `sizes`, the width of the image on the page.
+ */
+export function landingPicture(name: string, sizes: string): { src: string; srcSet: string; sizes: string } {
+  const base = name.replace(/\.jpg$/, '');
+  const at = (suffix: string) => landingImage(`${base}${suffix}.webp`);
+  return { src: at(''), srcSet: `${at('-360')} 360w, ${at('-720')} 720w, ${at('')} 1200w`, sizes };
+}
+
 
 /** The guide lines inside a frame, in percent of its width and height. */
 export function guideLines(guide: LandingGuide): readonly (readonly [number, number, number, number])[] {

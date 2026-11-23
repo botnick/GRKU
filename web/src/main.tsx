@@ -5,19 +5,10 @@ import { canWriteCards } from './card';
 import { loadLastCard } from './cardStore';
 import { loadImports } from './import/store';
 import { loadFonts } from './fonts';
-import { pageLanguage, showLanguage, takeLegacyLanguage } from './i18n';
+import { loadStrings, pageLanguage, showLanguage, takeLegacyLanguage } from './i18n';
 import { looksLanguage, pagePath, pathPage } from './languagePage';
 import { anchorPage } from './navigation';
-// The site serves its fonts itself, so a page view sends no request to a font host.
-// loadFonts adds the Chinese, Japanese, or Korean fonts when a page in that language needs them.
-import '@fontsource/inter/400.css';
-import '@fontsource/inter/500.css';
-import '@fontsource/inter/700.css';
-import '@fontsource/inter/800.css';
-import '@fontsource/jetbrains-mono/400.css';
-import '@fontsource/jetbrains-mono/500.css';
-import '@fontsource/ibm-plex-sans-condensed/700.css';
-import './index.css';
+import { preloadPage, preloadOnIntent } from './parts';
 
 const language = pageLanguage();
 let page = pathPage(location.pathname) ?? 'home';
@@ -33,7 +24,6 @@ const legacy = takeLegacyLanguage();
 if (legacy !== null && legacy !== language && pagePath('th', page) === location.pathname) {
   location.replace(`${pagePath(legacy, page)}${location.search}${location.hash}`);
 }
-showLanguage(language, page);
 loadFonts(language);
 
 /** The result of `task`, or `fallback` when the store is slow, so it does not hold the page back. */
@@ -42,10 +32,15 @@ const soon = <T,>(task: Promise<T>, fallback: T) =>
 
 {
   // The effects imported and the card connected on an earlier visit.
+  // The part of this page downloads with the stored data, so the first render does not wait for it.
+  // The text of the page language is its own script (i18n.ts); it loads with them too.
   const [imports, lastCard] = await Promise.all([
     soon(loadImports(), []),
     canWriteCards() ? soon(loadLastCard(), null) : null,
+    preloadPage(page).catch(() => {}),
+    loadStrings(language),
   ]);
+  showLanguage(language, page);
 
   // The build fills the root with the page of this language for search engines. The first render
   // replaces it.
@@ -55,3 +50,4 @@ const soon = <T,>(task: Promise<T>, fallback: T) =>
     </StrictMode>,
   );
 }
+preloadOnIntent(page);

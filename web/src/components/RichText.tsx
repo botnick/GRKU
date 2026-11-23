@@ -11,7 +11,7 @@ export function RichText({ parts, link }: { parts: Parts; link?: string }) {
         {part.slice(1)}
       </code>
     ) : part.startsWith('[') && link ? (
-      <a key={index} href={link} className="underline underline-offset-4 hover:text-brand">
+      <a key={index} href={link} className="underline underline-offset-4 hover:text-brand-text">
         {part.slice(1)}
       </a>
     ) : (

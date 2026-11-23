@@ -131,7 +131,7 @@ export function RecipeSheet({ recipe, r: strings, language, effectNames, compact
     <div className={cn('overflow-hidden rounded-xl border bg-card', compact ? 'text-sm' : '')}>
       <div className={cn('px-4 pt-3', compact ? 'pb-2' : 'pb-3')}>
         <p className="font-mono text-[11px] tracking-[0.08em] text-muted-foreground uppercase">{look.kind === 'effect' ? 'Film Look' : 'Image Control'}</p>
-        <p className={cn('font-semibold text-brand', compact ? 'text-base' : 'text-xl')}>{lookName(recipe, r, language, effectNames)}</p>
+        <p className={cn('font-semibold text-brand-text', compact ? 'text-base' : 'text-xl')}>{lookName(recipe, r, language, effectNames)}</p>
       </div>
       {look.kind === 'native' && (
         <div className={cn('grid grid-cols-3 gap-y-3 border-t px-2', compact ? 'py-3' : 'py-5')}>
