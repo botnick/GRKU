@@ -12,6 +12,7 @@
 //! reject.
 
 mod file;
+mod from_preset;
 pub mod layout;
 mod library;
 mod model;
@@ -26,6 +27,7 @@ pub use library::{
     check_library, checksum, decode, encode, DialStep, Library, LibraryDial, HEADER_SIZE, MAGIC,
     RECORD_SIZE,
 };
+pub use from_preset::from_preset;
 pub use model::*;
 pub use presets::{presets, Preset};
 pub use site::generated;
