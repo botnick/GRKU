@@ -210,6 +210,8 @@ export function visitorLanguage({ cookie, acceptLanguage, country, userAgent = n
   if (isCrawler(userAgent)) return null;
   const chosen = cookie === null ? null : cookieValue(cookie, LANGUAGE_COOKIE);
   if (isLanguage(chosen)) return chosen;
+  // A visitor in Thailand reads Thai, also with a phone set to English; the language menu changes it.
+  if (country === 'TH') return 'th';
   const tags = acceptedLanguages(acceptLanguage ?? '');
   if (tags.length > 0) return matchLanguage(tags, country);
   return null;

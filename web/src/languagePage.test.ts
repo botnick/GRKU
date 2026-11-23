@@ -246,3 +246,11 @@ describe('edge worker', () => {
     expect(assets.fetch).toHaveBeenCalledOnce();
   });
 });
+
+describe('visitorLanguage in Thailand', () => {
+  it('keeps Thai for a visitor in Thailand with an English browser, unless they chose a language', () => {
+    expect(visitorLanguage({ cookie: null, acceptLanguage: 'en-US,en;q=0.9', country: 'TH' })).toBe('th');
+    expect(visitorLanguage({ cookie: 'grku_language=ja', acceptLanguage: 'en-US', country: 'TH' })).toBe('ja');
+    expect(visitorLanguage({ cookie: null, acceptLanguage: 'en-US', country: 'US' })).toBe('en');
+  });
+});
