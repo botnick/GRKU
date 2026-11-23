@@ -615,7 +615,10 @@ static u32 text_width(const char *text,u32 n,u32 m,u32 look) {
     if(look==LOOK_DOTS) return (u32)((total-2*pitch_column(m)+255)>>8);
     return (u32)(total>>8)-((m*18000)>>16)+((m*31)>>8);
 }
-static void glyph(u8 *mask,u32 width,u32 height,char c,int x,u32 top,u32 m,u32 look) {
+/* Not inlined: the letters, the heart, and the dots would otherwise grow the
+   frame of stamp_mask, which runs on the stack of the JPEG encoder task
+   (DATE_STACK_BUDGET). */
+static __attribute__((noinline)) void glyph(u8 *mask,u32 width,u32 height,char c,int x,u32 top,u32 m,u32 look) {
     if(look==LOOK_DOTS) dots_glyph(mask,width,height,c,x,top,m);
     else classic_glyph(mask,width,c,x,top,m);
 }
@@ -776,8 +779,10 @@ static void light_pair(const Plane *p,u32 x,u32 y,const u32 *core,const u32 *hal
     }
 }
 /* Add the light of `pairs` pixel pairs of row y from column x (even): the
-   core and halo light of each pixel. A pair without light stays as it is. */
-static void light_row(const Plane *p,u32 x,u32 y,const u8 *core,const u8 *halo,u32 pairs,u32 mono,u32 chroma,const Tint *t) {
+   core and halo light of each pixel. A pair without light stays as it is.
+   Inlined into its two callers, so that its frame does not add to theirs
+   above date_light_blocks (DATE_STACK_BUDGET). */
+static inline __attribute__((always_inline)) void light_row(const Plane *p,u32 x,u32 y,const u8 *core,const u8 *halo,u32 pairs,u32 mono,u32 chroma,const Tint *t) {
     u32 i=0;
 #if DATE_NEON
     if(t->neon) {
@@ -1298,8 +1303,10 @@ static u32 setting_below(u32 handle,u32 values,u32 fallback) {
 }
 /* One text of a mask look on each picture of the set, with its text box
    at `at` of the upright main picture; the text box across in *left and
-   *right. Returns 0 when it does not fit. */
-static u32 mask_part(PictureSet *set,u32 main,u32 turns,const char *text,u32 n,const Ink *ink,const Anchor *at,int *left,int *right) {
+   *right. Returns 0 when it does not fit. Inlined into date_mask, so that
+   the date and the caption add no frame between date_apply and the
+   drawing (DATE_STACK_BUDGET). */
+static inline __attribute__((always_inline)) u32 mask_part(PictureSet *set,u32 main,u32 turns,const char *text,u32 n,const Ink *ink,const Anchor *at,int *left,int *right) {
     const Plane *p=&set->planes[main];
     Stamp st;
     u32 i;
@@ -1327,10 +1334,43 @@ static u32 mask_part(PictureSet *set,u32 main,u32 turns,const char *text,u32 n,c
     *right=st.right;
     return 1;
 }
+/* The GR II imprint of date_apply: flat pixels on each picture. Not inlined,
+   so that its descriptors stay out of the frame of date_apply, under which
+   the mask looks draw (DATE_STACK_BUDGET). */
+static __attribute__((noinline)) void date_gr2(PictureSet *set, u32 main, u32 turns, const char *text, u32 n,
+                                               const char *words, u32 cn, u32 corner, u32 color, u32 scale,
+                                               u32 short_side, u32 w)
+{
+    /* The date ends 3 cells from the edge; a caption before it leaves one
+       empty cell. A caption line is 30 glyph pixels from the date line. */
+    Gr2 date = {gr2_scale(short_side, scale), 3, 1, corner != CORNER_TOP_RIGHT,
+                gr2_colors[color][0], gr2_colors[color][1], gr2_colors[color][2], 0};
+    Gr2 words_at = date;
+    u32 one = !cn || corner == CORNER_SPLIT || ((16 * (n + cn + 7) * date.s) >> 16) <= w, i;
+    if (!one) words_at.lift = 30;
+    if (corner == CORNER_BOTTOM_LEFT) {
+        words_at.right = date.right = 0;
+        if (cn && one) date.off = 3 + cn + 1;
+    } else if (corner == CORNER_SPLIT) {
+        date.right = 0;
+    } else if (one) {
+        words_at.off = 3 + n + 1;
+    }
+    for (i = 0; i < set->count; ++i) {
+        gr2_paint(&set->planes[i], &set->planes[main], text, n, set->mono, turns, &date);
+        if (cn) gr2_paint(&set->planes[i], &set->planes[main], words, cn, set->mono, turns, &words_at);
+    }
+}
 /* The largest picture draws the stamp. The smaller ones scale its mask, so
    playback keeps the stamp's place and width when it switches from the
    screennail to the main picture. The core calls this only for a style,
-   not for Off. */
+   not for Off.
+
+   This runs on the stack of the firmware JPEG encoder task, which has little
+   room left: a 992-byte frame of Glow made that task warn of a low stack.
+   The deepest chain of Date (date_apply, mask_part, stamp_sample, light_row,
+   date_light_blocks) stays within DATE_STACK_BUDGET bytes, which
+   crates/grku-build/src/tests/modules.rs checks for the camera build. */
 void date_apply(PictureSet *set, u32 style)
 {
     GrkuDateTime now;
@@ -1356,27 +1396,8 @@ void date_apply(PictureSet *set, u32 style)
        of its own at the same corner: above the date at the bottom, below it
        at the top. Split has room for both. */
     if (look == LOOK_GR2) {
-        /* The date ends 3 cells from the edge; a caption before it leaves one
-           empty cell. A caption line is 30 glyph pixels from the date line. */
-        Gr2 date = {gr2_scale(short_side, scale), 3, 1, corner != CORNER_TOP_RIGHT,
-                    gr2_colors[color][0], gr2_colors[color][1], gr2_colors[color][2], 0};
-        Gr2 words_at = date;
-        u32 one;
         n = gr2_text(text, dt, style);
-        one = !cn || corner == CORNER_SPLIT || ((16 * (n + cn + 7) * date.s) >> 16) <= w;
-        if (!one) words_at.lift = 30;
-        if (corner == CORNER_BOTTOM_LEFT) {
-            words_at.right = date.right = 0;
-            if (cn && one) date.off = 3 + cn + 1;
-        } else if (corner == CORNER_SPLIT) {
-            date.right = 0;
-        } else if (one) {
-            words_at.off = 3 + n + 1;
-        }
-        for (i = 0; i < set->count; ++i) {
-            gr2_paint(&set->planes[i], &set->planes[main], text, n, set->mono, turns, &date);
-            if (cn) gr2_paint(&set->planes[i], &set->planes[main], words, cn, set->mono, turns, &words_at);
-        }
+        date_gr2(set, main, turns, text, n, words, cn, corner, color, scale, short_side, w);
         return;
     }
     n = date_text(text, dt, style, look == LOOK_DOTS);

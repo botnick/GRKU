@@ -329,6 +329,74 @@ fn date_blur_stays_within_stack_budget() -> Result<()> {
     Ok(())
 }
 
+/// The bytes that the deepest chain of Date Imprint may take of the stack of
+/// the firmware JPEG encoder task. That stack has little room: a 992-byte
+/// frame of Glow made the task warn of a low stack. The chain of 1.8.6 took
+/// 848 bytes; the captions of 1.9 first took 976 with a frame of their own
+/// between date_apply and the drawing, and the camera hung while it saved a
+/// photo with Date Imprint on.
+const DATE_STACK_BUDGET: usize = 800;
+/// The frame of `date_light_blocks`, the NEON assembly of `stamp.c`, which
+/// `-fstack-usage` does not measure: six registers, d8 to d15, and 64 bytes
+/// of scratch.
+const DATE_LIGHT_BLOCKS_FRAME: usize = 6 * 4 + 8 * 8 + 64;
+
+/// Each call chain of `date_apply` down to a leaf, as `stamp.c` calls them.
+/// A function that the compiler inlines has no frame of its own and counts
+/// 0; `date_light_blocks` counts DATE_LIGHT_BLOCKS_FRAME.
+#[rustfmt::skip]
+const DATE_CHAINS: &[&[&str]] = &[
+    &["date_apply", "mask_part", "stamp", "stamp_draw", "light_row", "date_light_blocks"],
+    &["date_apply", "mask_part", "stamp", "stamp_draw", "light_row", "light_pair"],
+    &["date_apply", "mask_part", "stamp", "stamp_draw", "blend_row"],
+    &["date_apply", "mask_part", "stamp_sample", "light_row", "date_light_blocks"],
+    &["date_apply", "mask_part", "stamp_sample", "light_row", "light_pair"],
+    &["date_apply", "mask_part", "stamp_sample", "sample_products", "upright"],
+    &["date_apply", "mask_part", "stamp", "stamp_mask", "glyph", "diagonal", "span"],
+    &["date_apply", "mask_part", "stamp", "stamp_mask", "glyph", "dots_glyph", "dot"],
+    &["date_apply", "mask_part", "stamp", "stamp_mask", "blur_line"],
+    &["date_apply", "mask_part", "stamp", "stamp_mask", "text_width", "advance"],
+    &["date_apply", "date_gr2", "gr2_paint", "upright"],
+    &["date_apply", "gr2_paint", "upright"],
+    &["date_apply", "number"],
+    &["date_apply", "mask_part", "stamp_sample", "stored_box"],
+    &["date_apply", "mask_part", "stamp", "mask_view"],
+];
+
+/// Date Imprint runs beneath the firmware JPEG encoder: each call chain of
+/// its camera build stays within DATE_STACK_BUDGET, below the chain of 1.8.6.
+#[test]
+#[ignore = "Requires ARM-capable Clang and LLD; run with --ignored"]
+fn date_chain_stays_within_stack_budget() -> Result<()> {
+    let frames = stack_frames("date", "stamp.c")?;
+    let frame = |name: &str| -> usize {
+        if name == "date_light_blocks" {
+            return DATE_LIGHT_BLOCKS_FRAME;
+        }
+        frames
+            .iter()
+            .find(|(function, _)| function == name)
+            .map_or(0, |(_, bytes)| *bytes)
+    };
+    for chain in DATE_CHAINS {
+        let total: usize = chain.iter().map(|name| frame(name)).sum();
+        assert!(
+            total <= DATE_STACK_BUDGET,
+            "Date call chain {chain:?} takes {total} bytes of the encoder stack, over {DATE_STACK_BUDGET}"
+        );
+    }
+    // A function of stamp.c that no chain names would escape the check.
+    for (function, _) in &frames {
+        assert!(
+            DATE_CHAINS
+                .iter()
+                .any(|chain| chain.contains(&function.as_str())),
+            "Date function {function} is in no call chain of the stack check"
+        );
+    }
+    Ok(())
+}
+
 /// Glow also runs beneath the firmware JPEG encoder. Its row workspaces must
 /// stay in picture scratch: a 992-byte frame of light_row made the encoder
 /// task warn of a low stack.
