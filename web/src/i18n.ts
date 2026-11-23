@@ -204,9 +204,9 @@ const en = {
     modulesDescription: 'Step 3 of installing GRKU: choose the modules for the camera menu, such as Framing, Crop, Grain, and Recipes.',
     writeTitle: 'Write the SD card · Install GRKU',
     writeDescription: 'Step 4 of installing GRKU: write it straight to your SD card or download GRKU.zip, then start it on the camera.',
-    toolTitle: 'Choose GR camera tones and film looks, then install them · GRKU',
-    toolDescription: 'Preview more than 150 GR camera tones and film looks on a sample photo or your own DNG, choose the ones for your RICOH GR III, IIIx, or IV, and write them to the SD card or download GRKU.zip. No firmware flashing.',
-    toolHeading: 'Choose GR camera tones and install them',
+    toolTitle: 'Preview film simulations on your photo and install them on your GR · GRKU',
+    toolDescription: 'Preview more than 150 film simulations and film looks on a sample photo or your own DNG, choose the ones for your RICOH GR III, IIIx, or IV, and write them to the SD card or download GRKU.zip. No firmware flashing.',
+    toolHeading: 'Choose film looks and install them',
     toolLead: 'Press a box to see the look on the photo, on a sample or your own DNG. Add the ones you want to the card, then choose your camera and modules and install.',
     home: 'Home',
     heroCaption: 'One photo, five looks. Drag the line to compare with the base development.',
@@ -217,6 +217,22 @@ const en = {
     ctaTitle: 'See each look on your own photo first',
     ctaText: 'Every look previews free on a sample or your own DNG. Nothing goes on the card until you install.',
     filmLookText: 'The film looks you chose, with live-view preview.',
+    /** The alt text of the link preview image (og:image:alt). */
+    ogImageAlt: 'GRKU: the wordmark with a red period, the Thai tagline “GR ของคุณ ในแบบที่ชอบ” (your GR, the way you like it), and a shelf of film boxes',
+    /** The alt text of the hero photo with a film look: the look and the camera of the photo. */
+    lookAlt: (name: string, camera: string) => `The ${name} film look on a photo taken with a ${camera}`,
+    /** What each module does in a few words, after its menu name in the headings of the home page. */
+    moduleHeadings: {
+      framing: 'XPan and other aspect ratios',
+      crop: 'Crop to 35, 50, or 70 mm',
+      guides: 'Composition lines',
+      dateStamp: 'Date stamp on photos',
+      glow: 'Bloom and halation',
+      lightLeak: 'Light leaks and dust',
+      diffusion: 'Mist filter look',
+      grain: 'Film grain',
+      border: 'White or black border',
+    } as Readonly<Partial<Record<ModuleKey, string>>>,
   },
   /** The full-screen button of the preview (from GRKit). */
   fullScreen: 'Full screen',
@@ -247,12 +263,12 @@ const en = {
     'ultramax-400-ultra-v1': 'Bright, vibrant everyday color that works in low light and with flash.',
     'provia-100f-v1': 'A balanced all-rounder slide: fine grain, sharp, and faithful color.',
   } as Readonly<Record<string, string>>,
-  title: 'GRKU: film looks and XPan for RICOH GR III, IIIx, and IV',
+  title: 'GRKU: film simulations and recipes for RICOH GR III, IIIx, IV',
   /** The search result and link preview text of the page. */
   description:
-    'Film looks, XPan crops, date stamps, glow, and grain for RICOH GR III, IIIx, and IV. Use film simulation recipes or your own LUT. No firmware flashing.',
+    'Over 150 film simulations and recipes for RICOH GR III, IIIx, and IV, from Portra 400 to Classic Chrome and CineStill 800T, plus XPan crops and date stamps. Free from the SD card, no firmware flashing.',
   /** The hero lines under the GRKU heading, one line each. */
-  lead: ['Film looks for your RICOH GR', 'From the SD card, with the firmware untouched.'] as readonly string[],
+  lead: ['Film simulations for your RICOH GR', 'From the SD card, with the firmware untouched.'] as readonly string[],
   /** The landing page above the installer. */
   landing: {
     fact: 'Loads about nine seconds after power-on. Format the card and the camera is stock again.',
@@ -573,6 +589,30 @@ const en = {
   ] as readonly RichText[],
   faqTitle: 'FAQ',
   faq: [
+    {
+      q: 'What are film simulations on a RICOH GR?',
+      a: ['The GR has its own Image Control settings, such as Positive Film and Negative Film, but no simulations of real films like Fujifilm cameras have. GRKU adds them: over 150 film looks that you pick in ADJ and see in live view before you shoot.'],
+    },
+    {
+      q: 'What is a film recipe for the GR III, GR IIIx, or GR IV?',
+      a: ['A recipe is a set of camera settings, such as Image Control, white balance, and grain, that gives a film-like color. The GRKU Recipes module saves a look with its settings, switches to it in ADJ, and can put recipes on U1 to U3 of the mode dial. Popular community recipes are ready to add. It works on GR III, GR IIIx, and GR IV.'],
+    },
+    {
+      q: 'Is GRKU free?',
+      a: ['Yes. Every look previews free, and ten looks go on the card free. GRKU Plus, a one-time payment, adds more slots or whole film packs for those who want to support the project.'],
+    },
+    {
+      q: 'Which film looks are there?',
+      a: ['Over 150: Kodak Portra 400, Gold 200, Ektar 100, and Tri-X, Fujifilm film simulations such as Classic Chrome, Classic Neg, Velvia, and Acros, CineStill 800T, cinema and slide films, black and white, Polaroid, and RICOH\'s own Positive Film. Community recipes set Image Control and white balance for you.'],
+    },
+    {
+      q: 'Can I shoot XPan panoramas or a 50 mm crop on the GR?',
+      a: ['Yes. The Framing module shoots XPan 65:24 and other ratios such as 16:9 and 1:1, and the Crop module crops photos to 35, 40, 50, or 70 mm (50 to 100 mm on GR IIIx). The screen shows the frame while you shoot.'],
+    },
+    {
+      q: 'Can GRKU print the date on photos like a film camera?',
+      a: ['Yes. The Date Imprint module prints the date at the bottom right of photos, with classic, GR1s dot-matrix, or GR II digits: orange on color photos, white on black-and-white photos.'],
+    },
     {
       id: 'adj',
       q: 'GRKU does not show up in ADJ.',
@@ -1003,6 +1043,22 @@ const zhHans: Strings = {
     ctaTitle: '先在自己的照片上预览每种风格',
     ctaText: '所有风格均可在示例照片或自己的 DNG 照片上免费预览。安装之前，不会有任何内容写入卡片。',
     filmLookText: '已选择的胶片风格，并支持实时取景预览。',
+    /** The alt text of the link preview image (og:image:alt). */
+    ogImageAlt: 'GRKU：带有红色句点的字标，泰语标语“GR ของคุณ ในแบบที่ชอบ”，以及一排胶卷盒',
+    /** The alt text of the hero photo with a film look: the look and the camera of the photo. */
+    lookAlt: (name: string, camera: string) => `${name} 胶片色调，拍摄于 ${camera}`,
+    /** What each module does in a few words, after its menu name in the headings of the home page. */
+    moduleHeadings: {
+      framing: 'XPan 及其他画幅比例',
+      crop: '裁切至 35、50 或 70mm',
+      guides: '构图辅助线',
+      dateStamp: '照片日期打印',
+      glow: '柔光与光晕 (Bloom and Halation)',
+      lightLeak: '漏光与灰尘效果',
+      diffusion: '柔焦滤镜效果',
+      grain: '胶片颗粒',
+      border: '黑边或白边效果',
+    } as Readonly<Partial<Record<ModuleKey, string>>>,
   },
   fullScreen: '全屏',
   exitFullScreen: '退出全屏',
@@ -1315,6 +1371,30 @@ const zhHans: Strings = {
   ],
   faqTitle: '常见问题',
   faq: [
+    {
+      q: 'RICOH GR 上的胶片模拟是什么？',
+      a: ['GR 自带 Image Control 设置（如 Positive Film 和 Negative Film），但没有像 Fujifilm 相机那样真实的胶片模拟。GRKU 为其增加了 150 多种胶片色调，您可以在 ADJ 中选择，并在拍摄前通过实时取景进行预览。'],
+    },
+    {
+      q: '什么是 GR III、GR IIIx 或 GR IV 的胶片配方 (Recipe)？',
+      a: ['配方是一组相机设置的集合，如 Image Control、白平衡和颗粒感，用于呈现胶片般的色彩。GRKU 的 Recipes 模块可保存带有特定设置的色调，在 ADJ 中快速切换，并可将配方保存至模式拨盘的 U1 至 U3。社区热门配方可直接添加。适用于 GR III、GR IIIx 和 GR IV。'],
+    },
+    {
+      q: 'GRKU 是免费的吗？',
+      a: ['是的。所有胶片预设均可免费预览，卡内可免费存储十款预设。GRKU Plus 是一次性付费项目，支持添加更多存储位或完整胶片包，以资助本项目持续开发。'],
+    },
+    {
+      q: '有哪些胶片模拟效果？',
+      a: ['超过 150 种：Kodak Portra 400、Gold 200、Ektar 100 及 Tri-X，Fujifilm 胶片模拟（如 Classic Chrome、Classic Neg、Velvia 与 Acros），CineStill 800T，电影及反转胶片，黑白，Polaroid，以及 RICOH 自带的 Positive Film。社区配方为您配置图像控制与白平衡。'],
+    },
+    {
+      q: '我可以在 GR 上拍摄 XPan 全景或进行 50mm 裁切吗？',
+      a: ['可以。Framing 模块支持拍摄 XPan 65:24 及 16:9、1:1 等其他比例，Crop 模块可将照片裁切为 35、40、50 或 70mm（GR IIIx 上为 50 至 100mm）。拍摄时屏幕会显示对应的取景框。'],
+    },
+    {
+      q: 'GRKU 可以像胶片相机一样在照片上打印日期吗？',
+      a: ['可以。Date Imprint 模块可在照片右下角打印日期，提供经典字体、GR1s 点阵字体或 GR II 数字字体：彩色照片显示橙色，黑白照片显示白色。'],
+    },
     {
       id: 'adj',
       q: 'ADJ 里没有 GRKU？',
@@ -1712,6 +1792,22 @@ const zhHant: Strings = {
     ctaTitle: '先在自己的照片上預覽各種風格',
     ctaText: '所有風格都能免費在範例照片或自己的 DNG 檔案上預覽。安裝前，不會有任何內容寫入記憶卡。',
     filmLookText: '所選的底片風格，並可即時預覽。',
+    /** The alt text of the link preview image (og:image:alt). */
+    ogImageAlt: 'GRKU：帶有紅點的字標、泰文標語「GR ของคุณ ในแบบที่ชอบ」（隨心所欲，你的專屬 GR），以及陳列底片盒的展示架',
+    /** The alt text of the hero photo with a film look: the look and the camera of the photo. */
+    lookAlt: (name: string, camera: string) => `以 ${camera} 拍攝並套用 ${name} 底片風格的相片`,
+    /** What each module does in a few words, after its menu name in the headings of the home page. */
+    moduleHeadings: {
+      framing: 'XPan 與其他長寬比',
+      crop: '裁切至 35、50 或 70 mm',
+      guides: '構圖輔助線',
+      dateStamp: '相片日期戳記',
+      glow: 'Bloom 與 Halation 光暈效果',
+      lightLeak: '漏光與灰塵',
+      diffusion: '黑柔濾鏡效果',
+      grain: '底片顆粒',
+      border: '白邊或黑邊',
+    } as Readonly<Partial<Record<ModuleKey, string>>>,
   },
   fullScreen: '全螢幕',
   exitFullScreen: '結束全螢幕',
@@ -2024,6 +2120,30 @@ const zhHant: Strings = {
   ],
   faqTitle: '常見問題',
   faq: [
+    {
+      q: 'RICOH GR 上的底片模擬是什麼？',
+      a: ['GR 本身具備 Image Control 設定，例如 Positive Film 與 Negative Film，但並未像 Fujifilm 相機那樣內建真實底片的模擬效果。GRKU 補足了這項功能：提供超過 150 種底片風格，可直接在 ADJ 中選取，並在拍攝前於即時預覽中查看效果。'],
+    },
+    {
+      q: '什麼是 GR III、GR IIIx 或 GR IV 的底片配方？',
+      a: ['配方是一組相機設定組合（例如 Image Control、白平衡與顆粒），能呈現出底片般的色彩。GRKU 的 Recipes 模組可儲存風格與對應設定，直接在 ADJ 中切換，並能將配方指派至模式轉盤的 U1 至 U3。同時提供多款熱門社群配方可直接新增，適用於 GR III、GR IIIx 與 GR IV。'],
+    },
+    {
+      q: 'GRKU 是免費的嗎？',
+      a: ['是的。所有風格都能免費預覽，也能免費將 10 種風格存入記憶卡。GRKU Plus 採一次性付費，提供更多儲存欄位或完整底片套組，讓想支持本專案的使用者選購。'],
+    },
+    {
+      q: '有哪些底片風格可供選擇？',
+      a: ['超過 150 種：包括 Kodak Portra 400、Gold 200、Ektar 100 和 Tri-X；Fujifilm 底片模擬，如 Classic Chrome、Classic Neg、Velvia 和 Acros；CineStill 800T、電影底片、正片、黑白底片、Polaroid，以及 RICOH 原廠的 Positive Film。社群分享的配方會自動為您設定影像控制和白平衡。'],
+    },
+    {
+      q: '可以在 GR 上拍攝 XPan 寬景或使用 50 mm 裁切嗎？',
+      a: ['可以。Framing 模組支援拍攝 XPan 65:24 以及 16:9、1:1 等比例；Crop 模組則可將相片裁切至 35、40、50 或 70 mm（GR IIIx 為 50 至 100 mm）。拍攝時螢幕會即時顯示取景邊框。'],
+    },
+    {
+      q: 'GRKU 能像底片相機一樣在相片上印上日期嗎？',
+      a: ['可以。Date Imprint 模組可在相片右下角印上日期，提供經典、GR1s 點陣或 GR II 數位字體：彩色相片顯示為橘色，黑白相片顯示為白色。'],
+    },
     {
       id: 'adj',
       q: 'ADJ 裡沒有 GRKU？',
@@ -2421,6 +2541,22 @@ const ja: Strings = {
     ctaTitle: 'まずはお手持ちの写真でルックを確認',
     ctaText: 'すべてのルックをサンプルやお持ちのDNG写真で無料プレビューできます。インストールするまでカードには何も書き込まれません。',
     filmLookText: '選択したフィルムルックをライブビューでプレビューできます。',
+    /** The alt text of the link preview image (og:image:alt). */
+    ogImageAlt: 'GRKU：赤いピリオドが付いたワードマーク、タイ語のタグライン「GR ของคุณ ในแบบที่ชอบ」（あなた好みのGRを）、フィルムの箱が並ぶ棚',
+    /** The alt text of the hero photo with a film look: the look and the camera of the photo. */
+    lookAlt: (name: string, camera: string) => `${camera}で撮影した${name}フィルムルックの写真`,
+    /** What each module does in a few words, after its menu name in the headings of the home page. */
+    moduleHeadings: {
+      framing: 'XPanおよび各種アスペクト比',
+      crop: '35mm、50mm、70mmクロップ',
+      guides: '構図ガイドライン',
+      dateStamp: '日付の写し込み',
+      glow: 'ブルームとハレーション',
+      lightLeak: '光漏れとダスト',
+      diffusion: 'ミストフィルター効果',
+      grain: 'フィルム粒子',
+      border: '白または黒のフレーム',
+    } as Readonly<Partial<Record<ModuleKey, string>>>,
   },
   fullScreen: '全画面',
   exitFullScreen: '全画面を終了',
@@ -2737,6 +2873,30 @@ const ja: Strings = {
   ],
   faqTitle: 'よくある質問',
   faq: [
+    {
+      q: 'RICOH GRのフィルムシミュレーションとは何ですか？',
+      a: ['GRにはPositive FilmやNegative Filmなどの独自のImage Controlがありますが、富士フイルムのような実在するフィルムのシミュレーションはありません。GRKUは150種類以上のフィルムルックを追加し、ADJで選択して撮影前にライブビューで確認できます。'],
+    },
+    {
+      q: 'GR III、GR IIIx、GR IVのフィルムレシピとは何ですか？',
+      a: ['レシピとは、フィルム調の色味を再現するためのImage Control、ホワイトバランス、粒子感などのカメラ設定の組み合わせです。GRKUのRecipesモジュールは設定とともにルックを保存し、ADJでの切り替えや、モードダイヤルのU1〜U3への登録を可能にします。コミュニティで人気のレシピもすぐに追加できます。GR III、GR IIIx、GR IVに対応しています。'],
+    },
+    {
+      q: 'GRKUは無料で使えますか？',
+      a: ['はい。すべてのルックを無料でプレビューでき、10種類のルックを無料でカードに保存できます。GRKU Plusは買い切り型の有料オプションです。保存枠の追加や、フィルムパック全体の利用が可能になり、プロジェクトを応援したい方にもご利用いただけます。'],
+    },
+    {
+      q: 'どのようなフィルムルックがありますか？',
+      a: ['150種類以上を用意しています。Kodak Portra 400、Gold 200、Ektar 100、Tri-X、Fujifilmのフィルムシミュレーション（クラシッククローム、クラシックネガ、ベルビア、ACROSなど）、CineStill 800T、映画用フィルム、リバーサルフィルム、モノクロ、Polaroid、RICOH純正のポジフィルムなどがあります。コミュニティのレシピを使えば、イメージコントロールとホワイトバランスを自動で設定できます。'],
+    },
+    {
+      q: 'GRでXPanパノラマや50mmクロップの撮影はできますか？',
+      a: ['はい、可能です。FramingモジュールではXPan（65:24）や16:9、1:1などの比率で撮影でき、Cropモジュールでは写真を35mm、40mm、50mm、70mm（GR IIIxでは50〜100mm）にクロップできます。撮影時も画面上にフレームが表示されます。'],
+    },
+    {
+      q: 'GRKUでフィルムカメラのように写真へ日付を写し込めますか？',
+      a: ['はい、可能です。Date Imprintモジュールにより、クラシック、GR1sドットマトリクス、GR IIスタイルの数字で写真の右下に日付を写し込めます。カラー写真にはオレンジ色、モノクロ写真には白色で印字されます。'],
+    },
     {
       id: 'adj',
       q: 'ADJ に GRKU が表示されない',
@@ -3134,6 +3294,22 @@ const ko: Strings = {
     ctaTitle: '내 사진에서 각 룩을 먼저 확인하세요',
     ctaText: '모든 룩을 샘플 사진이나 직접 촬영한 DNG에서 무료로 미리 볼 수 있습니다. 설치하기 전까지는 카드에 아무것도 기록되지 않습니다.',
     filmLookText: '선택한 필름 룩을 라이브 뷰에서 미리 볼 수 있습니다.',
+    /** The alt text of the link preview image (og:image:alt). */
+    ogImageAlt: 'GRKU: 빨간 마침표가 있는 워드마크, 태국어 슬로건 “GR ของคุณ ในแบบที่ชอบ”(취향대로 즐기는 나만의 GR), 필름 상자가 진열된 선반',
+    /** The alt text of the hero photo with a film look: the look and the camera of the photo. */
+    lookAlt: (name: string, camera: string) => `${camera}로 촬영한 ${name} 필름 룩 사진`,
+    /** What each module does in a few words, after its menu name in the headings of the home page. */
+    moduleHeadings: {
+      framing: 'XPan 및 다양한 화면비',
+      crop: '35, 50, 70mm 크롭',
+      guides: '구도 가이드라인',
+      dateStamp: '사진 날짜 각인',
+      glow: '블룸 및 할레이션',
+      lightLeak: '빛샘 및 먼지 효과',
+      diffusion: '미스트 필터 룩',
+      grain: '필름 그레인',
+      border: '화이트 또는 블랙 테두리',
+    } as Readonly<Partial<Record<ModuleKey, string>>>,
   },
   fullScreen: '전체 화면',
   exitFullScreen: '전체 화면 종료',
@@ -3459,6 +3635,30 @@ const ko: Strings = {
   ],
   faqTitle: '자주 묻는 질문',
   faq: [
+    {
+      q: 'RICOH GR의 필름 시뮬레이션이란 무엇인가요?',
+      a: ['GR에는 Positive Film, Negative Film과 같은 자체 Image Control 설정이 있지만, 후지필름 카메라처럼 실제 필름을 시뮬레이션하는 기능은 없습니다. GRKU는 이를 지원하여, 150개 이상의 필름 룩을 ADJ에서 선택하고 촬영 전 라이브 뷰로 미리 확인할 수 있습니다.'],
+    },
+    {
+      q: 'GR III, GR IIIx, GR IV용 필름 레시피란 무엇인가요?',
+      a: ['레시피는 필름 느낌의 색감을 내기 위한 Image Control, 화이트 밸런스, 그레인 등의 카메라 설정 조합입니다. GRKU의 Recipes 모듈은 룩과 설정을 함께 저장하고, ADJ에서 빠르게 전환하며, 모드 다이얼의 U1~U3에 레시피를 할당할 수 있습니다. 인기 있는 커뮤니티 레시피도 바로 추가할 수 있으며, GR III, GR IIIx, GR IV에서 작동합니다.'],
+    },
+    {
+      q: 'GRKU는 무료인가요?',
+      a: ['네. 모든 룩은 무료로 미리볼 수 있으며, 10개의 룩을 SD 카드에 무료로 담을 수 있습니다. 프로젝트를 후원하고자 하는 사용자를 위한 GRKU Plus(일회성 결제)를 통해 더 많은 슬롯이나 필름 팩을 추가할 수 있습니다.'],
+    },
+    {
+      q: '어떤 필름 룩을 지원하나요?',
+      a: ['150종 이상: Kodak Portra 400, Gold 200, Ektar 100 및 Tri-X, Classic Chrome, Classic Neg, Velvia, Acros 등의 Fujifilm 필름 시뮬레이션, CineStill 800T, 시네마 및 슬라이드 필름, 흑백, Polaroid, RICOH 고유의 Positive Film 등이 포함되어 있습니다. 커뮤니티 레시피가 이미지 컨트롤과 화이트 밸런스를 자동으로 설정해 줍니다.'],
+    },
+    {
+      q: 'GR에서 XPan 파노라마 촬영이나 50mm 크롭 촬영이 가능한가요?',
+      a: ['네, 가능합니다. Framing 모듈로 XPan 65:24 및 16:9, 1:1 등의 다양한 화면비로 촬영할 수 있으며, Crop 모듈로는 35, 40, 50, 70mm(GR IIIx는 50~100mm) 크롭 촬영이 가능합니다. 촬영 중 화면에 프레임이 실시간으로 표시됩니다.'],
+    },
+    {
+      q: 'GRKU로 필름 카메라처럼 사진에 날짜를 각인할 수 있나요?',
+      a: ['네, 가능합니다. Date Imprint 모듈을 사용하면 클래식 스타일, GR1s 도트 매트릭스, GR II 폰트로 사진 우측 하단에 날짜를 각인할 수 있으며, 컬러 사진에는 주황색, 흑백 사진에는 흰색으로 표시됩니다.'],
+    },
     {
       id: 'adj',
       q: 'ADJ 모드에 GRKU가 보이지 않습니다.',
@@ -3849,8 +4049,8 @@ const th: Strings = {
     modulesDescription: 'ขั้นตอนที่ 3 ของการติดตั้ง GRKU: เลือกโมดูลสำหรับเมนูกล้อง เช่น Framing, Crop, Grain และสูตรสี',
     writeTitle: 'บันทึกลงการ์ด SD · ติดตั้ง GRKU',
     writeDescription: 'ขั้นตอนที่ 4 ของการติดตั้ง GRKU: บันทึกลงการ์ด SD โดยตรง หรือดาวน์โหลด GRKU.zip แล้วเริ่มใช้งานบนกล้อง',
-    toolTitle: 'เลือกโทนกล้อง GR และลุคฟิล์ม แล้วติดตั้ง · GRKU',
-    toolDescription: 'พรีวิวโทนกล้อง GR และลุคฟิล์มกว่า 150 แบบบนรูปตัวอย่างหรือไฟล์ DNG ของคุณ เลือกโทนที่ชอบสำหรับ RICOH GR III, IIIx หรือ IV แล้วเขียนลงการ์ด SD หรือดาวน์โหลด GRKU.zip โดยไม่ต้องแฟลชเฟิร์มแวร์',
+    toolTitle: 'ลองโทนฟิล์มบนรูปของคุณ แล้วลงการ์ด SD สำหรับ RICOH GR · GRKU',
+    toolDescription: 'พรีวิวโทนฟิล์มและสูตรสีมากกว่า 150 แบบจากรูปตัวอย่างหรือไฟล์ DNG ของคุณเอง เลือกแบบที่ชอบสำหรับ RICOH GR III, IIIx หรือ IV แล้วเซฟลงการ์ด SD หรือดาวน์โหลด GRKU.zip ได้เลย ไม่ต้องแฟลชเฟิร์มแวร์',
     toolHeading: 'เลือกโทนกล้อง GR แล้วติดตั้ง',
     toolLead: 'กดที่กล่องฟิล์มเพื่อดูลุคบนรูป ทั้งจากรูปตัวอย่างหรือไฟล์ DNG ของคุณ เพิ่มโทนที่ต้องการลงการ์ด จากนั้นเลือกรุ่นกล้องและโมดูล แล้วติดตั้ง',
     home: 'หน้าหลัก',
@@ -3862,6 +4062,22 @@ const th: Strings = {
     ctaTitle: 'ลองดูลุคฟิล์มแต่ละแบบบนภาพถ่ายของคุณก่อน',
     ctaText: 'ลองดูตัวอย่างลุคฟิล์มทุกแบบได้ฟรี ทั้งบนภาพตัวอย่างและไฟล์ DNG ของคุณเอง จะไม่มีอะไรถูกใส่ลงในการ์ดจนกว่าคุณจะติดตั้ง',
     filmLookText: 'ฟิล์มลุคที่คุณเลือก พร้อมดูตัวอย่างบนไลฟ์วิว',
+    /** The alt text of the link preview image (og:image:alt). */
+    ogImageAlt: 'GRKU: โลโก้ที่มีจุดสีแดง พร้อมคำโปรย “GR ของคุณ ในแบบที่ชอบ” และชั้นวางกล่องฟิล์ม',
+    /** The alt text of the hero photo with a film look: the look and the camera of the photo. */
+    lookAlt: (name: string, camera: string) => `โทน ${name} บนรูปที่ถ่ายด้วย ${camera}`,
+    /** What each module does in a few words, after its menu name in the headings of the home page. */
+    moduleHeadings: {
+      framing: 'XPan และสัดส่วนภาพอื่น ๆ',
+      crop: 'ครอป 35, 50 หรือ 70mm',
+      guides: 'เส้นช่วยจัดองค์ประกอบ',
+      dateStamp: 'พิมพ์วันที่บนรูป',
+      glow: 'Bloom และ Halation',
+      lightLeak: 'แสงรั่วและฝุ่นฟิล์ม',
+      diffusion: 'ลุคฟิลเตอร์ Black Mist',
+      grain: 'เกรนฟิล์ม',
+      border: 'ขอบสีขาวหรือสีดำ',
+    } as Readonly<Partial<Record<ModuleKey, string>>>,
   },
   fullScreen: 'เต็มหน้าจอ',
   exitFullScreen: 'ออกจากเต็มหน้าจอ',
@@ -3892,7 +4108,7 @@ const th: Strings = {
   title: 'GRKU: โทนกล้อง GR และสูตรสีฟิล์มสำหรับ RICOH GR III, IIIx, IV',
   /** The search result and link preview text of the page. */
   description:
-    'รวมโทนกล้อง GR และสูตรสีฟิล์มกว่า 150 แบบสำหรับ Ricoh GR ทั้ง Kodak, Fujifilm, CineStill และ Positive Film เขียนลงการ์ด SD ได้ฟรีผ่านเบราว์เซอร์ ไม่ต้องแฟลชเฟิร์มแวร์',
+    'รวมโทนกล้อง GR และสูตรสีมากกว่า 150 แบบสำหรับ RICOH GR III, IIIx, IV (GR3, GR3x, GR4) ทั้งฟิล์มซิมอย่าง Portra 400, Kodak Gold 200, Classic Chrome และ CineStill 800T พร้อม XPan และพิมพ์วันที่ ใช้ฟรีผ่านการ์ด SD ไม่ต้องแฟลชเฟิร์มแวร์',
   /** The hero lines under the GRKU heading, one line each. */
   lead: ['โทนกล้อง GR และสูตรสีฟิล์มสำหรับ RICOH GR', 'ทำงานจากการ์ด SD โดยไม่แตะต้องเฟิร์มแวร์'] as readonly string[],
   /** The landing page above the installer. */
@@ -4223,6 +4439,26 @@ const th: Strings = {
     {
       q: 'โทน GR ใช้ฟรีหรือเปล่า?',
       a: ['ใช้ฟรีได้ ดูตัวอย่างโทนทั้งหมดได้โดยไม่มีค่าใช้จ่าย และเขียนโทนลงการ์ดได้ฟรี 10 โทน ส่วน GRKU Plus จะเพิ่มจำนวนช่องสำหรับบันทึกโทนและเปิดให้ใช้ชุดฟิล์มได้ครบมากขึ้น สำหรับคนที่อยากสนับสนุนโปรเจกต์'],
+    },
+    {
+      q: 'ฟิล์มซิม (film simulation) บน Ricoh GR คืออะไร?',
+      a: ['GR มีการตั้งค่า Image Control ของตัวเองอย่าง Positive Film และ Negative Film แต่ไม่มีการจำลองฟิล์มจริงเหมือนกล้อง Fujifilm GRKU จะช่วยเพิ่มโทนฟิล์มเหล่านี้เข้าไป โดยมีให้เลือกกว่า 150 แบบที่ปรับผ่าน ADJ และเห็นผลทันทีบนหน้าจอก่อนถ่าย'],
+    },
+    {
+      q: 'สูตรสี (recipe) สำหรับ Ricoh GR3, GR3x, GR4 คืออะไร?',
+      a: ['สูตรสีคือชุดการตั้งค่าในกล้อง เช่น Image Control, ไวท์บาลานซ์ และเกรน เพื่อให้ได้สีสันที่เหมือนฟิล์ม โมดูล Recipes ของ GRKU ช่วยบันทึกการตั้งค่าเหล่านี้ไว้ เปลี่ยนใช้ผ่าน ADJ หรือตั้งค่าลงบน U1 ถึง U3 ของโหมดไดอัลได้เลย มีสูตรสีจากคอมมูนิตี้ให้เลือกใช้มากมาย ใช้ได้กับ GR III, GR IIIx และ GR IV'],
+    },
+    {
+      q: 'อยากได้โทนฟิล์มเกาหลีหรือโทนญี่ปุ่น ต้องเลือกโทนไหน?',
+      a: ['โทนฟิล์มเกาหลีที่นิยมมักจะให้ความรู้สึกอุ่น สีละมุน คอนทราสต์ต่ำ ใกล้เคียงกับ Kodak Portra 400 และ Gold 200 ส่วนโทนญี่ปุ่นมักจะมีความอมฟ้า สะอาดตา และนุ่มนวล เหมือนฟิล์ม Fujifilm อย่าง Pro 400H, Classic Chrome และ Superia ลองพรีวิวบนรูปของคุณก่อนเซฟลงการ์ดได้เลย'],
+    },
+    {
+      q: 'ถ่ายพาโนรามาแบบ XPan หรือครอป 50mm บน GR ได้ไหม?',
+      a: ['ได้ โมดูล Framing ช่วยให้ถ่าย XPan สัดส่วน 65:24 และสัดส่วนอื่นอย่าง 16:9 และ 1:1 ได้ ส่วนโมดูล Crop จะครอปภาพที่ 35, 40, 50 หรือ 70mm (50 ถึง 100mm สำหรับ GR IIIx) โดยจะมีเฟรมแสดงบนหน้าจอขณะถ่าย'],
+    },
+    {
+      q: 'GRKU พิมพ์วันที่บนรูปเหมือนกล้องฟิล์มได้ไหม?',
+      a: ['ได้ โมดูล Date Imprint จะพิมพ์วันที่ไว้ที่มุมขวาล่างของรูป มีแบบคลาสสิก, แบบ dot-matrix ของ GR1s หรือแบบของ GR II โดยจะเป็นสีส้มสำหรับรูปสี และสีขาวสำหรับรูปขาวดำ'],
     },
     {
       id: 'adj',
