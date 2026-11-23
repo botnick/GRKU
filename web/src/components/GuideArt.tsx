@@ -104,7 +104,8 @@ function SdCard({
           key={i}
           x={x + notch + 1 + i * ((w - notch - 3) / 4)}
           y={y + 3}
-          width={(w - notch - 3) / 4 - 1.5}
+          // A small card keeps thin contacts: a negative width is an error in the SVG.
+          width={Math.max(0.5, (w - notch - 3) / 4 - 1.5)}
           height={h * 0.2}
           rx="0.6"
           fill="#b08d3c"
