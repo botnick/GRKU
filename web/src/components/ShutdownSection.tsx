@@ -1,12 +1,119 @@
-import { useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { ImagePlus, Info, Power } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import type { Strings } from '../i18n';
 import { save } from '../package';
-import { makePicture, PICTURE_HEIGHT, PICTURE_NAME, PICTURE_WIDTH, type ShutdownKind } from '../shutdownPicture';
+import { makePicture, PICTURE_HEIGHT, PICTURE_NAME, PICTURE_WIDTH, prepareDesignFonts, type ShutdownKind } from '../shutdownPicture';
+import {
+  designChoice,
+  DESIGN_TEXT_MAX,
+  DESIGNS,
+  drawDesign,
+  findDesign,
+  limitText,
+  type Design,
+  type DesignChoice,
+  type DesignState,
+} from '../shutdownDesigns';
+
+/**
+ * A design drawn on a canvas of `scale` times 720 by 480. It draws at once with the fonts at
+ * hand, and again when the fonts of its text have loaded.
+ */
+function DesignCanvas({ choice, scale = 1, className, label }: { choice: DesignChoice; scale?: number; className?: string; label?: string }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const { id, theme, text } = choice;
+  useEffect(() => {
+    let live = true;
+    const draw = () => {
+      const context = canvas.current?.getContext('2d');
+      if (!live || !context) return;
+      context.setTransform(scale, 0, 0, scale, 0, 0);
+      drawDesign(context, { id, theme, text });
+    };
+    draw();
+    void prepareDesignFonts(text).then(draw);
+    return () => {
+      live = false;
+    };
+  }, [id, theme, text, scale]);
+  return (
+    <canvas
+      ref={canvas}
+      width={Math.round(PICTURE_WIDTH * scale)}
+      height={Math.round(PICTURE_HEIGHT * scale)}
+      className={className}
+      role={label ? 'img' : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
+    />
+  );
+}
+
+/** The two settings of a design: its text and its colors. */
+function DesignControls({
+  strings,
+  state,
+  onState,
+}: {
+  strings: Strings;
+  state: DesignState;
+  onState: (state: DesignState) => void;
+}) {
+  const t = strings.shutdown;
+  const id = useId();
+  const design: Design = findDesign(state.id) ?? DESIGNS[0];
+  const choice = designChoice(state);
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor={`${id}-text`}>{t.text}</Label>
+        <Input
+          id={`${id}-text`}
+          value={choice.text}
+          placeholder={design.text}
+          autoComplete="off"
+          spellCheck={false}
+          aria-describedby={`${id}-hint`}
+          onChange={(event) => onState({ ...state, texts: { ...state.texts, [design.id]: limitText(event.target.value) } })}
+        />
+        <p id={`${id}-hint`} className="m-0 text-xs text-muted-foreground">
+          {t.textHint.replace('${max}', String(DESIGN_TEXT_MAX))}
+        </p>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span id={`${id}-colors`} className="text-sm font-medium">
+          {t.colors}
+        </span>
+        <RadioGroup
+          value={String(choice.theme)}
+          onValueChange={(value) => onState({ ...state, themes: { ...state.themes, [design.id]: Number(value) } })}
+          aria-labelledby={`${id}-colors`}
+          className="flex flex-wrap gap-2"
+        >
+          {design.swatches.map((swatch, n) => (
+            <RadioGroupItem
+              key={n}
+              value={String(n)}
+              aria-label={`${t.colors} ${n + 1}`}
+              className={cn(
+                'size-10 overflow-hidden rounded-full border-2 border-border p-0 shadow-none',
+                'data-[state=checked]:border-foreground data-[state=checked]:ring-2 data-[state=checked]:ring-foreground/30 [&_svg]:hidden',
+              )}
+              style={{
+                background: `conic-gradient(${swatch.map((color, i) => `${color} ${(i / swatch.length) * 360}deg ${((i + 1) / swatch.length) * 360}deg`).join(', ')})`,
+              }}
+            />
+          ))}
+        </RadioGroup>
+      </div>
+    </div>
+  );
+}
 
 /**
  * The text that the camera draws over the picture: the bar of the shot counts and the firmware
@@ -56,6 +163,8 @@ export function ShutdownSection({
   logoUrl,
   onCard,
   firmware,
+  designs,
+  onDesigns,
 }: {
   strings: Strings;
   /** The kind that applies (`shutdownKind`). */
@@ -69,6 +178,9 @@ export function ShutdownSection({
   onCard: Uint8Array | null;
   /** The firmware versions of the camera, such as `2.21`, for the version text of the preview. */
   firmware: string;
+  /** The designs of this browser: the chosen one, and the text and theme of each. */
+  designs: DesignState;
+  onDesigns: (state: DesignState) => void;
 }) {
   const t = strings.shutdown;
   const id = useId();
@@ -98,13 +210,17 @@ export function ShutdownSection({
     else onKind(next as ShutdownKind);
   }
 
+  const chosenDesign = designChoice(designs);
+  const designThumb = <DesignCanvas choice={chosenDesign} scale={1 / 3} className="absolute inset-0 size-full" />;
   const options: { value: ShutdownKind; label: string; url: string | null; empty: ReactNode }[] = [
     { value: 'logo', label: t.logo, url: logoUrl, empty: null },
+    { value: 'design', label: t.design, url: null, empty: designThumb },
     { value: 'own', label: t.own, url: ownUrl, empty: <ImagePlus className="size-6" aria-hidden="true" /> },
     ...(cardUrl ? [{ value: 'keep' as const, label: t.keep, url: cardUrl, empty: null }] : []),
     { value: 'none', label: t.none, url: null, empty: <Power className="size-6" aria-hidden="true" /> },
   ];
-  const shown = options.find((option) => option.value === kind)?.url ?? null;
+  const shown = kind === 'design' ? null : (options.find((option) => option.value === kind)?.url ?? null);
+  const preview = kind === 'design' || shown !== null;
 
   return (
     <section aria-labelledby={`${id}-title`} className="mt-4 rounded-xl border bg-card p-4 sm:p-5">
@@ -116,7 +232,7 @@ export function ShutdownSection({
         value={kind}
         onValueChange={pick}
         aria-labelledby={`${id}-title`}
-        className={cn('mt-4 grid gap-2 sm:gap-3', options.length > 3 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3')}
+        className={cn('mt-4 grid gap-2 sm:gap-3', options.length > 4 ? 'grid-cols-2 sm:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4')}
       >
         {options.map((option) => (
           <Label
@@ -127,7 +243,7 @@ export function ShutdownSection({
               'hover:border-input has-data-[state=checked]:border-foreground has-data-[state=checked]:shadow-[inset_0_0_0_1px_var(--foreground)]',
             )}
           >
-            <span className="flex aspect-[3/2] items-center justify-center overflow-hidden rounded-md bg-black text-muted-foreground">
+            <span className="relative flex aspect-[3/2] items-center justify-center overflow-hidden rounded-md bg-black text-muted-foreground">
               {option.url ? (
                 <img src={option.url} alt="" width={PICTURE_WIDTH} height={PICTURE_HEIGHT} className="size-full object-cover" />
               ) : (
@@ -160,20 +276,60 @@ export function ShutdownSection({
       )}
       {failed && <p className="mt-2 text-sm text-destructive">{t.failed}</p>}
 
+      {kind === 'design' && (
+        <RadioGroup
+          value={designs.id}
+          onValueChange={(value) => onDesigns({ ...designs, id: value })}
+          aria-label={t.design}
+          className={cn(
+            // On a phone, a strip that scrolls across the width of the card (no wider than it), from the tablet up a grid.
+            '-mx-4 mt-4 flex w-0 min-w-[calc(100%+2rem)] snap-x scroll-px-4 gap-2 overflow-x-auto px-4 pb-1',
+            'sm:mx-0 sm:grid sm:w-auto sm:min-w-0 sm:grid-cols-6 sm:overflow-visible sm:px-0 sm:pb-0',
+          )}
+        >
+          {DESIGNS.map((design) => (
+            <Label
+              key={design.id}
+              htmlFor={`${id}-design-${design.id}`}
+              title={t.designs[design.id as keyof typeof t.designs]}
+              className={cn(
+                'relative w-28 shrink-0 cursor-pointer snap-start overflow-hidden rounded-md border-2 border-transparent sm:w-auto',
+                'hover:border-input has-data-[state=checked]:border-foreground has-focus-visible:ring-2 has-focus-visible:ring-ring',
+              )}
+            >
+              <DesignCanvas choice={designChoice(designs, design.id)} scale={1 / 3} className="block aspect-[3/2] w-full" />
+              <RadioGroupItem
+                id={`${id}-design-${design.id}`}
+                value={design.id}
+                aria-label={t.designs[design.id as keyof typeof t.designs]}
+                className="sr-only"
+              />
+            </Label>
+          ))}
+        </RadioGroup>
+      )}
+
       <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-start">
-        {shown && (
+        {preview && (
           <figure className="m-0">
             <div className="relative aspect-[3/2] overflow-hidden rounded-md bg-black ring-1 ring-border">
-              <img src={shown} width={PICTURE_WIDTH} height={PICTURE_HEIGHT} alt={t.alt} className="absolute inset-0 size-full" />
+              {shown ? (
+                <img src={shown} width={PICTURE_WIDTH} height={PICTURE_HEIGHT} alt={t.alt} className="absolute inset-0 size-full" />
+              ) : (
+                <DesignCanvas choice={chosenDesign} label={t.alt} className="absolute inset-0 size-full" />
+              )}
               <CameraText firmware={firmware} />
             </div>
             <figcaption className="mt-2 text-xs leading-relaxed text-muted-foreground">{t.textNote}</figcaption>
           </figure>
         )}
-        <p className={cn('m-0 flex items-start gap-2 text-sm leading-relaxed text-muted-foreground', !shown && 'sm:col-span-2')}>
-          <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          <span>{kind === 'none' ? t.noneNote : t.cameraNote}</span>
-        </p>
+        <div className={cn('flex flex-col gap-5', !preview && 'sm:col-span-2')}>
+          {kind === 'design' && <DesignControls strings={strings} state={designs} onState={onDesigns} />}
+          <p className="m-0 flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+            <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <span>{kind === 'none' ? t.noneNote : t.cameraNote}</span>
+          </p>
+        </div>
       </div>
     </section>
   );

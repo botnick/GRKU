@@ -39,6 +39,7 @@ describe('the shutdown choice', () => {
     expect(shutdownKind('own', null, null)).toBe('logo');
     expect(shutdownKind('own', new Uint8Array([1]), null)).toBe('own');
     expect(shutdownKind('keep', null, null)).toBe('logo');
+    expect(shutdownKind('design', null, card)).toBe('design');
   });
 
   it('gives the file of each kind', () => {
@@ -46,6 +47,9 @@ describe('the shutdown choice', () => {
     const own = new Uint8Array([2]);
     expect(pictureFor('logo', logo, own)).toBe(logo);
     expect(pictureFor('logo', null, own)).toBeNull();
+    const design = new Uint8Array([3]);
+    expect(pictureFor('design', logo, own, design)).toBe(design);
+    expect(pictureFor('design', logo, own)).toBeNull();
     expect(pictureFor('own', logo, own)).toBe(own);
     expect(pictureFor('none', logo, own)).toBe('remove');
     expect(pictureFor('keep', logo, own)).toBeNull();
@@ -62,6 +66,8 @@ describe('the shutdown choice', () => {
   it('keeps the choice and the picture of the user in this browser', () => {
     const storage = memory();
     expect(loadShutdown(storage)).toEqual({ kind: null, own: null });
+    saveShutdownKind(storage, 'design');
+    expect(loadShutdown(storage).kind).toBe('design');
     saveShutdownKind(storage, 'own');
     saveOwnPicture(storage, new Uint8Array([0, 255, 128]));
     expect(loadShutdown(storage)).toEqual({ kind: 'own', own: new Uint8Array([0, 255, 128]) });

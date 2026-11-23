@@ -1,5 +1,6 @@
 import { SHUTDOWN_PICTURE, type CardChanges, type CardFile } from './card';
 import { loadWasm } from './package';
+import { DESIGN_FONTS, drawDesign, type DesignChoice } from './shutdownDesigns';
 
 /** The size of the picture of Shutdown Screen (`grku_core::goodbye`). */
 export const PICTURE_WIDTH = 720;
@@ -22,6 +23,39 @@ export function coverCrop(width: number, height: number): { x: number; y: number
   return { x: (width - crop.width) / 2, y: (height - crop.height) / 2, ...crop };
 }
 
+/** The JPEG of 720 by 480 RGBA pixels, as the camera shows it. */
+async function encode(pixels: Uint8ClampedArray): Promise<Uint8Array> {
+  const wasm = await loadWasm();
+  return wasm.shutdownPicture(new Uint8Array(pixels.buffer, pixels.byteOffset, pixels.byteLength));
+}
+
+/**
+ * Loads the faces that the designs draw `text` with, so a design draws the same in the preview
+ * and in the file. The page of each language loads its own fonts; a Thai text on another page
+ * loads the Thai face here. A face that does not load leaves a system font.
+ */
+export async function prepareDesignFonts(text: string): Promise<void> {
+  if (typeof document === 'undefined' || !document.fonts) return;
+  const thai = /[\u0E00-\u0E7F]/.test(text);
+  if (thai) {
+    await Promise.all([
+      import('@fontsource/ibm-plex-sans-thai/thai-500.css'),
+      import('@fontsource/ibm-plex-sans-thai/thai-700.css'),
+    ]).catch(() => undefined);
+  }
+  const specs = [...DESIGN_FONTS, ...(thai ? ['700 40px "IBM Plex Sans Thai"', '500 40px "IBM Plex Sans Thai"'] : [])];
+  await Promise.all(specs.map((spec) => document.fonts.load(spec, `Aa0 ${text}`).catch(() => [])));
+}
+
+/** The file of a design, drawn once its fonts have loaded. */
+export async function makeDesignPicture(choice: DesignChoice): Promise<Uint8Array> {
+  await prepareDesignFonts(choice.text);
+  const canvas = new OffscreenCanvas(PICTURE_WIDTH, PICTURE_HEIGHT);
+  const context = canvas.getContext('2d')!;
+  drawDesign(context, choice);
+  return encode(context.getImageData(0, 0, PICTURE_WIDTH, PICTURE_HEIGHT).data);
+}
+
 /**
  * The file of the picture in `source`, an image file of any size: the center of the picture at
  * the ratio of the screen, as a JPEG that the camera shows. It fails for a file that the browser
@@ -35,9 +69,7 @@ export async function makePicture(source: Blob): Promise<Uint8Array> {
     const crop = coverCrop(bitmap.width, bitmap.height);
     context.imageSmoothingQuality = 'high';
     context.drawImage(bitmap, crop.x, crop.y, crop.width, crop.height, 0, 0, PICTURE_WIDTH, PICTURE_HEIGHT);
-    const pixels = context.getImageData(0, 0, PICTURE_WIDTH, PICTURE_HEIGHT).data;
-    const wasm = await loadWasm();
-    return wasm.shutdownPicture(new Uint8Array(pixels.buffer, pixels.byteOffset, pixels.byteLength));
+    return await encode(context.getImageData(0, 0, PICTURE_WIDTH, PICTURE_HEIGHT).data);
   } finally {
     bitmap.close();
   }
@@ -57,18 +89,18 @@ export function pictureChange(onCard: Uint8Array | null, choice: PictureChoice):
 }
 
 /**
- * The picture of the page for Shutdown Screen: the GRKU logo (`LOGO_PATH`), the picture of the
- * user, no picture (the camera shows its own screen, and a write removes the file of the card),
+ * The picture of the page for Shutdown Screen: the GRKU logo (`LOGO_PATH`), a ready-made design
+ * (`shutdownDesigns`), the picture of the user, no picture (the camera shows its own screen, and a write removes the file of the card),
  * or the picture that the card has, left as it is.
  */
-export type ShutdownKind = 'logo' | 'own' | 'none' | 'keep';
+export type ShutdownKind = 'logo' | 'design' | 'own' | 'none' | 'keep';
 
 /** The GRKU logo under the site root: a file of `shutdownPicture`, so the camera shows it as it is. */
 export const LOGO_PATH = 'shutdown/grku.jpg';
 
 const KIND_KEY = 'grku.shutdown';
 const OWN_KEY = 'grku.shutdownPicture';
-const KINDS: readonly ShutdownKind[] = ['logo', 'own', 'none', 'keep'];
+const KINDS: readonly ShutdownKind[] = ['logo', 'design', 'own', 'none', 'keep'];
 
 /** The choice of the last visit: the kind, or null before the first choice, and the picture of the user. */
 export function loadShutdown(storage: Pick<Storage, 'getItem'> | null): { kind: ShutdownKind | null; own: Uint8Array | null } {
@@ -118,11 +150,21 @@ export function shutdownKind(chosen: ShutdownKind | null, own: Uint8Array | null
   return chosen ?? (onCard ? 'keep' : 'logo');
 }
 
-/** The file of a kind, `remove` for no picture, or null to leave the card; the logo is null until it loads. */
-export function pictureFor(kind: ShutdownKind, logo: Uint8Array | null, own: Uint8Array | null): PictureChoice {
+/**
+ * The file of a kind, `remove` for no picture, or null to leave the card; the logo and the design
+ * are null until they load or draw.
+ */
+export function pictureFor(
+  kind: ShutdownKind,
+  logo: Uint8Array | null,
+  own: Uint8Array | null,
+  design: Uint8Array | null = null,
+): PictureChoice {
   switch (kind) {
     case 'logo':
       return logo;
+    case 'design':
+      return design;
     case 'own':
       return own;
     case 'none':

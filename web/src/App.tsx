@@ -137,6 +137,7 @@ import {
   loadLogo,
   loadShutdown,
   LOGO_PATH,
+  makeDesignPicture,
   pictureChange,
   pictureFor,
   saveOwnPicture,
@@ -146,6 +147,7 @@ import {
   type PictureChoice,
   type ShutdownKind,
 } from './shutdownPicture';
+import { designChoice, loadDesigns, saveDesigns, type DesignState } from './shutdownDesigns';
 import { TransferError } from './transfer';
 import { useCatalog } from './useCatalog';
 
@@ -301,7 +303,13 @@ export function App({
   const logoUrl = siteUrl(LOGO_PATH);
   const pictureOnCard = active?.state.shutdownPicture ?? null;
   const pictureKind = shutdownKind(shutdownChosen, ownPicture, pictureOnCard);
-  const picture = pictureFor(pictureKind, logoPicture, ownPicture);
+  // The ready-made designs, and the file of the chosen one as it is drawn now.
+  const [designs, setDesigns] = useState<DesignState>(() => loadDesigns(browserStorage()));
+  const design = designChoice(designs);
+  const designKey = JSON.stringify(design);
+  const [designFile, setDesignFile] = useState<{ key: string; bytes: Uint8Array } | null>(null);
+  const designPicture = designFile?.key === designKey ? designFile.bytes : null;
+  const picture = pictureFor(pictureKind, logoPicture, ownPicture, designPicture);
   // The logo file waits for the steps that use it.
   const needsLogo = page === 'modules' || page === 'write';
   useEffect(() => {
@@ -315,6 +323,29 @@ export function App({
       live = false;
     };
   }, [needsLogo, logoPicture, logoUrl]);
+
+  // The file of the design follows the choice, a moment after the last change of the text.
+  const drawDesignFile = pictureKind === 'design' && needsLogo && !designPicture;
+  useEffect(() => {
+    if (!drawDesignFile) return;
+    let live = true;
+    const choice = JSON.parse(designKey) as typeof design;
+    const timer = setTimeout(() => {
+      makeDesignPicture(choice).then(
+        (bytes) => live && setDesignFile({ key: designKey, bytes }),
+        (error: unknown) => console.error(error),
+      );
+    }, 300);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [drawDesignFile, designKey]);
+
+  function chooseDesigns(state: DesignState) {
+    setDesigns(state);
+    saveDesigns(browserStorage(), state);
+  }
 
   function chooseShutdown(kind: ShutdownKind) {
     setShutdownChosen(kind);
@@ -811,7 +842,11 @@ export function App({
       );
       // The logo file of a write that starts before it arrived.
       const shutdown =
-        pictureKind === 'logo' ? await loadLogo(logoUrl) : pictureFor(pictureKind, logoPicture, ownPicture);
+        pictureKind === 'logo'
+          ? await loadLogo(logoUrl)
+          : pictureKind === 'design'
+            ? (designPicture ?? (await makeDesignPicture(design)))
+            : pictureFor(pictureKind, logoPicture, ownPicture);
       const changes = cardChanges(
         session,
         checked.map((effect) => effect.id),
@@ -1369,6 +1404,8 @@ export function App({
                       logoUrl={logoUrl}
                       onCard={pictureOnCard}
                       firmware={support?.firmware ?? ''}
+                      designs={designs}
+                      onDesigns={chooseDesigns}
                     />
                   }
                   recipes={
@@ -1433,7 +1470,7 @@ export function App({
                           camera={camera.name}
                           firmware={support?.firmware ?? '—'}
                           modules={moduleNames}
-                          shutdown={t.shutdown[pictureKind]}
+                          shutdown={pictureKind === 'design' ? t.shutdown.designs[design.id as keyof typeof t.shutdown.designs] : t.shutdown[pictureKind]}
                         />
                         {/* What the visitor needs at hand, before the one action of the step. */}
                         <div className="mb-8">
