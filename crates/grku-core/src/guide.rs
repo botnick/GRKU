@@ -433,7 +433,7 @@ fn inline(text: &str) -> Result<String> {
             out.push_str(&rest[..end + 2]);
             rest = &rest[end + 2..];
         } else if let Some((label, url, after)) = link(rest) {
-            let target = if url.contains("RECOVERY") {
+            let target = if url.contains("RECOVERY") || url.contains("/recovery/") {
                 format!("<{RECOVERY_LABEL}>")
             } else {
                 string(url)
@@ -502,6 +502,14 @@ mod tests {
         assert_eq!(
             markdown(text, None).unwrap(),
             "See the #link(<recovery>)[recovery guide]. Code: https://github.com/botnick/GRKU\n"
+        );
+        assert_eq!(
+            markdown(
+                "Read the [recovery guide](https://grku.app/zh-hans/recovery/).\n",
+                None
+            )
+            .unwrap(),
+            "Read the #link(<recovery>)[recovery guide].\n"
         );
     }
 

@@ -23,8 +23,8 @@ mod tests;
 mod words;
 
 pub use file::{read_recipe_file, write_recipe_file};
-pub use library::{check_library, checksum, decode, encode, HEADER_SIZE, MAGIC, RECORD_SIZE};
 pub use from_preset::from_preset;
+pub use library::{check_library, checksum, decode, encode, HEADER_SIZE, MAGIC, RECORD_SIZE};
 pub use model::*;
 pub use presets::{presets, Preset};
 pub use site::generated;
