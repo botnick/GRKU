@@ -7,7 +7,7 @@
 // hreflang links. The edge worker sends a visitor of a Thai page to the same page of their
 // language, and the looks page of the earlier site to the install page.
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from 'vite';
@@ -61,7 +61,10 @@ async function renderer() {
     Object.defineProperty(globalThis, name, { value: undefined, configurable: true });
   }
   globalThis.fetch = () => new Promise(() => {});
-  return import(pathToFileURL(join(server, 'prerender.js')).href);
+  const module = await import(pathToFileURL(join(server, 'prerender.js')).href);
+  // The pages that load a part of the site on demand render it at once, as the browser does after main.tsx loads it.
+  await module.preloadAll();
+  return module;
 }
 
 async function edgeWorker(headers) {
@@ -153,11 +156,29 @@ function structuredData(code, name) {
   return JSON.stringify(data).replaceAll('<', '\\u003c');
 }
 
+/**
+ * The font files that a Thai page preloads in place of Inter: the Thai page sets its Latin letters
+ * in IBM Plex Sans Thai too (index.css), so Inter would only take the connection from the photo.
+ */
+const THAI_FONTS = readdirSync(join(dist, 'assets'))
+  .filter((file) => /^ibm-plex-sans-thai-(thai|latin)-(400|700)-normal-[\w-]+\.woff2$/.test(file))
+  .sort()
+  .map((file) => `<link rel="preload" href="/assets/${file}" as="font" type="font/woff2" crossorigin="">`);
+if (THAI_FONTS.length !== 4) throw new Error(`dist/assets has ${THAI_FONTS.length} of the 4 IBM Plex Sans Thai fonts`);
+
+/** The preloads of `html` with the fonts of `code`. */
+function preloadFonts(html, code) {
+  if (code !== 'th') return html;
+  const inter = /\s*<link rel="preload" href="\/assets\/inter-latin-[^"]*" as="font"[^>]*>/g;
+  if (!inter.test(html)) throw new Error('dist/index.html preloads no Inter font');
+  return replaceOne(html.replace(inter, ''), /(<link rel="preload" href="\/assets\/jetbrains-mono-[^>]*>)/, `$1\n    ${THAI_FONTS.join('\n    ')}`);
+}
+
 function page(code, name) {
   const text = pageText(code, name);
   const title = escape(text.title);
   const description = escape(text.description);
-  let html = template;
+  let html = preloadFonts(template, code);
   html = replaceOne(html, /<html lang="[^"]*">/, `<html lang="${code}">`);
   html = replaceOne(html, /<title>[^<]*<\/title>/, `<title>${title}</title>`);
   html = replaceOne(html, /(<meta\s+name="description"\s+content=")[^"]*(")/, `$1${description}$2`);

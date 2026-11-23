@@ -8,6 +8,7 @@ import { releaseUrl } from './links';
 import type { SitePage } from './languagePage';
 
 export { LANGUAGES, pageText, STRINGS } from './i18n';
+export { preloadAll } from './parts';
 export { INDEXED_PAGES, LANGUAGE_PATHS, pagePath, SITE_PAGES } from './languagePage';
 
 export const VERSION = __GRKU_VERSION__;

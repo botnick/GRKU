@@ -24,7 +24,7 @@ import { effectUrl, MAX_EFFECTS, previewTable, type CardEffect, type Catalog, ty
 import { brandOf, FILM_KINDS, filmKind, type FilmKind } from '../filmKind';
 import type { Strings } from '../i18n';
 import { editable } from '../import/edit';
-import { LANDING_HERO, landingImage } from '../landing';
+import { LANDING_HERO, landingPicture } from '../landing';
 import { ownedLines, packCounts, slotsOf, takesSlot, unlockedBy, usedSlots, type Entitlement } from '../plus';
 import { PhotoLoader } from '../preview/raw';
 import { forget, prefetchTable, preview, type PreviewEffect, type Source } from '../preview/render';
@@ -37,6 +37,7 @@ import { useCatalog } from '../useCatalog';
 import { EditDialog, type EditDialogHandle } from './EditDialog';
 import { BrandSwatch } from './BrandMark';
 import { EffectIcon } from './EffectIcon';
+import { ChangeBadge } from './ChangeBadge';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ImportDialog, type ImportDialogHandle } from './ImportDialog';
 
@@ -71,30 +72,6 @@ function kindLabel(kind: FilmKind, t: Strings): string {
 /** The film number, then the print film of a cine look: "5219 · 2393 print". */
 function stockText(stock: (typeof STOCKS)[string] & {}, t: Strings): string {
   return stock.print ? `${stock.film} · ${t.printFilm(stock.print)}` : stock.film;
-}
-
-/** The change badge of an effect or a module: what a write to the card does with it. */
-export function ChangeBadge({
-  on,
-  checked,
-  changed = false,
-  strings: t,
-}: {
-  on: boolean;
-  checked: boolean;
-  /** The file on the card differs from the effect of the page. */
-  changed?: boolean;
-  strings: Strings;
-}) {
-  if (checked && !on) return <Badge variant="outline">{t.changeAdds}</Badge>;
-  if (!checked && on)
-    return (
-      <Badge variant="outline" className="border-destructive text-destructive">
-        {t.changeRemoves}
-      </Badge>
-    );
-  if (checked && changed) return <Badge variant="outline">{t.changeUpdates}</Badge>;
-  return null;
 }
 
 interface Props {
@@ -399,10 +376,24 @@ export function Workbench({
       </Button>
     );
 
-  const still = (
-    <Frame>
-      <img src={landingImage('looks/standard.jpg')} alt={`${t.samplePhoto} — ${t.original}`} className="absolute inset-0 size-full object-cover" />
+  // The first sample in the Standard development, a picture of the site: the page shows it until
+  // the preview of that sample is ready, so the photo is there as the page opens.
+  const still = (busy: boolean) => (
+    <Frame busy={busy}>
+      <img
+        {...landingPicture('looks/standard.jpg', PHOTO_SIZES)}
+        alt={`${t.samplePhoto} — ${t.original}`}
+        width="1200"
+        height="800"
+        fetchPriority="high"
+        className="absolute inset-0 size-full object-cover"
+      />
       <LookName>{t.original}</LookName>
+      {busy && (
+        <span className="pointer-events-none absolute bottom-4 left-1/2 z-[3] -translate-x-1/2 rounded-md bg-black/80 p-2 text-foreground">
+          <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" />
+        </span>
+      )}
     </Frame>
   );
 
@@ -446,7 +437,7 @@ export function Workbench({
               </Frame>
             }
           >
-            <Suspense fallback={<Placeholder text={sourceLabel} busy />}>
+            <Suspense fallback={source === DEFAULT_SAMPLE ? still(true) : <Placeholder text={sourceLabel} busy />}>
               <PreviewFrame
                 source={source}
                 effect={previewed}
@@ -460,7 +451,7 @@ export function Workbench({
             </Suspense>
           </ErrorBoundary>
         ) : (
-          still
+          still(false)
         )}
         {/* On a phone the name and the button lie over the photo, so the sticky block stays short. */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] flex items-end justify-between gap-3 rounded-b-2xl bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 lg:hidden [:fullscreen>&]:flex [:fullscreen>&]:rounded-none [:fullscreen>&]:p-5">
@@ -919,6 +910,9 @@ export function Workbench({
     </section>
   );
 }
+
+/** The width of the photograph: the right column on a computer, the page width on a phone. */
+const PHOTO_SIZES = '(min-width: 1280px) 590px, (min-width: 1024px) 46vw, calc(100vw - 32px)';
 
 /** The frame of the photograph: a 3:2 picture over the dark, which clips what it holds. */
 function Frame({ busy = false, children }: { busy?: boolean; children: ReactNode }) {

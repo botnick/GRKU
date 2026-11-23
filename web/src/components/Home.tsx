@@ -6,17 +6,21 @@ import { cn } from '@/lib/utils';
 import { CAMERAS, PREVIEW_TARGET } from '../cameras';
 import type { Cover } from '../catalog';
 import type { Language, Strings } from '../i18n';
-import { LANDING_LOOKS, LANDING_PHOTOS, landingImage } from '../landing';
+import { LANDING_LOOKS, LANDING_PHOTOS, landingPicture } from '../landing';
 import type { PageLink } from '../navigation';
 import type { SitePage } from '../languagePage';
 import { cameraTerms, RECIPE_STRINGS } from '../recipeStrings';
 import { useCatalog } from '../useCatalog';
 import { EffectIcon } from './EffectIcon';
-import { Example, EXAMPLES, TILES } from './ModulesStep';
-import cameraAdjImage from '../../../resources/images/camera-adj.png';
+import { Example, EXAMPLES, TILES } from './ModuleExamples';
+import cameraAdjImage from '../assets/camera-adj.webp';
 
-/** A section of the home page: a hairline above, the heading, then the body. */
-const SECTION = 'scroll-mt-28 md:scroll-mt-20 border-t border-border py-12 lg:py-16';
+/**
+ * A section of the home page: a hairline above, the heading, then the body. The browser lays out
+ * and paints a section only near the screen (`content-visibility`), so the first screen shows sooner.
+ */
+const SECTION =
+  'scroll-mt-28 md:scroll-mt-20 border-t border-border py-12 lg:py-16 [content-visibility:auto] [contain-intrinsic-size:auto_720px]';
 const H2 = 'text-[clamp(26px,2.6vw,34px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance';
 const LEAD = 'mt-3 max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground';
 
@@ -48,7 +52,9 @@ const SHELF_SIZE = 23;
 
 /** The photo of the hero, a sample of the looks page (scripts/build-hero.mjs renders its looks). */
 const HERO_PHOTO = 'achensee';
-const heroImage = (slug: string) => landingImage(`hero/${HERO_PHOTO}-${slug}.jpg`);
+/** The width of the hero photo: the wider column from a tablet up, the page width on a phone. */
+const HERO_SIZES = '(min-width: 1280px) 720px, (min-width: 1024px) 57vw, calc(100vw - 32px)';
+const heroImage = (slug: string) => landingPicture(`hero/${HERO_PHOTO}-${slug}.jpg`, HERO_SIZES);
 
 /**
  * The first screen: one GR photo developed with five looks of the library, against the base
@@ -67,10 +73,10 @@ function HeroCompare({ strings: t }: { strings: Strings }) {
         <Provider {...comparison}>
           <Root className="image-comparison">
             <Item item="itemOne">
-              <img src={heroImage('standard')} alt={`${t.samplePhoto} — ${t.original}`} width="1200" height="800" fetchPriority="high" />
+              <img {...heroImage('standard')} alt={`${t.samplePhoto} — ${t.original}`} width="1200" height="800" fetchPriority="high" />
             </Item>
             <Item item="itemTwo" className="comparison-effect">
-              <img src={heroImage(look.image)} alt={`${t.samplePhoto} — ${look.name}`} width="1200" height="800" fetchPriority="high" />
+              <img {...heroImage(look.image)} alt={`${t.samplePhoto} — ${look.name}`} width="1200" height="800" />
             </Item>
             <HandleRoot aria-label={t.compare}>
               <Handle buttonStyle={{ width: 32, height: 32, gap: '0.2rem' }} />
@@ -272,7 +278,7 @@ export function Home({
           <p className={cn(LEAD, 'mt-2')}>{r.introDial}</p>
         </div>
         <figure className="m-0 min-w-0">
-          <img src={cameraAdjImage} alt={t.landing.adjCaption} width="1160" height="636" loading="lazy" className="h-auto w-full rounded-2xl" />
+          <img src={cameraAdjImage} alt={t.landing.adjCaption} width="1160" height="636" loading="lazy" decoding="async" className="h-auto w-full rounded-2xl" />
           <figcaption className="mt-3 text-[13px] text-muted-foreground">
             {t.landing.adjCaption} {t.landing.menuCaption}
           </figcaption>
