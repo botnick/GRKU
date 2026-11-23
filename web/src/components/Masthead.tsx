@@ -109,7 +109,7 @@ export function Masthead({
         <div className="flex items-baseline gap-1">
           <a {...link('home')} className="no-underline">
             <span className="text-[22px] leading-none font-extrabold tracking-[-0.03em]">
-              GRKU<span className="text-brand">.</span>
+              GRKU<span className="text-brand-mark">.</span>
             </span>
           </a>
           <a

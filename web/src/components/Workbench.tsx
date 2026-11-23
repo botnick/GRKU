@@ -193,7 +193,7 @@ const FILE_FOCUS =
 function PlusMark() {
   return (
     <span
-      className="flex size-4 items-center justify-center rounded-full bg-background text-brand ring-1 ring-brand/60"
+      className="flex size-4 items-center justify-center rounded-full bg-background text-brand-text ring-1 ring-brand/60"
       aria-hidden="true"
     >
       <Sparkles className="size-2.5" strokeWidth={2.5} />
@@ -670,7 +670,7 @@ export function Workbench({
               </span>
             </span>
             <span className="flex shrink-0 flex-col items-end">
-              <span className="text-lg font-semibold text-brand tabular-nums">
+              <span className="text-lg font-semibold text-brand-text tabular-nums">
                 ฿{PRICES.plus}
               </span>
               {inLaunch() && REGULAR_PRICES.plus > PRICES.plus && (
@@ -959,7 +959,7 @@ export function Workbench({
                       <span
                         className={cn(
                           "text-xl font-semibold tabular-nums tracking-tight",
-                          featured && "text-brand",
+                          featured && "text-brand-text",
                         )}
                       >
                         ฿{price}

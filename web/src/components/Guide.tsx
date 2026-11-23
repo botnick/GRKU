@@ -167,7 +167,7 @@ function WayTab({
         {badge && (
           <Badge
             variant="outline"
-            className="border-brand/60 text-[11px] font-medium text-brand"
+            className="border-brand/60 text-[11px] font-medium text-brand-text"
           >
             {badge}
           </Badge>
@@ -254,7 +254,7 @@ export function Guide({
           {g.stuckA}{" "}
           <a
             href={guideUrl("RECOVERY", language)}
-            className="text-foreground underline underline-offset-4 hover:text-brand"
+            className="text-foreground underline underline-offset-4 hover:text-brand-text"
           >
             {t.recovery}
           </a>
@@ -306,7 +306,7 @@ export function Guide({
                     className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[13px] text-muted-foreground no-underline transition-colors hover:border-input hover:text-foreground"
                   >
                     {index < 3 && (
-                      <span className="font-mono text-[11px] text-brand">
+                      <span className="font-mono text-[11px] text-brand-text">
                         {index + 1}
                       </span>
                     )}
@@ -330,7 +330,7 @@ export function Guide({
             ].map(([item, detail]) => (
               <li key={item} className="flex items-start gap-2.5">
                 <Check
-                  className="mt-1 size-4 shrink-0 text-brand"
+                  className="mt-1 size-4 shrink-0 text-brand-text"
                   aria-hidden="true"
                 />
                 <span className="min-w-0">
@@ -385,7 +385,7 @@ export function Guide({
                       <>
                         <a
                           {...link("install")}
-                          className="mt-1.5 inline-flex w-fit items-center gap-1.5 font-mono text-[13px] text-brand underline underline-offset-4"
+                          className="mt-1.5 inline-flex w-fit items-center gap-1.5 font-mono text-[13px] text-brand-text underline underline-offset-4"
                         >
                           grku.app/install
                           <ArrowRight className="size-3.5" aria-hidden="true" />
@@ -429,7 +429,7 @@ export function Guide({
                       g.pick,
                       <a
                         {...link("install")}
-                        className="mt-1.5 inline-flex w-fit items-center gap-1.5 font-mono text-[13px] text-brand underline underline-offset-4"
+                        className="mt-1.5 inline-flex w-fit items-center gap-1.5 font-mono text-[13px] text-brand-text underline underline-offset-4"
                       >
                         grku.app/install
                         <ArrowRight className="size-3.5" aria-hidden="true" />

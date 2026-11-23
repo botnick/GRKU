@@ -256,7 +256,7 @@ export function CardChangesView({
                 href={releaseUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="font-normal underline underline-offset-4 hover:text-brand"
+                className="font-normal underline underline-offset-4 hover:text-brand-text"
               >
                 {t.releaseNotes}
               </a>

@@ -45,7 +45,7 @@ export function SiteFooter({
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
           <div className="col-span-2 flex flex-col gap-3 sm:col-span-3 lg:col-span-1">
             <a href={LANGUAGE_PATHS[language]} className="w-fit text-[20px] leading-none font-extrabold tracking-[-0.03em] text-foreground no-underline">
-              GRKU<span className="text-brand">.</span>
+              GRKU<span className="text-brand-mark">.</span>
             </a>
             <p className="max-w-[36ch] text-sm leading-relaxed text-muted-foreground">{t.lead[1]}</p>
             <a className="w-fit font-mono text-xs text-muted-foreground hover:text-foreground" href={releaseUrl}>

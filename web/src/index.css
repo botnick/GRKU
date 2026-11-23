@@ -47,8 +47,13 @@
   --border: #2c2c2c;
   --input: #3a3a3a;
   --ring: #d94135;
-  --brand: #d94135;
+  /* The red of the brand in three parts on the dark page: a deeper red under white text (buttons,
+     fills; 5:1), a lighter red for red text on the dark (5.8:1), and the red of the logo itself
+     for the period of the wordmark. */
+  --brand: #c93a2f;
   --brand-foreground: #ffffff;
+  --brand-text: #f0675a;
+  --brand-mark: #d94135;
 }
 .theme-dark {
   color: var(--foreground);
@@ -92,6 +97,8 @@
     --ring: #b8352a;
     --brand: #b8352a;
     --brand-foreground: #ffffff;
+    --brand-text: #b8352a;
+    --brand-mark: #b8352a;
     --art: #e6e3da;
   }
 }
@@ -135,6 +142,8 @@
   --color-ring: var(--ring);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-brand-text: var(--brand-text);
+  --color-brand-mark: var(--brand-mark);
   --color-photo-foreground: var(--photo-foreground);
   --color-art: var(--art);
   --radius-sm: calc(var(--radius) - 4px);

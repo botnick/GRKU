@@ -446,7 +446,7 @@ export function PlusSheet({ open, onOpenChange, strings: t, owned, hasKey, onKey
               <Checkbox id={`${ids}-agree`} checked={agreed} onCheckedChange={(value) => setAgreed(value === true)} className="mt-0.5" />
               <span>
                 {t.plus.acceptTerms[0]}
-                <a href={termsHref} target="_blank" rel="noreferrer" className="font-medium text-brand hover:text-brand/80">
+                <a href={termsHref} target="_blank" rel="noreferrer" className="font-medium text-brand-text hover:text-brand-text/80">
                   {t.plus.acceptTerms[1]}
                 </a>
                 {t.plus.acceptTerms[2]}
@@ -779,7 +779,7 @@ function TierCard({
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="flex items-center justify-between gap-3">
           <span className="font-semibold">{title}</span>
-          {owned ? <Badge variant="outline">{ownedLabel}</Badge> : <span className={cn(selected && 'text-brand')}>{price}</span>}
+          {owned ? <Badge variant="outline">{ownedLabel}</Badge> : <span className={cn(selected && 'text-brand-text')}>{price}</span>}
         </span>
         {/* One line of what the tier gives, in looks; the longer description stays for screen readers. */}
         <span className="mt-1 text-sm leading-snug text-muted-foreground">{outcome}</span>
