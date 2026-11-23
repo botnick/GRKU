@@ -105,7 +105,7 @@ function HeroCompare({ strings: t }: { strings: Strings }) {
           href={credit.source}
           target="_blank"
           rel="noreferrer"
-          className="text-[11px] text-muted-foreground/60 hover:text-foreground sm:text-right"
+          className="text-[11px] text-muted-foreground/60 light:text-muted-foreground hover:text-foreground sm:text-right"
         >
           {credit.author} · {credit.license} · {credit.camera}
         </a>
@@ -249,7 +249,7 @@ export function Home({
                   {title}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.modulesText[example.module]}</p>
-                <a className="mt-2 text-xs text-muted-foreground/70 hover:text-foreground" href={credit.source} target="_blank" rel="noreferrer">
+                <a className="mt-2 text-xs text-muted-foreground/70 light:text-muted-foreground hover:text-foreground" href={credit.source} target="_blank" rel="noreferrer">
                   {credit.author} · {credit.license} · {credit.camera}
                 </a>
               </li>

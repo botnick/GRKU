@@ -72,7 +72,7 @@ export function Example({ before, beforeDetail = 'Off', after, alt, detail, comp
     return (
       <div className={frame}>
         <img src={landingImage(after)} alt={alt} width="1200" height="800" loading="lazy" className="absolute inset-0 size-full object-cover" />
-        <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">{detail}</Badge>
+        <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-photo-foreground">{detail}</Badge>
       </div>
     );
   }
@@ -91,8 +91,8 @@ export function Example({ before, beforeDetail = 'Off', after, alt, detail, comp
           </HandleRoot>
         </Root>
       </Provider>
-      <Badge className="pointer-events-none absolute top-2 left-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">{beforeDetail}</Badge>
-      <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-foreground">{detail}</Badge>
+      <Badge className="pointer-events-none absolute top-2 left-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-photo-foreground">{beforeDetail}</Badge>
+      <Badge className="pointer-events-none absolute top-2 right-2 z-[2] rounded-md bg-black/75 px-2 py-0.5 font-mono text-[11px] text-photo-foreground">{detail}</Badge>
     </div>
   );
 }
@@ -173,7 +173,7 @@ export function ModulesStep({
         </div>
 
         <Card
-          className="gap-0 rounded-2xl border-input bg-[#0c0c0c] py-0 shadow-[0_24px_60px_rgba(0,0,0,0.5)] lg:sticky lg:top-20"
+          className="theme-dark gap-0 rounded-2xl border-input bg-[#0c0c0c] py-0 shadow-[0_24px_60px_rgba(0,0,0,0.5)] light:shadow-[0_24px_60px_rgba(40,30,10,0.18)] lg:sticky lg:top-20"
           role="img"
           aria-label={t.landing.menuCaption}
         >

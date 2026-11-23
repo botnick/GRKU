@@ -42,6 +42,11 @@ const template = readFileSync(join(dist, 'index.html'), 'utf8');
 // The site stylesheet of this build, for the tokens and the fonts.
 const stylesheet = /<link rel="stylesheet"[^>]*href="([^"]+\.css)"/.exec(template)?.[1];
 if (!stylesheet) throw new Error('dist/index.html has no stylesheet link');
+// The theme of the page (index.html, src/theme.ts): its meta tags and the script that sets it before the first paint.
+const themeHead = [
+  ...template.matchAll(/<meta name="(?:color-scheme|theme-color)"[^>]*>|<script id="theme">[^<]*<\/script>/g),
+].map((m) => m[0]);
+if (!themeHead.some((tag) => tag.startsWith('<script'))) throw new Error('dist/index.html has no <script id="theme">');
 const fontPreloads = [...template.matchAll(/<link rel="preload"[^>]*as="font"[^>]*>/g)].map((m) => m[0]).join('\n    ');
 
 const escape = (text) =>
@@ -129,7 +134,7 @@ function page(name, code) {
     <meta name="twitter:description" content="${escape(description)}" />
     <meta name="twitter:image" content="${SITE}/og.jpg" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-    <meta name="theme-color" content="#171717" />
+    ${themeHead.join('\n    ')}
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192" />
