@@ -10,7 +10,7 @@
   "scripts": {
     "wasm": "sh scripts/build-wasm.sh",
     "dev": "vite",
-    "build": "vite build && node scripts/prerender.mjs && node scripts/build-docs.mjs && node scripts/third-party-licenses.mjs && node scripts/image-rights.mjs dist",
+    "build": "vite build && node scripts/prerender.mjs && node scripts/build-docs.mjs && node scripts/build-chat-knowledge.mjs && node scripts/third-party-licenses.mjs && node scripts/image-rights.mjs dist",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

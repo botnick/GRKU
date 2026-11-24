@@ -37,3 +37,52 @@ MAIL_HOST = "mail.grku.app"
 MAIL_PORT = "587"
 MAIL_USER = "noreply@grku.app"
 # Secrets: KEY_SECRET (HMAC of the keys), SLIPOK_KEY or EASYSLIP_KEY, MAIL_PASS (or RESEND_KEY as the fallback mailer).
+
+# ---- The GRKU assistant (src/chat) -----------------------------------------------------------------
+# "off" closes the assistant at once.
+CHAT_ENABLED = "on"
+# Origins of site previews for CORS (Cloudflare Pages branch previews), and the hostnames whose
+# Turnstile tokens open a chat besides grku.app (each must also be a hostname of the Turnstile widget).
+PREVIEW_ORIGINS = "https://*.grku-site.pages.dev"
+CHAT_TURNSTILE_HOSTS = ""
+# Limits: messages a day per session (free / GRKU Plus), per IP for the free tier, per minute per
+# IP; characters in; tokens out; turns of history; violations an hour before a cool-down.
+CHAT_FREE_PER_DAY = "15"
+CHAT_PLUS_PER_DAY = "100"
+CHAT_IP_PER_DAY = "30"
+CHAT_PER_MINUTE = "6"
+CHAT_MAX_INPUT = "600"
+CHAT_MAX_OUTPUT_FREE = "600"
+CHAT_MAX_OUTPUT_PLUS = "1200"
+CHAT_HISTORY_TURNS = "8"
+CHAT_VIOLATIONS_PER_HOUR = "4"
+# The kill switch: the whole site's messages and tokens a day, sized inside the free quotas below.
+CHAT_DAILY_MESSAGES = "600"
+CHAT_DAILY_TOKENS = "6000000"
+CHAT_SESSION_HOURS = "12"
+# Paid models: off. With "1", GRKU Plus may use the providers marked _PAID = "1" after every free one
+# failed, only the models listed, under the monthly token cap.
+CHAT_ALLOW_PAID = "0"
+CHAT_PAID_MODELS = ""
+CHAT_PAID_MONTHLY_TOKENS = "1000000"
+# Provider 1: Google AI Studio, Gemini API free tier, OpenAI-compatible endpoint. Secret: CHAT_API_KEY.
+# Free: Flash-Lite with low thinking; Plus: Flash with medium thinking, then Flash-Lite. _RPD is our
+# own daily cap per model, under the free quota that AI Studio shows for the project (check there).
+CHAT_NAME = "gemini"
+CHAT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+CHAT_MODEL_FREE = "gemini-flash-lite-latest"
+CHAT_MODEL_PLUS = "gemini-flash-latest,gemini-flash-lite-latest"
+CHAT_REASONING_FREE = "low"
+CHAT_REASONING_PLUS = "medium"
+CHAT_RPD = "gemini-flash-latest=200,gemini-flash-lite-latest=900"
+# Provider 2: OpenRouter, ":free" models only (the code refuses any other model there). Secret: CHAT2_API_KEY.
+CHAT2_NAME = "openrouter"
+CHAT2_BASE_URL = "https://openrouter.ai/api/v1"
+CHAT2_MODEL_FREE = "google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free"
+CHAT2_RPD = "45"
+# Provider 3: Cloudflare Workers AI, free daily allocation (10,000 neurons). Secrets: CHAT3_BASE_URL
+# (https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1) and CHAT3_API_KEY (a token with
+# Workers AI Read). About 300 neurons a turn with this model, so about 30 turns a day.
+CHAT3_NAME = "workers-ai"
+CHAT3_MODEL_FREE = "@cf/google/gemma-3-12b-it"
+CHAT3_RPD = "25"

@@ -8,6 +8,10 @@ name: Plus
 # TRUEMONEY_PHONE (the wallet that receives gift links), ANGPAO_PROXY_KEY (the gift proxy). wrangler-action fails on a listed secret
 # that the repository lacks. PROMPTPAY_ID and RECEIVER_NAME are plain vars in
 # wrangler.toml: buyers see the PromptPay ID in the QR anyway.
+# The assistant (services/plus/src/chat) takes its provider keys from optional secrets:
+# CHAT_API_KEY (Google AI Studio), CHAT2_API_KEY (OpenRouter), CHAT3_BASE_URL and CHAT3_API_KEY
+# (Cloudflare Workers AI). The last step writes those that the repository has; a missing one
+# leaves that provider out (and the Worker keeps a secret set before by `wrangler secret put`).
 # The D1 database is created once by hand (`wrangler d1 create grku-plus`) and its id is in
 # services/plus/wrangler.toml; the deploy applies schema.sql, which only creates what is
 # missing.
@@ -44,6 +48,7 @@ jobs:
           cache-dependency-path: services/plus/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
+      - run: pnpm test
       - name: Apply the database schema
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -71,3 +76,17 @@ jobs:
           TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
           TRUEMONEY_PHONE: ${{ secrets.TRUEMONEY_PHONE }}
           ANGPAO_PROXY_KEY: ${{ secrets.ANGPAO_PROXY_KEY }}
+      - name: Set the assistant's provider keys that the repository has
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CHAT_API_KEY: ${{ secrets.CHAT_API_KEY }}
+          CHAT2_API_KEY: ${{ secrets.CHAT2_API_KEY }}
+          CHAT3_BASE_URL: ${{ secrets.CHAT3_BASE_URL }}
+          CHAT3_API_KEY: ${{ secrets.CHAT3_API_KEY }}
+        run: |
+          for name in CHAT_API_KEY CHAT2_API_KEY CHAT3_BASE_URL CHAT3_API_KEY; do
+            if [ -n "${!name}" ]; then
+              printf '%s' "${!name}" | pnpm exec wrangler secret put "$name"
+            fi
+          done

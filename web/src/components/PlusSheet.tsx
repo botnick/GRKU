@@ -33,6 +33,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Turnstile } from "./Turnstile";
+import { launcherText } from "../chat/label";
 import { MAX_EFFECTS } from "../catalog";
 import { cn } from "@/lib/utils";
 import { LaunchOffer } from "./LaunchOffer";
@@ -466,6 +467,7 @@ export function PlusSheet({
                 <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-muted-foreground">
                   <li>{t.plus.newLooks}</li>
                   <li>{t.plus.studioFull}</li>
+                  <li>{launcherText(language).plusBenefit}</li>
                   <li>{t.plus.lifetime}</li>
                 </ul>
                 {owned.paid > 0 && !owned.plus && (
@@ -487,6 +489,7 @@ export function PlusSheet({
               >
                 <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-muted-foreground">
                   <li>{t.plus.studioFull}</li>
+                  <li>{launcherText(language).plusBenefit}</li>
                   <li>{t.plus.lifetime}</li>
                 </ul>
               </TierCard>
@@ -508,6 +511,7 @@ export function PlusSheet({
               >
                 <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-muted-foreground">
                   <li>{t.plus.studioFull}</li>
+                  <li>{launcherText(language).plusBenefit}</li>
                   <li>{t.plus.lifetime}</li>
                 </ul>
                 {choice === "pack" && (

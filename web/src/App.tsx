@@ -85,6 +85,7 @@ import { pageLink, type Navigate, type PageLink } from './navigation';
 import { hasCamera, loadCamera, loadModules, loadProgress, saveCamera, saveModules, saveProgress, visitStep } from './setup';
 import { RichText } from './components/RichText';
 import { SiteFooter } from './components/SiteFooter';
+import { ChatLauncher } from './components/ChatLauncher';
 import { WhatsNew } from './components/WhatsNew';
 import { Step } from './components/Step';
 import { TermsNote } from './components/TermsNote';
@@ -1598,6 +1599,31 @@ export function App({
       />
       </Suspense>
       )}
+      {/* The GRKU assistant: where the visitor is, so its answers fit the page. Nothing personal. */}
+      <ChatLauncher
+        language={language}
+        strings={t}
+        page={page}
+        plusKey={plusKey}
+        context={{
+          page,
+          camera: cameraChosen ? camera.name : undefined,
+          card: page === 'write' ? !!card : undefined,
+          looks: isInstallStep(page) ? (effectCount ?? undefined) : undefined,
+          error: [applyMessage, connectMessage, removeMessage].find((message) => message?.tone === 'error')?.lines.join(' '),
+        }}
+        onPlus={(start) => {
+          setPlusStart(start);
+          setPlusOpen(true);
+        }}
+        onNavigate={(href) => {
+          const url = new URL(href, location.origin);
+          const target = pathPage(url.pathname);
+          // A page of this language without a query opens in place; a look link reloads, so the page reads it.
+          if (target && !url.search && pathLanguage(url.pathname) === language) navigate(target, url.hash);
+          else location.assign(url.href);
+        }}
+      />
     </>
   );
 }

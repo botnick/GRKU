@@ -8,8 +8,13 @@
  * new key. An email can ask for a magic link that carries its key to another device.
  *
  * No card data, no gateway: the money goes from the buyer's bank to the PromptPay account.
+ *
+ * The same Worker serves the GRKU assistant (src/chat/): it shares the database, the keys, and the
+ * Turnstile secret, so a GRKU Plus key raises the assistant's tier without another service.
  */
-export interface Env {
+import { chat, ChatError, d1Store, fetchKnowledge, startSession, type ChatDeps, type ChatEnv } from './chat';
+
+export interface Env extends ChatEnv {
   DB: D1Database;
   SITE_URL: string;
   EXTRA_ORIGINS: string;
@@ -27,8 +32,8 @@ export interface Env {
   ANGPAO_PROXY_KEY?: string;
   /** The last digits of the bank accounts that receive the PromptPay money, comma-separated. */
   RECEIVER_ACCOUNTS?: string;
-  /** The Turnstile secret: with it, an order needs a Turnstile token from the page. */
-  TURNSTILE_SECRET?: string;
+  /** More CORS origins with `*` for one label, such as https://*.grku-site.pages.dev (previews). */
+  PREVIEW_ORIGINS?: string;
   SLIP_PROVIDER: 'slipok' | 'easyslip' | 'mock';
   SLIPOK_BRANCH: string;
   SLIPOK_KEY?: string;
@@ -89,16 +94,21 @@ interface Entitlement {
 const FREE: Entitlement = { packs: [], slots: FREE_SLOTS, plus: false, paid: 0 };
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx?: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const origin = request.headers.get('Origin') ?? '';
     const cors = corsHeaders(origin, env);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     try {
-      const response = await route(request, url, env);
+      const response = url.pathname.startsWith('/chat') ? await chatRoute(request, url, env, ctx) : await route(request, url, env);
       for (const [k, v] of Object.entries(cors)) response.headers.set(k, v);
       return response;
     } catch (error) {
+      if (error instanceof ChatError) {
+        const headers: Record<string, string> = { ...cors };
+        if (typeof error.extra.retryAfter === 'number') headers['Retry-After'] = String(error.extra.retryAfter);
+        return json({ error: error.code, ...error.extra }, error.status, headers);
+      }
       const message = error instanceof HttpError ? error.message : 'unexpected';
       const status = error instanceof HttpError ? error.status : 500;
       if (status === 500) console.error(error);
@@ -118,13 +128,28 @@ class HttpError extends Error {
 
 function corsHeaders(origin: string, env: Env): Record<string, string> {
   const allowed = [env.SITE_URL, ...(env.EXTRA_ORIGINS ?? '').split(',')].map((o) => o.trim()).filter(Boolean);
-  const allow = allowed.includes(origin) ? origin : allowed[0] ?? '*';
+  const allow = allowed.includes(origin) || previewOrigin(origin, env.PREVIEW_ORIGINS ?? '') ? origin : allowed[0] ?? '*';
   return {
     'Access-Control-Allow-Origin': allow,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Expose-Headers': 'Retry-After',
     Vary: 'Origin',
   };
+}
+
+/** Whether `origin` matches one of `patterns` (comma-separated, `*` for one DNS label). */
+export function previewOrigin(origin: string, patterns: string): boolean {
+  return patterns
+    .split(',')
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .some((pattern) => {
+      const [head, tail] = pattern.split('*');
+      if (tail === undefined) return origin === pattern;
+      if (!origin.startsWith(head!) || !origin.endsWith(tail)) return false;
+      return /^[a-z0-9-]+$/.test(origin.slice(head!.length, origin.length - tail.length));
+    });
 }
 
 function json(body: unknown, status = 200, headers: Record<string, string> = {}): Response {
@@ -142,6 +167,33 @@ async function route(request: Request, url: URL, env: Env): Promise<Response> {
   if (request.method === 'GET' && path === '/angpao/probe') return angpaoProbe(env);
   if (request.method === 'POST' && path === '/magic') return magic(request, env);
   if (request.method === 'GET' && path === '/me') return me(url, env);
+  throw new HttpError(404, 'not found');
+}
+
+// ---- The assistant -----------------------------------------------------------------------------
+
+/** POST /chat/session and POST /chat: the GRKU assistant (src/chat/index.ts). */
+async function chatRoute(request: Request, url: URL, env: Env, ctx?: ExecutionContext): Promise<Response> {
+  const path = url.pathname.replace(/\/+$/, '');
+  if (request.method !== 'POST') throw new HttpError(405, 'use POST');
+  const deps: ChatDeps = {
+    env,
+    store: d1Store(env.DB),
+    now: () => Date.now(),
+    human: (token) => humanToken(token, request, env, 'grku-chat'),
+    async plusOwner(key) {
+      const owner = await ownerOfKey(key, env).catch(() => null);
+      if (!owner) return null;
+      // Any purchase counts, as GRKU Studio opens for any purchase (web/src/plus.ts studioUnlocked).
+      const owned = await entitlementOf(owner, env);
+      return { owner, plus: owned.plus || owned.paid > 0 || owned.packs.length > 0 || owned.slots > FREE_SLOTS };
+    },
+    fetch: (input, init) => fetch(input, init),
+    waitUntil: (promise) => (ctx ? ctx.waitUntil(promise) : void promise),
+    knowledge: () => fetchKnowledge(env, (input, init) => fetch(input, init), Date.now()),
+  };
+  if (path === '/chat/session') return startSession(request, deps);
+  if (path === '/chat') return chat(request, deps);
   throw new HttpError(404, 'not found');
 }
 
@@ -182,7 +234,7 @@ async function order(request: Request, env: Env): Promise<Response> {
 }
 
 /** Whether a Turnstile token from the page stands: Cloudflare's siteverify with our secret. */
-async function humanToken(token: string, request: Request, env: Env): Promise<boolean> {
+async function humanToken(token: string, request: Request, env: Env, action = 'plus-order'): Promise<boolean> {
   if (!token) return false;
   const form = new FormData();
   form.append('secret', env.TURNSTILE_SECRET ?? '');
@@ -193,7 +245,8 @@ async function humanToken(token: string, request: Request, env: Env): Promise<bo
   const result = (await response?.json().catch(() => null)) as { success?: boolean; action?: string; hostname?: string } | null;
   // The token must come from our page on our site: the action the page sets, a hostname of ours.
   const site = new URL(env.SITE_URL).hostname;
-  return result?.success === true && result.action === 'plus-order' && (result.hostname === site || result.hostname === `www.${site}`);
+  const hosts = [site, `www.${site}`, ...(action === 'grku-chat' ? (env.CHAT_TURNSTILE_HOSTS ?? '').split(',').map((h) => h.trim()).filter(Boolean) : [])];
+  return result?.success === true && result.action === action && hosts.includes(result.hostname ?? '');
 }
 
 /** The amount to pay for an order: its baht and its satang. */

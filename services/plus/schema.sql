@@ -32,3 +32,14 @@ CREATE TABLE IF NOT EXISTS keys (
   owner TEXT NOT NULL UNIQUE,
   created INTEGER NOT NULL
 );
+-- The GRKU assistant's anonymous daily counters (src/chat): messages and tokens per day and key.
+-- Keys: s:<session>, ip:<hashed ip>, o:<hashed owner>, m:<hashed ip>:<minute>, v:<hashed ip>:<hour>,
+-- global, p:<provider>:<model>, t:<topic>, r:<refusal>, x:<cut>; `day` is YYYY-MM-DD, or YYYY-MM for
+-- the monthly paid budget. No message content is stored.
+CREATE TABLE IF NOT EXISTS chat_usage (
+  day TEXT NOT NULL,
+  k TEXT NOT NULL,
+  n INTEGER NOT NULL DEFAULT 0,
+  tokens INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, k)
+);

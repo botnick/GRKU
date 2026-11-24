@@ -265,3 +265,20 @@
     transform: translateY(4px) scale(0.92);
   }
 }
+
+/* The GRKU assistant (components/ChatPanel.tsx): the panel rises a little as it opens. */
+@theme {
+  --animate-chat-in: chat-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-chat-fade: chat-fade 180ms ease-out;
+}
+@keyframes chat-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@keyframes chat-fade {
+  from {
+    opacity: 0;
+  }
+}
