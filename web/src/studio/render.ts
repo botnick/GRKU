@@ -149,51 +149,54 @@ export function photoCrop(photo: { width: number; height: number }, area: { w: n
 
 export function drawBackground(context: Context, background: Background, area: Rect, assets: Assets) {
   context.save();
-  context.beginPath();
-  context.rect(area.x, area.y, area.w, area.h);
-  context.clip();
-  switch (background.kind) {
-    case 'solid':
-      context.fillStyle = background.color;
-      context.fillRect(area.x, area.y, area.w, area.h);
-      break;
-    case 'gradient': {
-      const a = (background.angle * Math.PI) / 180;
-      const half = (Math.abs(area.w * Math.cos(a)) + Math.abs(area.h * Math.sin(a))) / 2;
-      const cx = area.x + area.w / 2;
-      const cy = area.y + area.h / 2;
-      const gradient = context.createLinearGradient(cx - Math.cos(a) * half, cy - Math.sin(a) * half, cx + Math.cos(a) * half, cy + Math.sin(a) * half);
-      gradient.addColorStop(0, background.from);
-      gradient.addColorStop(1, background.to);
-      context.fillStyle = gradient;
-      context.fillRect(area.x, area.y, area.w, area.h);
-      break;
-    }
-    case 'pattern':
-      context.fillStyle = background.color;
-      context.fillRect(area.x, area.y, area.w, area.h);
-      drawPattern(context, area, background.pattern, background.ink);
-      break;
-    case 'photo': {
-      context.fillStyle = background.color;
-      context.fillRect(area.x, area.y, area.w, area.h);
-      const photo = assets.photo;
-      if (photo && photo.width > 0 && photo.height > 0) {
-        const crop = photoCrop(photo, area, background.zoom, background.cx, background.cy);
-        context.imageSmoothingQuality = 'high';
-        context.drawImage(photo, crop.x, crop.y, crop.w, crop.h, area.x, area.y, area.w, area.h);
+  try {
+    context.beginPath();
+    context.rect(area.x, area.y, area.w, area.h);
+    context.clip();
+    switch (background.kind) {
+      case 'solid':
+        context.fillStyle = background.color;
+        context.fillRect(area.x, area.y, area.w, area.h);
+        break;
+      case 'gradient': {
+        const a = (background.angle * Math.PI) / 180;
+        const half = (Math.abs(area.w * Math.cos(a)) + Math.abs(area.h * Math.sin(a))) / 2;
+        const cx = area.x + area.w / 2;
+        const cy = area.y + area.h / 2;
+        const gradient = context.createLinearGradient(cx - Math.cos(a) * half, cy - Math.sin(a) * half, cx + Math.cos(a) * half, cy + Math.sin(a) * half);
+        gradient.addColorStop(0, background.from);
+        gradient.addColorStop(1, background.to);
+        context.fillStyle = gradient;
+        context.fillRect(area.x, area.y, area.w, area.h);
+        break;
       }
-      break;
+      case 'pattern':
+        context.fillStyle = background.color;
+        context.fillRect(area.x, area.y, area.w, area.h);
+        drawPattern(context, area, background.pattern, background.ink);
+        break;
+      case 'photo': {
+        context.fillStyle = background.color;
+        context.fillRect(area.x, area.y, area.w, area.h);
+        const photo = assets.photo;
+        if (photo && photo.width > 0 && photo.height > 0) {
+          const crop = photoCrop(photo, area, background.zoom, background.cx, background.cy);
+          context.imageSmoothingQuality = 'high';
+          context.drawImage(photo, crop.x, crop.y, crop.w, crop.h, area.x, area.y, area.w, area.h);
+        }
+        break;
+      }
+      case 'design': {
+        const scale = Math.max(area.w / W, area.h / H);
+        context.translate(area.x + (area.w - W * scale) / 2, area.y + (area.h - H * scale) / 2);
+        context.scale(scale, scale);
+        drawDesign(context, { id: findDesign(background.design)?.id ?? DESIGNS[0].id, theme: background.theme, text: '' });
+        break;
+      }
     }
-    case 'design': {
-      const scale = Math.max(area.w / W, area.h / H);
-      context.translate(area.x + (area.w - W * scale) / 2, area.y + (area.h - H * scale) / 2);
-      context.scale(scale, scale);
-      drawDesign(context, { id: findDesign(background.design)?.id ?? DESIGNS[0].id, theme: background.theme, text: '' });
-      break;
-    }
+  } finally {
+    context.restore();
   }
-  context.restore();
 }
 
 // ---- Frames ------------------------------------------------------------------------------------------------------
@@ -391,16 +394,19 @@ export function drawImageLayer(context: Context, layer: ImageLayer, image: Photo
 /** Draws `doc` over the whole context, in the coordinates of 720 by 480. */
 export function renderDoc(context: Context, doc: StudioDoc, assets: Assets, measure: Measure = canvasMeasure(context)) {
   context.save();
-  context.globalAlpha = 1;
-  context.fillStyle = '#000000';
-  context.fillRect(0, 0, W, H);
-  const frame = findFrame(doc.frame);
-  drawBackground(context, doc.background, frame ? frame.window : { x: 0, y: 0, w: W, h: H }, assets);
-  if (frame) frame.paint(context, doc.frameColor);
-  for (const layer of doc.layers) {
-    if (layer.type === 'text') drawText(context, layer, measure);
-    else if (layer.type === 'image') drawImageLayer(context, layer, assets.images?.get(layer.image));
-    else drawStickerLayer(context, layer);
+  try {
+    context.globalAlpha = 1;
+    context.fillStyle = '#000000';
+    context.fillRect(0, 0, W, H);
+    const frame = findFrame(doc.frame);
+    drawBackground(context, doc.background, frame ? frame.window : { x: 0, y: 0, w: W, h: H }, assets);
+    if (frame) frame.paint(context, doc.frameColor);
+    for (const layer of doc.layers) {
+      if (layer.type === 'text') drawText(context, layer, measure);
+      else if (layer.type === 'image') drawImageLayer(context, layer, assets.images?.get(layer.image));
+      else drawStickerLayer(context, layer);
+    }
+  } finally {
+    context.restore();
   }
-  context.restore();
 }

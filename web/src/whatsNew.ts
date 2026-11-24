@@ -11,6 +11,16 @@ export interface Release {
 
 export const RELEASES: Release[] = [
   {
+    "version": "1.10.0",
+    "date": "2026-11-24",
+    "items": [
+      "1100.1",
+      "1100.2",
+      "1100.3",
+      "1100.4"
+    ]
+  },
+  {
     "version": "1.9.0",
     "date": "2026-11-24",
     "items": [
@@ -109,6 +119,10 @@ export const RELEASES: Release[] = [
 
 const STRINGS: Record<Language, Record<string, string>> = {
   "en": {
+    "1100.1": "Grain has a Film-like style: the colored grain of a color negative print, strongest in the middle tones, after the spektrafilm grain model. From GRKit by piratenpanda.",
+    "1100.2": "Date Imprint has a new caption, GRKU ♥.",
+    "1100.3": "A simpler shutdown screen card, and GRKU Studio takes your own pictures as layers: a logo, a cut-out PNG, or a photo.",
+    "1100.4": "Any GRKU Plus purchase unlocks all of GRKU Studio and the designs. Shutdown pictures are smaller, and the design thumbnails no longer shift after you choose one.",
     "190.1": "Date Imprint in five colors, four sizes, and four places, with an optional soft glow and a caption such as THANK YOU or HAPPY BIRTHDAY.",
     "190.2": "Film Softness in Diffusion: the gentle softness of a film scan, Low, Medium, or High, and grain stays crisp.",
     "190.3": "Choose the picture the camera shows as it turns off: the GRKU logo, your own photo, a ready-made design, or your own in GRKU Studio.",
@@ -152,6 +166,10 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "160.6": "GRKU starts faster when you turn the camera on."
   },
   "zh-Hans": {
+    "1100.1": "Grain 新增 Film-like 风格：模拟彩色负片冲印照片的彩色颗粒感，中间调最明显，采用 spektrafilm 的颗粒模型。来自 piratenpanda 的 GRKit。",
+    "1100.2": "Date Imprint 新增文字：GRKU ♥。",
+    "1100.3": "关机画面卡片设计更加简洁。GRKU Studio 现在支持将自己的图片作为图层添加：例如 Logo、抠图后的 PNG 或照片。",
+    "1100.4": "购买任意 GRKU Plus 均可解锁全部 GRKU Studio 功能和设计。关机图片占用空间更小，选择设计后，设计缩略图也不再发生偏移。",
     "190.1": "Date Imprint 支持 5 种颜色、4 种尺寸与 4 处位置，可选柔光效果及如 THANK YOU 或 HAPPY BIRTHDAY 等文字说明。",
     "190.2": "Diffusion 中新增 Film Softness：呈现胶片扫描般柔和的质感，可选 Low、Medium 或 High，同时保持颗粒清晰。",
     "190.3": "自定义相机关机时显示的画面：可选择 GRKU 标志、自己的照片、预设设计，或在 GRKU Studio 中制作的设计。",
@@ -195,6 +213,10 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "强 Glow 效果在大面积光源周围过渡更自然；执行 Rename 与 Delete 后配方标记仍会保留；优化 16 种正片胶片外观，使明亮肤色更加通透。"
   },
   "zh-Hant": {
+    "1100.1": "Grain 新增 Film-like 風格：模擬彩色負片沖印照片中的彩色顆粒，顆粒在中間調最明顯，採用 spektrafilm 的顆粒模型。收錄自 piratenpanda 的 GRKit。",
+    "1100.2": "Date Imprint 新增標題文字：GRKU ♥。",
+    "1100.3": "關機畫面的卡片設計更簡潔，GRKU Studio 現在也能將自己的圖片新增為圖層，例如 Logo、去背 PNG 或照片。",
+    "1100.4": "購買任一種 GRKU Plus 方案，即可解鎖完整的 GRKU Studio 和所有設計。關機圖片的檔案大小縮小了，選取設計後，設計縮圖也不再移位。",
     "190.1": "Date Imprint 提供 5 種顏色、4 種尺寸與 4 種位置，可選用柔光效果，並能加入如 THANK YOU 或 HAPPY BIRTHDAY 等文字。",
     "190.2": "Diffusion 新增 Film Softness，呈現底片掃描般的柔和質感，提供低、中、高三段強度，顆粒仍保持清晰。",
     "190.3": "可選擇相機關機時顯示的畫面：GRKU 標誌、自己的照片、現成設計，或在 GRKU Studio 製作的自訂設計。",
@@ -238,6 +260,10 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "強烈 Glow 在強光源周圍更顯自然均勻；Rename 與 Delete 後仍保留配方標記；16 款相紙底片外觀維持明亮膚色。"
   },
   "ja": {
+    "1100.1": "GrainにFilm-likeスタイルを追加しました。spektrafilmの粒状感モデルをもとに、カラーネガプリントの色付き粒子を再現。中間調で最も強く現れます。GRKit by piratenpanda。",
+    "1100.2": "Date Imprintの新しいキャプション「GRKU ♥」を追加しました。",
+    "1100.3": "シャットダウン画面のカード表示をシンプルにしました。GRKU Studioでは、ロゴ、切り抜いたPNG、写真など、お手持ちの画像をレイヤーとして追加できます。",
+    "1100.4": "GRKU Plusをいずれかのプランで購入すると、GRKU Studioの全機能とすべてのデザインが利用できるようになります。シャットダウン画面の画像を小さくし、デザインを選択した後もサムネイルの位置がずれないようにしました。",
     "190.1": "Date Imprint：5色、4サイズ、4か所の配置に対応。ソフトグロー効果や、THANK YOU、HAPPY BIRTHDAYなどのキャプションを追加可能。",
     "190.2": "DiffusionにFilm Softnessを追加。粒状感の鮮明さを保ちながら、フィルムスキャンのような穏やかな柔らかさを弱・中・強の3段階で設定できます。",
     "190.3": "電源オフ時に表示する画像を選べます。GRKUロゴ、お好みの写真、用意されたデザインのほか、GRKU Studioで作成したデザインも使用できます。",
@@ -281,6 +307,10 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "強度の高いGlowが大きな光源の周囲でも均一に適用されるよう改善。RenameやDelete後もレシピマークが保持され、16種のプリントフィルムルックで明るいスキントーンが維持されます。"
   },
   "ko": {
+    "1100.1": "Grain에 Film-like 스타일이 추가되었습니다. spektrafilm의 Grain 모델을 기반으로 컬러 네거티브 필름 인화물의 색상 입자를 재현하며, 중간 톤에서 가장 두드러집니다. piratenpanda의 GRKit을 기반으로 했습니다.",
+    "1100.2": "Date Imprint에 새로운 캡션 GRKU ♥가 추가되었습니다.",
+    "1100.3": "Shutdown 화면 카드가 더 간결해졌으며, GRKU Studio에서 로고, 배경이 제거된 PNG, 사진 등 직접 준비한 이미지를 레이어로 사용할 수 있습니다.",
+    "1100.4": "GRKU Plus를 구매하면 구매한 상품 종류와 관계없이 GRKU Studio의 모든 기능과 디자인을 사용할 수 있습니다. Shutdown 이미지의 용량이 줄었으며, 디자인을 선택해도 미리보기 타일의 위치가 바뀌지 않습니다.",
     "190.1": "5가지 색상, 4가지 크기, 4가지 위치를 지원하는 Date Imprint. 은은한 글로우 효과 및 THANK YOU, HAPPY BIRTHDAY 등의 캡션 선택 가능.",
     "190.2": "Diffusion의 Film Softness: 필름 스캔처럼 부드러운 느낌을 Low, Medium, High 중에서 선택할 수 있습니다. 입자는 선명하게 유지됩니다.",
     "190.3": "카메라 전원을 끌 때 표시할 화면을 선택할 수 있습니다. GRKU 로고, 직접 촬영한 사진, 기본 디자인 또는 GRKU Studio에서 만든 디자인을 사용할 수 있습니다.",
@@ -324,6 +354,10 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.5": "강한 광원 주변에서도 강한 Glow 효과가 균일하게 유지되며, Rename 및 Delete 후에도 레시피 표시가 유지됩니다. 16종의 인화 필름 룩에서 밝은 피부 톤 표현이 유지됩니다."
   },
   "th": {
+    "1100.1": "Grain มีสไตล์ Film-like เป็นเกรนสีแบบภาพพิมพ์จากฟิล์มเนกาทีฟสี โดยเห็นชัดที่สุดในโทนกลาง อ้างอิงโมเดลเกรนของ spektrafilm จาก GRKit โดย piratenpanda",
+    "1100.2": "Date Imprint เพิ่มข้อความกำกับใหม่เป็น GRKU ♥",
+    "1100.3": "การ์ดภาพตอนปิดกล้องเรียบง่ายขึ้น และ GRKU Studio เพิ่มรูปของคุณเป็นเลเยอร์ได้ ทั้งโลโก้, PNG พื้นหลังโปร่งใส และภาพถ่าย",
+    "1100.4": "การซื้อ GRKU Plus แพ็กเกจใดก็ได้ จะปลดล็อก GRKU Studio และดีไซน์ทั้งหมด ภาพหน้าจอปิดกล้องมีขนาดเล็กลง และภาพตัวอย่างดีไซน์จะไม่เลื่อนตำแหน่งอีกต่อไปหลังเลือกดีไซน์",
     "190.1": "Date Imprint เลือกได้ 5 สี 4 ขนาด และ 4 ตำแหน่ง พร้อมตัวเลือกแสงฟุ้งละมุนและข้อความ เช่น THANK YOU หรือ HAPPY BIRTHDAY",
     "190.2": "Film Softness ใน Diffusion: เพิ่มความนุ่มละมุนแบบฟิล์มสแกน เลือกได้ 3 ระดับ Low, Medium หรือ High โดยยังคงความคมชัดของเกรน",
     "190.3": "เลือกรูปที่กล้องแสดงตอนปิดเครื่องได้ ทั้งโลโก้ GRKU รูปถ่ายของคุณ ดีไซน์สำเร็จรูป หรือสร้างดีไซน์เองใน GRKU Studio",

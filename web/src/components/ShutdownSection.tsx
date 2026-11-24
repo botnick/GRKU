@@ -42,6 +42,7 @@ import {
   findDesign,
   FREE_DESIGNS,
   limitText,
+  resetContext,
   type Design,
   type DesignChoice,
   type DesignState,
@@ -52,7 +53,8 @@ const Studio = lazy(() => import("../studio/Studio"));
 
 /**
  * A design drawn on a canvas of `scale` times 720 by 480. It draws at once with the fonts at
- * hand, and again when the fonts of its text have loaded.
+ * hand, and again when the fonts of its text have loaded. Each drawing starts from a clean
+ * context, and only the latest one runs.
  */
 function DesignCanvas({
   choice,
@@ -66,19 +68,26 @@ function DesignCanvas({
   label?: string;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
+  // The latest drawing: an earlier one that is still to come (after its fonts) does not draw.
+  const drawing = useRef(0);
   const { id, theme, text } = choice;
   useEffect(() => {
-    let live = true;
+    const token = ++drawing.current;
     const draw = () => {
       const context = canvas.current?.getContext("2d");
-      if (!live || !context) return;
+      if (token !== drawing.current || !context) return;
+      resetContext(context);
       context.setTransform(scale, 0, 0, scale, 0, 0);
-      drawDesign(context, { id, theme, text });
+      try {
+        drawDesign(context, { id, theme, text });
+      } catch (error) {
+        console.error(error);
+      }
     };
     draw();
-    void prepareDesignFonts(text).then(draw);
+    void prepareDesignFonts(text).then(draw, draw);
     return () => {
-      live = false;
+      if (token === drawing.current) drawing.current++;
     };
   }, [id, theme, text, scale]);
   return (
@@ -521,7 +530,7 @@ export function ShutdownSection({
                     htmlFor={`${id}-ready-${item.id}`}
                     title={name}
                     className={cn(
-                      "relative block aspect-[3/2] cursor-pointer overflow-hidden rounded-md ring-1 ring-border transition-shadow",
+                      "relative block aspect-[3/2] cursor-pointer overflow-clip rounded-md ring-1 ring-border transition-shadow",
                       "hover:ring-input ring-offset-card has-data-[state=checked]:ring-2 has-data-[state=checked]:ring-foreground has-data-[state=checked]:ring-offset-2 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring",
                     )}
                   >
@@ -555,7 +564,7 @@ export function ShutdownSection({
                       id={`${id}-ready-${item.id}`}
                       value={item.id}
                       aria-label={locked ? `${name} (GRKU Plus)` : name}
-                      className="sr-only"
+                      className="sr-only top-0 left-0 size-px"
                     />
                   </Label>
                 );

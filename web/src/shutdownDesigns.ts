@@ -846,14 +846,45 @@ export interface DesignChoice {
   text: string;
 }
 
-/** Draws `choice` over the whole context, in the coordinates of 720 by 480. */
+/**
+ * Returns `context` to the state of a new canvas: no transform, clip, shadow, filter, or
+ * transparency, and nothing drawn. Each drawing of a thumbnail starts here, so nothing that a
+ * drawing before it left behind, such as a translation or a clip, moves or cuts the next one.
+ */
+export function resetContext(context: DesignContext): void {
+  const reset = (context as { reset?: () => void }).reset;
+  if (typeof reset === 'function') {
+    reset.call(context);
+    return;
+  }
+  // Without reset(): a restore on an empty stack does nothing, and a clip goes only by restore.
+  for (let i = 0; i < 64; i++) context.restore();
+  context.setTransform(1, 0, 0, 1, 0, 0);
+  context.globalAlpha = 1;
+  context.globalCompositeOperation = 'source-over';
+  if ('filter' in context) context.filter = 'none';
+  context.shadowColor = 'rgba(0, 0, 0, 0)';
+  context.shadowBlur = 0;
+  context.shadowOffsetX = 0;
+  context.shadowOffsetY = 0;
+  context.setLineDash?.([]);
+  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+}
+
+/**
+ * Draws `choice` over the whole context, in the coordinates of 720 by 480. The state of the
+ * context after it is the state before it, also when the design fails to draw.
+ */
 export function drawDesign(context: DesignContext, choice: DesignChoice) {
   const design: Design = findDesign(choice.id) ?? DESIGNS[0];
   context.save();
-  context.globalAlpha = 1;
-  context.setLineDash?.([]);
-  design.draw(context, choice.theme, choice.text.slice(0, DESIGN_TEXT_MAX * 2));
-  context.restore();
+  try {
+    context.globalAlpha = 1;
+    context.setLineDash?.([]);
+    design.draw(context, choice.theme, choice.text.slice(0, DESIGN_TEXT_MAX * 2));
+  } finally {
+    context.restore();
+  }
 }
 
 /** Cuts `value` to the most characters of a design text, counting what the reader sees as one. */

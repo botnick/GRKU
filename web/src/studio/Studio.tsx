@@ -60,7 +60,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { CameraText } from "../components/CameraText";
 import type { Language, Strings } from "../i18n";
-import { findDesign, type DesignChoice } from "../shutdownDesigns";
+import { findDesign, resetContext, type DesignChoice } from "../shutdownDesigns";
 import { encodePicture } from "../shutdownPicture";
 import { FONTS, fontOf, hasBold, loadFontStyles, prepareFonts } from "./fonts";
 import {
@@ -309,8 +309,13 @@ function DocThumb({
   useEffect(() => {
     const context = canvas.current?.getContext("2d");
     if (!context) return;
+    resetContext(context);
     context.setTransform(1 / 3, 0, 0, 1 / 3, 0, 0);
-    renderDoc(context, doc, { photo });
+    try {
+      renderDoc(context, doc, { photo });
+    } catch (error) {
+      console.error(error);
+    }
   }, [doc, photo, tick]);
   return (
     <canvas
@@ -592,7 +597,13 @@ function Stage({
 
   useEffect(() => {
     const context = canvas.current?.getContext("2d");
-    if (context) renderDoc(context, doc, { photo, images }, measure);
+    if (!context) return;
+    resetContext(context);
+    try {
+      renderDoc(context, doc, { photo, images }, measure);
+    } catch (error) {
+      console.error(error);
+    }
   }, [doc, photo, images, measure]);
 
   const toScreen = (event: {
