@@ -1722,6 +1722,8 @@ pub fn test_manifest(directory: &Path, sdk: &Path, objects: &Path, cc: &Path) ->
     arguments.push(path(&sdk.join("grku_test.c"))?.to_owned());
     arguments.push("-o".into());
     arguments.push(path(&executable)?.to_owned());
+    // The math library: glibc keeps it apart from libc (a host test may use sqrt or log).
+    arguments.push("-lm".into());
     run(cc, arguments.iter().map(String::as_str))?;
     let output = std::process::Command::new(&executable)
         .output()
