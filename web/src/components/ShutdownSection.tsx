@@ -10,6 +10,7 @@ import {
 } from "react";
 import { PRICES } from "../plus";
 import {
+  Check,
   ImagePlus,
   Info,
   Lock,
@@ -181,11 +182,128 @@ export function savePicture(bytes: Uint8Array) {
   );
 }
 
+/** A choice of the shutdown screen as a wide row: a small picture, a title, and a line under it. */
+function ChoiceRow({
+  checked,
+  onSelect,
+  picture,
+  title,
+  note,
+  tag,
+  action,
+}: {
+  checked: boolean;
+  onSelect: () => void;
+  picture: ReactNode;
+  title: string;
+  note: string;
+  /** A small label after the title, such as the name of a tool. */
+  tag?: string;
+  /** A button at the end of the row, beside the choice. */
+  action?: ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-2 rounded-lg border p-2 transition-colors @md:flex-row @md:items-center @md:gap-3 @md:pr-3",
+        checked
+          ? "border-foreground shadow-[inset_0_0_0_1px_var(--foreground)]"
+          : "border-border hover:border-input",
+      )}
+    >
+      <button
+        type="button"
+        role="radio"
+        aria-checked={checked}
+        onClick={onSelect}
+        className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-md text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <span className="relative flex aspect-[3/2] w-20 shrink-0 items-center justify-center overflow-hidden rounded-md bg-black text-white/70 @md:w-24">
+          {picture}
+        </span>
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm font-medium leading-snug">
+            {title}
+            {tag && (
+              <span className="rounded-full border px-1.5 py-px text-[10px] leading-none font-medium text-muted-foreground">
+                {tag}
+              </span>
+            )}
+            {checked && <Check className="size-4 shrink-0" aria-hidden="true" />}
+          </span>
+          <span className="text-xs leading-snug text-muted-foreground">{note}</span>
+        </span>
+      </button>
+      {action && (
+        <div className="ml-[5.75rem] @md:ml-0">{action}</div>
+      )}
+    </div>
+  );
+}
+
+/** An example of what GRKU Studio makes, drawn once the part that draws it has loaded. */
+function StudioExample({ template }: { template: string }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    let live = true;
+    void import("../studio/example")
+      .then(({ drawExample }) => {
+        if (live && canvas.current) return drawExample(canvas.current, template);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [template]);
+  return (
+    <canvas
+      ref={canvas}
+      width={PICTURE_WIDTH / 3}
+      height={PICTURE_HEIGHT / 3}
+      className="size-full"
+      aria-hidden="true"
+    />
+  );
+}
+
+/** One of the three groups of choices, with its heading. */
+function ChoiceGroup({
+  id,
+  title,
+  note,
+  active,
+  children,
+}: {
+  id: string;
+  title: string;
+  note?: string;
+  active: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-xl border p-3 transition-colors sm:p-4",
+        active ? "border-foreground/40 bg-muted/40" : "border-border",
+      )}
+    >
+      <h3 id={id} className="m-0 text-sm font-semibold">
+        {title}
+      </h3>
+      {note && (
+        <p className="m-0 mt-0.5 text-xs leading-snug text-muted-foreground">{note}</p>
+      )}
+      <div className="mt-3">{children}</div>
+    </div>
+  );
+}
+
 /**
  * The picture that the camera shows when it turns off (Shutdown Screen), as an extra of the
- * modules step: the GRKU logo, a ready-made design, a picture made in GRKU Studio, a picture of
- * the user cropped to the screen, the camera's own screen, or the picture that the card already has. The chosen picture shows with the text that
- * the camera draws over it.
+ * modules step. A large preview of the chosen picture, with the text that the camera draws over
+ * it, beside three groups of choices: ready-made (the GRKU logo or a design), made by the user
+ * (in GRKU Studio, a photo cropped to the screen, or the picture that the card already has), or
+ * off (the camera's own screen).
  */
 export function ShutdownSection({
   strings,
@@ -243,10 +361,16 @@ export function ShutdownSection({
   const [lockedDesign, setLockedDesign] = useState<string | null>(null);
   const designLocked = (design: string) =>
     !plus && !FREE_DESIGNS.includes(design);
+  const designName = (design: string) =>
+    t.designs[design as keyof typeof t.designs] ?? design;
 
   function openStudio() {
     setStudioMounted(true);
     setStudioOpen(true);
+  }
+
+  function choosePhoto() {
+    input.current?.click();
   }
 
   async function choose(file: File | undefined) {
@@ -263,61 +387,58 @@ export function ShutdownSection({
     }
   }
 
-  function pick(next: string) {
-    // Your picture without a picture yet asks for one first, and stays unchosen until it reads.
-    if (next === "own" && !own) input.current?.click();
-    else if (next === "studio" && !studio) openStudio();
-    else onKind(next as ShutdownKind);
+  function pickReady(value: string) {
+    if (value === "logo") {
+      setLockedDesign(null);
+      onKind("logo");
+    } else if (designLocked(value)) {
+      // A design of Plus without Plus says so, and stays unchosen.
+      setLockedDesign(value);
+    } else {
+      setLockedDesign(null);
+      onDesigns({ ...designs, id: value });
+      onKind("design");
+    }
   }
 
   const chosenDesign = designChoice(designs);
-  const designThumb = (
-    <DesignCanvas
-      choice={chosenDesign}
-      scale={1 / 3}
-      className="absolute inset-0 size-full"
-    />
-  );
-  const options: {
-    value: ShutdownKind;
-    label: string;
-    url: string | null;
-    empty: ReactNode;
-  }[] = [
-    { value: "logo", label: t.logo, url: logoUrl, empty: null },
-    { value: "design", label: t.design, url: null, empty: designThumb },
-    {
-      value: "studio",
-      label: t.studio,
-      url: studioUrl,
-      empty: <WandSparkles className="size-6" aria-hidden="true" />,
-    },
-    {
-      value: "own",
-      label: t.own,
-      url: ownUrl,
-      empty: <ImagePlus className="size-6" aria-hidden="true" />,
-    },
-    ...(cardUrl
-      ? [{ value: "keep" as const, label: t.keep, url: cardUrl, empty: null }]
-      : []),
-    {
-      value: "none",
-      label: t.none,
-      url: null,
-      empty: <Power className="size-6" aria-hidden="true" />,
-    },
-  ];
+  const design = findDesign(chosenDesign.id) ?? DESIGNS[0];
+  const ready = kind === "logo" || kind === "design";
+  const made = kind === "studio" || kind === "own" || kind === "keep";
   const shown =
+    kind === "logo"
+      ? logoUrl
+      : kind === "studio"
+        ? studioUrl
+        : kind === "own"
+          ? ownUrl
+          : kind === "keep"
+            ? cardUrl
+            : null;
+  // The plain name of what the camera will show.
+  const chosen =
     kind === "design"
-      ? null
-      : (options.find((option) => option.value === kind)?.url ?? null);
-  const preview = kind === "design" || shown !== null;
+      ? design.swatches.length > 1
+        ? `${designName(design.id)} · ${t.colors} ${chosenDesign.theme + 1}`
+        : designName(design.id)
+      : t[kind];
+  const picture = (url: string | null, empty: ReactNode) =>
+    url ? (
+      <img
+        src={url}
+        alt=""
+        width={PICTURE_WIDTH}
+        height={PICTURE_HEIGHT}
+        className="size-full object-cover"
+      />
+    ) : (
+      empty
+    );
 
   return (
     <section
       aria-labelledby={`${id}-title`}
-      className="mt-4 rounded-xl border bg-card p-4 sm:p-5"
+      className="@container mt-4 rounded-xl border bg-card p-4 sm:p-5"
     >
       <h2 id={`${id}-title`} className="text-[15px] font-semibold">
         {t.title}
@@ -325,49 +446,226 @@ export function ShutdownSection({
       <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
         {t.note}
       </p>
-      <RadioGroup
-        value={kind}
-        onValueChange={pick}
-        aria-labelledby={`${id}-title`}
-        className={cn(
-          "mt-4 grid grid-cols-2 gap-2 sm:gap-3",
-          options.length > 6
-            ? "sm:grid-cols-4 lg:grid-cols-7"
-            : "sm:grid-cols-3 lg:grid-cols-6",
-        )}
-      >
-        {options.map((option) => (
-          <Label
-            key={option.value}
-            htmlFor={`${id}-${option.value}`}
-            className={cn(
-              "flex cursor-pointer flex-col items-stretch gap-2 rounded-lg border border-border p-2 text-sm font-medium transition-colors",
-              "hover:border-input has-data-[state=checked]:border-foreground has-data-[state=checked]:shadow-[inset_0_0_0_1px_var(--foreground)]",
-            )}
-          >
-            <span className="relative flex aspect-[3/2] items-center justify-center overflow-hidden rounded-md bg-black text-muted-foreground">
-              {option.url ? (
-                <img
-                  src={option.url}
-                  alt=""
-                  width={PICTURE_WIDTH}
-                  height={PICTURE_HEIGHT}
-                  className="size-full object-cover"
-                />
-              ) : (
-                option.empty
-              )}
-            </span>
-            <span className="flex items-center gap-2 px-0.5 pb-0.5">
-              <RadioGroupItem
-                id={`${id}-${option.value}`}
-                value={option.value}
+
+      <div className="mt-4 flex flex-col gap-4">
+        {/* What the camera will show. */}
+        <figure className="m-0 grid gap-3 @xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] @xl:items-end @xl:gap-5">
+          <div className="relative aspect-[3/2] overflow-hidden rounded-lg bg-black ring-1 ring-border">
+            {kind === "design" ? (
+              <DesignCanvas
+                choice={chosenDesign}
+                label={t.alt}
+                className="absolute inset-0 size-full"
               />
-              <span className="min-w-0 leading-snug">{option.label}</span>
+            ) : shown ? (
+              <img
+                src={shown}
+                width={PICTURE_WIDTH}
+                height={PICTURE_HEIGHT}
+                alt={t.alt}
+                className="absolute inset-0 size-full"
+              />
+            ) : (
+              <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white/60">
+                <Power className="size-8" aria-hidden="true" />
+              </span>
+            )}
+            {kind !== "none" && <CameraText firmware={firmware} />}
+          </div>
+          <figcaption className="flex flex-col gap-2">
+            <span
+              className="text-base font-semibold leading-snug"
+              aria-live="polite"
+            >
+              {chosen}
             </span>
-          </Label>
-        ))}
-      </RadioGroup>
+            <span className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
+              <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+              <span>
+                {kind === "none" ? t.offCard : t.textNote}
+              </span>
+            </span>
+          </figcaption>
+        </figure>
+
+        <div className="flex flex-col gap-3">
+          {/* 1. Ready-made: the GRKU logo and the designs. */}
+          <ChoiceGroup
+            id={`${id}-ready`}
+            title={t.readyMade}
+            note={t.readyMadeNote}
+            active={ready}
+          >
+            <RadioGroup
+              value={kind === "logo" ? "logo" : kind === "design" ? designs.id : ""}
+              onValueChange={pickReady}
+              aria-labelledby={`${id}-ready`}
+              className="grid grid-cols-3 gap-2 @md:grid-cols-4 @xl:grid-cols-6"
+            >
+              {[{ id: "logo" }, ...DESIGNS].map((item) => {
+                const isLogo = item.id === "logo";
+                const name = isLogo ? t.logo : designName(item.id);
+                const locked = !isLogo && designLocked(item.id);
+                const on = isLogo ? kind === "logo" : kind === "design" && designs.id === item.id;
+                return (
+                  <Label
+                    key={item.id}
+                    htmlFor={`${id}-ready-${item.id}`}
+                    title={name}
+                    className={cn(
+                      "relative block aspect-[3/2] cursor-pointer overflow-hidden rounded-md ring-1 ring-border transition-shadow",
+                      "hover:ring-input ring-offset-card has-data-[state=checked]:ring-2 has-data-[state=checked]:ring-foreground has-data-[state=checked]:ring-offset-2 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring",
+                    )}
+                  >
+                    {isLogo ? (
+                      <img
+                        src={logoUrl}
+                        alt=""
+                        width={PICTURE_WIDTH}
+                        height={PICTURE_HEIGHT}
+                        className="size-full bg-black object-cover"
+                      />
+                    ) : (
+                      <DesignCanvas
+                        choice={designChoice(designs, item.id)}
+                        scale={1 / 3}
+                        className="block size-full"
+                      />
+                    )}
+                    {on && (
+                      <span className="pointer-events-none absolute bottom-1 left-1 flex size-5 items-center justify-center rounded-full bg-background text-foreground shadow ring-1 ring-foreground">
+                        <Check className="size-3.5" strokeWidth={3} aria-hidden="true" />
+                      </span>
+                    )}
+                    {locked && (
+                      <span className="pointer-events-none absolute top-1 right-1 inline-flex items-center gap-0.5 rounded-full bg-foreground/85 px-1.5 py-0.5 text-[10px] leading-none font-semibold text-background">
+                        <Lock className="size-2.5" aria-hidden="true" />
+                        {t.plus}
+                      </span>
+                    )}
+                    <RadioGroupItem
+                      id={`${id}-ready-${item.id}`}
+                      value={item.id}
+                      aria-label={locked ? `${name} (GRKU Plus)` : name}
+                      className="sr-only"
+                    />
+                  </Label>
+                );
+              })}
+            </RadioGroup>
+            {lockedDesign && (
+              <div
+                role="status"
+                className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border border-brand/40 bg-brand/5 px-3 py-2 text-sm"
+              >
+                <Lock className="size-4 shrink-0" aria-hidden="true" />
+                <span className="min-w-0 flex-1">
+                  {t.lockedDesign
+                    .replace("${name}", designName(lockedDesign))
+                    .replace("${pack}", String(PRICES["pack:kodak"]))}
+                </span>
+                <Button type="button" variant="brand" size="sm" onClick={onPlus}>
+                  <Sparkles aria-hidden="true" />
+                  {t.seePlus}
+                </Button>
+              </div>
+            )}
+            {kind === "design" && (
+              <div className="mt-4 border-t pt-4">
+                <DesignControls
+                  strings={strings}
+                  state={designs}
+                  onState={onDesigns}
+                />
+              </div>
+            )}
+          </ChoiceGroup>
+
+          {/* 2. Made by the user: in GRKU Studio, from a photo, or the picture on the card. */}
+          <ChoiceGroup id={`${id}-own`} title={t.makeOwn} active={made}>
+            <div
+              role="radiogroup"
+              aria-labelledby={`${id}-own`}
+              className="flex flex-col gap-2"
+            >
+              <ChoiceRow
+                checked={kind === "studio"}
+                onSelect={() => (studio ? onKind("studio") : openStudio())}
+                picture={picture(
+                  studioUrl,
+                  <StudioExample
+                    template={language === "th" ? "songkran" : "valentine"}
+                  />,
+                )}
+                title={studio ? t.studio : t.studioOpen}
+                tag="GRKU Studio"
+                note={t.studioNote}
+                action={
+                  studio && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                      onClick={openStudio}
+                    >
+                      <WandSparkles aria-hidden="true" />
+                      {t.studioEdit}
+                    </Button>
+                  )
+                }
+              />
+              <ChoiceRow
+                checked={kind === "own"}
+                onSelect={() => (own ? onKind("own") : choosePhoto())}
+                picture={picture(
+                  ownUrl,
+                  <ImagePlus className="size-6" aria-hidden="true" />,
+                )}
+                title={own ? t.own : t.photo}
+                note={t.photoNote}
+                action={
+                  own && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                      onClick={choosePhoto}
+                    >
+                      <ImagePlus aria-hidden="true" />
+                      {t.choose}
+                    </Button>
+                  )
+                }
+              />
+              {cardUrl && (
+                <ChoiceRow
+                  checked={kind === "keep"}
+                  onSelect={() => onKind("keep")}
+                  picture={picture(cardUrl, null)}
+                  title={t.keep}
+                  note={t.keepNote}
+                />
+              )}
+            </div>
+            {failed && (
+              <p className="m-0 mt-2 text-sm text-destructive">{t.failed}</p>
+            )}
+          </ChoiceGroup>
+
+          {/* 3. Off: the camera's own screen. */}
+          <div role="radiogroup" aria-label={t.off}>
+            <ChoiceRow
+              checked={kind === "none"}
+              onSelect={() => onKind("none")}
+              picture={<Power className="size-6" aria-hidden="true" />}
+              title={t.off}
+              note={t.offNote}
+            />
+          </div>
+        </div>
+      </div>
       <input
         key={fileKey}
         ref={input}
@@ -379,149 +677,6 @@ export function ShutdownSection({
         aria-hidden="true"
         onChange={(event) => void choose(event.target.files?.[0])}
       />
-      {(kind === "own" || failed) && (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="mt-3"
-          onClick={() => input.current?.click()}
-        >
-          <ImagePlus aria-hidden="true" />
-          {t.choose}
-        </Button>
-      )}
-      {failed && <p className="mt-2 text-sm text-destructive">{t.failed}</p>}
-      {(kind === "studio" || kind === "design") && (
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-          <Button
-            type="button"
-            variant={kind === "studio" ? "default" : "outline"}
-            size="sm"
-            onClick={openStudio}
-          >
-            <WandSparkles aria-hidden="true" />
-            {kind === "studio" ? t.studioEdit : t.studioOpen}
-          </Button>
-          <span className="text-xs text-muted-foreground">{t.studioNote}</span>
-        </div>
-      )}
-
-      {kind === "design" && (
-        <RadioGroup
-          value={designs.id}
-          onValueChange={(value) => {
-            // A design of Plus without Plus says so, and stays unchosen.
-            if (designLocked(value)) setLockedDesign(value);
-            else {
-              setLockedDesign(null);
-              onDesigns({ ...designs, id: value });
-            }
-          }}
-          aria-label={t.design}
-          className={cn(
-            // On a phone, a strip that scrolls across the width of the card (no wider than it), from the tablet up a grid.
-            "-mx-4 mt-4 flex w-0 min-w-[calc(100%+2rem)] snap-x scroll-px-4 gap-2 overflow-x-auto px-4 pb-1",
-            "sm:mx-0 sm:grid sm:w-auto sm:min-w-0 sm:grid-cols-6 sm:overflow-visible sm:px-0 sm:pb-0",
-          )}
-        >
-          {DESIGNS.map((design) => (
-            <Label
-              key={design.id}
-              htmlFor={`${id}-design-${design.id}`}
-              title={t.designs[design.id as keyof typeof t.designs]}
-              className={cn(
-                "relative w-28 shrink-0 cursor-pointer snap-start overflow-hidden rounded-md border-2 border-transparent sm:w-auto",
-                "hover:border-input has-data-[state=checked]:border-foreground has-focus-visible:ring-2 has-focus-visible:ring-ring",
-              )}
-            >
-              <DesignCanvas
-                choice={designChoice(designs, design.id)}
-                scale={1 / 3}
-                className="block aspect-[3/2] w-full"
-              />
-              {designLocked(design.id) && (
-                <span className="pointer-events-none absolute top-1 right-1 inline-flex items-center gap-0.5 rounded-full bg-foreground/85 px-1.5 py-0.5 text-[10px] leading-none font-semibold text-background">
-                  <Lock className="size-2.5" aria-hidden="true" />
-                  {t.plus}
-                </span>
-              )}
-              <RadioGroupItem
-                id={`${id}-design-${design.id}`}
-                value={design.id}
-                aria-label={
-                  designLocked(design.id)
-                    ? `${t.designs[design.id as keyof typeof t.designs]} (GRKU Plus)`
-                    : t.designs[design.id as keyof typeof t.designs]
-                }
-                className="sr-only"
-              />
-            </Label>
-          ))}
-        </RadioGroup>
-      )}
-      {kind === "design" && lockedDesign && (
-        <div
-          role="status"
-          className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border border-brand/40 bg-brand/5 px-3 py-2 text-sm"
-        >
-          <Lock className="size-4 shrink-0" aria-hidden="true" />
-          <span className="min-w-0 flex-1">
-            {t.lockedDesign
-              .replace(
-                "${name}",
-                t.designs[lockedDesign as keyof typeof t.designs] ??
-                  lockedDesign,
-              )
-              .replace("${pack}", String(PRICES["pack:kodak"]))}
-          </span>
-          <Button type="button" variant="brand" size="sm" onClick={onPlus}>
-            <Sparkles aria-hidden="true" />
-            {t.seePlus}
-          </Button>
-        </div>
-      )}
-
-      <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-start">
-        {preview && (
-          <figure className="m-0">
-            <div className="relative aspect-[3/2] overflow-hidden rounded-md bg-black ring-1 ring-border">
-              {shown ? (
-                <img
-                  src={shown}
-                  width={PICTURE_WIDTH}
-                  height={PICTURE_HEIGHT}
-                  alt={t.alt}
-                  className="absolute inset-0 size-full"
-                />
-              ) : (
-                <DesignCanvas
-                  choice={chosenDesign}
-                  label={t.alt}
-                  className="absolute inset-0 size-full"
-                />
-              )}
-              <CameraText firmware={firmware} />
-            </div>
-            <figcaption className="mt-2 text-xs leading-relaxed text-muted-foreground">
-              {t.textNote}
-            </figcaption>
-          </figure>
-        )}
-        <div className={cn("flex flex-col gap-5", !preview && "sm:col-span-2")}>
-          {kind === "design" && (
-            <DesignControls
-              strings={strings}
-              state={designs}
-              onState={onDesigns}
-            />
-          )}
-          <p className="m-0 flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
-            <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-            <span>{kind === "none" ? t.noneNote : t.cameraNote}</span>
-          </p>
-        </div>
-      </div>
       {studioMounted && (
         <Suspense
           fallback={
