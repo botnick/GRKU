@@ -602,6 +602,17 @@ export const ko: Strings = {
       a: ['카메라에서 MENU를 엽니다. 사용자 설정 탭의 GRKU 항목 맨 끝에 있는 GRKU 정보에서 확인할 수 있습니다.'],
     },
   ],
+  /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
+  develop: {
+    nav: "사진 편집",
+    title: "온라인 무료 필름 필터: 포트라 400, 클래식 크롬, 필름 그레인 · GRKU",
+    description: "브라우저에서 무료로 사용하는 필름 감성 사진 편집기. 코닥 포트라 400, 후지필름 클래식 크롬 등 150가지 이상의 필름 필터와 필름 그레인, 날짜 스탬프, 폴라로이드 프레임을 제공합니다. RICOH GR용 GRKU와 동일한 코드로 제작되었으며, 사진은 기기 밖으로 전송되지 않습니다.",
+    homeTitle: "이미 찍은 사진을 필름 감성으로 편집해 보세요",
+    homeText: "다시 촬영하거나 GR 카메라를 소유할 필요가 없습니다. 내 사진에 GRKU의 모든 필름 룩과 효과를 브라우저에서 직접 적용해 보세요.",
+    homeCta: "사진 편집하기",
+    guideText: "내 사진에 먼저 적용해 보고 싶으신가요? 카메라 없이 브라우저에서 바로 편집해 보세요.",
+    tryPhoto: "내 사진에 적용해 보기",
+  },
   fastboot: {
     title: '빠른 시작',
     back: 'GRKU 홈으로',

@@ -231,6 +231,19 @@ export function Home({
         <Shelf strings={t} link={link} />
       </section>
 
+      {/* The Develop page: the looks and the modules on photos that the visitor already has. */}
+      <section id="develop" className={cn(SECTION, 'flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between')} aria-labelledby="develop-title">
+        <div className="min-w-0">
+          <h2 id="develop-title" className={H2}>
+            {t.develop.homeTitle}
+          </h2>
+          <p className={LEAD}>{t.develop.homeText}</p>
+        </div>
+        <Button asChild className="shrink-0 self-start sm:self-auto">
+          <a {...link('develop')}>{t.develop.homeCta}</a>
+        </Button>
+      </section>
+
       <section id="features" className={SECTION} aria-labelledby="features-title">
         <h2 id="features-title" className={H2}>
           {t.site.featuresTitle}

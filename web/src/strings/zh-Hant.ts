@@ -585,6 +585,17 @@ export const zhHant: Strings = {
       a: ['在相機上開啟 MENU，「自定義設定」功能表中 GRKU 小節的最後有「關於 GRKU」。'],
     },
   ],
+  /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
+  develop: {
+    nav: "編輯照片",
+    title: "免費線上底片濾鏡：Portra 400、Classic Chrome、底片顆粒、日期戳記 · GRKU",
+    description: "免費線上底片風格照片編輯器，直接在瀏覽器使用。提供 Kodak Portra 400、Fujifilm Classic Chrome 等 150 多款底片濾鏡、底片顆粒、日期戳記與拍立得相框。採用與 RICOH GR 上 GRKU 相同的程式碼製作，照片不會離開你的裝置。",
+    homeTitle: "編輯現有照片，重現底片風格",
+    homeText: "不用重新拍攝，也不必先擁有 GR 相機：直接在瀏覽器中，將 GRKU 的所有底片色調與效果套用到自己的照片。",
+    homeCta: "編輯照片",
+    guideText: "想先看看套用在自己照片上的效果嗎？不需要相機，直接在瀏覽器中編輯即可。",
+    tryPhoto: "套用到自己的照片",
+  },
   fastboot: {
     title: '快速啟動',
     back: '返回 GRKU',

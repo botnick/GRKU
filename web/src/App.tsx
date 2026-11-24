@@ -96,7 +96,7 @@ import { importsForCamera, NATIVE_LOOKS } from './import/native';
 import { isLutImportId } from './import/names';
 import { deleteImport, saveImport, updateImport } from './import/store';
 import { applyLanguage, loadStrings, showLanguage, STRINGS, type Language, type Strings } from './i18n';
-import { MODULES, MODULES_MAX, planModules, type ModuleKey } from './modules';
+import { ALL_MODULES, MODULES, MODULES_MAX, planModules, type ModuleKey } from './modules';
 import {
   buildCardFiles,
   buildPackage,
@@ -145,7 +145,8 @@ import {
 import { designChoice, loadDesigns, saveDesigns, type DesignState } from './shutdownDesigns';
 import { TransferError } from './transfer';
 import { useCatalog } from './useCatalog';
-import { Guide, Home, ModulesStep, PlusSheet, RecipesPanel, ShutdownDownload, ShutdownSection, Workbench } from './parts';
+import { Develop, Guide, Home, ModulesStep, PlusSheet, RecipesPanel, ShutdownDownload, ShutdownSection, Workbench } from './parts';
+import { readInstallQuery } from './develop/install';
 
 /** The Tally form for problems, feature ideas, and questions. A plain link, so the page loads nothing from Tally. */
 /** The release notes of the GRKU version that the site packages, on the releases page. */
@@ -221,6 +222,24 @@ export function App({
     setEnabledState(next);
     saveModules(browserStorage(), next);
   }
+
+  // A link from the Develop page (`/install/?look=…&modules=…`) brings its look and modules: the
+  // look shows first on the shelf and goes on the card if it has room (Workbench), and the modules
+  // turn on while the camera menu has places.
+  const [installRequest] = useState(() =>
+    typeof location !== 'undefined' && initialPage === 'install' && location.search ? readInstallQuery(location.search, ALL_MODULES) : null,
+  );
+  useEffect(() => {
+    if (!installRequest) return;
+    history.replaceState(history.state, '', `${location.pathname}${location.hash}`);
+    const missing = installRequest.modules.filter((key) => !enabled.has(key));
+    if (!missing.length) return;
+    const next = new Set(enabled);
+    for (const key of missing) if (next.size < MODULES_MAX) next.add(key);
+    setEnabled(next);
+    // Once, for the address that the page opened with.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [installRequest]);
   // Effects fitted from LUTs and native looks read on this page. This browser keeps them for the
   // next visit.
   const [allImported, setImported] = useState<readonly ImportedEffect[]>(initialImports);
@@ -1285,6 +1304,8 @@ export function App({
 
         {page === 'guide' && <Guide strings={t} language={language} link={link} canWrite={canWrite} />}
 
+        {page === 'develop' && <Develop strings={t} language={language} owned={owned} onPlus={openPlus} />}
+
         {isInstallStep(page) && (
           // The steps of the install, each its own page. A short fade marks the change of step.
           <div key={page} className={cn(moved && 'motion-safe:animate-[step-in_160ms_ease-out]')}>
@@ -1306,6 +1327,8 @@ export function App({
                 onAddRecipe={(recipe) => recipeLibrary.change(cameraOrder([...recipeLibrary.library, recipe]))}
                 owned={owned}
                 onPlus={openPlus}
+                initialLook={installRequest?.look ?? null}
+                developLink={(look) => `${pagePath(language, 'develop')}?look=${encodeURIComponent(look)}`}
                 plusKey={plusKey}
                 onOtherKey={() => {
                   setPlusStart('key');

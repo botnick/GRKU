@@ -1,5 +1,6 @@
 #!/bin/sh
-# Builds grku-wasm and writes its browser bindings to web/src/wasm/.
+# Builds grku-wasm and writes its browser bindings to web/src/wasm/, then the picture modules of
+# the Develop page (build-develop-wasm.mjs).
 # wasm-bindgen must match the exact wasm-bindgen version that Cargo.toml pins.
 set -eu
 cd "$(dirname "$0")/../.."
@@ -14,3 +15,5 @@ cargo build -p grku-wasm --target wasm32-unknown-unknown --release --locked
 rm -rf web/src/wasm
 "$bindgen" --target web --out-dir web/src/wasm \
   target/wasm32-unknown-unknown/release/grku_wasm.wasm
+# The picture modules for the Develop page (src/develop/): web/src/wasm/develop.wasm.
+node web/scripts/build-develop-wasm.mjs

@@ -585,6 +585,17 @@ export const zhHans: Strings = {
       a: ['在相机上打开 MENU，“关于 GRKU”在自定义页 GRKU 小节的最后。'],
     },
   ],
+  /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
+  develop: {
+    nav: "调色",
+    title: "免费在线胶片滤镜：Portra 400、Classic Chrome、胶片颗粒 · GRKU",
+    description: "免费在线胶片风格照片编辑器，直接在浏览器中使用，无需上传照片。提供 Kodak Portra 400、Fujifilm Classic Chrome 等 150 多款胶片滤镜，还可添加胶片颗粒、日期戳和拍立得相框。照片始终保留在你的设备上。",
+    homeTitle: "为已有照片赋予全新影调",
+    homeText: "无需重新拍摄，也无需拥有 GR 相机：直接在浏览器中，将 GRKU 的所有胶片色调和效果应用到自己的照片上。",
+    homeCta: "为照片调色",
+    guideText: "想先看看这些色调应用在自己的照片上是什么效果？无需相机，直接在浏览器中进行调色。",
+    tryPhoto: "在自己的照片上试用",
+  },
   fastboot: {
     title: '快速启动',
     back: '返回 GRKU',

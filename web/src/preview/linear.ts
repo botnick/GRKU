@@ -24,10 +24,10 @@ export function validatePicture(image: LinearPicture, maxPixels = 30_000_000): v
   }
 }
 
-/** Area resampling in linear light, before tone curves or 8-bit quantization. */
-export function resizeLinear(image: LinearPicture): LinearPicture {
+/** Area resampling in linear light, before tone curves or 8-bit quantization, to `maxEdge` on the long side. */
+export function resizeLinear(image: LinearPicture, maxEdge = MAX_EDGE): LinearPicture {
   validatePicture(image);
-  const scale = Math.min(1, MAX_EDGE / Math.max(image.width, image.height));
+  const scale = Math.min(1, maxEdge / Math.max(image.width, image.height));
   if (scale === 1) return image;
   const width = Math.max(1, Math.round(image.width * scale));
   const height = Math.max(1, Math.round(image.height * scale));

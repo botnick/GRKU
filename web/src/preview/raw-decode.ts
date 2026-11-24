@@ -11,8 +11,12 @@ export interface DecodedRaw {
   data: Uint16Array;
 }
 
-/** Decode sensor data in a Worker; embedded JPEG previews are never used. */
-export async function decodeRaw(bytes: Uint8Array, wasm: ArrayBuffer): Promise<DecodedRaw> {
+/**
+ * Decode sensor data in a Worker; embedded JPEG previews are never used. `half` takes one pixel
+ * of each 2 x 2 sensor block, a quarter of the pixels, which a preview needs; the Develop page
+ * decodes the whole sensor for a full-size picture.
+ */
+export async function decodeRaw(bytes: Uint8Array, wasm: ArrayBuffer, half = true): Promise<DecodedRaw> {
   await LibRaw.initialize(wasm);
   const decoder = new LibRaw();
   try {
@@ -38,7 +42,7 @@ export async function decodeRaw(bytes: Uint8Array, wasm: ArrayBuffer): Promise<D
       throw new Error('The DNG exceeds the supported sensor dimensions.');
     }
 
-    decoder.setHalfSize(1);
+    decoder.setHalfSize(half ? 1 : 0);
     decoder.setUseCameraWb(1);
     decoder.setOutputColor(1);
     decoder.setOutputBps(16);

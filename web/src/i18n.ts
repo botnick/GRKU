@@ -108,6 +108,8 @@ export function pageText(language: Language, page: PageName = 'home'): { title: 
       return { title: strings.site.writeTitle, description: strings.site.writeDescription, path: pagePath(language, page) };
     case 'guide':
       return { title: GUIDE_STRINGS[language].title, description: GUIDE_STRINGS[language].description, path: pagePath(language, page) };
+    case 'develop':
+      return { title: strings.develop.title, description: strings.develop.description, path: pagePath(language, page) };
     default:
       return { title: strings.title, description: strings.description, path: LANGUAGE_PATHS[language] };
   }
