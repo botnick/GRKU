@@ -9,6 +9,7 @@ How it works: choose film looks and modules on the site, write them to the SD ca
 - [GRKU (Thai)](https://grku.app/): the home page: what GRKU does, the modules with example photos, the cameras, and the FAQ
 - [Install (English)](https://grku.app/en/install/), [Thai](https://grku.app/install/): every film look, previewed on a sample photo or your own DNG, then the camera, the modules, the recipes, and the SD card write or the GRKU.zip download
 - [How to install (English)](https://grku.app/en/guide/), [Thai](https://grku.app/guide/): the install in plain steps with drawings: writing the SD card from Chrome or Edge or copying GRKU.zip, holding MENU at the first power-on, using ADJ, updating, uninstalling, and what to do when something goes wrong
+- [Develop (English)](https://grku.app/en/develop/), [Thai](https://grku.app/develop/): a free film-style photo editor in the browser: any photo (JPEG, HEIC, PNG, DNG) with a GRKU film look such as Kodak Portra 400 or Fujifilm Classic Chrome, film grain, glow, light leaks, a date stamp and a frame, made by the same module code as on the camera; photos stay on the device; free saves up to 2048 px with a small credit, GRKU Plus at full size; in Thai searched as แต่งรูปโทนฟิล์ม and ฟิลเตอร์ฟิล์ม
 - [GRKU (English)](https://grku.app/en/)
 - [GRKU (日本語)](https://grku.app/ja/)
 - [GRKU (한국어)](https://grku.app/ko/)

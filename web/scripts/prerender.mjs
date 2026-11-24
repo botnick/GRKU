@@ -106,6 +106,8 @@ const {
   alternateTags,
   localeTags,
   sitemapXml,
+  DEVELOP_STRINGS,
+  faqOf,
 } = await renderer();
 const pageNames = Object.keys(SITE_PAGES);
 const codes = LANGUAGES.map((language) => language.code);
@@ -175,10 +177,20 @@ function structuredData(code, name) {
         description: text.description,
         inLanguage: code,
         applicationCategory: 'PhotographyApplication',
+        applicationSubCategory: 'MultimediaApplication',
         operatingSystem: 'Any (web browser)',
         browserRequirements: 'Requires JavaScript and WebAssembly',
         isAccessibleForFree: true,
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'THB' },
+        image: `${SITE}/og/develop-${code}.jpg`,
+        featureList: [
+          DEVELOP_STRINGS[code].looksTitle,
+          ...['grain', 'glow', 'leak', 'diffusion', 'date', 'border'].map((module) => strings.moduleNames[{ grain: 'grain', glow: 'glow', leak: 'lightLeak', diffusion: 'diffusion', date: 'dateStamp', border: 'border' }[module]]),
+          DEVELOP_STRINGS[code].plusLine1,
+        ],
+        offers: [
+          { '@type': 'Offer', name: 'GRKU', price: '0', priceCurrency: 'THB' },
+          { '@type': 'Offer', name: 'GRKU Plus', price: '49', priceCurrency: 'THB', description: DEVELOP_STRINGS[code].plusLine1 },
+        ],
         isPartOf: { '@id': `${pageUrl(code)}#app` },
         publisher: { '@id': `${SITE}/#organization` },
       },
@@ -198,6 +210,17 @@ function structuredData(code, name) {
             item: pageUrl(code, name),
           },
         ],
+      },
+      // The questions of the Develop page, the same text as the page shows.
+      name === 'develop' && {
+        '@type': 'FAQPage',
+        '@id': `${pageUrl(code, name)}#faq`,
+        inLanguage: code,
+        mainEntity: faqOf(DEVELOP_STRINGS[code]).map((item) => ({
+          '@type': 'Question',
+          name: item.q,
+          acceptedAnswer: { '@type': 'Answer', text: item.a },
+        })),
       },
       // The FAQ of the home page, as Google and the answer engines read it.
       name === 'home' && {
@@ -251,6 +274,13 @@ function page(code, name) {
   // The picture of the link preview, described in the language of the page.
   const imageAlt = escape(STRINGS[code].site.ogImageAlt);
   html = html.replace(/(<meta (?:property="og:image:alt"|name="twitter:image:alt") content=")[^"]*(")/g, `$1${imageAlt}$2`);
+  // The Develop page has a link preview of its own: a photo before and after a look.
+  if (name === 'develop') {
+    const alt = escape(DEVELOP_STRINGS[code].ogAlt);
+    html = replaceOne(html, /(<meta property="og:image" content=")[^"]*og\.jpg(")/, `$1${SITE}/og/develop-${code}.jpg$2`);
+    html = replaceOne(html, /(<meta name="twitter:image" content=")[^"]*(")/, `$1${SITE}/og/develop-${code}.jpg$2`);
+    html = html.replace(/(<meta (?:property="og:image:alt"|name="twitter:image:alt") content=")[^"]*(")/g, `$1${alt}$2`);
+  }
   // The later steps of the install hold only the controls of one step: search engines skip them
   // and follow their links to the first step, which carries the hreflang links and the sitemap entry.
   const indexed = INDEXED_PAGES.includes(name);

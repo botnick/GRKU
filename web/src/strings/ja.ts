@@ -592,8 +592,8 @@ export const ja: Strings = {
   /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
   develop: {
     nav: "写真を編集",
-    title: "無料で写真をフィルム風に加工｜150種類以上のフィルム調・GRKU",
-    description: "150種類以上のフィルム調プリセットで写真を加工。粒子、グロー、光漏れ、日付スタンプ、フレームにも対応。RICOH GR用GRKUと同じ処理をブラウザ上で無料で利用できます。写真が端末の外に送信されることはありません。",
+    title: "無料オンラインフィルムフィルター｜Portra 400・Classic Chrome・フィルム粒子・日付スタンプ · GRKU",
+    description: "無料のオンラインフィルム写真編集ツール。ブラウザ上でKodak Portra 400やFujifilm Classic Chromeなど150種類以上のフィルター、フィルム粒子、日付スタンプ、ポラロイドフレームを追加できます。RICOH GR用GRKUと同じコードで動作し、写真が端末の外に送信されることはありません。",
     homeTitle: "手持ちの写真を仕上げる",
     homeText: "撮り直す必要も、GRを持っている必要もありません。お手持ちの写真で、GRKUのすべてのフィルム調プリセットやエフェクトをブラウザ上でお試しいただけます。",
     homeCta: "写真を仕上げる",

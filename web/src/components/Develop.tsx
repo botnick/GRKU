@@ -20,6 +20,7 @@ import { photoSeed, type LookUrls, type Opened } from '../develop/protocol';
 import { childTitle, labelOf, menuOf, recipeLines, recipeText, settingsFromParams, settingsParam, valueNames } from '../develop/recipe';
 import { applyPreset, autoGrainSize, isOn, MODULE_NAMES, OFF, presetOf, PRESETS, PRESET_IDS, readSettings, type DevelopSettings, type ModuleName, type PresetId } from '../develop/settings';
 import { DEVELOP_STRINGS, format, type DevelopText } from '../develop/strings';
+import { faqOf, POPULAR_LOOKS } from '../develop/seo';
 import { MODULE_TILES, VALUE_TILES } from '../develop/tiles';
 import { developedName, uniqueName, zipParts } from '../develop/zip';
 import { FILM_KINDS, filmKind, type FilmKind } from '../filmKind';
@@ -37,7 +38,7 @@ const SETTINGS_KEY = 'grku.develop';
 const FIRST_LOOK = 'positive-film-grii-v1';
 const DEFAULT_SETTINGS: DevelopSettings = { look: FIRST_LOOK, ...structuredClone(PRESETS.natural) };
 /** The looks that most people start from, first on the shelf. */
-const POPULAR = ['portra-400-endura-v1', 'gold-200-premier-v1', 'fj-classic-chrome-v1', 'positive-film-grii-v1', 'kodachrome-64-v1', 'ff-cinestill800t-v1', 'fj-classic-neg-v1', 'trix-400-mono-v1'];
+const POPULAR: readonly string[] = POPULAR_LOOKS.map((look) => look.id);
 /** The looks of the first page of All looks; Show more adds two pages. */
 const LOOK_PAGE = 12;
 /** The long side of the preview on the card of a style. */
@@ -261,8 +262,8 @@ function Example({ d }: { d: DevelopText }) {
           position={split}
           onPosition={setSplit}
           label={d.compare}
-          before={<img {...landingPicture('hero/achensee-standard.jpg', sizes)} alt={d.before} width="1200" height="800" draggable={false} className="size-full object-cover" />}
-          after={<img {...landingPicture('hero/achensee-portra-400.jpg', sizes)} alt={`${d.after}: Portra 400`} width="1200" height="800" draggable={false} className="size-full object-cover" />}
+          before={<img {...landingPicture('hero/achensee-standard.jpg', sizes)} alt={d.before} width="1200" height="800" draggable={false} fetchPriority="high" className="size-full object-cover" />}
+          after={<img {...landingPicture('hero/achensee-portra-400.jpg', sizes)} alt={`${d.after}: Portra 400`} width="1200" height="800" draggable={false} fetchPriority="high" className="size-full object-cover" />}
         />
         <span className="pointer-events-none absolute top-3 left-3 z-[2] rounded-md bg-black/60 px-2 py-1 text-xs text-white/85 backdrop-blur-sm">{d.before}</span>
         <span className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/60 px-2.5 py-1 text-sm font-semibold text-white backdrop-blur-sm">Portra 400</span>
@@ -1243,6 +1244,74 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
           </div>
         </div>
       )}
+
+      {/* What the page is, in plain text: the steps, the popular looks, the questions. */}
+      <div className="mt-12 grid gap-10 border-t pt-10 lg:grid-cols-2 lg:gap-x-12">
+        <section aria-labelledby="develop-how">
+          <h2 id="develop-how" className={H2}>
+            {d.howTitle}
+          </h2>
+          <ol className="mt-4 flex flex-col gap-4">
+            {[
+              [d.step1, d.how1],
+              [d.step2, d.how2],
+              [d.step3, d.how3],
+            ].map(([title, text], index) => (
+              <li key={title} className="flex gap-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-[12px] font-semibold text-muted-foreground tabular-nums">{index + 1}</span>
+                <span className="flex flex-col gap-0.5">
+                  <span className="text-[15px] font-semibold">{title}</span>
+                  <span className="text-[14px] leading-relaxed text-muted-foreground">{text}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <h2 id="develop-looks" className={cn(H2, 'mt-10')}>
+            {d.looksTitle}
+          </h2>
+          <p className="mt-1 text-[14px] text-muted-foreground">{d.looksLead}</p>
+          <ul className="mt-4 flex flex-col divide-y">
+            {POPULAR_LOOKS.map((look) => (
+              <li key={look.id}>
+                <a
+                  href={`${pagePath(language, 'develop')}?look=${look.id}`}
+                  onClick={(event) => {
+                    if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+                    event.preventDefault();
+                    setSettings({ ...settings, look: look.id });
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="flex min-h-14 items-center gap-3 py-2 no-underline outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <EffectIcon effect={{ id: look.id, icon: '' }} className="size-10 shrink-0" />
+                  <span className="flex min-w-0 flex-col">
+                    <span className="text-[15px] font-medium text-foreground">{look.name}</span>
+                    <span className="text-[14px] text-muted-foreground">{d[look.text]}</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-[14px]">
+            <a href={`${pagePath(language, 'install')}${installQuery(settings)}`} className="font-medium underline underline-offset-4">
+              {d.install}
+            </a>
+          </p>
+        </section>
+        <section aria-labelledby="develop-faq">
+          <h2 id="develop-faq" className={H2}>
+            {d.faqTitle}
+          </h2>
+          <div className="mt-4 flex flex-col gap-5">
+            {faqOf(d).map((item) => (
+              <div key={item.q}>
+                <h3 className="text-[15px] font-semibold">{item.q}</h3>
+                <p className="mt-1 text-[14px] leading-relaxed text-muted-foreground">{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
 
       {dragging && (
         <div className="pointer-events-none fixed inset-3 z-40 flex items-center justify-center rounded-xl border-2 border-dashed border-brand bg-background/75 text-[20px] font-semibold backdrop-blur-sm">

@@ -9,6 +9,8 @@ import type { SitePage } from './languagePage';
 
 export { LANGUAGES, loadAllStrings, pageText, STRINGS } from './i18n';
 export { preloadAll } from './parts';
+export { DEVELOP_STRINGS } from './develop/strings';
+export { faqOf } from './develop/seo';
 export { INDEXED_PAGES, LANGUAGE_PATHS, pagePath, SITE_PAGES } from './languagePage';
 export { alternates, alternateTags, localeTags, SITE, sitemapXml } from './seo';
 

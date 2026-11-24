@@ -641,8 +641,8 @@ export const en = {
   /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
   develop: {
     nav: "Develop",
-    title: "Film looks and GR effects for your photos, free in the browser · GRKU",
-    description: "Give your photos more than 150 film looks and film simulations, with grain, glow, light leaks, a date stamp, and a border, made by the same code as GRKU on the RICOH GR. Free, in your browser; your photos never leave your device.",
+    title: "Free film filter online: Portra 400, Classic Chrome, film grain, date stamp · GRKU",
+    description: "Film look photo editor in your browser, free: Kodak Portra 400, Fujifilm Classic Chrome and 150 more film filters, film grain, a date stamp and a polaroid frame, made by the same code as GRKU on the RICOH GR. Your photos never leave your device.",
     homeTitle: "Develop the photos you already have",
     homeText: "No need to shoot again, or to own a GR yet: try every film look and effect of GRKU on your own photos, in your browser.",
     homeCta: "Develop your photos",

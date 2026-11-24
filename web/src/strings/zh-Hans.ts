@@ -588,8 +588,8 @@ export const zhHans: Strings = {
   /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
   develop: {
     nav: "调色",
-    title: "免费在线照片胶片调色与 GR 效果模拟 · GRKU",
-    description: "免费在线照片调色，无需上传照片。提供 150 多种胶片色调和胶片模拟效果，以及颗粒、柔光、漏光、日期印章和边框。采用与 RICOH GR 相机上 GRKU 相同的处理代码，所有处理均在浏览器中本地完成。",
+    title: "免费在线胶片滤镜：Portra 400、Classic Chrome、胶片颗粒 · GRKU",
+    description: "免费在线胶片风格照片编辑器，直接在浏览器中使用，无需上传照片。提供 Kodak Portra 400、Fujifilm Classic Chrome 等 150 多款胶片滤镜，还可添加胶片颗粒、日期戳和拍立得相框。照片始终保留在你的设备上。",
     homeTitle: "为已有照片赋予全新影调",
     homeText: "无需重新拍摄，也无需拥有 GR 相机：直接在浏览器中，将 GRKU 的所有胶片色调和效果应用到自己的照片上。",
     homeCta: "为照片调色",
