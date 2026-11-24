@@ -16,21 +16,33 @@ pub const MAX_BYTES: usize = WIDTH * HEIGHT * 2;
 pub const FILE: &str = concat!("GRKU", "/GOODBYE.JPG");
 /// The qualities that `encode` tries, best first.
 const QUALITIES: [u8; 4] = [92, 85, 75, 60];
+/// The size that `encode` keeps the file at where a lower quality allows: a
+/// photo, a design, or a logo stays well under it at the best quality, and
+/// only a picture of fine detail all over steps down.
+pub const TARGET_BYTES: usize = 150 * 1024;
 
 /// Encode `rgb`, the 8-bit RGB pixels of a picture of `WIDTH` by `HEIGHT` in
-/// row order, as the file: at the best quality that fits `MAX_BYTES`.
+/// row order, as the file: at the best quality that keeps it within
+/// `TARGET_BYTES`, else at the smallest that fits `MAX_BYTES`.
 pub fn encode(rgb: &[u8]) -> Result<Vec<u8>> {
     ensure!(
         rgb.len() == WIDTH * HEIGHT * 3,
         "The shutdown picture must be {WIDTH} by {HEIGHT} pixels"
     );
+    let mut fitting = None;
     for quality in QUALITIES {
         let bytes = jpeg::encode(rgb, WIDTH, HEIGHT, quality)?;
-        if bytes.len() <= MAX_BYTES {
+        if bytes.len() <= TARGET_BYTES {
             return Ok(bytes);
         }
+        if bytes.len() <= MAX_BYTES {
+            fitting = Some(bytes);
+        }
     }
-    bail!("The shutdown picture does not fit the file")
+    match fitting {
+        Some(bytes) => Ok(bytes),
+        None => bail!("The shutdown picture does not fit the file"),
+    }
 }
 
 /// Whether the camera shows `bytes` as the file. A file that it does not
@@ -272,6 +284,42 @@ mod tests {
         assert!(!usable(
             &jpeg::encode(&[0; 16 * 16 * 3], 16, 16, 90).unwrap()
         ));
+    }
+
+    #[test]
+    fn a_busy_picture_steps_down_to_the_target_size() {
+        // A smooth picture stays at the best quality, far under the target.
+        let smooth: Vec<u8> = (0..WIDTH * HEIGHT)
+            .flat_map(|i| {
+                [
+                    (i % WIDTH * 255 / WIDTH) as u8,
+                    (i / WIDTH * 255 / HEIGHT) as u8,
+                    90,
+                ]
+            })
+            .collect();
+        let bytes = encode(&smooth).unwrap();
+        assert_eq!(
+            bytes,
+            jpeg::encode(&smooth, WIDTH, HEIGHT, QUALITIES[0]).unwrap()
+        );
+        assert!(bytes.len() <= TARGET_BYTES);
+        // Noise is larger than the target at every quality: the smallest that fits.
+        let mut state = 7u32;
+        let noise: Vec<u8> = (0..WIDTH * HEIGHT * 3)
+            .map(|_| {
+                state = state.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
+                (state >> 24) as u8
+            })
+            .collect();
+        let bytes = encode(&noise).unwrap();
+        assert!(bytes.len() <= MAX_BYTES && usable(&bytes));
+        assert!(
+            bytes.len()
+                < jpeg::encode(&noise, WIDTH, HEIGHT, QUALITIES[0])
+                    .unwrap()
+                    .len()
+        );
     }
 
     /// The camera and the tools agree on the file and its limits.
