@@ -263,7 +263,7 @@ function Example({ d }: { d: DevelopText }) {
           onPosition={setSplit}
           label={d.compare}
           before={<img {...landingPicture('hero/achensee-standard.jpg', sizes)} alt={d.before} width="1200" height="800" draggable={false} fetchPriority="high" className="size-full object-cover" />}
-          after={<img {...landingPicture('hero/achensee-portra-400.jpg', sizes)} alt={`${d.after}: Portra 400`} width="1200" height="800" draggable={false} fetchPriority="high" className="size-full object-cover" />}
+          after={<img {...landingPicture('hero/achensee-portra-400.jpg', sizes)} alt={`${d.after}: Portra 400`} width="1200" height="800" draggable={false} className="size-full object-cover" />}
         />
         <span className="pointer-events-none absolute top-3 left-3 z-[2] rounded-md bg-black/60 px-2 py-1 text-xs text-white/85 backdrop-blur-sm">{d.before}</span>
         <span className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/60 px-2.5 py-1 text-sm font-semibold text-white backdrop-blur-sm">Portra 400</span>
