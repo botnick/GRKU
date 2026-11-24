@@ -11,6 +11,15 @@ export interface Release {
 
 export const RELEASES: Release[] = [
   {
+    "version": "1.10.1",
+    "date": "2026-11-25",
+    "items": [
+      "1101.1",
+      "1101.2",
+      "1101.3"
+    ]
+  },
+  {
     "version": "1.10.0",
     "date": "2026-11-24",
     "items": [
@@ -163,7 +172,10 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "160.3": "U1 to U3 of the mode dial can keep your GRKU settings or apply a recipe.",
     "160.4": "Enable at Start: choose whether GRKU is on each time you turn the camera on.",
     "160.5": "The film library grows to over 100 looks, each with a film box icon in the colors of the real box.",
-    "160.6": "GRKU starts faster when you turn the camera on."
+    "160.6": "GRKU starts faster when you turn the camera on.",
+    "1101.1": "A new Develop page: give the photos you already have the film looks and effects of GRKU, the same as on the camera. Free, in your browser, and your photos are never uploaded.",
+    "1101.2": "Two new free looks, FinePix CCD and FinePix Bright: the bright, airy cyan skies of the early-2000s Fujifilm FinePix compacts. 152 looks in all.",
+    "1101.3": "The film kinds on the install page wrap onto more lines, so they are easier to choose."
   },
   "zh-Hans": {
     "1100.1": "Grain 新增 Film-like 风格：模拟彩色负片冲印照片的彩色颗粒感，中间调最明显，采用 spektrafilm 的颗粒模型。来自 piratenpanda 的 GRKit。",
@@ -210,7 +222,10 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.2": "Border（边框）现环绕于整张照片外侧，画面完整无裁切，并新增 Instant 样式。色彩配方及 U1 至 U3 设置亦会保留边框效果。",
     "185.3": "MENU 中“GRKU Settings”下新增 Distance Unit（距离单位）：支持将 Snap 对焦距离与手动对焦标尺切换为米或英尺。",
     "185.4": "Crop（裁切）：提供 35、40、50 及 70 mm 选项（已移除 90 mm）。GR III 与 GR IIIx 的实时取景画面将跟随裁切放大显示。",
-    "185.5": "强 Glow 效果在大面积光源周围过渡更自然；执行 Rename 与 Delete 后配方标记仍会保留；优化 16 种正片胶片外观，使明亮肤色更加通透。"
+    "185.5": "强 Glow 效果在大面积光源周围过渡更自然；执行 Rename 与 Delete 后配方标记仍会保留；优化 16 种正片胶片外观，使明亮肤色更加通透。",
+    "1101.1": "全新的“调色”页面：为已有照片应用 GRKU 的胶片色彩和效果，与相机内的效果一致。免费使用，直接在浏览器中编辑，照片不会上传。",
+    "1101.2": "新增两款免费风格：FinePix CCD 和 FinePix Bright，还原 2000 年代初 Fujifilm FinePix 卡片相机明亮通透的青蓝色天空。现共有 152 款风格。",
+    "1101.3": "安装页面上的胶片类型现在会自动换行显示，方便选择。"
   },
   "zh-Hant": {
     "1100.1": "Grain 新增 Film-like 風格：模擬彩色負片沖印照片中的彩色顆粒，顆粒在中間調最明顯，採用 spektrafilm 的顆粒模型。收錄自 piratenpanda 的 GRKit。",
@@ -257,7 +272,10 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.2": "Border 現已包覆整張照片而不裁切畫面，並新增 Instant 風格。切換至配方與 U1 至 U3 時亦會保留邊框。",
     "185.3": "MENU 內的 GRKU Settings 新增 Distance Unit：Snap 距離與手動對焦尺標可設定為公尺或英尺。",
     "185.4": "Crop：提供 35、40、50 與 70 mm（取消 90 mm）。GR III 與 GR IIIx 的即時取景畫面會隨裁切放大。",
-    "185.5": "強烈 Glow 在強光源周圍更顯自然均勻；Rename 與 Delete 後仍保留配方標記；16 款相紙底片外觀維持明亮膚色。"
+    "185.5": "強烈 Glow 在強光源周圍更顯自然均勻；Rename 與 Delete 後仍保留配方標記；16 款相紙底片外觀維持明亮膚色。",
+    "1101.1": "新增「編輯照片」頁面：為現有照片套用 GRKU 的底片風格與效果，效果與相機內相同。免費使用，直接在瀏覽器中編輯，照片不會上傳。",
+    "1101.2": "新增兩款免費風格：FinePix CCD 和 FinePix Bright，重現 2000 年代初期 Fujifilm FinePix 隨身相機明亮、通透的青藍色天空。風格總數達 152 款。",
+    "1101.3": "安裝頁面的底片種類會分成更多行顯示，選擇時更加方便。"
   },
   "ja": {
     "1100.1": "GrainにFilm-likeスタイルを追加しました。spektrafilmの粒状感モデルをもとに、カラーネガプリントの色付き粒子を再現。中間調で最も強く現れます。GRKit by piratenpanda。",
@@ -304,7 +322,10 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.2": "Borderが写真全体を囲むようになり、画像がトリミングされなくなりました。新しいInstantスタイルも追加。レシピやU1〜U3でもBorder設定が保持されます。",
     "185.3": "MENU内のGRKU Settingsに「Distance Unit」を追加：Snap撮影距離およびマニュアルフォーカスバーの表示をメートル／フィートから選択できます。",
     "185.4": "Crop：35、40、50、70 mm（90 mmは廃止）。GR IIIおよびGR IIIxでは、ライブビューがクロップ画角にズーム表示されます。",
-    "185.5": "強度の高いGlowが大きな光源の周囲でも均一に適用されるよう改善。RenameやDelete後もレシピマークが保持され、16種のプリントフィルムルックで明るいスキントーンが維持されます。"
+    "185.5": "強度の高いGlowが大きな光源の周囲でも均一に適用されるよう改善。RenameやDelete後もレシピマークが保持され、16種のプリントフィルムルックで明るいスキントーンが維持されます。",
+    "1101.1": "新しい「写真を編集」ページ：カメラと同じGRKUのフィルムルックや効果を、お手持ちの写真に適用できます。無料でブラウザー上で編集でき、写真がアップロードされることはありません。",
+    "1101.2": "無料の新しいフィルムルック「FinePix CCD」と「FinePix Bright」を追加しました。2000年代初頭のFujifilm FinePixのコンパクトカメラを思わせる、明るく軽やかなシアンの空色を再現します。ルックは全152種類になりました。",
+    "1101.3": "インストールページのフィルムの種類を複数行で表示するように変更し、選びやすくしました。"
   },
   "ko": {
     "1100.1": "Grain에 Film-like 스타일이 추가되었습니다. spektrafilm의 Grain 모델을 기반으로 컬러 네거티브 필름 인화물의 색상 입자를 재현하며, 중간 톤에서 가장 두드러집니다. piratenpanda의 GRKit을 기반으로 했습니다.",
@@ -351,7 +372,10 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.2": "새로운 Instant 스타일과 함께 Border가 사진 전체를 둘러싸도록 변경되어 잘리는 부분이 없습니다. 레시피 및 U1~U3에서도 테두리가 유지됩니다.",
     "185.3": "MENU의 GRKU Settings 항목에 Distance Unit 추가: Snap 거리 및 수동 초점 눈금을 미터(m) 또는 피트(ft)로 설정할 수 있습니다.",
     "185.4": "Crop: 35, 40, 50, 70 mm 지원(90 mm 제외). GR III 및 GR IIIx의 라이브 뷰가 크롭 화각에 맞춰 확대됩니다.",
-    "185.5": "강한 광원 주변에서도 강한 Glow 효과가 균일하게 유지되며, Rename 및 Delete 후에도 레시피 표시가 유지됩니다. 16종의 인화 필름 룩에서 밝은 피부 톤 표현이 유지됩니다."
+    "185.5": "강한 광원 주변에서도 강한 Glow 효과가 균일하게 유지되며, Rename 및 Delete 후에도 레시피 표시가 유지됩니다. 16종의 인화 필름 룩에서 밝은 피부 톤 표현이 유지됩니다.",
+    "1101.1": "새로운 사진 편집 페이지: 카메라에서와 똑같이 GRKU의 필름 룩과 효과를 기존 사진에 적용할 수 있습니다. 무료로 브라우저에서 이용할 수 있으며, 사진은 업로드되지 않습니다.",
+    "1101.2": "새로운 무료 필름 룩 2종, FinePix CCD와 FinePix Bright: 2000년대 초 Fujifilm FinePix 콤팩트 카메라 특유의 밝고 산뜻한 청록빛 하늘을 표현합니다. 룩은 총 152종입니다.",
+    "1101.3": "설치 페이지의 필름 종류가 여러 줄로 표시되어 원하는 항목을 더 쉽게 선택할 수 있습니다."
   },
   "th": {
     "1100.1": "Grain มีสไตล์ Film-like เป็นเกรนสีแบบภาพพิมพ์จากฟิล์มเนกาทีฟสี โดยเห็นชัดที่สุดในโทนกลาง อ้างอิงโมเดลเกรนของ spektrafilm จาก GRKit โดย piratenpanda",
@@ -398,7 +422,10 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "185.2": "Border ตอนนี้จะล้อมรอบทั้งรูป ภาพจึงไม่ถูกตัด พร้อมสไตล์ใหม่ Instant ทั้งสูตรสีและ U1 ถึง U3 ก็จำค่า Border ไว้ด้วย",
     "185.3": "Distance Unit ใน MENU ใต้ GRKU Settings: เลือกระยะ Snap และสเกลแมนนวลโฟกัสเป็นเมตรหรือฟุต",
     "185.4": "Crop: 35, 40, 50 และ 70 mm (ตัด 90 mm ออกแล้ว) บน GR III และ GR IIIx จอ Live View จะซูมตามระยะ Crop",
-    "185.5": "Strong Glow เนียนสม่ำเสมอแม้รอบดวงไฟใหญ่ สัญลักษณ์สูตรสีไม่หายหลัง Rename และ Delete และลุคฟิล์มปรินต์ 16 แบบยังคงโทนผิวที่สว่างใส"
+    "185.5": "Strong Glow เนียนสม่ำเสมอแม้รอบดวงไฟใหญ่ สัญลักษณ์สูตรสีไม่หายหลัง Rename และ Delete และลุคฟิล์มปรินต์ 16 แบบยังคงโทนผิวที่สว่างใส",
+    "1101.1": "หน้าแต่งรูปใหม่: แต่งรูปที่มีอยู่ด้วยฟิล์มลุคและเอฟเฟกต์ของ GRKU ได้เหมือนบนกล้อง ใช้ฟรีผ่านเบราว์เซอร์ โดยรูปของคุณจะไม่ถูกอัปโหลด",
+    "1101.2": "เพิ่มฟิล์มลุคฟรีใหม่ 2 แบบ FinePix CCD และ FinePix Bright ให้ท้องฟ้าสีฟ้าอมเขียวที่ดูสว่างโปร่งแบบกล้องคอมแพ็กต์ Fujifilm FinePix ช่วงต้นยุค 2000 รวมทั้งหมดเป็น 152 ฟิล์มลุค",
+    "1101.3": "ปรับให้ประเภทฟิล์มในหน้าติดตั้งแสดงหลายบรรทัดขึ้น เพื่อให้เลือกได้ง่ายกว่าเดิม"
   }
 };
 

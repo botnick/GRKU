@@ -118,8 +118,15 @@ jobs:
           cache: pnpm
           cache-dependency-path: web/pnpm-lock.yaml
       - run: sh web/scripts/install-wasm-bindgen.sh
+      # The Develop page builds the module code of the camera for the browser (develop.wasm):
+      # clang with the WebAssembly target and wasm-ld of lld (CLANG and WASM_LD in the build step).
+      - name: Install clang and lld for develop.wasm
+        run: sudo apt-get update && sudo apt-get install --yes clang-18 lld-18
       - name: Check and build the web page
         working-directory: web
+        env:
+          CLANG: clang-18
+          WASM_LD: /usr/lib/llvm-18/bin/wasm-ld
         run: |
           pnpm install --frozen-lockfile
           pnpm wasm
