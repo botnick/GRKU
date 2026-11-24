@@ -34,4 +34,4 @@ values = ["꺼짐", "켜짐"]
 
 [settings.CAPTION]
 label = "캡션"
-values = ["꺼짐", "THANK YOU", "HAPPY BIRTHDAY", "I <3 GR", "I <3 YOU", "GOOD TIMES", "HOLIDAY", "CHEERS"]
+values = ["꺼짐", "THANK YOU", "HAPPY BIRTHDAY", "I <3 GR", "I <3 YOU", "GOOD TIMES", "HOLIDAY", "CHEERS", "GRKU <3"]

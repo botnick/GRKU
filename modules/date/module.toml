@@ -80,9 +80,10 @@ saved = true
 public = true
 
 # The caption before the date: 0 off, then the texts of stamp.c (captions).
+# A new caption goes at the end, so that a saved value keeps its text.
 [[settings]]
 key = "CAPTION"
-values = 8
+values = 9
 saved = true
 public = true
 

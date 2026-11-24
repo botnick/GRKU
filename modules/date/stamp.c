@@ -1283,7 +1283,7 @@ static void gr2_paint(const Plane *dst,const Plane *src,const char *text,u32 n,u
 }
 /* The captions (CAPTION): Off, then the texts that print next to the date.
    HEART prints a heart. */
-static const char *const captions[]={0,"THANK YOU","HAPPY BIRTHDAY","I \x01 GR","I \x01 YOU","GOOD TIMES","HOLIDAY","CHEERS"};
+static const char *const captions[]={0,"THANK YOU","HAPPY BIRTHDAY","I \x01 GR","I \x01 YOU","GOOD TIMES","HOLIDAY","CHEERS","GRKU \x01"};
 #define CAPTIONS (sizeof captions/sizeof captions[0])
 #define CAPTION_CHARS 24U
 /* SIZE: S, M, M-L, and L, in Q8 of M, the size of each look before 1.9. */
