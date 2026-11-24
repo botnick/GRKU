@@ -77,9 +77,15 @@ static PictureSet set_of(u8 y, u32 planes, u32 mono) { return set_of_color(y, 12
 
 /* The model of the tone of grain.c (see the comment there). */
 u32 grain_tone_of(u32 v);
+extern const u8 grain_tone_table[32];
 extern const u16 grain_kernel_table[19][4];
-extern const u8 grain_blend_weight[8];
-extern const u16 grain_blend_norm[8];
+extern const signed char grain_seam_luma[2][16], grain_seam_chroma[2][24], grain_fade_weight[2][8], grain_half_weight[2][4];
+/* The weight of sample k of a fade of n samples, in 1/127 (grain.c). */
+static int fade(u32 k, u32 n, u32 other)
+{
+    double a = 1.5707963267948966 * (k + 0.5) / n;
+    return (int)lround(127 * (other ? cos(a) : sin(a)));
+}
 static double tone_formula(double v)
 {
     const double dm = 2.3, k = 4 * 2.6 / dm, dmax = 2.2;
@@ -100,9 +106,11 @@ int main(void)
     double peak = 0;
     for (u32 v = 0; v < 256U; ++v)
         if (tone_formula(v) > peak) peak = tone_formula(v);
-    /* The tone of grain.c is within 11 of 255 of the model. */
-    for (u32 v = 0; v < 256U; ++v) assert(fabs(grain_tone_of(v) - 255 * tone_formula(v) / peak) <= 11.0);
-    assert(grain_tone_of(0) == 0 && grain_tone_of(255) == 0 && grain_tone_of(128) > 240);
+    /* The tone of grain.c is the model at the middle of each eighth of the
+       values, none in black and at paper white. */
+    for (u32 i = 0; i < 32U; ++i) assert(fabs(grain_tone_table[i] - 255 * tone_formula(8 * i + 3.5) / peak) <= 0.5 + 1e-9);
+    for (u32 v = 0; v < 256U; ++v) assert(grain_tone_of(v) == grain_tone_table[v >> 3]);
+    assert(grain_tone_of(0) == 0 && grain_tone_of(23) == 0 && grain_tone_of(255) == 0 && grain_tone_of(248) == 0 && grain_tone_of(128) == 255);
     for (u32 i = 0; i < 19U; ++i) {
         const u16 *k = grain_kernel_table[i];
         double sigma = 0.40 + 0.05 * i, w[4], total = 0;
@@ -114,10 +122,12 @@ int main(void)
         for (u32 d = 1; d < 4U; ++d) assert(fabs(k[d] - 4096 * w[d] / total) <= 0.5 + 1e-9);
     }
 
-    for (u32 d = 0; d < 8U; ++d) {
-        double w = grain_blend_weight[d] / 256.0;
-        assert(grain_blend_weight[d] == 128U + 16U * d);
-        assert(fabs(grain_blend_norm[d] - 4096 / sqrt(w * w + (1 - w) * (1 - w))) <= 0.5 + 1e-9);
+    /* The fades: sine and cosine, whose squares sum to one. */
+    for (u32 o = 0; o < 2U; ++o) {
+        for (u32 k = 0; k < 16U; ++k) assert(grain_seam_luma[o][k] == fade(k, 16, o));
+        for (u32 k = 0; k < 24U; ++k) assert(grain_seam_chroma[o][k] == fade(k / 3U, 8, o));
+        for (u32 k = 0; k < 8U; ++k) assert(grain_fade_weight[o][k] == fade(k, 8, o));
+        for (u32 k = 0; k < 4U; ++k) assert(grain_half_weight[o][k] == fade(k, 4, o));
     }
 
     /* System: the filter leaves the planes to the native grain stage. */
@@ -136,17 +146,18 @@ int main(void)
     assert(st.sd > 4.5 && st.sd < 7.5);
     /* Independent layers: Cb and Cr get grain about as strong as Y. */
     assert(cb.sd > 2 && cb.sd < st.sd * 1.5 && cr.sd > 2 && cr.sd < st.sd * 1.5);
-    /* The blend at the edges of the cells keeps the deviation of the grain:
-       samples near an edge vary as those inside a cell. */
+    /* The fades at the edges of the cells (the first 16 samples and the
+       first 8 rows of a cell of 240 x 56) keep the deviation of the grain:
+       samples in a fade vary as those inside a cell. */
     {
         double edge = 0, inside = 0;
         u32 edges = 0, insides = 0;
         for (u32 y = 0; y < HEIGHT; ++y)
             for (u32 x = 0; x < WIDTH; ++x) {
                 double v = GRKU_BYTES(s.planes[0].y + y * WIDTH + x)[0] - st.mean;
-                u32 tx = x % 256U, ty = y % 128U;
-                if ((tx < 4U || tx >= 252U) && (ty < 4U || ty >= 124U)) edge += v * v, ++edges;
-                else if (tx >= 64U && tx < 192U && ty >= 32U && ty < 96U) inside += v * v, ++insides;
+                u32 tx = x % 240U, ty = y % 56U;
+                if (tx < 16U || ty < 8U) edge += v * v, ++edges;
+                else if (tx >= 64U && tx < 192U && ty >= 20U && ty < 48U) inside += v * v, ++insides;
             }
         double ratio = sqrt(edge / edges) / sqrt(inside / insides);
         assert(ratio > 0.92 && ratio < 1.08);
@@ -170,8 +181,8 @@ int main(void)
     assert(sqrt(rows / HEIGHT) < st.sd * 0.06 && sqrt(columns / WIDTH) < st.sd * 0.06);
     /* The grain does not repeat: the picture does not correlate with itself
        at the size of a cell or of the texture. */
-    static const u32 periods[3] = {128, 256, 512};
-    for (u32 i = 0; i < 3U; ++i)
+    static const u32 periods[7] = {56, 64, 128, 240, 256, 480, 512};
+    for (u32 i = 0; i < 7U; ++i)
         for (u32 vertical = 0; vertical < 2U; ++vertical) {
             u32 dx = vertical ? 0 : periods[i], dy = vertical ? periods[i] : 0;
             double products = 0;

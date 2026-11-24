@@ -212,4 +212,6 @@ period <number> frames <live-view frames>
 
 The core points include the live-view canvas (`frame.bind`, `frame.prepare`, `frame.paint`), the picture (`picture.post`, `picture.encode`), and `menu.icon`. On GR III, `picture.grain` measures the grain noise of a GRKU shot. `picture.grain` counts microseconds instead of cycles. `frame.paint` includes the module layers, and `picture.encode` includes the plane filters.
 
+A plane filter runs once for each sample of a recorded picture: a GR IV picture has 25.6 million samples, so each instruction a sample adds about 26 million instructions to `picture.encode`. The Film-like grain of the Grain module takes about 5 instructions a sample in color with 4:2:2 chroma (about 4 in NEON and 1 in C: the textures, the runs of each row, and the fades), about 3.4 with 4:2:0 chroma, and about 1.9 in monochrome. Its NEON loop takes 45 instructions for 16 samples of a 4:2:2 row. Compare `GRAIN filter` in the profile to check a change on the camera.
+
 The profile counts the first eight modules of the list. The profile does not count the Image Control processing of each frame. It writes the card every 10 seconds, so do not use it to measure battery life.

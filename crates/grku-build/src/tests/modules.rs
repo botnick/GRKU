@@ -405,12 +405,10 @@ const GRAIN_STACK_BUDGET: usize = DATE_STACK_BUDGET;
 /// The frames of the NEON assembly of `grain.c`, which `-fstack-usage`
 /// does not measure: the pushed registers (and d8 to d15).
 const GRAIN_NEON_FRAMES: &[(&str, usize)] = &[
-    ("grain_film_blocks", 9 * 4 + 8 * 8),
-    ("grain_luma_blocks", 9 * 4 + 8 * 8),
-    ("grain_mono_blocks", 0),
-    ("grain_chroma_blocks", 4 * 4),
-    ("grain_vblend", 3 * 4),
-    ("grain_hblend", 2 * 4),
+    ("grain_film_422", 9 * 4 + 8 * 8),
+    ("grain_film_420", 9 * 4 + 8 * 8),
+    ("grain_film_mono", 8 * 4),
+    ("grain_mix", 8 * 4),
 ];
 
 /// Each call chain of `grain_apply` down to a leaf, as `grain.c` calls
@@ -418,17 +416,28 @@ const GRAIN_NEON_FRAMES: &[(&str, usize)] = &[
 /// counts 0.
 #[rustfmt::skip]
 const GRAIN_CHAINS: &[&[&str]] = &[
-    &["grain_apply", "grain_draw", "grain_noise", "cell_of"],
-    &["grain_apply", "grain_draw", "grain_noise", "grain_hblend"],
-    &["grain_apply", "grain_draw", "grain_noise", "grain_vblend"],
-    &["grain_apply", "grain_draw", "cell_hashes"],
-    &["grain_apply", "grain_draw", "cell_span"],
-    &["grain_apply", "grain_draw", "grain_film_blocks"],
-    &["grain_apply", "grain_draw", "grain_luma_blocks"],
-    &["grain_apply", "grain_draw", "grain_chroma_blocks"],
-    &["grain_apply", "grain_draw", "grain_mono_blocks"],
-    &["grain_apply", "grain_draw", "film_pairs_c", "grain_tone_of"],
-    &["grain_apply", "grain_draw", "film_chroma_c"],
+    &["grain_apply", "size_of_iso"],
+    &["grain_apply", "grain_draw", "seed_of"],
+    &["grain_apply", "grain_draw", "grain_lut"],
+    &["grain_apply", "grain_draw", "grain_tiles", "grain_texture", "blur"],
+    &["grain_apply", "grain_draw", "grain_tiles", "center"],
+    &["grain_apply", "grain_draw", "grain_tiles", "texture_stats"],
+    &["grain_apply", "grain_draw", "grain_tiles", "texture_chroma"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_c", "luma_noise", "place_of"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_c", "chroma_noise", "place_of"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_c", "film_pair"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_c", "mono_pixel"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "place_of"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "seam_jobs", "job_of"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "fade_jobs", "job_of"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "texture_run"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "fade_run"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "next_rows", "grain_mix"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "next_rows", "run_blocks", "grain_film_422"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "next_rows", "run_blocks", "grain_film_420"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "next_rows", "run_blocks", "grain_film_mono"],
+    // For test.c only.
+    &["grain_tone_of"],
 ];
 
 /// The Film-like grain runs beneath the firmware JPEG encoder: each call
@@ -704,7 +713,7 @@ fn synthetic_grain_film_neon_parity() -> Result<()> {
     // The setting handles of modules/grain, as `grku module build` declares them.
     fs::write(
         directory.path().join("grku_module.h"),
-        "#define SETTING_STYLE GRKU_SETTING(0)\n#define SETTING_ICON GRKU_SETTING(1)\n\
+        "#include \"grku.h\"\n#define SETTING_STYLE GRKU_SETTING(0)\n#define SETTING_ICON GRKU_SETTING(1)\n\
          #define USED_CORE_GRAIN GRKU_USED(0)\n#define USED_CORE_GRAIN_SIZE GRKU_USED(1)\n",
     )?;
     let compile = |source: &str, object: &str, mode: &str, extra: &[String]| -> Result<()> {
@@ -744,15 +753,16 @@ fn synthetic_grain_film_neon_parity() -> Result<()> {
                 "grain_draw",
                 "grain_apply",
                 "grain_tone_of",
+                "grain_tone_table",
                 "grain_kernel_table",
-                "grain_blend_weight",
-                "grain_blend_norm",
-                "grain_luma_blocks",
-                "grain_chroma_blocks",
-                "grain_vblend",
-                "grain_hblend",
-                "grain_film_blocks",
-                "grain_mono_blocks",
+                "grain_seam_luma",
+                "grain_seam_chroma",
+                "grain_fade_weight",
+                "grain_half_weight",
+                "grain_film_422",
+                "grain_film_420",
+                "grain_film_mono",
+                "grain_mix",
             ]
             .map(|name| format!("-D{name}=scalar_{name}")),
         )
