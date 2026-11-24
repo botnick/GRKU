@@ -177,9 +177,9 @@ export function parseReply(text: string, language: Language, resolveLook: (id: s
     if (block.kind === 'paragraph') collect(block.parts);
     else block.items.forEach(collect);
   }
-  // A line of links alone ("Guide | Develop") repeats the buttons under the answer: leave it out.
-  const linksOnly = (block: Block) =>
-    block.kind === 'paragraph' && block.parts.some((p) => p.kind === 'link') && block.parts.every((p) => p.kind === 'link' || (p.kind === 'text' && /^[\s|·•,、/–—-]*$/.test(p.text)));
+  // A line or a list of links alone ("Guide | Develop") repeats the buttons under the answer: leave it out.
+  const onlyLinks = (parts: Inline[]) => parts.some((p) => p.kind === 'link') && parts.every((p) => p.kind === 'link' || (p.kind === 'text' && /^[\s|·•,、/–—:-]*$/.test(p.text)));
+  const linksOnly = (block: Block) => (block.kind === 'paragraph' ? onlyLinks(block.parts) : block.items.every(onlyLinks));
   const shown = blocks.filter((block, index) => !(index > 0 && linksOnly(block)));
   return { blocks: shown, links: links.slice(0, 4), looks: looks.slice(0, 4), chips: chips.slice(0, 4) };
 }

@@ -230,6 +230,7 @@ describe('link-only lines', () => {
     const reply = parseReply('Try Portra.\n\n[Install](/install/) | [Develop](/develop/)', 'en');
     expect(reply.blocks).toHaveLength(1);
     expect(reply.links.map((l) => l.text)).toEqual(['Install', 'Develop']);
+    expect(parseReply('Try Portra.\n\n- [Try it](/develop/)\n- [Install](/install/)', 'en').blocks).toHaveLength(1);
   });
 });
 

@@ -77,6 +77,9 @@ function loadLooks(): Promise<Map<string, LookInfo>> {
   return looksLoading;
 }
 
+/** The footer tells how many messages are left only from this many down. */
+const LOW_REMAINING = 5;
+
 type Notice =
   | { kind: 'limit' }
   | { kind: 'busy' }
@@ -348,12 +351,12 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
           {/* The header: the name, the insider pill for GRKU Plus, the options, and Close. */}
           <header className="flex h-14 shrink-0 items-center gap-2 border-b pr-2 pl-4">
             <Mark />
-            <div className="flex min-w-0 flex-col justify-center gap-0.5">
+            <div className="flex min-w-0 shrink-0 flex-col justify-center gap-0.5">
               <DialogPrimitive.Title className="truncate text-[15px] leading-5 font-semibold">{c.title}</DialogPrimitive.Title>
               {tier === 'plus' && (
-                <span className="inline-flex h-5 max-w-full items-center gap-1.5 self-start rounded-full border px-2 text-[11.5px] leading-none font-medium text-muted-foreground">
+                <span className="inline-flex h-5 shrink-0 items-center gap-1.5 self-start rounded-full border px-2 text-[11.5px] leading-none font-medium whitespace-nowrap text-muted-foreground">
                   <span className="size-1.5 shrink-0 rounded-full bg-brand-mark" aria-hidden="true" />
-                  <span className="truncate">{c.badge}</span>
+                  {c.badge}
                 </span>
               )}
             </div>
@@ -511,7 +514,8 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
                     {c.terms}
                   </a>
                 </span>
-                {remaining !== null && <span className="tabular-nums">{c.remaining(remaining)}</span>}
+                {/* The visitor's own messages left today, only when few are left. */}
+                {remaining !== null && remaining <= LOW_REMAINING && <span className="tabular-nums">{c.remaining(remaining)}</span>}
               </div>
             </form>
           )}
