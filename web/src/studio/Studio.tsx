@@ -65,6 +65,7 @@ import { encodePicture } from "../shutdownPicture";
 import { FONTS, fontOf, hasBold, loadFontStyles, prepareFonts } from "./fonts";
 import {
   addLayer,
+  imageLayer,
   canAddLayer,
   canRedo,
   canUndo,
@@ -142,6 +143,7 @@ import {
   type Template,
 } from "./templates";
 import { loadPhoto, savePhoto } from "./photo";
+import { addImage, loadImages, pruneImages } from "./images";
 
 const CATALOG: Catalog = {
   freeTemplates: FREE_TEMPLATES,
@@ -544,6 +546,7 @@ const nextRun = (kind: string) => `${kind}:${++runs}`;
 function Stage({
   doc,
   photo,
+  images,
   selected,
   onSelect,
   onCommit,
@@ -559,6 +562,7 @@ function Stage({
 }: {
   doc: StudioDoc;
   photo: Photo | null;
+  images: ReadonlyMap<string, Photo>;
   selected: string | null;
   onSelect: (id: string | null) => void;
   onCommit: (doc: StudioDoc, run?: string | null) => void;
@@ -588,8 +592,8 @@ function Stage({
 
   useEffect(() => {
     const context = canvas.current?.getContext("2d");
-    if (context) renderDoc(context, doc, { photo }, measure);
-  }, [doc, photo, measure]);
+    if (context) renderDoc(context, doc, { photo, images }, measure);
+  }, [doc, photo, images, measure]);
 
   const toScreen = (event: {
     clientX: number;
@@ -1244,6 +1248,19 @@ function TextPanel({
   );
 }
 
+/** The button that adds a picture of the visitor as a layer, with what it takes. */
+function AddPicture({ s, onClick }: { s: StudioStrings; onClick: () => void }) {
+  return (
+    <div className="flex flex-col items-start gap-1.5">
+      <Button type="button" variant="outline" onClick={onClick}>
+        <ImagePlus aria-hidden="true" />
+        {s.addPicture}
+      </Button>
+      <p className="m-0 text-xs text-muted-foreground">{s.addPictureHint}</p>
+    </div>
+  );
+}
+
 function StickersPanel({
   s,
   plus,
@@ -1251,6 +1268,7 @@ function StickersPanel({
   onAdd,
   onTint,
   onLocked,
+  onAddPicture,
 }: {
   s: StudioStrings;
   plus: boolean;
@@ -1258,10 +1276,12 @@ function StickersPanel({
   onAdd: (id: string) => void;
   onTint: (tint: string | null) => void;
   onLocked: (locked: Locked) => void;
+  onAddPicture: () => void;
 }) {
   const item = selected ? findSticker(selected.sticker) : undefined;
   return (
     <div className="flex flex-col gap-6">
+      <AddPicture s={s} onClick={onAddPicture} />
       {item?.tint && (
         <Swatches
           label={s.stickerColor}
@@ -1316,6 +1336,7 @@ function BackgroundPanel({
   onPhotoFile,
   onUseOwn,
   onLocked,
+  onAddPicture,
 }: {
   s: StudioStrings;
   strings: Strings;
@@ -1329,6 +1350,7 @@ function BackgroundPanel({
   onPhotoFile: (file: File) => void;
   onUseOwn: () => void;
   onLocked: (locked: Locked) => void;
+  onAddPicture: () => void;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const [fileKey, setFileKey] = useState(0);
@@ -1647,6 +1669,9 @@ function BackgroundPanel({
           />
         )}
       </Section>
+      <div className="border-t pt-4">
+        <AddPicture s={s} onClick={onAddPicture} />
+      </div>
     </div>
   );
 }
@@ -1654,6 +1679,7 @@ function BackgroundPanel({
 function layerName(layer: Layer, s: StudioStrings): string {
   if (layer.type === "text")
     return layer.text.trim().split("\n")[0] || s.emptyText;
+  if (layer.type === "image") return s.pictureLayer;
   return s.stickers[layer.sticker as keyof typeof s.stickers] ?? layer.sticker;
 }
 
@@ -1709,6 +1735,8 @@ function LayersPanel({
                       tint={(layer as StickerLayer).tint}
                       className="size-7"
                     />
+                  ) : layer.type === "image" ? (
+                    <ImageIcon className="size-4" aria-hidden="true" />
                   ) : (
                     <Type className="size-4" aria-hidden="true" />
                   )}
@@ -1794,6 +1822,11 @@ export interface StudioProps {
   firmware: string;
   /** The picture of the visitor from the shutdown card, offered as a background photo. */
   ownPicture: Uint8Array | null;
+  /**
+   * A photo that starts a new picture as its background, from the shutdown card; a new `key`
+   * starts again.
+   */
+  startPhoto?: { file: Blob; key: number } | null;
   /** The design of the card, the first picture of a Studio never opened before. */
   start?: DesignChoice;
   /** The picture as drawn, as the file for the card. */
@@ -1818,6 +1851,7 @@ export default function Studio({
   onPlus,
   firmware,
   ownPicture,
+  startPhoto = null,
   start,
   onDone,
 }: StudioProps) {
@@ -1831,6 +1865,14 @@ export default function Studio({
   const [selected, setSelected] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("templates");
   const [photo, setPhoto] = useState<Photo | null>(null);
+  const [images, setImages] = useState<ReadonlyMap<string, Photo>>(
+    () => new Map(),
+  );
+  const pictureInput = useRef<HTMLInputElement>(null);
+  const [pictureKey, setPictureKey] = useState(0);
+  const [dropping, setDropping] = useState(false);
+  // Started from a photo of the shutdown card: the photo is the background, and a line says so.
+  const [fromPhoto, setFromPhoto] = useState(false);
   const [showCamera, setShowCamera] = useState(true);
   const [locked, setLocked] = useState<Locked | null>(null);
   const [saving, setSaving] = useState(false);
@@ -1869,6 +1911,86 @@ export default function Studio({
       live = false;
     };
   }, []);
+  // The pictures of the picture layers, read once each from this browser.
+  const imageIds = doc.layers
+    .flatMap((layer) => (layer.type === "image" ? [layer.image] : []))
+    .join(",");
+  useEffect(() => {
+    const wanted = imageIds ? imageIds.split(",") : [];
+    if (wanted.every((id) => images.has(id))) return;
+    let live = true;
+    void loadImages(wanted).then(
+      (found) =>
+        live && setImages((before) => new Map([...before, ...found])),
+    );
+    return () => {
+      live = false;
+    };
+  }, [imageIds, images]);
+  // The pictures that no layer of the saved document names are forgotten, once.
+  useEffect(() => {
+    void pruneImages(
+      state.present.layers.flatMap((layer) =>
+        layer.type === "image" ? [layer.image] : [],
+      ),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // A photo of the shutdown card starts a new picture with it as the background.
+  useEffect(() => {
+    if (!startPhoto) return;
+    let live = true;
+    void savePhoto(browserStorage(), startPhoto.file)
+      .then((bitmap) => {
+        if (!live) return;
+        setPhoto(bitmap);
+        dispatch({
+          type: "commit",
+          doc: {
+            ...emptyDoc(),
+            background: {
+              kind: "photo",
+              zoom: 1,
+              cx: 0.5,
+              cy: 0.5,
+              color: "#000000",
+            },
+          },
+          run: null,
+        });
+        setSelected(null);
+        setTab("text");
+        setFromPhoto(true);
+        setFailed(false);
+      })
+      .catch((error) => {
+        console.error(error);
+        if (live) setFailed(true);
+      });
+    return () => {
+      live = false;
+    };
+  }, [startPhoto]);
+  useEffect(() => {
+    if (!open) setFromPhoto(false);
+  }, [open]);
+  // A picture pasted while the Studio is open becomes a layer.
+  useEffect(() => {
+    if (!open) return;
+    const onPaste = (event: ClipboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest?.("input, textarea")) return;
+      const file = [...(event.clipboardData?.files ?? [])].find((item) =>
+        item.type.startsWith("image/"),
+      );
+      if (!file) return;
+      event.preventDefault();
+      void addPicture(file);
+    };
+    document.addEventListener("paste", onPaste);
+    return () => document.removeEventListener("paste", onPaste);
+  });
+
   // The document stays in this browser, a moment after the last change.
   useEffect(() => {
     const timer = setTimeout(() => saveDoc(browserStorage(), doc), 400);
@@ -1919,6 +2041,34 @@ export default function Studio({
     setSelected(null);
   }
 
+  /** Adds a picture of the visitor as a layer, as large as fits the middle of the screen. */
+  async function addPicture(source: Blob) {
+    if (!canAddLayer(doc, plus)) {
+      setLocked({ kind: "layers" });
+      return;
+    }
+    try {
+      const added = await addImage(source);
+      setImages((before) => new Map(before).set(added.id, added.image));
+      const size =
+        added.aspect >= 1
+          ? Math.min(W * 0.6, H * 0.55 * added.aspect)
+          : Math.min(H * 0.55, (W * 0.6) / added.aspect);
+      // Above the bar of the camera text, so the picture shows whole.
+      add(
+        imageLayer(added.id, added.aspect, { size: Math.round(size), y: 180 }),
+      );
+      setFailed(false);
+    } catch (error) {
+      console.error(error);
+      setFailed(true);
+    }
+  }
+
+  function choosePicture() {
+    pictureInput.current?.click();
+  }
+
   async function usePhoto(source: Blob) {
     try {
       const bitmap = await savePhoto(browserStorage(), source);
@@ -1955,7 +2105,7 @@ export default function Studio({
             });
       const context = canvas.getContext("2d") as
         CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
-      renderDoc(context, doc, { photo });
+      renderDoc(context, doc, { photo, images });
       const bytes = await encodePicture(context.getImageData(0, 0, W, H).data);
       saveDoc(browserStorage(), doc);
       onDone(bytes);
@@ -1984,6 +2134,10 @@ export default function Studio({
   const textSelected = selectedLayer?.type === "text" ? selectedLayer : null;
   const stickerSelected =
     selectedLayer?.type === "sticker" ? selectedLayer : null;
+  const flippable =
+    selectedLayer?.type === "sticker" || selectedLayer?.type === "image"
+      ? selectedLayer
+      : null;
 
   const panels: Record<Tab, ReactNode> = {
     templates: (
@@ -2030,6 +2184,7 @@ export default function Studio({
         selected={stickerSelected}
         onLocked={setLocked}
         onAdd={(id) => add(stickerLayer(id, { y: 170 }))}
+        onAddPicture={choosePicture}
         onTint={(tint) =>
           stickerSelected &&
           commitDoc(
@@ -2084,6 +2239,7 @@ export default function Studio({
           )
         }
         onPhotoFile={(file) => void usePhoto(file)}
+        onAddPicture={choosePicture}
         onUseOwn={() =>
           ownPicture &&
           void usePhoto(
@@ -2158,7 +2314,7 @@ export default function Studio({
           {s.editText}
         </Button>
       )}
-      {selectedLayer.type === "sticker" && (
+      {flippable && (
         <Button
           type="button"
           variant="outline"
@@ -2166,9 +2322,7 @@ export default function Studio({
           aria-label={s.flip}
           title={s.flip}
           onClick={() =>
-            commitDoc(
-              updateLayer(doc, selectedLayer.id, { flip: !selectedLayer.flip }),
-            )
+            commitDoc(updateLayer(doc, flippable.id, { flip: !flippable.flip }))
           }
         >
           <FlipHorizontal2 aria-hidden="true" />
@@ -2273,6 +2427,18 @@ export default function Studio({
           <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
             <Button
               type="button"
+              variant="outline"
+              size={wide ? "sm" : "icon"}
+              aria-label={s.addPicture}
+              title={s.addPicture}
+              className="mr-1"
+              onClick={choosePicture}
+            >
+              <ImagePlus aria-hidden="true" />
+              {wide && s.addPicture}
+            </Button>
+            <Button
+              type="button"
               variant="ghost"
               size="icon"
               aria-label={s.undo}
@@ -2350,10 +2516,45 @@ export default function Studio({
             </aside>
           )}
           <main className="flex shrink-0 flex-col items-center gap-3 bg-muted/50 px-3 pt-3 pb-2 lg:min-w-0 lg:flex-1 lg:justify-center lg:overflow-y-auto lg:p-8">
-            <div className="w-full max-w-[min(100%,calc((100dvh-15rem)*1.5))] lg:max-w-[min(100%,calc((100dvh-12rem)*1.5))]">
+            {fromPhoto && (
+              <div
+                role="status"
+                className="flex w-full max-w-xl flex-wrap items-center justify-center gap-x-3 gap-y-1.5 rounded-md border bg-background px-3 py-2 text-center text-sm"
+              >
+                <span>{s.fromPhoto}</span>
+                <DialogPrimitive.Close asChild>
+                  <Button type="button" variant="outline" size="sm">
+                    {s.keepPhoto}
+                  </Button>
+                </DialogPrimitive.Close>
+              </div>
+            )}
+            <div
+              className={cn(
+                "relative w-full max-w-[min(100%,calc((100dvh-15rem)*1.5))] lg:max-w-[min(100%,calc((100dvh-12rem)*1.5))]",
+                dropping && "outline-2 outline-offset-4 outline-brand outline-dashed",
+              )}
+              onDragOver={(event) => {
+                if (![...event.dataTransfer.types].includes("Files")) return;
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "copy";
+                setDropping(true);
+              }}
+              onDragLeave={() => setDropping(false)}
+              onDrop={(event) => {
+                setDropping(false);
+                const file = [...event.dataTransfer.files].find((item) =>
+                  item.type.startsWith("image/") || /\.(hei[cf]|avif)$/i.test(item.name),
+                );
+                if (!file) return;
+                event.preventDefault();
+                void addPicture(file);
+              }}
+            >
               <Stage
                 doc={doc}
                 photo={photo}
+                images={images}
                 selected={selected}
                 onSelect={setSelected}
                 onCommit={commitDoc}
@@ -2393,6 +2594,20 @@ export default function Studio({
               {failed && (
                 <p className="m-0 text-xs text-destructive">{s.failed}</p>
               )}
+              <input
+                key={pictureKey}
+                ref={pictureInput}
+                className="sr-only"
+                type="file"
+                accept="image/*,.heic,.heif"
+                tabIndex={-1}
+                aria-hidden="true"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  setPictureKey((key) => key + 1);
+                  if (file) void addPicture(file);
+                }}
+              />
               <p
                 id="studio-keys"
                 className="m-0 hidden text-center text-xs text-muted-foreground lg:block"

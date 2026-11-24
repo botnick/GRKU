@@ -7,7 +7,7 @@ import type { Language } from '../i18n';
 
 const en = {
   title: 'GRKU Studio',
-  description: 'Design the picture that the camera shows when it turns off, in layers of text and stickers over a background.',
+  description: 'Design the picture that the camera shows when it turns off, in layers of text, stickers, and your own pictures over a background.',
   close: 'Close',
   done: 'Done',
   undo: 'Undo',
@@ -162,7 +162,7 @@ const en = {
     tape: 'Taped photo',
   },
   frameColor: 'Frame color',
-  layersEmpty: 'No layers yet. Add a text or a sticker.',
+  layersEmpty: 'No layers yet. Add a text, a sticker, or your picture.',
   layersFree: '${n} of ${max} layers of the free Studio.',
   layerTools: 'Layer',
   editText: 'Edit text',
@@ -184,13 +184,18 @@ const en = {
   plusIncludes: 'Any GRKU Plus purchase unlocks GRKU Studio in full: one pack from ฿${pack}, 25 slots ฿${slots}, or everything ฿${all}. You get every template and seasonal design, more than 50 stickers, six more fonts with cute Thai ones, frames, and unlimited layers. One payment, no subscription.',
   seePlus: 'See GRKU Plus',
   notNow: 'Not now',
+  addPicture: 'Add your picture',
+  addPictureHint: 'A logo, a cut-out PNG, or a photo, as a layer you can move. You can also drop or paste it on the picture.',
+  pictureLayer: 'Your picture',
+  fromPhoto: 'Your photo is the background. Add text or stickers on top, or keep it as it is.',
+  keepPhoto: 'Use the photo as it is',
 };
 
 export type StudioStrings = typeof en;
 
 const zhHans: StudioStrings = {
   title: 'GRKU Studio',
-  description: '在背景上叠加文字和贴纸图层，设计相机关机时显示的画面。',
+  description: '在 GRKU Studio 中设计相机关机时显示的画面，在背景上叠加文字、贴纸和自己的图片图层。',
   close: '关闭',
   done: '完成',
   undo: '撤销',
@@ -345,7 +350,7 @@ const zhHans: StudioStrings = {
     tape: '胶带照片',
   },
   frameColor: '相框颜色',
-  layersEmpty: '暂无图层。请添加文字或贴纸。',
+  layersEmpty: '暂无图层。请添加文字、贴纸或图片。',
   layersFree: '免费版 Studio 图层：${n} / ${max}。',
   layerTools: '图层',
   editText: '编辑文字',
@@ -367,11 +372,16 @@ const zhHans: StudioStrings = {
   plusIncludes: '购买任意 GRKU Plus 即可解锁完整 GRKU Studio：单包 ฿${pack} 起、25 个槽位 ฿${slots}，或全套内容 ฿${all}。包含所有模板与季节设计、50 多款贴纸、6 款新增字体（含可爱泰文字体）、边框及无限图层。一次付费，无需订阅。',
   seePlus: '了解 GRKU Plus',
   notNow: '暂不',
+  addPicture: '添加图片',
+  addPictureHint: '可添加 Logo、抠好的 PNG 图片或照片，作为可移动的图层。也可以直接将图片拖到或粘贴到画布上。',
+  pictureLayer: '我的图片',
+  fromPhoto: '当前以所选照片为背景。可叠放文字或贴纸，或保持原样。',
+  keepPhoto: '直接使用此照片',
 };
 
 const zhHant: StudioStrings = {
   title: 'GRKU Studio',
-  description: '在背景上疊加文字與貼圖圖層，設計相機關機時顯示的畫面。',
+  description: '在背景上透過文字、貼圖及自訂圖片等圖層，設計相機關機時顯示的畫面。',
   close: '關閉',
   done: '完成',
   undo: '復原',
@@ -526,7 +536,7 @@ const zhHant: StudioStrings = {
     tape: '膠帶貼照',
   },
   frameColor: '相框顏色',
-  layersEmpty: '尚無圖層。新增文字或貼圖。',
+  layersEmpty: '尚無圖層。請新增文字、貼圖或自訂圖片。',
   layersFree: '免費版 Studio 可使用 ${max} 個圖層，目前已使用 ${n} 個。',
   layerTools: '圖層',
   editText: '編輯文字',
@@ -548,11 +558,16 @@ const zhHant: StudioStrings = {
   plusIncludes: '購買任一 GRKU Plus 方案即可完整解鎖 GRKU Studio：單一套件 ฿${pack} 起、25 個欄位 ฿${slots}，或全套方案 ฿${all}。包含所有範本與季節設計、50 多款貼圖、6 款額外字型（含可愛泰文字型）、邊框及無限制圖層。單次付費，無需訂閱。',
   seePlus: '查看 GRKU Plus',
   notNow: '暫時不要',
+  addPicture: '新增圖片',
+  addPictureHint: '將標誌、去背 PNG 或照片加入為可移動的圖層，也可以直接拖放或貼到畫布上。',
+  pictureLayer: '自訂圖片',
+  fromPhoto: '已將您的照片設為背景。可以在照片上加入文字或貼圖，也可以保留原樣。',
+  keepPhoto: '直接使用照片，不做修改',
 };
 
 const ja: StudioStrings = {
   title: 'GRKU Studio',
-  description: '背景にテキストやステッカーを重ねて、カメラの電源オフ時に表示する画像を作成します。',
+  description: 'カメラの電源を切ったときに表示される画像をデザインします。背景の上にテキスト、ステッカー、自分の画像をレイヤーとして重ねることができます。',
   close: '閉じる',
   done: '完了',
   undo: '元に戻す',
@@ -707,7 +722,7 @@ const ja: StudioStrings = {
     tape: 'テープ留め',
   },
   frameColor: 'フレームの色',
-  layersEmpty: 'レイヤーはまだありません。テキストやステッカーを追加してください。',
+  layersEmpty: 'レイヤーがありません。テキスト、ステッカー、または画像を追加してください。',
   layersFree: '無料版Studio：${n} / ${max}レイヤー',
   layerTools: 'レイヤー',
   editText: 'テキストを編集',
@@ -729,11 +744,16 @@ const ja: StudioStrings = {
   plusIncludes: 'GRKU Plusをご購入いただくと、GRKU Studioの全機能が解放されます。パックは฿${pack}から、25スロット追加は฿${slots}、すべて利用できるフルパックは฿${all}です。すべてのテンプレートや季節のデザインに加え、50種類以上のステッカー、タイ語を含む6種類のフォント、フレーム、レイヤー無制限が利用可能です。買い切り型で、サブスクリプションではありません。',
   seePlus: 'GRKU Plusを見る',
   notNow: '今はしない',
+  addPicture: '画像を追加',
+  addPictureHint: 'ロゴ、切り抜きPNG、写真をレイヤーとして追加し、自由に動かせます。編集中の画像の上にドラッグ＆ドロップしたり、貼り付けたりすることもできます。',
+  pictureLayer: '追加画像',
+  fromPhoto: '写真が背景に設定されています。上にテキストやステッカーを追加したり、そのまま使ったりできます。',
+  keepPhoto: '写真をそのまま使用',
 };
 
 const ko: StudioStrings = {
   title: 'GRKU Studio',
-  description: '배경 위에 텍스트와 스티커를 레이어로 배치하여 카메라 전원을 끌 때 표시할 이미지를 만듭니다.',
+  description: '카메라 전원을 끌 때 표시되는 화면을 디자인하세요. 배경 위에 텍스트, 스티커, 사진 레이어를 추가할 수 있습니다.',
   close: '닫기',
   done: '완료',
   undo: '실행 취소',
@@ -888,7 +908,7 @@ const ko: StudioStrings = {
     tape: '테이프로 붙인 사진',
   },
   frameColor: '프레임 색상',
-  layersEmpty: '아직 레이어가 없습니다. 텍스트나 스티커를 추가하세요.',
+  layersEmpty: '레이어가 없습니다. 텍스트, 스티커 또는 사진을 추가하세요.',
   layersFree: '무료 Studio 레이어 ${max}개 중 ${n}개 사용',
   layerTools: '레이어',
   editText: '텍스트 편집',
@@ -910,11 +930,16 @@ const ko: StudioStrings = {
   plusIncludes: 'GRKU Plus를 구매하면 GRKU Studio의 모든 기능이 잠금 해제됩니다. 1개 팩 ฿${pack}부터, 25개 슬롯 ฿${slots}, 전체 패키지 ฿${all}. 모든 템플릿과 시즌 디자인, 50개 이상의 스티커, 귀여운 태국어 폰트를 포함한 추가 폰트 6종, 프레임 및 무제한 레이어가 제공됩니다. 정기 구독이 아닌 1회 결제입니다.',
   seePlus: 'GRKU Plus 보기',
   notNow: '나중에',
+  addPicture: '사진 추가',
+  addPictureHint: '로고, 배경을 제거한 PNG, 사진 등을 레이어로 추가해 이동할 수 있습니다. 작업 중인 이미지 위로 끌어다 놓거나 붙여넣어도 됩니다.',
+  pictureLayer: '내 사진',
+  fromPhoto: '사진이 배경으로 설정되었습니다. 그 위에 텍스트나 스티커를 추가하거나 그대로 사용할 수 있습니다.',
+  keepPhoto: '사진 그대로 사용',
 };
 
 const th: StudioStrings = {
   title: 'GRKU Studio',
-  description: 'ออกแบบภาพที่แสดงตอนปิดกล้อง โดยวางข้อความและสติกเกอร์เป็นเลเยอร์บนพื้นหลัง',
+  description: 'ออกแบบภาพที่กล้องแสดงตอนปิดเครื่อง ด้วยเลเยอร์ข้อความ สติกเกอร์ และรูปของคุณบนพื้นหลัง',
   close: 'ปิด',
   done: 'เสร็จ',
   undo: 'เลิกทำ',
@@ -1069,7 +1094,7 @@ const th: StudioStrings = {
     tape: 'รูปติดเทป',
   },
   frameColor: 'สีกรอบ',
-  layersEmpty: 'ยังไม่มีเลเยอร์ เพิ่มข้อความหรือสติกเกอร์ได้เลย',
+  layersEmpty: 'ยังไม่มีเลเยอร์ เพิ่มข้อความ สติกเกอร์ หรือรูปของคุณได้เลย',
   layersFree: 'ใช้ไปแล้ว ${n} จาก ${max} เลเยอร์ใน Studio เวอร์ชันฟรี',
   layerTools: 'เลเยอร์',
   editText: 'แก้ไขข้อความ',
@@ -1091,6 +1116,11 @@ const th: StudioStrings = {
   plusIncludes: 'ซื้อ GRKU Plus แบบใดก็ได้เพื่อปลดล็อก GRKU Studio ได้ครบทั้งหมด: 1 แพ็ก เริ่มต้น ฿${pack}, 25 ช่อง ฿${slots} หรือทั้งหมด ฿${all} ได้ครบทุกเทมเพลตและดีไซน์ตามเทศกาล สติกเกอร์กว่า 50 แบบ ฟอนต์เพิ่มอีก 6 แบบพร้อมฟอนต์ไทยน่ารักๆ กรอบรูป และเลเยอร์ไม่จำกัด จ่ายครั้งเดียว ไม่ต้องสมัครสมาชิก',
   seePlus: 'ดู GRKU Plus',
   notNow: 'ไว้ก่อน',
+  addPicture: 'เพิ่มรูปของคุณ',
+  addPictureHint: 'เพิ่มโลโก้ ไฟล์ PNG ที่ตัดพื้นหลังแล้ว หรือรูปถ่ายเป็นเลเยอร์ที่เลื่อนไปมาได้ จะลากมาวางหรือคัดลอกแล้ววางลงบนภาพก็ได้',
+  pictureLayer: 'รูปของคุณ',
+  fromPhoto: 'รูปถ่ายของคุณเป็นภาพพื้นหลัง จะเพิ่มข้อความ สติกเกอร์ หรือใช้รูปตามนี้เลยก็ได้',
+  keepPhoto: 'ใช้รูปถ่ายตามนี้เลย',
 };
 
 export const STUDIO_STRINGS: Readonly<Record<Language, StudioStrings>> = { en, 'zh-Hans': zhHans, 'zh-Hant': zhHant, ja, ko, th };

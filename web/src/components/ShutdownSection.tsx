@@ -357,6 +357,11 @@ export function ShutdownSection({
   // The Studio mounts at its first opening, and stays, so it opens at once the next time.
   const [studioOpen, setStudioOpen] = useState(false);
   const [studioMounted, setStudioMounted] = useState(false);
+  // A photo just chosen: the Studio opens with it as the background, to add text or stickers.
+  const [startPhoto, setStartPhoto] = useState<{
+    file: Blob;
+    key: number;
+  } | null>(null);
   // The design of Plus that the visitor tapped without Plus.
   const [lockedDesign, setLockedDesign] = useState<string | null>(null);
   const designLocked = (design: string) =>
@@ -378,9 +383,12 @@ export function ShutdownSection({
     setFileKey((key) => key + 1);
     if (!file) return;
     try {
+      // The photo as it is is chosen at once; the Studio offers to add to it.
       onOwn(await makePicture(file));
       onKind("own");
       setFailed(false);
+      setStartPhoto({ file, key: Date.now() });
+      openStudio();
     } catch (error) {
       console.error(error);
       setFailed(true);
@@ -697,6 +705,7 @@ export function ShutdownSection({
             onPlus={onPlus}
             firmware={firmware}
             ownPicture={own}
+            startPhoto={startPhoto}
             start={designChoice(designs)}
             onDone={(bytes) => {
               onStudio(bytes);

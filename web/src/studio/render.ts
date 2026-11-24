@@ -17,6 +17,7 @@ import {
   type Measure,
   type PatternId,
   type Rect,
+  type ImageLayer,
   type StickerLayer,
   type StudioDoc,
   type TextLayer,
@@ -31,6 +32,8 @@ export type Photo = CanvasImageSource & { width: number; height: number };
 
 export interface Assets {
   photo: Photo | null;
+  /** The pictures of the picture layers, by id. A layer whose picture is missing draws a gray box. */
+  images?: ReadonlyMap<string, Photo>;
 }
 
 // ---- Measuring ---------------------------------------------------------------------------------------------
@@ -367,6 +370,24 @@ export function drawStickerLayer(context: Context, layer: StickerLayer) {
   context.restore();
 }
 
+export function drawImageLayer(context: Context, layer: ImageLayer, image: Photo | undefined) {
+  const w = layer.aspect >= 1 ? layer.size : layer.size * layer.aspect;
+  const h = layer.aspect >= 1 ? layer.size / layer.aspect : layer.size;
+  context.save();
+  context.translate(layer.x, layer.y);
+  context.rotate((layer.rotation * Math.PI) / 180);
+  if (layer.flip) context.scale(-1, 1);
+  if (image) {
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
+    context.drawImage(image, -w / 2, -h / 2, w, h);
+  } else {
+    context.fillStyle = 'rgba(128, 128, 128, 0.35)';
+    context.fillRect(-w / 2, -h / 2, w, h);
+  }
+  context.restore();
+}
+
 /** Draws `doc` over the whole context, in the coordinates of 720 by 480. */
 export function renderDoc(context: Context, doc: StudioDoc, assets: Assets, measure: Measure = canvasMeasure(context)) {
   context.save();
@@ -378,6 +399,7 @@ export function renderDoc(context: Context, doc: StudioDoc, assets: Assets, meas
   if (frame) frame.paint(context, doc.frameColor);
   for (const layer of doc.layers) {
     if (layer.type === 'text') drawText(context, layer, measure);
+    else if (layer.type === 'image') drawImageLayer(context, layer, assets.images?.get(layer.image));
     else drawStickerLayer(context, layer);
   }
   context.restore();

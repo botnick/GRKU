@@ -63,7 +63,19 @@ export interface StickerLayer extends Placed {
   tint: string | null;
 }
 
-export type Layer = TextLayer | StickerLayer;
+/** A picture of the visitor (a logo, a cut-out, a photo), kept in this browser by its `image` id. */
+export interface ImageLayer extends Placed {
+  type: 'image';
+  /** The id of the picture in the store of pictures (`images`). */
+  image: string;
+  /** Width over height of the picture. */
+  aspect: number;
+  /** The longer side of the box, in pixels of the screen. */
+  size: number;
+  flip: boolean;
+}
+
+export type Layer = TextLayer | StickerLayer | ImageLayer;
 
 export type Background =
   | { kind: 'solid'; color: string }
@@ -88,6 +100,7 @@ export interface StudioDoc {
 export const LIMITS = {
   textSize: [10, 220] as const,
   stickerSize: [24, 480] as const,
+  imageSize: [24, 1440] as const,
   textLength: 80,
   zoom: [1, 4] as const,
   /** The most layers of any document. */
@@ -132,6 +145,10 @@ export function stickerLayer(sticker: string, patch: Partial<StickerLayer> = {})
   return { type: 'sticker', id: newId(), x: STUDIO_WIDTH / 2, y: 160, rotation: 0, sticker, size: 120, flip: false, tint: null, ...patch };
 }
 
+export function imageLayer(image: string, aspect: number, patch: Partial<ImageLayer> = {}): ImageLayer {
+  return { type: 'image', id: newId(), x: STUDIO_WIDTH / 2, y: STUDIO_HEIGHT / 2, rotation: 0, image, aspect, size: 320, flip: false, ...patch };
+}
+
 // ---- Geometry ---------------------------------------------------------------------------------------
 
 export interface Box {
@@ -172,6 +189,7 @@ export function fittedSize(layer: TextLayer, measure: Measure): number {
 
 export function layerBox(layer: Layer, measure: Measure = roughMeasure): Box {
   if (layer.type === 'sticker') return { w: layer.size, h: layer.size };
+  if (layer.type === 'image') return layer.aspect >= 1 ? { w: layer.size, h: layer.size / layer.aspect } : { w: layer.size * layer.aspect, h: layer.size };
   const size = fittedSize(layer, measure);
   const lines = textLines(layer);
   const w = Math.max(size * 0.5, ...lines.map((line) => measure(layer, line, size)));
@@ -305,12 +323,14 @@ export function nudgeLayer(doc: StudioDoc, id: string, dx: number, dy: number): 
   return layer ? moveLayer(doc, id, layer.x + dx, layer.y + dy) : doc;
 }
 
-/** Sets the size of a layer: the font size of a text, the side of a sticker. */
+/** Sets the size of a layer: the font size of a text, the side of a sticker, the longer side of a picture. */
 export function resizeLayer(doc: StudioDoc, id: string, size: number): StudioDoc {
   return mapLayer(doc, id, (layer) =>
     layer.type === 'text'
       ? { ...layer, size: Math.round(clamp(size, LIMITS.textSize)) }
-      : { ...layer, size: Math.round(clamp(size, LIMITS.stickerSize)) },
+      : layer.type === 'image'
+        ? { ...layer, size: Math.round(clamp(size, LIMITS.imageSize)) }
+        : { ...layer, size: Math.round(clamp(size, LIMITS.stickerSize)) },
   );
 }
 
@@ -318,7 +338,7 @@ export function rotateLayer(doc: StudioDoc, id: string, degrees: number): Studio
   return mapLayer(doc, id, (layer) => ({ ...layer, rotation: Math.round(normalizeAngle(degrees) * 10) / 10 }));
 }
 
-export function updateLayer(doc: StudioDoc, id: string, patch: Partial<TextLayer> | Partial<StickerLayer>): StudioDoc {
+export function updateLayer(doc: StudioDoc, id: string, patch: Partial<TextLayer> | Partial<StickerLayer> | Partial<ImageLayer>): StudioDoc {
   return mapLayer(doc, id, (layer) => sanitizeLayer({ ...layer, ...patch, id: layer.id, type: layer.type } as Layer) ?? layer);
 }
 
@@ -435,6 +455,16 @@ export function sanitizeLayer(value: unknown): Layer | null {
       size: number(raw.size, 120, LIMITS.stickerSize),
       flip: raw.flip === true,
       tint: raw.tint == null ? null : color(raw.tint, '#D94135'),
+    };
+  }
+  if (raw.type === 'image' && typeof raw.image === 'string' && /^[a-z0-9]{1,40}$/i.test(raw.image)) {
+    return {
+      type: 'image',
+      ...placed,
+      image: raw.image,
+      aspect: number(raw.aspect, 1, [0.05, 20]),
+      size: number(raw.size, 320, LIMITS.imageSize),
+      flip: raw.flip === true,
     };
   }
   return null;
