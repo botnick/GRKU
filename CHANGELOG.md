@@ -1,3 +1,11 @@
+## 1.10.1 (2026-11-24)
+
+### Fixes
+
+- The site has a Develop page (/develop/): it gives photos you already have the film looks and the modules of GRKU (Glow, Light Leak, Diffusion, Film Softness, Grain, Date Imprint, Border) with the module code of the camera, built for the browser, in the camera's order and on its 4:2:2 planes, with the date, ISO, and aperture of each photo. Photos stay on the device. Free downloads are up to 2048 px with a small GRKU credit; GRKU Plus downloads every look at full size without it.
+- FinePix CCD and FinePix Bright, GRKU's own looks after the bright, airy daylight color people call the FUJIFILM FinePix CCD look: a high-key curve with deep blacks, a pale cyan sky, steel-blue water, warm skin and browns, cool clean whites, quiet color. Bright lifts the mid-tones and highlights further. Free camera looks in a silver FinePix box. The library has 152 looks.
+- The kinds of film on the install page wrap onto more lines instead of scrolling sideways. A link with `?look=` opens a look on the Develop page, and Install these on your GR brings the look and modules of the Develop page to the install page.
+
 ## 1.10.0 (2026-11-24)
 
 ### Features
