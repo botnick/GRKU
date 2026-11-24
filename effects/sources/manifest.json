@@ -708,6 +708,16 @@
    "sha256": "0fa03747bb3f9a2f47147f0ce3267d43512c469b5a47438d333455a35d74e1e9",
    "script": "make_positive_grii.py"
   },
+  "finepix-ccd-v1.cube": {
+   "generator": "grku",
+   "sha256": "418a16b7e6bb7c9e764f9d1d782d8d737d49a7055e36978a218e58504fc75c84",
+   "script": "make_finepix_ccd.mjs ccd"
+  },
+  "finepix-bright-v1.cube": {
+   "generator": "grku",
+   "sha256": "6967231c6ae4ee4f60b1ddb7adfc51c26a22026af3acae685514f8e9117f5b18",
+   "script": "make_finepix_ccd.mjs bright"
+  },
   "pro-400h-crystal-v1.cube": {
    "generator": "spektrafilm",
    "sha256": "66361c619cbc20d8ff1622359947a72e229d3a2ef029b57f54084d9c691bf729"

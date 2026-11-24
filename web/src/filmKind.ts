@@ -7,8 +7,8 @@ export const FILM_KINDS: readonly FilmKind[] = ['negative', 'slide', 'mono', 'ci
 
 /** The films that are slide (reversal) film, by the start of the name on the box. */
 const SLIDE = ['VELVIA', 'PROVIA', 'ASTIA', 'SENSIA', 'EKTACHROME', 'KODACHROME', 'ELITE', 'PRECISA', 'AGFACHROME', 'AEROCHROME', 'X-PRO', 'POLACHROME', 'FORTIA'];
-/** The film simulations of the FUJIFILM digital cameras: by the name and number on the box (scripts/flap-icons.py FUJI_SIMS). */
-const FUJI_SIMS = ['PROVIA', 'VELVIA', 'ASTIA', 'CLASSIC CHROME', 'CLASSIC NEG', 'PRO NEG STD', 'REALA ACE', 'ETERNA', 'ETERNA BB', 'ACROS'];
+/** The film simulations of the FUJIFILM digital cameras and GRKU's FinePix CCD and Bright: by the name and number on the box (scripts/flap-icons.py FUJI_SIMS). */
+const FUJI_SIMS = ['PROVIA', 'VELVIA', 'ASTIA', 'CLASSIC CHROME', 'CLASSIC NEG', 'PRO NEG STD', 'REALA ACE', 'ETERNA', 'ETERNA BB', 'ACROS', 'FINEPIX CCD', 'FINEPIX BRIGHT'];
 /** The FUJIFILM recipes by effect ID: a film simulation with the camera's settings, on the box of the
  * film each is named after (scripts/flap-icons.py FUJI_RECIPES). Free camera looks, as the simulations. */
 export const FUJI_RECIPES = ['fj-reggies-portra-v1', 'fj-kodachrome-64-v1', 'fj-gold-200-v1', 'fj-tri-x-400-v1', 'fj-reggies-superia-v1'];
