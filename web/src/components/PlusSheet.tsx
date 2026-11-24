@@ -1,8 +1,11 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   Check,
   Copy,
   Download,
+  FileDown,
+  KeyRound,
+  Mail,
   LoaderCircle,
   Smartphone,
   Sparkles,
@@ -53,6 +56,7 @@ import {
   type Pack,
   FREE,
   giftShort,
+  keyFile,
   inLaunch,
   REGULAR_PRICES,
   ownedLines,
@@ -151,6 +155,17 @@ export function PlusSheet({
   const [agreed, setAgreed] = useState(false);
   const [human, setHuman] = useState<string | null>(null);
   const [humanReset, setHumanReset] = useState(0);
+  /** The buyer copied or downloaded the key shown after the purchase. */
+  const [saved, setSaved] = useState(false);
+  /** Closing without saving asked once "Did you save your key?"; the action that waits on the answer. */
+  const [asked, setAsked] = useState(false);
+  const [asking, setAsking] = useState<null | { after?: () => void }>(null);
+  const askRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!asking) return;
+    askRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    askRef.current?.focus();
+  }, [asking]);
 
   const tier: Tier = choice === "pack" ? `pack:${pack}` : choice;
   const totalLooks = libraryLooks ?? 145;
@@ -260,11 +275,33 @@ export function PlusSheet({
     setCopied(false);
     setGift("");
     setPhoneMode(false);
+    setSaved(false);
+    setAsked(false);
+    setAsking(null);
   }
 
   function change(next: boolean) {
+    if (!next && view === "done") {
+      close();
+      return;
+    }
     onOpenChange(next);
     if (!next && view !== "pay") reset();
+  }
+
+  /**
+   * Closes the sheet after a purchase, then runs `after`. The key shows until then; when the buyer
+   * neither copied nor downloaded it, the first close asks once whether they saved it.
+   */
+  function close(after?: () => void) {
+    if (view === "done" && paid && !saved && !asked) {
+      setAsked(true);
+      setAsking({ after });
+      return;
+    }
+    onOpenChange(false);
+    reset();
+    after?.();
   }
 
   const fail = (failure: unknown) => setError(t.plus[errorKind(failure)]);
@@ -333,6 +370,8 @@ export function PlusSheet({
     try {
       const result = await fetchEntitlement(key);
       onKey(key, result.entitlement);
+      // The buyer typed this key in: they have it.
+      setSaved(true);
       setPasted("");
       setPaid({ key, owner: result.owner, entitlement: result.entitlement });
       setView("done");
@@ -361,10 +400,24 @@ export function PlusSheet({
     try {
       await navigator.clipboard.writeText(paid.key);
       setCopied(true);
+      setSaved(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
       // The key is on the screen to select.
     }
+  }
+
+  function downloadKey() {
+    if (!paid) return;
+    const url = URL.createObjectURL(keyFile(paid.key, t.plus.keyFile));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `grku-plus-key-${paid.key}.txt`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setSaved(true);
   }
 
   // The price of a tier: the launch price, and while the launch lasts the regular price struck through.
@@ -917,6 +970,64 @@ export function PlusSheet({
 
         {view === "done" && paid && (
           <div className="flex flex-col gap-5 px-4 pb-6">
+            {asking && (
+              <div
+                ref={askRef}
+                tabIndex={-1}
+                role="alertdialog"
+                aria-labelledby={`${ids}-ask`}
+                aria-describedby={`${ids}-ask-text`}
+                className="flex flex-col gap-3 rounded-xl border-2 border-amber-400 bg-amber-400/10 p-4 outline-none"
+              >
+                <p id={`${ids}-ask`} className="m-0 text-base font-semibold">
+                  {t.plus.savedAsk}
+                </p>
+                <p
+                  id={`${ids}-ask-text`}
+                  className="m-0 text-[13px] text-muted-foreground"
+                >
+                  {t.plus.savedAskText}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="brand"
+                    size="sm"
+                    onClick={() => {
+                      void copyKey();
+                      setAsking(null);
+                    }}
+                  >
+                    <Copy aria-hidden="true" />
+                    {t.plus.copy}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      downloadKey();
+                      setAsking(null);
+                    }}
+                  >
+                    <FileDown aria-hidden="true" />
+                    {t.plus.downloadKey}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const after = asking.after;
+                      setAsking(null);
+                      close(after);
+                    }}
+                  >
+                    {t.plus.closeAnyway}
+                  </Button>
+                </div>
+              </div>
+            )}
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-brand/40 bg-brand/[0.08] px-4 py-5 text-center">
               <span className="flex size-11 items-center justify-center rounded-full bg-brand text-brand-foreground">
                 <Check className="size-6" aria-hidden="true" />
@@ -932,6 +1043,67 @@ export function PlusSheet({
                 )}
               </ul>
             </div>
+
+            {/* The key, big enough to read off the screen or photograph, with copy and download. */}
+            <section
+              aria-labelledby={`${ids}-key`}
+              className="flex flex-col gap-3 rounded-2xl border-2 border-foreground/15 bg-card p-4"
+            >
+              <p
+                id={`${ids}-key`}
+                className="m-0 flex items-center gap-2 text-sm font-semibold"
+              >
+                <KeyRound
+                  className="size-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                {t.plus.keyCardTitle}
+              </p>
+              <p
+                className="m-0 rounded-lg bg-muted px-3 py-3 text-center font-mono text-2xl font-semibold tracking-[0.12em] break-all select-all sm:text-[28px]"
+                data-testid="plus-key"
+              >
+                {paid.key}
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={copied ? "outline" : "brand"}
+                  className="h-10"
+                  onClick={copyKey}
+                  aria-live="polite"
+                >
+                  {copied ? (
+                    <Check aria-hidden="true" />
+                  ) : (
+                    <Copy aria-hidden="true" />
+                  )}
+                  {copied ? `${t.plus.copied} ✓` : t.plus.copy}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10"
+                  onClick={downloadKey}
+                >
+                  <FileDown aria-hidden="true" />
+                  {t.plus.downloadKey}
+                </Button>
+              </div>
+              <p className="m-0 flex items-start gap-2 text-[13px] leading-snug">
+                <span
+                  className="mt-[5px] inline-block size-1.5 shrink-0 rounded-full bg-amber-400"
+                  aria-hidden="true"
+                />
+                <span>
+                  {paid.owner !== "anon" ? t.plus.keyKeepMail : t.plus.keyKeep}
+                </span>
+              </p>
+              <p className="m-0 text-[13px] text-muted-foreground">
+                {t.plus.keyHint}
+              </p>
+            </section>
+
             <p className="m-0 text-sm text-muted-foreground">
               {t.plus.doneNext}
             </p>
@@ -940,37 +1112,11 @@ export function PlusSheet({
               variant="brand"
               size="lg"
               className="h-11 text-[15px]"
-              onClick={() => {
-                change(false);
-                onBrowse();
-              }}
+              onClick={() => close(onBrowse)}
             >
               <Sparkles aria-hidden="true" />
               {t.plus.browseUnlocked}
             </Button>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor={`${ids}-key`}>{t.plus.yourKey}</Label>
-              <div className="flex gap-2">
-                <Input
-                  id={`${ids}-key`}
-                  readOnly
-                  value={paid.key}
-                  className="font-mono text-base tracking-wider"
-                  onFocus={(event) => event.target.select()}
-                />
-                <Button type="button" variant="outline" onClick={copyKey}>
-                  {copied ? (
-                    <Check aria-hidden="true" />
-                  ) : (
-                    <Copy aria-hidden="true" />
-                  )}
-                  {copied ? t.plus.copied : t.plus.copy}
-                </Button>
-              </div>
-              <p className="m-0 text-[13px] text-muted-foreground">
-                {t.plus.keyHint} {paid.owner !== "anon" && t.plus.keySent}
-              </p>
-            </div>
           </div>
         )}
 
@@ -1021,7 +1167,8 @@ export function PlusSheet({
                 </Button>
               </div>
               {linkSent && (
-                <p className="text-sm text-muted-foreground">
+                <p role="status" className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <Mail className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                   {t.plus.linkSent}
                 </p>
               )}

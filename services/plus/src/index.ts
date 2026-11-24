@@ -643,17 +643,20 @@ export function crc16(text: string): string {
 
 // ---- Mail ----------------------------------------------------------------------------------------
 
+/** Where buyers reply: a read mailbox, not the noreply sender. */
+const REPLY_TO = 'support@grku.app';
+
 async function sendKeyMail(email: string, key: string, env: Env): Promise<void> {
   const link = `${env.SITE_URL}/#plus=${key}`;
   const subject = 'คีย์ GRKU Plus ของคุณ · Your GRKU Plus key';
-  const html = `<p>ขอบคุณที่สนับสนุน GRKU</p><p>กดลิงก์นี้บนเครื่องที่ต้องการใช้ เพื่อปลดล็อกฟิล์มลุคของคุณ:</p><p><a href="${link}">${link}</a></p><p>หรือวางคีย์นี้ในหน้า "มีคีย์อยู่แล้ว" ของ GRKU Plus:</p><pre>${key}</pre><p>ลิงก์และคีย์ใช้ได้ทุกเครื่อง เก็บอีเมลฉบับนี้ไว้</p><hr><p>Thank you for supporting GRKU. Open the link on the device you use, or paste the key into "I have a key". They work on every device; keep this email.</p>`;
-  const text = `ขอบคุณที่สนับสนุน GRKU\n\nกดลิงก์นี้บนเครื่องที่ต้องการใช้ เพื่อปลดล็อกฟิล์มลุคของคุณ:\n${link}\n\nหรือวางคีย์นี้ในหน้า "มีคีย์อยู่แล้ว" ของ GRKU Plus:\n${key}\n\nลิงก์และคีย์ใช้ได้ทุกเครื่อง เก็บอีเมลฉบับนี้ไว้\n\n--\nThank you for supporting GRKU. Open the link on the device you use, or paste the key into "I have a key". They work on every device; keep this email.\n`;
+  const html = `<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>GRKU Plus</title></head><body style="margin:0;padding:24px;font-family:-apple-system,'Segoe UI',Roboto,'Noto Sans Thai',sans-serif;color:#1a1a1a;line-height:1.5"><p>ขอบคุณที่สนับสนุน GRKU</p><p>คีย์ GRKU Plus ของคุณ · Your GRKU Plus key:</p><p style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:24px;font-weight:700;letter-spacing:2px;padding:12px 16px;border:1px solid #ccc;border-radius:8px;display:inline-block">${key}</p><p>กดลิงก์นี้บนเครื่องที่ต้องการใช้ เพื่อปลดล็อกฟิล์มลุคของคุณ:<br><a href="${link}">${link}</a></p><p>หรือวางคีย์นี้ในหน้า "มีคีย์อยู่แล้ว" ของ GRKU Plus ลิงก์และคีย์ใช้ได้ทุกเครื่อง เก็บอีเมลฉบับนี้ไว้</p><hr><p>Thank you for supporting GRKU. Open the link on the device you use, or paste the key into "I have a key". They work on every device; keep this email.</p><p style="color:#666;font-size:13px">GRKU · <a href="${env.SITE_URL}">${env.SITE_URL.replace(/^https?:\/\//, '')}</a> · ${REPLY_TO}</p></body></html>`;
+  const text = `ขอบคุณที่สนับสนุน GRKU\n\nกดลิงก์นี้บนเครื่องที่ต้องการใช้ เพื่อปลดล็อกฟิล์มลุคของคุณ:\n${link}\n\nหรือวางคีย์นี้ในหน้า "มีคีย์อยู่แล้ว" ของ GRKU Plus:\n${key}\n\nลิงก์และคีย์ใช้ได้ทุกเครื่อง เก็บอีเมลฉบับนี้ไว้\n\n--\nThank you for supporting GRKU. Open the link on the device you use, or paste the key into "I have a key". They work on every device; keep this email.\n\nGRKU · ${env.SITE_URL} · ${REPLY_TO}\n`;
   if (env.MAIL_PASS) {
     // The hosting mailbox: MAIL_FROM is "Name <address>".
     const from = /^(.*?)\s*<([^>]+)>$/.exec(env.MAIL_FROM);
     await sendMail(
       { host: env.MAIL_HOST, port: Number(env.MAIL_PORT) || 587, user: env.MAIL_USER, pass: env.MAIL_PASS },
-      { from: { name: from?.[1] || 'GRKU', address: from?.[2] || env.MAIL_USER }, to: email, subject, html, text },
+      { from: { name: from?.[1] || 'GRKU', address: from?.[2] || env.MAIL_USER }, to: email, replyTo: REPLY_TO, subject, html, text },
     );
     return;
   }
@@ -661,7 +664,7 @@ async function sendKeyMail(email: string, key: string, env: Env): Promise<void> 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${env.RESEND_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: env.MAIL_FROM, to: [email], subject, html }),
+    body: JSON.stringify({ from: env.MAIL_FROM, to: [email], reply_to: REPLY_TO, subject, html, text }),
   });
   if (!response.ok) console.error('resend', response.status, await response.text());
 }
