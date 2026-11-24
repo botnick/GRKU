@@ -2,4 +2,4 @@
 default: patch
 ---
 
-FinePix CCD, GRKU's own look after the daylight color people call the FUJIFILM FinePix CCD look: bright, a pale cyan sky, steel-blue water, warm skin and browns, cool clean whites. A free camera look in a silver FinePix box. The library has 151 looks.
+FinePix CCD and FinePix Bright, GRKU's own looks after the bright, airy daylight color people call the FUJIFILM FinePix CCD look: a high-key curve with deep blacks, a pale cyan sky, steel-blue water, warm skin and browns, cool clean whites, quiet color. Bright lifts the mid-tones and highlights further. Free camera looks in a silver FinePix box. The library has 152 looks.

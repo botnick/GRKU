@@ -48,7 +48,7 @@ KINDS = {'negative': (235, 120, 30), 'slide': (90, 170, 235), 'mono': (150, 150,
 SLIDE_NAMES = ('VELVIA', 'PROVIA', 'ASTIA', 'SENSIA', 'EKTACHROME', 'KODACHROME', 'ELITE', 'PRECISA',
                'AGFACHROME', 'AEROCHROME', 'X-PRO', 'POLACHROME', 'FORTIA')
 FUJI_SIMS = ('PROVIA', 'VELVIA', 'ASTIA', 'CLASSIC CHROME', 'CLASSIC NEG', 'PRO NEG STD', 'REALA ACE',
-             'ETERNA', 'ETERNA BB', 'ACROS', 'FINEPIX CCD')
+             'ETERNA', 'ETERNA BB', 'ACROS', 'FINEPIX CCD', 'FINEPIX BRIGHT')
 # The FUJIFILM recipes by effect ID (a film simulation with the camera's settings): on the box of the film
 # that they are named after, with a FUJI RECIPE label; free camera looks like the simulations.
 # web/src/filmKind.ts FUJI_RECIPES must match.
@@ -98,8 +98,9 @@ def palette(brand, name, number, cine):
         # Pro 160S box, Classic Neg the red of the Superia X-TRA box it recalls, Classic Chrome a box of its own.
         if key == 'CLASSIC CHROME': return ((48, 52, 58), (232, 232, 228), (232, 232, 228), (205, 45, 40))
         if key == 'CLASSIC NEG': return ((200, 45, 50), WHITE, WHITE, None)
-        # FinePix CCD, GRKU's look after the FinePix compacts: their silver body, the CCD in FinePix blue.
+        # FinePix CCD and Bright, GRKU's looks after the FinePix compacts: their silver body, the number in FinePix blue (Bright lighter).
         if key == 'FINEPIX CCD': return ((200, 203, 208), NAVY, (0, 95, 175), None)
+        if key == 'FINEPIX BRIGHT': return ((200, 203, 208), NAVY, (0, 150, 215), None)
         if key == 'PRO NEG STD': return (WHITE, GREEN, GREEN, None)
         if key == 'ETERNA BB': return ((70, 72, 74), WHITE, (200, 200, 200), (120, 210, 130))
         if n.startswith('VELVIA'): return ((0, 70, 40), WHITE, PINK if number.startswith('50') else ORANGE, None)

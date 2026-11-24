@@ -710,8 +710,13 @@
   },
   "finepix-ccd-v1.cube": {
    "generator": "grku",
-   "sha256": "cdc048052a2764079ae71b7a86a23010ed68f573157ce488b54c80b0d017557b",
-   "script": "make_finepix_ccd.mjs"
+   "sha256": "418a16b7e6bb7c9e764f9d1d782d8d737d49a7055e36978a218e58504fc75c84",
+   "script": "make_finepix_ccd.mjs ccd"
+  },
+  "finepix-bright-v1.cube": {
+   "generator": "grku",
+   "sha256": "6967231c6ae4ee4f60b1ddb7adfc51c26a22026af3acae685514f8e9117f5b18",
+   "script": "make_finepix_ccd.mjs bright"
   },
   "pro-400h-crystal-v1.cube": {
    "generator": "spektrafilm",
