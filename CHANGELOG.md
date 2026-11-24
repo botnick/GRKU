@@ -1,3 +1,16 @@
+## 1.10.0 (2026-11-24)
+
+### Features
+
+- Date Imprint has a ninth caption, GRKU ♥ (GRKU <3 in the camera menu), in each look. It comes after CHEERS, so a saved caption keeps its text.
+- Grain has a Style setting. Film-like draws the grain of a color negative printed on paper, after the grain model of [spektrafilm](https://github.com/andreavolpato/spektrafilm) by Andrea Volpato: independent grain in each dye layer, so it has color, strongest in the middle tones and none at paper white or in black, and it never repeats. System, the default, keeps the camera's grain, so a camera that had Grain on keeps the grain it had until you choose Film-like. From GRKit pull request #122 by piratenpanda.
+- The shutdown screen card of the install page has three plain choices (ready-made, make your own, or off) beside one large preview that names the chosen picture. GRKU Studio places your own pictures as layers: a logo, a cut-out PNG that keeps its transparency, or a photo, added from the toolbar, the Stickers and Background tabs, by dropping a file, or by pasting. A photo chosen on the card can open GRKU Studio with it as the background. Any GRKU Plus purchase now unlocks all of GRKU Studio and the designs: Everything, 25 slots, or one pack.
+
+### Fixes
+
+- The shutdown picture (`GRKU/GOODBYE.JPG`) keeps to about 150 KB where a lower quality allows, so a busy photo takes less space on the card. Photos, designs, and the logo stay at the best quality.
+- The thumbnails of the ready-made shutdown designs no longer move up and leave an empty band at the bottom after you choose one.
+
 ## 1.9.0 (2026-11-23)
 
 ### Features
