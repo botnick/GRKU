@@ -15,7 +15,8 @@ export type Request =
   /** Opens a photo for previews: decodes it at `side` pixels on its long side. */
   | { type: 'open'; id: number; file: File; side: number; standard: string }
   | { type: 'close'; id: number }
-  | { type: 'preview'; id: number; seq: number; settings: DevelopSettings; urls: LookUrls }
+  /** A preview; `thumb` makes it that many pixels on its long side (the cards of the styles). */
+  | { type: 'preview'; id: number; seq: number; channel: string; settings: DevelopSettings; urls: LookUrls; thumb?: number }
   /** Develops a photo at full size, then makes its JPEG: at most `maxSide` on the long side with the credit, or full size. */
   | { type: 'export'; id: number; file: File; settings: DevelopSettings; urls: LookUrls; maxSide: number | null; credit: string | null; seed: number };
 
@@ -33,10 +34,10 @@ export interface Opened {
 
 export type Response =
   | { type: 'opened'; id: number; photo: Opened }
-  | { type: 'preview'; id: number; seq: number; image: ImageBitmap; ms: number; margins: [number, number, number, number] }
+  | { type: 'preview'; id: number; seq: number; channel: string; image: ImageBitmap; ms: number; margins: [number, number, number, number] }
   | { type: 'progress'; id: number; phase: 'decode' | 'colour' | 'modules' | 'encode'; fraction: number }
   | { type: 'exported'; id: number; blob: Blob; width: number; height: number; ms: number }
-  | { type: 'error'; id: number; seq?: number; message: string };
+  | { type: 'error'; id: number; seq?: number; channel?: string; message: string };
 
 /** A seed of a photo for the dust and scratches of Light Leak, the same at each size. */
 export function photoSeed(file: Pick<File, 'name' | 'size' | 'lastModified'>): number {

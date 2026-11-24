@@ -206,6 +206,34 @@ describe('EXIF', () => {
     expect(text).toContain((4768).toString(16).padStart(8, '0'));
   });
 
+  it('removes the GPS position and keeps the rest', () => {
+    // A little-endian TIFF: IFD0 with Make, a GPS IFD pointer, and Orientation; the GPS IFD with a latitude.
+    const tiff = new Uint8Array(200);
+    const v = new DataView(tiff.buffer);
+    tiff.set([0x49, 0x49, 42, 0, 8, 0, 0, 0]);
+    v.setUint16(8, 3, true);
+    const entry = (at: number, tag: number, type: number, count: number, value: number) => {
+      v.setUint16(at, tag, true); v.setUint16(at + 2, type, true); v.setUint32(at + 4, count, true); v.setUint32(at + 8, value, true);
+    };
+    entry(10, 0x10f, 2, 4, 0x484f4349); // "RICOH" would not fit: "ICOH" inline
+    entry(22, 0x8825, 4, 1, 60);
+    entry(34, 0x112, 3, 1, 6);
+    v.setUint32(46, 0, true);
+    v.setUint16(60, 1, true);
+    entry(62, 2, 5, 3, 100); // GPSLatitude, three rationals at 100
+    for (let i = 0; i < 6; i++) v.setUint32(100 + 4 * i, 13 + i, true);
+    const app1 = new Uint8Array(10 + tiff.length);
+    app1.set([0xff, 0xe1, (app1.length - 2) >> 8, (app1.length - 2) & 255, 0x45, 0x78, 0x69, 0x66, 0, 0]);
+    app1.set(tiff, 10);
+    const out = developedApp1(app1, 10, 10);
+    const o = new DataView(out.buffer, 10);
+    expect(o.getUint16(8, true)).toBe(2);
+    expect([o.getUint16(10, true), o.getUint16(22, true)]).toEqual([0x10f, 0x112]);
+    expect(o.getUint16(22 + 8, true)).toBe(6);
+    expect([...out.subarray(110, 134)].every((b) => b === 0)).toBe(true);
+    expect(readPhotoInfo(new Uint8Array([0xff, 0xd8, ...out])).orientation).toBe(6);
+  });
+
   it('never throws on a damaged file', () => {
     expect(readPhotoInfo(new Uint8Array([0xff, 0xd8, 0xff, 0xe1, 0, 20, 0x45, 0x78, 0x69, 0x66, 0, 0, 1, 2]))).toMatchObject({ orientation: 1, taken: null });
     expect(readPhotoInfo(new Uint8Array(10)).make).toBe('');

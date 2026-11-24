@@ -217,8 +217,9 @@ export function apex(iso: number, fNumber: number, exposure: number) {
 }
 
 /**
- * The APP1 of a developed picture from the source's: the same EXIF, with the new pixel size and
- * without the thumbnail of the source (it shows the picture before), and `orientation` when given.
+ * The APP1 of a developed picture from the source's: the same EXIF, with the new pixel size,
+ * without the thumbnail of the source (it shows the picture before), without the GPS position
+ * (the camera, the time, and the exposure stay), and with `orientation` when given.
  */
 export function developedApp1(app1: Uint8Array, width: number, height: number, orientation?: number): Uint8Array {
   const out = app1.slice();
@@ -226,7 +227,25 @@ export function developedApp1(app1: Uint8Array, width: number, height: number, o
     const tiff = new Tiff(out.subarray(10));
     const set16 = (at: number, v: number) => tiff.view.setUint16(at, v, tiff.little);
     const set32 = (at: number, v: number) => tiff.view.setUint32(at, v, tiff.little);
-    const ifd0 = tiff.ifd(tiff.u32(4));
+    let ifd0 = tiff.ifd(tiff.u32(4));
+    // No GPS: its IFD is cleared, and its entry leaves IFD0 (the entries after it move up).
+    const gps = find(ifd0.entries, 0x8825);
+    if (gps) {
+      const at = tiff.number(gps);
+      if (at && at + 2 <= out.length - 10) {
+        const ifd = tiff.ifd(at);
+        for (const entry of ifd.entries) {
+          const size = (TYPE_SIZES[entry.type] ?? 1) * entry.count;
+          if (size > 4 && entry.value + size <= out.length - 10) out.fill(0, 10 + entry.value, 10 + entry.value + size);
+        }
+        out.fill(0, 10 + at + 2, 10 + at + 2 + ifd.entries.length * 12);
+      }
+      const index = ifd0.entries.indexOf(gps);
+      const start = 10 + ifd0.at + 2;
+      out.copyWithin(start + index * 12, start + (index + 1) * 12, start + ifd0.entries.length * 12);
+      set16(ifd0.at, ifd0.entries.length - 1);
+      ifd0 = tiff.ifd(ifd0.at);
+    }
     // No IFD1: its thumbnail is of the source.
     set32(ifd0.at + 2 + ifd0.entries.length * 12, 0);
     const o = find(ifd0.entries, 0x112);

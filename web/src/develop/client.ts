@@ -39,7 +39,8 @@ export class Developer {
   private next = 0;
   private seq = 0;
   private readonly opening = new Map<number, Waiting>();
-  private readonly previews = new Map<number, Waiting & { seq: number }>();
+  /** The waiting preview of each photo and channel (`id:channel`). */
+  private readonly previews = new Map<string, Waiting & { seq: number }>();
 
   private async previewWorker(): Promise<Worker> {
     if (this.worker) return this.worker;
@@ -66,18 +67,22 @@ export class Developer {
       this.opening.get(data.id)?.resolve(data.photo as never);
       this.opening.delete(data.id);
     } else if (data.type === 'preview') {
-      const waiting = this.previews.get(data.id);
+      const key = `${data.id}:${data.channel}`;
+      const waiting = this.previews.get(key);
       if (waiting?.seq === data.seq) {
         waiting.resolve(data as never);
-        this.previews.delete(data.id);
+        this.previews.delete(key);
       } else data.image.close();
     } else if (data.type === 'error') {
       if (data.seq === undefined) {
         this.opening.get(data.id)?.reject(new Error(data.message));
         this.opening.delete(data.id);
-      } else if (this.previews.get(data.id)?.seq === data.seq) {
-        this.previews.get(data.id)!.reject(new Error(data.message));
-        this.previews.delete(data.id);
+      } else {
+        const key = `${data.id}:${data.channel}`;
+        if (this.previews.get(key)?.seq === data.seq) {
+          this.previews.get(key)!.reject(new Error(data.message));
+          this.previews.delete(key);
+        }
       }
     }
   }
@@ -95,21 +100,25 @@ export class Developer {
 
   close(id: number): void {
     this.worker?.postMessage({ type: 'close', id } satisfies Request);
-    this.previews.get(id)?.resolve(null as never);
-    this.previews.delete(id);
+    for (const [key, waiting] of this.previews) {
+      if (!key.startsWith(`${id}:`)) continue;
+      waiting.resolve(null as never);
+      this.previews.delete(key);
+    }
   }
 
   /**
-   * The preview of `settings` on photo `id`. A newer request for the same photo replaces it: the
-   * older one then resolves null.
+   * The preview of `settings` on photo `id`. A newer request for the same photo and channel
+   * replaces it: the older one then resolves null. `thumb` makes a small one.
    */
-  async preview(id: number, settings: DevelopSettings, urls: LookUrls): Promise<{ image: ImageBitmap; ms: number; margins: [number, number, number, number] } | null> {
+  async preview(id: number, settings: DevelopSettings, urls: LookUrls, channel = 'main', thumb?: number): Promise<{ image: ImageBitmap; ms: number; margins: [number, number, number, number] } | null> {
     const worker = await this.previewWorker();
     const seq = ++this.seq;
-    this.previews.get(id)?.resolve(null as never);
+    const key = `${id}:${channel}`;
+    this.previews.get(key)?.resolve(null as never);
     return new Promise((resolve, reject) => {
-      this.previews.set(id, { seq, resolve: resolve as (value: never) => void, reject });
-      worker.postMessage({ type: 'preview', id, seq, settings, urls } satisfies Request);
+      this.previews.set(key, { seq, resolve: resolve as (value: never) => void, reject });
+      worker.postMessage({ type: 'preview', id, seq, channel, settings, urls, thumb } satisfies Request);
     });
   }
 

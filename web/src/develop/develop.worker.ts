@@ -228,7 +228,7 @@ async function openPhoto(id: number, file: File, side: number, standard: string)
   post({ type: 'opened', id, photo }, [before]);
 }
 
-async function preview(id: number, settings: DevelopSettings, urls: LookUrls): Promise<{ image: ImageBitmap; margins: Margins }> {
+async function preview(id: number, settings: DevelopSettings, urls: LookUrls, thumb?: number): Promise<{ image: ImageBitmap; margins: Margins }> {
   const photo = open.get(id);
   if (!photo) throw new Error('The photo is closed');
   const e = await getEngine();
@@ -249,7 +249,12 @@ async function preview(id: number, settings: DevelopSettings, urls: LookUrls): P
   const margins = marginsOf(settings, picture);
   const pixels = rgba(e, picture, margins, settings.border.color === 1);
   e.free();
-  return { image: await bitmapOf(pixels), margins: uprightMargins(margins, picture.turns) };
+  const image = await bitmapOf(pixels);
+  if (!thumb) return { image, margins: uprightMargins(margins, picture.turns) };
+  const scale = thumb / Math.max(image.width, image.height);
+  const small = await createImageBitmap(image, { resizeWidth: Math.round(image.width * scale), resizeHeight: Math.round(image.height * scale), resizeQuality: 'medium' });
+  image.close();
+  return { image: small, margins: uprightMargins(margins, picture.turns).map((m) => Math.round(m * scale)) as Margins };
 }
 
 // ---- Downloads ----------------------------------------------------------------------------------------
@@ -321,7 +326,7 @@ function drawCredit(e: Engine, picture: Picture, settings: DevelopSettings, marg
 // ---- Messages ----------------------------------------------------------------------------------------
 
 /** The newest preview of each photo: an older request that has not started is skipped. */
-const latest = new Map<number, number>();
+const latest = new Map<string, number>();
 let queue: Promise<unknown> = Promise.resolve();
 const enqueue = (task: () => Promise<void>) => (queue = queue.then(task));
 
@@ -332,21 +337,21 @@ self.onmessage = ({ data }: MessageEvent<Request>) => {
       return;
     case 'close':
       open.delete(data.id);
-      latest.delete(data.id);
+      for (const key of latest.keys()) if (key.startsWith(`${data.id}:`)) latest.delete(key);
       return;
     case 'open':
       enqueue(() => openPhoto(data.id, data.file, data.side, data.standard).catch((error: unknown) => post({ type: 'error', id: data.id, message: messageOf(error) })));
       return;
     case 'preview':
-      latest.set(data.id, data.seq);
+      latest.set(`${data.id}:${data.channel}`, data.seq);
       enqueue(async () => {
-        if (latest.get(data.id) !== data.seq) return;
+        if (latest.get(`${data.id}:${data.channel}`) !== data.seq) return;
         const t0 = performance.now();
         try {
-          const { image, margins } = await preview(data.id, data.settings, data.urls);
-          post({ type: 'preview', id: data.id, seq: data.seq, image, margins, ms: Math.round(performance.now() - t0) }, [image]);
+          const { image, margins } = await preview(data.id, data.settings, data.urls, data.thumb);
+          post({ type: 'preview', id: data.id, seq: data.seq, channel: data.channel, image, margins, ms: Math.round(performance.now() - t0) }, [image]);
         } catch (error) {
-          post({ type: 'error', id: data.id, seq: data.seq, message: messageOf(error) });
+          post({ type: 'error', id: data.id, seq: data.seq, channel: data.channel, message: messageOf(error) });
         }
       });
       return;

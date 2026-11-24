@@ -1191,15 +1191,15 @@ export function Workbench({
               </SelectContent>
             </Select>
           </div>
-          {/* The kinds of film on one line, the chosen one underlined; the line scrolls on a phone. */}
+          {/* The kinds of film, the chosen one underlined; on a phone they wrap onto a second line, so none hides. */}
           <Tabs
             value={kind}
             onValueChange={(value) => setKind(value as FilmKind | "all")}
-            className="-mx-gutter min-w-0 px-gutter lg:mx-0 lg:px-0"
+            className="min-w-0"
           >
             <TabsList
               variant="line"
-              className="h-auto w-full max-w-full justify-start gap-0 overflow-x-auto border-b border-border p-0 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="h-auto w-full max-w-full flex-wrap justify-start gap-x-0 gap-y-1 border-b border-border p-0 pb-1"
               aria-label={t.searchEffects}
             >
               <TabsTrigger
