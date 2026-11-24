@@ -54,6 +54,7 @@ export GRKU_HOST_CC="$PWD/.github/scripts/clang-sanitized.sh"
 export GRKU_SANITIZER_CC=clang
 export GRKU_REQUIRE_NATIVE_TESTS=1
 cargo run --locked -p grku-cli -- module test --dir modules/glow --cc "$GRKU_HOST_CC"
+cargo run --locked -p grku-cli -- module test --dir modules/grain --cc "$GRKU_HOST_CC"
 cargo test --locked -p grku-core --test native_contracts
 unset GRKU_HOST_CC GRKU_SANITIZER_CC GRKU_REQUIRE_NATIVE_TESTS
 ```

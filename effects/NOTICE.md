@@ -12,6 +12,8 @@ Kodachrome 64, Velvia 100, Ektachrome E100, Fujicolor C200, UltraMax 400, Provia
 licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). These effect
 definitions are also licensed under CC BY-SA 4.0.
 
+The Film-like style of the Grain module (`modules/grain/grain.c`) follows the grain model of spektrafilm (`src/spektrafilm/model/grain.py`); it is a new implementation in integers, not a copy of that code, written by piratenpanda for GRKit (pull request #122) and ported to GRKU.
+
 `sources/SPEKTRAFILM_LICENSE.txt` contains the upstream notice. `sources/CHANGELOG.txt` describes
 the changes: GRKit scans the four slide films directly instead of printing them, sets the scan
 levels of Vision3 500T, and fits each LUT to the effect model.

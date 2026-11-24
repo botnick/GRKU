@@ -273,7 +273,7 @@ export const en = {
     dateLooks: ['Classic', 'GR1s', 'GR II'],
     glowText: 'Bloom adds a soft glow to highlights. Halation adds a red-orange halo around bright lights.',
     glowKinds: ['Off', 'Bloom', 'Halation'],
-    grainText: "The camera's own film grain.",
+    grainText: 'The camera\'s own film grain, or Film-like grain with color that follows the tone of a print.',
     grainLevels: ['Weak', 'Medium', 'Strong', 'Extra Strong'],
     inCamera: 'On the camera',
     adjCaption: 'Press ADJ and choose GRKU.',
@@ -534,7 +534,7 @@ export const en = {
     lightLeak:
       'A vignette, dust and hairs, a light leak, and scratches on photos, each Off, Light, Medium, or Strong, or the Faded, Dusty, Leaky, and Expired presets. They fall differently on every shot. No live-view preview.',
     diffusion: 'The glow of a Black Pro-Mist diffusion filter at 1/8, 1/4, or 1/2, with an optional Black Mist veil over the shadows and a blue or amber anamorphic streak from point lights. Film Softness (Low, Medium, High) works on its own: fine detail fades and highlights roll off at their edges, as on a film scan. No live-view preview.',
-    grain: "Film grain from the camera's grain stage, in four strengths. Photos only.",
+    grain: 'Film grain on photos in four strengths and four sizes. System is the camera\'s own grain; Film-like draws the grain of a color negative printed on paper, with color, strongest in the midtones. Photos only.',
     border: 'A white or black border around each photo. The photo keeps every pixel.',
     recipes: 'Save looks and settings as recipes and switch in ADJ. Add popular ones here.',
   },

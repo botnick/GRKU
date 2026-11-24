@@ -1,10 +1,13 @@
-# Grain: film grain in recorded pictures. The core applies the level of
-# CORE.GRAIN in the native grain stage, so the module needs no C code.
+# Grain: film grain in recorded pictures. In the System style the core
+# applies the level of CORE.GRAIN in the native grain stage. In the
+# Film-like style the core turns that stage off, and the plane filter of
+# grain.c draws the grain of a color negative printed on paper, after the
+# grain model of spektrafilm by Andrea Volpato.
 id = "GRAIN"
 version = 1
 # The default place in ADJ and in MENU: Film Look, Framing, Guides, Date, Grain.
 order = 50
-sources = []
+sources = ["grain.c"]
 # Tile n shows value n. Tile 0 is the module tile, for Off at the root.
 # Tile 9, the centered and struck symbol, shows the Off row, as for Bloom
 # and Halation.
@@ -24,6 +27,17 @@ tiles = [
 # CORE.GRAIN_SIZE: 0 Auto (by ISO), 1 small, 2 medium, 3 large.
 uses = ["CORE.GRAIN", "CORE.GRAIN_SIZE"]
 
+# The style of the grain: 0 System, the native grain stage, the default
+# in GRKU (a saved state file without the key takes the default, so it
+# keeps the grain that upgraders had); 1 Film-like, the plane filter
+# (grain.c), from GRKit PR #122 by piratenpanda. The core reads it by its
+# state file ID (runtime/picture.c: GRAIN_STYLE_ID).
+[[settings]]
+key = "STYLE"
+values = 2
+saved = true
+public = true
+
 # The viewfinder icon: 0 on, 1 off.
 [[settings]]
 key = "ICON"
@@ -34,8 +48,15 @@ public = true
 [page]
 setting = "CORE.GRAIN"
 off_icon = { tile = 9 }
-# The level, the size, then the icon.
-settings = ["CORE.GRAIN", "CORE.GRAIN_SIZE", "ICON"]
+# The level, the size, the style, then the icon.
+settings = ["CORE.GRAIN", "CORE.GRAIN_SIZE", "STYLE", "ICON"]
+
+# The Film-like grain. The core calls it while CORE.GRAIN is not Off, and
+# it draws nothing in the System style. It runs before the date (mark).
+[[filters]]
+apply = "grain_apply"
+setting = "CORE.GRAIN"
+stage = "frame"
 
 [[indicators]]
 id = "grain"

@@ -29,7 +29,7 @@ Press the ADJ lever while shooting and pick the sixth entry, GRKU. Everything GR
 - **Glow**: Bloom around lights and highlights, Halation as a red-orange halo in the colors of motion-picture film.
 - **Light Leak**: vignette, dust and hairs, a light leak, scratches, or the presets Faded, Dusty, Leaky and Expired. Different on every shot.
 - **Diffusion**: a Black Pro-Mist filter at 1/8, 1/4 or 1/2, a Black Mist veil over the shadows, and the anamorphic streak of point lights; and, on its own, Film Softness (Low, Medium, High), the gentle softness of a film scan.
-- **Grain**: four strengths, four sizes.
+- **Grain**: four strengths, four sizes, as the camera draws it or Film-like: the grain of a color negative on paper, after the grain model of [spektrafilm](https://github.com/andreavolpato/spektrafilm) by Andrea Volpato (from GRKit PR #122 by piratenpanda).
 - **Border**: a Thin, Wide, or Instant white or black border around the whole photo: the JPEG grows by the border and the photo keeps every pixel.
 - **Enable at Start**: GRKU on, off, or as you left it, at every power-on.
 - **Distance Unit**: the Snap focus distances and the manual focus scale in meters or in feet, in MENU under GRKU Settings.
