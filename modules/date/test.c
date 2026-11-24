@@ -62,14 +62,14 @@ int main(void)
     u32 left, top;
     /* The descriptor: STYLE (6 values), LOOK (3), POSITION (2), ICON (2),
        COLOR (5), SIZE (4, M by default), CORNER (4), GLOW (2), and CAPTION
-       (8), a page with its nine native settings rows, one filter, and one
+       (9), a page with its nine native settings rows, one filter, and one
        status indicator. */
     assert(grku_module.setting_count == 9 && grku_module.settings[0].values == 6 &&
            grku_module.settings[1].values == 3 && grku_module.settings[2].values == 2 &&
            grku_module.settings[3].values == 2 && grku_module.settings[4].values == 5 &&
            grku_module.settings[5].values == 4 && grku_module.settings[5].default_value == 1 &&
            grku_module.settings[6].values == 4 && grku_module.settings[7].values == 2 &&
-           grku_module.settings[8].values == 8);
+           grku_module.settings[8].values == 9);
     assert(grku_module.registration_count == 3 && grku_module.tile_count == 6);
     assert(SETTING_STYLE == GRKU_SETTING(0) && SETTING_LOOK == GRKU_SETTING(1) &&
            SETTING_POSITION == GRKU_SETTING(2) && SETTING_CAPTION == GRKU_SETTING(8));
@@ -172,7 +172,7 @@ int main(void)
     grku_test_settings[SETTING_CAPTION] = 0;
     /* Every caption fits next to the longest style, in each look. */
     for (u32 look = 0; look < 3; ++look)
-        for (u32 caption = 1; caption < 8; ++caption) {
+        for (u32 caption = 1; caption < 9; ++caption) {
             PictureSet set = {{gray_plane(GRKU_TEST_PLANES)}, 1, 0, 0, grku_test_scratch};
             u32 right, bottom;
             grku_test_settings[SETTING_LOOK] = look;

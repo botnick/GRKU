@@ -34,4 +34,4 @@ values = ["オフ", "オン"]
 
 [settings.CAPTION]
 label = "キャプション"
-values = ["オフ", "THANK YOU", "HAPPY BIRTHDAY", "I <3 GR", "I <3 YOU", "GOOD TIMES", "HOLIDAY", "CHEERS"]
+values = ["オフ", "THANK YOU", "HAPPY BIRTHDAY", "I <3 GR", "I <3 YOU", "GOOD TIMES", "HOLIDAY", "CHEERS", "GRKU <3"]

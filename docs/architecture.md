@@ -104,7 +104,7 @@ Each feature is a module, `<ID>.GRM`, linked at power-on. The same file runs on 
 | `GLOW` | independent Bloom and Halation around the highlights of each recorded picture |
 | `DIFFUSE` | the glow of a highlight diffusion filter, with a Black Mist veil over the shadows and an anamorphic Streak from point lights, and on its own Film Softness, the softness of a film scan, on each recorded picture |
 | `BORDER` | a page of `CORE.BORDER` and `CORE.BORDER_COLOR`: a white or black border around each recorded picture: the picture keeps all its pixels, and the JPEG grows by the border |
-| `GRAIN` | a page of `CORE.GRAIN` and `CORE.GRAIN_SIZE` |
+| `GRAIN` | a page of `CORE.GRAIN` and `CORE.GRAIN_SIZE`, and the plane filter of its Film-like style |
 | `RECIPES` | a page of `CORE.RECIPE` ([Recipes](#recipes)) |
 
 The core keeps the value of each setting. The capabilities, `CORE.<KEY>`, are settings of the core. The core keeps each in a header word that its hooks read, so module code never runs in a hot path. INSTALL applies the patches of a capability only when a loaded module uses it.
@@ -134,7 +134,7 @@ The menu text follows the camera language.
 - **Framing** (`CORE.ASPECT`) selects a ratio and sets the native aspect to 3:2. `CORE.ASPECT_MODE` selects Crop or Guides Only, with Crop as the default. Crop changes JPEG dimensions. Guides Only marks composition on the 3:2 live view without applying the selected crop. Off and changes to the mode preserve the current native aspect. A later change to another native aspect hides the composition frame.
 - **RAW default crop**: when Framing crops a shot, DNG defaults to native 3:2 and preserves the shot's digital crop setting. The DNG writer changes only `DefaultCropOrigin` and `DefaultCropSize`. The capture snapshot identifies the shot's Framing crop. Embedded previews keep the selected composition.
 - **Guides** follow the framing area in both Framing modes, so that they divide the frame that the photographer composes in. Without a framing area, they follow the native aspect ratio.
-- **Recorded pictures**: a hook on the JPEG encode changes the main picture, the screennail, and the thumbnail. It applies the selective color of the effect and the plane filters of the modules. Each shot keeps its own settings, so continuous shooting is correct. Grain uses the camera's grain stage, so the live view and DNG files have no grain.
+- **Recorded pictures**: a hook on the JPEG encode changes the main picture, the screennail, and the thumbnail. It applies the selective color of the effect and the plane filters of the modules. Each shot keeps its own settings, so continuous shooting is correct. Grain uses the camera's grain stage in its System style, and the plane filter of the Grain module in its Film-like style, which turns that stage off. Either way the live view and DNG files have no grain.
 
 ## Recipes
 

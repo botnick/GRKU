@@ -397,6 +397,86 @@ fn date_chain_stays_within_stack_budget() -> Result<()> {
     Ok(())
 }
 
+/// The bytes that the deepest chain of the Film-like grain may take of the
+/// stack of the firmware JPEG encoder task, as for Date Imprint: the plane
+/// filters run one after the other, so the deepest chain of the encoder is
+/// that of one filter.
+const GRAIN_STACK_BUDGET: usize = DATE_STACK_BUDGET;
+/// The frames of the NEON assembly of `grain.c`, which `-fstack-usage`
+/// does not measure: the pushed registers (and d8 to d15).
+const GRAIN_NEON_FRAMES: &[(&str, usize)] = &[
+    ("grain_film_422", 9 * 4 + 8 * 8),
+    ("grain_film_420", 9 * 4 + 8 * 8),
+    ("grain_film_mono", 8 * 4),
+    ("grain_mix", 8 * 4),
+];
+
+/// Each call chain of `grain_apply` down to a leaf, as `grain.c` calls
+/// them. A function that the compiler inlines has no frame of its own and
+/// counts 0.
+#[rustfmt::skip]
+const GRAIN_CHAINS: &[&[&str]] = &[
+    &["grain_apply", "size_of_iso"],
+    &["grain_apply", "grain_draw", "seed_of"],
+    &["grain_apply", "grain_draw", "grain_lut"],
+    &["grain_apply", "grain_draw", "grain_tiles", "grain_texture", "blur"],
+    &["grain_apply", "grain_draw", "grain_tiles", "center"],
+    &["grain_apply", "grain_draw", "grain_tiles", "texture_stats"],
+    &["grain_apply", "grain_draw", "grain_tiles", "texture_chroma"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_c", "luma_noise", "place_of"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_c", "chroma_noise", "place_of"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_c", "film_pair"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_c", "mono_pixel"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "place_of"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "seam_jobs", "job_of"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "fade_jobs", "job_of"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "texture_run"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "fade_run"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "next_rows", "grain_mix"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "next_rows", "run_blocks", "grain_film_422"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "next_rows", "run_blocks", "grain_film_420"],
+    &["grain_apply", "grain_draw", "grain_plane", "grain_row", "row_blocks", "next_rows", "run_blocks", "grain_film_mono"],
+    // For test.c only.
+    &["grain_tone_of"],
+];
+
+/// The Film-like grain runs beneath the firmware JPEG encoder: each call
+/// chain of its camera build stays within GRAIN_STACK_BUDGET.
+#[test]
+#[ignore = "Requires ARM-capable Clang and LLD; run with --ignored"]
+fn grain_chain_stays_within_stack_budget() -> Result<()> {
+    let frames = stack_frames("grain", "grain.c")?;
+    let frame = |name: &str| -> usize {
+        if let Some((_, bytes)) = GRAIN_NEON_FRAMES
+            .iter()
+            .find(|(function, _)| *function == name)
+        {
+            return *bytes;
+        }
+        frames
+            .iter()
+            .find(|(function, _)| function == name)
+            .map_or(0, |(_, bytes)| *bytes)
+    };
+    for chain in GRAIN_CHAINS {
+        let total: usize = chain.iter().map(|name| frame(name)).sum();
+        assert!(
+            total <= GRAIN_STACK_BUDGET,
+            "Grain call chain {chain:?} takes {total} bytes of the encoder stack, over {GRAIN_STACK_BUDGET}"
+        );
+    }
+    // A function of grain.c that no chain names would escape the check.
+    for (function, _) in &frames {
+        assert!(
+            GRAIN_CHAINS
+                .iter()
+                .any(|chain| chain.contains(&function.as_str())),
+            "Grain function {function} is in no call chain of the stack check"
+        );
+    }
+    Ok(())
+}
+
 /// Glow also runs beneath the firmware JPEG encoder. Its row workspaces must
 /// stay in picture scratch: a 992-byte frame of light_row made the encoder
 /// task warn of a low stack.
@@ -612,6 +692,105 @@ fn synthetic_date_neon_parity() -> Result<()> {
     ensure!(
         result.status.success() && output.contains("NEON == C"),
         "Date stamp: {output}{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    Ok(())
+}
+
+/// The NEON code of the Film-like grain (`modules/grain/grain.c`) gives the
+/// bytes of its C code: the test program `modules/grain/neon_parity.c` links
+/// the file built with NEON and built with `GRAIN_SCALAR`, draws the grain on
+/// the same random planes with both, and runs under qemu-arm
+/// (`GRKU_QEMU_ARM`).
+#[test]
+#[ignore = "Requires ARM-capable Clang and LLD and qemu-arm; run with --ignored"]
+fn synthetic_grain_film_neon_parity() -> Result<()> {
+    let tools = tools()?;
+    let directory = tempfile::tempdir()?;
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let grain = root.join("modules/grain");
+    let sdk = root.join("runtime/sdk");
+    // The setting handles of modules/grain, as `grku module build` declares them.
+    fs::write(
+        directory.path().join("grku_module.h"),
+        "#include \"grku.h\"\n#define SETTING_STYLE GRKU_SETTING(0)\n#define SETTING_ICON GRKU_SETTING(1)\n\
+         #define USED_CORE_GRAIN GRKU_USED(0)\n#define USED_CORE_GRAIN_SIZE GRKU_USED(1)\n",
+    )?;
+    let compile = |source: &str, object: &str, mode: &str, extra: &[String]| -> Result<()> {
+        toolchain::run(
+            &tools.clang,
+            toolchain::CAMERA_TARGET
+                .iter()
+                .map(|flag| flag.to_string())
+                .chain(
+                    [
+                        mode,
+                        "-Os",
+                        "-ffreestanding",
+                        "-fno-builtin",
+                        "-fno-stack-protector",
+                        "-c",
+                    ]
+                    .map(String::from),
+                )
+                .chain(extra.iter().cloned())
+                .chain([
+                    "-I".into(),
+                    sdk.display().to_string(),
+                    "-I".into(),
+                    directory.path().display().to_string(),
+                    grain.join(source).display().to_string(),
+                    "-o".into(),
+                    directory.path().join(object).display().to_string(),
+                ]),
+        )
+    };
+    compile("grain.c", "neon.o", "-mthumb", &[])?;
+    // The C build names each global scalar_*, so both link into one program.
+    let scalar: Vec<String> = std::iter::once("-DGRAIN_SCALAR".to_string())
+        .chain(
+            [
+                "grain_draw",
+                "grain_apply",
+                "grain_tone_of",
+                "grain_tone_table",
+                "grain_kernel_table",
+                "grain_seam_luma",
+                "grain_seam_chroma",
+                "grain_fade_weight",
+                "grain_half_weight",
+                "grain_film_422",
+                "grain_film_420",
+                "grain_film_mono",
+                "grain_mix",
+            ]
+            .map(|name| format!("-D{name}=scalar_{name}")),
+        )
+        .collect();
+    compile("grain.c", "scalar.o", "-mthumb", &scalar)?;
+    // ARM mode: the entry point of the program.
+    compile("neon_parity.c", "parity.o", "-marm", &[])?;
+    let program = directory.path().join("parity");
+    toolchain::run(
+        &tools.lld,
+        ["-static", "-e", "_start", "-o"]
+            .map(String::from)
+            .into_iter()
+            .chain([program.display().to_string()])
+            .chain(
+                ["parity.o", "neon.o", "scalar.o"]
+                    .map(|object| directory.path().join(object).display().to_string()),
+            ),
+    )?;
+    let qemu = std::env::var("GRKU_QEMU_ARM").unwrap_or_else(|_| "qemu-arm".into());
+    let result = std::process::Command::new(&qemu)
+        .arg(&program)
+        .output()
+        .with_context(|| format!("Run {qemu}"))?;
+    let output = String::from_utf8_lossy(&result.stdout);
+    ensure!(
+        result.status.success() && output.contains("NEON == C"),
+        "Film-like grain: {output}{}",
         String::from_utf8_lossy(&result.stderr)
     );
     Ok(())
