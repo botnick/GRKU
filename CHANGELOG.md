@@ -1,3 +1,45 @@
+## 1.9.0 (2026-11-23)
+
+### Features
+
+- ADJ Order in GRKU Settings can give up to four modules their own entry in the ADJ toolbar before GRKU, or hide a module from ADJ while it keeps working.
+- Shutdown Screen in GRKU Settings: Custom Picture shows your own picture (`GRKU/GOODBYE.JPG`) when the camera turns off, and Show Text Off hides the text over it. The camera checks the whole picture once after it starts, so a damaged or cut-off file never keeps it from turning off, and a new picture applies at the next start.
+- Date Imprint prints in five colors (standard, orange, white, sepia, LED yellow), four sizes (S, M, M-L, L), and four places (bottom right, bottom left, top right, or split: the date at the left and the caption at the right), with an optional soft glow and a caption before the date: THANK YOU, HAPPY BIRTHDAY, I ♥ GR, I ♥ YOU, GOOD TIMES, HOLIDAY, or CHEERS, in the letters of each font. A module page can have up to nine native settings rows. The defaults print the date as before.
+- Display Settings in GRKU Settings holds Distance Unit and two new settings. Simplified Info. Battery shows the battery icon in the simplified information of the live view. Effect Icons in Playback shows an icon for each GRKU setting of a photo on the first page of the detailed playback information, with the crop of the photo in the place of the camera's crop badge.
+- Diffusion has Film Softness (Off, Low, Medium, High): each recorded JPEG softens as a film scan does, fine detail fades and highlights roll off at their edges, colour softens a little, and faint texture such as grain keeps its bite. It works on its own, with or without a diffusion strength; the Diffusion page in ADJ and MENU now holds two children, Filter and Softness. Off by default, so existing settings do not change.
+- Framing adds a 3:4 ratio for vertical half-frame photos.
+- Import a LUT on the site also takes a Lightroom .xmp preset: GRKU reads its color settings and makes a film look of them. Settings that change with each photo are only approximate.
+- The GRKU section of MENU shows GRKU Settings right after Enable GRKU, then Recipes and the other modules, and MENU returns to the row that you came from. GRKU Settings groups its settings in Shooting Settings, Display Settings, and Shutdown Screen, and its switches list On before Off.
+- Mode Dial in GRKU Settings: U1, U2, and U3 can save your camera and GRKU settings together with Save Current Settings, do what P, Av, Tv, and M do, or turn GRKU off, and GRKU turns on or off at P, Av, Tv, M, and Sn (GR IV) separately. After the update, U1 to U3 set to GRKU Off stay Off. A recipe or saved settings on U1 to U3 does not carry over: save it again in MENU, GRKU Settings, Mode Dial, Save Current Settings.
+- Photos record their GRKU settings in XMP, so exiftool and other XMP readers show them, also without Film Look (as on GR IV Monochrome) and when playback opens before the camera has saved the photo.
+- RAW development has a GRKU row that sets Grain, Glow, Border, and Date for that development only, and it starts from the GRKU settings of the photo, as the DNG records them.
+- View on the page of a recipe in MENU shows its settings with icons, ADJ shows them at the left of the live view while the cursor is on the recipe, and the tile of each recipe in ADJ shows the abbreviation of its name.
+- The install page puts the shutdown picture on the card: the GRKU logo, a picture of your own cropped to 3:2, one of 11 ready-made designs (a sunset, a sleepy moon, a napping cat, a film roll, a receipt, and more) with your own text, or a picture you make in GRKU Studio, an editor in layers with backgrounds, your photos, text in eight fonts, 65 stickers, frames, and templates for Songkran, Loy Krathong, New Year, and Valentine's Day. Five designs and a part of GRKU Studio are free; GRKU Plus (Everything) unlocks the rest. With GRKU.zip, the picture downloads on its own.
+- GRKU Settings has Uncropped RAW: each DNG keeps the whole picture of the sensor, and Lightroom and Camera Raw open it with the crop of the shot, which they can undo. With these crop settings in the file, Lightroom may not apply its own RAW defaults.
+
+### Fixes
+
+- In ADJ, OK on a GRKU value returns to the GRKU list instead of closing ADJ, and Left or Right keeps the highlighted value.
+- Bordered photos now show at once and without a shift in playback, and GR IV shows the border in the review after a shot. With a border, the review after a cropped shot shows the border at once, and the picture stays in place when playback opens.
+- Crop now works with every aspect and Framing ratio, and in-camera RAW development keeps the 40 and 70 mm crops (57 and 100 mm on GR IIIx).
+- The crop badge in the live view looks the same for each focal length.
+- Film looks that you uncheck on the site no longer load on the camera after you copy the new package.
+- Grain takes less time for each photo on GR III and GR IIIx.
+- GRKU installs again on GR IV 1.11 cameras that stopped with error 47.
+- The recovery links of the camera guides (PDF) open the recovery appendix of the guide again, now that the install text links to the recovery page of grku.app.
+- The camera's own grid lines hide while GRKU draws in the live view, and Guides place the dynamic symmetry lines of XPan and 2.35:1 correctly.
+- Saving a user mode no longer clears another one on GR III, and saving it again in the camera menu now drops its GRKU look.
+- Order in the MENU page of Film Look, Recipes, Framing, Guides, and Date Imprint sets the order of their choices in ADJ.
+- Deleting a photo in playback while the detailed information shows no longer stops the camera.
+- Effect Icons in Playback shows the settings of a shot that playback opens right after, not those of the photo before it.
+- RAW development keeps the Framing ratio of a photo that has a Border.
+- The RAW development preview keeps the Border color with Shading or Clarity, and puts the Shading vignette in the middle of the picture.
+- Leaving the name keyboard of Save Settings without OK no longer saves a recipe.
+- ADJ previews the recipe under the cursor in the live view, and Undo restores every camera setting that a recipe changed.
+- The community recipes of the site are offered on GR IV too, with Cotton Color 400 by Luke Taylor, and Portra 160, Candy Color 400, Lanzarote, Bennet's BW800, and Sisofo Street BW take the settings of their authors.
+- GRKU uses less processor time while the camera is on and no setting changes.
+- Shared settings now save while a U1, U2, or U3 snapshot is active. Temporary edits in that snapshot remain separate.
+
 ## 1.8.6 (2026-11-13)
 
 ### Fixes
