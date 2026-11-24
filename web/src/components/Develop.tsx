@@ -32,6 +32,8 @@ import { PRICES, type Entitlement } from '../plus';
 import { useCatalog } from '../useCatalog';
 import { CompareView } from './CompareView';
 import { EffectIcon } from './EffectIcon';
+import { LookSearchEmpty } from './LookSearchEmpty';
+import { closestLooks, searchLooks } from '../lookSearch';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 const SETTINGS_KEY = 'grku.develop';
@@ -581,12 +583,13 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
   const [shownCount, setShownCount] = useState(LOOK_PAGE);
   const [sheet, setSheet] = useState(false);
   const kinds = FILM_KINDS.filter((item) => effects.some((effect) => filmKind(effect) === item));
-  const needle = query.trim().toLowerCase();
-  const visible = effects.filter(
-    (effect) =>
-      (kind === 'all' || filmKind(effect) === kind) &&
-      (!needle || `${effect.name} ${effect.cover?.brand ?? ''} ${effect.cover?.name ?? ''} ${effect.look}`.toLowerCase().includes(needle)),
+  const needle = query.trim();
+  // The looks of the kind, best match of the search first (lookSearch.ts).
+  const visible = searchLooks(
+    effects.filter((effect) => kind === 'all' || filmKind(effect) === kind),
+    needle,
   );
+  const offered = catalog && visible.length === 0 ? closestLooks(effects, needle, POPULAR) : { looks: [], near: false };
   // A new search or kind starts again at the first page.
   const filterKey = `${needle}\n${kind}`;
   const [lastFilter, setLastFilter] = useState(filterKey);
@@ -795,6 +798,25 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                   </li>
                 ))}
               </ul>
+              {catalog && visible.length === 0 && (
+                <LookSearchEmpty
+                  query={needle}
+                  suggestions={offered.looks}
+                  near={offered.near}
+                  strings={t}
+                  onPick={(effect) => {
+                    setQuery('');
+                    setKind('all');
+                    chooseLook(effect.id);
+                  }}
+                  onClear={() => setQuery('')}
+                  onShowAll={() => {
+                    setQuery('');
+                    setKind('all');
+                  }}
+                  makeOwn={{ href: pagePath(language, 'install') }}
+                />
+              )}
               {moreLooks > 0 && (
                 <Button type="button" variant="outline" className="mt-3 h-11 w-full rounded-lg" onClick={() => setShownCount((count) => count + LOOK_PAGE * 2)}>
                   {format(d.showMore, { n: moreLooks })}
