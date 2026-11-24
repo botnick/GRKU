@@ -5,10 +5,8 @@
 // It is made for someone new to all this, on a phone: three steps (a photo, a look, save), the
 // popular looks first, the styles as cards with a preview, one big Save button, and the camera's
 // own controls folded away under Adjust more.
-import { Ban, Check, Share, ChevronDown, CircleCheck, Copy, Download, ImagePlus, Info, Loader2, Lock, MapPinOff, Plus, ShieldCheck, Sparkles, X } from 'lucide-react';
+import { Ban, Check, ChevronRight, Share, ChevronDown, CircleCheck, Copy, Download, ImagePlus, Info, Loader2, Lock, MapPinOff, Plus, ShieldCheck, Sparkles, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type ReactNode } from 'react';
-import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
-import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -31,7 +29,9 @@ import { pagePath } from '../languagePage';
 import type { ModuleKey } from '../modules';
 import { PRICES, type Entitlement } from '../plus';
 import { useCatalog } from '../useCatalog';
+import { CompareView } from './CompareView';
 import { EffectIcon } from './EffectIcon';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 const SETTINGS_KEY = 'grku.develop';
 const FIRST_LOOK = 'positive-film-grii-v1';
@@ -179,7 +179,7 @@ function Field({ label, value, options, onChange, disabled, note }: { label: str
     <label className={cn('flex min-w-0 flex-col gap-1 text-[14px]', disabled && 'opacity-50')}>
       <span className="text-muted-foreground">{label}</span>
       <select
-        className="h-11 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-[15px] text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30"
+        className="h-11 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-[16px] text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30"
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(Number(event.target.value))}
@@ -252,24 +252,18 @@ function TileChoice({ label, value, tiles, names, onChange }: { label: string; v
 
 /** The example of the empty page: a GR photo of the home page, before and after Portra 400. */
 function Example({ d }: { d: DevelopText }) {
-  const comparison = useReactCompareSlider({ clip: 'itemTwo', onlyHandleDraggable: true });
+  const [split, setSplit] = useState(50);
   const sizes = '(min-width: 1024px) 480px, calc(100vw - 32px)';
   return (
     <figure className="m-0">
       <div className="relative aspect-[3/2] overflow-hidden rounded-xl bg-muted ring-1 ring-border">
-        <Provider {...comparison}>
-          <Root className="image-comparison">
-            <Item item="itemOne">
-              <img {...landingPicture('hero/achensee-standard.jpg', sizes)} alt={d.before} width="1200" height="800" />
-            </Item>
-            <Item item="itemTwo" className="comparison-effect">
-              <img {...landingPicture('hero/achensee-portra-400.jpg', sizes)} alt={`${d.after}: Portra 400`} width="1200" height="800" />
-            </Item>
-            <HandleRoot aria-label={d.compare}>
-              <Handle buttonStyle={{ width: 32, height: 32, gap: '0.2rem' }} />
-            </HandleRoot>
-          </Root>
-        </Provider>
+        <CompareView
+          position={split}
+          onPosition={setSplit}
+          label={d.compare}
+          before={<img {...landingPicture('hero/achensee-standard.jpg', sizes)} alt={d.before} width="1200" height="800" draggable={false} className="size-full object-cover" />}
+          after={<img {...landingPicture('hero/achensee-portra-400.jpg', sizes)} alt={`${d.after}: Portra 400`} width="1200" height="800" draggable={false} className="size-full object-cover" />}
+        />
         <span className="pointer-events-none absolute top-3 left-3 z-[2] rounded-md bg-black/60 px-2 py-1 text-xs text-white/85 backdrop-blur-sm">{d.before}</span>
         <span className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/60 px-2.5 py-1 text-sm font-semibold text-white backdrop-blur-sm">Portra 400</span>
       </div>
@@ -377,6 +371,12 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
   }
 
   const photo = photos.find((item) => item.key === current) ?? null;
+  const viewer = useRef<HTMLDivElement>(null);
+  const hadPhotos = useRef(false);
+  useEffect(() => {
+    if (photos.length > 0 && !hadPhotos.current) viewer.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    hadPhotos.current = photos.length > 0;
+  }, [photos.length]);
 
   // Opens the shown photo in the preview worker; a few stay open, the others close.
   useEffect(() => {
@@ -578,6 +578,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
   const [kind, setKind] = useState<FilmKind | 'all'>('all');
   // The grid shows a page of looks, and more on request: no scroll area inside the panel.
   const [shownCount, setShownCount] = useState(LOOK_PAGE);
+  const [sheet, setSheet] = useState(false);
   const kinds = FILM_KINDS.filter((item) => effects.some((effect) => filmKind(effect) === item));
   const needle = query.trim().toLowerCase();
   const visible = effects.filter(
@@ -622,7 +623,8 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
     },
     [view, opened, black],
   );
-  const comparison = useReactCompareSlider({ clip: 'itemTwo', onlyHandleDraggable: true });
+  // The divider of the before-and-after view, in percent from the left.
+  const [split, setSplit] = useState(50);
 
   const note = opened
     ? opened.fidelity === 'exact'
@@ -737,6 +739,122 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
           <a href={`${pagePath(language, 'install')}${installQuery(settings)}`}>{d.install}</a>
         </Button>
       </div>
+    </section>
+  );
+
+  // Choosing a look in the sheet of a phone closes it: the photo shows the look.
+  const chooseLook = (look: string | null) => {
+    setSettings({ ...settings, look });
+    setSheet(false);
+  };
+  const allLooks = (
+    <>
+              <Input type="search" className="mt-2 h-11 rounded-lg bg-background text-[16px]" placeholder={d.search} aria-label={d.search} value={query} onChange={(event) => setQuery(event.target.value)} />
+              <div className="mt-2.5 flex flex-wrap gap-1.5" role="group" aria-label={d.allLooks}>
+                {(['all', ...kinds] as const).map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    aria-pressed={kind === item}
+                    onClick={() => setKind(item)}
+                    className="h-11 rounded-full border px-3.5 text-[14px] whitespace-nowrap text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-foreground aria-pressed:bg-foreground aria-pressed:text-background"
+                  >
+                    {item === 'all' ? t.filterAll : kindLabel(item, t)}
+                  </button>
+                ))}
+              </div>
+              {catalogError && (
+                <p className="mt-3 text-[14px] text-destructive">
+                  {t.loadError}{' '}
+                  <Button type="button" variant="link" className="h-auto p-0" onClick={retry}>
+                    {t.retryLoad}
+                  </Button>
+                </p>
+              )}
+              <ul className="mt-3 grid grid-cols-4 gap-1.5 sm:grid-cols-6 lg:grid-cols-4" aria-label={d.allLooks}>
+                {!needle && kind === 'all' && (
+                  <li>
+                    <button
+                      type="button"
+                      aria-pressed={settings.look === null}
+                      onClick={() => chooseLook(null)}
+                      className="flex h-full min-h-[44px] w-full flex-col items-center gap-1 rounded-lg border bg-background p-1.5 pt-2 text-center outline-none hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-foreground aria-pressed:ring-2 aria-pressed:ring-foreground"
+                    >
+                      <span className="flex size-11 items-center justify-center rounded-md border border-dashed text-muted-foreground">
+                        <Ban className="size-4" aria-hidden="true" />
+                      </span>
+                      <span className="line-clamp-2 text-[12px] leading-[1.2] font-medium">{d.noLook}</span>
+                    </button>
+                  </li>
+                )}
+                {!catalog && !catalogError && Array.from({ length: 12 }, (_, index) => <li key={index} className="aspect-[5/6] animate-pulse rounded-xl border bg-background" aria-hidden="true" />)}
+                {pageLooks.map((effect) => (
+                  <li key={effect.id}>
+                    <LookButton effect={effect} chosen={settings.look === effect.id} locked={locked(effect)} lockText={d.lockedLook} onChoose={() => chooseLook(effect.id)} />
+                  </li>
+                ))}
+              </ul>
+              {moreLooks > 0 && (
+                <Button type="button" variant="outline" className="mt-3 h-11 w-full rounded-lg" onClick={() => setShownCount((count) => count + LOOK_PAGE * 2)}>
+                  {format(d.showMore, { n: moreLooks })}
+                </Button>
+              )}
+    </>
+  );
+
+  /** The popular looks in one row for a phone, with the next box cut at the edge to show that it scrolls. */
+  const lookRow = (
+    <section className="lg:hidden" aria-labelledby="develop-look-row">
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 id="develop-look-row" className={H2}>
+          {d.lookTitle}
+        </h2>
+        <Button type="button" variant="ghost" className="-mr-2 h-11 px-2 text-[14px]" onClick={() => setSheet(true)}>
+          {d.allLooks}
+          <ChevronRight aria-hidden="true" />
+        </Button>
+      </div>
+      <ul
+        className="-mx-gutter mt-1 flex snap-x snap-mandatory scroll-px-gutter gap-2 overflow-x-auto px-gutter pb-1 [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-36px),transparent)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        aria-label={d.popular}
+      >
+        {popular.map((effect) => (
+          <li key={effect.id} className="w-[84px] shrink-0 snap-start">
+            <LookButton effect={effect} big chosen={settings.look === effect.id} locked={locked(effect)} lockText={d.lockedLook} onChoose={() => setSettings({ ...settings, look: effect.id })} />
+          </li>
+        ))}
+        {/* The chosen look, when it is not one of the popular ones. */}
+        {lookEffect && !popular.includes(lookEffect) && (
+          <li className="w-[84px] shrink-0 snap-start">
+            <LookButton effect={lookEffect} big chosen locked={locked(lookEffect)} lockText={d.lockedLook} onChoose={() => undefined} />
+          </li>
+        )}
+        <li className="w-[84px] shrink-0 snap-start">
+          <button
+            type="button"
+            onClick={() => setSheet(true)}
+            className="flex h-full min-h-[44px] w-full flex-col items-center justify-center gap-1 rounded-lg border border-dashed text-[12px] font-medium text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ChevronRight className="size-5" aria-hidden="true" />
+            {d.allLooks}
+          </button>
+        </li>
+      </ul>
+      {anyLocked && (
+        <p className="mt-1.5 flex items-start gap-1.5 text-[14px] text-muted-foreground">
+          <Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+          {d.lockLine}
+        </p>
+      )}
+      <Sheet open={sheet} onOpenChange={setSheet}>
+        <SheetContent side="bottom" className="h-[92dvh] gap-0 rounded-t-xl p-0" onOpenAutoFocus={(event) => event.preventDefault()}>
+          <SheetHeader className="border-b pr-12">
+            <SheetTitle className="text-[17px]">{d.allLooks}</SheetTitle>
+            <SheetDescription className="text-[14px]">{d.lookTitle}</SheetDescription>
+          </SheetHeader>
+          <div className="overflow-y-auto overscroll-contain px-4 pt-1 pb-[max(16px,env(safe-area-inset-bottom))]">{allLooks}</div>
+        </SheetContent>
+      </Sheet>
     </section>
   );
 
@@ -860,7 +978,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
 
   return (
     <div
-      className={cn('relative pt-6 pb-12 lg:pt-10', photos.length > 0 && 'pb-32 lg:pb-28')}
+      className={cn('relative pt-6 pb-12 lg:pt-10 [&_a]:touch-manipulation [&_button]:touch-manipulation [&_select]:touch-manipulation', photos.length > 0 && 'pb-32 lg:pb-28')}
       onDragOver={(event) => {
         if (![...event.dataTransfer.types].includes('Files')) return;
         event.preventDefault();
@@ -908,22 +1026,16 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
         <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(340px,38%)] lg:items-start lg:gap-6">
           {/* The photo, the photos, saving, and the recipe. */}
           <div className="flex min-w-0 flex-col gap-4">
-            <div className="relative overflow-hidden rounded-xl bg-muted/40 ring-1 ring-border" aria-busy={rendering || undefined}>
+            <div ref={viewer} className="relative scroll-mt-28 overflow-hidden rounded-xl lg:scroll-mt-20 bg-muted/40 ring-1 ring-border" aria-busy={rendering || undefined}>
               {view && opened ? (
-                <div className="relative mx-auto" style={{ aspectRatio: `${view.image.width} / ${view.image.height}`, width: `min(100%, calc(62vh * ${view.image.width / view.image.height}))` }}>
-                  <Provider {...comparison}>
-                    <Root className="image-comparison h-full">
-                      <Item item="itemOne">
-                        <BitmapCanvas draw={drawBefore} width={view.image.width} height={view.image.height} className="size-full object-contain" label={`${d.before}: ${photo?.file.name ?? ''}`} />
-                      </Item>
-                      <Item item="itemTwo" className="comparison-effect">
-                        <BitmapCanvas draw={drawAfter} width={view.image.width} height={view.image.height} className="size-full object-contain" label={`${d.after}: ${lookName ?? d.noLook}`} />
-                      </Item>
-                      <HandleRoot aria-label={d.compare}>
-                        <Handle buttonStyle={{ width: 36, height: 36, gap: '0.2rem' }} />
-                      </HandleRoot>
-                    </Root>
-                  </Provider>
+                <div className="relative mx-auto" style={{ aspectRatio: `${view.image.width} / ${view.image.height}`, width: `min(100%, calc(62svh * ${view.image.width / view.image.height}))` }}>
+                  <CompareView
+                    position={split}
+                    onPosition={setSplit}
+                    label={d.compare}
+                    before={<BitmapCanvas draw={drawBefore} width={view.image.width} height={view.image.height} className="size-full object-contain" label={`${d.before}: ${photo?.file.name ?? ''}`} />}
+                    after={<BitmapCanvas draw={drawAfter} width={view.image.width} height={view.image.height} className="size-full object-contain" label={`${d.after}: ${lookName ?? d.noLook}`} />}
+                  >
                   {/* Before and After: a tap shows the whole photo either way, for a thumb that would rather not drag. */}
                   {(
                     [
@@ -934,12 +1046,15 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                     <button
                       key={side}
                       type="button"
-                      onClick={() => comparison.setPosition(comparison.position.current === position ? 50 : position)}
-                      className={cn('absolute top-2 z-[2] flex min-h-11 items-start p-1 outline-none', side)}
+                      data-compare-ignore
+                      aria-pressed={split === position}
+                      onClick={() => setSplit(split === position ? 50 : position)}
+                      className={cn('absolute top-1 z-[2] flex min-h-11 items-start p-1.5 outline-none', side)}
                     >
                       <span className={cn('rounded-md bg-black/60 px-2 py-1 text-white backdrop-blur-sm', position ? 'text-[13px] text-white/85' : 'text-[14px] font-semibold')}>{label}</span>
                     </button>
                   ))}
+                  </CompareView>
                 </div>
               ) : (
                 <div className="flex aspect-[3/2] items-center justify-center gap-2 text-[15px] text-muted-foreground">
@@ -1027,6 +1142,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
               </p>
             )}
 
+            {lookRow}
             <SaveNotes d={d} plus={plus} allowed={allowed} />
 
             {/* The recipe: under the photo on a computer, after the controls on a phone. */}
@@ -1035,7 +1151,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
 
           {/* The look, the style, and Adjust more. */}
           <div className="flex min-w-0 flex-col gap-4">
-            <section className={SECTION} aria-labelledby="develop-look">
+            <section className={cn(SECTION, 'hidden lg:block')} aria-labelledby="develop-look">
               <h2 id="develop-look" className={H2}>
                 {d.lookTitle}
               </h2>
@@ -1058,56 +1174,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                 </>
               )}
               <h3 className="mt-5 text-[14px] font-medium text-muted-foreground">{d.allLooks}</h3>
-              <Input type="search" className="mt-2 h-11 rounded-lg bg-background text-[15px]" placeholder={d.search} aria-label={d.search} value={query} onChange={(event) => setQuery(event.target.value)} />
-              <div className="mt-2.5 flex flex-wrap gap-1.5" role="group" aria-label={d.allLooks}>
-                {(['all', ...kinds] as const).map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    aria-pressed={kind === item}
-                    onClick={() => setKind(item)}
-                    className="h-11 rounded-full border px-3.5 text-[14px] whitespace-nowrap text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-foreground aria-pressed:bg-foreground aria-pressed:text-background"
-                  >
-                    {item === 'all' ? t.filterAll : kindLabel(item, t)}
-                  </button>
-                ))}
-              </div>
-              {catalogError && (
-                <p className="mt-3 text-[14px] text-destructive">
-                  {t.loadError}{' '}
-                  <Button type="button" variant="link" className="h-auto p-0" onClick={retry}>
-                    {t.retryLoad}
-                  </Button>
-                </p>
-              )}
-              <ul className="mt-3 grid grid-cols-4 gap-1.5 sm:grid-cols-6 lg:grid-cols-4" aria-label={d.allLooks}>
-                {!needle && kind === 'all' && (
-                  <li>
-                    <button
-                      type="button"
-                      aria-pressed={settings.look === null}
-                      onClick={() => setSettings({ ...settings, look: null })}
-                      className="flex h-full min-h-[44px] w-full flex-col items-center gap-1 rounded-lg border bg-background p-1.5 pt-2 text-center outline-none hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-foreground aria-pressed:ring-2 aria-pressed:ring-foreground"
-                    >
-                      <span className="flex size-11 items-center justify-center rounded-md border border-dashed text-muted-foreground">
-                        <Ban className="size-4" aria-hidden="true" />
-                      </span>
-                      <span className="line-clamp-2 text-[12px] leading-[1.2] font-medium">{d.noLook}</span>
-                    </button>
-                  </li>
-                )}
-                {!catalog && !catalogError && Array.from({ length: 12 }, (_, index) => <li key={index} className="aspect-[5/6] animate-pulse rounded-xl border bg-background" aria-hidden="true" />)}
-                {pageLooks.map((effect) => (
-                  <li key={effect.id}>
-                    <LookButton effect={effect} chosen={settings.look === effect.id} locked={locked(effect)} lockText={d.lockedLook} onChoose={() => setSettings({ ...settings, look: effect.id })} />
-                  </li>
-                ))}
-              </ul>
-              {moreLooks > 0 && (
-                <Button type="button" variant="outline" className="mt-3 h-11 w-full rounded-lg" onClick={() => setShownCount((count) => count + LOOK_PAGE * 2)}>
-                  {format(d.showMore, { n: moreLooks })}
-                </Button>
-              )}
+              {allLooks}
             </section>
 
             <section className={SECTION} aria-labelledby="develop-style">
@@ -1115,7 +1182,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                 {d.styleTitle}
               </h2>
               <p className="mt-1 text-[14px] text-muted-foreground">{d.styleLead}</p>
-              <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-labelledby="develop-style">
+              <div className="-mx-4 mt-3 flex snap-x snap-mandatory scroll-px-4 gap-2 overflow-x-auto px-4 pb-1 [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-36px),transparent)] [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:[mask-image:none] [&::-webkit-scrollbar]:hidden" role="radiogroup" aria-labelledby="develop-style">
                 {PRESET_IDS.map((id) => (
                   <button
                     key={id}
@@ -1123,7 +1190,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                     role="radio"
                     aria-checked={preset === id}
                     onClick={() => setSettings(applyPreset(settings, id))}
-                    className="flex flex-col overflow-hidden rounded-lg border bg-background text-left outline-none transition-colors hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring aria-checked:border-foreground aria-checked:ring-2 aria-checked:ring-foreground"
+                    className="flex w-[132px] shrink-0 snap-start flex-col overflow-hidden rounded-lg border bg-background text-left outline-none transition-colors lg:w-auto hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring aria-checked:border-foreground aria-checked:ring-2 aria-checked:ring-foreground"
                   >
                     <span className="block aspect-[3/2] w-full bg-muted">
                       {styleThumbs[id] && (
@@ -1132,12 +1199,12 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                     </span>
                     <span className="flex flex-col gap-0.5 px-2.5 pt-1.5 pb-2">
                       <span className="text-[14px] leading-tight font-semibold">{presetName[id][0]}</span>
-                      <span className="text-[14px] leading-snug text-muted-foreground">{presetName[id][1]}</span>
+                      <span className="hidden text-[14px] leading-snug text-muted-foreground lg:block">{presetName[id][1]}</span>
                     </span>
                   </button>
                 ))}
                 {preset === null && (
-                  <span className="flex items-center justify-center rounded-xl border border-dashed p-3 text-center text-[14px] text-muted-foreground">{d.custom}</span>
+                  <span className="flex w-[132px] shrink-0 items-center justify-center rounded-lg border border-dashed p-3 text-center text-[14px] text-muted-foreground lg:w-auto">{d.custom}</span>
                 )}
               </div>
             </section>

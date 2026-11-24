@@ -2,8 +2,8 @@
 import type { DevelopText } from './text.en';
 
 export const zhHans: DevelopText = {
-  heading: "让照片呈现胶片质感",
-  lead: "选择照片和风格，保存即可。与 RICOH GR 相机上的 GRKU 提供相同的风格和效果。",
+  heading: "胶片风格照片编辑器",
+  lead: "选择胶片效果，添加颗粒、日期和边框，然后保存照片。",
   step1: "选择照片",
   step2: "选择风格",
   step3: "保存",
@@ -91,8 +91,8 @@ export const zhHans: DevelopText = {
 };
 
 export const zhHant: DevelopText = {
-  heading: "讓照片呈現底片質感",
-  lead: "選擇照片、套用風格，再儲存。提供與 RICOH GR 上的 GRKU 相同的風格與效果。",
+  heading: "底片風格照片編輯器",
+  lead: "選擇底片風格，加上顆粒、日期與相框，再儲存照片。",
   step1: "選擇照片",
   step2: "選擇風格",
   step3: "儲存",
@@ -180,8 +180,8 @@ export const zhHant: DevelopText = {
 };
 
 export const ja: DevelopText = {
-  heading: "写真をフィルムのように",
-  lead: "写真とルックを選んで保存。RICOH GRのGRKUと同じルックと効果を使えます。",
+  heading: "フィルム風フォトエディター",
+  lead: "好みの色味を選び、粒子感や日付、フレームを加えて写真を保存できます。",
   step1: "写真を選ぶ",
   step2: "仕上がりを選ぶ",
   step3: "保存",
@@ -269,8 +269,8 @@ export const ja: DevelopText = {
 };
 
 export const ko: DevelopText = {
-  heading: "사진에 필름 느낌을 더하세요",
-  lead: "사진과 룩을 선택하고 저장하세요. RICOH GR용 GRKU와 동일한 룩과 효과를 제공합니다.",
+  heading: "필름 느낌 사진 편집기",
+  lead: "필름 느낌을 고르고 입자감과 날짜, 테두리를 더한 뒤 사진을 저장하세요.",
   step1: "사진 선택",
   step2: "느낌 선택",
   step3: "저장",
@@ -358,8 +358,8 @@ export const ko: DevelopText = {
 };
 
 export const th: DevelopText = {
-  heading: "แต่งรูปให้ได้โทนฟิล์ม",
-  lead: "เลือกรูป เลือกฟิล์มลุค แล้วบันทึก ใช้ฟิล์มลุคและเอฟเฟกต์เดียวกับ GRKU บน RICOH GR",
+  heading: "แต่งรูปสไตล์ฟิล์ม",
+  lead: "เลือกโทนสี เติมเกรน ใส่วันที่และกรอบ แล้วเซฟรูปได้เลย",
   step1: "เลือกรูป",
   step2: "เลือกลุค",
   step3: "บันทึก",

@@ -4,8 +4,8 @@
  * everyday words for someone new to cameras; the camera's own menu names show only in Adjust more.
  */
 export const en = {
-  heading: 'Make your photos look like film',
-  lead: 'Choose a photo, choose a look, save. The same looks and effects as GRKU on a RICOH GR.',
+  heading: 'Film-style photo editor',
+  lead: 'Pick a look, add grain, a date and a frame, then save your photo.',
   step1: 'Choose a photo',
   step2: 'Choose a look',
   step3: 'Save',
