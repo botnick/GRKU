@@ -1,4 +1,4 @@
-// The parts of the site that only some pages show: the install steps, the guide, GRKU Plus. Each
+// The parts of the site that only some pages show: the install steps, the guide, Develop, GRKU Plus. Each
 // is its own script, so a page downloads and runs only what it shows. main.tsx loads the part of
 // the first page before the first render, and a link loads the part of its page when the pointer
 // or the focus comes to it, so a move between pages does not wait.
@@ -46,6 +46,7 @@ export const ModulesStep = part(() => import('./components/ModulesStep').then((m
 export const RecipesPanel = part(() => import('./components/RecipesPanel').then((module) => module.RecipesPanel));
 export const PlusSheet = part(() => import('./components/PlusSheet').then((module) => module.PlusSheet));
 export const ShutdownSection = part(() => import('./components/ShutdownSection').then((module) => module.ShutdownSection));
+export const Develop = part(() => import('./components/Develop').then((module) => module.Develop));
 export const ShutdownDownload = part(() => import('./components/ShutdownSection').then((module) => module.ShutdownDownload));
 
 /** The parts that each page shows at once. */
@@ -56,6 +57,7 @@ const PAGE_PARTS: Record<SitePage, readonly { preload(): Promise<unknown> }[]> =
   camera: [],
   modules: [ModulesStep, RecipesPanel, ShutdownSection],
   write: [],
+  develop: [Develop],
 };
 
 /** Loads the parts of `page`. */
@@ -65,7 +67,7 @@ export function preloadPage(page: SitePage): Promise<unknown> {
 
 /** Loads every part, for the prerender, which renders each page at once. */
 export function preloadAll(): Promise<unknown> {
-  return Promise.all([Home, Guide, Workbench, ModulesStep, RecipesPanel, PlusSheet, ShutdownSection, ShutdownDownload].map((item) => item.preload()));
+  return Promise.all([Home, Guide, Workbench, ModulesStep, RecipesPanel, PlusSheet, ShutdownSection, ShutdownDownload, Develop].map((item) => item.preload()));
 }
 
 /**

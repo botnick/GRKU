@@ -639,6 +639,17 @@ export const th: Strings = {
     },
   ] as readonly FaqItem[],
   /** The section of the fast-boot firmware: the text, then the patch of an official file. */
+  /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
+  develop: {
+    nav: "แต่งรูป",
+    title: "แต่งรูปโทนฟิล์มและฟิล์มซิมโทนกล้อง GR ฟรีบนเว็บ · GRKU",
+    description: "แต่งรูปโทนฟิล์มด้วยฟิล์มซิมกว่า 150 แบบ ทั้งโทนกล้อง GR พร้อมเกรน แสงฟุ้ง แสงรั่ว วันที่ และกรอบรูป ฟรีบนเบราว์เซอร์ ไม่ต้องอัปโหลดรูป",
+    homeTitle: "แต่งรูปที่มีอยู่แล้วให้ได้โทนที่ชอบ",
+    homeText: "ไม่ต้องถ่ายใหม่ ยังไม่มีกล้อง GR ก็ลองใช้ฟิล์มลุคและเอฟเฟกต์ทั้งหมดของ GRKU กับรูปของคุณได้ในเบราว์เซอร์",
+    homeCta: "แต่งรูปของคุณ",
+    guideText: "อยากลองดูโทนสีกับรูปของตัวเองก่อนใช่ไหม? แต่งรูปผ่านเบราว์เซอร์ได้เลย ไม่ต้องใช้กล้อง",
+    tryPhoto: "ลองใช้กับรูปของคุณ",
+  },
   fastboot: {
     title: 'เริ่มทำงานเร็ว',
     back: 'กลับไปที่ GRKU',

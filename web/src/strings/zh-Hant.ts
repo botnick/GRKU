@@ -585,6 +585,17 @@ export const zhHant: Strings = {
       a: ['在相機上開啟 MENU，「自定義設定」功能表中 GRKU 小節的最後有「關於 GRKU」。'],
     },
   ],
+  /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
+  develop: {
+    nav: "編輯照片",
+    title: "免費線上底片風格照片編輯｜150 種以上底片色調、GR 相機色調與底片模擬 · GRKU",
+    description: "免費線上編輯照片，體驗 150 種以上底片色調、底片模擬與 GR 相機色調，還有顆粒、柔光、漏光、日期戳記及相框效果。直接在瀏覽器中編輯，照片不必上傳。",
+    homeTitle: "編輯現有照片，重現底片風格",
+    homeText: "不用重新拍攝，也不必先擁有 GR 相機：直接在瀏覽器中，將 GRKU 的所有底片色調與效果套用到自己的照片。",
+    homeCta: "編輯照片",
+    guideText: "想先看看套用在自己照片上的效果嗎？不需要相機，直接在瀏覽器中編輯即可。",
+    tryPhoto: "套用到自己的照片",
+  },
   fastboot: {
     title: '快速啟動',
     back: '返回 GRKU',

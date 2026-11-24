@@ -297,6 +297,13 @@ export function Guide({
               </a>
             </div>
           </div>
+          {/* Before the install, the looks on the visitor's own photos. */}
+          <p className="mt-4 max-w-[40em] text-[15px] leading-relaxed text-muted-foreground">
+            {t.develop.guideText}{" "}
+            <a {...link("develop")} className="font-medium text-foreground underline underline-offset-4">
+              {t.develop.homeCta}
+            </a>
+          </p>
           <nav className="mt-8" aria-label={g.onThisPage}>
             <p className="text-[13px] text-muted-foreground">{g.onThisPage}</p>
             <ol className="mt-2 flex list-none flex-wrap gap-2 p-0">

@@ -55,7 +55,8 @@ export function fastbootPath(language: Language): string {
 /**
  * The pages of the site under each language path: the home page, the four steps of the
  * install: the film looks (`/install/`), the camera, the modules, and the card write, and the
- * install guide, which tells the same in plain steps with pictures.
+ * install guide, which tells the same in plain steps with pictures, and the Develop page, which
+ * gives photos that the visitor already has the looks and the modules of GRKU in the browser.
  * `/install/` is the Thai first step and `/en/install/` the English one.
  */
 export const SITE_PAGES = {
@@ -65,6 +66,7 @@ export const SITE_PAGES = {
   modules: 'install/modules/',
   write: 'install/write/',
   guide: 'guide/',
+  develop: 'develop/',
 } as const;
 
 export type SitePage = keyof typeof SITE_PAGES;
@@ -78,10 +80,10 @@ export const isInstallStep = (page: SitePage): page is InstallStep => (INSTALL_S
 
 /**
  * The pages that search engines index, with hreflang links and sitemap entries: the home page,
- * the first step, and the install guide. The later steps hold only the controls of one step, so they ask not to be
+ * the first step, the install guide, and the Develop page. The later steps hold only the controls of one step, so they ask not to be
  * indexed and lead search engines on to the first step.
  */
-export const INDEXED_PAGES: readonly SitePage[] = ['home', 'install', 'guide'];
+export const INDEXED_PAGES: readonly SitePage[] = ['home', 'install', 'guide', 'develop'];
 
 const PAGE_NAMES = Object.keys(SITE_PAGES) as SitePage[];
 

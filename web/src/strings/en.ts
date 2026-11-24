@@ -638,6 +638,17 @@ export const en = {
       a: ['In the camera, open MENU. About GRKU is at the end of the GRKU section in the Customize tab.'],
     },
   ] as readonly FaqItem[],
+  /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
+  develop: {
+    nav: "Develop",
+    title: "Film looks and GR effects for your photos, free in the browser · GRKU",
+    description: "Give your photos more than 150 film looks and film simulations, with grain, glow, light leaks, a date stamp, and a border, made by the same code as GRKU on the RICOH GR. Free, in your browser; your photos never leave your device.",
+    homeTitle: "Develop the photos you already have",
+    homeText: "No need to shoot again, or to own a GR yet: try every film look and effect of GRKU on your own photos, in your browser.",
+    homeCta: "Develop your photos",
+    guideText: "Want to see the looks on your own photos first? Develop them in the browser, no camera needed.",
+    tryPhoto: "Try on your photo",
+  },
   /** The section of the fast-boot firmware: the text, then the patch of an official file. */
   fastboot: {
     title: 'Fast start',

@@ -589,6 +589,17 @@ export const ja: Strings = {
       a: ['カメラで MENU を開き、「カスタマイズ設定」の GRKU の最後にある「GRKU について」で確認できます。'],
     },
   ],
+  /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
+  develop: {
+    nav: "写真を編集",
+    title: "無料で写真をフィルム風に加工｜150種類以上のフィルム調・GRKU",
+    description: "150種類以上のフィルム調プリセットで写真を加工。粒子、グロー、光漏れ、日付スタンプ、フレームにも対応。RICOH GR用GRKUと同じ処理をブラウザ上で無料で利用できます。写真が端末の外に送信されることはありません。",
+    homeTitle: "手持ちの写真を仕上げる",
+    homeText: "撮り直す必要も、GRを持っている必要もありません。お手持ちの写真で、GRKUのすべてのフィルム調プリセットやエフェクトをブラウザ上でお試しいただけます。",
+    homeCta: "写真を仕上げる",
+    guideText: "まずはお手持ちの写真で仕上がりを試してみませんか？カメラがなくても、ブラウザ上で写真を加工できます。",
+    tryPhoto: "自分の写真で試す",
+  },
   fastboot: {
     title: '高速起動',
     back: 'GRKU のトップへ',

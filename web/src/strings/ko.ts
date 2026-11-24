@@ -602,6 +602,17 @@ export const ko: Strings = {
       a: ['카메라에서 MENU를 엽니다. 사용자 설정 탭의 GRKU 항목 맨 끝에 있는 GRKU 정보에서 확인할 수 있습니다.'],
     },
   ],
+  /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
+  develop: {
+    nav: "사진 편집",
+    title: "사진에 필름 감성과 GR 색감을 더하세요, 브라우저에서 무료로 · GRKU",
+    description: "브라우저에서 무료로 사진을 필름 감성으로 편집하세요. 150가지 이상의 필름 룩과 필름 시뮬레이션, 그레인, 글로우, 빛샘, 날짜 스탬프, 테두리를 적용할 수 있습니다. 사진을 업로드할 필요 없이 내 기기에서 바로 처리됩니다.",
+    homeTitle: "이미 찍은 사진을 필름 감성으로 편집해 보세요",
+    homeText: "다시 촬영하거나 GR 카메라를 소유할 필요가 없습니다. 내 사진에 GRKU의 모든 필름 룩과 효과를 브라우저에서 직접 적용해 보세요.",
+    homeCta: "사진 편집하기",
+    guideText: "내 사진에 먼저 적용해 보고 싶으신가요? 카메라 없이 브라우저에서 바로 편집해 보세요.",
+    tryPhoto: "내 사진에 적용해 보기",
+  },
   fastboot: {
     title: '빠른 시작',
     back: 'GRKU 홈으로',

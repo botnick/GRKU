@@ -585,6 +585,17 @@ export const zhHans: Strings = {
       a: ['在相机上打开 MENU，“关于 GRKU”在自定义页 GRKU 小节的最后。'],
     },
   ],
+  /** The Develop page (src/develop/): the header link, the title and description of the page, and its links on the other pages. */
+  develop: {
+    nav: "调色",
+    title: "免费在线照片胶片调色与 GR 效果模拟 · GRKU",
+    description: "免费在线照片调色，无需上传照片。提供 150 多种胶片色调和胶片模拟效果，以及颗粒、柔光、漏光、日期印章和边框。采用与 RICOH GR 相机上 GRKU 相同的处理代码，所有处理均在浏览器中本地完成。",
+    homeTitle: "为已有照片赋予全新影调",
+    homeText: "无需重新拍摄，也无需拥有 GR 相机：直接在浏览器中，将 GRKU 的所有胶片色调和效果应用到自己的照片上。",
+    homeCta: "为照片调色",
+    guideText: "想先看看这些色调应用在自己的照片上是什么效果？无需相机，直接在浏览器中进行调色。",
+    tryPhoto: "在自己的照片上试用",
+  },
   fastboot: {
     title: '快速启动',
     back: '返回 GRKU',

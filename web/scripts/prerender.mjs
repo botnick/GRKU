@@ -117,6 +117,7 @@ const PAGE_SOURCES = {
   home: ['src/i18n.ts', 'src/components/Home.tsx', 'src/components/Faq.tsx', 'src/whatsNew.ts', 'src/landing-data.ts', 'src/cameras.ts'],
   install: ['src/i18n.ts', 'src/components/Workbench.tsx', 'src/cameras.ts'],
   guide: ['src/guide.ts', 'src/components/Guide.tsx', 'src/components/GuideArt.tsx'],
+  develop: ['src/components/Develop.tsx', 'src/develop', 'develop'],
 };
 /** The name of a page in its breadcrumb: its title without the name of the site. */
 const crumb = (title) => title.replace(/\s*·\s*GRKU$/, '');
@@ -144,7 +145,7 @@ function structuredData(code, name) {
         description: text.description,
         inLanguage: code,
         isPartOf: { '@id': `${SITE}/#website` },
-        about: { '@id': `${pageUrl(code)}#app` },
+        about: { '@id': name === 'develop' ? `${pageUrl(code, name)}#webapp` : `${pageUrl(code)}#app` },
         primaryImageOfPage: { '@type': 'ImageObject', url: `${SITE}/og.jpg`, width: 1200, height: 630 },
         ...(name === 'home' ? {} : { breadcrumb: { '@id': `${pageUrl(code, name)}#breadcrumb` } }),
       },
@@ -164,18 +165,35 @@ function structuredData(code, name) {
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
         publisher: { '@id': `${SITE}/#organization` },
       },
+      // The Develop page is a web app of its own: it runs in the browser, free, with GRKU Plus
+      // for full-size downloads.
+      name === 'develop' && {
+        '@type': 'WebApplication',
+        '@id': `${pageUrl(code, name)}#webapp`,
+        name: crumb(text.title),
+        url: pageUrl(code, name),
+        description: text.description,
+        inLanguage: code,
+        applicationCategory: 'PhotographyApplication',
+        operatingSystem: 'Any (web browser)',
+        browserRequirements: 'Requires JavaScript and WebAssembly',
+        isAccessibleForFree: true,
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'THB' },
+        isPartOf: { '@id': `${pageUrl(code)}#app` },
+        publisher: { '@id': `${SITE}/#organization` },
+      },
       // Home › page, in the language of the page.
       name !== 'home' && {
         '@type': 'BreadcrumbList',
         '@id': `${pageUrl(code, name)}#breadcrumb`,
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'GRKU', item: pageUrl(code) },
-          ...(name === 'install' || name === 'guide'
+          ...(name === 'install' || name === 'guide' || name === 'develop'
             ? []
             : [{ '@type': 'ListItem', position: 2, name: crumb(pageText(code, 'install').title), item: pageUrl(code, 'install') }]),
           {
             '@type': 'ListItem',
-            position: name === 'install' || name === 'guide' ? 2 : 3,
+            position: name === 'install' || name === 'guide' || name === 'develop' ? 2 : 3,
             name: crumb(text.title),
             item: pageUrl(code, name),
           },

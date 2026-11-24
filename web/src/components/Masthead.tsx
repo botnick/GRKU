@@ -95,6 +95,7 @@ export function Masthead({
   const pages = (
     [
       ['home', t.site.home],
+      ['develop', t.develop.nav],
       ['guide', t.card],
       ['install', t.install],
     ] as const

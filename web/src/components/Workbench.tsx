@@ -2,6 +2,7 @@ import {
   Suspense,
   use,
   useCallback,
+  useEffect,
   useRef,
   useState,
   useSyncExternalStore,
@@ -11,6 +12,7 @@ import {
 } from "react";
 import {
   Check,
+  ImagePlus,
   KeyRound,
   LoaderCircle,
   Lock,
@@ -174,6 +176,10 @@ interface Props {
   onForgetKey?: () => void;
   /** A line above the grid when the package takes no film looks: Film Look is off, or the camera has none. */
   notice?: string | null;
+  /** A look to show first and to put on the card when it has room: the look of a Develop link. */
+  initialLook?: string | null;
+  /** The address of the Develop page with a look, for "Try on your photo". */
+  developLink?: (look: string) => string;
 }
 
 /** The grid of looks, which the kind tabs filter: the tabs have no panels of their own. */
@@ -221,6 +227,8 @@ export function Workbench({
   onOtherKey,
   onForgetKey,
   notice,
+  initialLook = null,
+  developLink,
 }: Props) {
   const { catalog, error, retry } = useCatalog(PREVIEW_TARGET);
   const effects: readonly Effect[] = catalog
@@ -254,8 +262,8 @@ export function Workbench({
   const fullscreen = viewer !== null && fullscreenElement === viewer;
   // The effect that the frame shows, which changes in a transition when its preview is ready, and
   // the effect that the user pressed last, which the boxes and the text show at once.
-  const [previewId, setPreviewId] = useState(FIRST_LOOK);
-  const [requestedId, setRequestedId] = useState(FIRST_LOOK);
+  const [previewId, setPreviewId] = useState(initialLook ?? FIRST_LOOK);
+  const [requestedId, setRequestedId] = useState(initialLook ?? FIRST_LOOK);
   const [source, setSource] = useState<Source>(DEFAULT_SAMPLE);
   const photo = useRef<Source | null>(null);
   const importer = useRef<ImportDialogHandle>(null);
@@ -456,6 +464,16 @@ export function Workbench({
     }
     if (next.size !== checked.size) onSelectionChange(next);
   }
+  // The look of a Develop link goes on the card once the catalog has it, when there is room.
+  const initialDone = useRef(false);
+  useEffect(() => {
+    if (initialDone.current || !catalog || !initialLook) return;
+    initialDone.current = true;
+    const effect = effects.find((item) => item.id === initialLook);
+    if (effect && !checked.has(effect.id) && canAdd(effect)) onSelectionChange(new Set([...checked, effect.id]));
+    // Once, when the catalog arrives.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [catalog, initialLook]);
   // The starter set: the looks that a new visitor finds on the card.
   const starter = resolveSelection(
     null,
@@ -646,7 +664,18 @@ export function Workbench({
               </span>
             )}
           </div>
-          {addButton("default")}
+          <div className="flex shrink-0 flex-col items-end gap-1.5">
+            {addButton("default")}
+            {requested && !requested.imported && developLink && (
+              <a
+                href={developLink(requested.id)}
+                className="inline-flex items-center gap-1 text-[13px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                <ImagePlus className="size-3.5" aria-hidden="true" />
+                {t.develop.tryPhoto}
+              </a>
+            )}
+          </div>
         </div>
         {/* Shown also before the catalog arrives (and in the prerendered page), so the photo
             column keeps its height and the looks below do not move. */}
