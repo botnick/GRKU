@@ -18,7 +18,7 @@ export type Request =
   /** A preview; `thumb` makes it that many pixels on its long side (the cards of the styles). */
   | { type: 'preview'; id: number; seq: number; channel: string; settings: DevelopSettings; urls: LookUrls; thumb?: number }
   /** Develops a photo at full size, then makes its JPEG: at most `maxSide` on the long side with the credit, or full size. */
-  | { type: 'export'; id: number; file: File; settings: DevelopSettings; urls: LookUrls; maxSide: number | null; credit: string | null; seed: number };
+  | { type: 'export'; id: number; file: File; settings: DevelopSettings; urls: LookUrls; maxSide: number | null; credit: string | null; seed: number; processSide: number | null };
 
 export interface Opened {
   width: number;

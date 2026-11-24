@@ -5,7 +5,7 @@
  */
 export const en = {
   heading: 'Make your photos look like film',
-  lead: 'Choose a photo, choose a look, save it. The looks and effects are the same as GRKU makes on a RICOH GR.',
+  lead: 'Choose a photo, choose a look, save. The same looks and effects as GRKU on a RICOH GR.',
   step1: 'Choose a photo',
   step2: 'Choose a look',
   step3: 'Save',
@@ -22,6 +22,7 @@ export const en = {
   opening: 'Opening…',
   developing: 'Working…',
   openError: 'This file could not be opened.',
+  heicError: 'This browser cannot open HEIC photos. Try Safari, or choose a JPEG.',
   noteExact: 'From a GR in Standard: the colour matches the camera',
   noteControl: 'Shot in ${control}: the colour may differ a little from the camera',
   noteOther: 'The colour may differ a little from the camera',
@@ -65,6 +66,8 @@ export const en = {
   saving: 'Saving… ${s} s',
   savingOf: 'Saving ${i} of ${n}… ${s} s',
   saved: 'Saved ✓',
+  shareSave: 'Save to Photos',
+  deviceLimit: 'This device saves up to ${side} px.',
   savedAll: 'Saved ${n} photos ✓',
   cancel: 'Cancel',
   failed: 'Could not save ${name}.',

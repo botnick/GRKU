@@ -5,7 +5,7 @@
 // It is made for someone new to all this, on a phone: three steps (a photo, a look, save), the
 // popular looks first, the styles as cards with a preview, one big Save button, and the camera's
 // own controls folded away under Adjust more.
-import { Ban, Check, ChevronDown, CircleCheck, Copy, Download, ImagePlus, Info, Loader2, Lock, MapPinOff, Plus, ShieldCheck, Sparkles, X } from 'lucide-react';
+import { Ban, Check, Share, ChevronDown, CircleCheck, Copy, Download, ImagePlus, Info, Loader2, Lock, MapPinOff, Plus, ShieldCheck, Sparkles, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent, type ReactNode } from 'react';
 import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
 import { useReactCompareSlider } from 'react-compare-slider/hooks';
@@ -15,7 +15,7 @@ import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { PREVIEW_TARGET } from '../cameras';
 import { effectUrl, type CatalogEffect } from '../catalog';
-import { Developer, previewSide, type Phase } from '../develop/client';
+import { Developer, previewSide, processSide, SMALL_SIDE, type Phase } from '../develop/client';
 import { canDownload, developPlus, freeLook, limitsOf, FREE_SIDE, PLUS_PHOTOS } from '../develop/gating';
 import { installQuery } from '../develop/install';
 import { photoSeed, type LookUrls, type Opened } from '../develop/protocol';
@@ -42,6 +42,18 @@ const POPULAR = ['portra-400-endura-v1', 'gold-200-premier-v1', 'fj-classic-chro
 const LOOK_PAGE = 12;
 /** The long side of the preview on the card of a style. */
 const STYLE_THUMB = 240;
+
+/** Whether an export failed for lack of memory (a worker that ends without a message says "memory"). */
+const isMemory = (error: unknown) => error instanceof Error && /memory|allocation|range/i.test(error.message);
+
+/** Whether this is a phone or tablet that can share the file: then the share sheet saves it. */
+function shareable(file: File): boolean {
+  try {
+    return matchMedia('(pointer: coarse)').matches && !!navigator.canShare?.({ files: [file] });
+  } catch {
+    return false;
+  }
+}
 
 /** The day a file was last changed, for the tooltip of its thumbnail. */
 const dateOf = (file: File) => new Date(file.lastModified).toISOString().slice(0, 16).replace('T', ' ');
@@ -164,7 +176,7 @@ function Thumbnail({ file }: { file: File }) {
 /** A native select with the look of the site's inputs. */
 function Field({ label, value, options, onChange, disabled, note }: { label: string; value: number; options: readonly string[]; onChange: (value: number) => void; disabled?: boolean; note?: ReactNode }) {
   return (
-    <label className={cn('flex min-w-0 flex-col gap-1 text-[13px]', disabled && 'opacity-50')}>
+    <label className={cn('flex min-w-0 flex-col gap-1 text-[14px]', disabled && 'opacity-50')}>
       <span className="text-muted-foreground">{label}</span>
       <select
         className="h-11 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-[15px] text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30"
@@ -178,7 +190,7 @@ function Field({ label, value, options, onChange, disabled, note }: { label: str
           </option>
         ))}
       </select>
-      {note && <span className="text-[12px] leading-snug text-muted-foreground">{note}</span>}
+      {note && <span className="text-[14px] leading-snug text-muted-foreground">{note}</span>}
     </label>
   );
 }
@@ -189,20 +201,20 @@ const MODULE_KEYS: Readonly<Record<ModuleName, ModuleKey>> = { grain: 'grain', g
 /** The three steps of the page, the current one marked. */
 function Steps({ d, step }: { d: DevelopText; step: 1 | 2 | 3 }) {
   return (
-    <ol className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[14px]" aria-label={d.stepsLabel}>
+    <ol className="mt-4 flex flex-wrap items-center gap-x-1.5 gap-y-2 text-[14px]" aria-label={d.stepsLabel}>
       {[d.step1, d.step2, d.step3].map((text, index) => {
         const n = (index + 1) as 1 | 2 | 3;
         const state = n < step ? 'done' : n === step ? 'now' : 'next';
         return (
-          <li key={text} className="flex items-center gap-2" aria-current={state === 'now' ? 'step' : undefined}>
-            {index > 0 && <span className="h-px w-4 bg-border sm:w-6" aria-hidden="true" />}
+          <li key={text} className="flex items-center gap-1.5" aria-current={state === 'now' ? 'step' : undefined}>
+            {index > 0 && <span className="h-px w-3 bg-border sm:w-5" aria-hidden="true" />}
             <span
               className={cn(
-                'flex size-7 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold tabular-nums',
+                'flex size-6 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold tabular-nums',
                 state === 'now' ? 'bg-foreground text-background' : state === 'done' ? 'bg-brand/15 text-brand-text' : 'bg-muted text-muted-foreground',
               )}
             >
-              {state === 'done' ? <Check className="size-4" strokeWidth={3} aria-hidden="true" /> : n}
+              {state === 'done' ? <Check className="size-3.5" strokeWidth={3} aria-hidden="true" /> : n}
             </span>
             <span className={cn(state === 'now' ? 'font-semibold text-foreground' : 'text-muted-foreground')}>{text}</span>
           </li>
@@ -216,7 +228,7 @@ function Steps({ d, step }: { d: DevelopText; step: 1 | 2 | 3 }) {
 function TileChoice({ label, value, tiles, names, onChange }: { label: string; value: number; tiles: readonly string[]; names: readonly string[]; onChange: (value: number) => void }) {
   return (
     <div className="col-span-2 flex flex-col gap-1.5">
-      <span className="text-[13px] text-muted-foreground">{label}</span>
+      <span className="text-[14px] text-muted-foreground">{label}</span>
       <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={label}>
         {tiles.map((tile, index) => (
           <button
@@ -230,7 +242,7 @@ function TileChoice({ label, value, tiles, names, onChange }: { label: string; v
           >
             {/* 40 x 40 camera pixels at 1x or 2x: crisp at every density. */}
             <img src={tile} alt="" width="40" height="40" className="size-10 rounded-[3px] [image-rendering:pixelated]" />
-            <span className="line-clamp-2 text-[11px] leading-tight">{names[index]}</span>
+            <span className="line-clamp-2 text-[12px] leading-tight">{names[index]}</span>
           </button>
         ))}
       </div>
@@ -240,11 +252,11 @@ function TileChoice({ label, value, tiles, names, onChange }: { label: string; v
 
 /** The example of the empty page: a GR photo of the home page, before and after Portra 400. */
 function Example({ d }: { d: DevelopText }) {
-  const comparison = useReactCompareSlider({ clip: 'itemTwo' });
+  const comparison = useReactCompareSlider({ clip: 'itemTwo', onlyHandleDraggable: true });
   const sizes = '(min-width: 1024px) 480px, calc(100vw - 32px)';
   return (
     <figure className="m-0">
-      <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-muted ring-1 ring-border">
+      <div className="relative aspect-[3/2] overflow-hidden rounded-xl bg-muted ring-1 ring-border">
         <Provider {...comparison}>
           <Root className="image-comparison">
             <Item item="itemOne">
@@ -261,7 +273,7 @@ function Example({ d }: { d: DevelopText }) {
         <span className="pointer-events-none absolute top-3 left-3 z-[2] rounded-md bg-black/60 px-2 py-1 text-xs text-white/85 backdrop-blur-sm">{d.before}</span>
         <span className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/60 px-2.5 py-1 text-sm font-semibold text-white backdrop-blur-sm">Portra 400</span>
       </div>
-      <figcaption className="mt-2 text-[13px] text-muted-foreground">{d.example}</figcaption>
+      <figcaption className="mt-2 text-[14px] text-muted-foreground">{d.example}</figcaption>
     </figure>
   );
 }
@@ -274,10 +286,10 @@ function LookButton({ effect, chosen, locked, lockText, onChoose, big }: { effec
       aria-pressed={chosen}
       onClick={onChoose}
       title={locked ? `${effect.name} · ${lockText}` : effect.name}
-      className="relative flex h-full min-h-[44px] w-full flex-col items-center gap-1 rounded-xl border bg-background p-1.5 pt-2 text-center outline-none transition-colors hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-foreground aria-pressed:ring-2 aria-pressed:ring-foreground"
+      className="relative flex h-full min-h-[44px] w-full flex-col items-center gap-1 rounded-lg border bg-background p-1.5 pt-2 text-center outline-none transition-colors hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-foreground aria-pressed:ring-2 aria-pressed:ring-foreground"
     >
-      <EffectIcon effect={effect} className={big ? 'size-14' : 'size-11'} />
-      <span className={cn('line-clamp-2 leading-[1.2] font-medium', big ? 'text-[12px]' : 'text-[11px]')}>{effect.name}</span>
+      <EffectIcon effect={effect} className={big ? 'size-12' : 'size-11'} />
+      <span className="line-clamp-2 text-[12px] leading-[1.2] font-medium">{effect.name}</span>
       {locked && (
         <span className="absolute top-1 right-1 flex size-[18px] items-center justify-center rounded-full bg-foreground/70 text-background" aria-label={lockText}>
           <Lock className="size-2.5" aria-hidden="true" />
@@ -470,6 +482,18 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
     return () => clearInterval(timer);
   }, [busy]);
 
+  // The last saved photo of a phone, for the share sheet: a share needs a tap of its own when the
+  // save took longer than the browser keeps the first tap.
+  const [share, setShare] = useState<File | null>(null);
+  useEffect(() => setShare(null), [settingsKey, current]);
+  async function shareFile(file: File) {
+    try {
+      await navigator.share({ files: [file] });
+    } catch {
+      // Cancelled, or the tap expired: the Save to Photos button stays.
+    }
+  }
+
   async function download(all: boolean) {
     if (!urls || busy) return;
     if (!allowed) return onPlus();
@@ -481,33 +505,57 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
     const names = new Set<string>();
     const start = Date.now();
     setNow(start);
+    setShare(null);
     let name = '';
+    let reduced: number | null = null;
     try {
       for (const [index, item] of list.entries()) {
         name = uniqueName(developedName(item.file.name, lookName), names);
         setTask({ state: 'running', index, total: list.length, name, phase: 'decode', fraction: 0, start });
-        const result = await getDeveloper().export(
-          item.file,
-          settings,
-          urls,
-          { maxSide: limits.maxSide, credit: limits.credit, seed: photoSeed(item.file) },
-          (phase, fraction) => setTask({ state: 'running', index, total: list.length, name, phase, fraction, start }),
-          controller.signal,
-        );
+        const run = (side: number | null) =>
+          getDeveloper().export(
+            item.file,
+            settings,
+            urls,
+            { maxSide: limits.maxSide, credit: limits.credit, seed: photoSeed(item.file), processSide: side },
+            (phase, fraction) => setTask({ state: 'running', index, total: list.length, name, phase, fraction, start }),
+            controller.signal,
+          );
+        // A phone with little memory develops a smaller picture, and any device that runs out of
+        // memory tries once more at a smaller size.
+        let side = processSide();
+        let result;
+        try {
+          result = await run(side);
+        } catch (error) {
+          if (controller.signal.aborted || !isMemory(error) || (side !== null && side <= SMALL_SIDE)) throw error;
+          side = SMALL_SIDE;
+          result = await run(side);
+        }
+        if (side !== null && limits.maxSide === null) reduced = side;
         if (list.length === 1) {
+          const done = reduced ? `${d.saved} · ${format(d.deviceLimit, { side: reduced })}` : d.saved;
+          // On a phone, the share sheet saves to the photo library ("Save to Photos" on iPhone).
+          const file = new File([result.blob], name, { type: 'image/jpeg' });
+          if (shareable(file)) {
+            setShare(file);
+            setTask({ state: 'done', text: done });
+            await shareFile(file);
+            return;
+          }
           save(result.blob, name);
-          setTask({ state: 'done', text: d.saved });
+          setTask({ state: 'done', text: done });
           return;
         }
         results.push({ name, bytes: new Uint8Array(await result.blob.arrayBuffer()) });
       }
       const stamp = new Date().toISOString().slice(0, 10);
       save(new Blob(zipParts(results), { type: 'application/zip' }), `GRKU-${stamp}.zip`);
-      setTask({ state: 'done', text: format(d.savedAll, { n: results.length }) });
+      const all = format(d.savedAll, { n: results.length });
+      setTask({ state: 'done', text: reduced ? `${all} · ${format(d.deviceLimit, { side: reduced })}` : all });
     } catch (error) {
       if (controller.signal.aborted) return setTask({ state: 'idle' });
-      const memory = error instanceof Error && /memory|allocation|range/i.test(error.message);
-      setTask({ state: 'failed', text: format(memory ? d.memory : d.failed, { name }) });
+      setTask({ state: 'failed', text: format(isMemory(error) ? d.memory : d.failed, { name }) });
     } finally {
       abort.current = null;
     }
@@ -574,7 +622,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
     },
     [view, opened, black],
   );
-  const comparison = useReactCompareSlider({ clip: 'itemTwo' });
+  const comparison = useReactCompareSlider({ clip: 'itemTwo', onlyHandleDraggable: true });
 
   const note = opened
     ? opened.fidelity === 'exact'
@@ -611,22 +659,28 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
         : null;
   const step: 1 | 2 | 3 = photos.length === 0 ? 1 : task.state === 'idle' ? 2 : 3;
 
-  const SECTION = 'rounded-2xl border bg-card p-4 sm:p-5';
-  const H2 = 'text-[17px] font-semibold tracking-[-0.01em]';
+  const SECTION = 'rounded-xl border bg-card p-4';
+  const H2 = 'text-[16px] font-semibold tracking-[-0.01em]';
 
-  const saveButton = (wide: boolean) => (
+  const saveButton = (wide: boolean) =>
+    share && !busy ? (
+      <Button type="button" size="lg" className={cn('h-11 rounded-lg text-[15px]', wide && 'w-full')} onClick={() => shareFile(share)}>
+        <Share aria-hidden="true" />
+        {d.shareSave}
+      </Button>
+    ) : (
     <Button
       type="button"
       size="lg"
       variant={allowed ? 'default' : 'brand'}
-      className={cn('h-12 rounded-xl text-[16px]', wide && 'w-full')}
+      className={cn('h-11 rounded-lg text-[15px]', wide && 'w-full')}
       disabled={busy || !photo?.opened}
       onClick={() => download(false)}
     >
       {busy ? <Loader2 className="animate-spin" aria-hidden="true" /> : allowed ? <Download aria-hidden="true" /> : <Lock aria-hidden="true" />}
       {allowed ? d.save : d.savePlus}
     </Button>
-  );
+    );
 
   const plusCard = (
     <section className={cn(SECTION, 'border-brand/40')} aria-labelledby="develop-plus">
@@ -650,10 +704,10 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
             ))}
           </ul>
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <Button type="button" variant="brand" className="h-11 rounded-xl" onClick={onPlus}>
+            <Button type="button" variant="brand" className="h-11 rounded-lg" onClick={onPlus}>
               {d.plusCta}
             </Button>
-            <span className="text-[13px] text-muted-foreground tabular-nums">{format(d.plusPrice, { price: Math.min(...Object.values(PRICES)) })}</span>
+            <span className="text-[14px] text-muted-foreground tabular-nums">{format(d.plusPrice, { price: Math.min(...Object.values(PRICES)) })}</span>
           </div>
         </>
       )}
@@ -675,11 +729,11 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
         ))}
       </dl>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={copyRecipe} aria-live="polite">
+        <Button type="button" variant="outline" className="h-11 rounded-lg" onClick={copyRecipe} aria-live="polite">
           {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
           {copied ? d.copied : d.copy}
         </Button>
-        <Button asChild variant="outline" className="h-11 rounded-xl">
+        <Button asChild variant="outline" className="h-11 rounded-lg">
           <a href={`${pagePath(language, 'install')}${installQuery(settings)}`}>{d.install}</a>
         </Button>
       </div>
@@ -688,7 +742,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
 
   const adjust = (
     <details className={cn(SECTION, 'group/adjust p-0 sm:p-0')}>
-      <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-5 [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3 outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-5 [&::-webkit-details-marker]:hidden">
         <span className="flex items-center gap-3">
           <span className="flex -space-x-2" aria-hidden="true">
             {(['grain', 'glow', 'date'] as const).map((module) => (
@@ -701,7 +755,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
       </summary>
       <div className="border-t px-4 pb-4 sm:px-5">
         <div className="flex items-start justify-between gap-3 pt-3">
-          <p className="text-[13px] text-muted-foreground">{d.adjustLead}</p>
+          <p className="text-[14px] text-muted-foreground">{d.adjustLead}</p>
           <Button type="button" variant="ghost" size="sm" className="shrink-0 text-muted-foreground" disabled={!MODULE_NAMES.some((module) => isOn(settings, module))} onClick={() => setSettings({ ...OFF, look: settings.look })}>
             {d.allOff}
           </Button>
@@ -719,9 +773,9 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                     <img src={MODULE_TILES[module]} alt="" width="40" height="40" className="size-8 rounded-[3px] [image-rendering:pixelated]" />
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="text-[15px] font-semibold">{menu.title}</span>
-                      <span className="text-[12px] leading-snug text-muted-foreground">{t.site.plain[MODULE_KEYS[module]]}</span>
+                      <span className="text-[14px] leading-snug text-muted-foreground">{t.site.plain[MODULE_KEYS[module]]}</span>
                     </span>
-                    <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-medium', on ? 'bg-brand/15 text-brand-text' : 'bg-muted text-muted-foreground')}>{on ? d.on : d.off}</span>
+                    <span className={cn('rounded-full px-2 py-0.5 text-[12px] font-medium', on ? 'bg-brand/15 text-brand-text' : 'bg-muted text-muted-foreground')}>{on ? d.on : d.off}</span>
                   </span>
                 </legend>
                 <div className="grid grid-cols-2 gap-3">
@@ -768,7 +822,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                         </>
                       )}
                       <TileChoice label={labelOf(language, 'diffusion', 'SOFTNESS')} value={settings.diffusion.softness} tiles={VALUE_TILES.softness} names={values('SOFTNESS')} onChange={(softness) => update('diffusion', { softness })} />
-                      {settings.diffusion.softness > 0 && <p className="col-span-2 -mt-1 text-[12px] text-muted-foreground">{d.softnessNote}</p>}
+                      {settings.diffusion.softness > 0 && <p className="col-span-2 -mt-1 text-[14px] text-muted-foreground">{d.softnessNote}</p>}
                     </>
                   )}
                   {module === 'date' && (
@@ -786,7 +840,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                             ['POSITION', 'position'],
                           ] as const
                         ).map(([key, field]) => <Field key={key} label={labelOf(language, 'date', key)} value={settings.date[field]} options={values(key)} onChange={(value) => update('date', { [field]: value })} />)}
-                      {on && <p className="col-span-2 -mt-1 text-[12px] text-muted-foreground">{opened && !opened.taken ? d.noDate : d.dateNote}</p>}
+                      {on && <p className="col-span-2 -mt-1 text-[14px] text-muted-foreground">{opened && !opened.taken ? d.noDate : d.dateNote}</p>}
                     </>
                   )}
                   {module === 'border' && (
@@ -806,7 +860,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
 
   return (
     <div
-      className={cn('relative pt-8 pb-12 lg:pt-10', photos.length > 0 && 'pb-36 lg:pb-28')}
+      className={cn('relative pt-6 pb-12 lg:pt-10', photos.length > 0 && 'pb-32 lg:pb-28')}
       onDragOver={(event) => {
         if (![...event.dataTransfer.types].includes('Files')) return;
         event.preventDefault();
@@ -818,23 +872,23 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
       onDrop={onDrop}
     >
       <header className="max-w-[64ch]">
-        <h1 className="text-[clamp(30px,3.4vw,44px)] leading-[1.1] font-semibold tracking-[-0.02em] text-balance [:root[lang=th]_&]:leading-[1.3] [:root[lang=th]_&]:tracking-normal">{d.heading}</h1>
-        <p className="mt-3 text-[17px] leading-relaxed text-muted-foreground">{d.lead}</p>
+        <h1 className="text-[clamp(28px,3vw,40px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance [:root[lang=th]_&]:leading-[1.3] [:root[lang=th]_&]:tracking-normal">{d.heading}</h1>
+        <p className="mt-2 max-w-[56ch] text-[15px] leading-relaxed text-muted-foreground sm:text-[16px]">{d.lead}</p>
         <Steps d={d} step={step} />
       </header>
 
       <input ref={input} type="file" accept="image/*,.dng,.heic,.heif" multiple hidden onChange={onChoose} />
 
       {photos.length === 0 ? (
-        <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
+        <div className="mt-6 grid gap-4 lg:grid-cols-2 lg:items-start lg:gap-6">
           <div
             className={cn(
-              'flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed bg-card/60 px-6 py-10 text-center transition-colors lg:min-h-[340px]',
+              'flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed bg-card/60 px-5 py-8 text-center transition-colors lg:aspect-[3/2]',
               dragging && 'border-brand bg-brand/5',
             )}
           >
-            <ImagePlus className="size-10 text-muted-foreground" aria-hidden="true" />
-            <Button type="button" size="lg" className="h-14 rounded-xl px-8 text-[17px]" onClick={() => input.current?.click()}>
+            <ImagePlus className="size-8 text-muted-foreground" aria-hidden="true" />
+            <Button type="button" size="lg" className="h-12 rounded-lg px-6 text-[16px]" onClick={() => input.current?.click()}>
               <Plus className="size-5" aria-hidden="true" />
               {d.choose}
             </Button>
@@ -847,18 +901,16 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
               </span>
             </div>
           </div>
-          <div className="flex flex-col gap-6">
-            <Example d={d} />
-            {plusCard}
-          </div>
+          <Example d={d} />
+          <div className="lg:col-span-2">{plusCard}</div>
         </div>
       ) : (
-        <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start">
+        <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(340px,38%)] lg:items-start lg:gap-6">
           {/* The photo, the photos, saving, and the recipe. */}
           <div className="flex min-w-0 flex-col gap-4">
-            <div className="relative overflow-hidden rounded-2xl bg-muted/40 ring-1 ring-border" aria-busy={rendering || undefined}>
+            <div className="relative overflow-hidden rounded-xl bg-muted/40 ring-1 ring-border" aria-busy={rendering || undefined}>
               {view && opened ? (
-                <div className="relative mx-auto" style={{ aspectRatio: `${view.image.width} / ${view.image.height}`, width: `min(100%, calc(66vh * ${view.image.width / view.image.height}))` }}>
+                <div className="relative mx-auto" style={{ aspectRatio: `${view.image.width} / ${view.image.height}`, width: `min(100%, calc(62vh * ${view.image.width / view.image.height}))` }}>
                   <Provider {...comparison}>
                     <Root className="image-comparison h-full">
                       <Item item="itemOne">
@@ -872,15 +924,27 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                       </HandleRoot>
                     </Root>
                   </Provider>
-                  <span className="pointer-events-none absolute top-3 left-3 z-[2] rounded-md bg-black/60 px-2 py-1 text-xs text-white/85 backdrop-blur-sm">{d.before}</span>
-                  <span className="pointer-events-none absolute top-3 right-3 z-[2] rounded-md bg-black/60 px-2.5 py-1 text-sm font-semibold text-white backdrop-blur-sm" aria-live="polite">
-                    {lookName ?? d.noLook}
-                  </span>
+                  {/* Before and After: a tap shows the whole photo either way, for a thumb that would rather not drag. */}
+                  {(
+                    [
+                      [d.before, 100, 'left-2'],
+                      [lookName ?? d.after, 0, 'right-2'],
+                    ] as const
+                  ).map(([label, position, side]) => (
+                    <button
+                      key={side}
+                      type="button"
+                      onClick={() => comparison.setPosition(comparison.position.current === position ? 50 : position)}
+                      className={cn('absolute top-2 z-[2] flex min-h-11 items-start p-1 outline-none', side)}
+                    >
+                      <span className={cn('rounded-md bg-black/60 px-2 py-1 text-white backdrop-blur-sm', position ? 'text-[13px] text-white/85' : 'text-[14px] font-semibold')}>{label}</span>
+                    </button>
+                  ))}
                 </div>
               ) : (
                 <div className="flex aspect-[3/2] items-center justify-center gap-2 text-[15px] text-muted-foreground">
                   {photo?.error ? (
-                    d.openError
+                    /\.(heic|heif)$/i.test(photo.file.name) ? d.heicError : d.openError
                   ) : (
                     <>
                       <Loader2 className="size-4 animate-spin" aria-hidden="true" />
@@ -897,7 +961,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
               )}
             </div>
             {opened && (
-              <div className="-mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1 px-0.5 text-[13px] leading-snug text-muted-foreground">
+              <div className="-mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1 px-0.5 text-[14px] leading-snug text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
                   {opened.fidelity === 'exact' ? <CircleCheck className="size-3.5 shrink-0 text-brand-text" aria-hidden="true" /> : <Info className="size-3.5 shrink-0" aria-hidden="true" />}
                   {note}
@@ -919,7 +983,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                     aria-label={item.file.name}
                     title={`${item.file.name} · ${(item.key === current && opened?.taken) || dateOf(item.file)}`}
                     className={cn(
-                      'block aspect-[3/2] w-[84px] overflow-hidden rounded-lg bg-muted ring-offset-2 ring-offset-background outline-none transition-[box-shadow,opacity] focus-visible:ring-2 focus-visible:ring-ring sm:w-24',
+                      'block aspect-[3/2] w-20 overflow-hidden rounded-lg bg-muted ring-offset-2 ring-offset-background outline-none transition-[box-shadow,opacity] focus-visible:ring-2 focus-visible:ring-ring',
                       item.key === current ? 'ring-2 ring-foreground' : 'opacity-80 hover:opacity-100',
                       item.error && 'opacity-40',
                     )}
@@ -931,9 +995,11 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                     onClick={() => removePhoto(item.key)}
                     aria-label={format(d.remove, { name: item.file.name })}
                     title={format(d.remove, { name: item.file.name })}
-                    className="absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity outline-none group-hover:opacity-100 hover:bg-black/80 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white [@media(hover:none)]:opacity-100"
+                    className="group/x absolute top-0 right-0 flex size-11 items-start justify-end p-1 opacity-0 transition-opacity outline-none group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
                   >
-                    <X className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
+                    <span className="flex size-6 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm group-hover/x:bg-black/80 group-focus-visible/x:ring-2 group-focus-visible/x:ring-white">
+                      <X className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
+                    </span>
                   </button>
                 </li>
               ))}
@@ -942,7 +1008,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                   <button
                     type="button"
                     onClick={() => input.current?.click()}
-                    className="flex aspect-[3/2] w-[84px] flex-col items-center justify-center gap-0.5 rounded-lg border border-dashed border-border text-[12px] leading-tight text-muted-foreground transition-colors outline-none hover:border-foreground/40 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring sm:w-24"
+                    className="flex aspect-[3/2] w-20 flex-col items-center justify-center gap-0.5 rounded-lg border border-dashed border-border text-[12px] leading-tight text-muted-foreground transition-colors outline-none hover:border-foreground/40 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <Plus className="size-4" aria-hidden="true" />
                     {d.addMore}
@@ -951,10 +1017,10 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
               )}
             </ul>
             {overLimit && (
-              <p className="text-[13px] text-muted-foreground">
+              <p className="text-[14px] text-muted-foreground">
                 {format(d.photoLimit, { n: limits.photos, plus: PLUS_PHOTOS })}{' '}
                 {!plus && (
-                  <Button type="button" variant="link" className="h-auto p-0 text-[13px]" onClick={onPlus}>
+                  <Button type="button" variant="link" className="h-auto p-0 text-[14px]" onClick={onPlus}>
                     {d.plusCta}
                   </Button>
                 )}
@@ -974,15 +1040,15 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                 {d.lookTitle}
               </h2>
               {anyLocked && (
-                <p className="mt-1 flex items-start gap-1.5 text-[13px] text-muted-foreground">
+                <p className="mt-1 flex items-start gap-1.5 text-[14px] text-muted-foreground">
                   <Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
                   {d.lockLine}
                 </p>
               )}
               {popular.length > 0 && (
                 <>
-                  <h3 className="mt-4 text-[13px] font-medium text-muted-foreground">{d.popular}</h3>
-                  <ul className="mt-2 grid grid-cols-4 gap-2" aria-label={d.popular}>
+                  <h3 className="mt-4 text-[14px] font-medium text-muted-foreground">{d.popular}</h3>
+                  <ul className="mt-2 grid grid-cols-4 gap-1.5" aria-label={d.popular}>
                     {popular.map((effect) => (
                       <li key={effect.id}>
                         <LookButton effect={effect} big chosen={settings.look === effect.id} locked={locked(effect)} lockText={d.lockedLook} onChoose={() => setSettings({ ...settings, look: effect.id })} />
@@ -991,8 +1057,8 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                   </ul>
                 </>
               )}
-              <h3 className="mt-5 text-[13px] font-medium text-muted-foreground">{d.allLooks}</h3>
-              <Input type="search" className="mt-2 h-11 rounded-xl bg-background text-[15px]" placeholder={d.search} aria-label={d.search} value={query} onChange={(event) => setQuery(event.target.value)} />
+              <h3 className="mt-5 text-[14px] font-medium text-muted-foreground">{d.allLooks}</h3>
+              <Input type="search" className="mt-2 h-11 rounded-lg bg-background text-[15px]" placeholder={d.search} aria-label={d.search} value={query} onChange={(event) => setQuery(event.target.value)} />
               <div className="mt-2.5 flex flex-wrap gap-1.5" role="group" aria-label={d.allLooks}>
                 {(['all', ...kinds] as const).map((item) => (
                   <button
@@ -1000,14 +1066,14 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                     type="button"
                     aria-pressed={kind === item}
                     onClick={() => setKind(item)}
-                    className="h-9 rounded-full border px-3 text-[13px] whitespace-nowrap text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-foreground aria-pressed:bg-foreground aria-pressed:text-background"
+                    className="h-11 rounded-full border px-3.5 text-[14px] whitespace-nowrap text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-foreground aria-pressed:bg-foreground aria-pressed:text-background"
                   >
                     {item === 'all' ? t.filterAll : kindLabel(item, t)}
                   </button>
                 ))}
               </div>
               {catalogError && (
-                <p className="mt-3 text-[13px] text-destructive">
+                <p className="mt-3 text-[14px] text-destructive">
                   {t.loadError}{' '}
                   <Button type="button" variant="link" className="h-auto p-0" onClick={retry}>
                     {t.retryLoad}
@@ -1021,12 +1087,12 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                       type="button"
                       aria-pressed={settings.look === null}
                       onClick={() => setSettings({ ...settings, look: null })}
-                      className="flex h-full min-h-[44px] w-full flex-col items-center gap-1 rounded-xl border bg-background p-1.5 pt-2 text-center outline-none hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-foreground aria-pressed:ring-2 aria-pressed:ring-foreground"
+                      className="flex h-full min-h-[44px] w-full flex-col items-center gap-1 rounded-lg border bg-background p-1.5 pt-2 text-center outline-none hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-foreground aria-pressed:ring-2 aria-pressed:ring-foreground"
                     >
                       <span className="flex size-11 items-center justify-center rounded-md border border-dashed text-muted-foreground">
                         <Ban className="size-4" aria-hidden="true" />
                       </span>
-                      <span className="line-clamp-2 text-[11px] leading-[1.2] font-medium">{d.noLook}</span>
+                      <span className="line-clamp-2 text-[12px] leading-[1.2] font-medium">{d.noLook}</span>
                     </button>
                   </li>
                 )}
@@ -1038,7 +1104,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                 ))}
               </ul>
               {moreLooks > 0 && (
-                <Button type="button" variant="outline" className="mt-3 h-11 w-full rounded-xl" onClick={() => setShownCount((count) => count + LOOK_PAGE * 2)}>
+                <Button type="button" variant="outline" className="mt-3 h-11 w-full rounded-lg" onClick={() => setShownCount((count) => count + LOOK_PAGE * 2)}>
                   {format(d.showMore, { n: moreLooks })}
                 </Button>
               )}
@@ -1048,7 +1114,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
               <h2 id="develop-style" className={H2}>
                 {d.styleTitle}
               </h2>
-              <p className="mt-1 text-[13px] text-muted-foreground">{d.styleLead}</p>
+              <p className="mt-1 text-[14px] text-muted-foreground">{d.styleLead}</p>
               <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-labelledby="develop-style">
                 {PRESET_IDS.map((id) => (
                   <button
@@ -1057,21 +1123,21 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                     role="radio"
                     aria-checked={preset === id}
                     onClick={() => setSettings(applyPreset(settings, id))}
-                    className="flex flex-col overflow-hidden rounded-xl border bg-background text-left outline-none transition-colors hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring aria-checked:border-foreground aria-checked:ring-2 aria-checked:ring-foreground"
+                    className="flex flex-col overflow-hidden rounded-lg border bg-background text-left outline-none transition-colors hover:border-foreground/30 focus-visible:ring-2 focus-visible:ring-ring aria-checked:border-foreground aria-checked:ring-2 aria-checked:ring-foreground"
                   >
                     <span className="block aspect-[3/2] w-full bg-muted">
                       {styleThumbs[id] && (
                         <BitmapCanvas draw={(ctx) => ctx.drawImage(styleThumbs[id]!, 0, 0)} width={styleThumbs[id]!.width} height={styleThumbs[id]!.height} className="size-full object-contain" />
                       )}
                     </span>
-                    <span className="flex flex-col gap-0.5 px-2.5 py-2">
-                      <span className="text-[14px] font-semibold">{presetName[id][0]}</span>
-                      <span className="text-[12px] leading-snug text-muted-foreground">{presetName[id][1]}</span>
+                    <span className="flex flex-col gap-0.5 px-2.5 pt-1.5 pb-2">
+                      <span className="text-[14px] leading-tight font-semibold">{presetName[id][0]}</span>
+                      <span className="text-[14px] leading-snug text-muted-foreground">{presetName[id][1]}</span>
                     </span>
                   </button>
                 ))}
                 {preset === null && (
-                  <span className="flex items-center justify-center rounded-xl border border-dashed p-3 text-center text-[13px] text-muted-foreground">{d.custom}</span>
+                  <span className="flex items-center justify-center rounded-xl border border-dashed p-3 text-center text-[14px] text-muted-foreground">{d.custom}</span>
                 )}
               </div>
             </section>
@@ -1085,7 +1151,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
 
       {/* The Save bar: always in reach, at the bottom of the window. */}
       {photos.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/92 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur-md">
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/92 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] backdrop-blur-md">
           <div className="mx-auto flex max-w-[1280px] flex-col gap-2 px-gutter lg:flex-row-reverse lg:items-center lg:gap-4">
             <div className="flex items-center gap-2 lg:shrink-0">
               {busy && (
@@ -1094,7 +1160,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
                 </Button>
               )}
               {!busy && allowed && photos.length > 1 && (
-                <Button type="button" variant="outline" className="h-12 rounded-xl px-3 lg:px-4" onClick={() => download(true)}>
+                <Button type="button" variant="outline" className="h-11 rounded-lg px-3 text-[14px] lg:px-4" onClick={() => download(true)}>
                   <span className="lg:hidden">ZIP</span>
                   <span className="hidden lg:inline">{format(d.saveAll, { n: photos.filter((item) => !item.error).length })}</span>
                 </Button>
@@ -1103,7 +1169,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
             </div>
             <div className="flex min-h-5 flex-1 flex-col gap-1.5">
               {busy && <Progress className="h-1.5" value={progress} aria-label={d.save} />}
-              <p className={cn('text-center text-[14px] lg:text-left', task.state === 'failed' ? 'text-destructive' : task.state === 'done' ? 'font-medium text-foreground' : 'text-muted-foreground')} aria-live="polite">
+              <p className={cn('truncate text-center text-[13px] lg:text-left', task.state === 'failed' ? 'text-destructive' : task.state === 'done' ? 'font-medium text-foreground' : 'text-muted-foreground')} aria-live="polite">
                 {status ?? (lookName ? `${lookName}${preset ? ` · ${presetName[preset][0]}` : ''}` : '')}
               </p>
             </div>
@@ -1112,7 +1178,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
       )}
 
       {dragging && (
-        <div className="pointer-events-none fixed inset-3 z-40 flex items-center justify-center rounded-2xl border-2 border-dashed border-brand bg-background/75 text-[20px] font-semibold backdrop-blur-sm">
+        <div className="pointer-events-none fixed inset-3 z-40 flex items-center justify-center rounded-xl border-2 border-dashed border-brand bg-background/75 text-[20px] font-semibold backdrop-blur-sm">
           <span className="flex items-center gap-2">
             <ImagePlus className="size-5 text-brand-text" aria-hidden="true" />
             {d.dropHere}
@@ -1126,7 +1192,7 @@ export function Develop({ strings: t, language, owned, onPlus }: { strings: Stri
 /** The quiet lines under saving: the size and credit of a free save, and the GPS. */
 function SaveNotes({ d, plus, allowed }: { d: DevelopText; plus: boolean; allowed: boolean }) {
   return (
-    <div className="mt-2 flex flex-col gap-1 text-[13px] text-muted-foreground">
+    <div className="mt-2 flex flex-col gap-1 text-[14px] text-muted-foreground">
       {!plus && allowed && <p>{format(d.freeNote, { side: FREE_SIDE })}</p>}
       {!allowed && <p className="flex items-start gap-1.5"><Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />{d.lockedLook}</p>}
       <p className="flex items-center gap-1.5 text-[12px] opacity-80">

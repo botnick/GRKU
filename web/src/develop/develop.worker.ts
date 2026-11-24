@@ -259,7 +259,7 @@ async function preview(id: number, settings: DevelopSettings, urls: LookUrls, th
 
 // ---- Downloads ----------------------------------------------------------------------------------------
 
-async function exportPhoto(id: number, file: File, settings: DevelopSettings, urls: LookUrls, maxSide: number | null, credit: string | null, seed: number) {
+async function exportPhoto(id: number, file: File, settings: DevelopSettings, urls: LookUrls, maxSide: number | null, credit: string | null, seed: number, processSide: number | null) {
   const progress = (phase: 'decode' | 'colour' | 'modules' | 'encode', fraction: number) => post({ type: 'progress', id, phase, fraction });
   progress('decode', 0);
   const info = await infoOf(file);
@@ -267,8 +267,10 @@ async function exportPhoto(id: number, file: File, settings: DevelopSettings, ur
   // A smaller download develops at full size too, as the camera does, then shrinks; a DNG needs
   // no more than its half-size development for it.
   let decoded: Decoded;
-  if (raw) decoded = { source: await rawSource(file, maxSide ? Math.max(3096, maxSide) : null), bitmap: null, orientation: 1, fullWidth: 0 };
-  else decoded = await bitmapSource(file, info, null);
+  // A phone with little memory develops at most `processSide` on the long side.
+  const limit = (side: number | null) => (processSide && (!side || side > processSide) ? processSide : side);
+  if (raw) decoded = { source: await rawSource(file, limit(maxSide ? Math.max(3096, maxSide) : null)), bitmap: null, orientation: 1, fullWidth: 0 };
+  else decoded = await bitmapSource(file, info, limit(null));
   progress('decode', 1);
   const e = await getEngine();
   e.free();
@@ -357,7 +359,7 @@ self.onmessage = ({ data }: MessageEvent<Request>) => {
       return;
     case 'export': {
       const t0 = performance.now();
-      exportPhoto(data.id, data.file, data.settings, data.urls, data.maxSide, data.credit, data.seed).then(
+      exportPhoto(data.id, data.file, data.settings, data.urls, data.maxSide, data.credit, data.seed, data.processSide).then(
         (result) => post({ type: 'exported', id: data.id, ...result, ms: Math.round(performance.now() - t0) }),
         (error: unknown) => post({ type: 'error', id: data.id, message: messageOf(error) }),
       );

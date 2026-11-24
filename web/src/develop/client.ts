@@ -127,7 +127,7 @@ export class Developer {
     file: File,
     settings: DevelopSettings,
     urls: LookUrls,
-    limits: { maxSide: number | null; credit: string | null; seed: number },
+    limits: { maxSide: number | null; credit: string | null; seed: number; processSide: number | null },
     progress: (phase: Phase, fraction: number) => void,
     signal?: AbortSignal,
   ): Promise<Exported> {
@@ -157,9 +157,24 @@ export class Developer {
   }
 }
 
+/**
+ * The longest side that this device develops: a phone that tells little memory
+ * (navigator.deviceMemory, in GB) takes a smaller picture; null for the full size.
+ */
+export function processSide(): number | null {
+  const memory = typeof navigator === 'undefined' ? undefined : (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+  if (memory === undefined) return null;
+  return memory <= 2 ? 3000 : memory <= 4 ? 4096 : null;
+}
+
+/** The side that a download takes again after it ran out of memory. */
+export const SMALL_SIDE = 3000;
+
 /** The long side of the previews for this screen. */
 export function previewSide(): number {
   if (typeof window === 'undefined') return 1600;
   const css = Math.max(Math.min(window.innerWidth, 1280) * 0.62, Math.min(window.innerWidth, 900));
-  return Math.max(1024, Math.min(1920, Math.round((css * Math.min(2, window.devicePixelRatio || 1)) / 64) * 64));
+  // A phone takes a smaller preview: its screen is small, and its memory too.
+  const most = window.innerWidth < 768 ? 1280 : 1920;
+  return Math.max(1024, Math.min(most, Math.round((css * Math.min(2, window.devicePixelRatio || 1)) / 64) * 64));
 }

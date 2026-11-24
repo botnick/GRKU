@@ -2,8 +2,8 @@
 import type { DevelopText } from './text.en';
 
 export const zhHans: DevelopText = {
-  heading: "轻松调出胶片质感",
-  lead: "选择照片，挑选喜欢的风格，然后保存。这里的风格和效果与 GRKU 在 RICOH GR 相机上实现的效果相同。",
+  heading: "让照片呈现胶片质感",
+  lead: "选择照片和风格，保存即可。与 RICOH GR 相机上的 GRKU 提供相同的风格和效果。",
   step1: "选择照片",
   step2: "选择风格",
   step3: "保存",
@@ -20,6 +20,7 @@ export const zhHans: DevelopText = {
   opening: "正在打开…",
   developing: "正在处理…",
   openError: "无法打开此文件。",
+  heicError: "此浏览器无法打开 HEIC 照片。请尝试使用 Safari，或选择 JPEG 照片。",
   noteExact: "使用 GR 的 Standard 图像控制拍摄：色彩与相机一致",
   noteControl: "使用 ${control} 图像控制拍摄：色彩可能与相机略有差异",
   noteOther: "颜色可能与相机拍摄的照片略有不同",
@@ -63,6 +64,8 @@ export const zhHans: DevelopText = {
   saving: "正在保存… ${s} 秒",
   savingOf: "正在保存第 ${i}/${n} 张… ${s} 秒",
   saved: "已保存 ✓",
+  shareSave: "存储到“照片”",
+  deviceLimit: "此设备保存的照片最长边为 ${side} 像素。",
   savedAll: "已保存 ${n} 张照片 ✓",
   cancel: "取消",
   failed: "无法保存 ${name}。",
@@ -88,8 +91,8 @@ export const zhHans: DevelopText = {
 };
 
 export const zhHant: DevelopText = {
-  heading: "讓照片呈現底片風格",
-  lead: "選一張照片，挑選喜歡的風格，然後儲存。這裡的風格與效果，和 GRKU 在 RICOH GR 相機上呈現的完全相同。",
+  heading: "讓照片呈現底片質感",
+  lead: "選擇照片、套用風格，再儲存。提供與 RICOH GR 上的 GRKU 相同的風格與效果。",
   step1: "選擇照片",
   step2: "選擇風格",
   step3: "儲存",
@@ -106,6 +109,7 @@ export const zhHant: DevelopText = {
   opening: "正在開啟…",
   developing: "處理中…",
   openError: "無法開啟此檔案。",
+  heicError: "此瀏覽器無法開啟 HEIC 照片。請改用 Safari，或選擇 JPEG 照片。",
   noteExact: "使用 GR 的 Standard 模式拍攝：色彩與相機一致",
   noteControl: "使用 ${control} 模式拍攝：色彩可能與相機略有差異",
   noteOther: "使用其他相機或手機拍攝的照片，色彩可能略有不同",
@@ -149,6 +153,8 @@ export const zhHant: DevelopText = {
   saving: "儲存中… ${s} 秒",
   savingOf: "正在儲存第 ${i} 張，共 ${n} 張… ${s} 秒",
   saved: "已儲存 ✓",
+  shareSave: "儲存至照片",
+  deviceLimit: "此裝置儲存的照片尺寸最高為 ${side} 像素。",
   savedAll: "已儲存 ${n} 張照片 ✓",
   cancel: "取消",
   failed: "無法儲存 ${name}。",
@@ -174,8 +180,8 @@ export const zhHant: DevelopText = {
 };
 
 export const ja: DevelopText = {
-  heading: "写真をフィルムのような仕上がりに",
-  lead: "写真を選び、仕上がりを選んで保存するだけ。GRKUがRICOH GRで再現するルックとエフェクトを、そのまま使えます。",
+  heading: "写真をフィルムのように",
+  lead: "写真とルックを選んで保存。RICOH GRのGRKUと同じルックと効果を使えます。",
   step1: "写真を選ぶ",
   step2: "仕上がりを選ぶ",
   step3: "保存",
@@ -192,6 +198,7 @@ export const ja: DevelopText = {
   opening: "読み込み中…",
   developing: "処理中…",
   openError: "このファイルを開けませんでした。",
+  heicError: "このブラウザーではHEIC形式の写真を開けません。Safariを使うか、JPEG形式の写真を選んでください。",
   noteExact: "GRのStandardで撮影：カメラと同じ色合いです",
   noteControl: "${control}で撮影：カメラとは色合いが少し異なる場合があります",
   noteOther: "GRカメラとは色味が少し異なる場合があります",
@@ -235,6 +242,8 @@ export const ja: DevelopText = {
   saving: "保存中… ${s}秒",
   savingOf: "保存中（${i}/${n}枚）… ${s}秒",
   saved: "保存しました ✓",
+  shareSave: "写真に保存",
+  deviceLimit: "この端末では最大${side}pxで保存できます。",
   savedAll: "${n}枚保存しました ✓",
   cancel: "キャンセル",
   failed: "${name}を保存できませんでした。",
@@ -260,8 +269,8 @@ export const ja: DevelopText = {
 };
 
 export const ko: DevelopText = {
-  heading: "사진을 필름 느낌으로",
-  lead: "사진을 고르고, 원하는 느낌을 선택한 다음 저장하세요. RICOH GR 카메라에서 GRKU가 적용하는 색감과 효과를 그대로 사용할 수 있습니다.",
+  heading: "사진에 필름 느낌을 더하세요",
+  lead: "사진과 룩을 선택하고 저장하세요. RICOH GR용 GRKU와 동일한 룩과 효과를 제공합니다.",
   step1: "사진 선택",
   step2: "느낌 선택",
   step3: "저장",
@@ -278,6 +287,7 @@ export const ko: DevelopText = {
   opening: "여는 중…",
   developing: "처리 중…",
   openError: "파일을 열 수 없습니다.",
+  heicError: "이 브라우저에서는 HEIC 사진을 열 수 없습니다. Safari를 사용하거나 JPEG 사진을 선택하세요.",
   noteExact: "GR의 Standard 모드로 촬영한 사진: 카메라와 색감이 일치합니다",
   noteControl: "${control}로 촬영한 사진: 카메라와 색감이 조금 다를 수 있습니다.",
   noteOther: "다른 카메라에서 촬영한 사진은 색상이 조금 다를 수 있습니다",
@@ -321,6 +331,8 @@ export const ko: DevelopText = {
   saving: "저장 중… ${s}초",
   savingOf: "${n}장 중 ${i}장째 저장 중… ${s}초",
   saved: "저장 완료 ✓",
+  shareSave: "사진 앱에 저장",
+  deviceLimit: "이 기기에서는 최대 ${side}px로 저장됩니다.",
   savedAll: "사진 ${n}장 저장 완료 ✓",
   cancel: "취소",
   failed: "${name}을(를) 저장할 수 없습니다.",
@@ -346,8 +358,8 @@ export const ko: DevelopText = {
 };
 
 export const th: DevelopText = {
-  heading: "แต่งรูปโทนฟิล์มให้สวยเหมือนถ่ายด้วยฟิล์ม",
-  lead: "เลือกรูป เลือกลุค แล้วบันทึกได้เลย ได้โทนสีและเอฟเฟกต์แบบเดียวกับที่ GRKU ทำให้บนกล้อง RICOH GR",
+  heading: "แต่งรูปให้ได้โทนฟิล์ม",
+  lead: "เลือกรูป เลือกฟิล์มลุค แล้วบันทึก ใช้ฟิล์มลุคและเอฟเฟกต์เดียวกับ GRKU บน RICOH GR",
   step1: "เลือกรูป",
   step2: "เลือกลุค",
   step3: "บันทึก",
@@ -364,6 +376,7 @@ export const th: DevelopText = {
   opening: "กำลังเปิด…",
   developing: "กำลังประมวลผล…",
   openError: "ไม่สามารถเปิดไฟล์นี้ได้",
+  heicError: "เบราว์เซอร์นี้เปิดรูป HEIC ไม่ได้ ลองใช้ Safari หรือเลือกรูป JPEG",
   noteExact: "ถ่ายด้วยกล้อง GR โดยใช้ Standard: สีตรงกับสีในกล้อง",
   noteControl: "ถ่ายด้วย ${control}: สีอาจต่างจากสีในกล้องเล็กน้อย",
   noteOther: "สีอาจแตกต่างจากภาพที่ถ่ายด้วยกล้องเล็กน้อย",
@@ -407,6 +420,8 @@ export const th: DevelopText = {
   saving: "กำลังบันทึก… ${s} วิ",
   savingOf: "กำลังบันทึกภาพที่ ${i}/${n}… ${s} วิ",
   saved: "บันทึกแล้ว ✓",
+  shareSave: "บันทึกลงแอปรูปภาพ",
+  deviceLimit: "อุปกรณ์นี้บันทึกรูปได้สูงสุด ${side} พิกเซล",
   savedAll: "บันทึกแล้ว ${n} รูป ✓",
   cancel: "ยกเลิก",
   failed: "บันทึก ${name} ไม่ได้",
