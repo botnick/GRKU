@@ -729,7 +729,7 @@ export const ja: Strings = {
     studioEdit: 'GRKU Studioで編集',
     studioNote: 'テキスト、ステッカー、写真、フレームを重ねて自由にデザイン。',
     studioLoading: 'GRKU Studioを読み込み中…',
-    lockedDesign: '「${name}」はGRKU Plusの機能です。',
+    lockedDesign: '${name}はGRKU Plusの対象です。฿${pack}からのパッケージをご購入いただくと、このデザインを含むGRKU Studioのすべての機能が解放されます。',
     seePlus: 'GRKU Plusを見る',
     plus: 'Plus',
     designs: {

@@ -725,7 +725,7 @@ export const zhHans: Strings = {
     studioEdit: '在 GRKU Studio 中编辑',
     studioNote: '通过图层自由设计：添加文字、贴纸、照片和边框。',
     studioLoading: '正在打开 GRKU Studio…',
-    lockedDesign: '${name} 是 GRKU Plus 专属设计。',
+    lockedDesign: '${name} 属于 GRKU Plus。购买任意方案（฿${pack} 起）即可解锁此项及完整 GRKU Studio。',
     seePlus: '了解 GRKU Plus',
     plus: 'Plus',
     designs: {

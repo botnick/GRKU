@@ -797,7 +797,7 @@ export const en = {
     studioEdit: 'Edit in GRKU Studio',
     studioNote: 'Design your own in layers: text, stickers, a photo, and frames.',
     studioLoading: 'Opening GRKU Studio…',
-    lockedDesign: '${name} is part of GRKU Plus.',
+    lockedDesign: '${name} is part of GRKU Plus. Any package, from ฿${pack}, unlocks it and all of GRKU Studio.',
     seePlus: 'See GRKU Plus',
     plus: 'Plus',
     designs: {

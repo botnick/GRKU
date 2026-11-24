@@ -181,7 +181,7 @@ const en = {
   lockedFont: 'This font is part of GRKU Plus.',
   lockedFrame: 'Frames are part of GRKU Plus.',
   lockedLayers: 'The free Studio places up to ${max} layers on a picture. GRKU Plus places as many as you like.',
-  plusIncludes: 'GRKU Plus unlocks every Studio template and seasonal design, more than 50 stickers, six more fonts with cute Thai ones, frames, and unlimited layers, along with the whole film look library. One payment, no subscription.',
+  plusIncludes: 'Any GRKU Plus purchase unlocks GRKU Studio in full: one pack from ฿${pack}, 25 slots ฿${slots}, or everything ฿${all}. You get every template and seasonal design, more than 50 stickers, six more fonts with cute Thai ones, frames, and unlimited layers. One payment, no subscription.',
   seePlus: 'See GRKU Plus',
   notNow: 'Not now',
 };
@@ -364,7 +364,7 @@ const zhHans: StudioStrings = {
   lockedFont: '此字体为 GRKU Plus 专属。',
   lockedFrame: '边框为 GRKU Plus 专属。',
   lockedLayers: '免费版 Studio 每张图片最多可添加 ${max} 个图层。GRKU Plus 不限图层数量。',
-  plusIncludes: 'GRKU Plus 可解锁全部 Studio 模板及季节主题设计、50 多款贴纸、6 款额外字体（含可爱风格的泰文字体）、边框和不限数量的图层，以及完整的胶片风格库。一次付费，无需订阅。',
+  plusIncludes: '购买任意 GRKU Plus 即可解锁完整 GRKU Studio：单包 ฿${pack} 起、25 个槽位 ฿${slots}，或全套内容 ฿${all}。包含所有模板与季节设计、50 多款贴纸、6 款新增字体（含可爱泰文字体）、边框及无限图层。一次付费，无需订阅。',
   seePlus: '了解 GRKU Plus',
   notNow: '暂不',
 };
@@ -545,7 +545,7 @@ const zhHant: StudioStrings = {
   lockedFont: '此字型為 GRKU Plus 專屬內容。',
   lockedFrame: '相框為 GRKU Plus 專屬內容。',
   lockedLayers: '免費版 Studio 每張圖片最多可使用 ${max} 個圖層。GRKU Plus 則不限制圖層數量。',
-  plusIncludes: 'GRKU Plus 解鎖所有 Studio 範本與季節限定設計、超過 50 款貼圖、另外 6 種字型（包含可愛的泰文字型）、相框及不限數量的圖層，還能使用完整的底片風格資料庫。一次付費，無須訂閱。',
+  plusIncludes: '購買任一 GRKU Plus 方案即可完整解鎖 GRKU Studio：單一套件 ฿${pack} 起、25 個欄位 ฿${slots}，或全套方案 ฿${all}。包含所有範本與季節設計、50 多款貼圖、6 款額外字型（含可愛泰文字型）、邊框及無限制圖層。單次付費，無需訂閱。',
   seePlus: '查看 GRKU Plus',
   notNow: '暫時不要',
 };
@@ -726,7 +726,7 @@ const ja: StudioStrings = {
   lockedFont: 'このフォントはGRKU Plus限定です。',
   lockedFrame: 'フレームはGRKU Plus限定です。',
   lockedLayers: '無料版Studioでは、1枚の画像に最大${max}レイヤーを配置できます。GRKU Plusではレイヤー数に制限はありません。',
-  plusIncludes: 'GRKU Plusでは、Studioのすべてのテンプレートと季節のデザイン、50種類以上のステッカー、かわいらしいタイ語フォントを含む6種類の追加フォント、フレーム、すべてのフィルムルックを利用できます。レイヤー数も無制限です。買い切りで、定期購入は不要です。',
+  plusIncludes: 'GRKU Plusをご購入いただくと、GRKU Studioの全機能が解放されます。パックは฿${pack}から、25スロット追加は฿${slots}、すべて利用できるフルパックは฿${all}です。すべてのテンプレートや季節のデザインに加え、50種類以上のステッカー、タイ語を含む6種類のフォント、フレーム、レイヤー無制限が利用可能です。買い切り型で、サブスクリプションではありません。',
   seePlus: 'GRKU Plusを見る',
   notNow: '今はしない',
 };
@@ -907,7 +907,7 @@ const ko: StudioStrings = {
   lockedFont: '이 글꼴은 GRKU Plus 전용입니다.',
   lockedFrame: '프레임은 GRKU Plus 전용입니다.',
   lockedLayers: '무료 Studio에서는 이미지당 최대 ${max}개의 레이어를 사용할 수 있습니다. GRKU Plus에서는 레이어를 무제한으로 사용할 수 있습니다.',
-  plusIncludes: 'GRKU Plus에서는 모든 Studio 템플릿과 시즌 디자인, 50개 이상의 스티커, 태국어 전용 귀여운 글꼴을 포함한 추가 글꼴 6종, 프레임 및 무제한 레이어를 이용할 수 있습니다. 전체 필름 룩 라이브러리도 포함됩니다. 한 번 결제하면 구독 없이 이용할 수 있습니다.',
+  plusIncludes: 'GRKU Plus를 구매하면 GRKU Studio의 모든 기능이 잠금 해제됩니다. 1개 팩 ฿${pack}부터, 25개 슬롯 ฿${slots}, 전체 패키지 ฿${all}. 모든 템플릿과 시즌 디자인, 50개 이상의 스티커, 귀여운 태국어 폰트를 포함한 추가 폰트 6종, 프레임 및 무제한 레이어가 제공됩니다. 정기 구독이 아닌 1회 결제입니다.',
   seePlus: 'GRKU Plus 보기',
   notNow: '나중에',
 };
@@ -1088,7 +1088,7 @@ const th: StudioStrings = {
   lockedFont: 'ฟอนต์นี้เป็นส่วนหนึ่งของ GRKU Plus',
   lockedFrame: 'กรอบภาพเป็นส่วนหนึ่งของ GRKU Plus',
   lockedLayers: 'Studio เวอร์ชันฟรีเพิ่มได้สูงสุด ${max} เลเยอร์ต่อภาพ ส่วน GRKU Plus เพิ่มได้ไม่จำกัด',
-  plusIncludes: 'GRKU Plus ปลดล็อกเทมเพลต Studio และดีไซน์ตามฤดูกาลทั้งหมด สติกเกอร์กว่า 50 แบบ ฟอนต์เพิ่มอีก 6 แบบ รวมถึงฟอนต์ไทยน่ารัก ๆ กรอบภาพ และเลเยอร์ไม่จำกัด พร้อมคลังสูตรสีทั้งหมด จ่ายครั้งเดียว ไม่มีค่าสมาชิกรายเดือน',
+  plusIncludes: 'ซื้อ GRKU Plus แบบใดก็ได้เพื่อปลดล็อก GRKU Studio ได้ครบทั้งหมด: 1 แพ็ก เริ่มต้น ฿${pack}, 25 ช่อง ฿${slots} หรือทั้งหมด ฿${all} ได้ครบทุกเทมเพลตและดีไซน์ตามเทศกาล สติกเกอร์กว่า 50 แบบ ฟอนต์เพิ่มอีก 6 แบบพร้อมฟอนต์ไทยน่ารักๆ กรอบรูป และเลเยอร์ไม่จำกัด จ่ายครั้งเดียว ไม่ต้องสมัครสมาชิก',
   seePlus: 'ดู GRKU Plus',
   notNow: 'ไว้ก่อน',
 };

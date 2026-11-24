@@ -796,7 +796,7 @@ export const th: Strings = {
     studioEdit: 'แก้ไขใน GRKU Studio',
     studioNote: 'ออกแบบเองด้วยเลเยอร์ข้อความ สติกเกอร์ รูปภาพ และกรอบ',
     studioLoading: 'กำลังเปิด GRKU Studio…',
-    lockedDesign: '${name} เป็นส่วนหนึ่งของ GRKU Plus',
+    lockedDesign: '${name} รวมอยู่ใน GRKU Plus ซื้อแพ็กเกจใดก็ได้ เริ่มต้น ฿${pack} เพื่อปลดล็อกดีไซน์นี้และ GRKU Studio ทั้งหมด',
     seePlus: 'ดู GRKU Plus',
     plus: 'Plus',
     designs: {

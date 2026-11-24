@@ -325,8 +325,8 @@ export function unlockedBy(effect: Classified, owned: Entitlement): boolean {
 
 /**
  * Whether GRKU Studio opens in full: every template, sticker, font, and frame, and any number of
- * layers. The whole shelf (`plus`) includes it; a pack or more slots buys film looks only.
+ * layers. Any purchase of GRKU Plus opens it: the whole shelf, more slots, or a pack.
  */
 export function studioUnlocked(owned: Entitlement): boolean {
-  return owned.plus;
+  return owned.plus || owned.paid > 0 || owned.packs.length > 0 || owned.slots > FREE.slots;
 }

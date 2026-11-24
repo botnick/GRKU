@@ -6,7 +6,19 @@
  * right; on a phone the picture is on top and the tools in tabs below. The picture takes touch
  * (drag, pinch, the handles of the selection) and the keyboard (arrows, Delete, undo).
  */
-import { useCallback, useEffect, useId, useMemo, useReducer, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+  type ReactNode,
+} from "react";
+import { PRICES } from "../plus";
 import {
   AlignCenter,
   AlignLeft,
@@ -32,18 +44,25 @@ import {
   Undo2,
   Redo2,
   X,
-} from 'lucide-react';
-import { Dialog as DialogPrimitive } from 'radix-ui';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
-import { CameraText } from '../components/CameraText';
-import type { Language, Strings } from '../i18n';
-import { findDesign, type DesignChoice } from '../shutdownDesigns';
-import { encodePicture } from '../shutdownPicture';
-import { FONTS, fontOf, hasBold, loadFontStyles, prepareFonts } from './fonts';
+} from "lucide-react";
+import { Dialog as DialogPrimitive } from "radix-ui";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { CameraText } from "../components/CameraText";
+import type { Language, Strings } from "../i18n";
+import { findDesign, type DesignChoice } from "../shutdownDesigns";
+import { encodePicture } from "../shutdownPicture";
+import { FONTS, fontOf, hasBold, loadFontStyles, prepareFonts } from "./fonts";
 import {
   addLayer,
   canAddLayer,
@@ -97,50 +116,91 @@ import {
   type StickerLayer,
   type StudioDoc,
   type TextLayer,
-} from './model';
-import { canvasMeasure, FRAMES, photoCrop, renderDoc, type Photo } from './render';
-import { FREE_STICKERS, STICKER_GROUPS, STICKERS, findSticker, type Sticker } from './stickers';
-import { STUDIO_STRINGS, type StudioStrings } from './strings';
-import { captionOf } from './captions';
-import { designDoc, designThemes, findTemplate, FREE_TEMPLATES, TEMPLATES, type Template } from './templates';
-import { loadPhoto, savePhoto } from './photo';
+} from "./model";
+import {
+  canvasMeasure,
+  FRAMES,
+  photoCrop,
+  renderDoc,
+  type Photo,
+} from "./render";
+import {
+  FREE_STICKERS,
+  STICKER_GROUPS,
+  STICKERS,
+  findSticker,
+  type Sticker,
+} from "./stickers";
+import { STUDIO_STRINGS, type StudioStrings } from "./strings";
+import { captionOf } from "./captions";
+import {
+  designDoc,
+  designThemes,
+  findTemplate,
+  FREE_TEMPLATES,
+  TEMPLATES,
+  type Template,
+} from "./templates";
+import { loadPhoto, savePhoto } from "./photo";
 
-const CATALOG: Catalog = { freeTemplates: FREE_TEMPLATES, freeStickers: FREE_STICKERS };
+const CATALOG: Catalog = {
+  freeTemplates: FREE_TEMPLATES,
+  freeStickers: FREE_STICKERS,
+};
 
-const SWATCHES = ['#FFFFFF', '#2B2B2B', '#D94135', '#F4A6B8', '#F2A65A', '#FFC857', '#8CC084', '#2A9D8F', '#8CC7E8', '#2B59C3', '#B28DD6', '#8A5A3B', '#F4EFE6', '#1D3557'];
+const SWATCHES = [
+  "#FFFFFF",
+  "#2B2B2B",
+  "#D94135",
+  "#F4A6B8",
+  "#F2A65A",
+  "#FFC857",
+  "#8CC084",
+  "#2A9D8F",
+  "#8CC7E8",
+  "#2B59C3",
+  "#B28DD6",
+  "#8A5A3B",
+  "#F4EFE6",
+  "#1D3557",
+];
 const GRADIENTS: [string, string][] = [
-  ['#FCE3D2', '#C96B7A'],
-  ['#C8EEFF', '#4FA3E0'],
-  ['#E8E2F7', '#7D6CC4'],
-  ['#FFF1C1', '#F2A65A'],
-  ['#E2F3EA', '#3F8573'],
-  ['#0E1530', '#2C3E74'],
-  ['#FFE3EE', '#F06FA4'],
-  ['#2B2B2B', '#121212'],
+  ["#FCE3D2", "#C96B7A"],
+  ["#C8EEFF", "#4FA3E0"],
+  ["#E8E2F7", "#7D6CC4"],
+  ["#FFF1C1", "#F2A65A"],
+  ["#E2F3EA", "#3F8573"],
+  ["#0E1530", "#2C3E74"],
+  ["#FFE3EE", "#F06FA4"],
+  ["#2B2B2B", "#121212"],
 ];
 const PATTERN_COLORS: [string, string][] = [
-  ['#FFF3E2', '#F2A65A'],
-  ['#FFE3EE', '#F4A6B8'],
-  ['#E3EFEA', '#8CC084'],
-  ['#DCE8F5', '#8CC7E8'],
-  ['#1E1E24', '#3A3A44'],
+  ["#FFF3E2", "#F2A65A"],
+  ["#FFE3EE", "#F4A6B8"],
+  ["#E3EFEA", "#8CC084"],
+  ["#DCE8F5", "#8CC7E8"],
+  ["#1E1E24", "#3A3A44"],
 ];
 
-type Tab = 'templates' | 'text' | 'stickers' | 'background' | 'layers';
+type Tab = "templates" | "text" | "stickers" | "background" | "layers";
 
 // ---- State -----------------------------------------------------------------------------------------------------
 
-type Action = { type: 'commit'; doc: StudioDoc; run?: string | null } | { type: 'undo' } | { type: 'redo' } | { type: 'reset'; doc: StudioDoc };
+type Action =
+  | { type: "commit"; doc: StudioDoc; run?: string | null }
+  | { type: "undo" }
+  | { type: "redo" }
+  | { type: "reset"; doc: StudioDoc };
 
 function reducer(state: History, action: Action): History {
   switch (action.type) {
-    case 'commit':
+    case "commit":
       return commit(state, action.doc, action.run ?? null);
-    case 'undo':
+    case "undo":
       return undo(state);
-    case 'redo':
+    case "redo":
       return redo(state);
-    case 'reset':
+    case "reset":
       return history(action.doc);
   }
 }
@@ -154,13 +214,15 @@ function browserStorage(): Storage | null {
 }
 
 function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(query).matches);
+  const [matches, setMatches] = useState(
+    () => typeof matchMedia !== "undefined" && matchMedia(query).matches,
+  );
   useEffect(() => {
     const list = matchMedia(query);
     const change = () => setMatches(list.matches);
     change();
-    list.addEventListener('change', change);
-    return () => list.removeEventListener('change', change);
+    list.addEventListener("change", change);
+    return () => list.removeEventListener("change", change);
   }, [query]);
   return matches;
 }
@@ -169,10 +231,10 @@ function useMediaQuery(query: string): boolean {
 function useFontTick(): number {
   const [tick, setTick] = useState(0);
   useEffect(() => {
-    if (typeof document === 'undefined' || !document.fonts) return;
+    if (typeof document === "undefined" || !document.fonts) return;
     const bump = () => setTick((n) => n + 1);
-    document.fonts.addEventListener('loadingdone', bump);
-    return () => document.fonts.removeEventListener('loadingdone', bump);
+    document.fonts.addEventListener("loadingdone", bump);
+    return () => document.fonts.removeEventListener("loadingdone", bump);
   }, []);
   return tick;
 }
@@ -188,17 +250,37 @@ function PlusBadge({ s }: { s: StudioStrings }) {
   );
 }
 
-function StickerArt({ item, tint, className }: { item: Sticker; tint?: string | null; className?: string }) {
-  const color = tint ?? item.tint ?? '#3A2E2A';
+function StickerArt({
+  item,
+  tint,
+  className,
+}: {
+  item: Sticker;
+  tint?: string | null;
+  className?: string;
+}) {
+  const color = tint ?? item.tint ?? "#3A2E2A";
   return (
     <svg viewBox="0 0 100 100" className={className} aria-hidden="true">
       {item.parts.map((part, i) => (
         <path
           key={i}
           d={part.d}
-          fill={!part.fill || part.fill === 'none' ? 'none' : part.fill === 'tint' ? color : part.fill}
-          fillRule={part.evenodd ? 'evenodd' : 'nonzero'}
-          stroke={part.stroke ? (part.stroke === 'tint' ? color : part.stroke) : undefined}
+          fill={
+            !part.fill || part.fill === "none"
+              ? "none"
+              : part.fill === "tint"
+                ? color
+                : part.fill
+          }
+          fillRule={part.evenodd ? "evenodd" : "nonzero"}
+          stroke={
+            part.stroke
+              ? part.stroke === "tint"
+                ? color
+                : part.stroke
+              : undefined
+          }
           strokeWidth={part.width ?? 2}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -210,25 +292,61 @@ function StickerArt({ item, tint, className }: { item: Sticker; tint?: string | 
 }
 
 /** A small drawing of a document, for the galleries. */
-function DocThumb({ doc, photo, tick, className }: { doc: StudioDoc; photo: Photo | null; tick: number; className?: string }) {
+function DocThumb({
+  doc,
+  photo,
+  tick,
+  className,
+}: {
+  doc: StudioDoc;
+  photo: Photo | null;
+  tick: number;
+  className?: string;
+}) {
   const canvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    const context = canvas.current?.getContext('2d');
+    const context = canvas.current?.getContext("2d");
     if (!context) return;
     context.setTransform(1 / 3, 0, 0, 1 / 3, 0, 0);
     renderDoc(context, doc, { photo });
   }, [doc, photo, tick]);
-  return <canvas ref={canvas} width={W / 3} height={H / 3} className={cn('block aspect-[3/2] w-full', className)} aria-hidden="true" />;
+  return (
+    <canvas
+      ref={canvas}
+      width={W / 3}
+      height={H / 3}
+      className={cn("block aspect-[3/2] w-full", className)}
+      aria-hidden="true"
+    />
+  );
 }
 
-function Swatches({ value, onChange, label, colors = SWATCHES, allowNone, noneLabel }: { value: string | null; onChange: (color: string | null) => void; label: string; colors?: readonly string[]; allowNone?: boolean; noneLabel?: string }) {
+function Swatches({
+  value,
+  onChange,
+  label,
+  colors = SWATCHES,
+  allowNone,
+  noneLabel,
+}: {
+  value: string | null;
+  onChange: (color: string | null) => void;
+  label: string;
+  colors?: readonly string[];
+  allowNone?: boolean;
+  noneLabel?: string;
+}) {
   const id = useId();
   return (
     <div className="flex flex-col gap-2">
       <span id={id} className="text-xs font-medium text-muted-foreground">
         {label}
       </span>
-      <div role="radiogroup" aria-labelledby={id} className="flex flex-wrap gap-1.5">
+      <div
+        role="radiogroup"
+        aria-labelledby={id}
+        className="flex flex-wrap gap-1.5"
+      >
         {allowNone && (
           <button
             type="button"
@@ -237,7 +355,10 @@ function Swatches({ value, onChange, label, colors = SWATCHES, allowNone, noneLa
             aria-label={noneLabel}
             title={noneLabel}
             onClick={() => onChange(null)}
-            className={cn('relative size-8 overflow-hidden rounded-full border-2 border-border bg-background', value === null && 'border-foreground ring-2 ring-foreground/25')}
+            className={cn(
+              "relative size-8 overflow-hidden rounded-full border-2 border-border bg-background",
+              value === null && "border-foreground ring-2 ring-foreground/25",
+            )}
           >
             <span className="absolute top-1/2 left-1/2 h-0.5 w-9 -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-destructive" />
           </button>
@@ -250,35 +371,89 @@ function Swatches({ value, onChange, label, colors = SWATCHES, allowNone, noneLa
             aria-checked={value?.toUpperCase() === color}
             aria-label={color}
             onClick={() => onChange(color)}
-            className={cn('size-8 rounded-full border-2 border-border', value?.toUpperCase() === color && 'border-foreground ring-2 ring-foreground/25')}
+            className={cn(
+              "size-8 rounded-full border-2 border-border",
+              value?.toUpperCase() === color &&
+                "border-foreground ring-2 ring-foreground/25",
+            )}
             style={{ background: color }}
           />
         ))}
-        <label className="relative flex size-8 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-border" title={label}>
-          <span className="size-full" style={{ background: 'conic-gradient(#D94135, #FFC857, #8CC084, #8CC7E8, #B28DD6, #D94135)' }} />
-          <input type="color" className="absolute inset-0 cursor-pointer opacity-0" value={value ?? '#FFFFFF'} onChange={(event) => onChange(event.target.value.toUpperCase())} aria-label={`${label}: ${value ?? ''}`} />
+        <label
+          className="relative flex size-8 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-border"
+          title={label}
+        >
+          <span
+            className="size-full"
+            style={{
+              background:
+                "conic-gradient(#D94135, #FFC857, #8CC084, #8CC7E8, #B28DD6, #D94135)",
+            }}
+          />
+          <input
+            type="color"
+            className="absolute inset-0 cursor-pointer opacity-0"
+            value={value ?? "#FFFFFF"}
+            onChange={(event) => onChange(event.target.value.toUpperCase())}
+            aria-label={`${label}: ${value ?? ""}`}
+          />
         </label>
       </div>
     </div>
   );
 }
 
-function Range({ label, value, min, max, step = 1, onChange, format }: { label: string; value: number; min: number; max: number; step?: number; onChange: (value: number) => void; format?: (value: number) => string }) {
+function Range({
+  label,
+  value,
+  min,
+  max,
+  step = 1,
+  onChange,
+  format,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (value: number) => void;
+  format?: (value: number) => string;
+}) {
   const id = useId();
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
         <label htmlFor={id}>{label}</label>
-        <span className="tabular-nums">{format ? format(value) : Math.round(value)}</span>
+        <span className="tabular-nums">
+          {format ? format(value) : Math.round(value)}
+        </span>
       </div>
-      <input id={id} type="range" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} className="h-6 w-full accent-[var(--brand)]" />
+      <input
+        id={id}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="h-6 w-full accent-[var(--brand)]"
+      />
     </div>
   );
 }
 
-function Section({ title, children, className }: { title?: string; children: ReactNode; className?: string }) {
+function Section({
+  title,
+  children,
+  className,
+}: {
+  title?: string;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <section className={cn('flex flex-col gap-3', className)}>
+    <section className={cn("flex flex-col gap-3", className)}>
       {title && <h3 className="text-sm font-semibold">{title}</h3>}
       {children}
     </section>
@@ -286,7 +461,23 @@ function Section({ title, children, className }: { title?: string; children: Rea
 }
 
 /** A tile of a gallery: a picture, a name, and the lock of Plus. */
-function Tile({ label, locked, selected, onClick, children, s, className }: { label: string; locked: boolean; selected?: boolean; onClick: () => void; children: ReactNode; s: StudioStrings; className?: string }) {
+function Tile({
+  label,
+  locked,
+  selected,
+  onClick,
+  children,
+  s,
+  className,
+}: {
+  label: string;
+  locked: boolean;
+  selected?: boolean;
+  onClick: () => void;
+  children: ReactNode;
+  s: StudioStrings;
+  className?: string;
+}) {
   return (
     <button
       type="button"
@@ -295,8 +486,8 @@ function Tile({ label, locked, selected, onClick, children, s, className }: { la
       aria-pressed={selected}
       title={label}
       className={cn(
-        'relative flex flex-col overflow-hidden rounded-md border-2 border-transparent bg-muted text-left transition-colors hover:border-input focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
-        selected && 'border-foreground',
+        "relative flex flex-col overflow-hidden rounded-md border-2 border-transparent bg-muted text-left transition-colors hover:border-input focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+        selected && "border-foreground",
         className,
       )}
     >
@@ -309,11 +500,43 @@ function Tile({ label, locked, selected, onClick, children, s, className }: { la
 // ---- The picture ---------------------------------------------------------------------------------------------
 
 type Gesture =
-  | { kind: 'move'; id: string; start: [number, number]; origin: [number, number]; run: string; moved: boolean }
-  | { kind: 'resize'; id: string; startDistance: number; startSize: number; run: string }
-  | { kind: 'rotate'; id: string; startAngle: number; startRotation: number; run: string }
-  | { kind: 'pinch'; id: string; startDistance: number; startAngle: number; startSize: number; startRotation: number; run: string }
-  | { kind: 'pan'; start: [number, number]; origin: [number, number]; run: string };
+  | {
+      kind: "move";
+      id: string;
+      start: [number, number];
+      origin: [number, number];
+      run: string;
+      moved: boolean;
+    }
+  | {
+      kind: "resize";
+      id: string;
+      startDistance: number;
+      startSize: number;
+      run: string;
+    }
+  | {
+      kind: "rotate";
+      id: string;
+      startAngle: number;
+      startRotation: number;
+      run: string;
+    }
+  | {
+      kind: "pinch";
+      id: string;
+      startDistance: number;
+      startAngle: number;
+      startSize: number;
+      startRotation: number;
+      run: string;
+    }
+  | {
+      kind: "pan";
+      start: [number, number];
+      origin: [number, number];
+      run: string;
+    };
 
 let runs = 0;
 const nextRun = (kind: string) => `${kind}:${++runs}`;
@@ -359,18 +582,24 @@ function Stage({
   latest.current = doc;
 
   useEffect(() => {
-    const context = canvas.current?.getContext('2d');
+    const context = canvas.current?.getContext("2d");
     if (context) onMeasure(canvasMeasure(context));
   }, [tick, onMeasure]);
 
   useEffect(() => {
-    const context = canvas.current?.getContext('2d');
+    const context = canvas.current?.getContext("2d");
     if (context) renderDoc(context, doc, { photo }, measure);
   }, [doc, photo, measure]);
 
-  const toScreen = (event: { clientX: number; clientY: number }): [number, number] => {
+  const toScreen = (event: {
+    clientX: number;
+    clientY: number;
+  }): [number, number] => {
     const rect = stage.current!.getBoundingClientRect();
-    return [((event.clientX - rect.left) * W) / rect.width, ((event.clientY - rect.top) * H) / rect.height];
+    return [
+      ((event.clientX - rect.left) * W) / rect.width,
+      ((event.clientY - rect.top) * H) / rect.height,
+    ];
   };
 
   function startPinch(id: string) {
@@ -378,20 +607,23 @@ function Stage({
     const layer = findLayer(latest.current, id);
     if (!a || !b || !layer) return;
     gesture.current = {
-      kind: 'pinch',
+      kind: "pinch",
       id,
       startDistance: Math.max(1, Math.hypot(b[0] - a[0], b[1] - a[1])),
       startAngle: (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI,
       startSize: layer.size,
       startRotation: layer.rotation,
-      run: nextRun('pinch'),
+      run: nextRun("pinch"),
     };
   }
 
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (event.button !== 0 && event.pointerType === 'mouse') return;
+    if (event.button !== 0 && event.pointerType === "mouse") return;
     // Focus for the keys, without the ring of a keyboard focus.
-    stage.current?.focus({ preventScroll: true, focusVisible: false } as FocusOptions);
+    stage.current?.focus({
+      preventScroll: true,
+      focusVisible: false,
+    } as FocusOptions);
     const point = toScreen(event);
     try {
       stage.current?.setPointerCapture(event.pointerId);
@@ -405,25 +637,56 @@ function Stage({
       return;
     }
     if (pointers.current.size > 2) return;
-    const handle = (event.target as HTMLElement).closest<HTMLElement>('[data-handle]')?.dataset.handle;
+    const handle = (event.target as HTMLElement).closest<HTMLElement>(
+      "[data-handle]",
+    )?.dataset.handle;
     const layer = findLayer(current, selected);
     if (handle && layer) {
-      if (handle === 'resize') {
-        gesture.current = { kind: 'resize', id: layer.id, startDistance: Math.max(1, Math.hypot(point[0] - layer.x, point[1] - layer.y)), startSize: layer.size, run: nextRun('resize') };
+      if (handle === "resize") {
+        gesture.current = {
+          kind: "resize",
+          id: layer.id,
+          startDistance: Math.max(
+            1,
+            Math.hypot(point[0] - layer.x, point[1] - layer.y),
+          ),
+          startSize: layer.size,
+          run: nextRun("resize"),
+        };
       } else {
-        gesture.current = { kind: 'rotate', id: layer.id, startAngle: (Math.atan2(point[1] - layer.y, point[0] - layer.x) * 180) / Math.PI, startRotation: layer.rotation, run: nextRun('rotate') };
+        gesture.current = {
+          kind: "rotate",
+          id: layer.id,
+          startAngle:
+            (Math.atan2(point[1] - layer.y, point[0] - layer.x) * 180) /
+            Math.PI,
+          startRotation: layer.rotation,
+          run: nextRun("rotate"),
+        };
       }
       return;
     }
     const hit = hitTest(current, point[0], point[1], measure);
     if (hit) {
       onSelect(hit.id);
-      gesture.current = { kind: 'move', id: hit.id, start: point, origin: [hit.x, hit.y], run: nextRun('move'), moved: false };
+      gesture.current = {
+        kind: "move",
+        id: hit.id,
+        start: point,
+        origin: [hit.x, hit.y],
+        run: nextRun("move"),
+        moved: false,
+      };
       return;
     }
     onSelect(null);
-    if (current.background.kind === 'photo' && photo) {
-      gesture.current = { kind: 'pan', start: point, origin: [current.background.cx, current.background.cy], run: nextRun('pan') };
+    if (current.background.kind === "photo" && photo) {
+      gesture.current = {
+        kind: "pan",
+        start: point,
+        origin: [current.background.cx, current.background.cy],
+        run: nextRun("pan"),
+      };
     } else {
       gesture.current = null;
     }
@@ -436,17 +699,24 @@ function Stage({
     const current = latest.current;
     const active = gesture.current;
     if (!active) return;
-    if (active.kind === 'pinch') {
+    if (active.kind === "pinch") {
       const [a, b] = [...pointers.current.values()];
       if (!a || !b) return;
       const ratio = Math.hypot(b[0] - a[0], b[1] - a[1]) / active.startDistance;
       const angle = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
       const sized = resizeLayer(current, active.id, active.startSize * ratio);
-      onCommit(rotateLayer(sized, active.id, snapAngle(active.startRotation + angle - active.startAngle)), active.run);
+      onCommit(
+        rotateLayer(
+          sized,
+          active.id,
+          snapAngle(active.startRotation + angle - active.startAngle),
+        ),
+        active.run,
+      );
       return;
     }
     if (pointers.current.size > 1) return;
-    if (active.kind === 'move') {
+    if (active.kind === "move") {
       const dx = point[0] - active.start[0];
       const dy = point[1] - active.start[1];
       if (!active.moved && Math.hypot(dx, dy) < 2) return;
@@ -454,32 +724,81 @@ function Stage({
       const snapped = snapCenter(active.origin[0] + dx, active.origin[1] + dy);
       setGuides({ vertical: snapped.vertical, horizontal: snapped.horizontal });
       onCommit(moveLayer(current, active.id, snapped.x, snapped.y), active.run);
-    } else if (active.kind === 'resize') {
+    } else if (active.kind === "resize") {
       const layer = findLayer(current, active.id);
       if (!layer) return;
-      const ratio = Math.hypot(point[0] - layer.x, point[1] - layer.y) / active.startDistance;
-      onCommit(resizeLayer(current, active.id, active.startSize * ratio), active.run);
-    } else if (active.kind === 'rotate') {
+      const ratio =
+        Math.hypot(point[0] - layer.x, point[1] - layer.y) /
+        active.startDistance;
+      onCommit(
+        resizeLayer(current, active.id, active.startSize * ratio),
+        active.run,
+      );
+    } else if (active.kind === "rotate") {
       const layer = findLayer(current, active.id);
       if (!layer) return;
-      const angle = (Math.atan2(point[1] - layer.y, point[0] - layer.x) * 180) / Math.PI;
-      onCommit(rotateLayer(current, active.id, snapAngle(active.startRotation + angle - active.startAngle)), active.run);
-    } else if (active.kind === 'pan' && current.background.kind === 'photo' && photo) {
-      const crop = photoCrop(photo, { w: W, h: H }, current.background.zoom, active.origin[0], active.origin[1]);
-      const cx = Math.min(1, Math.max(0, active.origin[0] - ((point[0] - active.start[0]) * crop.w) / W / photo.width));
-      const cy = Math.min(1, Math.max(0, active.origin[1] - ((point[1] - active.start[1]) * crop.h) / H / photo.height));
-      onCommit({ ...current, background: { ...current.background, cx, cy } }, active.run);
+      const angle =
+        (Math.atan2(point[1] - layer.y, point[0] - layer.x) * 180) / Math.PI;
+      onCommit(
+        rotateLayer(
+          current,
+          active.id,
+          snapAngle(active.startRotation + angle - active.startAngle),
+        ),
+        active.run,
+      );
+    } else if (
+      active.kind === "pan" &&
+      current.background.kind === "photo" &&
+      photo
+    ) {
+      const crop = photoCrop(
+        photo,
+        { w: W, h: H },
+        current.background.zoom,
+        active.origin[0],
+        active.origin[1],
+      );
+      const cx = Math.min(
+        1,
+        Math.max(
+          0,
+          active.origin[0] -
+            ((point[0] - active.start[0]) * crop.w) / W / photo.width,
+        ),
+      );
+      const cy = Math.min(
+        1,
+        Math.max(
+          0,
+          active.origin[1] -
+            ((point[1] - active.start[1]) * crop.h) / H / photo.height,
+        ),
+      );
+      onCommit(
+        { ...current, background: { ...current.background, cx, cy } },
+        active.run,
+      );
     }
   }
 
   function onPointerUp(event: PointerEvent<HTMLDivElement>) {
     pointers.current.delete(event.pointerId);
-    if (stage.current?.hasPointerCapture(event.pointerId)) stage.current.releasePointerCapture(event.pointerId);
-    if (pointers.current.size === 1 && gesture.current?.kind === 'pinch') {
+    if (stage.current?.hasPointerCapture(event.pointerId))
+      stage.current.releasePointerCapture(event.pointerId);
+    if (pointers.current.size === 1 && gesture.current?.kind === "pinch") {
       // One finger left after a pinch moves the layer on from where it is.
       const [point] = [...pointers.current.values()];
       const layer = findLayer(latest.current, gesture.current.id);
-      if (point && layer) gesture.current = { kind: 'move', id: layer.id, start: point, origin: [layer.x, layer.y], run: nextRun('move'), moved: true };
+      if (point && layer)
+        gesture.current = {
+          kind: "move",
+          id: layer.id,
+          start: point,
+          origin: [layer.x, layer.y],
+          run: nextRun("move"),
+          moved: true,
+        };
       return;
     }
     if (pointers.current.size === 0) {
@@ -491,8 +810,8 @@ function Stage({
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     const layer = findLayer(latest.current, selected);
     if (!layer) {
-      if (event.key === 'Tab' || event.key.startsWith('Arrow')) {
-        if (event.key.startsWith('Arrow') && latest.current.layers.length) {
+      if (event.key === "Tab" || event.key.startsWith("Arrow")) {
+        if (event.key.startsWith("Arrow") && latest.current.layers.length) {
           event.preventDefault();
           onSelect(latest.current.layers[latest.current.layers.length - 1]!.id);
         }
@@ -500,25 +819,52 @@ function Stage({
       return;
     }
     const step = event.shiftKey ? 10 : 1;
-    const moves: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+    const moves: Record<string, [number, number]> = {
+      ArrowLeft: [-step, 0],
+      ArrowRight: [step, 0],
+      ArrowUp: [0, -step],
+      ArrowDown: [0, step],
+    };
     const move = moves[event.key];
     if (move) {
       event.preventDefault();
-      onCommit(nudgeLayer(latest.current, layer.id, move[0], move[1]), `nudge:${layer.id}`);
-    } else if (event.key === 'Delete' || event.key === 'Backspace') {
+      onCommit(
+        nudgeLayer(latest.current, layer.id, move[0], move[1]),
+        `nudge:${layer.id}`,
+      );
+    } else if (event.key === "Delete" || event.key === "Backspace") {
       event.preventDefault();
       onRemove(layer.id);
-    } else if (event.key === 'Enter' && layer.type === 'text') {
+    } else if (event.key === "Enter" && layer.type === "text") {
       event.preventDefault();
       onEditText();
-    } else if (event.key === '+' || event.key === '=') {
-      onCommit(resizeLayer(latest.current, layer.id, layer.size * 1.08), `size:${layer.id}`);
-    } else if (event.key === '-') {
-      onCommit(resizeLayer(latest.current, layer.id, layer.size / 1.08), `size:${layer.id}`);
-    } else if (event.key === 'r' || event.key === 'R') {
-      onCommit(rotateLayer(latest.current, layer.id, layer.rotation + (event.shiftKey ? -15 : 15)), `turn:${layer.id}`);
-    } else if (event.key === ']' || event.key === '[') {
-      onCommit(reorderLayer(latest.current, layer.id, event.key === ']' ? 'forward' : 'backward'));
+    } else if (event.key === "+" || event.key === "=") {
+      onCommit(
+        resizeLayer(latest.current, layer.id, layer.size * 1.08),
+        `size:${layer.id}`,
+      );
+    } else if (event.key === "-") {
+      onCommit(
+        resizeLayer(latest.current, layer.id, layer.size / 1.08),
+        `size:${layer.id}`,
+      );
+    } else if (event.key === "r" || event.key === "R") {
+      onCommit(
+        rotateLayer(
+          latest.current,
+          layer.id,
+          layer.rotation + (event.shiftKey ? -15 : 15),
+        ),
+        `turn:${layer.id}`,
+      );
+    } else if (event.key === "]" || event.key === "[") {
+      onCommit(
+        reorderLayer(
+          latest.current,
+          layer.id,
+          event.key === "]" ? "forward" : "backward",
+        ),
+      );
     }
   }
 
@@ -541,7 +887,7 @@ function Stage({
       onPointerCancel={onPointerUp}
       onDoubleClick={(event) => {
         const hit = hitTest(latest.current, ...toScreen(event), measure);
-        if (hit?.type === 'text') {
+        if (hit?.type === "text") {
           onSelect(hit.id);
           onEditText();
         }
@@ -549,19 +895,42 @@ function Stage({
       onKeyDown={onKeyDown}
       className="relative aspect-[3/2] w-full touch-none rounded-md bg-black shadow-sm ring-1 ring-border outline-none select-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <canvas ref={canvas} width={W} height={H} className="absolute inset-0 size-full rounded-md" />
+      <canvas
+        ref={canvas}
+        width={W}
+        height={H}
+        className="absolute inset-0 size-full rounded-md"
+      />
       {showCamera && (
         <>
           <CameraText firmware={firmware} />
-          <svg className="pointer-events-none absolute inset-0 size-full" viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+          <svg
+            className="pointer-events-none absolute inset-0 size-full"
+            viewBox={`0 0 ${W} ${H}`}
+            aria-hidden="true"
+          >
             {SAFE_ZONES.map((zone) => (
-              <rect key={zone.kind} x={zone.x} y={zone.y} width={zone.w} height={zone.h} fill="none" stroke="#FFC857" strokeWidth="2" strokeDasharray="8 6" />
+              <rect
+                key={zone.kind}
+                x={zone.x}
+                y={zone.y}
+                width={zone.w}
+                height={zone.h}
+                fill="none"
+                stroke="#FFC857"
+                strokeWidth="2"
+                strokeDasharray="8 6"
+              />
             ))}
           </svg>
         </>
       )}
-      {guides.vertical && <div className="pointer-events-none absolute inset-y-0 left-1/2 w-px bg-[#FF3EA5]" />}
-      {guides.horizontal && <div className="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-[#FF3EA5]" />}
+      {guides.vertical && (
+        <div className="pointer-events-none absolute inset-y-0 left-1/2 w-px bg-[#FF3EA5]" />
+      )}
+      {guides.horizontal && (
+        <div className="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-[#FF3EA5]" />
+      )}
       {doc.layers
         .filter((item) => covered.has(item.id) && item.id !== selected)
         .map((item) => {
@@ -570,24 +939,44 @@ function Stage({
             <div
               key={item.id}
               className="pointer-events-none absolute border-2 border-dashed border-[#FFC857]"
-              style={{ left: pct(item.x, W), top: pct(item.y, H), width: pct(b.w, W), height: pct(b.h, H), transform: `translate(-50%, -50%) rotate(${item.rotation}deg)` }}
+              style={{
+                left: pct(item.x, W),
+                top: pct(item.y, H),
+                width: pct(b.w, W),
+                height: pct(b.h, H),
+                transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
+              }}
             />
           );
         })}
       {layer && box && (
         <div
           className="pointer-events-none absolute"
-          style={{ left: pct(layer.x, W), top: pct(layer.y, H), width: pct(box.w, W), height: pct(box.h, H), transform: `translate(-50%, -50%) rotate(${layer.rotation}deg)` }}
+          style={{
+            left: pct(layer.x, W),
+            top: pct(layer.y, H),
+            width: pct(box.w, W),
+            height: pct(box.h, H),
+            transform: `translate(-50%, -50%) rotate(${layer.rotation}deg)`,
+          }}
         >
           <div className="absolute -inset-1.5 rounded-sm border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.5)]" />
           {/* The rotate handle above the box, or below it for a layer at the top of the picture. */}
-          <div className={cn('absolute left-1/2 h-7 w-0.5 -translate-x-1/2 bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]', handleBelow ? '-bottom-9' : '-top-9')} />
+          <div
+            className={cn(
+              "absolute left-1/2 h-7 w-0.5 -translate-x-1/2 bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]",
+              handleBelow ? "-bottom-9" : "-top-9",
+            )}
+          />
           <button
             type="button"
             tabIndex={-1}
             data-handle="rotate"
             aria-label={s.rotate}
-            className={cn('pointer-events-auto absolute left-1/2 flex size-8 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border-2 border-foreground bg-white text-black shadow', handleBelow ? '-bottom-12' : '-top-12')}
+            className={cn(
+              "pointer-events-auto absolute left-1/2 flex size-8 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border-2 border-foreground bg-white text-black shadow",
+              handleBelow ? "-bottom-12" : "-top-12",
+            )}
           >
             <RotateCw className="size-4" aria-hidden="true" />
           </button>
@@ -606,16 +995,49 @@ function Stage({
 
 // ---- The panels ------------------------------------------------------------------------------------------------
 
-function TemplatesPanel({ s, strings, doc, plus, tick, photo, onPick }: { s: StudioStrings; strings: Strings; doc: StudioDoc; plus: boolean; tick: number; photo: Photo | null; onPick: (template: Template) => void }) {
-  const docs = useMemo(() => new Map(TEMPLATES.map((template) => [template.id, template.build()])), []);
-  const name = (template: Template) => s.templates[template.id as keyof typeof s.templates] ?? strings.shutdown.designs[template.id as keyof typeof strings.shutdown.designs] ?? template.id;
+function TemplatesPanel({
+  s,
+  strings,
+  doc,
+  plus,
+  tick,
+  photo,
+  onPick,
+}: {
+  s: StudioStrings;
+  strings: Strings;
+  doc: StudioDoc;
+  plus: boolean;
+  tick: number;
+  photo: Photo | null;
+  onPick: (template: Template) => void;
+}) {
+  const docs = useMemo(
+    () => new Map(TEMPLATES.map((template) => [template.id, template.build()])),
+    [],
+  );
+  const name = (template: Template) =>
+    s.templates[template.id as keyof typeof s.templates] ??
+    strings.shutdown.designs[
+      template.id as keyof typeof strings.shutdown.designs
+    ] ??
+    template.id;
   const group = (title: string, list: readonly Template[]) => (
     <Section title={title}>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">
         {list.map((template) => (
-          <Tile key={template.id} s={s} label={name(template)} locked={templateLocked(template.id, CATALOG, plus)} selected={doc.template === template.id} onClick={() => onPick(template)}>
+          <Tile
+            key={template.id}
+            s={s}
+            label={name(template)}
+            locked={templateLocked(template.id, CATALOG, plus)}
+            selected={doc.template === template.id}
+            onClick={() => onPick(template)}
+          >
             <DocThumb doc={docs.get(template.id)!} photo={photo} tick={tick} />
-            <span className="truncate px-2 py-1.5 text-xs font-medium">{name(template)}</span>
+            <span className="truncate px-2 py-1.5 text-xs font-medium">
+              {name(template)}
+            </span>
           </Tile>
         ))}
       </div>
@@ -623,8 +1045,14 @@ function TemplatesPanel({ s, strings, doc, plus, tick, photo, onPick }: { s: Stu
   );
   return (
     <div className="flex flex-col gap-6">
-      {group(s.templatesTitle, TEMPLATES.filter((t) => !t.season))}
-      {group(s.seasonsTitle, TEMPLATES.filter((t) => t.season))}
+      {group(
+        s.templatesTitle,
+        TEMPLATES.filter((t) => !t.season),
+      )}
+      {group(
+        s.seasonsTitle,
+        TEMPLATES.filter((t) => t.season),
+      )}
     </div>
   );
 }
@@ -660,7 +1088,12 @@ function TextPanel({
   const font = layer ? fontOf(layer.font) : null;
   return (
     <div className="flex flex-col gap-5">
-      <Button type="button" variant="outline" onClick={onAdd} className="self-start">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onAdd}
+        className="self-start"
+      >
         <Plus aria-hidden="true" />
         {s.addText}
       </Button>
@@ -676,7 +1109,9 @@ function TextPanel({
               rows={2}
               value={layer.text}
               maxLength={LIMITS.textLength}
-              onChange={(event) => onChange({ text: event.target.value }, `text:${layer.id}`)}
+              onChange={(event) =>
+                onChange({ text: event.target.value }, `text:${layer.id}`)
+              }
               className="min-h-16 w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm"
             />
           </div>
@@ -685,64 +1120,182 @@ function TextPanel({
               {FONTS.map((item) => {
                 const locked = fontLocked(item.id, plus);
                 return (
-                  <Tile key={item.id} s={s} label={item.name} locked={locked} selected={layer.font === item.id} onClick={() => (locked ? onLocked({ kind: 'font', id: item.id }) : onChange({ font: item.id }))} className="bg-background">
-                    <span className="flex h-14 items-center justify-center px-2 text-xl" style={item.id === 'pixel' ? { fontFamily: 'monospace', fontWeight: 700, letterSpacing: '0.1em' } : { fontFamily: item.family, fontWeight: item.bold }}>
-                      {item.id === 'pixel' ? 'AB12' : item.thai ? 'Aa ก' : 'Aa'}
+                  <Tile
+                    key={item.id}
+                    s={s}
+                    label={item.name}
+                    locked={locked}
+                    selected={layer.font === item.id}
+                    onClick={() =>
+                      locked
+                        ? onLocked({ kind: "font", id: item.id })
+                        : onChange({ font: item.id })
+                    }
+                    className="bg-background"
+                  >
+                    <span
+                      className="flex h-14 items-center justify-center px-2 text-xl"
+                      style={
+                        item.id === "pixel"
+                          ? {
+                              fontFamily: "monospace",
+                              fontWeight: 700,
+                              letterSpacing: "0.1em",
+                            }
+                          : { fontFamily: item.family, fontWeight: item.bold }
+                      }
+                    >
+                      {item.id === "pixel" ? "AB12" : item.thai ? "Aa ก" : "Aa"}
                     </span>
-                    <span className="truncate border-t px-2 py-1 text-xs text-muted-foreground">{item.name}</span>
+                    <span className="truncate border-t px-2 py-1 text-xs text-muted-foreground">
+                      {item.name}
+                    </span>
                   </Tile>
                 );
               })}
             </div>
           </Section>
-          <Range label={s.size} value={layer.size} min={LIMITS.textSize[0]} max={160} onChange={(size) => onChange({ size }, `size:${layer.id}`)} />
+          <Range
+            label={s.size}
+            value={layer.size}
+            min={LIMITS.textSize[0]}
+            max={160}
+            onChange={(size) => onChange({ size }, `size:${layer.id}`)}
+          />
           <div className="flex flex-wrap items-center gap-3">
-            <div role="radiogroup" aria-label={s.align} className="inline-flex rounded-md border">
+            <div
+              role="radiogroup"
+              aria-label={s.align}
+              className="inline-flex rounded-md border"
+            >
               {(
                 [
-                  ['left', AlignLeft, s.alignLeft],
-                  ['center', AlignCenter, s.alignCenter],
-                  ['right', AlignRight, s.alignRight],
+                  ["left", AlignLeft, s.alignLeft],
+                  ["center", AlignCenter, s.alignCenter],
+                  ["right", AlignRight, s.alignRight],
                 ] as const
               ).map(([value, Icon, label]) => (
-                <button key={value} type="button" role="radio" aria-checked={layer.align === value} aria-label={label} title={label} onClick={() => onChange({ align: value })} className={cn('flex size-9 items-center justify-center first:rounded-l-md last:rounded-r-md', layer.align === value && 'bg-accent text-accent-foreground')}>
+                <button
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={layer.align === value}
+                  aria-label={label}
+                  title={label}
+                  onClick={() => onChange({ align: value })}
+                  className={cn(
+                    "flex size-9 items-center justify-center first:rounded-l-md last:rounded-r-md",
+                    layer.align === value && "bg-accent text-accent-foreground",
+                  )}
+                >
                   <Icon className="size-4" aria-hidden="true" />
                 </button>
               ))}
             </div>
             {font && hasBold(font) && (
-              <Button type="button" variant={layer.bold ? 'secondary' : 'outline'} size="sm" aria-pressed={layer.bold} onClick={() => onChange({ bold: !layer.bold })}>
+              <Button
+                type="button"
+                variant={layer.bold ? "secondary" : "outline"}
+                size="sm"
+                aria-pressed={layer.bold}
+                onClick={() => onChange({ bold: !layer.bold })}
+              >
                 <span className="font-bold">B</span>
                 {s.bold}
               </Button>
             )}
           </div>
-          <Swatches label={s.color} value={layer.color} onChange={(color) => color && onChange({ color }, `color:${layer.id}`)} />
-          <Swatches label={s.outline} value={layer.outline} allowNone noneLabel={s.none} colors={['#FFFFFF', '#2B2B2B', '#D94135', '#2B59C3', '#F4A6B8', '#FFC857']} onChange={(outline) => onChange({ outline }, `outline:${layer.id}`)} />
-          {layer.font !== 'pixel' && <Range label={s.spacing} value={layer.spacing} min={0} max={30} onChange={(spacing) => onChange({ spacing }, `spacing:${layer.id}`)} />}
+          <Swatches
+            label={s.color}
+            value={layer.color}
+            onChange={(color) =>
+              color && onChange({ color }, `color:${layer.id}`)
+            }
+          />
+          <Swatches
+            label={s.outline}
+            value={layer.outline}
+            allowNone
+            noneLabel={s.none}
+            colors={[
+              "#FFFFFF",
+              "#2B2B2B",
+              "#D94135",
+              "#2B59C3",
+              "#F4A6B8",
+              "#FFC857",
+            ]}
+            onChange={(outline) => onChange({ outline }, `outline:${layer.id}`)}
+          />
+          {layer.font !== "pixel" && (
+            <Range
+              label={s.spacing}
+              value={layer.spacing}
+              min={0}
+              max={30}
+              onChange={(spacing) =>
+                onChange({ spacing }, `spacing:${layer.id}`)
+              }
+            />
+          )}
         </>
       )}
     </div>
   );
 }
 
-function StickersPanel({ s, plus, selected, onAdd, onTint, onLocked }: { s: StudioStrings; plus: boolean; selected: StickerLayer | null; onAdd: (id: string) => void; onTint: (tint: string | null) => void; onLocked: (locked: Locked) => void }) {
+function StickersPanel({
+  s,
+  plus,
+  selected,
+  onAdd,
+  onTint,
+  onLocked,
+}: {
+  s: StudioStrings;
+  plus: boolean;
+  selected: StickerLayer | null;
+  onAdd: (id: string) => void;
+  onTint: (tint: string | null) => void;
+  onLocked: (locked: Locked) => void;
+}) {
   const item = selected ? findSticker(selected.sticker) : undefined;
   return (
     <div className="flex flex-col gap-6">
-      {item?.tint && <Swatches label={s.stickerColor} value={selected?.tint ?? item.tint} onChange={(tint) => onTint(tint)} />}
+      {item?.tint && (
+        <Swatches
+          label={s.stickerColor}
+          value={selected?.tint ?? item.tint}
+          onChange={(tint) => onTint(tint)}
+        />
+      )}
       {STICKER_GROUPS.map((group) => (
         <Section key={group} title={s.groups[group]}>
           <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-8 lg:grid-cols-4">
-            {STICKERS.filter((sticker) => sticker.group === group).map((sticker) => {
-              const locked = stickerLocked(sticker.id, CATALOG, plus);
-              const name = s.stickers[sticker.id as keyof typeof s.stickers] ?? sticker.id;
-              return (
-                <Tile key={sticker.id} s={s} label={name} locked={locked} onClick={() => (locked ? onLocked({ kind: 'sticker', id: sticker.id }) : onAdd(sticker.id))} className="aspect-square items-center justify-center bg-[#EFEBE4] p-1.5">
-                  <StickerArt item={sticker} className="size-full" />
-                </Tile>
-              );
-            })}
+            {STICKERS.filter((sticker) => sticker.group === group).map(
+              (sticker) => {
+                const locked = stickerLocked(sticker.id, CATALOG, plus);
+                const name =
+                  s.stickers[sticker.id as keyof typeof s.stickers] ??
+                  sticker.id;
+                return (
+                  <Tile
+                    key={sticker.id}
+                    s={s}
+                    label={name}
+                    locked={locked}
+                    onClick={() =>
+                      locked
+                        ? onLocked({ kind: "sticker", id: sticker.id })
+                        : onAdd(sticker.id)
+                    }
+                    className="aspect-square items-center justify-center bg-[#EFEBE4] p-1.5"
+                  >
+                    <StickerArt item={sticker} className="size-full" />
+                  </Tile>
+                );
+              },
+            )}
           </div>
         </Section>
       ))}
@@ -780,37 +1333,89 @@ function BackgroundPanel({
   const input = useRef<HTMLInputElement>(null);
   const [fileKey, setFileKey] = useState(0);
   const background = doc.background;
-  const kinds: { kind: Background['kind']; label: string }[] = [
-    { kind: 'solid', label: s.bgSolid },
-    { kind: 'gradient', label: s.bgGradient },
-    { kind: 'pattern', label: s.bgPattern },
-    { kind: 'photo', label: s.bgPhoto },
-    ...(background.kind === 'design' ? [{ kind: 'design' as const, label: s.bgDesign }] : []),
+  const kinds: { kind: Background["kind"]; label: string }[] = [
+    { kind: "solid", label: s.bgSolid },
+    { kind: "gradient", label: s.bgGradient },
+    { kind: "pattern", label: s.bgPattern },
+    { kind: "photo", label: s.bgPhoto },
+    ...(background.kind === "design"
+      ? [{ kind: "design" as const, label: s.bgDesign }]
+      : []),
   ];
-  function pick(kind: Background['kind']) {
+  function pick(kind: Background["kind"]) {
     if (kind === background.kind) return;
-    if (kind === 'solid') onChange({ kind: 'solid', color: '#F4EFE6' });
-    if (kind === 'gradient') onChange({ kind: 'gradient', from: GRADIENTS[0]![0], to: GRADIENTS[0]![1], angle: 90 });
-    if (kind === 'pattern') onChange({ kind: 'pattern', pattern: 'dots', color: PATTERN_COLORS[0]![0], ink: PATTERN_COLORS[0]![1] });
-    if (kind === 'photo') {
-      onChange({ kind: 'photo', zoom: 1, cx: 0.5, cy: 0.5, color: '#000000' });
+    if (kind === "solid") onChange({ kind: "solid", color: "#F4EFE6" });
+    if (kind === "gradient")
+      onChange({
+        kind: "gradient",
+        from: GRADIENTS[0]![0],
+        to: GRADIENTS[0]![1],
+        angle: 90,
+      });
+    if (kind === "pattern")
+      onChange({
+        kind: "pattern",
+        pattern: "dots",
+        color: PATTERN_COLORS[0]![0],
+        ink: PATTERN_COLORS[0]![1],
+      });
+    if (kind === "photo") {
+      onChange({ kind: "photo", zoom: 1, cx: 0.5, cy: 0.5, color: "#000000" });
       if (!photo) input.current?.click();
     }
   }
-  const patternDoc = (pattern: PatternId): StudioDoc => ({ ...emptyDoc(), background: { kind: 'pattern', pattern, color: background.kind === 'pattern' ? background.color : PATTERN_COLORS[0]![0], ink: background.kind === 'pattern' ? background.ink : PATTERN_COLORS[0]![1] } });
-  const frameDoc = (frame: FrameId): StudioDoc => ({ ...emptyDoc(), background: doc.background, frame, frameColor: FRAMES.find((f) => f.id === frame)!.color });
-  const design = background.kind === 'design' ? findDesign(background.design) : undefined;
+  const patternDoc = (pattern: PatternId): StudioDoc => ({
+    ...emptyDoc(),
+    background: {
+      kind: "pattern",
+      pattern,
+      color:
+        background.kind === "pattern"
+          ? background.color
+          : PATTERN_COLORS[0]![0],
+      ink:
+        background.kind === "pattern" ? background.ink : PATTERN_COLORS[0]![1],
+    },
+  });
+  const frameDoc = (frame: FrameId): StudioDoc => ({
+    ...emptyDoc(),
+    background: doc.background,
+    frame,
+    frameColor: FRAMES.find((f) => f.id === frame)!.color,
+  });
+  const design =
+    background.kind === "design" ? findDesign(background.design) : undefined;
   return (
     <div className="flex flex-col gap-6">
-      <div role="radiogroup" aria-label={s.background} className="flex flex-wrap gap-1.5">
+      <div
+        role="radiogroup"
+        aria-label={s.background}
+        className="flex flex-wrap gap-1.5"
+      >
         {kinds.map(({ kind, label }) => (
-          <Button key={kind} type="button" role="radio" aria-checked={background.kind === kind} size="sm" variant={background.kind === kind ? 'default' : 'outline'} onClick={() => pick(kind)}>
+          <Button
+            key={kind}
+            type="button"
+            role="radio"
+            aria-checked={background.kind === kind}
+            size="sm"
+            variant={background.kind === kind ? "default" : "outline"}
+            onClick={() => pick(kind)}
+          >
             {label}
           </Button>
         ))}
       </div>
-      {background.kind === 'solid' && <Swatches label={s.color} value={background.color} onChange={(color) => color && onChange({ ...background, color }, 'bg-color')} />}
-      {background.kind === 'gradient' && (
+      {background.kind === "solid" && (
+        <Swatches
+          label={s.color}
+          value={background.color}
+          onChange={(color) =>
+            color && onChange({ ...background, color }, "bg-color")
+          }
+        />
+      )}
+      {background.kind === "gradient" && (
         <>
           <div className="grid grid-cols-4 gap-2">
             {GRADIENTS.map(([from, to]) => (
@@ -820,43 +1425,106 @@ function BackgroundPanel({
                 aria-label={`${s.bgGradient} ${from} ${to}`}
                 aria-pressed={background.from === from && background.to === to}
                 onClick={() => onChange({ ...background, from, to })}
-                className={cn('aspect-[3/2] rounded-md border-2 border-border', background.from === from && background.to === to && 'border-foreground')}
-                style={{ background: `linear-gradient(180deg, ${from}, ${to})` }}
+                className={cn(
+                  "aspect-[3/2] rounded-md border-2 border-border",
+                  background.from === from &&
+                    background.to === to &&
+                    "border-foreground",
+                )}
+                style={{
+                  background: `linear-gradient(180deg, ${from}, ${to})`,
+                }}
               />
             ))}
           </div>
-          <Swatches label={s.from} value={background.from} onChange={(from) => from && onChange({ ...background, from }, 'bg-from')} />
-          <Swatches label={s.to} value={background.to} onChange={(to) => to && onChange({ ...background, to }, 'bg-to')} />
-          <Range label={s.angle} value={background.angle} min={-180} max={180} step={15} format={(value) => `${value}°`} onChange={(angle) => onChange({ ...background, angle }, 'bg-angle')} />
+          <Swatches
+            label={s.from}
+            value={background.from}
+            onChange={(from) =>
+              from && onChange({ ...background, from }, "bg-from")
+            }
+          />
+          <Swatches
+            label={s.to}
+            value={background.to}
+            onChange={(to) => to && onChange({ ...background, to }, "bg-to")}
+          />
+          <Range
+            label={s.angle}
+            value={background.angle}
+            min={-180}
+            max={180}
+            step={15}
+            format={(value) => `${value}°`}
+            onChange={(angle) => onChange({ ...background, angle }, "bg-angle")}
+          />
         </>
       )}
-      {background.kind === 'pattern' && (
+      {background.kind === "pattern" && (
         <>
           <div className="grid grid-cols-4 gap-2">
             {PATTERN_IDS.map((pattern) => (
-              <Tile key={pattern} s={s} label={s.patterns[pattern]} locked={false} selected={background.pattern === pattern} onClick={() => onChange({ ...background, pattern })}>
+              <Tile
+                key={pattern}
+                s={s}
+                label={s.patterns[pattern]}
+                locked={false}
+                selected={background.pattern === pattern}
+                onClick={() => onChange({ ...background, pattern })}
+              >
                 <DocThumb doc={patternDoc(pattern)} photo={null} tick={tick} />
               </Tile>
             ))}
           </div>
           <div className="flex flex-wrap gap-2">
             {PATTERN_COLORS.map(([color, ink]) => (
-              <button key={color} type="button" aria-label={`${color} ${ink}`} onClick={() => onChange({ ...background, color, ink })} className="size-8 rounded-full border-2 border-border" style={{ background: `linear-gradient(135deg, ${color} 50%, ${ink} 50%)` }} />
+              <button
+                key={color}
+                type="button"
+                aria-label={`${color} ${ink}`}
+                onClick={() => onChange({ ...background, color, ink })}
+                className="size-8 rounded-full border-2 border-border"
+                style={{
+                  background: `linear-gradient(135deg, ${color} 50%, ${ink} 50%)`,
+                }}
+              />
             ))}
           </div>
-          <Swatches label={s.paper} value={background.color} onChange={(color) => color && onChange({ ...background, color }, 'bg-paper')} />
-          <Swatches label={s.ink} value={background.ink} onChange={(ink) => ink && onChange({ ...background, ink }, 'bg-ink')} />
+          <Swatches
+            label={s.paper}
+            value={background.color}
+            onChange={(color) =>
+              color && onChange({ ...background, color }, "bg-paper")
+            }
+          />
+          <Swatches
+            label={s.ink}
+            value={background.ink}
+            onChange={(ink) =>
+              ink && onChange({ ...background, ink }, "bg-ink")
+            }
+          />
         </>
       )}
-      {background.kind === 'photo' && (
+      {background.kind === "photo" && (
         <>
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => input.current?.click()}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => input.current?.click()}
+            >
               <ImagePlus aria-hidden="true" />
               {photo ? s.photoReplace : s.photoChoose}
             </Button>
             {hasOwn && (
-              <Button type="button" variant="outline" size="sm" onClick={onUseOwn}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onUseOwn}
+              >
                 <ImageIcon aria-hidden="true" />
                 {s.photoUseOwn}
               </Button>
@@ -864,7 +1532,17 @@ function BackgroundPanel({
           </div>
           {photo ? (
             <>
-              <Range label={s.zoom} value={background.zoom} min={1} max={LIMITS.zoom[1]} step={0.05} format={(value) => `${value.toFixed(2)}×`} onChange={(zoom) => onChange({ ...background, zoom }, 'bg-zoom')} />
+              <Range
+                label={s.zoom}
+                value={background.zoom}
+                min={1}
+                max={LIMITS.zoom[1]}
+                step={0.05}
+                format={(value) => `${value.toFixed(2)}×`}
+                onChange={(zoom) =>
+                  onChange({ ...background, zoom }, "bg-zoom")
+                }
+              />
               <p className="m-0 text-xs text-muted-foreground">{s.photoHint}</p>
             </>
           ) : (
@@ -872,9 +1550,13 @@ function BackgroundPanel({
           )}
         </>
       )}
-      {background.kind === 'design' && design && (
+      {background.kind === "design" && design && (
         <Section title={strings.shutdown.colors}>
-          <div role="radiogroup" aria-label={strings.shutdown.colors} className="flex flex-wrap gap-2">
+          <div
+            role="radiogroup"
+            aria-label={strings.shutdown.colors}
+            className="flex flex-wrap gap-2"
+          >
             {design.swatches.map((swatch, n) => (
               <button
                 key={n}
@@ -883,8 +1565,14 @@ function BackgroundPanel({
                 aria-checked={background.theme === n}
                 aria-label={`${strings.shutdown.colors} ${n + 1}`}
                 onClick={() => onChange({ ...background, theme: n })}
-                className={cn('size-10 rounded-full border-2 border-border', background.theme === n && 'border-foreground ring-2 ring-foreground/30')}
-                style={{ background: `conic-gradient(${swatch.map((color, i) => `${color} ${(i / swatch.length) * 360}deg ${((i + 1) / swatch.length) * 360}deg`).join(', ')})` }}
+                className={cn(
+                  "size-10 rounded-full border-2 border-border",
+                  background.theme === n &&
+                    "border-foreground ring-2 ring-foreground/30",
+                )}
+                style={{
+                  background: `conic-gradient(${swatch.map((color, i) => `${color} ${(i / swatch.length) * 360}deg ${((i + 1) / swatch.length) * 360}deg`).join(", ")})`,
+                }}
               />
             ))}
           </div>
@@ -906,52 +1594,169 @@ function BackgroundPanel({
       />
       <Section title={s.framesTitle}>
         <div className="grid grid-cols-3 gap-2">
-          <Tile s={s} label={s.none} locked={false} selected={doc.frame === null} onClick={() => onFrame(null)}>
-            <span className="flex aspect-[3/2] items-center justify-center text-xs text-muted-foreground">{s.none}</span>
+          <Tile
+            s={s}
+            label={s.none}
+            locked={false}
+            selected={doc.frame === null}
+            onClick={() => onFrame(null)}
+          >
+            <span className="flex aspect-[3/2] items-center justify-center text-xs text-muted-foreground">
+              {s.none}
+            </span>
           </Tile>
           {FRAME_IDS.map((frame) => (
-            <Tile key={frame} s={s} label={s.frames[frame]} locked={frameLocked(plus)} selected={doc.frame === frame} onClick={() => (frameLocked(plus) ? onLocked({ kind: 'frame', id: frame }) : onFrame(frame, doc.frame ? doc.frameColor : FRAMES.find((f) => f.id === frame)!.color))}>
+            <Tile
+              key={frame}
+              s={s}
+              label={s.frames[frame]}
+              locked={frameLocked(plus)}
+              selected={doc.frame === frame}
+              onClick={() =>
+                frameLocked(plus)
+                  ? onLocked({ kind: "frame", id: frame })
+                  : onFrame(
+                      frame,
+                      doc.frame
+                        ? doc.frameColor
+                        : FRAMES.find((f) => f.id === frame)!.color,
+                    )
+              }
+            >
               <DocThumb doc={frameDoc(frame)} photo={photo} tick={tick} />
             </Tile>
           ))}
         </div>
-        {doc.frame && <Swatches label={s.frameColor} value={doc.frameColor} colors={['#FFFFFF', '#F4EFE6', '#F4A6B8', '#D7EAF5', '#FFC857', '#2B2B2B', '#D94135', '#8CC084']} onChange={(color) => color && onFrame(doc.frame, color, 'frame-color')} />}
+        {doc.frame && (
+          <Swatches
+            label={s.frameColor}
+            value={doc.frameColor}
+            colors={[
+              "#FFFFFF",
+              "#F4EFE6",
+              "#F4A6B8",
+              "#D7EAF5",
+              "#FFC857",
+              "#2B2B2B",
+              "#D94135",
+              "#8CC084",
+            ]}
+            onChange={(color) =>
+              color && onFrame(doc.frame, color, "frame-color")
+            }
+          />
+        )}
       </Section>
     </div>
   );
 }
 
 function layerName(layer: Layer, s: StudioStrings): string {
-  if (layer.type === 'text') return layer.text.trim().split('\n')[0] || s.emptyText;
+  if (layer.type === "text")
+    return layer.text.trim().split("\n")[0] || s.emptyText;
   return s.stickers[layer.sticker as keyof typeof s.stickers] ?? layer.sticker;
 }
 
-function LayersPanel({ s, doc, plus, selected, covered, onSelect, onOrder, onRemove, onPlus }: { s: StudioStrings; doc: StudioDoc; plus: boolean; selected: string | null; covered: ReadonlySet<string>; onSelect: (id: string) => void; onOrder: (id: string, order: Order) => void; onRemove: (id: string) => void; onPlus: () => void }) {
+function LayersPanel({
+  s,
+  doc,
+  plus,
+  selected,
+  covered,
+  onSelect,
+  onOrder,
+  onRemove,
+  onPlus,
+}: {
+  s: StudioStrings;
+  doc: StudioDoc;
+  plus: boolean;
+  selected: string | null;
+  covered: ReadonlySet<string>;
+  onSelect: (id: string) => void;
+  onOrder: (id: string, order: Order) => void;
+  onRemove: (id: string) => void;
+  onPlus: () => void;
+}) {
   const list = [...doc.layers].reverse();
   return (
     <div className="flex flex-col gap-3">
-      {list.length === 0 && <p className="m-0 text-sm text-muted-foreground">{s.layersEmpty}</p>}
+      {list.length === 0 && (
+        <p className="m-0 text-sm text-muted-foreground">{s.layersEmpty}</p>
+      )}
       <ol className="m-0 flex list-none flex-col gap-1.5 p-0">
         {list.map((layer, i) => {
-          const item = layer.type === 'sticker' ? findSticker(layer.sticker) : undefined;
+          const item =
+            layer.type === "sticker" ? findSticker(layer.sticker) : undefined;
           return (
-            <li key={layer.id} className={cn('flex items-center gap-2 rounded-md border bg-background p-1.5', selected === layer.id && 'border-foreground')}>
-              <button type="button" onClick={() => onSelect(layer.id)} aria-pressed={selected === layer.id} className="flex min-w-0 flex-1 items-center gap-2 rounded-sm text-left text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+            <li
+              key={layer.id}
+              className={cn(
+                "flex items-center gap-2 rounded-md border bg-background p-1.5",
+                selected === layer.id && "border-foreground",
+              )}
+            >
+              <button
+                type="button"
+                onClick={() => onSelect(layer.id)}
+                aria-pressed={selected === layer.id}
+                className="flex min-w-0 flex-1 items-center gap-2 rounded-sm text-left text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              >
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-muted">
-                  {item ? <StickerArt item={item} tint={(layer as StickerLayer).tint} className="size-7" /> : <Type className="size-4" aria-hidden="true" />}
+                  {item ? (
+                    <StickerArt
+                      item={item}
+                      tint={(layer as StickerLayer).tint}
+                      className="size-7"
+                    />
+                  ) : (
+                    <Type className="size-4" aria-hidden="true" />
+                  )}
                 </span>
-                <span className="min-w-0 truncate" style={layer.type === 'text' ? { fontFamily: fontOf(layer.font).family } : undefined}>
+                <span
+                  className="min-w-0 truncate"
+                  style={
+                    layer.type === "text"
+                      ? { fontFamily: fontOf(layer.font).family }
+                      : undefined
+                  }
+                >
                   {layerName(layer, s)}
                 </span>
-                {covered.has(layer.id) && <TriangleAlert className="size-4 shrink-0 text-amber-300" aria-label={s.coveredShort} />}
+                {covered.has(layer.id) && (
+                  <TriangleAlert
+                    className="size-4 shrink-0 text-amber-300"
+                    aria-label={s.coveredShort}
+                  />
+                )}
               </button>
-              <Button type="button" variant="ghost" size="icon-sm" aria-label={s.forward} disabled={i === 0} onClick={() => onOrder(layer.id, 'forward')}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={s.forward}
+                disabled={i === 0}
+                onClick={() => onOrder(layer.id, "forward")}
+              >
                 <ArrowUp aria-hidden="true" />
               </Button>
-              <Button type="button" variant="ghost" size="icon-sm" aria-label={s.backward} disabled={i === list.length - 1} onClick={() => onOrder(layer.id, 'backward')}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={s.backward}
+                disabled={i === list.length - 1}
+                onClick={() => onOrder(layer.id, "backward")}
+              >
                 <ArrowDown aria-hidden="true" />
               </Button>
-              <Button type="button" variant="ghost" size="icon-sm" aria-label={s.remove} onClick={() => onRemove(layer.id)}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={s.remove}
+                onClick={() => onRemove(layer.id)}
+              >
                 <Trash2 aria-hidden="true" />
               </Button>
             </li>
@@ -960,7 +1765,11 @@ function LayersPanel({ s, doc, plus, selected, covered, onSelect, onOrder, onRem
       </ol>
       {!plus && (
         <div className="flex flex-col items-start gap-2 rounded-md bg-muted p-3 text-xs text-muted-foreground">
-          <span>{s.layersFree.replace('${n}', String(doc.layers.length)).replace('${max}', String(FREE_LAYERS))}</span>
+          <span>
+            {s.layersFree
+              .replace("${n}", String(doc.layers.length))
+              .replace("${max}", String(FREE_LAYERS))}
+          </span>
           <Button type="button" variant="outline" size="xs" onClick={onPlus}>
             <Sparkles aria-hidden="true" />
             {s.seePlus}
@@ -995,17 +1804,32 @@ function firstDoc(start: DesignChoice | undefined): StudioDoc {
   const saved = loadDoc(browserStorage(), designThemes);
   if (saved) return saved;
   const design = start && findDesign(start.id);
-  return design ? designDoc(design, start.theme, start.text) : findTemplate('sunset')!.build();
+  return design
+    ? designDoc(design, start.theme, start.text)
+    : findTemplate("sunset")!.build();
 }
 
-export default function Studio({ open, onOpenChange, strings, language, plus, onPlus, firmware, ownPicture, start, onDone }: StudioProps) {
+export default function Studio({
+  open,
+  onOpenChange,
+  strings,
+  language,
+  plus,
+  onPlus,
+  firmware,
+  ownPicture,
+  start,
+  onDone,
+}: StudioProps) {
   const s = STUDIO_STRINGS[language];
-  const wide = useMediaQuery('(min-width: 1024px)');
+  const wide = useMediaQuery("(min-width: 1024px)");
   const tick = useFontTick();
-  const [state, dispatch] = useReducer(reducer, start, (first) => history(firstDoc(first)));
+  const [state, dispatch] = useReducer(reducer, start, (first) =>
+    history(firstDoc(first)),
+  );
   const doc = state.present;
   const [selected, setSelected] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>('templates');
+  const [tab, setTab] = useState<Tab>("templates");
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [showCamera, setShowCamera] = useState(true);
   const [locked, setLocked] = useState<Locked | null>(null);
@@ -1014,9 +1838,16 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
   const [focusText, setFocusText] = useState(0);
   const [measure, setMeasure] = useState<Measure>(() => roughMeasure);
   // A measure is a function, so it goes in through an updater.
-  const takeMeasure = useCallback((next: Measure) => setMeasure(() => next), []);
+  const takeMeasure = useCallback(
+    (next: Measure) => setMeasure(() => next),
+    [],
+  );
 
-  const commitDoc = useCallback((next: StudioDoc, run: string | null = null) => dispatch({ type: 'commit', doc: next, run }), []);
+  const commitDoc = useCallback(
+    (next: StudioDoc, run: string | null = null) =>
+      dispatch({ type: "commit", doc: next, run }),
+    [],
+  );
   const selectedLayer = findLayer(doc, selected);
   // A selection that an undo took away is gone.
   useEffect(() => {
@@ -1025,11 +1856,15 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
 
   // The fonts and the photo of the document.
   useEffect(() => {
-    void prepareFonts(doc.layers.filter((layer): layer is TextLayer => layer.type === 'text'));
+    void prepareFonts(
+      doc.layers.filter((layer): layer is TextLayer => layer.type === "text"),
+    );
   }, [doc.layers]);
   useEffect(() => {
     let live = true;
-    void loadPhoto(browserStorage()).then((bitmap) => live && bitmap && setPhoto(bitmap));
+    void loadPhoto(browserStorage()).then(
+      (bitmap) => live && bitmap && setPhoto(bitmap),
+    );
     return () => {
       live = false;
     };
@@ -1040,17 +1875,22 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
     return () => clearTimeout(timer);
   }, [doc]);
 
-  const covered = useMemo(() => new Set(underCameraText(doc, measure).map((item) => item.id)), [doc, measure]);
+  const covered = useMemo(
+    () => new Set(underCameraText(doc, measure).map((item) => item.id)),
+    [doc, measure],
+  );
   const usesPlus = !plus && plusItems(doc, CATALOG).length > 0;
 
   function add(layer: Layer) {
     if (!canAddLayer(doc, plus)) {
-      setLocked({ kind: 'layers' });
+      setLocked({ kind: "layers" });
       return;
     }
     // Each new layer a little lower than the last, so they never hide one another.
     const offset = (doc.layers.length % 5) * 14;
-    commitDoc(addLayer(doc, { ...layer, x: layer.x + offset, y: layer.y + offset }));
+    commitDoc(
+      addLayer(doc, { ...layer, x: layer.x + offset, y: layer.y + offset }),
+    );
     setSelected(layer.id);
   }
 
@@ -1061,7 +1901,7 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
 
   function duplicate(id: string) {
     if (!canAddLayer(doc, plus)) {
-      setLocked({ kind: 'layers' });
+      setLocked({ kind: "layers" });
       return;
     }
     const copy = duplicateLayer(doc, id);
@@ -1071,7 +1911,7 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
 
   function pickTemplate(template: Template) {
     if (templateLocked(template.id, CATALOG, plus)) {
-      setLocked({ kind: 'template', id: template.id });
+      setLocked({ kind: "template", id: template.id });
       return;
     }
     // A template keeps the photo of a picture that has one as its background.
@@ -1083,7 +1923,16 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
     try {
       const bitmap = await savePhoto(browserStorage(), source);
       setPhoto(bitmap);
-      commitDoc({ ...doc, background: { kind: 'photo', zoom: 1, cx: 0.5, cy: 0.5, color: '#000000' } });
+      commitDoc({
+        ...doc,
+        background: {
+          kind: "photo",
+          zoom: 1,
+          cx: 0.5,
+          cy: 0.5,
+          color: "#000000",
+        },
+      });
       setFailed(false);
     } catch (error) {
       console.error(error);
@@ -1094,9 +1943,18 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
   async function done() {
     setSaving(true);
     try {
-      await prepareFonts(doc.layers.filter((layer): layer is TextLayer => layer.type === 'text'));
-      const canvas = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(W, H) : Object.assign(document.createElement('canvas'), { width: W, height: H });
-      const context = canvas.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+      await prepareFonts(
+        doc.layers.filter((layer): layer is TextLayer => layer.type === "text"),
+      );
+      const canvas =
+        typeof OffscreenCanvas !== "undefined"
+          ? new OffscreenCanvas(W, H)
+          : Object.assign(document.createElement("canvas"), {
+              width: W,
+              height: H,
+            });
+      const context = canvas.getContext("2d") as
+        CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
       renderDoc(context, doc, { photo });
       const bytes = await encodePicture(context.getImageData(0, 0, W, H).data);
       saveDoc(browserStorage(), doc);
@@ -1112,22 +1970,33 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
 
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
-    if (target.closest('input, textarea, select')) return;
+    if (target.closest("input, textarea, select")) return;
     const mod = event.metaKey || event.ctrlKey;
-    if (mod && event.key.toLowerCase() === 'z') {
+    if (mod && event.key.toLowerCase() === "z") {
       event.preventDefault();
-      dispatch({ type: event.shiftKey ? 'redo' : 'undo' });
-    } else if (mod && event.key.toLowerCase() === 'y') {
+      dispatch({ type: event.shiftKey ? "redo" : "undo" });
+    } else if (mod && event.key.toLowerCase() === "y") {
       event.preventDefault();
-      dispatch({ type: 'redo' });
+      dispatch({ type: "redo" });
     }
   }
 
-  const textSelected = selectedLayer?.type === 'text' ? selectedLayer : null;
-  const stickerSelected = selectedLayer?.type === 'sticker' ? selectedLayer : null;
+  const textSelected = selectedLayer?.type === "text" ? selectedLayer : null;
+  const stickerSelected =
+    selectedLayer?.type === "sticker" ? selectedLayer : null;
 
   const panels: Record<Tab, ReactNode> = {
-    templates: <TemplatesPanel s={s} strings={strings} doc={doc} plus={plus} tick={tick} photo={photo} onPick={pickTemplate} />,
+    templates: (
+      <TemplatesPanel
+        s={s}
+        strings={strings}
+        doc={doc}
+        plus={plus}
+        tick={tick}
+        photo={photo}
+        onPick={pickTemplate}
+      />
+    ),
     text: (
       <TextPanel
         s={s}
@@ -1135,8 +2004,23 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
         plus={plus}
         focusKey={focusText}
         onLocked={setLocked}
-        onAdd={() => add(textLayer({ text: s.newText, y: 120, color: doc.background.kind === 'solid' && /^#(1|2|0)/.test(doc.background.color) ? '#FFFFFF' : '#2B2B2B' }))}
-        onChange={(patch, run) => textSelected && commitDoc(updateLayer(doc, textSelected.id, patch), run ?? null)}
+        onAdd={() =>
+          add(
+            textLayer({
+              text: s.newText,
+              y: 120,
+              color:
+                doc.background.kind === "solid" &&
+                /^#(1|2|0)/.test(doc.background.color)
+                  ? "#FFFFFF"
+                  : "#2B2B2B",
+            }),
+          )
+        }
+        onChange={(patch, run) =>
+          textSelected &&
+          commitDoc(updateLayer(doc, textSelected.id, patch), run ?? null)
+        }
       />
     ),
     stickers: (
@@ -1146,7 +2030,13 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
         selected={stickerSelected}
         onLocked={setLocked}
         onAdd={(id) => add(stickerLayer(id, { y: 170 }))}
-        onTint={(tint) => stickerSelected && commitDoc(updateLayer(doc, stickerSelected.id, { tint }), `tint:${stickerSelected.id}`)}
+        onTint={(tint) =>
+          stickerSelected &&
+          commitDoc(
+            updateLayer(doc, stickerSelected.id, { tint }),
+            `tint:${stickerSelected.id}`,
+          )
+        }
       />
     ),
     background: (
@@ -1162,69 +2052,186 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
         onChange={(background, run) => {
           // A design whose colors change keeps its text in the colors of the new theme.
           let next: StudioDoc = { ...doc, background };
-          if (background.kind === 'design' && doc.background.kind === 'design' && background.theme !== doc.background.theme) {
-            const before = captionOf(background.design, doc.background.theme)?.color.toUpperCase();
-            const after = captionOf(background.design, background.theme)?.color.toUpperCase();
-            if (before && after) next = { ...next, layers: next.layers.map((layer) => (layer.type === 'text' && layer.color === before ? { ...layer, color: after } : layer)) };
+          if (
+            background.kind === "design" &&
+            doc.background.kind === "design" &&
+            background.theme !== doc.background.theme
+          ) {
+            const before = captionOf(
+              background.design,
+              doc.background.theme,
+            )?.color.toUpperCase();
+            const after = captionOf(
+              background.design,
+              background.theme,
+            )?.color.toUpperCase();
+            if (before && after)
+              next = {
+                ...next,
+                layers: next.layers.map((layer) =>
+                  layer.type === "text" && layer.color === before
+                    ? { ...layer, color: after }
+                    : layer,
+                ),
+              };
           }
           commitDoc(next, run ?? null);
         }}
-        onFrame={(frame, color, run) => commitDoc({ ...doc, frame, frameColor: color ?? doc.frameColor }, run ?? null)}
+        onFrame={(frame, color, run) =>
+          commitDoc(
+            { ...doc, frame, frameColor: color ?? doc.frameColor },
+            run ?? null,
+          )
+        }
         onPhotoFile={(file) => void usePhoto(file)}
-        onUseOwn={() => ownPicture && void usePhoto(new Blob([ownPicture as Uint8Array<ArrayBuffer>], { type: 'image/jpeg' }))}
+        onUseOwn={() =>
+          ownPicture &&
+          void usePhoto(
+            new Blob([ownPicture as Uint8Array<ArrayBuffer>], {
+              type: "image/jpeg",
+            }),
+          )
+        }
       />
     ),
-    layers: <LayersPanel s={s} doc={doc} plus={plus} selected={selected} covered={covered} onSelect={setSelected} onOrder={(id, order) => commitDoc(reorderLayer(doc, id, order))} onRemove={remove} onPlus={() => setLocked({ kind: 'layers' })} />,
+    layers: (
+      <LayersPanel
+        s={s}
+        doc={doc}
+        plus={plus}
+        selected={selected}
+        covered={covered}
+        onSelect={setSelected}
+        onOrder={(id, order) => commitDoc(reorderLayer(doc, id, order))}
+        onRemove={remove}
+        onPlus={() => setLocked({ kind: "layers" })}
+      />
+    ),
   };
 
   const tabs: { value: Tab; label: string; icon: ReactNode }[] = [
-    { value: 'templates', label: s.tabTemplates, icon: <LayoutTemplate aria-hidden="true" /> },
-    { value: 'text', label: s.tabText, icon: <Type aria-hidden="true" /> },
-    { value: 'stickers', label: s.tabStickers, icon: <StickerIcon aria-hidden="true" /> },
-    { value: 'background', label: s.tabBackground, icon: <ImageIcon aria-hidden="true" /> },
-    ...(wide ? [] : [{ value: 'layers' as const, label: s.tabLayers, icon: <Layers aria-hidden="true" /> }]),
+    {
+      value: "templates",
+      label: s.tabTemplates,
+      icon: <LayoutTemplate aria-hidden="true" />,
+    },
+    { value: "text", label: s.tabText, icon: <Type aria-hidden="true" /> },
+    {
+      value: "stickers",
+      label: s.tabStickers,
+      icon: <StickerIcon aria-hidden="true" />,
+    },
+    {
+      value: "background",
+      label: s.tabBackground,
+      icon: <ImageIcon aria-hidden="true" />,
+    },
+    ...(wide
+      ? []
+      : [
+          {
+            value: "layers" as const,
+            label: s.tabLayers,
+            icon: <Layers aria-hidden="true" />,
+          },
+        ]),
   ];
-  const shownTab = wide && tab === 'layers' ? 'templates' : tab;
+  const shownTab = wide && tab === "layers" ? "templates" : tab;
 
   const toolbar = selectedLayer && (
-    <div role="toolbar" aria-label={s.layerTools} className="flex flex-wrap items-center justify-center gap-1">
-      {selectedLayer.type === 'text' && (
-        <Button type="button" variant="outline" size="sm" onClick={() => { setTab('text'); setFocusText((n) => n + 1); }}>
+    <div
+      role="toolbar"
+      aria-label={s.layerTools}
+      className="flex flex-wrap items-center justify-center gap-1"
+    >
+      {selectedLayer.type === "text" && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setTab("text");
+            setFocusText((n) => n + 1);
+          }}
+        >
           <Type aria-hidden="true" />
           {s.editText}
         </Button>
       )}
-      {selectedLayer.type === 'sticker' && (
-        <Button type="button" variant="outline" size="icon-sm" aria-label={s.flip} title={s.flip} onClick={() => commitDoc(updateLayer(doc, selectedLayer.id, { flip: !selectedLayer.flip }))}>
+      {selectedLayer.type === "sticker" && (
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-sm"
+          aria-label={s.flip}
+          title={s.flip}
+          onClick={() =>
+            commitDoc(
+              updateLayer(doc, selectedLayer.id, { flip: !selectedLayer.flip }),
+            )
+          }
+        >
           <FlipHorizontal2 aria-hidden="true" />
         </Button>
       )}
-      <Button type="button" variant="outline" size="icon-sm" aria-label={s.duplicate} title={s.duplicate} onClick={() => duplicate(selectedLayer.id)}>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon-sm"
+        aria-label={s.duplicate}
+        title={s.duplicate}
+        onClick={() => duplicate(selectedLayer.id)}
+      >
         <Copy aria-hidden="true" />
       </Button>
-      <Button type="button" variant="outline" size="icon-sm" aria-label={s.forward} title={s.forward} onClick={() => commitDoc(reorderLayer(doc, selectedLayer.id, 'forward'))}>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon-sm"
+        aria-label={s.forward}
+        title={s.forward}
+        onClick={() =>
+          commitDoc(reorderLayer(doc, selectedLayer.id, "forward"))
+        }
+      >
         <ArrowUp aria-hidden="true" />
       </Button>
-      <Button type="button" variant="outline" size="icon-sm" aria-label={s.backward} title={s.backward} onClick={() => commitDoc(reorderLayer(doc, selectedLayer.id, 'backward'))}>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon-sm"
+        aria-label={s.backward}
+        title={s.backward}
+        onClick={() =>
+          commitDoc(reorderLayer(doc, selectedLayer.id, "backward"))
+        }
+      >
         <ArrowDown aria-hidden="true" />
       </Button>
-      <Button type="button" variant="outline" size="icon-sm" aria-label={s.remove} title={s.remove} onClick={() => remove(selectedLayer.id)}>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon-sm"
+        aria-label={s.remove}
+        title={s.remove}
+        onClick={() => remove(selectedLayer.id)}
+      >
         <Trash2 aria-hidden="true" />
       </Button>
     </div>
   );
 
   const lockedText = locked
-    ? locked.kind === 'template'
+    ? locked.kind === "template"
       ? s.lockedTemplate
-      : locked.kind === 'sticker'
+      : locked.kind === "sticker"
         ? s.lockedSticker
-        : locked.kind === 'font'
+        : locked.kind === "font"
           ? s.lockedFont
-          : locked.kind === 'frame'
+          : locked.kind === "frame"
             ? s.lockedFrame
-            : s.lockedLayers.replace('${max}', String(FREE_LAYERS))
-    : '';
+            : s.lockedLayers.replace("${max}", String(FREE_LAYERS))
+    : "";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -1243,27 +2250,69 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
       >
         <header className="flex h-14 shrink-0 items-center gap-1 border-b px-2 sm:gap-2 sm:px-3">
           <DialogPrimitive.Close asChild>
-            <Button type="button" variant="ghost" size="icon" aria-label={s.close}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={s.close}
+            >
               <X aria-hidden="true" />
             </Button>
           </DialogPrimitive.Close>
           <DialogTitle className="flex min-w-0 items-center gap-2 text-base">
             <span className="truncate">{s.title}</span>
-            {plus && <span className="rounded-full bg-brand px-1.5 py-0.5 text-[10px] leading-none font-semibold text-brand-foreground">{s.plusBadge}</span>}
+            {plus && (
+              <span className="rounded-full bg-brand px-1.5 py-0.5 text-[10px] leading-none font-semibold text-brand-foreground">
+                {s.plusBadge}
+              </span>
+            )}
           </DialogTitle>
-          <DialogDescription className="sr-only">{s.description}</DialogDescription>
+          <DialogDescription className="sr-only">
+            {s.description}
+          </DialogDescription>
           <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
-            <Button type="button" variant="ghost" size="icon" aria-label={s.undo} title={s.undo} disabled={!canUndo(state)} onClick={() => dispatch({ type: 'undo' })}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={s.undo}
+              title={s.undo}
+              disabled={!canUndo(state)}
+              onClick={() => dispatch({ type: "undo" })}
+            >
               <Undo2 aria-hidden="true" />
             </Button>
-            <Button type="button" variant="ghost" size="icon" aria-label={s.redo} title={s.redo} disabled={!canRedo(state)} onClick={() => dispatch({ type: 'redo' })}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={s.redo}
+              title={s.redo}
+              disabled={!canRedo(state)}
+              onClick={() => dispatch({ type: "redo" })}
+            >
               <Redo2 aria-hidden="true" />
             </Button>
-            <Button type="button" variant={showCamera ? 'secondary' : 'ghost'} size={wide ? 'sm' : 'icon'} aria-pressed={showCamera} aria-label={s.cameraText} title={s.cameraText} onClick={() => setShowCamera((on) => !on)}>
+            <Button
+              type="button"
+              variant={showCamera ? "secondary" : "ghost"}
+              size={wide ? "sm" : "icon"}
+              aria-pressed={showCamera}
+              aria-label={s.cameraText}
+              title={s.cameraText}
+              onClick={() => setShowCamera((on) => !on)}
+            >
               <ScanLine aria-hidden="true" />
               {wide && s.cameraText}
             </Button>
-            <Button type="button" variant="brand" size="sm" className="ml-1" disabled={saving} onClick={() => void done()}>
+            <Button
+              type="button"
+              variant="brand"
+              size="sm"
+              className="ml-1"
+              disabled={saving}
+              onClick={() => void done()}
+            >
               <Check aria-hidden="true" />
               {s.done}
             </Button>
@@ -1272,16 +2321,28 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
         <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
           {wide && (
             <aside className="flex w-[22rem] shrink-0 flex-col border-r">
-              <Tabs value={shownTab} onValueChange={(value) => setTab(value as Tab)} className="min-h-0 flex-1 gap-0">
+              <Tabs
+                value={shownTab}
+                onValueChange={(value) => setTab(value as Tab)}
+                className="min-h-0 flex-1 gap-0"
+              >
                 <TabsList className="m-3 grid w-auto grid-cols-4">
                   {tabs.map((item) => (
-                    <TabsTrigger key={item.value} value={item.value} className="px-1 text-xs">
+                    <TabsTrigger
+                      key={item.value}
+                      value={item.value}
+                      className="px-1 text-xs"
+                    >
                       {item.label}
                     </TabsTrigger>
                   ))}
                 </TabsList>
                 {tabs.map((item) => (
-                  <TabsContent key={item.value} value={item.value} className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
+                  <TabsContent
+                    key={item.value}
+                    value={item.value}
+                    className="min-h-0 flex-1 overflow-y-auto px-4 pb-6"
+                  >
                     {panels[item.value]}
                   </TabsContent>
                 ))}
@@ -1298,7 +2359,7 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
                 onCommit={commitDoc}
                 onRemove={remove}
                 onEditText={() => {
-                  setTab('text');
+                  setTab("text");
                   setFocusText((n) => n + 1);
                 }}
                 measure={measure}
@@ -1313,14 +2374,29 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
             <div className="flex min-h-8 w-full flex-col items-center gap-2">
               {toolbar}
               {covered.size > 0 && (
-                <p role="status" className="m-0 flex items-center gap-1.5 text-xs text-amber-300">
-                  <TriangleAlert className="size-3.5 shrink-0" aria-hidden="true" />
+                <p
+                  role="status"
+                  className="m-0 flex items-center gap-1.5 text-xs text-amber-300"
+                >
+                  <TriangleAlert
+                    className="size-3.5 shrink-0"
+                    aria-hidden="true"
+                  />
                   {s.covered}
                 </p>
               )}
-              {usesPlus && <p className="m-0 text-center text-xs text-muted-foreground">{s.usesPlus}</p>}
-              {failed && <p className="m-0 text-xs text-destructive">{s.failed}</p>}
-              <p id="studio-keys" className="m-0 hidden text-center text-xs text-muted-foreground lg:block">
+              {usesPlus && (
+                <p className="m-0 text-center text-xs text-muted-foreground">
+                  {s.usesPlus}
+                </p>
+              )}
+              {failed && (
+                <p className="m-0 text-xs text-destructive">{s.failed}</p>
+              )}
+              <p
+                id="studio-keys"
+                className="m-0 hidden text-center text-xs text-muted-foreground lg:block"
+              >
                 {s.keys}
               </p>
             </div>
@@ -1334,24 +2410,39 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
               {panels.layers}
             </aside>
           ) : (
-            <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)} className="min-h-0 flex-1 gap-0 border-t bg-background">
+            <Tabs
+              value={tab}
+              onValueChange={(value) => setTab(value as Tab)}
+              className="min-h-0 flex-1 gap-0 border-t bg-background"
+            >
               <TabsList className="mx-2 mt-2 grid h-auto w-auto grid-cols-5 group-data-[orientation=horizontal]/tabs:h-auto">
                 {tabs.map((item) => (
-                  <TabsTrigger key={item.value} value={item.value} className="flex h-auto flex-col gap-0.5 px-0.5 py-1.5 text-[11px] [&_svg]:size-4">
+                  <TabsTrigger
+                    key={item.value}
+                    value={item.value}
+                    className="flex h-auto flex-col gap-0.5 px-0.5 py-1.5 text-[11px] [&_svg]:size-4"
+                  >
                     {item.icon}
                     <span className="max-w-full truncate">{item.label}</span>
                   </TabsTrigger>
                 ))}
               </TabsList>
               {tabs.map((item) => (
-                <TabsContent key={item.value} value={item.value} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+                <TabsContent
+                  key={item.value}
+                  value={item.value}
+                  className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+                >
                   {panels[item.value]}
                 </TabsContent>
               ))}
             </Tabs>
           )}
         </div>
-        <Dialog open={locked !== null} onOpenChange={(next) => !next && setLocked(null)}>
+        <Dialog
+          open={locked !== null}
+          onOpenChange={(next) => !next && setLocked(null)}
+        >
           <DialogContent className="sm:max-w-sm">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -1360,9 +2451,18 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
               </DialogTitle>
               <DialogDescription>{lockedText}</DialogDescription>
             </DialogHeader>
-            <p className="m-0 text-sm text-muted-foreground">{s.plusIncludes}</p>
+            <p className="m-0 text-sm text-muted-foreground">
+              {s.plusIncludes
+                .replace("${pack}", String(PRICES["pack:kodak"]))
+                .replace("${slots}", String(PRICES.slots25))
+                .replace("${all}", String(PRICES.plus))}
+            </p>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setLocked(null)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setLocked(null)}
+              >
                 {s.notNow}
               </Button>
               <Button
@@ -1383,4 +2483,3 @@ export default function Studio({ open, onOpenChange, strings, language, plus, on
     </Dialog>
   );
 }
-

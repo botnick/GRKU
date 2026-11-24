@@ -743,7 +743,7 @@ export const ko: Strings = {
     studioEdit: 'GRKU Studio에서 편집',
     studioNote: '텍스트, 스티커, 사진, 프레임 등 레이어로 직접 디자인하세요.',
     studioLoading: 'GRKU Studio 불러오는 중…',
-    lockedDesign: '${name}은(는) GRKU Plus 전용입니다.',
+    lockedDesign: '${name}은(는) GRKU Plus에 포함되어 있습니다. ฿${pack}부터 시작하는 패키지로 해당 디자인과 GRKU Studio 전체를 잠금 해제할 수 있습니다.',
     seePlus: 'GRKU Plus 확인하기',
     plus: 'Plus',
     designs: {
