@@ -60,29 +60,52 @@ CHAT_VIOLATIONS_PER_HOUR = "4"
 CHAT_DAILY_MESSAGES = "600"
 CHAT_DAILY_TOKENS = "6000000"
 CHAT_SESSION_HOURS = "12"
-# Paid models: off. With "1", GRKU Plus may use the providers marked _PAID = "1" after every free one
-# failed, only the models listed, under the monthly token cap.
-CHAT_ALLOW_PAID = "0"
-CHAT_PAID_MODELS = ""
-CHAT_PAID_MONTHLY_TOKENS = "1000000"
+# Paid fallback: on. Free first (the AI Studio free key, then OpenRouter :free), then paid Gemini
+# through OpenRouter (never by billing the AI Studio project, which would end its free tier). Only
+# the models listed, only with a price below, under these caps; the free tier may use at most
+# CHAT_PAID_FREE_SHARE percent of the month, so GRKU Plus never runs out because of free traffic.
+CHAT_ALLOW_PAID = "1"
+CHAT_PAID_TIERS = "free,plus"
+CHAT_PAID_MODELS = "google/gemini-3.1-flash-lite,google/gemini-3.8-flash,google/gemini-3.1-pro-preview"
+CHAT_PAID_MONTHLY_USD = "10"
+CHAT_PAID_DAILY_USD = "1"
+CHAT_PAID_FREE_SHARE = "50"
+# GRKU Plus: "flash" (Flash on the free key with high thinking, then paid Flash, then paid Pro) or
+# "pro" (paid Pro at once). Plus never gets the free tier's models.
+CHAT_PLUS_TIER = "flash"
+CHAT_PRO_MODELS = "google/gemini-3.1-pro-preview"
+CHAT_HISTORY_TURNS_PLUS = "16"
 # Provider 1: Google AI Studio, Gemini API free tier, OpenAI-compatible endpoint. Secret: CHAT_API_KEY.
-# Free: Flash-Lite with low thinking; Plus: Flash with medium thinking, then Flash-Lite. _RPD is our
-# own daily cap per model, under the free quota that AI Studio shows for the project (check there).
+# Free: Flash-Lite with low thinking; Plus: Flash with high thinking. _RPD is our own daily cap per
+# model, under the free quota that AI Studio shows for the project (check there).
 CHAT_NAME = "gemini"
 CHAT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
 CHAT_MODEL_FREE = "gemini-flash-lite-latest"
-CHAT_MODEL_PLUS = "gemini-flash-latest,gemini-flash-lite-latest"
+CHAT_MODEL_PLUS = "gemini-flash-latest"
 CHAT_REASONING_FREE = "low"
-CHAT_REASONING_PLUS = "medium"
+CHAT_REASONING_PLUS = "high"
 CHAT_RPD = "gemini-flash-latest=200,gemini-flash-lite-latest=900"
-# Provider 2: OpenRouter, ":free" models only (the code refuses any other model there). Secret: CHAT2_API_KEY.
+# Provider 2: OpenRouter ":free" models (the code refuses any other model there), free tier only.
+# Off: on 2026-11-25 the free Gemma models answered 429 (a shared upstream pool) to every test
+# question, so a free visitor would only wait longer before the paid fallback. To turn on, list
+# models here, such as "google/gemma-4-31b-it:free". Secret: CHAT2_API_KEY.
 CHAT2_NAME = "openrouter"
 CHAT2_BASE_URL = "https://openrouter.ai/api/v1"
-CHAT2_MODEL_FREE = "google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free"
+CHAT2_MODEL_FREE = ""
 CHAT2_RPD = "45"
-# Provider 3: Cloudflare Workers AI, free daily allocation (10,000 neurons). Secrets: CHAT3_BASE_URL
-# (https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1) and CHAT3_API_KEY (a token with
-# Workers AI Read). About 300 neurons a turn with this model, so about 30 turns a day.
-CHAT3_NAME = "workers-ai"
-CHAT3_MODEL_FREE = "@cf/google/gemma-3-12b-it"
-CHAT3_RPD = "25"
+# Provider 3: paid Gemini through OpenRouter, Google's own servers only, at most these prices (US
+# dollars per million tokens in/out). Secret: CHAT3_API_KEY (the OpenRouter key).
+CHAT3_NAME = "paid"
+CHAT3_PAID = "1"
+CHAT3_BASE_URL = "https://openrouter.ai/api/v1"
+CHAT3_MODEL_FREE = "google/gemini-3.1-flash-lite"
+CHAT3_MODEL_PLUS = "google/gemini-3.8-flash"
+CHAT3_REASONING_FREE = "low"
+CHAT3_REASONING_PLUS = "high"
+CHAT3_ROUTING = "google-vertex,google-ai-studio"
+CHAT3_PRICES = "google/gemini-3.1-flash-lite=0.25/1.5,google/gemini-3.8-flash=0.825/4.125,google/gemini-3.1-pro-preview=2/12"
+# Provider 4 (optional): Cloudflare Workers AI, free daily allocation. Secrets: CHAT4_BASE_URL
+# (https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1) and CHAT4_API_KEY.
+CHAT4_NAME = "workers-ai"
+CHAT4_MODEL_FREE = "@cf/google/gemma-3-12b-it"
+CHAT4_RPD = "25"

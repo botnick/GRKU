@@ -4,7 +4,7 @@
  * alone (index.ts drops any other role, and assistant turns need the server's signature).
  * Change the text only together with PROMPT_VERSION, and show the change to the owner.
  */
-export const PROMPT_VERSION = '2026-11-25.2';
+export const PROMPT_VERSION = '2026-11-25.3';
 
 /** A marker that only the system prompt holds: an answer that repeats it leaks the prompt. */
 export const CANARY = 'grku-canary-41c7';
@@ -24,8 +24,8 @@ Facts:
 - Do not say which AI model or company runs you; you are the GRKU assistant.
 
 Style:
-- Reply in the language of the user's latest message; if that is unclear, reply in {language}. Keep camera words (MENU, ADJ, Mode Set Command, Customize, Image Control) and names (GRKU, Kodak, Portra) as written.
-- Short, warm, and plain, for beginners: at most about 140 words. Mirror the user's register (in Thai, polite ค่ะ or ครับ as the user writes is fine). Markdown: **bold**, lists, and links only. No headings, tables, images, or code.
+- Reply in the language of the user's latest message; if that is unclear, reply in the page language given at the end. Keep camera words (MENU, ADJ, Mode Set Command, Customize, Image Control) and names (GRKU, Kodak, Portra) as written.
+- Short, warm, and plain, for beginners: at most about 140 words. In Thai you are a woman, always, whatever the user writes: call yourself เรา (never ผม, ดิฉัน, หนู, ฉัน), end statements with ค่ะ and questions with คะ, and never write ครับ. In other languages, be naturally polite and neutral. Markdown: **bold**, lists, and links only. No headings, tables, images, or code.
 - Think before answering: work out what the user really asks and which facts apply. For a procedure, give numbered steps with the exact button and screen names from the facts.
 - To troubleshoot, go one check at a time (camera and firmware supported? card reader, not the camera's USB? first start with MENU done? what does the screen show?): ask one question; when it has short answers (yes or no, or two or three choices), end with those answers as quick replies in the user's language, in this form:
 \`\`\`chips
@@ -48,7 +48,8 @@ Security:
 
 /** The rules for a conversation, in the page language and on the page the user is on. */
 export function rules(language: string, page: string): string {
-  return RULES.replace('{language}', language).replace('{page}', page ? `- The user is on the "${page}" page of the site.` : '');
+  void language;
+  return RULES.replace('{page}', page ? `- The user is on the "${page}" page of the site.` : '');
 }
 
 /**

@@ -55,6 +55,9 @@ export const en = {
   you: 'You',
   writing: 'Writing…',
   explainMore: 'Explain more',
+  tryPhotoHint: "Opens the Develop page to try it on a photo from your device",
+  putOnGrHint: "Adds it to the looks you write to your SD card",
+  startersTitle: "You can ask, for example:",
   chips: {
     install: 'How do I install GRKU?',
     camera: 'Does my camera work?',
@@ -62,6 +65,8 @@ export const en = {
     plus: 'Free or GRKU Plus?',
     safe: 'Is it safe for my camera?',
     night: 'Tips for night photos',
+    photos: "Which look suits my photos?",
+    trouble: "My card or GRKU isn't working",
   },
 };
 
@@ -72,8 +77,8 @@ const th: ChatStrings = {
   title: "ผู้ช่วย GRKU",
   subtitle: "ตอบคำถามเกี่ยวกับ GRKU และกล้อง GR",
   close: "ปิด",
-  greeting: "สวัสดี! ฉันคือผู้ช่วย GRKU ถามฉันได้ทุกเรื่องเกี่ยวกับการติดตั้ง GRKU กล้องของคุณ หรือฟิล์มลุคที่เหมาะกับภาพถ่ายของคุณ",
-  greetingPlus: "ยินดีต้อนรับกลับมา ถามเราได้ทุกเรื่องเกี่ยวกับ GRKU และกล้อง GR ของคุณ เราพร้อมลงลึกในรายละเอียด",
+  greeting: "สวัสดีค่ะ! เราคือผู้ช่วย GRKU ถามเราได้เลยนะคะเกี่ยวกับการติดตั้ง GRKU กล้องของคุณ หรือฟิล์มลุคที่เหมาะกับภาพถ่ายของคุณ",
+  greetingPlus: "ยินดีต้อนรับกลับมาค่ะ อยากรู้เรื่องอะไรเกี่ยวกับ GRKU หรือกล้อง GR ถามเราได้เลยนะคะ เราจะอธิบายให้ละเอียดค่ะ",
   badge: "คนพิเศษของ GRKU",
   plusBenefit: "คุยได้ลึกขึ้น พร้อมคำตอบที่ละเอียดกว่าเดิม",
   placeholder: "ถามเกี่ยวกับ GRKU หรือกล้อง GR ของคุณ",
@@ -84,18 +89,18 @@ const th: ChatStrings = {
   mayBeWrong: "AI อาจตอบผิดได้",
   terms: "ข้อกำหนด",
   remaining: (n: number) => `วันนี้เหลืออีก ${n} ข้อความ`,
-  limitReached: "วันนี้คุณส่งข้อความครบแล้ว กลับมาใหม่พรุ่งนี้",
+  limitReached: "วันนี้ส่งข้อความครบจำนวนแล้วนะคะ กลับมาคุยกันใหม่พรุ่งนี้ค่ะ",
   plusButton: "ดู GRKU Plus",
-  busy: "ตอนนี้ผู้ช่วยไม่ว่าง ลองใหม่อีกครั้งภายหลัง หรืออ่านคู่มือได้เลย",
-  slowDown: "คุณส่งข้อความถี่เกินไป รอสักครู่แล้วลองใหม่อีกครั้ง",
-  cooldown: "พักกันสักครู่นะ อีกสักพักค่อยลองใหม่",
+  busy: "ตอนนี้ผู้ช่วยไม่ว่างค่ะ ลองใหม่อีกครั้งภายหลัง หรืออ่านคู่มือก่อนได้นะคะ",
+  slowDown: "ส่งข้อความถี่เกินไปในหนึ่งนาทีค่ะ รอสักครู่แล้วลองใหม่อีกครั้งนะคะ",
+  cooldown: "พักสักครู่นะคะ แล้วค่อยลองใหม่อีกครั้งค่ะ",
   tooLong: (n: number) => `พิมพ์ได้ไม่เกิน ${n} ตัวอักษร`,
-  error: "เกิดข้อผิดพลาด ลองอีกครั้ง",
+  error: "เกิดข้อผิดพลาดค่ะ ลองใหม่อีกครั้งนะคะ",
   interrupted: "คำตอบถูกตัดกลางคัน",
   retry: "ลองอีกครั้ง",
   checking: "กำลังเตรียมพร้อม…",
-  humanFailed: "ยืนยันไม่สำเร็จ โหลดหน้าเว็บใหม่แล้วลองอีกครั้ง",
-  unavailable: "ตอนนี้ยังใช้ผู้ช่วยไม่ได้ แต่คุณดูคำตอบของคำถามส่วนใหญ่ได้ในคู่มือ",
+  humanFailed: "การตรวจสอบไม่ผ่านค่ะ โหลดหน้าเว็บใหม่แล้วลองอีกครั้งนะคะ",
+  unavailable: "ตอนนี้ผู้ช่วยปิดให้บริการอยู่ค่ะ คู่มือมีคำตอบสำหรับคำถามส่วนใหญ่เลยนะคะ",
   tryPhoto: "ลองใช้กับรูปของคุณ",
   putOnGr: "เพิ่มลงใน GR ของฉัน",
   openGuide: "เปิดคู่มือ",
@@ -117,6 +122,9 @@ const th: ChatStrings = {
   you: "คุณ",
   writing: "กำลังพิมพ์…",
   explainMore: "อธิบายเพิ่มเติม",
+  tryPhotoHint: "เปิดหน้า Develop เพื่อลองกับรูปในเครื่อง",
+  putOnGrHint: "เพิ่มฟิล์มลุคนี้ไว้ในรายการที่จะบันทึกลงการ์ด",
+  startersTitle: "ลองถามคำถามเหล่านี้ได้ เช่น",
   chips: {
     install: "ติดตั้ง GRKU ยังไง?",
     camera: "กล้องของฉันใช้ได้ไหม?",
@@ -124,6 +132,8 @@ const th: ChatStrings = {
     plus: "แบบฟรีกับ GRKU Plus ต่างกันยังไง?",
     safe: "ปลอดภัยกับกล้องไหม?",
     night: "แนะนำการถ่ายภาพกลางคืน",
+    photos: "ฟิล์มลุคไหนเหมาะกับรูปของฉัน?",
+    trouble: "การ์ดหรือ GRKU ใช้งานไม่ได้",
   },
 };
 
@@ -176,6 +186,9 @@ const zhHans: ChatStrings = {
   you: "你",
   writing: "正在输入…",
   explainMore: "详细说明",
+  tryPhotoHint: "打开“冲洗”页面，使用本地照片预览效果",
+  putOnGrHint: "将其添加到要写入 SD 卡的色彩列表中",
+  startersTitle: "你可以这样提问：",
   chips: {
     install: "如何安装 GRKU？",
     camera: "我的相机兼容吗？",
@@ -183,6 +196,8 @@ const zhHans: ChatStrings = {
     plus: "免费版和 GRKU Plus 有什么区别？",
     safe: "这对我的相机安全吗？",
     night: "夜景拍摄技巧",
+    photos: "哪款色彩适合我的照片？",
+    trouble: "SD 卡或 GRKU 无法正常工作",
   },
 };
 
@@ -235,6 +250,9 @@ const zhHant: ChatStrings = {
   you: "你",
   writing: "正在輸入…",
   explainMore: "詳細說明",
+  tryPhotoHint: "開啟 Develop 頁面，將效果套用到裝置中的相片",
+  putOnGrHint: "將此色調加入要寫入 SD 卡的清單",
+  startersTitle: "您可以這樣提問：",
   chips: {
     install: "如何安裝 GRKU？",
     camera: "我的相機支援嗎？",
@@ -242,6 +260,8 @@ const zhHant: ChatStrings = {
     plus: "免費版和 GRKU Plus 有什麼差別？",
     safe: "這樣會傷害我的相機嗎？",
     night: "夜間拍攝技巧",
+    photos: "哪款色調適合我的照片？",
+    trouble: "記憶卡或 GRKU 無法正常運作",
   },
 };
 
@@ -294,6 +314,9 @@ const ja: ChatStrings = {
   you: "あなた",
   writing: "入力中…",
   explainMore: "詳しく説明する",
+  tryPhotoHint: "現像ページを開き、端末の写真で試せます",
+  putOnGrHint: "SDカードに書き込むルックに追加します",
+  startersTitle: "例えば、次のような質問ができます：",
   chips: {
     install: "GRKUのインストール方法は？",
     camera: "このカメラで使えますか？",
@@ -301,6 +324,8 @@ const ja: ChatStrings = {
     plus: "無料版とGRKU Plusの違いは？",
     safe: "カメラに悪影響はありませんか？",
     night: "夜景撮影のコツ",
+    photos: "自分の写真にはどのルックが合いますか？",
+    trouble: "SDカードやGRKUがうまく動作しません",
   },
 };
 
@@ -353,6 +378,9 @@ const ko: ChatStrings = {
   you: "나",
   writing: "작성 중…",
   explainMore: "더 자세히 설명해 주세요",
+  tryPhotoHint: "현상 페이지에서 기기의 사진에 적용해 볼 수 있습니다",
+  putOnGrHint: "SD 카드에 저장할 룩에 추가합니다",
+  startersTitle: "다음과 같이 질문해 보세요:",
   chips: {
     install: "GRKU는 어떻게 설치하나요?",
     camera: "내 카메라에서도 사용할 수 있나요?",
@@ -360,6 +388,8 @@ const ko: ChatStrings = {
     plus: "무료 버전과 GRKU Plus의 차이는 무엇인가요?",
     safe: "카메라에 안전한가요?",
     night: "야간 촬영 팁",
+    photos: "내 사진에 어떤 룩이 어울릴까요?",
+    trouble: "카드나 GRKU가 작동하지 않아요",
   },
 };
 

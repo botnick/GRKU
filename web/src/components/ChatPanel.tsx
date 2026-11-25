@@ -88,7 +88,7 @@ type Notice =
   | { kind: 'cooldown' }
   | { kind: 'closed' }
   | { kind: 'human' }
-  | { kind: 'error'; retry: boolean }
+  | { kind: 'error'; retry: boolean; cut?: boolean }
   | { kind: 'tooLong'; max: number };
 
 export interface ChatPanelProps {
@@ -264,6 +264,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
         else if (code === 'cooldown') setNotice({ kind: 'cooldown' });
         else if (code === 'closed') setNotice({ kind: 'closed' });
         else if (code === 'message too long') setNotice({ kind: 'tooLong', max: maxInput });
+        else if (code === 'interrupted') setNotice({ kind: 'error', retry: true, cut: true });
         else if (code !== 'aborted') setNotice({ kind: 'error', retry: true });
       }
     } finally {
@@ -376,9 +377,17 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
               <IconButton label={view === 'menu' ? c.title : c.options} pressed={view === 'menu'} onClick={() => setView(view === 'menu' ? 'chat' : 'menu')}>
                 <History />
               </IconButton>
-              <IconButton label={c.newChat} onClick={newChat} disabled={empty}>
-                <MessageSquarePlus />
-              </IconButton>
+              <button
+                type="button"
+                onClick={newChat}
+                disabled={empty}
+                title={c.newChat}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2 text-[13px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 [&_svg]:size-4"
+              >
+                <MessageSquarePlus aria-hidden="true" />
+                <span className="hidden min-[360px]:inline">{c.newChat}</span>
+                <span className="sr-only min-[360px]:hidden">{c.newChat}</span>
+              </button>
               <DialogPrimitive.Close asChild>
                 <IconButton label={c.close}>
                   <X />
@@ -410,12 +419,14 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
             <div ref={list} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4" aria-live="polite" aria-busy={busy} aria-relevant="additions">
               {empty ? (
                 <div className="flex flex-col gap-5">
-                  <div className="flex flex-col items-center gap-2 px-4 pt-4 text-center">
-                    <Mascot pose={busy ? 'think' : tier === 'plus' ? 'love' : 'hi'} size={150} disc bob />
-                    <p className="text-[17px] font-semibold">{c.title}</p>
-                    <p className="max-w-[30ch] text-[15px] leading-relaxed text-muted-foreground">{tier === 'plus' ? c.greetingPlus : c.greeting}</p>
+                  <div className="flex flex-col items-center gap-3 px-4 pt-2 text-center">
+                    <Mascot pose={busy ? 'think' : tier === 'plus' ? 'love' : 'hi'} size={108} disc bob />
+                    <p className="max-w-[32ch] text-[15px] leading-relaxed">{tier === 'plus' ? c.greetingPlus : c.greeting}</p>
                   </div>
-                  <Chips ids={['install', 'camera', 'warm', 'plus', 'safe', 'night']} c={c} onPick={(text) => void send(text)} disabled={busy} />
+                  <div className="flex flex-col gap-2">
+                    <p className="text-[13px] text-muted-foreground">{c.startersTitle}</p>
+                    <Chips ids={['install', 'photos', 'plus', 'trouble']} c={c} onPick={(text) => void send(text)} disabled={busy} />
+                  </div>
                 </div>
               ) : (
                 <ol className="flex flex-col gap-4">
@@ -762,11 +773,13 @@ function LookCards({ picks, looks, c, t, onLook }: { picks: LookPick[]; looks: M
             </div>
             {(pick.why || look.hint) && <p className="line-clamp-3 text-[13px] leading-snug text-muted-foreground">{pick.why || look.hint}</p>}
             <div className="mt-auto flex flex-col gap-1.5">
-              <button type="button" onClick={() => onLook(look.id, 'develop')} className="h-9 rounded-lg border text-[13px] font-medium hover:bg-accent">
-                {c.tryPhoto}
+              <button type="button" onClick={() => onLook(look.id, 'develop')} title={c.tryPhotoHint} className="flex min-h-11 flex-col items-center justify-center rounded-lg border px-2 py-1.5 text-center hover:bg-accent">
+                <span className="text-[13px] font-medium">{c.tryPhoto}</span>
+                <span className="text-[11px] leading-tight text-muted-foreground">{c.tryPhotoHint}</span>
               </button>
-              <button type="button" onClick={() => onLook(look.id, 'install')} className="h-9 rounded-lg bg-foreground text-[13px] font-medium text-background hover:bg-foreground/90">
-                {c.putOnGr}
+              <button type="button" onClick={() => onLook(look.id, 'install')} title={c.putOnGrHint} className="flex min-h-11 flex-col items-center justify-center rounded-lg bg-foreground px-2 py-1.5 text-center text-background hover:bg-foreground/90">
+                <span className="text-[13px] font-medium">{c.putOnGr}</span>
+                <span className="text-[11px] leading-tight opacity-75">{c.putOnGrHint}</span>
               </button>
             </div>
           </li>
@@ -839,7 +852,7 @@ function NoticeLine({ notice, c, tier, onPlus, onRetry, onGuide }: { notice: Not
     case 'error':
       return (
         <div className="mt-4 flex items-center gap-3 text-[13px]" role="alert">
-          <span className="text-destructive">{c.error}</span>
+          <span className="text-destructive">{notice.cut ? `${c.interrupted} ${c.error}` : c.error}</span>
           {notice.retry && (
             <button type="button" onClick={onRetry} className="font-medium underline underline-offset-2">
               {c.retry}

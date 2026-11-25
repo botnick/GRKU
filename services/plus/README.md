@@ -34,16 +34,24 @@ cannot change it), the guardrails `src/chat/guard.ts`, the fixed answers `src/ch
 The facts come from the site build (`web/scripts/build-chat-knowledge.mjs` writes
 `/chat/knowledge.json`). Counters are in D1 (`chat_usage`); no message content is stored.
 
-Providers are OpenAI-compatible endpoints tried in order (all free tiers by default): `CHAT_*`
-Google AI Studio (Gemini), `CHAT2_*` OpenRouter (`:free` models only; the code refuses any other),
-`CHAT3_*` Cloudflare Workers AI. Limits and models are vars in `wrangler.toml`. Secrets:
+Providers are OpenAI-compatible endpoints tried in order, free first: `CHAT_*` Google AI Studio
+(Gemini free tier: Flash-Lite for the free tier, Flash with high thinking for GRKU Plus), `CHAT2_*`
+OpenRouter `:free` models (off: they were rate-limited upstream), then `CHAT3_*` paid Gemini through
+OpenRouter (Google's servers only, at most the listed price; never billing on the AI Studio project,
+which would end its free tier). Paid spend has a monthly and a daily cap in dollars
+(`CHAT_PAID_MONTHLY_USD`, `CHAT_PAID_DAILY_USD`), and the free tier may use only
+`CHAT_PAID_FREE_SHARE` percent of the month. A free answer that comes back empty, broken, or garbled
+is asked once more of the paid model. GRKU Plus never gets the free tier's models; with
+`CHAT_PLUS_TIER = "pro"` it goes to Gemini Pro at once. Limits and models are vars in
+`wrangler.toml`. Secrets:
 
 ```sh
-npx wrangler secret put CHAT_API_KEY      # Google AI Studio API key
-npx wrangler secret put CHAT2_API_KEY     # OpenRouter key (optional)
-npx wrangler secret put CHAT3_BASE_URL    # https://api.cloudflare.com/client/v4/accounts/<id>/ai/v1 (optional)
-npx wrangler secret put CHAT3_API_KEY     # a token with Workers AI Read (optional)
+npx wrangler secret put CHAT_API_KEY      # Google AI Studio API key (free tier)
+npx wrangler secret put CHAT2_API_KEY     # OpenRouter key (the :free models)
+npx wrangler secret put CHAT3_API_KEY     # OpenRouter key (the paid fallback; the same key is fine)
+npx wrangler secret put CHAT4_BASE_URL    # Workers AI: https://api.cloudflare.com/client/v4/accounts/<id>/ai/v1 (optional)
+npx wrangler secret put CHAT4_API_KEY     # a token with Workers AI Read (optional)
 ```
 
 `CHAT_ENABLED = "off"` closes it. Test: `pnpm test`; run the test set against `wrangler dev`
-(without TURNSTILE_SECRET, with high limits in `.dev.vars`): `node eval/eval.mjs http://127.0.0.1:8787 OUT_DIR`.
+(without TURNSTILE_SECRET, with high limits in `.dev.vars`): `node eval/eval.mjs http://127.0.0.1:8787 OUT_DIR` (add `--thai`, `--tier plus --key KEY`, `--ids a,b`, `--name NAME`; `--var CHAT_FORCE_PROVIDER:paid` on `wrangler dev` tests the paid path alone).

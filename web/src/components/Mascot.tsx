@@ -19,11 +19,9 @@ const FILES: Readonly<Record<MascotPose, string>> = {
   love: 'love-1',
 };
 
-/** The files are 1.49 times as wide as tall. */
-const ASPECT = 1012 / 1504;
-
 /**
- * The mascot in `pose`, `size` pixels wide. `disc` sets it on a light round disc, which keeps
+ * The mascot in `pose`, inside a square of `size` pixels: each pose keeps its own proportions
+ * (most are wide, love stands tall), so nothing it sits next to moves or hides behind it. `disc` sets it on a light round disc, which keeps
  * the charcoal body visible on the dark page. `eager` loads it with the page (the chat button);
  * every other pose loads when it shows.
  */
@@ -35,12 +33,13 @@ export function Mascot({ pose, size, disc = false, bob = false, eager = false, c
       srcSet={['64', '144', '320'].map((w) => `${siteUrl(`mascot/${file}-${w}.webp`)} ${w}w`).join(', ')}
       sizes={`${size}px`}
       width={size}
-      height={Math.round(size * ASPECT)}
+      height={size}
+      style={{ width: size, height: size }}
       alt=""
       draggable={false}
       loading={eager ? 'eager' : 'lazy'}
       decoding="async"
-      className={cn('mascot-img pointer-events-none select-none', bob && 'mascot-bob')}
+      className={cn('mascot-img pointer-events-none object-contain select-none', bob && 'mascot-bob')}
     />
   );
   if (!disc) return <span className={cn('inline-grid shrink-0 place-items-center', className)}>{image}</span>;

@@ -135,7 +135,9 @@ export function preFilter(text: string): Refusal | null {
 // ---- The post-filter --------------------------------------------------------------------------------
 
 /** Hosts that an answer may name besides grku.app. */
-const HOSTS = ['grku.app', 'www.grku.app', 'ricoh-imaging.co.jp', 'www.ricoh-imaging.co.jp', 'ricoh-imaging.com', 'www.ricoh-imaging.com', 'github.com'];
+const HOSTS = ['grku.app', 'ricoh-imaging.co.jp', 'ricoh-imaging.com', 'ricoh-imaging.eu', 'ricoh-imaging.co.uk', 'ricoh.com', 'github.com'];
+/** Whether `host` is one of HOSTS or a subdomain of one (RICOH has a site per region). */
+const allowedHost = (host: string) => HOSTS.some((h) => host === h || host.endsWith(`.${h}`));
 
 /** Why an answer must not reach the page, or null. `fragments` are pieces of the system prompt. */
 export function postFilter(text: string, fragments: readonly string[]): string | null {
@@ -144,10 +146,10 @@ export function postFilter(text: string, fragments: readonly string[]): string |
   const lower = text.toLowerCase();
   if (fragments.some((fragment) => lower.includes(fragment))) return 'prompt';
   for (const match of text.matchAll(/\bhttps?:\/\/([a-z0-9.-]+)/gi)) {
-    if (!HOSTS.includes(match[1]!.toLowerCase())) return 'url';
+    if (!allowedHost(match[1]!.toLowerCase())) return 'url';
   }
   for (const match of text.matchAll(/\bwww\.([a-z0-9-]+\.)+[a-z]{2,}/gi)) {
-    if (!HOSTS.includes(match[0].toLowerCase())) return 'url';
+    if (!allowedHost(match[0].toLowerCase())) return 'url';
   }
   // Firmware files and flashing steps.
   if (/\b(fwdc\w*|[a-z0-9_]{2,}\.bin)\b/i.test(text) && /firmware|เฟิร์มแวร์/i.test(text)) return 'firmware';
