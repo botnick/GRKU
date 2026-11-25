@@ -308,7 +308,7 @@ describe('limits', () => {
     const token = await session(h, 'GOOD-KEY-1234');
     const first = await events(await ask(h, token, 'hi'));
     expect(first[0]!.data).toMatchObject({ tier: 'plus', remaining: 0 });
-    expect(h.calls[0]!.body).toMatchObject({ model: 'flash', reasoning_effort: 'medium', max_tokens: 1200 + 1024 });
+    expect(h.calls[0]!.body).toMatchObject({ model: 'flash', reasoning_effort: 'medium', max_tokens: 1600 + 1024 });
     expect((await rejects(ask(h, await session(h, 'GOOD-KEY-1234'), 'hi again'))).code).toBe('limit');
   });
 
@@ -352,17 +352,65 @@ describe('providers', () => {
     expect(freeModel('https://openrouter.ai/api/v1/chat/completions', 'openai/gpt-5')).toBe(false);
     expect(freeModel('https://openrouter.ai/api/v1/chat/completions', 'openrouter/auto')).toBe(false);
     expect(providersOf(ENV, 'free').map((p) => `${p.name}:${p.model}`)).toEqual(['gemini:flash-lite', 'openrouter:google/gemma-4-31b-it:free']);
-    expect(providersOf(ENV, 'plus').map((p) => p.model)).toEqual(['flash', 'flash-lite', 'google/gemma-4-31b-it:free']);
+    // Plus uses only the models listed for Plus: never the free tier's Gemma.
+    expect(providersOf(ENV, 'plus').map((p) => p.model)).toEqual(['flash', 'flash-lite']);
   });
 
-  it('uses a paid provider only when allowed, only for Plus, only listed models, after the free ones', () => {
-    const paid = { CHAT3_BASE_URL: 'https://paid.test/v1', CHAT3_API_KEY: 'k', CHAT3_MODEL_FREE: 'smart,other', CHAT3_PAID: '1', CHAT_PAID_MODELS: 'smart' };
-    expect(providersOf({ ...ENV, ...paid }, 'plus').some((p) => p.paid)).toBe(false);
-    const on = { ...ENV, ...paid, CHAT_ALLOW_PAID: '1' } as ChatEnv;
-    expect(providersOf(on, 'free').some((p) => p.paid)).toBe(false);
-    const plus = providersOf(on, 'plus');
-    expect(plus.at(-1)).toMatchObject({ model: 'smart', paid: true });
-    expect(plus.filter((p) => p.paid)).toHaveLength(1);
+  const PAID = {
+    CHAT3_NAME: 'paid',
+    CHAT3_BASE_URL: 'https://openrouter.ai/api/v1',
+    CHAT3_API_KEY: 'k3',
+    CHAT3_PAID: '1',
+    CHAT3_MODEL_FREE: 'google/gemini-3.1-flash-lite',
+    CHAT3_MODEL_PLUS: 'google/gemini-3.8-flash',
+    CHAT3_PRICES: 'google/gemini-3.1-flash-lite=0.25/1.5,google/gemini-3.8-flash=0.825/4.125,google/gemini-3.1-pro-preview=2/12',
+    CHAT3_ROUTING: 'google-vertex,google-ai-studio',
+    CHAT_PAID_MODELS: 'google/gemini-3.1-flash-lite,google/gemini-3.8-flash,google/gemini-3.1-pro-preview',
+    CHAT_PRO_MODELS: 'google/gemini-3.1-pro-preview',
+  };
+
+  it('uses paid models only when allowed, only listed ones with a price, after the free ones', () => {
+    expect(providersOf({ ...ENV, ...PAID }, 'plus').some((p) => p.paid)).toBe(false);
+    const on = { ...ENV, ...PAID, CHAT_ALLOW_PAID: '1' } as ChatEnv;
+    expect(providersOf(on, 'free').map((p) => p.model)).toEqual(['flash-lite', 'google/gemma-4-31b-it:free', 'google/gemini-3.1-flash-lite']);
+    // Plus: its own Flash chain, then paid Flash, then Pro as the last resort; never Flash-Lite of the free tier on the paid side.
+    expect(providersOf(on, 'plus').map((p) => p.model)).toEqual(['flash', 'flash-lite', 'google/gemini-3.8-flash', 'google/gemini-3.1-pro-preview']);
+    expect(providersOf({ ...on, CHAT_PAID_TIERS: 'plus' } as ChatEnv, 'free').some((p) => p.paid)).toBe(false);
+    expect(providersOf({ ...on, CHAT3_PRICES: '' } as ChatEnv, 'free').some((p) => p.paid)).toBe(false);
+    expect(providersOf({ ...on, CHAT_PLUS_TIER: 'pro' } as ChatEnv, 'plus').map((p) => p.model)).toEqual(['google/gemini-3.1-pro-preview']);
+    expect(providersOf({ ...on, CHAT_FORCE_PROVIDER: 'paid' } as ChatEnv, 'free').map((p) => p.model)).toEqual(['google/gemini-3.1-flash-lite']);
+  });
+
+  it('routes paid calls to Google only, at our price, and counts their cost', async () => {
+    const h = harness({ env: { ...PAID, CHAT_ALLOW_PAID: '1', CHAT_FORCE_PROVIDER: 'paid' } as Partial<ChatEnv>, answer: () => stream(['Hi'], { prompt_tokens: 4000, completion_tokens: 200 }) });
+    await (await ask(h, await session(h), 'hello')).text();
+    await Promise.all(h.pending);
+    expect(h.calls[0]!.body.provider).toEqual({ only: ['google-vertex', 'google-ai-studio'], allow_fallbacks: false, max_price: { prompt: 0.25, completion: 1.5 } });
+    // 4000 × 0.25 + 200 × 1.5 = 1300 micro-dollars.
+    expect((await h.store.get(dayOf(NOW), 'usd')).tokens).toBe(1300);
+    expect((await h.store.get(dayOf(NOW).slice(0, 7), 'usd')).tokens).toBe(1300);
+  });
+
+  it('stops paid calls at the caps, and keeps half the month for Plus', async () => {
+    const env = { ...PAID, CHAT_ALLOW_PAID: '1', CHAT_FORCE_PROVIDER: 'paid', CHAT_PAID_MONTHLY_USD: '10', CHAT_PAID_DAILY_USD: '5' } as Partial<ChatEnv>;
+    const h = harness({ env });
+    await h.store.add(dayOf(NOW).slice(0, 7), [{ key: 'usd', tokens: 6_000_000 }]);
+    // $6 of $10 spent: over the free tier's half, within Plus.
+    expect(await rejects(ask(h, await session(h), 'free question'))).toMatchObject({ code: 'busy' });
+    expect((await events(await ask(h, await session(h, 'GOOD-KEY-1234'), 'plus question')))[0]!.data.tier).toBe('plus');
+    await h.store.add(dayOf(NOW), [{ key: 'usd', tokens: 5_000_000 }]);
+    expect(await rejects(ask(h, await session(h, 'GOOD-KEY-1234'), 'over the day'))).toMatchObject({ code: 'busy' });
+  });
+
+  it('asks a paid model once more when a free answer comes back empty', async () => {
+    const h = harness({
+      env: { ...PAID, CHAT_ALLOW_PAID: '1' } as Partial<ChatEnv>,
+      answer: (_url, body) => (String(body.model).startsWith('google/gemini') ? stream(['A good answer.']) : stream([])),
+    });
+    const list = await events(await ask(h, await session(h), 'hello'));
+    expect(textOf(list)).toBe('A good answer.');
+    expect(h.calls.map((c) => c.body.model)).toEqual(['flash-lite', 'google/gemini-3.1-flash-lite']);
+    expect(list.at(-1)!.event).toBe('done');
   });
 
   it('reads the daily caps per model', () => {
@@ -469,6 +517,8 @@ describe('guardrails', () => {
   it('cuts answers with foreign links, keys, or garbage', () => {
     expect(postFilter('See https://grku.app/guide/ and www.ricoh-imaging.co.jp', PROMPT_FRAGMENTS)).toBeNull();
     expect(postFilter('Download it from https://evil.example/fw', PROMPT_FRAGMENTS)).toBe('url');
+    expect(postFilter('See https://www.ricoh-imaging.co.jp/english/support/digital/gr3_s.html or https://news.ricoh.com/x', PROMPT_FRAGMENTS)).toBeNull();
+    expect(postFilter('Get it at https://ricoh.com.evil.example/', PROMPT_FRAGMENTS)).toBe('url');
     expect(postFilter('key AIzaSyA1234567890abcdefghijklmnop', PROMPT_FRAGMENTS)).toBe('key');
     expect(postFilter('Привет '.repeat(20), PROMPT_FRAGMENTS)).toBe('garbage');
     expect(postFilter('ถ่ายกลางคืนใช้ Vision3 500T', PROMPT_FRAGMENTS)).toBeNull();

@@ -9,8 +9,8 @@ name: Plus
 # that the repository lacks. PROMPTPAY_ID and RECEIVER_NAME are plain vars in
 # wrangler.toml: buyers see the PromptPay ID in the QR anyway.
 # The assistant (services/plus/src/chat) takes its provider keys from optional secrets:
-# CHAT_API_KEY (Google AI Studio), CHAT2_API_KEY (OpenRouter), CHAT3_BASE_URL and CHAT3_API_KEY
-# (Cloudflare Workers AI). The last step writes those that the repository has; a missing one
+# CHAT_API_KEY (Google AI Studio), CHAT2_API_KEY (OpenRouter), CHAT3_API_KEY (OpenRouter, the paid
+# fallback), CHAT4_BASE_URL and CHAT4_API_KEY (Cloudflare Workers AI). The last step writes those that the repository has; a missing one
 # leaves that provider out (and the Worker keeps a secret set before by `wrangler secret put`).
 # The D1 database is created once by hand (`wrangler d1 create grku-plus`) and its id is in
 # services/plus/wrangler.toml; the deploy applies schema.sql, which only creates what is
@@ -82,10 +82,11 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CHAT_API_KEY: ${{ secrets.CHAT_API_KEY }}
           CHAT2_API_KEY: ${{ secrets.CHAT2_API_KEY }}
-          CHAT3_BASE_URL: ${{ secrets.CHAT3_BASE_URL }}
           CHAT3_API_KEY: ${{ secrets.CHAT3_API_KEY }}
+          CHAT4_BASE_URL: ${{ secrets.CHAT4_BASE_URL }}
+          CHAT4_API_KEY: ${{ secrets.CHAT4_API_KEY }}
         run: |
-          for name in CHAT_API_KEY CHAT2_API_KEY CHAT3_BASE_URL CHAT3_API_KEY; do
+          for name in CHAT_API_KEY CHAT2_API_KEY CHAT3_API_KEY CHAT4_BASE_URL CHAT4_API_KEY; do
             if [ -n "${!name}" ]; then
               printf '%s' "${!name}" | pnpm exec wrangler secret put "$name"
             fi

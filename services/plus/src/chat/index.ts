@@ -48,17 +48,36 @@ export interface ChatEnv {
   CHAT_DAILY_TOKENS?: string;
   CHAT_SESSION_HOURS?: string;
   CHAT_VIOLATIONS_PER_HOUR?: string;
-  /** "1" allows the providers marked _PAID, for GRKU Plus only, after the free ones. Default off. */
+  /**
+   * "1" allows the providers marked _PAID, after the free ones (and for a free answer that came
+   * back empty or garbled). Only the models in CHAT_PAID_MODELS, only for the tiers in
+   * CHAT_PAID_TIERS, under the monthly and daily dollar caps.
+   */
   CHAT_ALLOW_PAID?: string;
-  CHAT_PAID_MONTHLY_TOKENS?: string;
   /** The paid models that may be called at all, comma-separated. */
   CHAT_PAID_MODELS?: string;
+  /** The tiers that may use paid models: "free,plus" (default) or "plus". */
+  CHAT_PAID_TIERS?: string;
+  /** Paid spend caps in US dollars: a month, and a day. */
+  CHAT_PAID_MONTHLY_USD?: string;
+  CHAT_PAID_DAILY_USD?: string;
+  /** The share of the monthly paid budget that the free tier may use, in percent (Plus may use all). */
+  CHAT_PAID_FREE_SHARE?: string;
+  /** "flash" (default): GRKU Plus gets the Flash chain. "pro": GRKU Plus goes straight to CHAT_PRO_MODELS. */
+  CHAT_PLUS_TIER?: string;
+  /** The paid models of the "pro" Plus tier, and the last resort of the Flash chain, comma-separated. */
+  CHAT_PRO_MODELS?: string;
+  /** Development only: try only the provider of this name (to test one path, such as the paid one). */
+  CHAT_FORCE_PROVIDER?: string;
+  CHAT_HISTORY_TURNS_PLUS?: string;
   // Providers: CHAT_* is the first, CHAT2_* … CHAT4_* the next. Each has _NAME, _BASE_URL,
   // _API_KEY (a secret), _MODEL_FREE and _MODEL_PLUS (a model or a comma-separated list, tried in
-  // order), _MODEL_QUICK (optional: short first questions of the free tier), _RPD (our own daily
-  // cap of requests: "model=n,model=n", or one number for each model), _REASONING_FREE and
-  // _REASONING_PLUS (reasoning_effort of the thinking models: none, low, medium, or empty to
-  // leave it out), and _PAID ("1" for a provider that costs money).
+  // order; a provider without _MODEL_PLUS serves only the free tier), _MODEL_QUICK (optional),
+  // _RPD (our own daily cap of requests: "model=n,model=n", or one number for each model),
+  // _REASONING_FREE and _REASONING_PLUS (reasoning_effort: none, low, medium, high, or empty),
+  // _PAID ("1" for a provider that costs money), _PRICES (US dollars per million tokens in and
+  // out, "model=0.25/1.5,model=…", for the spend caps and the maximum price sent to OpenRouter),
+  // and _ROUTING (OpenRouter's upstream providers to allow, such as "google-vertex,google-ai-studio").
   [name: `CHAT${'' | '2' | '3' | '4'}_${string}`]: string | undefined;
 }
 
@@ -73,16 +92,25 @@ export interface Limits {
   maxOutputFree: number;
   maxOutputPlus: number;
   historyTurns: number;
+  historyTurnsPlus: number;
   dailyMessages: number;
   dailyTokens: number;
   sessionHours: number;
   violationsPerHour: number;
-  paidMonthlyTokens: number;
+  /** Paid spend caps in micro-dollars. */
+  paidMonthly: number;
+  paidDaily: number;
+  /** The share of the monthly paid budget the free tier may use, 0 to 1. */
+  paidFreeShare: number;
 }
 
 const int = (value: string | undefined, fallback: number) => {
   const n = Number.parseInt(value ?? '', 10);
   return Number.isFinite(n) && n >= 0 ? n : fallback;
+};
+const usd = (value: string | undefined, fallback: number) => {
+  const n = Number.parseFloat(value ?? '');
+  return Math.round((Number.isFinite(n) && n >= 0 ? n : fallback) * 1_000_000);
 };
 
 export function limitsOf(env: Partial<ChatEnv>): Limits {
@@ -93,13 +121,16 @@ export function limitsOf(env: Partial<ChatEnv>): Limits {
     perMinute: int(env.CHAT_PER_MINUTE, 6),
     maxInput: int(env.CHAT_MAX_INPUT, 600),
     maxOutputFree: int(env.CHAT_MAX_OUTPUT_FREE, 600),
-    maxOutputPlus: int(env.CHAT_MAX_OUTPUT_PLUS, 1200),
+    maxOutputPlus: int(env.CHAT_MAX_OUTPUT_PLUS, 1600),
     historyTurns: int(env.CHAT_HISTORY_TURNS, 8),
+    historyTurnsPlus: int(env.CHAT_HISTORY_TURNS_PLUS, 16),
     dailyMessages: int(env.CHAT_DAILY_MESSAGES, 600),
     dailyTokens: int(env.CHAT_DAILY_TOKENS, 6_000_000),
     sessionHours: int(env.CHAT_SESSION_HOURS, 12),
     violationsPerHour: int(env.CHAT_VIOLATIONS_PER_HOUR, 4),
-    paidMonthlyTokens: int(env.CHAT_PAID_MONTHLY_TOKENS, 1_000_000),
+    paidMonthly: usd(env.CHAT_PAID_MONTHLY_USD, 10),
+    paidDaily: usd(env.CHAT_PAID_DAILY_USD, 1),
+    paidFreeShare: Math.min(100, int(env.CHAT_PAID_FREE_SHARE, 50)) / 100,
   };
 }
 
@@ -112,6 +143,10 @@ export interface Provider {
   rpd: number;
   reasoning: string;
   paid: boolean;
+  /** US dollars per million tokens, in and out; null when unknown (a paid model needs it). */
+  price: { in: number; out: number } | null;
+  /** OpenRouter's upstream providers to allow, or empty. */
+  routing: string[];
 }
 
 /**
@@ -134,37 +169,62 @@ export function rpdCaps(text: string): Map<string, number> {
   return caps;
 }
 
+/** Prices: "model=in/out,…" in US dollars per million tokens. */
+export function pricesOf(text: string): Map<string, { in: number; out: number }> {
+  const prices = new Map<string, { in: number; out: number }>();
+  for (const part of text.split(',').map((p) => p.trim()).filter(Boolean)) {
+    const match = /^(.+)=([\d.]+)\/([\d.]+)$/.exec(part);
+    if (match) prices.set(match[1]!.trim(), { in: Number(match[2]), out: Number(match[3]) });
+  }
+  return prices;
+}
+
+/** What one answer cost, in micro-dollars, at `price` per million tokens. */
+export const costOf = (price: { in: number; out: number }, prompt: number, completion: number) => Math.ceil(prompt * price.in + completion * price.out);
+
+const list = (text: string | undefined) => (text ?? '').split(',').map((m) => m.trim()).filter(Boolean);
+
 /**
- * The provider calls for `tier`, in the order to try: each provider with an address, a key, and
- * models; each of its models in order. `quick` puts a provider's quick model first.
+ * The provider calls for `tier`, in the order to try: the free ones first, each model in order,
+ * then the paid ones. GRKU Plus uses only the models listed for Plus (never the free tier's), and
+ * the Pro models as the last resort; with CHAT_PLUS_TIER="pro" it goes to the Pro models at once.
  */
 export function providersOf(env: Partial<ChatEnv>, tier: Tier, quick = false): Provider[] {
   const free: Provider[] = [];
   const paid: Provider[] = [];
-  const paidModels = (env.CHAT_PAID_MODELS ?? '').split(',').map((m) => m.trim()).filter(Boolean);
+  const paidModels = list(env.CHAT_PAID_MODELS);
+  const proModels = list(env.CHAT_PRO_MODELS);
+  const paidTiers = list(env.CHAT_PAID_TIERS || 'free,plus');
+  const paidOn = env.CHAT_ALLOW_PAID === '1' && paidTiers.includes(tier);
+  const pro = tier === 'plus' && env.CHAT_PLUS_TIER === 'pro';
   for (const prefix of ['CHAT', 'CHAT2', 'CHAT3', 'CHAT4'] as const) {
     const get = (field: string) => (env as Record<string, string | undefined>)[`${prefix}_${field}`]?.trim() ?? '';
+    const name = get('NAME') || prefix.toLowerCase();
     const base = get('BASE_URL');
     const key = get('API_KEY');
     if (!base || !key) continue;
+    if (env.CHAT_FORCE_PROVIDER && env.CHAT_FORCE_PROVIDER !== name) continue;
     const url = /\/chat\/completions$/.test(base) ? base : `${base.replace(/\/+$/, '')}/chat/completions`;
     const isPaid = get('PAID') === '1';
-    const plusModels = tier === 'plus' ? get('MODEL_PLUS') : '';
-    const list = (plusModels || get('MODEL_FREE')).split(',').map((m) => m.trim()).filter(Boolean);
+    if (isPaid && !paidOn) continue;
+    let models = list(get(tier === 'plus' ? 'MODEL_PLUS' : 'MODEL_FREE'));
+    if (tier === 'plus' && isPaid) models = [...models, ...proModels.filter((m) => !models.includes(m))];
+    if (pro) models = isPaid ? proModels : [];
     const quickModel = tier === 'free' ? get('MODEL_QUICK') : '';
-    const models = quick && quickModel ? [quickModel, ...list.filter((m) => m !== quickModel)] : list;
+    if (quick && quickModel) models = [quickModel, ...models.filter((m) => m !== quickModel)];
     const caps = rpdCaps(get('RPD'));
+    const prices = pricesOf(get('PRICES'));
     for (const model of models) {
-      const rpd = caps.get(model) ?? caps.get('*') ?? 0;
+      const price = prices.get(model) ?? null;
       if (isPaid) {
-        // A paid provider only with the switch on, only for Plus, only for listed models.
-        if (env.CHAT_ALLOW_PAID !== '1' || tier !== 'plus' || !paidModels.includes(model)) continue;
+        // A paid model only when listed, and only with its price, so the spend caps hold.
+        if (!paidModels.includes(model) || !price) continue;
       } else if (!freeModel(url, model)) {
         console.warn('chat: refused a model that is not free', prefix);
         continue;
       }
       const reasoning = quick && model === quickModel ? '' : get(tier === 'plus' ? 'REASONING_PLUS' : 'REASONING_FREE');
-      (isPaid ? paid : free).push({ name: get('NAME') || prefix.toLowerCase(), url, key, model, rpd, reasoning, paid: isPaid });
+      (isPaid ? paid : free).push({ name, url, key, model, rpd: caps.get(model) ?? caps.get('*') ?? 0, reasoning, paid: isPaid, price, routing: list(get('ROUTING')) });
     }
   }
   return [...free, ...paid];
@@ -516,10 +576,11 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
   if (!session) throw new ChatError(401, 'no session');
   const limits = limitsOf(env);
   const body = (await readJson(request)) as { messages?: unknown; lang?: unknown; context?: unknown };
-  const messages = await readMessages(body.messages, limits, async (text, sig) => (await signReply(env.KEY_SECRET, text)) === sig);
+  const turns = session.t === 'plus' ? { ...limits, historyTurns: limits.historyTurnsPlus } : limits;
+  const messages = await readMessages(body.messages, turns, async (text, sig) => (await signReply(env.KEY_SECRET, text)) === sig);
   const pageLanguage = languageOf(body.lang);
   const context = readContext(body.context);
-  const earlier = earlierQuestions(body.messages, limits);
+  const earlier = earlierQuestions(body.messages, turns);
   if (earlier) context.earlier = earlier;
   const question = messages[messages.length - 1]!.content;
   const language = messageLanguage(question, pageLanguage);
@@ -571,7 +632,8 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
     deps.waitUntil(store.add(day, keys.map((item) => ({ key: item.key, n: -1 }))).catch(() => {}));
     throw new ChatError(503, 'busy');
   }
-  return new Response(relay(upstream, meta, deps, day, topics[0] ?? '', maxTokens, language), { headers: SSE_HEADERS });
+  const retry = () => callProviders(deps, session.t, [{ role: 'system', content: prompt }, ...messages], maxTokens, day, false, limits, true);
+  return new Response(relay(upstream, meta, deps, day, topics[0] ?? '', maxTokens, language, retry), { headers: SSE_HEADERS });
 }
 
 const SSE_HEADERS = { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
@@ -599,7 +661,17 @@ interface Upstream {
   response: Response;
 }
 
-/** The first provider that answers with a stream; null when all fail or are over their caps. */
+/** Whether a paid call fits the spend caps: the day's, and the month's (the free tier only its share). */
+async function paidRoom(deps: ChatDeps, tier: Tier, day: string, limits: Limits): Promise<boolean> {
+  const [today, month] = await Promise.all([deps.store.get(day, 'usd'), deps.store.get(day.slice(0, 7), 'usd')]);
+  const monthCap = tier === 'plus' ? limits.paidMonthly : limits.paidMonthly * limits.paidFreeShare;
+  return today.tokens < limits.paidDaily && month.tokens < monthCap;
+}
+
+/**
+ * The first provider that answers with a stream; null when all fail or are over their caps.
+ * `onlyPaid` tries the paid ones alone: the second try after a free answer that failed.
+ */
 async function callProviders(
   deps: ChatDeps,
   tier: Tier,
@@ -608,10 +680,11 @@ async function callProviders(
   day: string,
   quick: boolean,
   limits: Limits,
+  onlyPaid = false,
 ): Promise<Upstream | null> {
-  const month = day.slice(0, 7);
   for (const provider of providersOf(deps.env, tier, quick)) {
-    if (provider.paid && (await deps.store.get(month, 'paid')).tokens >= limits.paidMonthlyTokens) continue;
+    if (onlyPaid && !provider.paid) continue;
+    if (provider.paid && !(await paidRoom(deps, tier, day, limits))) continue;
     if (provider.rpd > 0) {
       const [count] = await deps.store.add(day, [{ key: `p:${provider.name}:${provider.model}`, n: 1 }]);
       if (count!.n > provider.rpd) continue;
@@ -626,6 +699,15 @@ async function callProviders(
       temperature: 0.3,
     };
     if (provider.reasoning) body.reasoning_effort = provider.reasoning;
+    // OpenRouter: only the named upstream providers, no fallback to others, and never above our price.
+    if (/openrouter\.ai/i.test(provider.url) && provider.paid) {
+      body.provider = {
+        ...(provider.routing.length ? { only: provider.routing } : {}),
+        allow_fallbacks: false,
+        ...(provider.price ? { max_price: { prompt: provider.price.in, completion: provider.price.out } } : {}),
+      };
+      body.usage = { include: true };
+    }
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 25_000);
     try {
@@ -686,35 +768,52 @@ export function stripThinking(state: { mode: 'start' | 'think' | 'text'; buffer:
 /** The characters that the post-filter holds back, so a leak that spans two pieces is caught whole. */
 const HOLD = 48;
 
+interface Attempt {
+  answer: string;
+  usage: { prompt: number; completion: number };
+  /** The stream failed (an error event, or it broke). */
+  failed: boolean;
+  /** Why the post-filter cut it, or null. */
+  cut: string | null;
+}
+
 /**
  * Turns the provider's stream into ours: `meta`, then `data: {"d": text}` pieces, then `done`
  * with the signature of the whole answer, or `replace` with a safe answer when the post-filter
- * cuts it, or `error`.
+ * cuts it, or `error`. A free answer that comes back empty, broken, or garbled is asked once more
+ * of a paid model (`retry`), so a visitor does not get a bad answer to save a cent.
  */
-function relay(upstream: Upstream, meta: Record<string, unknown>, deps: ChatDeps, day: string, topic: string, maxTokens: number, language: Language): ReadableStream<Uint8Array> {
+function relay(
+  upstream: Upstream,
+  meta: Record<string, unknown>,
+  deps: ChatDeps,
+  day: string,
+  topic: string,
+  maxTokens: number,
+  language: Language,
+  retry: () => Promise<Upstream | null>,
+): ReadableStream<Uint8Array> {
   const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
   const writer = writable.getWriter();
-  const reader = upstream.response.body!.pipeThrough(new TextDecoderStream()).getReader();
   const write = (text: string) => writer.write(encoder.encode(text));
   const secret = deps.env.KEY_SECRET;
-  const pump = async () => {
-    let usage = { prompt: 0, completion: 0 };
-    let answer = '';
-    let sent = 0;
-    let failed = false;
-    let cut: string | null = null;
+  const maxChars = maxTokens * 6;
+
+  /** Streams one provider's answer to the page, holding back the end for the post-filter. */
+  const run = async (current: Upstream): Promise<Attempt> => {
+    const reader = current.response.body!.pipeThrough(new TextDecoderStream()).getReader();
+    const attempt: Attempt = { answer: '', usage: { prompt: 0, completion: 0 }, failed: false, cut: null };
     const thinking = { mode: 'start' as 'start' | 'think' | 'text', buffer: '' };
     let pending = '';
-    const maxChars = maxTokens * 6;
+    let sent = 0;
     const release = async (all: boolean) => {
-      const until = all ? answer.length : Math.max(sent, answer.length - HOLD);
+      const until = all ? attempt.answer.length : Math.max(sent, attempt.answer.length - HOLD);
       if (until > sent) {
-        await write(sse(null, { d: answer.slice(sent, until) }));
+        await write(sse(null, { d: attempt.answer.slice(sent, until) }));
         sent = until;
       }
     };
     try {
-      await write(sse('meta', meta));
       outer: for (;;) {
         const { value, done } = await reader.read();
         if (done) break;
@@ -737,48 +836,85 @@ function relay(upstream: Upstream, meta: Record<string, unknown>, deps: ChatDeps
             continue;
           }
           if (chunk.error || chunk.choices?.[0]?.finish_reason === 'error') {
-            failed = true;
+            attempt.failed = true;
             break outer;
           }
-          if (chunk.usage) usage = { prompt: chunk.usage.prompt_tokens ?? usage.prompt, completion: chunk.usage.completion_tokens ?? usage.completion };
+          if (chunk.usage) attempt.usage = { prompt: chunk.usage.prompt_tokens ?? attempt.usage.prompt, completion: chunk.usage.completion_tokens ?? attempt.usage.completion };
           const piece = chunk.choices?.[0]?.delta?.content;
           if (typeof piece !== 'string' || !piece) continue;
           const text = stripThinking(thinking, piece);
           if (!text) continue;
-          answer += text;
-          cut = postFilter(answer, PROMPT_FRAGMENTS);
-          if (cut) break outer;
+          attempt.answer += text;
+          attempt.cut = postFilter(attempt.answer, PROMPT_FRAGMENTS);
+          if (attempt.cut) break outer;
           await release(false);
-          if (answer.length > maxChars) break outer;
+          if (attempt.answer.length > maxChars) break outer;
         }
       }
-      if (cut) {
+      if (!attempt.cut && !attempt.failed) await release(true);
+    } catch {
+      attempt.failed = true;
+    } finally {
+      await reader.cancel().catch(() => {});
+    }
+    return attempt;
+  };
+
+  /** Counts an attempt: tokens, and for a paid model its cost in micro-dollars, by day, month, and model. */
+  const record = async (current: Upstream, attempt: Attempt) => {
+    const tokens = attempt.usage.prompt + attempt.usage.completion || Math.ceil(attempt.answer.length / 3) + 4000;
+    const items: { key: string; n?: number; tokens?: number }[] = [
+      { key: 'global', tokens },
+      { key: `p:${current.provider.name}:${current.provider.model}`, n: 0, tokens },
+    ];
+    if (attempt.cut) items.push({ key: `x:${attempt.cut}`, n: 1 });
+    if (current.provider.paid && current.provider.price) {
+      // Without usage, count the whole prompt as about 4000 tokens and three characters a token out.
+      const prompt = attempt.usage.prompt || 4000;
+      const completion = attempt.usage.completion || Math.ceil(attempt.answer.length / 3);
+      const micro = costOf(current.provider.price, prompt, completion);
+      items.push({ key: 'usd', tokens: micro }, { key: `$:${current.provider.model}`, n: 1, tokens: micro });
+      await deps.store.add(day.slice(0, 7), [{ key: 'usd', tokens: micro }, { key: `$:${current.provider.model}`, n: 1, tokens: micro }]).catch(() => {});
+    }
+    await deps.store.add(day, items).catch(() => {});
+  };
+
+  const pump = async () => {
+    try {
+      await write(sse('meta', meta));
+      let current = upstream;
+      let attempt = await run(current);
+      await record(current, attempt);
+      // A free answer that failed, came back empty, or was garbled: once more, on a paid model.
+      const bad = attempt.failed || !attempt.answer.trim() || attempt.cut === 'garbage';
+      if (bad && !current.provider.paid) {
+        const second = await retry();
+        if (second) {
+          if (attempt.answer) await write(sse('replace', { text: '' }));
+          current = second;
+          attempt = await run(current);
+          await record(current, attempt);
+          await deps.store.add(day, [{ key: 'retry:paid', n: 1 }]).catch(() => {});
+        }
+      }
+      if (topic) await deps.store.add(day, [{ key: `t:${topic}`, n: 1 }]).catch(() => {});
+      if (attempt.cut) {
         const safe = REPLIES[language].blocked;
         await write(sse('replace', { text: safe }));
         await write(sse('done', { remaining: meta.remaining, sig: await signReply(secret, safe) }));
-      } else if (!answer) {
-        // Nothing came (a failed stream, or a model that spent its tokens thinking): the page offers to try again.
+      } else if (!attempt.answer.trim()) {
+        // Nothing came, even on the second try: the page offers to try again.
+        await write(sse('error', { code: 'interrupted' }));
+      } else if (attempt.failed) {
         await write(sse('error', { code: 'interrupted' }));
       } else {
-        await release(true);
-        await write(sse('done', { remaining: meta.remaining, sig: await signReply(secret, answer) }));
+        await write(sse('done', { remaining: meta.remaining, sig: await signReply(secret, attempt.answer) }));
       }
     } catch {
-      // The visitor left, or the provider's stream broke.
+      // The visitor left.
       await write(sse('error', { code: 'interrupted' })).catch(() => {});
     } finally {
-      await reader.cancel().catch(() => {});
       await writer.close().catch(() => {});
-      // Without usage from the provider, about three characters a token, and the prompt.
-      const tokens = usage.prompt + usage.completion || Math.ceil(answer.length / 3) + 4000;
-      const items: { key: string; n?: number; tokens?: number }[] = [
-        { key: 'global', tokens },
-        { key: `p:${upstream.provider.name}:${upstream.provider.model}`, tokens },
-      ];
-      if (topic) items.push({ key: `t:${topic}`, n: 1 });
-      if (cut) items.push({ key: `x:${cut}`, n: 1 });
-      await deps.store.add(day, items).catch(() => {});
-      if (upstream.provider.paid) await deps.store.add(day.slice(0, 7), [{ key: 'paid', tokens }]).catch(() => {});
     }
   };
   deps.waitUntil(pump());
@@ -825,24 +961,27 @@ const LANGUAGE_NAMES: Record<Language, string> = {
 
 /** The most characters of sections that one prompt carries, past the core. */
 const SECTION_BUDGET = 12000;
+/** GRKU Plus gets twice the room for the sections that a question brings in. */
+const SECTION_BUDGET_PLUS = 24000;
 
 /**
- * The system prompt for a conversation: the rules, the page context, the core sections, the
- * sections whose tags the user's last messages mention, and the look list when they ask about
- * looks. Only the server builds it; nothing of the request but the user's words choose sections.
+ * The system prompt for a conversation. It starts with what every conversation shares, the rules
+ * and the core sections, so the provider's prompt cache can reuse that prefix; then come the
+ * sections whose tags the user's last messages mention (more of them for GRKU Plus), the look list
+ * when they ask about looks, and last the page context. Only the server builds it; nothing of the request but the user's words choose sections.
  * `topics` are the matched sections, for the anonymous topic counter and the model choice.
  */
 export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMessage[], language: Language, context: PageContext, tier: Tier): { prompt: string; topics: string[] } {
   const asked = messages
     .filter((m) => m.role === 'user')
-    .slice(-2)
+    .slice(tier === 'plus' ? -3 : -2)
     .map((m) => m.content.toLowerCase())
     .join('\n');
-  const parts: string[] = [rules(LANGUAGE_NAMES[language], ''), `## Where the user is\n${contextLines(context, tier)}`];
+  const parts: string[] = [rules(LANGUAGE_NAMES[language], '')];
   const topics: string[] = [];
   if (pack) {
     for (const section of pack.sections.filter((s) => s.core)) parts.push(`## ${section.title}\n${section.text}`);
-    let budget = SECTION_BUDGET;
+    let budget = tier === 'plus' ? SECTION_BUDGET_PLUS : SECTION_BUDGET;
     for (const section of pack.sections.filter((s) => !s.core)) {
       if (!section.tags.some((tag) => asked.includes(tag))) continue;
       if (section.text.length > budget) continue;
@@ -861,6 +1000,7 @@ export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMess
   } else {
     parts.push('## Note\nThe facts of the site are not available right now. Answer only what you are sure of, and point to /guide/ and support@grku.app.');
   }
+  parts.push(`## Where the user is\n- Page language: ${LANGUAGE_NAMES[language]}.\n${contextLines(context, tier)}`);
   return { prompt: parts.join('\n\n'), topics };
 }
 

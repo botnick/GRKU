@@ -11,7 +11,9 @@ const flag = (name) => { const i = rest.indexOf(`--${name}`); return i >= 0 ? re
 const tier = flag('tier') ?? 'free';
 const only = flag('only')?.split(',');
 const gap = Number(flag('gap') ?? 4000);
-const cases = CASES.filter((c) => !only || only.includes(c.set));
+const thai = rest.includes('--thai');
+const ids = flag('ids')?.split(',');
+const cases = CASES.filter((c) => (!only || only.includes(c.set)) && (!thai || /[\u0e00-\u0e7f]/.test(c.q)) && (!ids || ids.includes(c.id)));
 
 async function session() {
   const response = await fetch(`${base}/chat/session`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: flag('key') }) });
@@ -59,6 +61,12 @@ function check(c, r) {
   for (const pattern of [...(c.never ?? []), ...LEAK]) if (test(pattern, r.text)) notes.push(`has /${pattern}/`);
   if (c.links && !links(r.text).some((l) => c.links.some((want) => l === want || l.startsWith(want)))) notes.push(`no link of ${c.links.join(' ')} (has ${links(r.text).join(' ') || 'none'})`);
   if (expect === 'answer' && !r.fixed && links(r.text).length === 0) notes.push('no link button');
+  // The Thai voice: a woman, เรา with ค่ะ and คะ, never ครับ or ผม; คะ (not ค่ะ) on a question.
+  if (/[\u0e00-\u0e7f]/.test(c.q) && !r.fixed) {
+    if (/ครับ|ผม(?!ลัพธ์)/.test(r.text)) notes.push('male voice (ครับ/ผม)');
+    if (!/ค่ะ|คะ/.test(r.text)) notes.push('no ค่ะ/คะ');
+    if (/(ไหม|มั้ย|หรือเปล่า|หรือยัง|อะไร|ยังไง)ค่ะ|ค่ะ\s*\?/.test(r.text)) notes.push('ค่ะ on a question');
+  }
   return { pass: notes.length === 0, notes };
 }
 
@@ -80,10 +88,10 @@ const answered = results.filter((r) => !r.fixed && !r.error);
 const median = (list) => { const s = [...list].sort((a, b) => a - b); return s.length ? s[Math.floor(s.length / 2)] : 0; };
 const summary = `Tier ${tier}: ${score(results)} pass (${sets.map((s) => `${s} ${score(by(s))}`).join(', ')}); model answers ${answered.length}, median ${median(answered.map((r) => r.ms))} ms, median first text ${median(answered.map((r) => r.first ?? 0))} ms`;
 console.log(summary);
-fs.writeFileSync(`${out}/eval-${tier}.json`, JSON.stringify({ summary, results }, null, 1));
+fs.writeFileSync(`${out}/eval-${flag('name') ?? tier}.json`, JSON.stringify({ summary, results }, null, 1));
 const cell = (text) => String(text ?? '').replace(/\|/g, '\\|').replace(/\n+/g, ' ⏎ ');
 fs.writeFileSync(
-  `${out}/eval-${tier}.md`,
+  `${out}/eval-${flag('name') ?? tier}.md`,
   `# GRKU assistant eval (${tier})\n\n${summary}\n\n| id | question | result | ms | answer | notes |\n|---|---|---|---|---|---|\n` +
     results.map((r) => `| ${r.id} | ${cell(r.q).slice(0, 80)} | ${r.pass ? 'PASS' : 'FAIL'}${r.fixed ? ` (${r.fixed})` : ''} | ${r.ms} | ${cell(r.text)} | ${cell(r.notes.join('; '))} |`).join('\n') +
     '\n',
