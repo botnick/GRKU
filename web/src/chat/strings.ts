@@ -5,6 +5,8 @@ import type { Language } from '../i18n';
 
 export const en = {
   title: 'GRKU assistant',
+  /** Under the title, after an AI badge. */
+  subtitle: "Answers about GRKU and your GR",
   close: 'Close',
   greeting: "Hi! I'm the GRKU assistant. Ask me about installing GRKU, your camera, or which film look suits your photos.",
   greetingPlus: 'Welcome back. Ask me anything about GRKU and your GR, and I will go into the details.',
@@ -68,6 +70,7 @@ export type ChipId = keyof ChatStrings['chips'];
 
 const th: ChatStrings = {
   title: "ผู้ช่วย GRKU",
+  subtitle: "ตอบคำถามเกี่ยวกับ GRKU และกล้อง GR",
   close: "ปิด",
   greeting: "สวัสดี! ฉันคือผู้ช่วย GRKU ถามฉันได้ทุกเรื่องเกี่ยวกับการติดตั้ง GRKU กล้องของคุณ หรือฟิล์มลุคที่เหมาะกับภาพถ่ายของคุณ",
   greetingPlus: "ยินดีต้อนรับกลับมา ถามเราได้ทุกเรื่องเกี่ยวกับ GRKU และกล้อง GR ของคุณ เราพร้อมลงลึกในรายละเอียด",
@@ -126,6 +129,7 @@ const th: ChatStrings = {
 
 const zhHans: ChatStrings = {
   title: "GRKU 助手",
+  subtitle: "解答 GRKU 和 GR 相机相关问题",
   close: "关闭",
   greeting: "你好！我是 GRKU 助手。无论是安装 GRKU、使用相机，还是为照片挑选合适的胶片风格，都可以问我。",
   greetingPlus: "欢迎回来。关于 GRKU 和你的 GR，有任何问题都可以问我，我会为你详细解答。",
@@ -184,6 +188,7 @@ const zhHans: ChatStrings = {
 
 const zhHant: ChatStrings = {
   title: "GRKU 助理",
+  subtitle: "解答 GRKU 與 GR 相關問題",
   close: "關閉",
   greeting: "您好！我是 GRKU 助理。歡迎詢問關於安裝 GRKU、相機操作，或是適合您照片的底片色調。",
   greetingPlus: "歡迎回來。關於 GRKU 與您的 GR 相機，請隨時提問，我將為您提供詳細說明。",
@@ -242,6 +247,7 @@ const zhHant: ChatStrings = {
 
 const ja: ChatStrings = {
   title: "GRKUアシスタント",
+  subtitle: "GRKUとGRについて質問できます",
   close: "閉じる",
   greeting: "こんにちは！GRKUアシスタントです。GRKUのインストール方法やカメラの設定、写真に合うフィルムルックについて、お気軽にお尋ねください。",
   greetingPlus: "おかえりなさい。GRKUやお使いのGRについて、何でもお尋ねください。詳しくご案内します。",
@@ -300,6 +306,7 @@ const ja: ChatStrings = {
 
 const ko: ChatStrings = {
   title: "GRKU 어시스턴트",
+  subtitle: "GRKU와 GR 카메라에 관한 답변",
   close: "닫기",
   greeting: "안녕하세요! GRKU 어시스턴트입니다. GRKU 설치 방법이나 카메라 사용법, 사진에 어울리는 필름 룩에 대해 물어보세요.",
   greetingPlus: "다시 만나 반갑습니다. GRKU와 GR에 관해 무엇이든 물어보세요. 자세히 안내해 드리겠습니다.",

@@ -33,7 +33,7 @@ import { LANGUAGE_PATHS, DOC_PATHS } from '../languagePage';
 import { TURNSTILE_SITEKEY } from '../plus';
 import { BrandMark } from './BrandMark';
 import { EffectIcon } from './EffectIcon';
-import { Mascot, type MascotMood } from './Mascot';
+import { Mascot, type MascotPose } from './Mascot';
 import { Turnstile } from './Turnstile';
 import { cn } from '@/lib/utils';
 
@@ -330,7 +330,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
     onNavigate(`${LANGUAGE_PATHS[language]}${where}/?look=${encodeURIComponent(id)}`);
   };
 
-  const mood: MascotMood = busy ? 'thinking' : notice?.kind === 'busy' || notice?.kind === 'closed' || notice?.kind === 'cooldown' ? 'sleeping' : happy ? 'happy' : 'idle';
+  const pose: MascotPose = busy ? 'think' : notice?.kind === 'busy' || notice?.kind === 'closed' || notice?.kind === 'cooldown' ? 'sleep' : notice?.kind === 'error' || notice?.kind === 'human' ? 'oops' : happy ? 'happy' : 'wave';
   const lastAssistant = [...conversation.turns].reverse().find((turn) => turn.role === 'assistant');
   const empty = conversation.turns.length === 0 && streaming === null;
   const recent = view === 'menu' ? loadRecent(storage).filter((item) => item.id !== conversation.id) : [];
@@ -356,19 +356,23 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
         >
           {/* The header: the name, the insider pill for GRKU Plus, the options, and Close. */}
           <header className="flex h-14 shrink-0 items-center gap-2 border-b pr-2 pl-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#f7f7f2] light:bg-transparent">
-              <Mascot mood={mood} size={30} animated />
-            </span>
-            <div className="flex min-w-0 shrink-0 flex-col justify-center gap-0.5">
+            <Mascot pose={pose} size={34} disc />
+            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
               <DialogPrimitive.Title className="truncate text-[15px] leading-5 font-semibold">{c.title}</DialogPrimitive.Title>
-              {tier === 'plus' && (
-                <span className="inline-flex h-5 shrink-0 items-center gap-1.5 self-start rounded-full border px-2 text-[11.5px] leading-none font-medium whitespace-nowrap text-muted-foreground">
-                  <span className="size-1.5 shrink-0 rounded-full bg-brand-mark" aria-hidden="true" />
-                  {c.badge}
-                </span>
-              )}
+              <div className="flex min-w-0 items-center gap-1.5">
+                {/* AI, said plainly: the answers come from an AI model. */}
+                <span className="inline-flex h-[18px] shrink-0 items-center rounded-[5px] bg-foreground px-1.5 text-[10.5px] leading-none font-bold tracking-wide text-background">AI</span>
+                {tier === 'plus' ? (
+                  <span className="inline-flex h-5 shrink-0 items-center gap-1.5 rounded-full border px-2 text-[11.5px] leading-none font-medium whitespace-nowrap text-muted-foreground">
+                    <span className="size-1.5 shrink-0 rounded-full bg-brand-mark" aria-hidden="true" />
+                    {c.badge}
+                  </span>
+                ) : (
+                  <span className="truncate text-[12px] leading-4 text-muted-foreground">{c.subtitle}</span>
+                )}
+              </div>
             </div>
-            <div className="ml-auto flex shrink-0 items-center">
+            <div className="flex shrink-0 items-center">
               <IconButton label={view === 'menu' ? c.title : c.options} pressed={view === 'menu'} onClick={() => setView(view === 'menu' ? 'chat' : 'menu')}>
                 <History />
               </IconButton>
@@ -407,7 +411,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
               {empty ? (
                 <div className="flex flex-col gap-5">
                   <div className="flex flex-col items-center gap-2 px-4 pt-4 text-center">
-                    <Mascot mood={mood} size={88} animated limbs />
+                    <Mascot pose={busy ? 'think' : tier === 'plus' ? 'love' : 'hi'} size={150} disc bob />
                     <p className="text-[17px] font-semibold">{c.title}</p>
                     <p className="max-w-[30ch] text-[15px] leading-relaxed text-muted-foreground">{tier === 'plus' ? c.greetingPlus : c.greeting}</p>
                   </div>
@@ -440,7 +444,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
                       {streaming ? (
                         <Answer text={streaming} language={language} c={c} t={t} looks={looks} onLink={openLink} onLook={lookAction} streaming thinking />
                       ) : (
-                        <Bubble role="assistant" label={c.title} thinking>
+                        <Bubble role="assistant" label={c.title} pose="think">
                           <Typing label={c.writing} />
                         </Bubble>
                       )}
@@ -575,7 +579,7 @@ function IconButton({ label, children, onClick, disabled, pressed }: { label: st
   );
 }
 
-function Bubble({ role, label, children, thinking }: { role: 'user' | 'assistant'; label?: string; children: ReactNode; thinking?: boolean }) {
+function Bubble({ role, label, children, pose }: { role: 'user' | 'assistant'; label?: string; children: ReactNode; pose?: MascotPose }) {
   if (role === 'user') {
     return (
       <div className="flex justify-end">
@@ -587,9 +591,7 @@ function Bubble({ role, label, children, thinking }: { role: 'user' | 'assistant
   }
   return (
     <div className="flex gap-2">
-      <span className="-mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-[#f7f7f2] light:bg-transparent">
-        <Mascot mood={thinking ? 'thinking' : 'idle'} size={26} />
-      </span>
+      <Mascot pose={pose ?? 'happy'} size={28} disc className="-mt-0.5" />
       <div className="flex min-w-0 flex-1 flex-col gap-3 text-[15px] leading-relaxed" aria-label={label}>
         {children}
       </div>
@@ -693,7 +695,7 @@ function Answer({
   const reply = useMemo(() => parseReply(text, language, looks ? resolver(looks) : (id) => id), [text, language, looks]);
   const [copied, setCopied] = useState(false);
   return (
-    <Bubble role="assistant" label={c.title} thinking={thinking}>
+    <Bubble role="assistant" label={c.title} pose={thinking ? 'think' : reply.links.length > 0 || reply.looks.length > 0 ? 'point' : 'happy'}>
       <Blocks blocks={reply.blocks} onLink={onLink} />
       {reply.looks.length > 0 && looks && <LookCards picks={reply.looks} looks={looks} c={c} t={t} onLook={onLook} />}
       {!streaming && reply.links.length > 0 && (

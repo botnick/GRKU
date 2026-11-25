@@ -10,6 +10,7 @@ import type { Language, Strings } from '../i18n';
 import type { SitePage } from '../languagePage';
 import { part } from '../parts';
 import { Mascot } from './Mascot';
+import { cn } from '@/lib/utils';
 
 const ChatPanel = part(() => import('./ChatPanel').then((module) => module.ChatPanel));
 
@@ -53,19 +54,28 @@ const GREET_SEEN = 'grku.chat.greet';
 const GREET_AFTER = 4000;
 const GREET_FOR = 6000;
 
-/** Whether the mascot says hello now: once a visit, a few seconds after the page opens. */
-function useGreeting(opened: boolean): [boolean, () => void] {
+const seenGreeting = () => {
+  try {
+    return !!sessionStorage.getItem(GREET_SEEN);
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Whether the mascot says hello now (once a visit, a few seconds after the page opens), and
+ * whether it has said it: on a phone the label beside the button folds away after the hello.
+ */
+function useGreeting(opened: boolean): [boolean, () => void, boolean] {
   const [show, setShow] = useState(false);
+  const [done, setDone] = useState(seenGreeting);
   useEffect(() => {
     if (opened) {
       setShow(false);
+      setDone(true);
       return;
     }
-    try {
-      if (sessionStorage.getItem(GREET_SEEN)) return;
-    } catch {
-      // Without storage it greets once in this page.
-    }
+    if (seenGreeting()) return;
     const start = setTimeout(() => {
       setShow(true);
       try {
@@ -74,13 +84,23 @@ function useGreeting(opened: boolean): [boolean, () => void] {
         // Nothing to keep.
       }
     }, GREET_AFTER);
-    const end = setTimeout(() => setShow(false), GREET_AFTER + GREET_FOR);
+    const end = setTimeout(() => {
+      setShow(false);
+      setDone(true);
+    }, GREET_AFTER + GREET_FOR);
     return () => {
       clearTimeout(start);
       clearTimeout(end);
     };
   }, [opened]);
-  return [show, () => setShow(false)];
+  return [
+    show,
+    () => {
+      setShow(false);
+      setDone(true);
+    },
+    done,
+  ];
 }
 
 const HINT_SEEN = 'grku.chat.hint';
@@ -143,7 +163,7 @@ export function ChatLauncher({
   const [mounted, setMounted] = useState(false);
   const offset = useBottomOffset(page);
   const [hint, dismissHint] = useHint(page, mounted);
-  const [greeting, dismissGreeting] = useGreeting(mounted);
+  const [greeting, dismissGreeting, greeted] = useGreeting(mounted);
   const text = launcherText(language);
   const bubble = hint ? text.hint : greeting ? text.greet : null;
   const dismissBubble = hint ? dismissHint : dismissGreeting;
@@ -169,17 +189,24 @@ export function ChatLauncher({
               </button>
             </div>
           )}
+          {/* The label tells at a glance that this is an AI assistant; on a phone it folds away after the hello. */}
           <button
             type="button"
             onClick={show}
             onPointerEnter={() => void ChatPanel.preload().catch(() => {})}
             onFocus={() => void ChatPanel.preload().catch(() => {})}
-            aria-label={text.open}
-            title={text.open}
+            aria-label={text.ai}
             aria-haspopup="dialog"
-            className="grid size-14 place-items-center rounded-full border border-black/10 bg-[#f7f7f2] shadow-[0_8px_24px_rgba(0,0,0,0.28)] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 light:bg-white light:shadow-[0_8px_24px_rgba(40,30,10,0.2)] sm:size-16 [&>svg]:size-11 sm:[&>svg]:size-[52px]"
+            className="group flex items-center gap-2 rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
           >
-            <Mascot animated />
+            {!bubble && (
+              <span className={cn('h-9 items-center rounded-full border bg-popover px-3.5 text-[14px] font-medium whitespace-nowrap text-popover-foreground shadow-md group-hover:border-foreground/30', greeted ? 'hidden sm:inline-flex' : 'inline-flex')}>
+                {text.ai}
+              </span>
+            )}
+            <span className="grid size-16 place-items-center rounded-full border border-black/10 bg-[#f4f2ec] shadow-[0_8px_24px_rgba(0,0,0,0.28)] light:bg-white light:shadow-[0_8px_24px_rgba(40,30,10,0.2)] sm:size-[72px]">
+              <Mascot pose="wave" size={56} bob eager className="sm:scale-110" />
+            </span>
           </button>
         </div>
       )}

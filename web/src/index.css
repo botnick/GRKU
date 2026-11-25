@@ -283,71 +283,22 @@
   }
 }
 
-/* The assistant's mascot (components/Mascot.tsx): blinks, bobs, turns its lens ring while it thinks.
+/* The assistant's mascot (components/Mascot.tsx): a gentle bob when idle and a tilt on hover.
    CSS only, and still for a visitor who asks for reduced motion. */
-.mascot .mascot-eye-happy,
-.mascot .mascot-eye-sleep,
-.mascot .mascot-zz {
-  display: none;
-}
-.mascot-happy .mascot-eye,
-.mascot-sleeping .mascot-eye {
-  display: none;
-}
-.mascot-happy .mascot-eye-happy,
-.mascot-sleeping .mascot-eye-sleep,
-.mascot-sleeping .mascot-zz {
-  display: inline;
-}
-.mascot .mascot-eye,
-.mascot .mascot-ring {
-  transform-box: view-box;
-  transform-origin: 31px 33px;
-}
-.mascot .mascot-body {
-  transform-box: view-box;
-  transform-origin: 32px 56px;
-}
 @media (prefers-reduced-motion: no-preference) {
-  .mascot-animated.mascot-idle .mascot-eye {
-    animation: mascot-blink 5.2s ease-in-out infinite;
-  }
-  .mascot-animated.mascot-idle .mascot-body {
+  .mascot-bob {
     animation: mascot-bob 3.6s ease-in-out infinite;
   }
-  .mascot-thinking .mascot-ring {
-    animation: mascot-turn 1.6s linear infinite;
-  }
-  .mascot-happy .mascot-body {
-    animation: mascot-hop 0.5s ease-out 1;
-  }
-  .mascot-sleeping .mascot-zz {
-    animation: mascot-zz 2.4s ease-in-out infinite;
-  }
-  button:hover > .mascot .mascot-body,
-  button:focus-visible > .mascot .mascot-body {
+  button:hover .mascot-img,
+  button:focus-visible .mascot-img {
     animation: mascot-tilt 0.7s ease-in-out 1;
   }
 }
-@keyframes mascot-blink {
-  0%, 92%, 100% { transform: scaleY(1); }
-  95% { transform: scaleY(0.12); }
-}
 @keyframes mascot-bob {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-1.5px); }
-}
-@keyframes mascot-turn {
-  to { transform: rotate(360deg); }
-}
-@keyframes mascot-hop {
-  40% { transform: translateY(-3px); }
+  50% { transform: translateY(-2px); }
 }
 @keyframes mascot-tilt {
-  30% { transform: rotate(-9deg); }
-  65% { transform: rotate(6deg); }
-}
-@keyframes mascot-zz {
-  0%, 100% { opacity: 0.3; transform: translateY(0); }
-  50% { opacity: 1; transform: translateY(-2px); }
+  30% { transform: rotate(-8deg); }
+  65% { transform: rotate(5deg); }
 }
