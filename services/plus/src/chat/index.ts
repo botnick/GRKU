@@ -377,6 +377,8 @@ export interface ChatDeps {
   waitUntil: (promise: Promise<unknown>) => void;
   /** The knowledge pack; null when it cannot be read. */
   knowledge: () => Promise<Knowledge | null>;
+  /** Notes how a provider answered: ok, or the HTTP status or error name (for the admin page). */
+  providerStatus?: (provider: Provider, ok: boolean, code: string) => void;
 }
 
 const MAX_BODY = 24 * 1024;
@@ -725,13 +727,18 @@ async function callProviders(
         signal: controller.signal,
       });
       clearTimeout(timer);
-      if (response.ok && response.body) return { provider, response };
+      if (response.ok && response.body) {
+        deps.providerStatus?.(provider, true, String(response.status));
+        return { provider, response };
+      }
       // A quota (429), an outage (5xx), a refused key or setting (4xx): try the next one.
       console.warn('chat provider', provider.name, provider.model, response.status);
+      deps.providerStatus?.(provider, false, String(response.status));
       await response.body?.cancel().catch(() => {});
     } catch (error) {
       clearTimeout(timer);
       console.warn('chat provider', provider.name, provider.model, error instanceof Error ? error.name : 'error');
+      deps.providerStatus?.(provider, false, error instanceof Error && error.name === 'AbortError' ? 'timeout' : 'network');
     }
   }
   return null;

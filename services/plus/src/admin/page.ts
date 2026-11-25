@@ -135,6 +135,13 @@ h2:first-child{margin-top:0}
 .limits label{display:flex;flex-direction:column;gap:6px}
 .limits .name{font-size:13.5px;font-weight:500;color:var(--ink2);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .limits .hint{font-size:12.5px;color:var(--muted)}
+.spend{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.spend .label{font-size:13px;color:var(--muted)}
+.spend .big{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.25}
+.spend .big small{font-size:14px;font-weight:500;color:var(--muted)}
+.warnbox{margin-top:14px;padding:10px 14px;border-radius:11px;background:var(--bad-soft);color:var(--bad);font-size:14px;font-weight:500}
+.scope{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px}
+.scope .name{font-size:13.5px;font-weight:500;color:var(--ink2);display:flex;gap:6px;align-items:center}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 .grid2>div>h2:first-child{margin-top:28px}
 /* toast */
@@ -144,8 +151,11 @@ h2:first-child{margin-top:0}
 @media (max-width:720px){
   .stats{grid-template-columns:1fr 1fr}
   .stats .stat.hero{grid-column:1/-1}
+  .stats>.stat:not(.hero):last-child:nth-child(odd){grid-column:1/-1}
   .stat .value{font-size:26px}
   .grid2{grid-template-columns:1fr}
+  .spend{grid-template-columns:1fr}
+  .spend .big{font-size:24px}
   .bar .who-label{display:none}
   .list>li{padding:12px 14px}
   .cust-head{padding:12px 14px}
@@ -426,49 +436,102 @@ async function loadChat() {
   try { data = await api('/admin/api/chat'); } catch (e) { if (e.message !== 'signed out') box.replaceChildren(h('div', { class: 'card' }, failBox(loadChat))); return; }
   if (!data.available) return box.replaceChildren(h('div', { class: 'card empty' }, tr('chatWaiting')));
   const eff = (k) => data.settings[k] ?? data.defaults[k] ?? '';
+  const save = async (body, button) => {
+    if (button) button.disabled = true;
+    try { await api('/admin/api/settings', body); toast(tr('saved')); loadChat(); }
+    catch (e) { if (e.message !== 'signed out') toast(tr('error'), true); if (button) button.disabled = false; }
+  };
   const on = eff('CHAT_ENABLED') !== 'off';
   const s = data.stats || {};
   const g = s.global || { n: 0, tokens: 0 };
   const capMsgs = Number(eff('CHAT_DAILY_MESSAGES')) || 0;
   const capTokens = Number(eff('CHAT_DAILY_TOKENS')) || 0;
+  const overridden = (k) => (data.settings[k] != null ? h('span', { class: 'pill red', style: 'font-size:11px' }, tr('overrides')) : null);
   const toggle = h('button', { class: 'btn ' + (on ? 'danger' : 'primary') }, on ? tr('turnOff') : tr('turnOn'));
-  toggle.addEventListener('click', async () => {
-    if (on && !confirm(tr('turnOffConfirm'))) return;
-    toggle.disabled = true;
-    try { await api('/admin/api/settings', { CHAT_ENABLED: on ? 'off' : 'on' }); toast(tr('saved')); loadChat(); }
-    catch (e) { if (e.message !== 'signed out') toast(tr('error'), true); toggle.disabled = false; }
+  toggle.addEventListener('click', () => { if (on && !confirm(tr('turnOffConfirm'))) return; save({ CHAT_ENABLED: on ? 'off' : 'on' }, toggle); });
+
+  // Paid models: the switch, who may use them, the budgets, and the spend.
+  const paidOn = eff('CHAT_ALLOW_PAID') === '1';
+  const tiers = eff('CHAT_PAID_TIERS') || 'free,plus';
+  const monthly = Number(eff('CHAT_PAID_MONTHLY_USD')) || 0;
+  const daily = Number(eff('CHAT_PAID_DAILY_USD')) || 0;
+  const spent = s.paid || { usdToday: 0, usdMonth: 0 };
+  const reached = (monthly > 0 && spent.usdMonth >= monthly) || (daily > 0 && spent.usdToday >= daily);
+  const paidToggle = h('button', { class: 'btn ' + (paidOn ? 'danger' : 'primary') }, paidOn ? tr('turnOff') : tr('turnOn'));
+  paidToggle.addEventListener('click', () => { if (!paidOn && !confirm(tr('paidOnConfirm'))) return; save({ CHAT_ALLOW_PAID: paidOn ? '0' : '1' }, paidToggle); });
+  const scope = h('div', { class: 'seg', role: 'group' }, [['free,plus', 'scopeAll'], ['plus', 'scopePlus']].map(([v, label]) => {
+    const b = h('button', { type: 'button', 'aria-pressed': String(tiers === v) }, tr(label));
+    b.addEventListener('click', () => { if (tiers !== v) save({ CHAT_PAID_TIERS: v }); });
+    return b;
+  }));
+  const usdIn = (k) => h('input', { type: 'number', min: '0', step: '0.5', inputmode: 'decimal', value: data.settings[k] ?? '', placeholder: data.defaults[k] || '' });
+  const monthlyIn = usdIn('CHAT_PAID_MONTHLY_USD');
+  const dailyIn = usdIn('CHAT_PAID_DAILY_USD');
+  const budgetForm = h('form', { class: 'limits', style: 'margin-top:16px' },
+    h('label', null, h('span', { class: 'name' }, tr('monthlyBudget'), overridden('CHAT_PAID_MONTHLY_USD')), monthlyIn, h('span', { class: 'hint' }, tr('default', { n: '$' + (data.defaults.CHAT_PAID_MONTHLY_USD || '–') }))),
+    h('label', null, h('span', { class: 'name' }, tr('dailyBudget'), overridden('CHAT_PAID_DAILY_USD')), dailyIn, h('span', { class: 'hint' }, tr('default', { n: '$' + (data.defaults.CHAT_PAID_DAILY_USD || '–') }))),
+    h('div', { style: 'display:flex;align-items:flex-end' }, h('button', { class: 'btn primary', type: 'submit' }, tr('save'))));
+  budgetForm.addEventListener('submit', (e) => { e.preventDefault(); save({ CHAT_PAID_MONTHLY_USD: monthlyIn.value.trim(), CHAT_PAID_DAILY_USD: dailyIn.value.trim() }); });
+  const money = (n) => '$' + Number(n || 0).toFixed(2);
+  const paidCard = h('div', { class: 'card pad' },
+    h('div', { class: 'switch' },
+      h('div', { class: 'state' }, h('span', { class: 'lamp ' + (paidOn ? 'on' : 'off') }), paidOn ? tr('paidOn') : tr('paidOff'), overridden('CHAT_ALLOW_PAID')),
+      paidToggle),
+    h('p', { class: 'note', style: 'margin:6px 0 16px' }, tr('paidHint')),
+    h('div', { class: 'spend' },
+      h('div', null, h('div', { class: 'label' }, tr('spentMonth')), h('div', { class: 'big' }, money(spent.usdMonth), h('small', null, ' ' + tr('ofBudget', { budget: money(monthly) }))), meter(spent.usdMonth, monthly)),
+      h('div', null, h('div', { class: 'label' }, tr('spentToday')), h('div', { class: 'big' }, money(spent.usdToday), h('small', null, ' ' + tr('ofBudget', { budget: money(daily) }))), meter(spent.usdToday, daily))),
+    reached ? h('div', { class: 'warnbox' }, tr('budgetReached')) : null,
+    h('div', { class: 'scope' }, h('span', { class: 'name' }, tr('scope'), overridden('CHAT_PAID_TIERS')), scope),
+    budgetForm);
+
+  // Providers and models.
+  const STATE = { ok: ['paid', 'statusOk'], limited: ['open', 'statusLimited'], failing: ['bad', 'statusFailing'], idle: ['expired', 'statusIdle'] };
+  const providers = (s.providers || []).map((p) => {
+    const [cls, label] = STATE[p.state] || STATE.idle;
+    const fails = Object.entries(p.failures || {}).map(([c, n]) => c + ' ×' + n).join(' · ');
+    const meta = [p.okAt ? tr('lastOk', { time: time(p.okAt) }) : null, p.errAt ? tr('lastError', { code: p.errCode || '', time: time(p.errAt) }) : null, fails || null].filter(Boolean).join(' · ');
+    return h('li', null,
+      h('div', { class: 'main' }, p.name + ' ', h('span', { class: 'pill ' + (p.paid ? 'red' : 'plain') }, p.paid ? tr('paid') : tr('free'))),
+      h('div', { class: 'end' }, h('span', { class: 'pill ' + cls }, tr(label))),
+      h('div', { class: 'meta' }, meta || '–'));
   });
+  const models = (s.models || []).map((m) => h('li', null,
+    h('div', { class: 'main' }, h('span', { class: 'mono', style: 'font-size:13.5px' }, m.model), ' ', h('span', { class: 'pill ' + (m.paid ? 'red' : 'plain') }, m.paid ? tr('paid') : tr('free'))),
+    h('div', { class: 'end' }, m.cap ? tr('used', { used: num(m.n), cap: num(m.cap) }) : num(m.n)),
+    h('div', { class: 'meta' }, [m.provider, tr('tokens', { n: num(m.tokens) }), m.paid ? money(m.usd) + ' · ' + tr('spentMonth') + ' ' + money(m.usdMonth) : null, m.cap ? null : tr('noCap')].filter(Boolean).join(' · '), m.cap ? meter(m.n, m.cap) : null)));
+
   const statBox = (label, value, sub, extra) => h('div', { class: 'card stat' }, h('div', { class: 'label' }, label), h('div', { class: 'value' }, value), sub ? h('div', { class: 'sub' }, sub) : null, extra || null);
   const countList = (rows, empty) => rows.length ? h('ul', { class: 'list' }, rows.map(([k, n]) => h('li', null, h('div', { class: 'main' }, k), h('div', { class: 'end' }, num(n))))) : h('div', { class: 'empty' }, empty);
   const inputs = {};
   const form = h('form', { class: 'card pad' },
     h('div', { class: 'limits' }, LIMITS.map(([k, label]) => {
       inputs[k] = h('input', { type: 'number', min: '0', step: '1', inputmode: 'numeric', value: data.settings[k] ?? '', placeholder: data.defaults[k] || '' });
-      return h('label', null, h('span', { class: 'name' }, tr(label), data.settings[k] != null ? h('span', { class: 'pill red' }, tr('overrides')) : null), inputs[k], h('span', { class: 'hint' }, tr('default', { n: num(data.defaults[k]) })));
+      return h('label', null, h('span', { class: 'name' }, tr(label), overridden(k)), inputs[k], h('span', { class: 'hint' }, tr('default', { n: num(data.defaults[k]) })));
     })),
     h('div', { style: 'display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap' }, h('button', { class: 'btn primary', type: 'submit' }, tr('save')), h('span', { class: 'note', style: 'margin:0' }, tr('limitsHint'))));
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', (e) => {
     e.preventDefault();
     const body = {};
     for (const [k] of LIMITS) body[k] = inputs[k].value.trim();
-    try { await api('/admin/api/settings', body); toast(tr('saved')); loadChat(); }
-    catch (err) { if (err.message !== 'signed out') toast(tr('error'), true); }
+    save(body);
   });
   box.replaceChildren(
     h('div', { class: 'card pad switch' },
-      h('div', { class: 'state' }, h('span', { class: 'lamp ' + (on ? 'on' : 'off') }), on ? tr('chatOn') : tr('chatOff'), data.settings.CHAT_ENABLED != null ? h('span', { class: 'pill red', style: 'font-size:11px' }, tr('overrides')) : null),
+      h('div', { class: 'state' }, h('span', { class: 'lamp ' + (on ? 'on' : 'off') }), on ? tr('chatOn') : tr('chatOff'), overridden('CHAT_ENABLED')),
       toggle,
       on ? null : h('div', { class: 'note', style: 'flex-basis:100%;margin:0' }, tr('chatClosedHint'))),
+    h('h2', null, tr('paidTitle')),
+    paidCard,
     h('h2', null, tr('today') + ' · ' + tr('chatDayHint')),
     h('div', { class: 'stats' },
       statBox(tr('messagesToday'), num(g.n), capMsgs ? tr('used', { used: num(g.n), cap: num(capMsgs) }) : null, meter(g.n, capMsgs)),
       statBox(tr('sessionsToday'), num(s.sessions), tr('visitors') + ' ' + num(s.visitors)),
       statBox(tr('tokensToday'), num(g.tokens), capTokens ? tr('used', { used: num(g.tokens), cap: num(capTokens) }) : null, meter(g.tokens, capTokens))),
+    h('h2', null, tr('providerStatus')),
+    h('div', { class: 'card' }, providers.length ? h('ul', { class: 'list' }, providers) : h('div', { class: 'empty' }, tr('nothingYet'))),
     h('h2', null, tr('models')),
-    h('div', { class: 'card' }, (s.models || []).length ? h('ul', { class: 'list' }, s.models.map((m) => h('li', null,
-      h('div', { class: 'main' }, h('span', { class: 'mono', style: 'font-size:13.5px' }, m.model)),
-      h('div', { class: 'end' }, m.cap ? tr('used', { used: num(m.n), cap: num(m.cap) }) : num(m.n)),
-      h('div', { class: 'meta' }, m.provider + ' · ' + tr('tokens', { n: num(m.tokens) }) + (m.cap ? '' : ' · ' + tr('noCap')), m.cap ? meter(m.n, m.cap) : null)))) : h('div', { class: 'empty' }, tr('nothingYet'))),
+    h('div', { class: 'card' }, models.length ? h('ul', { class: 'list' }, models) : h('div', { class: 'empty' }, tr('nothingYet'))),
     h('div', { class: 'grid2' },
       h('div', null, h('h2', null, tr('refusals')), h('div', { class: 'card' }, countList((s.refusals || []).map(([k, n]) => [T['refusal_' + k] || k, n]), tr('nothingYet')))),
       h('div', null, h('h2', null, tr('topics')), h('div', { class: 'card' }, countList(s.topics || [], tr('nothingYet'))))),

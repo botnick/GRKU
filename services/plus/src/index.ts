@@ -12,7 +12,7 @@
  * The same Worker serves the GRKU assistant (src/chat/): it shares the database, the keys, and the
  * Turnstile secret, so a GRKU Plus key raises the assistant's tier without another service.
  */
-import { chat, ChatError, d1Store, fetchKnowledge, startSession, type ChatDeps, type ChatEnv } from './chat';
+import { chat, ChatError, d1Store, dayOf, fetchKnowledge, startSession, type ChatDeps, type ChatEnv } from './chat';
 
 export interface Env extends ChatEnv {
   DB: D1Database;
@@ -206,6 +206,19 @@ async function chatRoute(request: Request, url: URL, vars: Env, ctx?: ExecutionC
     fetch: (input, init) => fetch(input, init),
     waitUntil: (promise) => (ctx ? ctx.waitUntil(promise) : void promise),
     knowledge: () => fetchKnowledge(env, (input, init) => fetch(input, init), Date.now()),
+    // For the admin page: the last answer and the last failure of each provider, and the failures of the day.
+    providerStatus(provider, ok, code) {
+      const now = Date.now();
+      const write = ok
+        ? env.DB.prepare('INSERT INTO chat_provider (name, model, ok_at) VALUES (?, ?, ?) ON CONFLICT(name, model) DO UPDATE SET ok_at = excluded.ok_at').bind(provider.name, provider.model, now).run()
+        : Promise.all([
+            env.DB.prepare('INSERT INTO chat_provider (name, model, err_at, err_code) VALUES (?, ?, ?, ?) ON CONFLICT(name, model) DO UPDATE SET err_at = excluded.err_at, err_code = excluded.err_code')
+              .bind(provider.name, provider.model, now, code)
+              .run(),
+            d1Store(env.DB).add(dayOf(now), [{ key: `e:${provider.name}:${code}`, n: 1 }]),
+          ]);
+      deps.waitUntil(write.catch(() => {}));
+    },
   };
   if (path === '/chat/session') return startSession(request, deps);
   if (path === '/chat') return chat(request, deps);

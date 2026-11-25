@@ -67,3 +67,13 @@ CREATE TABLE IF NOT EXISTS mail_log (
   created INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS mail_log_recipient ON mail_log(recipient, created);
+-- How each provider of the assistant last answered (src/chat via src/index.ts), for the admin page:
+-- the time of the last answer, and of the last failure with its HTTP status or error name.
+CREATE TABLE IF NOT EXISTS chat_provider (
+  name TEXT NOT NULL,
+  model TEXT NOT NULL,
+  ok_at INTEGER,
+  err_at INTEGER,
+  err_code TEXT,
+  PRIMARY KEY (name, model)
+);

@@ -40,7 +40,27 @@ const DAY = 24 * 60 * 60 * 1000;
 const BANGKOK = 7 * 60 * 60 * 1000;
 
 /** The settings the admin page may change at run time, over the vars of the same name. */
-export const SETTINGS = ['CHAT_ENABLED', 'CHAT_FREE_PER_DAY', 'CHAT_PLUS_PER_DAY', 'CHAT_IP_PER_DAY', 'CHAT_DAILY_MESSAGES', 'CHAT_DAILY_TOKENS'] as const;
+export const SETTINGS = [
+  'CHAT_ENABLED',
+  'CHAT_FREE_PER_DAY',
+  'CHAT_PLUS_PER_DAY',
+  'CHAT_IP_PER_DAY',
+  'CHAT_DAILY_MESSAGES',
+  'CHAT_DAILY_TOKENS',
+  'CHAT_ALLOW_PAID',
+  'CHAT_PAID_TIERS',
+  'CHAT_PAID_MONTHLY_USD',
+  'CHAT_PAID_DAILY_USD',
+] as const;
+
+/** The form of each setting's value. */
+const SETTING_FORMS: Record<string, RegExp> = {
+  CHAT_ENABLED: /^(on|off)$/,
+  CHAT_ALLOW_PAID: /^[01]$/,
+  CHAT_PAID_TIERS: /^(free,plus|plus)$/,
+  CHAT_PAID_MONTHLY_USD: /^\d{1,5}(\.\d{1,2})?$/,
+  CHAT_PAID_DAILY_USD: /^\d{1,5}(\.\d{1,2})?$/,
+};
 
 class AdminError extends Error {
   constructor(
@@ -420,7 +440,7 @@ async function chatView(deps: AdminDeps) {
   // The assistant counts by UTC day (src/chat dayOf), so the day starts at 07:00 Bangkok time.
   const day = new Date(deps.now()).toISOString().slice(0, 10);
   const available = typeof deps.env.CHAT_NAME === 'string' && deps.env.CHAT_NAME !== '';
-  return { available, settings: values, defaults, stats: available ? await chatStats(deps.env, day) : null };
+  return { available, settings: values, defaults, stats: available ? await chatStats({ ...deps.env, ...values } as AdminEnv, day, deps.now()) : null };
 }
 
 async function saveSettings(request: Request, deps: AdminDeps): Promise<Response> {
@@ -436,7 +456,7 @@ async function saveSettings(request: Request, deps: AdminDeps): Promise<Response
       continue;
     }
     const text = String(v).trim();
-    if (k === 'CHAT_ENABLED' ? !/^(on|off)$/.test(text) : !/^\d{1,9}$/.test(text)) throw new AdminError(400, `bad ${k}`);
+    if (!(SETTING_FORMS[k] ?? /^\d{1,9}$/).test(text)) throw new AdminError(400, `bad ${k}`);
     statements.push(DB.prepare('INSERT INTO admin_settings (k, v, updated) VALUES (?, ?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v, updated = excluded.updated').bind(k, text, now));
   }
   if (statements.length) await DB.batch(statements);
@@ -456,56 +476,114 @@ function capsOf(text: string): Map<string, number> {
 }
 
 /** The assistant's counters of `day` (chat_usage), summed for the page. No message content exists there. */
-export async function chatStats(env: AdminEnv, day: string) {
-  const rows = await env.DB.prepare('SELECT k, n, tokens FROM chat_usage WHERE day = ?')
-    .bind(day)
-    .all<{ k: string; n: number; tokens: number }>()
-    .catch(() => ({ results: [] as { k: string; n: number; tokens: number }[] }));
+export async function chatStats(env: AdminEnv, day: string, now = Date.now()) {
+  type Row = { k: string; n: number; tokens: number };
+  const empty = { results: [] as Row[] };
+  const month = day.slice(0, 7);
+  const [rows, monthRows, status] = await Promise.all([
+    env.DB.prepare('SELECT k, n, tokens FROM chat_usage WHERE day = ?').bind(day).all<Row>().catch(() => empty),
+    env.DB.prepare("SELECT k, n, tokens FROM chat_usage WHERE day = ? AND (k = 'usd' OR k LIKE '$:%')").bind(month).all<Row>().catch(() => empty),
+    env.DB.prepare('SELECT name, model, ok_at, err_at, err_code FROM chat_provider')
+      .all<{ name: string; model: string; ok_at: number | null; err_at: number | null; err_code: string | null }>()
+      .catch(() => ({ results: [] as { name: string; model: string; ok_at: number | null; err_at: number | null; err_code: string | null }[] })),
+  ]);
   let global = { n: 0, tokens: 0 };
   let sessions = 0;
   let visitors = 0;
   let violations = 0;
-  const models = new Map<string, { provider: string; model: string; n: number; tokens: number; cap: number }>();
+  let usdToday = 0;
+  let retries = 0;
+  type Model = { provider: string; model: string; paid: boolean; n: number; tokens: number; cap: number; usd: number; usdMonth: number; nMonth: number };
+  const models = new Map<string, Model>();
   const refusals: [string, number][] = [];
   const topics: [string, number][] = [];
   const cuts: [string, number][] = [];
-  // The caps from the vars: CHAT_, CHAT2_ … CHAT4_ with _NAME and _RPD.
-  const caps = new Map<string, Map<string, number>>();
+  const errors = new Map<string, Record<string, number>>();
+  // The providers from the vars: CHAT_, CHAT2_ … CHAT4_ with _NAME, _RPD, _PAID, and the models.
+  const providers: { name: string; paid: boolean; caps: Map<string, number> }[] = [];
+  const model = (provider: string, name: string): Model => {
+    const key = `${provider}\n${name}`;
+    let m = models.get(key);
+    if (!m) {
+      const p = providers.find((x) => x.name === provider);
+      m = { provider, model: name, paid: p?.paid ?? false, n: 0, tokens: 0, cap: p?.caps.get(name) ?? p?.caps.get('*') ?? 0, usd: 0, usdMonth: 0, nMonth: 0 };
+      models.set(key, m);
+    }
+    return m;
+  };
   for (const prefix of ['CHAT', 'CHAT2', 'CHAT3', 'CHAT4']) {
     const name = env[`${prefix}_NAME`];
-    if (typeof name === 'string' && name) caps.set(name, capsOf(String(env[`${prefix}_RPD`] ?? '')));
+    if (typeof name !== 'string' || !name) continue;
+    const listed = [env[`${prefix}_MODEL_FREE`], env[`${prefix}_MODEL_PLUS`], env[`${prefix}_MODEL_QUICK`]].map((v) => String(v ?? '')).join(',');
+    const paid = env[`${prefix}_PAID`] === '1';
+    const extra = paid ? String(env.CHAT_PRO_MODELS ?? '') : '';
+    const caps = capsOf(String(env[`${prefix}_RPD`] ?? ''));
+    providers.push({ name, paid, caps });
+    for (const m of `${listed},${extra}`.split(',').map((x) => x.trim()).filter(Boolean)) model(name, m);
   }
+  const paidProvider = providers.find((p) => p.paid)?.name ?? 'paid';
   for (const r of rows.results ?? []) {
     if (r.k === 'global') global = { n: r.n, tokens: r.tokens };
+    else if (r.k === 'usd') usdToday = r.tokens;
+    else if (r.k === 'retry:paid') retries = r.n;
     else if (r.k.startsWith('s:')) sessions += 1;
     else if (r.k.startsWith('ip:') || r.k.startsWith('o:')) visitors += 1;
     else if (r.k.startsWith('v:')) violations += r.n;
     else if (r.k.startsWith('r:')) refusals.push([r.k.slice(2), r.n]);
     else if (r.k.startsWith('t:')) topics.push([r.k.slice(2), r.n]);
     else if (r.k.startsWith('x:')) cuts.push([r.k.slice(2), r.n]);
-    else if (r.k.startsWith('p:')) {
+    else if (r.k.startsWith('$:')) {
+      const m = model(paidProvider, r.k.slice(2));
+      m.n = Math.max(m.n, r.n);
+      m.usd = r.tokens / 1e6;
+    } else if (r.k.startsWith('e:')) {
+      const rest = r.k.slice(2);
+      const at = rest.lastIndexOf(':');
+      const table = errors.get(rest.slice(0, at)) ?? {};
+      table[rest.slice(at + 1)] = r.n;
+      errors.set(rest.slice(0, at), table);
+    } else if (r.k.startsWith('p:')) {
       const rest = r.k.slice(2);
       const at = rest.indexOf(':');
-      const provider = rest.slice(0, at);
-      const model = rest.slice(at + 1);
-      const table = caps.get(provider);
-      models.set(r.k, { provider, model, n: r.n, tokens: r.tokens, cap: table?.get(model) ?? table?.get('*') ?? 0 });
+      const m = model(rest.slice(0, at), rest.slice(at + 1));
+      m.n = Math.max(m.n, r.n);
+      m.tokens = r.tokens;
     }
   }
-  // The models with a cap and no use yet show too, so the page lists every model.
-  for (const [provider, table] of caps) {
-    for (const [model, cap] of table) {
-      if (model !== '*' && !models.has(`p:${provider}:${model}`)) models.set(`p:${provider}:${model}`, { provider, model, n: 0, tokens: 0, cap });
+  let usdMonth = 0;
+  for (const r of monthRows.results ?? []) {
+    if (r.k === 'usd') usdMonth = r.tokens;
+    else {
+      const m = model(paidProvider, r.k.slice(2));
+      m.usdMonth = r.tokens / 1e6;
+      m.nMonth = r.n;
     }
   }
+  // Each provider's state today: its last answer and failure, and the failures of the day by code.
+  const dayStart = Date.parse(`${day}T00:00:00Z`);
+  const providerView = providers.map((p) => {
+    const rowsOf = (status.results ?? []).filter((r) => r.name === p.name);
+    const okAt = Math.max(0, ...rowsOf.map((r) => r.ok_at ?? 0)) || null;
+    const last = rowsOf.filter((r) => r.err_at).sort((a, b) => (b.err_at ?? 0) - (a.err_at ?? 0))[0];
+    const errAt = last?.err_at ?? null;
+    const failures = errors.get(p.name) ?? {};
+    let state: 'ok' | 'limited' | 'failing' | 'idle' = 'idle';
+    if (errAt && errAt >= dayStart && (!okAt || errAt > okAt)) state = last?.err_code === '429' ? 'limited' : 'failing';
+    else if (okAt && okAt >= dayStart) state = 'ok';
+    return { name: p.name, paid: p.paid, state, okAt, errAt, errCode: last?.err_code ?? null, failures };
+  });
   const byCount = (a: [string, number], b: [string, number]) => b[1] - a[1];
   return {
     day,
+    now,
     global,
     sessions,
     visitors,
     violations,
-    models: [...models.values()].sort((a, b) => a.provider.localeCompare(b.provider) || b.n - a.n),
+    retries,
+    paid: { usdToday: usdToday / 1e6, usdMonth: usdMonth / 1e6 },
+    providers: providerView,
+    models: [...models.values()].sort((a, b) => Number(a.paid) - Number(b.paid) || providers.findIndex((p) => p.name === a.provider) - providers.findIndex((p) => p.name === b.provider) || b.n - a.n),
     refusals: refusals.sort(byCount),
     topics: topics.sort(byCount),
     cuts: cuts.sort(byCount),

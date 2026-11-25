@@ -113,6 +113,9 @@ describe('the page', () => {
     const nonce = /nonce-([\w-]+)/.exec(csp)![1]!;
     expect(html).toContain(`<script nonce="${nonce}">`);
     expect(html).toContain('ฉันมีคีย์อยู่แล้ว');
+    // The script parses.
+    const script = new RegExp(`<script nonce="${nonce}">([\\s\\S]*?)</script>`).exec(html)![1]!;
+    expect(() => new Function(script)).not.toThrow();
     // Inline style attributes would be blocked by the CSP: the page has none.
     expect(html).not.toMatch(/<[a-z]+[^>]*\sstyle="/);
   });
@@ -336,6 +339,52 @@ describe('orders, sales, mail, settings', () => {
     expect(await withSettings(vars, now)).toMatchObject({ CHAT_ENABLED: 'off', CHAT_FREE_PER_DAY: '5', CHAT_PLUS_PER_DAY: '100' });
     expect((await save({ CHAT_ENABLED: '' })).status).toBe(200);
     expect(await withSettings(vars, now)).toMatchObject({ CHAT_ENABLED: 'on', CHAT_FREE_PER_DAY: '5' });
+  });
+
+  it('checks the form of the paid settings', async () => {
+    const save = (body: unknown) => call('/admin/api/settings', { method: 'POST', cookie, body });
+    expect((await save({ CHAT_ALLOW_PAID: 'yes' })).status).toBe(400);
+    expect((await save({ CHAT_PAID_TIERS: 'free' })).status).toBe(400);
+    expect((await save({ CHAT_PAID_MONTHLY_USD: '-5' })).status).toBe(400);
+    expect((await save({ CHAT_ALLOW_PAID: '0', CHAT_PAID_TIERS: 'plus', CHAT_PAID_MONTHLY_USD: '12.50', CHAT_PAID_DAILY_USD: '2' })).status).toBe(200);
+    expect(await withSettings({ DB: env.DB, CHAT_ALLOW_PAID: '1' }, now)).toMatchObject({ CHAT_ALLOW_PAID: '0', CHAT_PAID_TIERS: 'plus', CHAT_PAID_MONTHLY_USD: '12.50' });
+  });
+
+  it('sums the assistant counters: messages, models against caps, paid spend, provider state', async () => {
+    Object.assign(env, {
+      CHAT_NAME: 'gemini', CHAT_MODEL_FREE: 'lite', CHAT_MODEL_PLUS: 'flash', CHAT_RPD: 'flash=200,lite=900',
+      CHAT3_NAME: 'paid', CHAT3_PAID: '1', CHAT3_MODEL_FREE: 'g/lite', CHAT3_MODEL_PLUS: 'g/flash',
+      CHAT_PAID_MONTHLY_USD: '10', CHAT_DAILY_MESSAGES: '600',
+    });
+    const day = '2026-11-25';
+    const add = (d: string, k: string, n: number, tokens: number) => env.DB.prepare('INSERT INTO chat_usage (day, k, n, tokens) VALUES (?, ?, ?, ?)').bind(d, k, n, tokens).run();
+    await add(day, 'global', 40, 9000);
+    await add(day, 's:a', 3, 0);
+    await add(day, 's:b', 2, 0);
+    await add(day, 'ip:x', 5, 0);
+    await add(day, 'p:gemini:lite', 30, 7000);
+    await add(day, 'p:paid:g/flash', 0, 2000);
+    await add(day, '$:g/flash', 4, 120000);
+    await add(day, 'usd', 0, 120000);
+    await add('2026-11', 'usd', 0, 3_400_000);
+    await add('2026-11', '$:g/flash', 50, 3_400_000);
+    await add(day, 'e:gemini:429', 3, 0);
+    await add(day, 'r:offtopic', 2, 0);
+    await env.DB.prepare('INSERT INTO chat_provider (name, model, ok_at, err_at, err_code) VALUES (?, ?, ?, ?, ?)').bind('gemini', 'flash', now - 600_000, now - 60_000, '429').run();
+    await env.DB.prepare('INSERT INTO chat_provider (name, model, ok_at) VALUES (?, ?, ?)').bind('paid', 'g/flash', now - 30_000).run();
+    const chat = (await (await call('/admin/api/chat', { cookie })).json()) as {
+      available: boolean;
+      stats: { global: { n: number }; sessions: number; visitors: number; paid: { usdToday: number; usdMonth: number }; models: { model: string; paid: boolean; n: number; cap: number; usd: number; usdMonth: number }[]; providers: { name: string; state: string; errCode: string | null; failures: Record<string, number> }[]; refusals: [string, number][] };
+    };
+    expect(chat.available).toBe(true);
+    const s = chat.stats;
+    expect(s).toMatchObject({ global: { n: 40 }, sessions: 2, visitors: 1, paid: { usdToday: 0.12, usdMonth: 3.4 }, refusals: [['offtopic', 2]] });
+    expect(s.models.map((m) => [m.model, m.paid, m.n, m.cap])).toEqual([['lite', false, 30, 900], ['flash', false, 0, 200], ['g/flash', true, 4, 0], ['g/lite', true, 0, 0]]);
+    expect(s.models.find((m) => m.model === 'g/flash')).toMatchObject({ usd: 0.12, usdMonth: 3.4 });
+    expect(s.providers).toEqual([
+      expect.objectContaining({ name: 'gemini', state: 'limited', errCode: '429', failures: { '429': 3 } }),
+      expect.objectContaining({ name: 'paid', state: 'ok' }),
+    ]);
   });
 
   it('shows the assistant as not live without its vars', async () => {
