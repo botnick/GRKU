@@ -97,6 +97,8 @@ import { EffectIcon } from "./EffectIcon";
 import { ChangeBadge } from "./ChangeBadge";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { ImportDialog, type ImportDialogHandle } from "./ImportDialog";
+import { LookSearchEmpty } from "./LookSearchEmpty";
+import { closestLooks, POPULAR_SEARCH, searchLooks } from "../lookSearch";
 
 function subscribeFullscreen(change: () => void): () => void {
   document.addEventListener("fullscreenchange", change);
@@ -298,24 +300,31 @@ export function Workbench({
     listed.some((effect) => filmKind(effect) === item),
   );
   const brands = [...new Set(listed.map(brandOf).filter(Boolean))].sort();
-  const needle = query.trim().toLowerCase();
-  const visible = listed.filter(
-    (effect) =>
-      (kind === "all" || filmKind(effect) === kind) &&
-      (brand === "all" || brandOf(effect) === brand) &&
-      (!needle ||
-        [
-          effect.name,
-          brandOf(effect),
-          effect.cover?.name,
-          effect.cover?.number,
-          "look" in effect ? effect.look : "",
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(needle)),
+  const needle = query.trim();
+  // The looks of the kind and brand, best match of the search first (lookSearch.ts).
+  const visible = searchLooks(
+    listed.filter(
+      (effect) =>
+        (kind === "all" || filmKind(effect) === kind) &&
+        (brand === "all" || brandOf(effect) === brand),
+    ),
+    needle,
   );
+  const filtered = !!needle || kind !== "all" || brand !== "all";
+  // The looks that a search that finds nothing offers instead, from all of the shelf.
+  const offered =
+    catalog && visible.length === 0
+      ? closestLooks(
+          listed.filter((effect): effect is Effect => !effect.card),
+          needle,
+          POPULAR_SEARCH,
+        )
+      : { looks: [], near: false };
+  const showAll = () => {
+    setQuery("");
+    setKind("all");
+    setBrand("all");
+  };
   // The grid shows whole pages of the matching looks (gridPage.ts), and always the previewed look.
   const importTile = !!catalog?.baseGamma;
   const shownLooks = gridLooks(
@@ -1199,7 +1208,7 @@ export function Workbench({
           >
             <TabsList
               variant="line"
-              className="h-auto w-full max-w-full flex-wrap justify-start gap-x-0 gap-y-1 border-b border-border p-0 pb-1"
+              className="h-auto w-full max-w-full flex-wrap justify-start group-data-[orientation=horizontal]/tabs:h-auto gap-x-0 gap-y-1 border-b border-border p-0 pb-1"
               aria-label={t.searchEffects}
             >
               <TabsTrigger
@@ -1224,11 +1233,11 @@ export function Workbench({
           <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-muted-foreground tabular-nums">
             <span className="flex items-center gap-2">
               {catalog
-                ? t.shownOf(visible.length, listed.length)
+                ? t.lookSearch.count(visible.length)
                 : error
                   ? t.loadError
                   : t.loading}
-              {catalog && (needle || kind !== "all" || brand !== "all") && (
+              {catalog && filtered && visible.length > 0 && (
                 <Button
                   type="button"
                   variant="ghost"
@@ -1289,8 +1298,25 @@ export function Workbench({
               />
             ))}
           {catalog && visible.length === 0 && (
-            <li className="col-span-full py-10 text-center text-muted-foreground">
-              {t.noMatches}
+            <li className="col-span-full">
+              <LookSearchEmpty
+                query={needle}
+                suggestions={offered.looks}
+                near={offered.near}
+                strings={t}
+                onPick={(effect) => {
+                  showAll();
+                  setQuery(effect.name);
+                  showEffect(effect);
+                }}
+                onClear={() => setQuery("")}
+                onShowAll={showAll}
+                makeOwn={
+                  catalog.baseGamma
+                    ? { onClick: () => importer.current?.open() }
+                    : null
+                }
+              />
             </li>
           )}
           {shownLooks.map((effect) => {
@@ -1424,7 +1450,7 @@ export function Workbench({
               </li>
             );
           })}
-          {catalog?.baseGamma && (
+          {catalog?.baseGamma && visible.length > 0 && (
             <li className="flex flex-col rounded-lg border border-dashed p-1.5 pt-2">
               <button
                 type="button"

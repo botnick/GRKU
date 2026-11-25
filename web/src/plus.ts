@@ -190,6 +190,16 @@ export function takeKeyFromHash(): string | null {
   return key;
 }
 
+/** The link that unlocks `key` on any device, as the key email has it. */
+export function keyLink(key: string): string {
+  return `https://grku.app/#plus=${key}`;
+}
+
+/** The text file of a key the buyer downloads to keep: the key, its link, and how to use it. */
+export function keyFile(key: string, text: (key: string, link: string) => string): Blob {
+  return new Blob([`${text(key, keyLink(key))}\n`], { type: 'text/plain;charset=utf-8' });
+}
+
 // ---- The service -------------------------------------------------------------------------------------
 
 export class PlusError extends Error {

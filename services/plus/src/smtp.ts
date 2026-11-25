@@ -17,6 +17,8 @@ export interface Mail {
   subject: string;
   html: string;
   text: string;
+  /** Where a reply goes (the noreply sender is not read). */
+  replyTo?: string;
 }
 
 /** Sends one message; throws with the server's reply when a step is refused. */
@@ -96,9 +98,12 @@ function message(mail: Mail): string {
   const headers = [
     `From: ${encodeWord(mail.from.name)} <${mail.from.address}>`,
     `To: <${mail.to}>`,
+    ...(mail.replyTo ? [`Reply-To: <${mail.replyTo}>`] : []),
     `Subject: ${encodeWord(mail.subject)}`,
     `Date: ${new Date().toUTCString().replace('GMT', '+0000')}`,
     `Message-ID: <${id}>`,
+    // A transactional mail from a program: no auto-replies (RFC 3834).
+    'Auto-Submitted: auto-generated',
     'MIME-Version: 1.0',
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
   ];

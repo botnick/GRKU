@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { amountDue, DEFAULT_LOOKS, FREE, FREE_SLOTS, hasTier, packOf, slotsOf, takesSlot, usedSlots, type Entitlement } from './plus';
+import { amountDue, DEFAULT_LOOKS, FREE, FREE_SLOTS, hasTier, keyFile, keyLink, packOf, slotsOf, takesSlot, usedSlots, type Entitlement } from './plus';
 import { MAX_EFFECTS, type Effect } from './catalog';
 
 const box = (brand: string, name: string, extra: Record<string, unknown> = {}, number?: string) =>
@@ -65,5 +65,14 @@ describe('DEFAULT_LOOKS', () => {
   it('leaves free slots open, with Positive GRII on top', () => {
     expect(DEFAULT_LOOKS[0]).toBe('positive-film-grii-v1');
     expect(DEFAULT_LOOKS.length - 1).toBeLessThan(FREE_SLOTS);
+  });
+});
+
+describe('keyLink and keyFile', () => {
+  it('gives the link of the key email and a text file that holds the key and the link', async () => {
+    expect(keyLink('ABCD-EFG-HJKM')).toBe('https://grku.app/#plus=ABCD-EFG-HJKM');
+    const file = keyFile('ABCD-EFG-HJKM', (key, link) => `key ${key} link ${link}`);
+    expect(file.type).toBe('text/plain;charset=utf-8');
+    expect(await file.text()).toBe('key ABCD-EFG-HJKM link https://grku.app/#plus=ABCD-EFG-HJKM\n');
   });
 });
