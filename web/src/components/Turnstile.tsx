@@ -34,7 +34,7 @@ function load(): Promise<void> {
  * Cloudflare Turnstile, rendered explicitly so the token reaches React: `onToken` gets a token, or
  * null when it expires or fails. `resetKey` changes after a submission, so a new token is issued.
  */
-export function Turnstile({ siteKey, action, onToken, resetKey, theme = 'dark', language = 'auto' }: { siteKey: string; action: string; onToken: (token: string | null) => void; resetKey: number; theme?: 'light' | 'dark' | 'auto'; /** A Turnstile language tag such as th, ja, ko, zh-cn, zh-tw, en, or auto. */ language?: string }) {
+export function Turnstile({ siteKey, action, onToken, resetKey, theme = 'dark', language = 'auto', appearance = 'always', className = 'min-h-[65px]' }: { siteKey: string; action: string; onToken: (token: string | null) => void; resetKey: number; theme?: 'light' | 'dark' | 'auto'; /** A Turnstile language tag such as th, ja, ko, zh-cn, zh-tw, en, or auto. */ language?: string; /** `interaction-only` shows the widget only when it needs the visitor. */ appearance?: 'always' | 'interaction-only'; className?: string }) {
   const box = useRef<HTMLDivElement>(null);
   const widget = useRef<string | null>(null);
   const latest = useRef(onToken);
@@ -51,6 +51,7 @@ export function Turnstile({ siteKey, action, onToken, resetKey, theme = 'dark', 
           theme,
           language,
           size: 'flexible',
+          appearance,
           callback: (token: string) => latest.current(token),
           'expired-callback': () => latest.current(null),
           'error-callback': () => latest.current(null),
@@ -62,7 +63,7 @@ export function Turnstile({ siteKey, action, onToken, resetKey, theme = 'dark', 
       if (widget.current && window.turnstile) window.turnstile.remove(widget.current);
       widget.current = null;
     };
-  }, [siteKey, action, theme, language]);
+  }, [siteKey, action, theme, language, appearance]);
 
   useEffect(() => {
     if (resetKey > 0 && widget.current && window.turnstile) {
@@ -71,5 +72,5 @@ export function Turnstile({ siteKey, action, onToken, resetKey, theme = 'dark', 
     }
   }, [resetKey]);
 
-  return <div ref={box} className="min-h-[65px]" />;
+  return <div ref={box} className={className} />;
 }

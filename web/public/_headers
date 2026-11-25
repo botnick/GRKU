@@ -17,3 +17,8 @@
 
 /guides/*
   Cache-Control: no-cache
+
+# The knowledge pack of the GRKU assistant: the assistant's Worker reads it (and caches it ten minutes).
+/chat/*
+  Cache-Control: public, max-age=600
+  X-Robots-Tag: noindex

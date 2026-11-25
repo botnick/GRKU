@@ -67,6 +67,12 @@ GRKU Plus is a one-time purchase that unlocks more film looks on the site: more 
 - GRKU Plus is a service of the site. We aim to keep it running, but we do not promise that it is available at every moment, and we may change how it works. If we stop the service, keys issued before keep working for the looks that exist on the site at that time, as long as the site runs, and the site stays online for at least twelve months after the announcement.
 - The free part of GRKU does not depend on the service: the software, the modules, and the library file stay available under their open licences.
 
+## The assistant
+
+The site has an assistant that answers questions about GRKU. Its answers are written by an AI model of an outside provider: Google's Gemini API, and when it is busy, OpenRouter or Cloudflare Workers AI. What you type is sent to that provider so it can write the answer, and the provider may keep and use it under its own terms, including to improve its services. Do not type personal data, such as your name, email, phone number, or a key. The answers can be wrong; the guide and these terms prevail over them.
+
+We do not store the content of the messages. We keep anonymous daily counts (how many messages and tokens, and the topic) to keep the assistant within its limits; the address of your connection is used only as a salted code that changes every day. Your conversations, and the optional memory of your camera and the looks you like, stay in your browser; "Delete chat history" in the chat deletes them. If this browser holds a GRKU Plus key, the assistant checks it to give its owner more messages.
+
 ## No warranty
 
 GRKU and grku.app are provided "as is", without warranty of any kind. We do not promise that GRKU works on your camera, that it has no errors, or that photos look as the preview shows. GRKU Plus is sold as described in these terms; nothing more is promised.
