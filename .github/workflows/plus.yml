@@ -5,7 +5,7 @@ name: Plus
 # Workers KV edit for the account) and the service's own secrets, which the deploy writes
 # into the Worker: KEY_SECRET (HMAC of the keys), MAIL_PASS (the noreply mailbox),
 # EASYSLIP_KEY (slip verification), TURNSTILE_SECRET (the bot check of the order form),
-# TRUEMONEY_PHONE (the wallet that receives gift links), ANGPAO_PROXY_KEY (the gift proxy). wrangler-action fails on a listed secret
+# TRUEMONEY_PHONE (the wallet that receives gift links), ANGPAO_PROXY_KEY (the gift proxy), ADMIN_PASSWORD (the admin page at /admin). wrangler-action fails on a listed secret
 # that the repository lacks. PROMPTPAY_ID and RECEIVER_NAME are plain vars in
 # wrangler.toml: buyers see the PromptPay ID in the QR anyway.
 # The assistant (services/plus/src/chat) takes its provider keys from optional secrets:
@@ -69,6 +69,7 @@ jobs:
             TURNSTILE_SECRET
             TRUEMONEY_PHONE
             ANGPAO_PROXY_KEY
+            ADMIN_PASSWORD
         env:
           KEY_SECRET: ${{ secrets.KEY_SECRET }}
           MAIL_PASS: ${{ secrets.MAIL_PASS }}
@@ -76,6 +77,7 @@ jobs:
           TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
           TRUEMONEY_PHONE: ${{ secrets.TRUEMONEY_PHONE }}
           ANGPAO_PROXY_KEY: ${{ secrets.ANGPAO_PROXY_KEY }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
       - name: Set the assistant's provider keys that the repository has
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

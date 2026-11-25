@@ -132,8 +132,11 @@ h2:first-child{margin-top:0}
 .meter i.hot{background:var(--warn)}
 .meter i.full{background:var(--bad)}
 .limits{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-.limits label span{display:flex;justify-content:space-between;gap:6px;font-size:13px;color:var(--muted);margin-bottom:6px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.limits label{display:flex;flex-direction:column;gap:6px}
+.limits .name{font-size:13.5px;font-weight:500;color:var(--ink2);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.limits .hint{font-size:12.5px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.grid2>div>h2:first-child{margin-top:28px}
 /* toast */
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:12px;font-size:14px;font-weight:500;transition:opacity .2s,transform .2s;pointer-events:none;max-width:calc(100% - 32px);z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
@@ -441,7 +444,7 @@ async function loadChat() {
   const form = h('form', { class: 'card pad' },
     h('div', { class: 'limits' }, LIMITS.map(([k, label]) => {
       inputs[k] = h('input', { type: 'number', min: '0', step: '1', inputmode: 'numeric', value: data.settings[k] ?? '', placeholder: data.defaults[k] || '' });
-      return h('label', null, h('span', null, h('b', { style: 'font-weight:500;color:var(--ink2)' }, tr(label)), data.settings[k] != null ? h('span', { class: 'pill red' }, tr('overrides')) : h('span', null, tr('default', { n: num(data.defaults[k]) }))), inputs[k]);
+      return h('label', null, h('span', { class: 'name' }, tr(label), data.settings[k] != null ? h('span', { class: 'pill red' }, tr('overrides')) : null), inputs[k], h('span', { class: 'hint' }, tr('default', { n: num(data.defaults[k]) })));
     })),
     h('div', { style: 'display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap' }, h('button', { class: 'btn primary', type: 'submit' }, tr('save')), h('span', { class: 'note', style: 'margin:0' }, tr('limitsHint'))));
   form.addEventListener('submit', async (e) => {
@@ -467,7 +470,7 @@ async function loadChat() {
       h('div', { class: 'end' }, m.cap ? tr('used', { used: num(m.n), cap: num(m.cap) }) : num(m.n)),
       h('div', { class: 'meta' }, m.provider + ' · ' + tr('tokens', { n: num(m.tokens) }) + (m.cap ? '' : ' · ' + tr('noCap')), m.cap ? meter(m.n, m.cap) : null)))) : h('div', { class: 'empty' }, tr('nothingYet'))),
     h('div', { class: 'grid2' },
-      h('div', null, h('h2', null, tr('refusals')), h('div', { class: 'card' }, countList(s.refusals || [], tr('nothingYet')))),
+      h('div', null, h('h2', null, tr('refusals')), h('div', { class: 'card' }, countList((s.refusals || []).map(([k, n]) => [T['refusal_' + k] || k, n]), tr('nothingYet')))),
       h('div', null, h('h2', null, tr('topics')), h('div', { class: 'card' }, countList(s.topics || [], tr('nothingYet'))))),
     h('div', { class: 'grid2' },
       h('div', null, h('h2', null, tr('cuts')), h('div', { class: 'card' }, countList(s.cuts || [], tr('nothingYet')))),
