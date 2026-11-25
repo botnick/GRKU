@@ -41,6 +41,8 @@ export interface Env {
   MAIL_PORT: string;
   MAIL_USER: string;
   MAIL_PASS?: string;
+  /** The password of the admin page (/admin); a secret. Unset: the admin page is closed. */
+  ADMIN_PASSWORD?: string;
 }
 
 /** The tiers and their prices in baht. The site shows the same table (web/src/plus.ts). */
@@ -91,6 +93,8 @@ const FREE: Entitlement = { packs: [], slots: FREE_SLOTS, plus: false, paid: 0 }
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    // The admin page: its own headers, no CORS (src/admin).
+    if (url.pathname === '/admin' || url.pathname.startsWith('/admin/')) return adminRoute(request, adminDeps(env));
     const origin = request.headers.get('Origin') ?? '';
     const cors = corsHeaders(origin, env);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
@@ -106,6 +110,15 @@ export default {
     }
   },
 };
+
+function adminDeps(env: Env): AdminDeps {
+  return {
+    env: env as unknown as AdminEnv,
+    now: () => Date.now(),
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    sendKey: async (email) => mailKey(email, await mintKey(email, env), 'admin', env),
+  };
+}
 
 class HttpError extends Error {
   constructor(
@@ -276,7 +289,7 @@ async function slip(request: Request, env: Env): Promise<Response> {
     ).bind(row.owner, JSON.stringify(next.packs), next.slots, next.plus ? 1 : 0, next.paid, now),
   ]);
   const result = await paidResponse(row.owner, env);
-  if (!row.owner.startsWith('anon:')) await sendKeyMail(row.owner, result.key, env).catch((e) => console.error(e));
+  if (!row.owner.startsWith('anon:')) await mailKey(row.owner, result.key, 'paid', env).catch((e) => console.error(e));
   return json(result);
 }
 
@@ -466,7 +479,7 @@ async function angpao(request: Request, env: Env): Promise<Response> {
     ).bind(row.owner, JSON.stringify(next.packs), next.slots, next.plus ? 1 : 0, next.paid, now),
   ]);
   const result2 = await paidResponse(row.owner, env);
-  if (!row.owner.startsWith('anon:')) await sendKeyMail(row.owner, result2.key, env).catch((e) => console.error(e));
+  if (!row.owner.startsWith('anon:')) await mailKey(row.owner, result2.key, 'paid', env).catch((e) => console.error(e));
   return json(result2);
 }
 
@@ -511,7 +524,7 @@ async function magic(request: Request, env: Env): Promise<Response> {
   if (!email) throw new HttpError(400, 'send an email');
   const row = await env.DB.prepare('SELECT owner FROM entitlements WHERE owner = ?').bind(email).first();
   // The same answer whether or not the email bought anything, so the list of buyers stays private.
-  if (row) await sendKeyMail(email, await mintKey(email, env), env).catch((e) => console.error(e));
+  if (row) await mailKey(email, await mintKey(email, env), 'magic', env).catch((e) => console.error(e));
   return json({ sent: true });
 }
 
@@ -646,6 +659,17 @@ export function crc16(text: string): string {
 /** Where buyers reply: a read mailbox, not the noreply sender. */
 const REPLY_TO = 'support@grku.app';
 
+/** Sends the key email and records the attempt (to, why, ok or the error; no content) in mail_log. */
+async function mailKey(email: string, key: string, kind: 'paid' | 'magic' | 'admin', env: Env): Promise<void> {
+  try {
+    await sendKeyMail(email, key, env);
+  } catch (error) {
+    await logMail(env.DB, email, kind, error);
+    throw error;
+  }
+  await logMail(env.DB, email, kind, null);
+}
+
 async function sendKeyMail(email: string, key: string, env: Env): Promise<void> {
   const link = `${env.SITE_URL}/#plus=${key}`;
   const subject = 'คีย์ GRKU Plus ของคุณ · Your GRKU Plus key';
@@ -660,13 +684,14 @@ async function sendKeyMail(email: string, key: string, env: Env): Promise<void> 
     );
     return;
   }
-  if (!env.RESEND_KEY) return;
+  if (!env.RESEND_KEY) throw new Error('no mailer is set up');
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${env.RESEND_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ from: env.MAIL_FROM, to: [email], reply_to: REPLY_TO, subject, html, text }),
   });
-  if (!response.ok) console.error('resend', response.status, await response.text());
+  if (!response.ok) throw new Error(`resend ${response.status} ${(await response.text()).slice(0, 200)}`);
 }
 import { sendMail } from './smtp';
+import { adminRoute, logMail, type AdminDeps, type AdminEnv } from './admin';
 

@@ -32,3 +32,27 @@ CREATE TABLE IF NOT EXISTS keys (
   owner TEXT NOT NULL UNIQUE,
   created INTEGER NOT NULL
 );
+-- The admin page (src/admin): failed sign-ins per hashed IP and for everyone (`global`), in a
+-- window that ends at `reset` (milliseconds).
+CREATE TABLE IF NOT EXISTS admin_login (
+  k TEXT PRIMARY KEY,
+  n INTEGER NOT NULL DEFAULT 0,
+  reset INTEGER NOT NULL
+);
+-- Settings that the admin page changes at run time (the assistant's switch and limits); a missing
+-- row falls back to the var in wrangler.toml.
+CREATE TABLE IF NOT EXISTS admin_settings (
+  k TEXT PRIMARY KEY,
+  v TEXT NOT NULL,
+  updated INTEGER NOT NULL
+);
+-- The key emails: to whom, when, why, and whether the mail server took it. No message content.
+CREATE TABLE IF NOT EXISTS mail_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  recipient TEXT NOT NULL,
+  kind TEXT NOT NULL,             -- paid | magic | admin
+  ok INTEGER NOT NULL,
+  error TEXT,
+  created INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS mail_log_recipient ON mail_log(recipient, created);
