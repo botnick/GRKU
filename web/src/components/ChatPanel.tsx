@@ -33,6 +33,7 @@ import { LANGUAGE_PATHS, DOC_PATHS } from '../languagePage';
 import { TURNSTILE_SITEKEY } from '../plus';
 import { BrandMark } from './BrandMark';
 import { EffectIcon } from './EffectIcon';
+import { Mascot, type MascotMood } from './Mascot';
 import { Turnstile } from './Turnstile';
 import { cn } from '@/lib/utils';
 
@@ -122,6 +123,8 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
   const [memory, setMemory] = useState<Memory>(() => loadMemory(storage));
   const [looks, setLooks] = useState<Map<string, LookInfo> | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // The mascot smiles for a moment after an answer.
+  const [happy, setHappy] = useState(false);
   const pendingQuestion = useRef<string | null>(null);
   const abort = useRef<AbortController | null>(null);
   const list = useRef<HTMLDivElement>(null);
@@ -235,6 +238,8 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
       const answer: StoredTurn = { role: 'assistant', content: text, sig: result.sig ?? undefined, at: Date.now() };
       persist({ ...base, turns: [...base.turns, answer], updated: Date.now() });
       if (result.remaining === 0) setNotice({ kind: 'limit' });
+      setHappy(true);
+      setTimeout(() => setHappy(false), 2400);
     } catch (error) {
       const code = error instanceof ChatFailure ? error.code : 'error';
       if (code === 'aborted' && text) {
@@ -325,6 +330,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
     onNavigate(`${LANGUAGE_PATHS[language]}${where}/?look=${encodeURIComponent(id)}`);
   };
 
+  const mood: MascotMood = busy ? 'thinking' : notice?.kind === 'busy' || notice?.kind === 'closed' || notice?.kind === 'cooldown' ? 'sleeping' : happy ? 'happy' : 'idle';
   const lastAssistant = [...conversation.turns].reverse().find((turn) => turn.role === 'assistant');
   const empty = conversation.turns.length === 0 && streaming === null;
   const recent = view === 'menu' ? loadRecent(storage).filter((item) => item.id !== conversation.id) : [];
@@ -349,8 +355,10 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
           )}
         >
           {/* The header: the name, the insider pill for GRKU Plus, the options, and Close. */}
-          <header className="flex h-14 shrink-0 items-center gap-2 border-b pr-2 pl-4">
-            <Mark />
+          <header className="flex h-14 shrink-0 items-center gap-2 border-b pr-2 pl-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#f7f7f2] light:bg-transparent">
+              <Mascot mood={mood} size={30} animated />
+            </span>
             <div className="flex min-w-0 shrink-0 flex-col justify-center gap-0.5">
               <DialogPrimitive.Title className="truncate text-[15px] leading-5 font-semibold">{c.title}</DialogPrimitive.Title>
               {tier === 'plus' && (
@@ -397,10 +405,12 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
           ) : (
             <div ref={list} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4" aria-live="polite" aria-busy={busy} aria-relevant="additions">
               {empty ? (
-                <div className="flex flex-col gap-4">
-                  <Bubble role="assistant">
-                    <p>{tier === 'plus' ? c.greetingPlus : c.greeting}</p>
-                  </Bubble>
+                <div className="flex flex-col gap-5">
+                  <div className="flex flex-col items-center gap-2 px-4 pt-4 text-center">
+                    <Mascot mood={mood} size={88} animated limbs />
+                    <p className="text-[17px] font-semibold">{c.title}</p>
+                    <p className="max-w-[30ch] text-[15px] leading-relaxed text-muted-foreground">{tier === 'plus' ? c.greetingPlus : c.greeting}</p>
+                  </div>
                   <Chips ids={['install', 'camera', 'warm', 'plus', 'safe', 'night']} c={c} onPick={(text) => void send(text)} disabled={busy} />
                 </div>
               ) : (
@@ -428,9 +438,9 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
                   {streaming !== null && (
                     <li>
                       {streaming ? (
-                        <Answer text={streaming} language={language} c={c} t={t} looks={looks} onLink={openLink} onLook={lookAction} streaming />
+                        <Answer text={streaming} language={language} c={c} t={t} looks={looks} onLink={openLink} onLook={lookAction} streaming thinking />
                       ) : (
-                        <Bubble role="assistant" label={c.title}>
+                        <Bubble role="assistant" label={c.title} thinking>
                           <Typing label={c.writing} />
                         </Bubble>
                       )}
@@ -549,16 +559,6 @@ function useSheetViewport(open: boolean): CSSProperties | undefined {
   return style;
 }
 
-/** The GRKU mark of the assistant: the G of the wordmark with its red dot. */
-export function Mark({ className }: { className?: string }) {
-  return (
-    <span className={cn('relative grid size-7 shrink-0 place-items-center rounded-full bg-foreground text-[13px] leading-none font-extrabold tracking-[-0.04em] text-background', className)} aria-hidden="true">
-      G
-      <span className="absolute right-[5px] bottom-[6px] size-[4px] rounded-full bg-brand-mark" />
-    </span>
-  );
-}
-
 function IconButton({ label, children, onClick, disabled, pressed }: { label: string; children: ReactNode; onClick?: () => void; disabled?: boolean; pressed?: boolean }) {
   return (
     <button
@@ -575,7 +575,7 @@ function IconButton({ label, children, onClick, disabled, pressed }: { label: st
   );
 }
 
-function Bubble({ role, label, children }: { role: 'user' | 'assistant'; label?: string; children: ReactNode }) {
+function Bubble({ role, label, children, thinking }: { role: 'user' | 'assistant'; label?: string; children: ReactNode; thinking?: boolean }) {
   if (role === 'user') {
     return (
       <div className="flex justify-end">
@@ -587,7 +587,9 @@ function Bubble({ role, label, children }: { role: 'user' | 'assistant'; label?:
   }
   return (
     <div className="flex gap-2">
-      <Mark className="mt-0.5" />
+      <span className="-mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-[#f7f7f2] light:bg-transparent">
+        <Mascot mood={thinking ? 'thinking' : 'idle'} size={26} />
+      </span>
       <div className="flex min-w-0 flex-1 flex-col gap-3 text-[15px] leading-relaxed" aria-label={label}>
         {children}
       </div>
@@ -674,6 +676,7 @@ function Answer({
   onLink,
   onLook,
   streaming,
+  thinking,
   copyable,
 }: {
   text: string;
@@ -684,12 +687,13 @@ function Answer({
   onLink: (link: SiteLink) => void;
   onLook: (id: string, where: 'develop' | 'install') => void;
   streaming?: boolean;
+  thinking?: boolean;
   copyable?: boolean;
 }) {
   const reply = useMemo(() => parseReply(text, language, looks ? resolver(looks) : (id) => id), [text, language, looks]);
   const [copied, setCopied] = useState(false);
   return (
-    <Bubble role="assistant" label={c.title}>
+    <Bubble role="assistant" label={c.title} thinking={thinking}>
       <Blocks blocks={reply.blocks} onLink={onLink} />
       {reply.looks.length > 0 && looks && <LookCards picks={reply.looks} looks={looks} c={c} t={t} onLook={onLook} />}
       {!streaming && reply.links.length > 0 && (

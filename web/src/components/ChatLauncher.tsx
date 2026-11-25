@@ -9,7 +9,7 @@ import { launcherText } from '../chat/label';
 import type { Language, Strings } from '../i18n';
 import type { SitePage } from '../languagePage';
 import { part } from '../parts';
-import { cn } from '@/lib/utils';
+import { Mascot } from './Mascot';
 
 const ChatPanel = part(() => import('./ChatPanel').then((module) => module.ChatPanel));
 
@@ -46,6 +46,41 @@ function useBottomOffset(page: SitePage): number {
     };
   }, [page]);
   return offset;
+}
+
+const GREET_SEEN = 'grku.chat.greet';
+/** The greeting bubble shows this long after the page opens, for this long, once a visit. */
+const GREET_AFTER = 4000;
+const GREET_FOR = 6000;
+
+/** Whether the mascot says hello now: once a visit, a few seconds after the page opens. */
+function useGreeting(opened: boolean): [boolean, () => void] {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    if (opened) {
+      setShow(false);
+      return;
+    }
+    try {
+      if (sessionStorage.getItem(GREET_SEEN)) return;
+    } catch {
+      // Without storage it greets once in this page.
+    }
+    const start = setTimeout(() => {
+      setShow(true);
+      try {
+        sessionStorage.setItem(GREET_SEEN, '1');
+      } catch {
+        // Nothing to keep.
+      }
+    }, GREET_AFTER);
+    const end = setTimeout(() => setShow(false), GREET_AFTER + GREET_FOR);
+    return () => {
+      clearTimeout(start);
+      clearTimeout(end);
+    };
+  }, [opened]);
+  return [show, () => setShow(false)];
 }
 
 const HINT_SEEN = 'grku.chat.hint';
@@ -108,24 +143,28 @@ export function ChatLauncher({
   const [mounted, setMounted] = useState(false);
   const offset = useBottomOffset(page);
   const [hint, dismissHint] = useHint(page, mounted);
+  const [greeting, dismissGreeting] = useGreeting(mounted);
   const text = launcherText(language);
+  const bubble = hint ? text.hint : greeting ? text.greet : null;
+  const dismissBubble = hint ? dismissHint : dismissGreeting;
   if (open && !mounted) setMounted(true);
 
   const show = () => {
     dismissHint();
+    dismissGreeting();
     setOpen(true);
   };
 
   return (
     <div data-chat="">
       {!open && (
-        <div className="fixed right-4 z-40 flex items-end gap-2 transition-[bottom] duration-200 motion-reduce:transition-none sm:right-6" style={{ bottom: offset ? `${offset + 16}px` : 'calc(16px + env(safe-area-inset-bottom, 0px))' }}>
-          {hint && (
-            <div className="mb-1 flex max-w-[240px] items-start gap-1 rounded-xl border bg-popover py-2 pr-1 pl-3 text-[13px] leading-snug text-popover-foreground shadow-lg motion-safe:animate-chat-in" role="status">
+        <div className="fixed right-3 z-40 flex items-end gap-1 transition-[bottom] duration-200 motion-reduce:transition-none sm:right-5" style={{ bottom: offset ? `${offset + 12}px` : 'calc(12px + env(safe-area-inset-bottom, 0px))' }}>
+          {bubble && (
+            <div className="relative mb-3 flex max-w-[220px] items-start gap-1 rounded-2xl rounded-br-md border bg-popover py-2 pr-1 pl-3 text-[14px] leading-snug text-popover-foreground shadow-lg motion-safe:animate-chat-in" role="status">
               <button type="button" onClick={show} className="text-left">
-                {text.hint}
+                {bubble}
               </button>
-              <button type="button" onClick={dismissHint} aria-label={text.dismiss} className="grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground">
+              <button type="button" onClick={dismissBubble} aria-label={text.dismiss} className="grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground">
                 <X className="size-3.5" aria-hidden="true" />
               </button>
             </div>
@@ -138,16 +177,9 @@ export function ChatLauncher({
             aria-label={text.open}
             title={text.open}
             aria-haspopup="dialog"
-            className={cn(
-              'relative grid size-12 place-items-center rounded-full bg-foreground text-background shadow-[0_8px_24px_rgba(0,0,0,0.28)] outline-none',
-              'transition-transform hover:scale-[1.04] focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none motion-reduce:hover:scale-100',
-              'light:shadow-[0_8px_24px_rgba(40,30,10,0.22)]',
-            )}
+            className="grid size-14 place-items-center rounded-full border border-black/10 bg-[#f7f7f2] shadow-[0_8px_24px_rgba(0,0,0,0.28)] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 light:bg-white light:shadow-[0_8px_24px_rgba(40,30,10,0.2)] sm:size-16 [&>svg]:size-11 sm:[&>svg]:size-[52px]"
           >
-            <span className="text-[19px] leading-none font-extrabold tracking-[-0.04em]" aria-hidden="true">
-              G
-            </span>
-            <span className="absolute right-[13px] bottom-[14px] size-[5px] rounded-full bg-brand-mark" aria-hidden="true" />
+            <Mascot animated />
           </button>
         </div>
       )}
