@@ -1062,8 +1062,12 @@ const SECTION_BUDGET_PLUS = 24000;
  * when they ask about looks, and last the page context. Only the server builds it; nothing of the request but the user's words choose sections.
  * `topics` are the matched sections, for the anonymous topic counter and the model choice.
  */
-/** The sections that a question with a photo always brings: a photo is most often of a screen or the card. */
-const PHOTO_SECTIONS = ['camera', 'install', 'recovery'];
+/**
+ * The sections that a question with a photo always brings, first and in this order: a photo is
+ * most often of a camera screen (the firmware update screen, Mode Set Command, an error) or of the
+ * card's files.
+ */
+const PHOTO_SECTIONS = ['card-troubles', 'install', 'recovery', 'camera'];
 
 export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMessage[], language: Language, context: PageContext, tier: Tier, photo = false): { prompt: string; topics: string[] } {
   const asked = messages
@@ -1076,7 +1080,9 @@ export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMess
   if (pack) {
     for (const section of pack.sections.filter((s) => s.core)) parts.push(`## ${section.title}\n${section.text}`);
     let budget = tier === 'plus' ? SECTION_BUDGET_PLUS : SECTION_BUDGET;
-    for (const section of pack.sections.filter((s) => !s.core)) {
+    const rank = (id: string) => (photo && PHOTO_SECTIONS.includes(id) ? PHOTO_SECTIONS.indexOf(id) : PHOTO_SECTIONS.length);
+    const others = pack.sections.filter((s) => !s.core).sort((a, b) => rank(a.id) - rank(b.id));
+    for (const section of others) {
       if (!(photo && PHOTO_SECTIONS.includes(section.id)) && !section.tags.some((tag) => asked.includes(tag))) continue;
       if (section.text.length > budget) continue;
       budget -= section.text.length;
