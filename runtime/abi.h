@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6556
+#define GRKU_HOST_HEADER_SIZE 6560
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -570,8 +570,12 @@
    it (runtime/recipes.h). */
 #define GRKU_HOST_RECIPE_PREVIEW 6548
 /* Battery Percentage: the value that the icon shows, 0 for the native icon,
-   and the picture that has it (runtime/battery_percent.h). */
+   the picture that has it, and the time of its last change
+   (runtime/battery_percent.h). */
 #define GRKU_HOST_BATTERY_ICON 6552
+/* Battery Percentage: the average of the charge and the time of its last
+   sample (runtime/battery_percent.h). */
+#define GRKU_HOST_BATTERY_AVERAGE 6556
 /* Consumer request ticket, 1..2147483647. Zero means no request. */
 #define GRKU_PERSIST_REQUEST 0
 /* Producer publishes this ticket after all payload stores are visible. */
