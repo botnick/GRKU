@@ -46,7 +46,7 @@ export default {
         url.pathname = target;
         return new Response(null, {
           status: 302,
-          headers: { Location: url.href, 'Cache-Control': 'private, no-store', Vary: 'Accept-Language, Cookie, User-Agent' },
+          headers: { Location: url.href, 'Cache-Control': 'private, no-store', Vary: 'Accept-Language, Cookie, User-Agent, X-GRKU-Head' },
         });
       }
     }
@@ -55,7 +55,9 @@ export default {
     for (const [name, value] of Object.entries(__SITE_HEADERS__)) {
       if (!response.headers.has(name)) response.headers.set(name, value);
     }
-    response.headers.append('Vary', 'Accept-Language, Cookie, User-Agent');
+    response.headers.append('Vary', 'Accept-Language, Cookie, User-Agent, X-GRKU-Head');
+    // A page that the worker could have sent elsewhere is the answer of this request only.
+    if (page) response.headers.set('Cache-Control', 'private, no-store');
     return response;
   },
 };

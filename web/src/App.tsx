@@ -410,8 +410,12 @@ export function App({
 
   // The page that shows now, for a language that arrives after a move to another page.
   const pageNow = useRef(page);
-  pageNow.current = page;
+  useEffect(() => {
+    pageNow.current = page;
+  }, [page]);
   const languageRun = useRef(0);
+  /** Each move of the history, so a Back or Forward that a later move overtook does nothing. */
+  const historyRun = useRef(0);
   function chooseLanguage(next: Language) {
     loadFonts(next);
     const run = ++languageRun.current;
@@ -433,8 +437,9 @@ export function App({
     // The first render keeps the head of its HTML, unless the start moved to another address (`/#install`).
     if (!headSynced.current) {
       headSynced.current = true;
-      const canonical = document.querySelector('link[rel="canonical"]')?.getAttribute('href');
-      if (canonical && new URL(canonical, location.href).pathname === path) return;
+      // og:url is the address of the HTML (showLanguage moves only the canonical link).
+      const prerendered = document.querySelector('meta[property="og:url"]')?.getAttribute('content');
+      if (prerendered && new URL(prerendered, location.href).pathname === path) return;
     }
     void syncHead(path);
   }, [language, page]);
@@ -442,8 +447,9 @@ export function App({
   /** Shows `next` without a reload, as a new entry of the history. */
   const navigate: Navigate = (next, hash = '') => {
     history.pushState(null, '', `${pagePath(language, next)}${hash}`);
-    // A language that arrives before the page shows applies to this page.
+    // A language that arrives before the page shows applies to this page, and a Back still on its way is overtaken.
     pageNow.current = next;
+    historyRun.current++;
     showLanguage(language, next);
     // A transition keeps the current page on screen while the part of the next one downloads.
     startTransition(() => {
@@ -459,14 +465,15 @@ export function App({
     async function back() {
       // A language that is still on its way would move this page back to the earlier one, and a
       // later Back or Forward wins over this one when its text arrives first.
-      const mine = ++languageRun.current;
+      languageRun.current++;
+      const mine = ++historyRun.current;
       const next = pathPage(location.pathname) ?? 'home';
       const nextLanguage = pathLanguage(location.pathname);
       const hash = location.hash;
       pageNow.current = next;
       loadFonts(nextLanguage);
       await loadStrings(nextLanguage);
-      if (mine !== languageRun.current) return;
+      if (mine !== historyRun.current) return;
       showLanguage(nextLanguage, next);
       startTransition(() => {
         setMoved(true);

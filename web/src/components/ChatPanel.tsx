@@ -256,9 +256,10 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
     else fileInput.current?.click();
   };
 
-  async function send(input: string, using: ChatSession | null = session) {
+  /** Asks `input`. A question from outside the panel (`auto`) leaves the draft and the photos of the box alone. */
+  async function send(input: string, using: ChatSession | null = session, auto = false) {
     const question = input.trim();
-    const photos = attachmentsRef.current;
+    const photos = auto ? [] : attachmentsRef.current;
     if ((!question && !photos.length) || busy || preparing) return;
     if ([...question].length > maxInput) {
       setNotice({ kind: 'tooLong', max: maxInput });
@@ -272,8 +273,10 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
     }
     setNotice(null);
     setChips([]);
-    setDraft('');
-    setAttachments([]);
+    if (!auto) {
+      setDraft('');
+      setAttachments([]);
+    }
     const userTurn: StoredTurn = { role: 'user', content: question, at: Date.now(), ...(photos.length ? { images: photos.map((p) => p.thumb) } : {}) };
     const base = { ...conversation, turns: [...conversation.turns, userTurn], updated: Date.now() };
     persist(base);
@@ -395,10 +398,10 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
   const asked = useRef<string | number | null>(null);
   useEffect(() => {
     const key = requestId ?? initialQuestion ?? null;
-    // Photos or a draft that a failed answer gave back stay with the visitor, not with this question.
-    if (open && initialQuestion && key !== null && asked.current !== key && !busy && !preparing && attachmentsRef.current.length === 0) {
+    if (open && initialQuestion && key !== null && asked.current !== key && !busy && !preparing) {
       asked.current = key;
-      void send(initialQuestion);
+      // The draft and the photos in the box stay as they are.
+      void send(initialQuestion, session, true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialQuestion, requestId, busy, preparing]);
