@@ -116,9 +116,11 @@ export interface ChatPanelProps {
   onNavigate: (href: string) => void;
   /** A question to ask at once, from the hint or a chip outside the panel. */
   initialQuestion?: string | null;
+  /** Tells one ask of `initialQuestion` from the next, so the same question can be asked again. */
+  requestId?: number | null;
 }
 
-export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, context, onPlus, onNavigate, initialQuestion }: ChatPanelProps) {
+export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, context, onPlus, onNavigate, initialQuestion, requestId = null }: ChatPanelProps) {
   const c = chatStrings(language);
   const storage = deviceStorage();
   const [conversation, setConversation] = useState<Conversation>(() => loadCurrent(storage) ?? newConversation());
@@ -388,15 +390,17 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
     setView('chat');
   }
 
-  // A question from outside the panel (the hint): asked once the panel is open.
-  const asked = useRef<string | null>(null);
+  // A question from outside the panel (the hint, Ask AI about this page): asked once the panel is
+  // open, and after the answer that is on its way, so a click during an answer is not lost.
+  const asked = useRef<string | number | null>(null);
   useEffect(() => {
-    if (open && initialQuestion && asked.current !== initialQuestion) {
-      asked.current = initialQuestion;
+    const key = requestId ?? initialQuestion ?? null;
+    if (open && initialQuestion && key !== null && asked.current !== key && !busy && !preparing) {
+      asked.current = key;
       void send(initialQuestion);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initialQuestion]);
+  }, [open, initialQuestion, requestId, busy, preparing]);
 
   // The newest message stays in view while it streams.
   useLayoutEffect(() => {
