@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![grku.app](https://img.shields.io/badge/site-grku.app-d94135)](https://grku.app)
 
-GRKU is its own project, made by [BOTNICK](https://github.com/botnick) for GR owners in Thailand first and everyone else next. It began from the code of [GRKit](https://github.com/ahonn/GRKit) by ahonn, who found the way to run code on a GR from the SD card, and it has since been rebuilt piece by piece: a film library of 152 looks with real film-box icons, recipes, more modules, a one-shot start, a site that writes the card and sells extra looks, a Thai voice and its own release pipeline. The section [Origins](#origins) says what came from GRKit and what GRKU made of it.
+GRKU is its own project, made by [BOTNICK](https://github.com/botnick) for GR owners in Thailand first and everyone else next: a film library of 152 looks with real film-box icons, recipes, more modules, a one-shot start, a site that writes the card and sells extra looks, a Thai voice, and its own release pipeline. The user manual is at [grku.app/docs](https://grku.app/docs/).
 
 <p>
   <img src="resources/images/grku-root.jpg" alt="The GRKU page in the ADJ menu" width="49%">
@@ -29,7 +29,7 @@ Press the ADJ lever while shooting and pick the sixth entry, GRKU. Everything GR
 - **Glow**: Bloom around lights and highlights, Halation as a red-orange halo in the colors of motion-picture film.
 - **Light Leak**: vignette, dust and hairs, a light leak, scratches, or the presets Faded, Dusty, Leaky and Expired. Different on every shot.
 - **Diffusion**: a Black Pro-Mist filter at 1/8, 1/4 or 1/2, a Black Mist veil over the shadows, and the anamorphic streak of point lights; and, on its own, Film Softness (Low, Medium, High), the gentle softness of a film scan.
-- **Grain**: four strengths, four sizes, as the camera draws it or Film-like: the grain of a color negative on paper, after the grain model of [spektrafilm](https://github.com/andreavolpato/spektrafilm) by Andrea Volpato (from GRKit PR #122 by piratenpanda).
+- **Grain**: four strengths, four sizes, as the camera draws it or Film-like: the grain of a color negative on paper, after the grain model of [spektrafilm](https://github.com/andreavolpato/spektrafilm) by Andrea Volpato (by piratenpanda).
 - **Border**: a Thin, Wide, or Instant white or black border around the whole photo: the JPEG grows by the border and the photo keeps every pixel.
 - **Enable at Start**: GRKU on, off, or as you left it, at every power-on.
 - **Distance Unit**: the Snap focus distances and the manual focus scale in meters or in feet, in MENU under GRKU Settings.
@@ -45,7 +45,7 @@ GRKU shows up about nine seconds after power-on (longer on the first start after
 | GR IV, GR IV HDF | 1.11 | 1.11, 1.20, 1.21 |
 | GR IV Monochrome | — | 1.00, 1.10, 1.11 |
 
-GRKU's own changes have run on a GR IV with firmware 1.11. The GR III and GR IIIx packages are built from the same code and the tests of GRKit, but nobody has run GRKU on those cameras yet. If you do, tell us in an [issue](https://github.com/botnick/GRKU/issues), whether it worked or not. The builds for the firmware that Ricoh released on 10 November 2026 (GR III 2.21, GR IIIx 1.71, GR IV 1.21, GR IV Monochrome 1.11) are checked against Ricoh's firmware files; they have not run on a camera yet.
+GRKU's own changes have run on a GR IV with firmware 1.11. The GR III and GR IIIx packages are built from the same code and tests, but nobody has run GRKU on those cameras yet. If you do, tell us in an [issue](https://github.com/botnick/GRKU/issues), whether it worked or not. The builds for the firmware that Ricoh released on 10 November 2026 (GR III 2.21, GR IIIx 1.71, GR IV 1.21, GR IV Monochrome 1.11) are checked against Ricoh's firmware files; they have not run on a camera yet.
 
 > [!WARNING]
 > GRKU is experimental. Use it at your own risk.
@@ -60,32 +60,13 @@ Go to [grku.app](https://grku.app), pick your camera, your modules and your film
 
 The first time only, hold MENU while you turn the camera on. To update from a ZIP, replace the `SCRIPT` folder on the card; your settings stay in `GRKU`. Formatting the card removes GRKU.
 
-Coming from GRKit (the project GRKU grew out of): the site moves your settings and looks from the `GRKIT` folder to `GRKU`. If you copy files by hand instead, rename `GRKIT` to `GRKU` at the card root before the first start, or delete it.
+Coming from an older card with a `GRKIT` folder: the site moves your settings and looks from it to `GRKU`. If you copy files by hand instead, rename `GRKIT` to `GRKU` at the card root before the first start, or delete it.
 
 If GRKU does not show up, send `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT` and `SCRIPT/GRKU/INSTALL.ERR` (if it exists) in an [issue](https://github.com/botnick/GRKU/issues/new). [What each line means](docs/diagnostics.md).
 
 ## GRKU Plus
 
 The free site writes any 10 looks to the card. GRKU Plus is a one-time payment by PromptPay that unlocks 25 slots, a brand pack, or everything (40 slots and every look). The key arrives by email and works on every device. The service runs in `services/plus`; it never sees your card.
-
-## Origins
-
-GRKU grew out of GRKit 1.5.2 and GRKit's `feat/recipes` branch; the runtime technique, the module ABI and the test harness are GRKit's, and GRKU keeps their MIT notices. GRKit's fast-boot firmware was left out on purpose. Everything else below is GRKU's own work.
-
-| Area | GRKit (where GRKU started) | GRKU today | How |
-| --- | --- | --- | --- |
-| Film library | 21 looks | 152 looks, 40 per card; a film library ZIP with every look | Fits from the open film presets of Pat David (CC BY-SA 4.0), t3mujinpack (MIT), spektrafilm, Spectral Film LUT and Fotufilm, and of FUJIFILM's own LUTs for its ten film simulations, with the 2026 popularity research in `docs/popular-films-2026.md` choosing the default 40 |
-| Icons | Flat tiles | A film box in the colors of the real box for every look, color tiles for the menu, and effects that bring their own PNG icon | `scripts/flap-icons.py` draws the boxes; the effect compiler takes `icon: {"png": ...}` |
-| Recipes | An unmerged branch | Merged, with a Thai-friendly explainer, popular recipes from ricohcookbook.com, a three-step editor, example photos, and a camera-style settings sheet | `modules/recipes`, `web/src/components/Recipe*.tsx` |
-| Modules | Film Look, Framing, Guides, Date, Glow, Grain | Plus Crop, Light Leak, Diffusion, Border, Recipes, Enable at Start, feet labels, Golden Spiral and Dynamic Symmetry guides | Ported from the MustafaCisse and kkasemsa forks and written new; ten modules fit a package |
-| Start | Several card requests at each power-on | One request: the core scans, installs and reports in one process and posts its progress to the loader in RAM | `docs/one-shot-start.md` |
-| Fast boot | Optional patched firmware | None, by rule: GRKU is only a script on the card | `docs/fastboot.md` stays as a record |
-| Site | English, Chinese, Japanese, Korean | Thai first, six languages, a dark one-page installer built on shadcn/ui, live previews on six sample photos, GRKU Plus, SEO and link previews | `web/`, `services/plus` |
-| Card | `GRKIT` folder | `GRKU` folder; the site and `scripts/card.py` move an old `GRKIT` folder, the camera never touches it | `web/src/card.ts`, `scripts/card.py` |
-| Brand | GRKit | GRKU: the wordmark with a red period, Thai voice, `docs/brand.md` | |
-| Release | GitHub Actions to grkit.app | The same pipeline for grku.app: a push opens the release pull request, merging it builds from the official firmware and deploys the site through Cloudflare Pages; the Plus service deploys from `services/plus` | `.github/workflows`, `docs/releasing.md` |
-
-GRKU keeps GRKit's module ABI (a module built with the GRKit SDK still loads) and its licenses, and sends fixes back to GRKit where they apply. It is not a mirror of GRKit, but it follows it: each later change of GRKit is ported when it applies, as the ADJ memory of GRKit 1.5.4, the firmware of November 2026, and the status row and recipe fixes of GRKit 1.5.5 were. The changes of GRKit's fast-boot firmware stay out.
 
 ## Build from source
 
@@ -118,7 +99,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Reports from a camera are the most usefu
 - [Effects](effects/README.md), the [LUT sources](docs/lut-sources.md) and the [popular films of 2026](docs/popular-films-2026.md)
 - [The site](web/README.md), the [brand](docs/brand.md) and the [product notes](docs/PRODUCT.md)
 - [Roadmap](docs/roadmap.md), the [community survey](docs/community-survey.md) and the [handoff notes](HANDOFF.md)
-- [Releasing](docs/releasing.md); from GRKit, the [fast-boot firmware](docs/fastboot.md) that GRKU does not use
+- [Releasing](docs/releasing.md), and the [user manual](https://grku.app/docs/) on grku.app
 
 ## License
 
@@ -128,4 +109,4 @@ The code is under the [MIT License](LICENSE). GRKU includes code from [GRKit](ht
 - The menu and live view text uses [Roboto Condensed](https://github.com/googlefonts/roboto-classic) under the [SIL Open Font License 1.1](crates/grku-core/assets/RobotoCondensed-LICENSE.txt).
 - The effect fitting is ported from [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods) under the [MIT License](crates/grku-core/GR3_FILM_MODS_LICENSE.txt).
 
-RICOH and GR are trademarks of Ricoh Company, Ltd. Film names are trademarks of their owners. GRKU is an independent project by [BOTNICK](https://github.com/botnick) and is not affiliated with Ricoh, with GRKit's author, or with any film manufacturer.
+RICOH and GR are trademarks of Ricoh Company, Ltd. Film names are trademarks of their owners. GRKU is an independent project by [BOTNICK](https://github.com/botnick) and is not affiliated with Ricoh or with any film manufacturer.

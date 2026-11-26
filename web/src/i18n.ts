@@ -1,5 +1,7 @@
 import type { en } from './strings/en';
 import { GUIDE_STRINGS } from './guide';
+import { DOCS } from './docs/load';
+import { docSlug, isDocsPage } from './docs/pages';
 import { cookieValue, fastbootPath, isLanguage, LANGUAGE_COOKIE, LANGUAGE_PATHS, pagePath, pathLanguage, type SitePage } from './languagePage';
 
 export const LANGUAGES = [
@@ -95,6 +97,15 @@ export type PageName = SitePage | 'fastboot';
 /** The title, the description, and the address of a page of the site in `language`. */
 export function pageText(language: Language, page: PageName = 'home'): { title: string; description: string; path: string } {
   const strings = STRINGS[language];
+  if (isDocsPage(page)) {
+    // The manual: its own text when it is loaded (the prerender loads every language), else its name.
+    const docs = DOCS[language];
+    const slug = docSlug(page);
+    const path = pagePath(language, page);
+    if (!docs) return { title: `${strings.docsNav} · GRKU`, description: strings.description, path };
+    if (!slug) return { title: `${docs.home.seoTitle}`, description: docs.home.lead, path };
+    return { title: `${docs.pages[slug].seo} · GRKU`, description: docs.pages[slug].lead, path };
+  }
   switch (page) {
     case 'fastboot':
       return { title: `${strings.fastboot.title} · GRKU`, description: strings.fastboot.lead, path: fastbootPath(language) };

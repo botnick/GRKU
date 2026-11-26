@@ -736,6 +736,8 @@ export const th: Strings = {
   scriptsOffError: 'ไม่สามารถเตรียมไฟล์ได้ ลองใหม่อีกครั้ง',
   /** The first section: write the card or download a GRKU.zip. */
   card: 'วิธีติดตั้ง',
+  /** The header link to the user manual (/docs/). */
+  docsNav: "คู่มือ",
   uninstallText: 'ถอนการติดตั้ง GRKU จากการ์ดใบนี้ รูปภาพยังอยู่เหมือนเดิม',
   uninstallData: 'ลบการตั้งค่าและฟิล์มลุคด้วย',
   uninstallButton: 'ถอนการติดตั้ง GRKU',

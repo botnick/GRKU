@@ -322,6 +322,16 @@ export function Guide({
                   </a>
                 </li>
               ))}
+              {/* Every feature and setting, one page each. */}
+              <li>
+                <a
+                  {...link("docs")}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-brand/50 px-3 py-1 text-[13px] text-foreground no-underline transition-colors hover:border-brand"
+                >
+                  {t.docsNav}
+                  <ArrowRight className="size-3.5" aria-hidden="true" />
+                </a>
+              </li>
             </ol>
           </nav>
         </div>

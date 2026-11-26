@@ -45,6 +45,9 @@ try {
   const { GUIDE_STRINGS } = await server.ssrLoadModule('/src/guide.ts');
   const { CAMERAS } = await server.ssrLoadModule('/src/cameras.ts');
   const { RELEASES, newsStrings } = await server.ssrLoadModule('/src/whatsNew.ts');
+  // The manual (/docs/): English text, with the search words of every language for its tags.
+  const { loadAllDocs } = await server.ssrLoadModule('/src/docs/load.ts');
+  const [docs, ...otherDocs] = await loadAllDocs();
   const news = newsStrings('en');
   const pack = buildKnowledge({
     version: version(),
@@ -56,6 +59,8 @@ try {
     recovery: readFileSync(join(root, 'resources', 'RECOVERY.md'), 'utf8'),
     terms: readFileSync(join(root, 'resources', 'TERMS.md'), 'utf8'),
     manual: readFileSync(join(root, 'resources', 'INSTALLATION-GR4.md'), 'utf8'),
+    docs,
+    docsKeywords: otherDocs,
   });
   mkdirSync(dirname(out), { recursive: true });
   const text = JSON.stringify(pack);

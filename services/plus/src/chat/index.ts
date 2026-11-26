@@ -576,12 +576,15 @@ export interface PageContext {
   earlier?: string;
 }
 
+/** A page of the user manual: `docs` or `docs/<slug>` (web/src/docs/pages.ts). */
+const DOCS_PAGE = /^docs(\/[a-z][a-z-]{1,23})?$/;
+
 const PAGES = ['home', 'install', 'camera', 'modules', 'write', 'guide', 'develop', 'recovery', 'terms'];
 
 export function readContext(value: unknown): PageContext {
   const raw = (value ?? {}) as Record<string, unknown>;
   const context: PageContext = {};
-  if (typeof raw.page === 'string' && PAGES.includes(raw.page)) context.page = raw.page;
+  if (typeof raw.page === 'string' && (PAGES.includes(raw.page) || DOCS_PAGE.test(raw.page))) context.page = raw.page;
   if (typeof raw.camera === 'string' && /^[\w /.+-]{1,40}$/.test(raw.camera)) context.camera = raw.camera;
   if (typeof raw.card === 'boolean') context.card = raw.card;
   if (typeof raw.looks === 'number' && Number.isInteger(raw.looks) && raw.looks >= 0 && raw.looks <= 200) context.looks = raw.looks;
@@ -612,7 +615,7 @@ const PAGE_NAMES: Record<string, string> = {
 /** The context as a few lines for the prompt. Quoted values are data from the page. */
 export function contextLines(context: PageContext, tier: Tier): string {
   const lines = [`- Tier: ${tier === 'plus' ? 'GRKU Plus owner' : 'free (no GRKU Plus purchase on this device)'}.`];
-  if (context.page) lines.push(`- Now on: ${PAGE_NAMES[context.page]}.`);
+  if (context.page) lines.push(`- Now on: ${PAGE_NAMES[context.page] ?? (context.page === 'docs' ? 'the user manual (/docs/)' : `the user manual page /${context.page}/`)}.`);
   if (context.camera) lines.push(`- Camera chosen in the install: "${context.camera}".`);
   if (context.card !== undefined) lines.push(`- SD card connected to the site: ${context.card ? 'yes' : 'no'}.`);
   if (context.looks !== undefined) lines.push(`- Film looks chosen for the card: ${context.looks}.`);
@@ -1100,9 +1103,9 @@ const SECTION_BUDGET_PLUS = 24000;
 
 /**
  * The system prompt for a conversation. It starts with what every conversation shares, the rules
- * and the core sections, so the provider's prompt cache can reuse that prefix; then come the
+ * and the core sections, so the provider's prompt cache can reuse that prefix; then come the manual page the user reads (from the page context), the
  * sections whose tags the user's last messages mention (more of them for GRKU Plus), the look list
- * when they ask about looks, and last the page context. Only the server builds it; nothing of the request but the user's words choose sections.
+ * when they ask about looks, and last the page context. Only the server builds it; nothing of the request but the user's words and the page (a known page name) choose sections.
  * `topics` are the matched sections, for the anonymous topic counter and the model choice.
  */
 /**
@@ -1123,10 +1126,13 @@ export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMess
   if (pack) {
     for (const section of pack.sections.filter((s) => s.core)) parts.push(`## ${section.title}\n${section.text}`);
     let budget = tier === 'plus' ? SECTION_BUDGET_PLUS : SECTION_BUDGET;
-    const rank = (id: string) => (photo && PHOTO_SECTIONS.includes(id) ? PHOTO_SECTIONS.indexOf(id) : PHOTO_SECTIONS.length);
+    // On a page of the manual, its section comes first (the server picks it from its own pack);
+    // with a photo, the sections of the photo next.
+    const reading = context.page?.startsWith('docs/') ? `docs-${context.page.slice(5)}` : null;
+    const rank = (id: string) => (id === reading ? -1 : photo && PHOTO_SECTIONS.includes(id) ? PHOTO_SECTIONS.indexOf(id) : PHOTO_SECTIONS.length);
     const others = pack.sections.filter((s) => !s.core).sort((a, b) => rank(a.id) - rank(b.id));
     for (const section of others) {
-      if (!(photo && PHOTO_SECTIONS.includes(section.id)) && !section.tags.some((tag) => asked.includes(tag))) continue;
+      if (section.id !== reading && !(photo && PHOTO_SECTIONS.includes(section.id)) && !section.tags.some((tag) => asked.includes(tag))) continue;
       if (section.text.length > budget) continue;
       budget -= section.text.length;
       topics.push(section.id);

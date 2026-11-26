@@ -533,3 +533,22 @@ describe('guardrails', () => {
     expect(messageLanguage('👍', 'ko')).toBe('ko');
   });
 });
+
+describe('the manual page the user reads', () => {
+  it('takes the docs pages as a page, and nothing like them', () => {
+    expect(readContext({ page: 'docs' })).toEqual({ page: 'docs' });
+    expect(readContext({ page: 'docs/firmware' })).toEqual({ page: 'docs/firmware' });
+    expect(readContext({ page: 'docs/../admin' })).toEqual({});
+    expect(readContext({ page: 'docs/' + 'x'.repeat(40) })).toEqual({});
+  });
+
+  it('brings in the section of the page, from the pack only', () => {
+    const pack: Knowledge = { ...PACK, sections: [...PACK.sections, { id: 'docs-firmware', title: 'Manual: Check your firmware version', tags: ['firmware'], text: 'Manual page /docs/firmware/' }] };
+    const reading = systemPrompt(pack, [{ role: 'user', content: 'explain this' }], 'th', { page: 'docs/firmware' }, 'free');
+    expect(reading.prompt).toContain('Manual page /docs/firmware/');
+    expect(reading.topics).toContain('docs-firmware');
+    expect(reading.prompt).toContain('the user manual page /docs/firmware/.');
+    const elsewhere = systemPrompt(pack, [{ role: 'user', content: 'explain this' }], 'th', { page: 'docs/grain' }, 'free');
+    expect(elsewhere.prompt).not.toContain('Manual page /docs/firmware/');
+  });
+});

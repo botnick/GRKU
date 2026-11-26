@@ -4,6 +4,7 @@
 // buttons; any other link stays plain text, so an answer can never send a visitor elsewhere.
 import type { Language } from '../i18n';
 import { LANGUAGE_PATHS } from '../languagePage';
+import { DOCS_SITE_PAGES } from '../docs/pages';
 
 export type Inline = { kind: 'text'; text: string } | { kind: 'bold'; text: string } | { kind: 'code'; text: string } | { kind: 'link'; text: string; link: SiteLink };
 
@@ -31,7 +32,7 @@ export interface Reply {
 }
 
 /** The site paths that an answer may link, without the language prefix; `#` and `?look=` follow. */
-const PATHS = ['/', '/install/', '/install/camera/', '/install/modules/', '/install/write/', '/guide/', '/develop/', '/recovery/', '/terms/'];
+const PATHS = ['/', '/install/', '/install/camera/', '/install/modules/', '/install/write/', '/guide/', '/develop/', '/recovery/', '/terms/', ...DOCS_SITE_PAGES.map((page) => `/${page}/`)];
 const GUIDE_ANCHORS = ['put', 'camera', 'use', 'update', 'uninstall', 'help'];
 const EXTERNAL = /^https:\/\/(www\.)?ricoh-imaging\.(co\.jp|com)(\/[\w./?=&#-]*)?$/;
 const LOOK_ID = /^[a-z0-9][a-z0-9-]{2,40}$/;
@@ -46,7 +47,7 @@ export function siteLink(target: string, language: Language): SiteLink | null {
   if (EXTERNAL.test(raw)) return { kind: 'external', href: raw };
   if (raw === '/#plus' || raw === '#plus') return { kind: 'plus', start: 'tiers' };
   if (raw === '/#plus-key' || raw === '#plus-key') return { kind: 'plus', start: 'key' };
-  const match = /^(\/[a-z/-]*?)(?:\?look=([a-z0-9-]+))?(?:#([a-z-]+))?$/.exec(raw);
+  const match = /^(\/[a-z/-]*?)(?:\?look=([a-z0-9-]+))?(?:#([a-z0-9-]+))?$/.exec(raw);
   if (!match) return null;
   let path = match[1]!.endsWith('/') ? match[1]! : `${match[1]}/`;
   // A path given with a language prefix, such as /en/install/.
@@ -55,7 +56,9 @@ export function siteLink(target: string, language: Language): SiteLink | null {
   const look = match[2];
   const anchor = match[3];
   if (look && (!LOOK_ID.test(look) || (path !== '/develop/' && path !== '/install/'))) return null;
-  if (anchor && !(path === '/guide/' && GUIDE_ANCHORS.includes(anchor))) return null;
+  // A section of the manual: any heading id of a page of the manual (docs/content).
+  const docsAnchor = path.startsWith('/docs/') && path !== '/docs/' && !!anchor && /^[a-z][a-z0-9-]{1,30}$/.test(anchor);
+  if (anchor && !(path === '/guide/' && GUIDE_ANCHORS.includes(anchor)) && !docsAnchor) return null;
   const href = `${LANGUAGE_PATHS[language]}${path.slice(1)}${look ? `?look=${look}` : ''}${anchor ? `#${anchor}` : ''}`;
   return { kind: 'page', href, path };
 }

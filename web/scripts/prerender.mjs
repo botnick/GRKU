@@ -108,6 +108,11 @@ const {
   sitemapXml,
   DEVELOP_STRINGS,
   faqOf,
+  DOCS,
+  docsStructuredData,
+  isDocsPage,
+  DOC_PAGES,
+  docSlug,
 } = await renderer();
 const pageNames = Object.keys(SITE_PAGES);
 const codes = LANGUAGES.map((language) => language.code);
@@ -122,7 +127,7 @@ const PAGE_SOURCES = {
   develop: ['src/components/Develop.tsx', 'src/develop', 'develop'],
 };
 /** The name of a page in its breadcrumb: its title without the name of the site. */
-const crumb = (title) => title.replace(/\s*·\s*GRKU$/, '');
+const crumb = (title, name = '') => title.replace(name.startsWith('docs') ? /\s*·\s*[^·]*$/ : /\s*·\s*GRKU$/, '');
 
 function structuredData(code, name) {
   const strings = STRINGS[code];
@@ -172,7 +177,7 @@ function structuredData(code, name) {
       name === 'develop' && {
         '@type': 'WebApplication',
         '@id': `${pageUrl(code, name)}#webapp`,
-        name: crumb(text.title),
+        name: crumb(text.title, name),
         url: pageUrl(code, name),
         description: text.description,
         inLanguage: code,
@@ -200,13 +205,15 @@ function structuredData(code, name) {
         '@id': `${pageUrl(code, name)}#breadcrumb`,
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'GRKU', item: pageUrl(code) },
-          ...(name === 'install' || name === 'guide' || name === 'develop'
+          ...(name === 'install' || name === 'guide' || name === 'develop' || name === 'docs'
             ? []
-            : [{ '@type': 'ListItem', position: 2, name: crumb(pageText(code, 'install').title), item: pageUrl(code, 'install') }]),
+            : name.startsWith('docs/')
+              ? [{ '@type': 'ListItem', position: 2, name: STRINGS[code].docsNav, item: pageUrl(code, 'docs') }]
+              : [{ '@type': 'ListItem', position: 2, name: crumb(pageText(code, 'install').title), item: pageUrl(code, 'install') }]),
           {
             '@type': 'ListItem',
-            position: name === 'install' || name === 'guide' || name === 'develop' ? 2 : 3,
-            name: crumb(text.title),
+            position: name === 'install' || name === 'guide' || name === 'develop' || name === 'docs' ? 2 : 3,
+            name: crumb(text.title, name),
             item: pageUrl(code, name),
           },
         ],
@@ -233,6 +240,8 @@ function structuredData(code, name) {
           acceptedAnswer: { '@type': 'Answer', text: item.a.join(' ') },
         })),
       },
+      // The manual: a TechArticle for each doc, its steps as a HowTo, and the questions as a FAQPage.
+      ...(isDocsPage(name) ? docsStructuredData(DOCS[code], code, name, lastModified(web, ['src/docs', 'src/components/DocsPage.tsx'])) : []),
     ].filter(Boolean),
   };
   // A JSON-LD block ends at `</script>`, so `<` never appears as itself.
@@ -281,12 +290,23 @@ function page(code, name) {
     html = replaceOne(html, /(<meta name="twitter:image" content=")[^"]*(")/, `$1${SITE}/og/develop-${code}.jpg$2`);
     html = html.replace(/(<meta (?:property="og:image:alt"|name="twitter:image:alt") content=")[^"]*(")/g, `$1${alt}$2`);
   }
+  // The manual has a link preview for its home and each group of docs, in the language of the page.
+  if (isDocsPage(name)) {
+    const slug = docSlug(name);
+    const section = slug ? DOC_PAGES.find((doc) => doc.slug === slug).group : 'home';
+    const image = `${SITE}/og/docs-${section}-${code}.jpg`;
+    html = replaceOne(html, /(<meta property="og:image" content=")[^"]*og\.jpg(")/, `$1${image}$2`);
+    html = replaceOne(html, /(<meta name="twitter:image" content=")[^"]*(")/, `$1${image}$2`);
+    html = html.replace(/(<meta (?:property="og:image:alt"|name="twitter:image:alt") content=")[^"]*(")/g, `$1${title}$2`);
+  }
   // The later steps of the install hold only the controls of one step: search engines skip them
   // and follow their links to the first step, which carries the hreflang links and the sitemap entry.
   const indexed = INDEXED_PAGES.includes(name);
   const head = [
     `<link rel="canonical" href="${pageUrl(code, name)}" />`,
     ...(indexed ? [alternateTags(alternates(name))] : []),
+    // The Markdown of a doc, for answer engines and assistants (scripts/build-docs-text.mjs).
+    ...(name.startsWith('docs/') ? [`<link rel="alternate" type="text/markdown" href="${pageUrl(code, name)}index.md" />`] : []),
     `<script type="application/ld+json">${structuredData(code, name)}</script>`,
   ].join('\n    ');
   if (!indexed) html = replaceOne(html, /(<meta name="robots" content=")[^"]*(")/, '$1noindex, follow$2');
@@ -374,7 +394,7 @@ writeFileSync(
   join(dist, 'sitemap.xml'),
   sitemapXml(
     INDEXED_PAGES.flatMap((name) => {
-      const lastmod = lastModified(web, PAGE_SOURCES[name] ?? ['src']);
+      const lastmod = lastModified(web, PAGE_SOURCES[name] ?? (name.startsWith('docs') ? ['src/docs', 'src/components/DocsPage.tsx'] : ['src']));
       return codes.map((code) => ({ loc: pageUrl(code, name), lastmod, alternates: alternates(name) }));
     }),
   ),
