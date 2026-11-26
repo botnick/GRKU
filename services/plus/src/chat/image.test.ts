@@ -173,12 +173,12 @@ describe('the firmware update screen', () => {
   });
 
   it('holds a streamed answer that names the file until the deletion comes', async () => {
-    const pieces = ['The screen asks to update the firmware because fwdc361b.bin ', 'is on the card. Choose Cancel, then delete ', 'that file from the card and hold MENU again.'];
+    const pieces = ['The screen asks to update the firmware because fwdc361b.bin ', 'is on the top level of the card, and the camera reads it first when you hold MENU at power-on. ', 'Here is what to do, one step at a time, so the camera starts GRKU the next time. ', '1. Choose Cancel and press OK. 2. Turn the camera off and put the card in a computer. ', '3. Delete ', 'that file from the card and hold MENU again.'];
     const body = pieces.map((p) => `data: ${JSON.stringify({ choices: [{ delta: { content: p } }] })}\n\n`).join('') + 'data: [DONE]\n\n';
     const h = harness({}, () => new Response(body, { headers: { 'Content-Type': 'text/event-stream' } }));
     const text = await (await askWith(h, (await open(h)).session, 'what is this?', [PHOTO])).text();
     expect(text).not.toMatch(/event: replace/);
-    expect(text).toMatch(/delete/);
+    expect(text).toMatch(/Delete that file/);
   });
 });
 

@@ -164,12 +164,14 @@ export function postFilter(text: string, fragments: readonly string[]): string |
   if (EXECUTE.some((p) => p.test(text))) return 'firmware';
   // Firmware files and flashing steps. Naming the camera's firmware file (fwdc….bin) to tell the
   // user to delete it from the card is the fix for the update screen at a MENU start, so it stays
-  // when a deletion is said near the name and nothing flashes or picks Execute. While the answer
+  // when the answer says to delete and nothing flashes or picks Execute. While the answer
   // streams, relay in index.ts holds it back and decides on the whole answer.
   if (FIRMWARE_FILE.test(text) && /firmware|เฟิร์มแวร์/i.test(text)) {
-    const near = [...text.matchAll(new RegExp(FIRMWARE_FILE.source, 'gi'))].every((m) => DELETE.test(text.slice(Math.max(0, m.index - 120), m.index + m[0].length + 120)));
+    // The answers name the file in the cause and say "delete the .bin file" in a later step, so a
+    // deletion anywhere counts; flashing and choosing Execute are cut on their own.
+    const deletes = DELETE.test(text);
     const flashes = FLASH.some((p) => p.test(text));
-    if (!near || flashes) return 'firmware';
+    if (!deletes || flashes) return 'firmware';
   }
   if (NEVER.some((p) => p.test(lower))) return 'topic';
   // Garbage: a share of scripts that none of the six languages uses.
