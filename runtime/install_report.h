@@ -15,7 +15,7 @@
 #define REPORT_MAX 32768U
 static char report_text[REPORT_MAX + 1], report_old[REPORT_MAX + 1];
 static u32 report_length;
-_Static_assert(GRKU_RECIPE_MODULES == 2U, "the report names the modules of the recipe settings: Glow, Border");
+_Static_assert(GRKU_RECIPE_MODULES == 3U, "the report names the modules of the recipe settings: Glow, Border, Grain");
 __attribute__((noinline)) static void say(const char *text)
 {
     while (*text && report_length < REPORT_MAX) report_text[report_length++] = *text++;
