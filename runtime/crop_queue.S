@@ -18,10 +18,13 @@
    (GRKU_HOST_CROP_NATIVE) is a crop shot: crop_queue_start notes it as
    CROP_QUEUE_ARMED, and crop_queue_release checks that mark, not the
    setting of the moment, so that a crop that changes while the camera
-   makes the shot neither arms nor disarms the check of that shot. */
-#define CROP_QUEUE_POSTED 1
-#define CROP_QUEUE_RECOVERED 2
-#define CROP_QUEUE_ARMED 4
+   makes the shot neither arms nor disarms the check of that shot.
+
+   crop_queue_start also notes the start and its time (CROP_QUEUE_STARTED),
+   and crop_queue_post notes when the back end has written the files of its
+   queue (CROP_QUEUE_WRITTEN), so that the core changes the camera's crop
+   factor only between shots (runtime/crop.h: crop_busy). */
+#include "crop_queue.h"
 /* rd = rn + a header offset. An ARM immediate holds one byte, rotated, so
    add the two bytes of the offset apart. */
 .macro add_header rd, rn, offset
@@ -33,7 +36,8 @@
 .endm
 #if defined(HOOK_CROP_QUEUE_START) != defined(HOOK_CROP_QUEUE_RELEASE) \
     || defined(HOOK_CROP_QUEUE_START) != defined(HOOK_CROP_QUEUE_POST) \
-    || defined(HOOK_CROP_QUEUE_START) != defined(FW_QUEUE_COMPLETE)
+    || defined(HOOK_CROP_QUEUE_START) != defined(FW_QUEUE_COMPLETE) \
+    || defined(HOOK_CROP_QUEUE_START) != defined(FW_QUEUE_WRITTEN_RETURN)
 #error "The crop_queue_* hooks and the FW_QUEUE_* functions go together"
 #endif
 #ifdef HOOK_CROP_QUEUE_START
@@ -41,20 +45,26 @@
 /* Replaces `strb r3, [r5, #CROP_BACKEND_RELEASED]` (r3 is 0) at the
    release start of the back end (r5): a new shot, whose events go to the
    owner of the back end, and a crop shot when the core owns the camera's
-   crop factor now (CROP_QUEUE_ARMED). */
+   crop factor now (CROP_QUEUE_ARMED). The flags note the start and its
+   time on the generic timer (CROP_QUEUE_STARTED, CROP_QUEUE_TIME_SHIFT). */
 .global crop_queue_start
 .type crop_queue_start, %function
 crop_queue_start:
-    push {r0,r1}
+    push {r0-r2}
     ldr r0, =GRKU_HEADER_REFERENCE
     ldr r1, [r5, #CROP_BACKEND_OWNER]
     str r1, [r0, #GRKU_HOST_CROP_QUEUE_OWNER]
-    ldr r1, [r0, #GRKU_HOST_CROP_NATIVE]
-    cmp r1, #0
-    movne r1, #CROP_QUEUE_ARMED
+    mrrc p15, 0, r1, r2, c14
+    lsr r1, r1, #25
+    orr r1, r1, r2, lsl #7
+    lsl r1, r1, #CROP_QUEUE_TIME_SHIFT
+    orr r1, r1, #CROP_QUEUE_STARTED
+    ldr r2, [r0, #GRKU_HOST_CROP_NATIVE]
+    cmp r2, #0
+    orrne r1, r1, #CROP_QUEUE_ARMED
     str r1, [r0, #GRKU_HOST_CROP_QUEUE_FLAGS]
     dmb ish
-    pop {r0,r1}
+    pop {r0-r2}
     strb r3, [r5, #CROP_BACKEND_RELEASED]
     ldr pc, =HOOK_CROP_QUEUE_START_RESUME
 .ltorg
@@ -62,13 +72,36 @@ crop_queue_start:
 /* Replaces `mov r12, sp` at the entry of the event poster (r0 the owner,
    r1 the event). The queue completion of the last shot sets
    CROP_QUEUE_POSTED. After crop_queue_release, only the first completion
-   of the shot goes out: a later one returns without a post. */
+   of the shot goes out: a later one returns without a post.
+
+   The back end posts the image completion each time it ends a recipe of
+   its queue, after the files of that recipe are written. At that post
+   (return address FW_QUEUE_WRITTEN_RETURN), r7 holds the count of the
+   recipes that the queue still processes, which the back end checks next.
+   A count of 0 sets CROP_QUEUE_WRITTEN. */
 .global crop_queue_post
 .type crop_queue_post, %function
 crop_queue_post:
-    cmp r1, #CROP_QUEUE_EVENT
-    bne 3f
     push {r2-r5}
+    ldr r2, =FW_QUEUE_WRITTEN_RETURN
+    cmp lr, r2
+    bne 4f
+    cmp r7, #0
+    bne 2f
+    ldr r2, =GRKU_HEADER_REFERENCE
+    ldr r3, [r2, #GRKU_HOST_CROP_QUEUE_OWNER]
+    cmp r0, r3
+    bne 2f
+    add_header r2, r2, GRKU_HOST_CROP_QUEUE_FLAGS
+5:  ldrex r3, [r2]
+    orr r3, r3, #CROP_QUEUE_WRITTEN
+    strex r4, r3, [r2]
+    cmp r4, #0
+    bne 5b
+    dmb ish
+    b 2f
+4:  cmp r1, #CROP_QUEUE_EVENT
+    bne 2f
     ldr r2, =GRKU_HEADER_REFERENCE
     ldr r3, [r2, #GRKU_HOST_CROP_QUEUE_OWNER]
     cmp r0, r3
