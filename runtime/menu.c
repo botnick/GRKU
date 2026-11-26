@@ -89,18 +89,43 @@ static u32 exit_return(u32 value,u32 in_grku) {
 static u32 controller_return(u32 value,u32 id,u32 arg) {
     return value==RETURN_POWERON && id==ADJ_CONTROLLER && arg!=CONTROLLER_BACK ? RETURN_GRKU : value;
 }
-#ifndef MENU_NATIVE_IC_TYPE
-/* The native Image Control type plus 1, or 0 before the settings exist:
+#if !defined(MENU_NATIVE_IC_TYPE) || !defined(MENU_WLAN_STATION) || !defined(MENU_WLAN_ON)
+/* The payload of the native settings, or 0 before the settings exist:
    settings domain +0x518 -> control -> payload (runtime/targets). */
-static u32 native_ic_type(void) {
-    u32 domain=WORD(FW_SETTINGS_DOMAIN,0), control, payload;
+static u32 native_settings(void) {
+    u32 domain=WORD(FW_SETTINGS_DOMAIN,0), control;
     if(!domain) return 0;
     control=WORD(domain,0x518);
-    if(!control) return 0;
-    payload=WORD(control,0);
+    return control ? WORD(control,0) : 0;
+}
+#endif
+#ifndef MENU_NATIVE_IC_TYPE
+/* The native Image Control type plus 1, or 0 before the settings exist. */
+static u32 native_ic_type(void) {
+    u32 payload=native_settings();
     return payload ? BYTE(payload,SETTINGS_IC_TYPE)+1U : 0;
 }
 #define MENU_NATIVE_IC_TYPE() native_ic_type()
+#endif
+/* The state of the Wi-Fi access point of the camera while a phone is
+   connected to it. */
+#define SETTINGS_WLAN_STATION 2U
+#ifndef MENU_WLAN_STATION
+/* Whether a phone is connected to the Wi-Fi of the camera: three loads and
+   a compare, cheap enough for each timer dispatch of the App task. */
+static u32 wlan_station(void) {
+    u32 payload=native_settings();
+    return payload && BYTE(payload,SETTINGS_WLAN_STATE)==SETTINGS_WLAN_STATION;
+}
+#define MENU_WLAN_STATION() wlan_station()
+#endif
+#ifndef MENU_WLAN_ON
+/* Whether the Wi-Fi access point of the camera is on. */
+static u32 wlan_on(void) {
+    u32 payload=native_settings();
+    return payload && BYTE(payload,SETTINGS_WLAN_ENABLED);
+}
+#define MENU_WLAN_ON() wlan_on()
 #endif
 /* Whether a native ADJ exit selects the native Image Control type under the
    cursor. The native slot writes the type under its cursor at each cursor
@@ -288,6 +313,15 @@ static void descriptor(volatile u32 *at, const u16 *name) {
 }
 /* The timer and UI services for modules and the pages of the core. */
 #include "ui.h"
+/* Whether the GRKU menu of ADJ closes for a change of the Wi-Fi service
+   (runtime/control.h: control_blocked). The exit or the destroy of ADJ ends
+   the close. */
+static u32 menu_closing(volatile u32 *h) {
+    return h[GRKU_HOST_SERVICES/4] && services_word(h,SERVICES_MENU+MENU_ROWS_CLOSING)[0];
+}
+static void menu_closed(volatile u32 *h) {
+    if(h[GRKU_HOST_SERVICES/4]) services_word(h,SERVICES_MENU+MENU_ROWS_CLOSING)[0]=0;
+}
 #include "ui_keyboard.h"
 #include "modules.h"
 /* Only the still-viewfinder slot consults module state. Playback continues
@@ -907,7 +941,7 @@ static u32 toning_track(volatile u32 *h,u32 record) {
             pixel|=ui_divide(colors[c]*(span-t)+colors[3U+c]*t+span/2U,span)<<(8U*c);
         for(y=TONING_TRACK_TOP;y<=TONING_TRACK_BOTTOM;++y) WORD(track,8U+(y*TONING_TRACK_WIDTH+x)*4U)=pixel;
     }
-    return GRKU_ICON_TONING_TRACK;
+    return GRKU_ICON_TONING_TRACK(0);
 }
 /* The setup of the Toning slider (FW_SLIDER_INIT) of a page: for `record`, a
    look with Toning, the three levels of GR IV, PARAMETER_TONING_STEP pixels
@@ -1052,9 +1086,12 @@ static u32 develop_list_next(volatile u32 *h,u32 controller,u32 id);
 #endif
 #include "menu_settings.h"
 #include "mode_dial.h"
+static void control_poll(volatile u32 *h);
+static u32 control_pending(volatile u32 *h);
 #include "persist.h"
 #include "menu_dial.h"
 #include "menu_recipes.h"
+#include "control.h"
 #include "menu_section.h"
 #include "menu_about.h"
 #include "distance.h"
@@ -1075,6 +1112,20 @@ A32_ENTRY void menu_viewfinder(u32 event) {
         dial_ready(h);
         goodbye_ready(h);
     }
+}
+/* The App task dispatches its expired timers (menu.S: menu_timer_dispatch)
+   in each start: on the shooting screen, in playback, and in the standby of
+   a Bluetooth start, where no shooting screen shows. A dispatch starts the
+   poll of the saved state and of the mailbox of the Wi-Fi service
+   (runtime/persist.h) only when it has work; the poll then runs on its own
+   timer while the work lasts. It also copies whether the Wi-Fi access point
+   is on (GRKU_HOST_WLAN), with which the resident loader starts and stops
+   the service. */
+A32_ENTRY void menu_timers_due(void) {
+    volatile u32 *h=menu_header();
+    u32 wlan=MENU_WLAN_ON() ? 1U : 0U;
+    if(h[GRKU_HOST_WLAN/4]!=wlan) h[GRKU_HOST_WLAN/4]=wlan;
+    if(h[GRKU_HOST_SERVICES/4]) persist_due(h);
 }
 /* The text descriptor for `view` and text ID `id`, or 0 for the native text.
    Bit 0 selects the font of the menu language. GRKU gives the texts of one
@@ -1262,7 +1313,9 @@ A32_ENTRY void menu_exit(u32 controller) {
     u32 in_grku=private_mode(controller);
     /* The entry that showed: MENU on its page left it before the exit. */
     u32 pin=h[GRKU_HOST_SERVICES/4] ? pin_word(h,MENU_ROWS_PIN)[0] : 0;
-    if(in_grku) exit_commit(h);
+    /* ADJ that closes for a change of the Wi-Fi service stores no
+       highlighted row (runtime/control.h: control_blocked). */
+    if(in_grku) { if(!menu_closing(h)) exit_commit(h); }
     else if(h[GRKU_HOST_ACTIVE/4] && h[GRKU_HOST_SERVICES/4] &&
             native_ic_chosen(h[GRKU_HOST_ADJ_IC_TYPE/4],MENU_NATIVE_IC_TYPE(),
                              CALL2(FW_ADJ_SLOT_TYPE)(controller,BYTE(controller,ADJ_SLOT))==ADJ_IC_SLOT_TYPE,
@@ -1298,6 +1351,7 @@ A32_ENTRY void menu_exit(u32 controller) {
         toolbar_layout(controller,0,0);
         title_fit(controller,0);
     }
+    menu_closed(menu_header());
 }
 A32_ENTRY u32 menu_destroy(u32 controller) {
     volatile u32 *h=menu_header();
@@ -1321,10 +1375,12 @@ A32_ENTRY u32 menu_destroy(u32 controller) {
         }
     }
     if(h[GRKU_HOST_MENU_CONTROLLER/4]==controller) {
-        /* A destroy without an exit keeps the highlighted row too. */
-        exit_commit(h);
+        /* A destroy without an exit keeps the highlighted row too, unless
+           ADJ closes for a change of the Wi-Fi service. */
+        if(!menu_closing(h)) exit_commit(h);
         h[GRKU_HOST_MENU_CONTROLLER/4]=0; h[GRKU_HOST_MENU_LEVEL/4]=0;
     }
+    menu_closed(h);
     recipe_preview_show(h,RECIPE_NONE);
     h[GRKU_HOST_PREVIEW/4]=0;
     h[GRKU_HOST_FRAME_PREVIEW/4]=0;
@@ -1357,6 +1413,7 @@ A32_ENTRY void menu_apply(u32 controller) {
     volatile u32 *h=menu_header();
     if(!private_mode(controller)) { menu_apply_original(controller); return; }
     if(ui_modal(h)) return;
+    if(update_ask_adj(h,controller)) return;
     if(direct_settings_root(h) && open_settings(controller)) return;
     menu_confirm(h);
     render(controller);
@@ -1373,6 +1430,8 @@ A32_ENTRY u32 menu_event(u32 controller,const u16 *event) {
     h[GRKU_HOST_MENU_EVENT_RING/4+(h[GRKU_HOST_MENU_EVENTS/4]&(GRKU_HOST_MENU_EVENT_RING_WORDS-1))]=kind | ((kind==EV_FN || kind==EV_SWITCH || kind==EV_SWITCH_END) ? ((u32)*(u8 *)WORD((u32)event,4)<<16) :
         kind==EV_TOUCH ? (u32)BYTE(WORD((u32)event,4),0x50)<<16 : 0);
     ++h[GRKU_HOST_MENU_EVENTS/4];
+    /* The request that closes ADJ for the Wi-Fi service is no OK of GRKU. */
+    if(kind==EV_OK_REQUEST && menu_closing(h)) return 0;
     /* An ADJ that opened before INSTALL drew its slots without GRKU: the
        first event after INSTALL refreshes it. */
     if(h[GRKU_HOST_SERVICES/4] && !services_word(h,SERVICES_MENU+MENU_ROWS_ADJ)[0]) {
@@ -1384,7 +1443,15 @@ A32_ENTRY u32 menu_event(u32 controller,const u16 *event) {
     if(back==2) return 0;
     /* A message, a confirm, or a progress box takes each key. */
     if(private_mode(controller) && ui_modal(h)) {
+        u32 waiting=update_waiting(h);
         ui_event(h,kind,back==1);
+        /* Execute on the confirm of an update closes ADJ, as OK on a row
+           that closes it does. */
+        if(waiting && kind==EV_CONFIRM && h[GRKU_HOST_UPDATE/4]==GRKU_UPDATE_CONFIRMED) {
+            leave(controller);
+            h[GRKU_HOST_RETURN/4]=RETURN_CLOSING;
+            return menu_event_original(controller,event);
+        }
         return 0;
     }
     if(back==1) {
@@ -1502,7 +1569,7 @@ A32_ENTRY u32 menu_event(u32 controller,const u16 *event) {
     if(kind==EV_UP || kind==EV_DIAL_UP || kind==EV_DOWN || kind==EV_DIAL_DOWN) {
         u32 n=count(h);
         if(kind==EV_UP || kind==EV_DIAL_UP) h[GRKU_HOST_MENU_CURSOR/4]=h[GRKU_HOST_MENU_CURSOR/4] ? h[GRKU_HOST_MENU_CURSOR/4]-1 : n-1;
-        else { ++h[GRKU_HOST_MENU_CURSOR/4]; if(h[GRKU_HOST_MENU_CURSOR/4]==n) h[GRKU_HOST_MENU_CURSOR/4]=0; }
+        else { ++h[GRKU_HOST_MENU_CURSOR/4]; if(h[GRKU_HOST_MENU_CURSOR/4]>=n) h[GRKU_HOST_MENU_CURSOR/4]=0; }
         highlight(h);
         render_step(controller,kind==EV_UP || kind==EV_DIAL_UP ? (u32)-1 : 1); return 0;
     }
@@ -1518,6 +1585,7 @@ A32_ENTRY u32 menu_event(u32 controller,const u16 *event) {
        If the commit made a module show a UI box or ask for a native screen,
        ADJ stays open on the page instead (ui_holds_page), as it does for a
        row whose page keeps it open (row_stays). */
+    if(kind==EV_CONFIRM && !after_adj_press(h) && update_ask_adj(h,controller)) return 0;
     if(kind==EV_CONFIRM) {
         u32 stays=row_stays(h), returns=confirm_returns(h,controller), close=confirm_selection(h);
         if(close && (stays || ui_holds_page(h))) close=0;
@@ -1543,7 +1611,7 @@ static u32 playback_icon(volatile u32 *h,u32 value) {
     if(value>>16!=1 || !(code&0x8000)) return 0;
     for(i=0;i<h[GRKU_HOST_COUNT/4];++i)
         if(HALF(h[GRKU_HOST_RECORDS/4]+i*GRKU_RECORD_SIZE,GRKU_RECORD_CODE)==code)
-            return 0x8000+i;
+            return GRKU_ICON_EFFECT(i);
     return 0;
 }
 /* The playback metadata singleton holds key 0x25 at METADATA_TONE. */
@@ -1556,25 +1624,17 @@ _Static_assert(GRKU_ICONS_PER_CHUNK==40 && (GRKU_HOST_ICON_CHUNKS_WORDS*40)*1639
                "The module tile chunk uses slot / 40");
 /* IDs stay in transient private widgets and never enter native settings. */
 static u32 icon_address(volatile u32 *h,u32 id) {
-    u32 index=id-0x8000;
+    u32 index=id-GRKU_ICON_EFFECT(0), slot=GRKU_HOST_ICON_TOP-id;
     /* Module tiles follow the effect icons in the chunks. slot * 1639 >> 16
        is slot / 40 for each slot of the chunks. */
     if(id-GRKU_ICON_MODULE_TILE(0)<GRKU_MODULE_TILES_MAX) {
         return module_tile_address(h,id);
     }
     if(id-GRKU_ICON_RECIPE(0)<GRKU_RECIPE_SLOTS) return recipe_card_address(h,id-GRKU_ICON_RECIPE(0));
-    if(id==GRKU_ICON_GRKU) return h[GRKU_HOST_GRKU_ICON/4];
-    /* The installer puts the Version icon after the GRKU icon. */
-    if(id==GRKU_ICON_VERSION) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+GRKU_ICON_STRIDE : 0;
-    /* The Modules icon follows the Version icon. */
-    if(id==GRKU_ICON_MODULES) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+2*GRKU_ICON_STRIDE : 0;
-    if(id==GRKU_ICON_MODULES_OFF) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+3*GRKU_ICON_STRIDE : 0;
-    if(id==GRKU_ICON_ROTATE) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+4*GRKU_ICON_STRIDE : 0;
-    if(id==GRKU_ICON_SCALE_FEET) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+5*GRKU_ICON_STRIDE : 0;
-    if(id==GRKU_ICON_SCALE_SIXTEEN) return h[GRKU_HOST_GRKU_ICON/4] ? h[GRKU_HOST_GRKU_ICON/4]+6*GRKU_ICON_STRIDE : 0;
-    if(id-GRKU_ICON_BATTERY(0)<2U) return battery_icon_address(h,id);
-    if(id==GRKU_ICON_TONING_TRACK) return h[GRKU_HOST_TONING_TRACK/4];
-    if(id==0x7fff) return h[GRKU_HOST_OFF_ICON/4] ? h[GRKU_HOST_OFF_ICON/4] : NATIVE_OFF_ICON();
+    if(id==GRKU_ICON_OFF) return h[GRKU_HOST_OFF_ICON/4] ? h[GRKU_HOST_OFF_ICON/4] : NATIVE_OFF_ICON();
+    /* Host slot s has the ID GRKU_HOST_ICON_TOP - s. */
+    if(slot<GRKU_HOST_ICON_COUNT) return GRKU_HOST_ICON(h,slot);
+    if(id==GRKU_ICON_TONING_TRACK(0)) return h[GRKU_HOST_TONING_TRACK/4];
     if(index>=h[GRKU_HOST_COUNT/4]) return 0;
     return WORD(h[GRKU_HOST_RECORDS/4]+index*GRKU_RECORD_SIZE,GRKU_RECORD_ICON);
 }
@@ -1940,7 +2000,7 @@ A32_ENTRY u32 menu_develop_row_answer(u32 controller,u32 view,u32 row) {
 #endif
     if(develop_grku(h,controller)) return develop_fill(view,develop_list_icon(h,row));
     if(!develop_list(controller) || (i=develop_row(h,row))==DEVELOP_NONE) return DEVELOP_NONE;
-    return develop_fill(view,0x8000+i);
+    return develop_fill(view,GRKU_ICON_EFFECT(i));
 }
 /* The current row: the row of the effect of the development, else the
    native row of the native value. */
@@ -2117,7 +2177,7 @@ A32_ENTRY u32 menu_develop_label(u32 model,u32 category,u32 value,u32 view) {
 /* The icon of an Image Control in the rows of the development. */
 A32_ENTRY u32 menu_develop_top_icon(u32 model,u32 category,u32 value) {
     u32 i=develop_index(menu_header());
-    if(i!=DEVELOP_NONE && !category && value==DEVELOP_STANDARD) return 0x8000+i;
+    if(i!=DEVELOP_NONE && !category && value==DEVELOP_STANDARD) return GRKU_ICON_EFFECT(i);
     return CALL3(FW_DEVELOP_TONE_ICON)(model,category,value);
 }
 #ifdef DEVELOP_ASPECT_LIST

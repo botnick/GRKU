@@ -111,7 +111,8 @@ static uint32_t local_second;
    grku_core::aspect::geometry (crop_sizes, crop_files). */
 #include "crop_sizes.h"
 #define TEST_RECORDS 0x70000000U
-#define TEST_LABELS (TEST_RECORDS+GRKU_PICTURE_SCRATCH+GRKU_TEXT_SIZE)
+#define TEST_TEXT 0x71000000U
+#define TEST_LABELS (TEST_TEXT+GRKU_TEXT_SIZE)
 static const volatile uint8_t *mapped_labels(uint32_t address)
 {
     assert(address == TEST_LABELS);
@@ -313,8 +314,8 @@ static void reset(void)
     register_layers(1);
     header[GRKU_HOST_ACTIVE/4]=0x59001000;
     header[GRKU_HOST_RECORDS/4]=TEST_RECORDS;
-    /* The tail holds the labels (runtime/abi.h: GRKU_LABELS). */
-    header[GRKU_HOST_TAIL/4]=TEST_RECORDS;
+    /* The text area holds the labels (runtime/abi.h: GRKU_LABELS). */
+    header[GRKU_HOST_TEXT_AREA/4]=TEST_TEXT;
     header[GRKU_HOST_FRAME_RATIO/4]=1;
     native_aspect=0;
     display_mode=0;

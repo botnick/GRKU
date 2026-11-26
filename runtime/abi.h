@@ -1,4 +1,4 @@
-/* Generated from crates/grku-core/src/abi.rs. Do not edit: change the tables
+/* Generated from crates/grku-core/src/abi/. Do not edit: change the tables
    there, then run GRKU_UPDATE_GENERATED=1 cargo test -p grku-core --test
    generated. */
 #ifndef GRKU_ABI_H
@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6568
+#define GRKU_HOST_HEADER_SIZE 6592
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -182,15 +182,67 @@
 /* Icon slots: the host icons, then the effect icons, then the module tiles, in
    chunks of GRKU_ICONS_PER_CHUNK (GRKU_HOST_ICON_CHUNKS).
    GRKU_ICON_MODULE_TILE(n) is the icon ID of module tile n. */
-#define GRKU_HOST_ICON_COUNT 25
-#define GRKU_BATTERY_ICON_SLOTS 4U
+#define GRKU_HOST_ICON_COUNT 26
 #define GRKU_ICONS_PER_CHUNK 40
 #define GRKU_MODULE_TILES_MAX 128
-#define GRKU_ICON_MODULE_TILE(n) (0x7000U+(n))
+#define GRKU_EFFECTS_LISTED 64U
+/* Icon IDs: the camera's own icons are below GRKU_ICON_FIRST. Host slot s has
+   the ID GRKU_HOST_ICON_TOP - s; GRKU_ICON_SLOT_<name> is the first slot of a
+   host icon and GRKU_ICON_SLOTS_<name> its slots. IDs only reach transient
+   menu widgets, so they can change between releases. */
+#define GRKU_ICON_FIRST 0x7000
+#define GRKU_HOST_ICON_TOP 0x7fff
+#define GRKU_ICON_SLOT_OFF 0
+#define GRKU_ICON_SLOTS_OFF 1
+#define GRKU_ICON_OFF 0x7fff
+#define GRKU_ICON_SLOT_GRKU 1
+#define GRKU_ICON_SLOTS_GRKU 1
+#define GRKU_ICON_GRKU 0x7ffe
+#define GRKU_ICON_SLOT_VERSION 2
+#define GRKU_ICON_SLOTS_VERSION 1
+#define GRKU_ICON_VERSION 0x7ffd
+#define GRKU_ICON_SLOT_MODULES 3
+#define GRKU_ICON_SLOTS_MODULES 1
+#define GRKU_ICON_MODULES 0x7ffc
+#define GRKU_ICON_SLOT_MODULES_OFF 4
+#define GRKU_ICON_SLOTS_MODULES_OFF 1
+#define GRKU_ICON_MODULES_OFF 0x7ffb
+#define GRKU_ICON_SLOT_ROTATE 5
+#define GRKU_ICON_SLOTS_ROTATE 1
+#define GRKU_ICON_ROTATE 0x7ffa
+#define GRKU_ICON_SLOT_SCALE_FEET 6
+#define GRKU_ICON_SLOTS_SCALE_FEET 1
+#define GRKU_ICON_SCALE_FEET 0x7ff9
+#define GRKU_ICON_SLOT_SCALE_SIXTEEN 7
+#define GRKU_ICON_SLOTS_SCALE_SIXTEEN 1
+#define GRKU_ICON_SCALE_SIXTEEN 0x7ff8
+#define GRKU_ICON_SLOT_RECIPE_TILE 8
+#define GRKU_ICON_SLOTS_RECIPE_TILE 1
+#define GRKU_ICON_RECIPE_TILE 0x7ff7
+#define GRKU_ICON_SLOT_RECIPE_CARDS 9
+#define GRKU_ICON_SLOTS_RECIPE_CARDS 12
+#define GRKU_ICON_RECIPE_CARDS(n) (0x7ff6-(n))
+#define GRKU_ICON_SLOT_UPDATE 21
+#define GRKU_ICON_SLOTS_UPDATE 1
+#define GRKU_ICON_UPDATE 0x7fea
+#define GRKU_ICON_SLOT_BATTERY 22
+#define GRKU_ICON_SLOTS_BATTERY 4
+#define GRKU_ICON_BATTERY(n) (0x7fe9-(n))
+#define GRKU_ICON_MODULE_TILE(n) (0x7000+(n))
+#define GRKU_ICON_RECIPE(n) (0x7080+(n))
+#define GRKU_ICON_CORE_LABEL(n) (0x70c0+(n))
+#define GRKU_ICON_TONING_TRACK(n) (0x70d8+(n))
+#define GRKU_ICON_EFFECT(n) (0x8000+(n))
 #define GRKU_STATE_CHANGED(h) (++(h)[GRKU_HOST_STATE_CHANGES/4])
 #define GRKU_RECIPES_CHANGED(h) (++(h)[GRKU_HOST_RECIPE_CHANGES/4])
 #define GRKU_HOST_MAGIC_VALUE 0x314d5247
 #define GRKU_HOST_VERSION_VALUE 1
+#define GRKU_UPDATE_WAITING 1U
+#define GRKU_UPDATE_CONFIRMED 2U
+#define GRKU_UPDATE_READY 3U
+#define GRKU_CUE_PENDING 1U
+#define GRKU_CUE_UPDATE_READY 1U
+#define GRKU_CUE_UPDATE_RESTART 2U
 /* Number of Image Control records. */
 #define GRKU_HOST_COUNT 0
 /* Address of record 0. The records follow the header without gaps. */
@@ -215,8 +267,8 @@
 #define GRKU_HOST_MENU_LEVEL 36
 /* Highlighted row of the private menu. */
 #define GRKU_HOST_MENU_CURSOR 40
-/* Address of the tail, an array of its own: the picture scratch, the menu
-   text, then the live-view labels. INSTALL writes it. */
+/* Address of the tail, an array of its own: the picture scratch, the profile
+   table, and the curves (`TAIL_SIZE`). INSTALL writes it. */
 #define GRKU_HOST_TAIL 44
 /* Grain level, the capability CORE.GRAIN: 0 Off, 1 weak, 2 medium, 3 strong.
    The native grain stage of recorded pictures uses it instead of the native
@@ -555,35 +607,59 @@
 #define GRKU_HOST_ADJ_IC_TYPE 6524
 /* Word index of the PERSIST buffer within modulecode, not a native address. */
 #define GRKU_HOST_PERSIST_WORD 6528
+/* The word index of the mailbox of the Wi-Fi service in the module array, or 0
+   without modules (runtime/control_mailbox.h). */
+#define GRKU_HOST_CONTROL_WORD 6532
 /* The record of the ADJ preview of a recipe whose Fn adjustments the live view
    takes from GRKU_HOST_PREVIEW_FN_BYTES, not from the record, while
    GRKU_HOST_PREVIEW is that record; else 0 (runtime/recipe_preview.h,
    runtime/processing.h). */
-#define GRKU_HOST_PREVIEW_FN 6532
+#define GRKU_HOST_PREVIEW_FN 6536
 /* Those adjustments: one stored byte each, in the order of RECORD_PARAMETERS.
    It follows GRKU_HOST_PREVIEW_FN. */
-#define GRKU_HOST_PREVIEW_FN_BYTES 6536
+#define GRKU_HOST_PREVIEW_FN_BYTES 6540
 #define GRKU_HOST_PREVIEW_FN_BYTES_WORDS 3
 /* The copy of the native settings record from the start of the ADJ preview of
    a recipe, in the services block, or 0 while no preview writes native
    settings. A capture of the current settings reads the native settings from
    it (runtime/recipes.h). */
-#define GRKU_HOST_RECIPE_PREVIEW 6548
+#define GRKU_HOST_RECIPE_PREVIEW 6552
 /* Battery Percentage: the value that the icon shows, 0 for the native icon,
    the picture that has it, and the time of its last change
    (runtime/battery_percent.h). */
-#define GRKU_HOST_BATTERY_ICON 6552
+#define GRKU_HOST_BATTERY_ICON 6556
 /* Battery Percentage: the average of the charge and the time of its last
    sample (runtime/battery_percent.h). */
-#define GRKU_HOST_BATTERY_AVERAGE 6556
+#define GRKU_HOST_BATTERY_AVERAGE 6560
 /* The Toning track that the parameter page shows for a native look with Toning
    (runtime/menu.c: toning_track): an 8-byte icon descriptor, then the pixels,
    in a firmware block that the core makes at its first use; else 0. */
-#define GRKU_HOST_TONING_TRACK 6560
+#define GRKU_HOST_TONING_TRACK 6564
 /* The record whose Toning in the RAW development differs from its own
    (runtime/develop.h): while a development runs, its builds take the curves at
    GRKU_DEVELOP_CURVES of the tail for it; else 0. */
-#define GRKU_HOST_DEVELOP_TONED 6564
+#define GRKU_HOST_DEVELOP_TONED 6568
+/* An update over Wi-Fi (grku_core::runtime::update): UPDATE_WAITING while its
+   journal waits for the confirmation on the camera, which the resident loader
+   sets; UPDATE_CONFIRMED after the confirmation in GRKU Settings
+   (runtime/menu_settings.h); UPDATE_READY after the resident loader made the
+   journal run at the next power-on; else 0. */
+#define GRKU_HOST_UPDATE 6572
+/* The version of that update, from `card::VERSION_FILE`: major << 16, minor <<
+   8, and patch, or 0 when the package does not name it. */
+#define GRKU_HOST_UPDATE_VERSION 6576
+/* The text of the load cue (GRKU_HOST_LOAD_CUE): 0 for GRKU Loaded,
+   CUE_UPDATE_READY while an update over Wi-Fi waits, or CUE_UPDATE_RESTART
+   after its confirmation in ADJ. The cue sets it back to 0 when it ends
+   (runtime/viewfinder.h). */
+#define GRKU_HOST_CUE_LABEL 6580
+/* 1 while the Wi-Fi access point of the camera is on, else 0. The App task
+   copies it at each timer dispatch (runtime/menu.c); the resident loader
+   starts the Wi-Fi service while it is 1 and stops it at 0. */
+#define GRKU_HOST_WLAN 6584
+/* Address of the text area, an array of its own: the menu text, then the
+   live-view labels (`TEXT_AREA_SIZE`). INSTALL writes it. */
+#define GRKU_HOST_TEXT_AREA 6588
 /* Consumer request ticket, 1..2147483647. Zero means no request. */
 #define GRKU_PERSIST_REQUEST 0
 /* Producer publishes this ticket after all payload stores are visible. */
@@ -609,6 +685,136 @@
 #define GRKU_PERSIST_MODULE_WORDS 2U
 #define GRKU_PERSIST_SIZE 1828U
 #define GRKU_PERSIST_WORDS 457U
+
+#define GRKU_CONTROL_MAGIC 0
+#define GRKU_CONTROL_VERSION 4
+#define GRKU_CONTROL_CAPACITY 8
+#define GRKU_CONTROL_EPOCH 12
+#define GRKU_CONTROL_EPOCH_WORDS 4
+#define GRKU_CONTROL_STATE_CHANGES 28
+#define GRKU_CONTROL_DESCRIPTOR_PADDING 32
+#define GRKU_CONTROL_DESCRIPTOR_PADDING_WORDS 8
+#define GRKU_CONTROL_REQUEST 64
+#define GRKU_CONTROL_RELEASE 68
+#define GRKU_CONTROL_REQUEST_EPOCH 72
+#define GRKU_CONTROL_REQUEST_EPOCH_WORDS 4
+#define GRKU_CONTROL_COMMAND 88
+#define GRKU_CONTROL_LENGTH 92
+#define GRKU_CONTROL_CHECKSUM 96
+/* CONTROL_SERVICE_RUNNING while the Wi-Fi service runs: the service writes it
+   as it starts and clears it as it stops. The resident loader starts and stops
+   the service with it and GRKU_HOST_WLAN. */
+#define GRKU_CONTROL_SERVICE 100
+#define GRKU_CONTROL_PRODUCER_PADDING 104
+#define GRKU_CONTROL_PRODUCER_PADDING_WORDS 6
+#define GRKU_CONTROL_CLAIMED 128
+#define GRKU_CONTROL_READY 132
+#define GRKU_CONTROL_RESULT 136
+#define GRKU_CONTROL_RESPONSE_LENGTH 140
+#define GRKU_CONTROL_RESPONSE_CHECKSUM 144
+#define GRKU_CONTROL_CONSUMER_PADDING 148
+#define GRKU_CONTROL_CONSUMER_PADDING_WORDS 11
+#define GRKU_CONTROL_PAYLOAD 192
+#define GRKU_CONTROL_PAYLOAD_WORDS 512
+#define GRKU_CONTROL_RESPONSE 2240
+#define GRKU_CONTROL_RESPONSE_WORDS 512
+#define GRKU_CONTROL_SIZE 4288U
+#define GRKU_CONTROL_WORDS 1072U
+#define GRKU_CONTROL_MAGIC_VALUE 1196573489U
+#define GRKU_CONTROL_VERSION_VALUE 1U
+#define GRKU_CONTROL_PAYLOAD_BYTES 2048U
+#define GRKU_CONTROL_SEQUENCE_MAX 2147483647U
+#define GRKU_CONTROL_EMPTY 0U
+#define GRKU_CONTROL_ACCEPTED 1U
+#define GRKU_CONTROL_BAD_CONTEXT 16U
+#define GRKU_CONTROL_BAD_LENGTH 17U
+#define GRKU_CONTROL_BAD_DIGEST 18U
+#define GRKU_CONTROL_CHANGED 19U
+#define GRKU_CONTROL_UNSUPPORTED 20U
+#define GRKU_CONTROL_INVALID 21U
+#define GRKU_CONTROL_BUSY 22U
+#define GRKU_CONTROL_CLOSING 23U
+#define GRKU_CONTROL_ATTACH 1U
+#define GRKU_CONTROL_PING 2U
+#define GRKU_CONTROL_LOOKS_READ 3U
+#define GRKU_CONTROL_USE_CODE_MASK 32767U
+#define GRKU_CONTROL_USE_ORIGIN_SHIFT 16U
+#define GRKU_CONTROL_USE_ORIGIN_MASK 127U
+#define GRKU_CONTROL_USE_DIAL 8388608U
+#define GRKU_CONTROL_USE_NUMBER_SHIFT 24U
+#define GRKU_CONTROL_USE_NUMBER_MASK 15U
+#define GRKU_CONTROL_USE_NAMED 2147483648U
+#define GRKU_CONTROL_LOOK_TURN 4U
+#define GRKU_CONTROL_LOOKS_ORDER 5U
+#define GRKU_CONTROL_LOOKS_HEADER 16U
+#define GRKU_CONTROL_RECIPES_READ 6U
+#define GRKU_CONTROL_RECIPE_TURN 7U
+#define GRKU_CONTROL_RECIPES_ORDER 8U
+#define GRKU_CONTROL_RECIPE_RENAME 9U
+#define GRKU_CONTROL_RECIPE_DELETE 10U
+#define GRKU_CONTROL_RECIPE_APPLY 11U
+#define GRKU_CONTROL_RECIPE_UNDO 12U
+#define GRKU_CONTROL_RECIPE_ADD 13U
+#define GRKU_CONTROL_MODULES_READ 14U
+#define GRKU_CONTROL_MODULE_TEXTS 15U
+#define GRKU_CONTROL_MODULE_TILE 16U
+#define GRKU_CONTROL_MODULE_SET 17U
+#define GRKU_CONTROL_MODULES_ORDER 18U
+#define GRKU_CONTROL_SETTINGS_READ 19U
+#define GRKU_CONTROL_SETTINGS_SET 20U
+#define GRKU_CONTROL_MODULES_LAYOUT 21U
+#define GRKU_CONTROL_SETTING_START 0U
+#define GRKU_CONTROL_SETTING_RAW 1U
+#define GRKU_CONTROL_SETTING_UNIT 2U
+#define GRKU_CONTROL_SETTING_BATTERY 3U
+#define GRKU_CONTROL_SETTING_BATTERY_PERCENT 4U
+#define GRKU_CONTROL_SETTING_PLAYBACK_INFO 5U
+#define GRKU_CONTROL_SETTING_GOODBYE 6U
+#define GRKU_CONTROL_SETTING_GOODBYE_TEXT 7U
+#define GRKU_CONTROL_SETTINGS 8U
+#define GRKU_CONTROL_SETTING_NONE 4294967295U
+#define GRKU_CONTROL_MODULES_HEADER 24U
+#define GRKU_CONTROL_MODULE_ENTRY 20U
+#define GRKU_CONTROL_MODULE_NAME_AT 4U
+#define GRKU_CONTROL_MODULE_NAME_BYTES 8U
+#define GRKU_CONTROL_MODULE_HIDDEN_AT 12U
+#define GRKU_CONTROL_MODULE_SIZES_AT 16U
+#define GRKU_CONTROL_MODULE_TEXTS_HEADER 8U
+#define GRKU_CONTROL_MODULE_TEXTS_END 4294967295U
+#define GRKU_CONTROL_MODULE_TEXT_UNITS 120U
+#define GRKU_CONTROL_MODULE_RECORD_MODULE 0U
+#define GRKU_CONTROL_MODULE_RECORD_GROUP 1U
+#define GRKU_CONTROL_MODULE_RECORD_SETTING 2U
+#define GRKU_CONTROL_MODULE_RECORD_VALUE 3U
+#define GRKU_CONTROL_MODULE_MANAGED_MASK 255U
+#define GRKU_CONTROL_MODULE_MANAGED_LOOKS 1U
+#define GRKU_CONTROL_MODULE_MANAGED_RECIPES 2U
+#define GRKU_CONTROL_MODULE_HAS_OPTIONS 256U
+#define GRKU_CONTROL_MODULE_ORDERED 512U
+#define GRKU_CONTROL_MODULE_KEY_HANDLE 1073741824U
+#define GRKU_CONTROL_MODULE_STATUS_SHIFT 8U
+#define GRKU_CONTROL_MODULE_STATUS_MASK 3U
+#define GRKU_CONTROL_MODULE_RUNNING 0U
+#define GRKU_CONTROL_MODULE_STOPPED 1U
+#define GRKU_CONTROL_MODULE_SAFE 2U
+#define GRKU_CONTROL_MODULE_FAILED 3U
+#define GRKU_CONTROL_MODULE_PLACE_SHIFT 10U
+#define GRKU_CONTROL_MODULE_PLACE_MASK 3U
+#define GRKU_CONTROL_MODULE_TOOLBAR 0U
+#define GRKU_CONTROL_MODULE_ROOT 1U
+#define GRKU_CONTROL_MODULE_HIDDEN 2U
+#define GRKU_CONTROL_MODULE_ORDERABLE 4096U
+#define GRKU_CONTROL_MODULE_ENABLED 8192U
+#define GRKU_CONTROL_MODULE_PLACEABLE 16384U
+#define GRKU_CONTROL_MODULE_SET_ENABLED 1U
+#define GRKU_CONTROL_MODULE_SET_HIDDEN 2U
+#define GRKU_CONTROL_MODULE_SET_ORDER 4U
+#define GRKU_CONTROL_RECIPES_HEADER 28U
+#define GRKU_CONTROL_RECIPE_ENTRY 44U
+#define GRKU_CONTROL_RECIPES_PAGE 32U
+#define GRKU_CONTROL_RECIPE_NONE 4294967295U
+#define GRKU_CONTROL_LOOK_ENTRY 12U
+#define GRKU_CONTROL_REQUEST_SIZE 2064U
 
 /* The capabilities of the core (grku_core::capabilities): the handle of each
    CORE setting, and for each handle in order, its header word and its number
@@ -966,7 +1172,7 @@
    glyphs from GRKU_GLYPH_FIRST. For entry n, a u16 width, a u16 height, and
    the u32 offset of its pixels from the table start at 8 n. Each pixel is one
    byte of text coverage, row by row. */
-#define GRKU_LABELS_SIZE 77824
+#define GRKU_LABELS_SIZE 88576
 /* The profile table after the labels (runtime/profile.h). For each of the
    first GRKU_PROFILE_MODULES listed modules, at GRKU_PROFILE_MODULE_SIZE n:
    its code start, its code end, and GRKU_PROFILE_NAME_BYTES ASCII bytes of its
@@ -974,7 +1180,7 @@
    GRKU_PROFILE_SLOT_SIZE bytes: calls, cycles, and the cycles of the largest
    call. The core points come first, then GRKU_PROFILE_KINDS slots for each of
    those modules. */
-#define GRKU_PROFILE 244360
+#define GRKU_PROFILE 141960
 #define GRKU_PROFILE_SIZE 500
 #define GRKU_PROFILE_MODULES 8
 #define GRKU_PROFILE_MODULE_SIZE 16
@@ -994,16 +1200,18 @@
 #define GRKU_PROFILE_PAINT 0
 #define GRKU_PROFILE_FILTER 1
 #define GRKU_PROFILE_CALL 2
-/* Everything after the records: the script array must hold it. */
-#define GRKU_TAIL_SIZE 250492
+/* The tail array: the picture scratch, the profile table, and the curves. */
+#define GRKU_TAIL_SIZE 148092
+/* The text area array: the menu text, then the live-view labels. */
+#define GRKU_TEXT_AREA_SIZE 113152
 /* The own red and blue curves of the native looks with Toning: for each of
    GRKU_TONE_SLOTS slots, 256 u16 red samples, then the blue ones. */
-#define GRKU_TONE_CURVES 244860
+#define GRKU_TONE_CURVES 142460
 #define GRKU_TONE_SLOTS 4
 #define GRKU_TONE_SLOT_SIZE 1024
 /* The red, green, and blue curves of a RAW development with its own Toning
    (GRKU_HOST_DEVELOP_TONED), 256 u16 samples each. */
-#define GRKU_DEVELOP_CURVES 248956
+#define GRKU_DEVELOP_CURVES 146556
 #define GRKU_DEVELOP_CURVES_SIZE 1536
 #define GRKU_TEXT_SUMMARY 8192
 /* The parameter page title of a GRKU session, after the summaries: the page,
@@ -1020,19 +1228,19 @@
 #define GRKU_TEXT_GROUP_UNITS 256
 #define GRKU_TEXT_LANGUAGES 5
 #define GRKU_TEXT_RECORDS 40
-#define GRKU_TEXT(h) ((h)[GRKU_HOST_TAIL/4]+GRKU_PICTURE_SCRATCH)
+#define GRKU_TEXT(h) ((h)[GRKU_HOST_TEXT_AREA/4])
 #define GRKU_LABELS(h) (GRKU_TEXT(h)+GRKU_TEXT_SIZE)
-#define GRKU_LABEL_COUNT 22
+#define GRKU_LABEL_COUNT 24
 #define GRKU_LABEL_CROP_CAMERA 19
 #define GRKU_MODULE_LABEL_COUNT 14
-#define GRKU_GLYPH_FIRST 22
+#define GRKU_GLYPH_FIRST 24
 #define GRKU_GLYPH_COUNT 95
 #define GRKU_GLYPH_HEIGHT 28
-#define GRKU_SMALL_GLYPH_FIRST 117
+#define GRKU_SMALL_GLYPH_FIRST 119
 #define GRKU_SMALL_GLYPH_HEIGHT 20
-#define GRKU_CAPTION_FIRST 212
+#define GRKU_CAPTION_FIRST 214
 #define GRKU_CAPTION_CHARACTERS "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-#define GRKU_BATTERY_DIGIT_FIRST 248
+#define GRKU_BATTERY_DIGIT_FIRST 250
 #define GRKU_BATTERY_DIGIT_HEIGHT 18
 #define GRKU_CAPTION_TOP 22
 #define GRKU_CAPTION_INK 255
@@ -1117,6 +1325,10 @@
 /* The Battery Percentage row of Display Settings. Its values are TEXT_OFF and
    TEXT_ON. */
 #define TEXT_BATTERY_PERCENT 89
-#define GRKU_TEXT_STRINGS 90
+/* The GRKU Settings row of an update over Wi-Fi that waits for its
+   confirmation, then its value Install, then the text of its confirm before
+   and after the version. */
+#define TEXT_UPDATE 90
+#define GRKU_TEXT_STRINGS 94
 
 #endif

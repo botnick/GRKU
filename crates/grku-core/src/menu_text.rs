@@ -27,7 +27,7 @@ pub const TEXT_GROUP_VALUE: usize = TEXT_SETTINGS - 2 * GROUP_UNITS;
 /// The units of the longest string with its NUL, and of each summary slot.
 pub const SUMMARY_UNITS: usize = 32;
 /// The number of strings in each language (`GRKU_TEXT_STRINGS`).
-pub const STRINGS: usize = 90;
+pub const STRINGS: usize = 94;
 /// The website that About GRKU shows.
 const WEBSITE: &str = "grku.app";
 /// The longest effect name in a record.
@@ -171,6 +171,10 @@ struct Words {
     /// seven are the types of GR IV Monochrome, with the names of its
     /// firmware.
     native_types: [&'static str; 21],
+    /// The GRKU Settings row of an update over Wi-Fi that waits for its
+    /// confirmation, which About GRKU also opens; its values: not now, and
+    /// install it; then the confirm before and after the version.
+    update: [&'static str; 4],
 }
 
 const ENGLISH: Words = Words {
@@ -254,6 +258,7 @@ const ENGLISH: Words = Words {
         "HDR Tone",
         "Solarized Effect",
     ],
+    update: ["Update", "Install", "Install GRKU ", "?"],
 };
 
 const SIMPLIFIED_CHINESE: Words = Words {
@@ -337,6 +342,7 @@ const SIMPLIFIED_CHINESE: Words = Words {
         "HDR色调",
         "中途曝光效果",
     ],
+    update: ["更新", "安装", "安装 GRKU ", "？"],
 };
 
 const TRADITIONAL_CHINESE: Words = Words {
@@ -420,6 +426,7 @@ const TRADITIONAL_CHINESE: Words = Words {
         "HDR色調",
         "中途曝光效果",
     ],
+    update: ["更新", "安裝", "安裝 GRKU ", "？"],
 };
 
 const JAPANESE: Words = Words {
@@ -505,6 +512,12 @@ const JAPANESE: Words = Words {
         "HDR調",
         "ソラリゼーション調",
     ],
+    update: [
+        "アップデート",
+        "インストール",
+        "GRKU ",
+        " をインストールしますか？",
+    ],
 };
 
 const KOREAN: Words = Words {
@@ -588,6 +601,7 @@ const KOREAN: Words = Words {
         "HDR톤",
         "솔라리제이션톤",
     ],
+    update: ["업데이트", "설치", "GRKU ", " 설치를 진행할까요?"],
 };
 
 /// The text between a page title and its value in a root row summary, such
@@ -760,6 +774,13 @@ pub const RUNS: &[Run] = &[
         1,
         "The Battery Percentage row of Display Settings. Its values are TEXT_OFF and TEXT_ON.",
     ),
+    run(
+        "UPDATE",
+        4,
+        "The GRKU Settings row of an update over Wi-Fi that waits for its \
+         confirmation, then its value Install, then the text of its \
+         confirm before and after the version.",
+    ),
 ];
 
 /// The first string ID of each run, in table order.
@@ -854,6 +875,7 @@ fn run_strings(w: &Words, name: &str, version: &str) -> Vec<String> {
         "GOODBYE" => words(&[w.shutdown_screen, w.shutdown_text]),
         "PLAYBACK_INFO" => words(&[w.playback_info]),
         "BATTERY_PERCENT" => words(&[w.battery_percent]),
+        "UPDATE" => words(&w.update),
         _ => unreachable!("Unknown menu text run {name}"),
     }
 }

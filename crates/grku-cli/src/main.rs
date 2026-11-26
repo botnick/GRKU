@@ -4,7 +4,10 @@ mod storage;
 
 use anyhow::{ensure, Context, Result};
 use clap::{Parser, Subcommand};
-use grku_core::{cube::Encoding, effects, fit, language::Language, packaging, site, Files};
+use grku_core::{
+    cover::Cover, cube::Encoding, effects, fit, language::Language, packaging, release,
+    release_index, site, Files,
+};
 use serde_json::{json, Value};
 use std::path::PathBuf;
 
@@ -43,6 +46,12 @@ enum Command {
         clang: String,
         #[arg(long, default_value = "ld.lld")]
         lld: String,
+        /// SERVE.BIN of the runtime: the service on the camera's Linux, which
+        /// `cargo build -p grku-serve --profile serve --target
+        /// armv7-unknown-linux-musleabi` makes. Without it, the runtime has
+        /// no service.
+        #[arg(long)]
+        serve: Option<PathBuf>,
     },
     /// Build a module file (.GRM) from C sources that include runtime/sdk/grku.h.
     Module {
@@ -111,6 +120,41 @@ enum Command {
         /// `--language`. `grku guides` writes its source.
         #[arg(long)]
         guide: PathBuf,
+        /// The folder of the signed statement of the release for the camera
+        /// (`grku sign`). The service on the camera installs a package over
+        /// Wi-Fi only with it.
+        #[arg(long)]
+        release: Option<PathBuf>,
+        #[arg(long)]
+        out: PathBuf,
+    },
+    /// Write a new signing key for the releases: the 32-byte seed as
+    /// hexadecimal digits, readable only by the owner. Prints its public key.
+    Key {
+        #[arg(long)]
+        out: PathBuf,
+    },
+    /// Sign the release for a camera: write RELEASE.JSON, the SHA-256 of each
+    /// runtime file of its package and of each official module, and
+    /// RELEASE.SIG to OUT. The key is the hexadecimal seed in the environment
+    /// variable GRKU_SIGNING_KEY.
+    Sign {
+        /// The runtime build of each firmware build of the camera, in release
+        /// order, as for `grku package`.
+        #[arg(long, required = true)]
+        build: Vec<PathBuf>,
+        /// Each official module file (.GRM) of the release.
+        #[arg(long = "module", required = true)]
+        modules: Vec<PathBuf>,
+        /// Compiled official GRFs whose identity the release signs.
+        #[arg(long)]
+        effects: Option<PathBuf>,
+        /// The effect definitions of --effects (`grku effects build --source`). The
+        /// release signs the cover of each definition whose icon is the icon of its GRF.
+        #[arg(long, requires = "effects")]
+        source: Option<PathBuf>,
+        #[arg(long, value_parser = grku_core::camera::CAMERAS.map(|camera| camera.id))]
+        camera: String,
         #[arg(long)]
         out: PathBuf,
     },
@@ -161,6 +205,38 @@ enum Command {
     Site {
         #[arg(long)]
         build: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+    },
+    /// Write the release index of a site: the GRKU version, each signed
+    /// camera, and the SHA-256 and size of every file a phone may download.
+    ReleaseIndex {
+        #[arg(long)]
+        site: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+        /// Release notes: a JSON list of `{"version", "body"}`, each body in
+        /// Markdown, as GitHub releases hold them. The index keeps the bullet
+        /// items as plain text.
+        #[arg(long)]
+        notes: Option<PathBuf>,
+        /// The descriptions of the recipe presets: a JSON object of language
+        /// codes, each an object of preset IDs and their text. The index
+        /// holds each preset of the site, with these descriptions.
+        #[arg(long)]
+        preset_text: Option<PathBuf>,
+        /// The `modules/` source folder, for the titles of the official
+        /// modules, which a phone shows before a camera has them.
+        #[arg(long)]
+        module_text: Option<PathBuf>,
+    },
+    /// Write a release index with other release notes: the index given, with
+    /// the notes of `--notes` (as for `release-index`) in place of its own.
+    ReleaseNotes {
+        #[arg(long)]
+        index: PathBuf,
+        #[arg(long)]
+        notes: PathBuf,
         #[arg(long)]
         out: PathBuf,
     },
@@ -315,6 +391,10 @@ enum EffectsCommand {
         shape: String,
         #[arg(long)]
         out: PathBuf,
+        /// An import library (IMPORTS.BIN) to put the effect and its cover in. It is
+        /// created when it does not exist.
+        #[arg(long)]
+        library: Option<PathBuf>,
     },
 }
 
@@ -345,9 +425,11 @@ fn run(command: Command) -> Result<Value> {
             out,
             clang,
             lld,
+            serve,
         } => {
             let target = grku_build::target::find(&target)?;
-            let result = grku_build::build_runtime(target, &firmware, &out, &clang, &lld)?;
+            let result =
+                grku_build::build_runtime(target, &firmware, &out, &clang, &lld, serve.as_deref())?;
             Ok(
                 json!({"output": result.output, "target": result.manifest["target"], "files": result.files.len()}),
             )
@@ -550,11 +632,13 @@ fn run(command: Command) -> Result<Value> {
                     label,
                     shape,
                     out,
+                    library,
                 },
         } => {
             ensure!(effects::valid_id(&id), "Invalid effect ID");
             let output = out.join(&id);
             storage::validate_output(&output)?;
+            let mut imports = library.as_deref().map(storage::read_imports).transpose()?;
             let target = grku_build::target::find(site::PREVIEW_TARGET)?;
             let image = grku_build::verify_firmware(&firmware, target)?;
             let base_gamma = grku_build::firmware::standard_base_gamma(&image)?;
@@ -585,12 +669,20 @@ fn run(command: Command) -> Result<Value> {
             let imported = fit::import(&bytes, &base_gamma, &request)?;
             let mut warnings = imported.warnings;
             warnings.extend(fit::grade_warning(&imported.fit));
-            let errors =
-                effects::parse_json(imported.text.as_bytes())?["attribution"]["fit"].take();
+            let mut definition = effects::parse_json(imported.text.as_bytes())?;
+            if let Some(imports) = &mut imports {
+                let effect = effects::compile_definition(&definition)?;
+                let cover = Cover::from_json(&icon)?;
+                grku_core::imports::upsert(imports, effect, &cover, false)?;
+            }
+            let errors = definition["attribution"]["fit"].take();
             storage::write_directory(
                 &output,
                 &Files::from([("effect.json".to_owned(), imported.text.into_bytes())]),
             )?;
+            if let (Some(path), Some(imports)) = (&library, &imports) {
+                storage::replace(path, &grku_core::imports::encode(imports)?)?;
+            }
             let mut result = json!({
                 "output": output,
                 "effect_id": id,
@@ -600,6 +692,9 @@ fn run(command: Command) -> Result<Value> {
                 "toned": imported.fit.toned,
                 "warnings": warnings,
             });
+            if let Some(path) = library {
+                result["library"] = json!(path);
+            }
             if let Some(hints) = imported.hints.as_ref().filter(|hints| !hints.is_empty()) {
                 result["hints"] = serde_json::to_value(hints)?;
             }
@@ -612,16 +707,13 @@ fn run(command: Command) -> Result<Value> {
             camera,
             language,
             guide,
+            release,
             out,
         } => {
             let runtimes = build
                 .iter()
                 .map(|build| storage::load_build(build))
                 .collect::<Result<Vec<_>>>()?;
-            let effects = match effects {
-                Some(directory) => storage::read_effects(&directory)?,
-                None => packaging::EffectSet::default(),
-            };
             let camera = grku_core::camera::find(&camera)?;
             let language = Language::parse(&language)?;
             let pdf = storage::read_bounded(&guide, packaging::MAX_FILE_SIZE)?;
@@ -629,7 +721,20 @@ fn run(command: Command) -> Result<Value> {
                 .iter()
                 .map(|path| storage::read_bounded(path, packaging::MAX_FILE_SIZE))
                 .collect::<Result<Vec<_>>>()?;
-            let package = packaging::assemble(
+            let release = release
+                .map(|folder| -> Result<_> {
+                    Ok((
+                        storage::read_bounded(&folder.join(release::STATEMENT_ENTRY), 1024 * 1024)?,
+                        storage::read_bounded(&folder.join(release::SIGNATURE_ENTRY), 1024)?,
+                    ))
+                })
+                .transpose()?;
+            // GRKU keeps the covers of its own effect files (the site and the CLI draw them).
+            let effects = match effects {
+                Some(directory) => storage::read_effects(&directory)?,
+                None => packaging::EffectSet::default(),
+            };
+            let package = packaging::assemble_with(
                 &runtimes,
                 &effects,
                 &modules,
@@ -638,13 +743,78 @@ fn run(command: Command) -> Result<Value> {
                     language,
                     pdf: &pdf,
                 },
+                packaging::Extras {
+                    release: release
+                        .as_ref()
+                        .map(|(statement, signature)| (statement.as_slice(), signature.as_slice())),
+                    ..packaging::Extras::default()
+                },
             )?;
             storage::write_new(&out, &package.bytes)?;
             let contents = package.contents;
             Ok(
                 json!({"path": out, "sha256": packaging::sha256(&package.bytes),
                 "camera": contents.camera.id, "entries": contents.entries,
-                "modules": contents.modules, "language": contents.language.code()}),
+                "modules": contents.modules, "language": contents.language.code(),
+                "signed": signed(&package.bytes)?}),
+            )
+        }
+        Command::Key { out } => {
+            let mut seed = [0u8; 32];
+            std::fs::File::open("/dev/urandom")
+                .and_then(|mut random| std::io::Read::read_exact(&mut random, &mut seed))
+                .context("Read random bytes for the key")?;
+            let seed = hex::encode(seed);
+            let key = release::SigningKey::from_hex(&seed)?;
+            storage::write_secret(&out, format!("{seed}\n").as_bytes())?;
+            Ok(json!({"path": out, "public_key": hex::encode(key.public_key())}))
+        }
+        Command::Sign {
+            build,
+            modules,
+            effects,
+            source,
+            camera,
+            out,
+        } => {
+            let key = release::SigningKey::from_hex(
+                &std::env::var("GRKU_SIGNING_KEY")
+                    .context("Set GRKU_SIGNING_KEY to the signing key")?,
+            )?;
+            let runtimes = build
+                .iter()
+                .map(|build| storage::load_build(build))
+                .collect::<Result<Vec<_>>>()?;
+            let modules = modules
+                .iter()
+                .map(|path| storage::read_bounded(path, packaging::MAX_FILE_SIZE))
+                .collect::<Result<Vec<_>>>()?;
+            let camera = grku_core::camera::find(&camera)?;
+            let mut statement = release::Statement::of_release(&runtimes, &modules, camera)?;
+            if let Some(directory) = effects {
+                let definitions = match source {
+                    Some(source) => storage::read_definitions(&source)?,
+                    None => Vec::new(),
+                };
+                statement.add_official_looks(&storage::read_effects(&directory)?, &definitions)?;
+            }
+            let bytes = statement.to_bytes()?;
+            let signature = key.sign(&bytes);
+            let mut tree = Files::from([
+                (release::STATEMENT_ENTRY.to_owned(), bytes),
+                (release::SIGNATURE_ENTRY.to_owned(), signature),
+            ]);
+            // The phone builds an update from these files and the statement.
+            for (path, file) in release::package_runtime_files(&runtimes, camera)? {
+                tree.insert(format!("{}/{path}", release::PACKAGE_FOLDER), file);
+            }
+            storage::write_directory(&out, &tree)?;
+            Ok(
+                json!({"path": out, "camera": camera.id, "version": statement.version,
+                "runtime": statement.runtime.len(), "modules": statement.modules.len(),
+                "looks": statement.official_looks.len(), "covers": statement.official_covers.len(),
+                "public_key": hex::encode(key.public_key()),
+                "official": release::OFFICIAL_KEYS.contains(&key.public_key())}),
             )
         }
         Command::Guides { out } => {
@@ -709,7 +879,8 @@ fn run(command: Command) -> Result<Value> {
             Ok(
                 json!({"valid": true, "camera": contents.camera.id, "targets": contents.targets,
                 "effects": contents.effect_ids.len(),
-                "modules": contents.modules, "language": contents.language.code()}),
+                "modules": contents.modules, "language": contents.language.code(),
+                "signed": signed(&bytes)?}),
             )
         }
         Command::ScriptsOff { camera, out } => {
@@ -743,7 +914,84 @@ fn run(command: Command) -> Result<Value> {
             let (target, files) = storage::export_runtime(&build, &out)?;
             Ok(json!({"output": out, "target": target, "files": files}))
         }
+        Command::ReleaseIndex {
+            site,
+            out,
+            notes,
+            preset_text,
+            module_text,
+        } => {
+            let contents = storage::read_release_site(&site)?;
+            let mut index = release_index::Index::of_site(&contents)?;
+            if let Some(folder) = module_text {
+                for (id, info) in &mut index.modules {
+                    let official = grku_core::modules::official(id)
+                        .with_context(|| format!("{id} is not an official module"))?;
+                    info.titles = grku_build::module::source_titles(&folder.join(official.folder))?;
+                }
+            }
+            if let Some(notes) = notes {
+                index.notes = read_release_notes(&notes)?;
+            }
+            let text = match preset_text {
+                Some(path) => serde_json::from_slice(
+                    &std::fs::read(&path).with_context(|| format!("Read {}", path.display()))?,
+                )
+                .with_context(|| format!("Read the preset descriptions in {}", path.display()))?,
+                None => Default::default(),
+            };
+            index.presets = release_index::IndexPreset::all(&text);
+            storage::write_new(&out, &index.to_bytes()?)?;
+            Ok(json!({
+                "path": out,
+                "version": index.version,
+                "cameras": index.cameras.len(),
+                "files": index.files.len(),
+                "notes": index.notes.len(),
+                "presets": index.presets.len(),
+            }))
+        }
+        Command::ReleaseNotes { index, notes, out } => {
+            let bytes =
+                std::fs::read(&index).with_context(|| format!("Read {}", index.display()))?;
+            let mut index = release_index::Index::parse(&bytes)?;
+            index.notes = read_release_notes(&notes)?;
+            storage::write_new(&out, &index.to_bytes()?)?;
+            Ok(json!({"path": out, "version": index.version, "notes": index.notes.len()}))
+        }
     }
+}
+
+/// The most bytes of a release notes input.
+const NOTES_INPUT_LIMIT: u64 = 1024 * 1024;
+
+/// Reads the release notes input of `release-index` and `release-notes`.
+fn read_release_notes(path: &std::path::Path) -> Result<Vec<release_index::VersionNotes>> {
+    let size = std::fs::metadata(path)
+        .with_context(|| format!("Read {}", path.display()))?
+        .len();
+    ensure!(
+        size <= NOTES_INPUT_LIMIT,
+        "{} is larger than {NOTES_INPUT_LIMIT} bytes",
+        path.display()
+    );
+    let value: Value = serde_json::from_slice(&std::fs::read(path)?)
+        .with_context(|| format!("Read {}", path.display()))?;
+    let releases = value
+        .as_array()
+        .with_context(|| format!("{} is not a list", path.display()))?
+        .iter()
+        .map(|release| {
+            let field = |name: &str| {
+                release[name]
+                    .as_str()
+                    .map(str::to_owned)
+                    .with_context(|| format!("A release in {} has no {name}", path.display()))
+            };
+            Ok((field("version")?, field("body")?))
+        })
+        .collect::<Result<Vec<_>>>()?;
+    release_index::notes_from_markdown(&releases)
 }
 
 fn main() -> std::process::ExitCode {
@@ -759,5 +1007,33 @@ fn main() -> std::process::ExitCode {
             eprintln!("grku: {error:#}");
             std::process::ExitCode::FAILURE
         }
+    }
+}
+
+/// The signature of a package: `"official"` when an official key signed
+/// it, or `false` without a signature. A signature of another key, or of
+/// other files, is an error.
+fn signed(package: &[u8]) -> Result<Value> {
+    match release::verify_update(package, &release::OFFICIAL_KEYS) {
+        Ok(_) => Ok(json!("official")),
+        Err(error) if error.downcast_ref::<release::Unsigned>().is_some() => Ok(json!(false)),
+        Err(error) => Err(error.context("Check the release signature")),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_notes_input_is_a_bounded_list_of_bodies() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("notes.json");
+        std::fs::write(&path, r#"[{"version": "v1.7.0", "body": "- New"}]"#).unwrap();
+        assert_eq!(read_release_notes(&path).unwrap()[0].items, ["New"]);
+        std::fs::write(&path, r#"[{"version": "1.7.0"}]"#).unwrap();
+        assert!(read_release_notes(&path).is_err());
+        std::fs::write(&path, vec![b' '; NOTES_INPUT_LIMIT as usize + 1]).unwrap();
+        assert!(read_release_notes(&path).is_err());
     }
 }

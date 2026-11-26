@@ -1,3 +1,29 @@
+case "$1" in
+serve)
+  if [ ! -e /tmp/grku-serve ] && [ -e /media/storage1/SCRIPT/GRKU/SERVE.BIN ] && [ -e /media/storage1/GRKU/WIFI.ON ]; then
+    : >/tmp/grku-serve
+    (n=0
+    while :; do
+      (cd / && exec /media/storage1/SCRIPT/GRKU/SERVE.BIN) &
+      echo $! >/tmp/grku-serve
+      wait $! && break
+      n=$((n + 1))
+      if [ $n -gt 1 ]; then /media/storage1/SCRIPT/GRKU/SERVE.BIN --mark-stopped; break; fi
+      sleep 1
+      [ -e /tmp/grku-serve ] || break
+    done
+    rm -f /tmp/grku-serve) </dev/null >/dev/null 2>&1 &
+  fi
+  exit 0 ;;
+stop)
+  if [ -e /tmp/grku-serve ] && read pid _ </tmp/grku-serve && [ -e /proc/$pid ]; then
+    grep -q -- --from-ram /proc/$pid/cmdline && kill -TERM "$pid"
+  else
+    rm -f /tmp/grku-serve
+    [ -e /media/storage1/SCRIPT/GRKU/SERVE.BIN ] && /media/storage1/SCRIPT/GRKU/SERVE.BIN --mark-stopped
+  fi
+  exit 0 ;;
+esac
 mkdir -p /media/storage1/GRKU
 if [ ! -e /tmp/grku-boot ]; then
   : >/tmp/grku-boot

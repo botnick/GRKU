@@ -424,14 +424,15 @@ fn runtime_layout_matches_target_capacity() {
     assert_eq!(runtime::MAX_COUNT, 40);
     assert_eq!(
         runtime::layout(0).unwrap(),
-        json!({"words": runtime::HEADER_SIZE / 4, "tail_words": runtime::TAIL_WORDS, "icon_words": [25 * 1602]})
+        json!({"words": runtime::HEADER_SIZE / 4, "tail_words": runtime::TAIL_WORDS, "text_words": runtime::TEXT_WORDS, "icon_words": [26 * 1602]})
     );
     assert_eq!(
         runtime::layout(40).unwrap(),
         json!({
             "words": (runtime::HEADER_SIZE + 40 * 0x1100) / 4,
             "tail_words": runtime::TAIL_WORDS,
-            "icon_words": [64080, 25 * 1602]
+            "text_words": runtime::TEXT_WORDS,
+            "icon_words": [64080, 26 * 1602]
         })
     );
     assert!(runtime::layout(41).is_err());
@@ -449,8 +450,8 @@ fn allocation_includes_host_icons_at_chunk_boundaries() {
             .map(|v| v.as_u64().unwrap() as usize)
             .collect();
         // The registry holds the header and the records. The tail holds the
-        // picture scratch, the menu text, the live-view labels, the profile
-        // table, and the Toning curves (abi::TAIL_SIZE).
+        // picture scratch, the profile table, and the curves (abi::TAIL_SIZE);
+        // the text area the menu text and the live-view labels.
         assert_eq!(
             words * 4,
             runtime::HEADER_SIZE + count * 0x1100,
@@ -460,6 +461,9 @@ fn allocation_includes_host_icons_at_chunk_boundaries() {
         let tail = layout["tail_words"].as_u64().unwrap() as usize;
         assert_eq!(tail * 4, grku_core::abi::TAIL_SIZE);
         assert!(tail <= grku_core::abi::MODULE_ARRAY_WORDS);
+        let text = layout["text_words"].as_u64().unwrap() as usize;
+        assert_eq!(text * 4, grku_core::abi::TEXT_AREA_SIZE);
+        assert!(text <= grku_core::abi::MODULE_ARRAY_WORDS);
         assert_eq!(
             icons.iter().sum::<usize>() * 4,
             (count + runtime::HOST_ICON_COUNT) * 6408,
@@ -1143,6 +1147,10 @@ fn a_package_holds_the_core_file_of_each_build_of_its_camera() {
     // the card.
     let text = |script: &[u8]| String::from_utf8(script.to_vec()).unwrap();
     let scan = text(&files["SD_ROOT/SCRIPT/GRKU/SCAN.SH"]);
+    // It starts or stops only the Wi-Fi service with an argument; a scan
+    // runs the rest.
+    assert!(scan.starts_with("case \"$1\" in\nserve)\n"), "{scan}");
+    let scan = scan[scan.find("esac\nmkdir").unwrap() + 5..].to_string();
     assert!(
         scan.starts_with(
             "mkdir -p /media/storage1/GRKU\n\

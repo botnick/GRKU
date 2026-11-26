@@ -41,6 +41,66 @@ fn frame(left: usize, top: usize, right: usize, bottom: usize) -> Vec<u8> {
     rgba
 }
 
+/// An RGB color.
+pub type Rgb = [u8; 3];
+
+/// Cover fill colors, as a cover of the Wi-Fi service and the release names
+/// them (`cover::Cover`). GRKU draws its covers on the camera with its own
+/// film box art (`render_box`, `render_cine`), so these colors are data that
+/// a cover carries; the camera icon does not take them.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Palette {
+    pub band: Rgb,
+    pub brand: Rgb,
+    pub body: Rgb,
+    pub text: Rgb,
+    pub accent: Rgb,
+}
+
+/// The classic gray cover, used when `colors` is omitted from a cover.
+pub const NEUTRAL_PALETTE: Palette = Palette {
+    band: [214, 214, 214],
+    brand: [40, 40, 40],
+    body: [51, 51, 51],
+    text: [255, 255, 255],
+    accent: [214, 214, 214],
+};
+
+/// Reads one `[r, g, b]` triple (0 to 255) from a JSON object.
+pub fn read_rgb(value: &serde_json::Value, key: &str) -> Result<Rgb> {
+    let channels = value
+        .get(key)
+        .and_then(|v| v.as_array())
+        .with_context(|| format!("Expected cover colors.{key} as [r, g, b]"))?;
+    ensure!(
+        channels.len() == 3,
+        "Expected cover colors.{key} as [r, g, b] with three channels"
+    );
+    let mut rgb = [0u8; 3];
+    for (i, channel) in channels.iter().enumerate() {
+        let n = channel
+            .as_u64()
+            .with_context(|| format!("Expected cover colors.{key}[{i}] as an integer 0 to 255"))?;
+        ensure!(
+            n <= 255,
+            "Expected cover colors.{key}[{i}] as an integer 0 to 255, not {n}"
+        );
+        rgb[i] = n as u8;
+    }
+    Ok(rgb)
+}
+
+/// Reads `band`, `brand`, `body`, `text`, and `accent` RGB triples from a `colors` object.
+pub fn parse_colors(value: &serde_json::Value) -> Result<Palette> {
+    Ok(Palette {
+        band: read_rgb(value, "band")?,
+        brand: read_rgb(value, "brand")?,
+        body: read_rgb(value, "body")?,
+        text: read_rgb(value, "text")?,
+        accent: read_rgb(value, "accent")?,
+    })
+}
+
 /// The frame of a list row, as the native list icons have it.
 fn background() -> Vec<u8> {
     frame(1, 2, 38, 37)
@@ -534,6 +594,41 @@ pub fn modules_off_pixels() -> Vec<u8> {
     asset_tile(include_bytes!("../assets/tiles/mod-off.png"))
 }
 
+/// The Update row of the MOD page: an arrow down into a tray, as a new
+/// version comes to the camera.
+pub fn update_pixels() -> Vec<u8> {
+    const SAMPLES: i32 = 8;
+    let inside = |x: f32, y: f32| {
+        let shaft = (x - 20.0).abs() <= 1.75 && (9.0..=20.0).contains(&y);
+        let head = (17.0..=25.5).contains(&y) && (x - 20.0).abs() <= 25.5 - y;
+        let tray = (9.5..=30.5).contains(&x) && (28.0..=30.5).contains(&y);
+        let sides =
+            ((x - 10.75).abs() <= 1.25 || (x - 29.25).abs() <= 1.25) && (24.0..=30.5).contains(&y);
+        shaft || head || tray || sides
+    };
+    let mut rgba = background();
+    for y in 3..37 {
+        for x in 2..38 {
+            let mut covered = 0;
+            for b in 0..SAMPLES {
+                for a in 0..SAMPLES {
+                    let sx = x as f32 + (a as f32 + 0.5) / SAMPLES as f32;
+                    let sy = y as f32 + (b as f32 + 0.5) / SAMPLES as f32;
+                    covered += i32::from(inside(sx, sy));
+                }
+            }
+            blend(
+                &mut rgba,
+                x,
+                y,
+                255,
+                covered as f32 / (SAMPLES * SAMPLES) as f32,
+            );
+        }
+    }
+    rgba
+}
+
 /// The width and the height of a label of the manual focus distance scale.
 pub const SCALE_LABEL_WIDTH: usize = 30;
 pub const SCALE_LABEL_HEIGHT: usize = 20;
@@ -776,7 +871,9 @@ pub fn strike(rgba: &mut [u8]) {
 /// that came later, such as a later Framing ratio, and the crop badges of
 /// the crops that the camera has too (`CAMERA_CROP_BADGES`). The label of
 /// each ratio is `aspect::label_index` (FRAMING_RATIO_LABELS).
-pub const OVERLAY_LABELS: [&str; 22] = [
+/// The last two are the other texts of the load cue (runtime/core.h:
+/// LABEL_UPDATE_READY, LABEL_UPDATE_RESTART).
+pub const OVERLAY_LABELS: [&str; 24] = [
     "GRKU Loaded",
     "XPan",
     "16:9",
@@ -799,6 +896,8 @@ pub const OVERLAY_LABELS: [&str; 22] = [
     "35mm",
     "50mm",
     "71mm",
+    "GRKU Update Ready",
+    "Restart Camera",
 ];
 /// The badges of the crops that the camera has too, so that each crop shows
 /// the same badge: 35 and 50 mm of a 28 mm lens, and 50 and 71 mm of GR IIIx
@@ -873,7 +972,7 @@ fn overlay_lines(index: usize) -> Vec<(&'static str, usize, f32)> {
         .position(|candidate| *candidate == "DATE")
         .expect("the labels have DATE");
     match label.split_once(' ') {
-        Some((date_line, time)) if index > date => vec![
+        Some((date_line, time)) if index > date && time == "HM" => vec![
             (
                 date_line,
                 OVERLAY_DATE_CAPITAL,
@@ -936,11 +1035,20 @@ fn overlay_coverage(index: usize) -> (usize, usize, Vec<f32>) {
         .max()
         .unwrap()
         + 2 * OVERLAY_OUTLINE;
+    // A text with a descender, such as the p of "GRKU Update Ready", has rows
+    // below the baseline for it. The other labels keep their height.
+    let descender = OVERLAY_LABELS[index].contains(['g', 'j', 'p', 'q', 'y']);
+    let below = if descender {
+        let (_, bounds, _) = lines.last().expect("a label has a line");
+        OVERLAY_BELOW + bounds.max.y.max(0.0).ceil() as usize
+    } else {
+        OVERLAY_BELOW
+    };
     let height = 2 * OVERLAY_OUTLINE
         + OVERLAY_ABOVE
         + lines.iter().map(|(_, _, capital)| capital).sum::<usize>()
         + OVERLAY_LINE_GAP * (lines.len() - 1)
-        + OVERLAY_BELOW;
+        + below;
     let mut coverage = vec![0f32; width * height];
     let mut top = OVERLAY_OUTLINE + OVERLAY_ABOVE;
     for (outlines, bounds, capital) in lines {
