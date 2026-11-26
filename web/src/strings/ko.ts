@@ -20,7 +20,7 @@ export const ko: Strings = {
     lead: '모든 기능을 무료로 이용할 수 있습니다. 카메라에서 10개보다 많은 룩을 사용하려면 GRKU를 후원하여 추가로 잠금 해제하거나, 무료로 계속 추가되는 새로운 룩을 기다려 주세요. 결제는 필수가 아닙니다.',
     getMore: '룩 더 보기',
     tierAll: '전체',
-    tierAllText: '145개 룩 전부와 앞으로 나올 모든 룩을 카드에 영구적으로',
+    tierAllText: "기존 및 신규 룩 영구 제공, 카드당 한 번에 최대 40개 저장",
     tierSlots: '슬롯 25개',
     tierSlotsText: '10개 대신 원하는 룩 25개를 카드에',
     tierPack: '팩 하나',

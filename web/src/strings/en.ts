@@ -22,7 +22,7 @@ export const en = {
     lead: 'Everything is free. To use more than ten looks on the camera, you can support GRKU to unlock more, or wait for new looks, which keep coming for free. Nothing is required.',
     getMore: 'More looks',
     tierAll: 'Everything',
-    tierAllText: 'All 145 looks and every new one, on your card for ever',
+    tierAllText: 'Every look and every new one, yours for ever, up to 40 on the card at a time',
     tierSlots: '25 slots',
     tierSlotsText: '25 looks of your choice on the card instead of 10',
     tierPack: 'One pack',

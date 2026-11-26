@@ -78,3 +78,24 @@ describe('docs', () => {
     expect(markdown).toContain('https://grku.app/en/install/');
   });
 });
+
+describe('the settings of the modules', () => {
+  it('match the modules of the repository (run node scripts/module-settings.mjs after a change)', async () => {
+    const { readFileSync } = await import('node:fs');
+    // @ts-expect-error The script has no types.
+    const { generatedBody } = await import('../../scripts/module-settings.mjs');
+    expect(readFileSync(new URL('./moduleSettings.generated.ts', import.meta.url), 'utf8')).toBe(generatedBody);
+  });
+
+  it('are all in the manual, each with what it does', async () => {
+    const { MODULE_SETTINGS } = await import('./moduleSettings.generated');
+    const blocks = Object.values(en.pages).flatMap((page) => page.blocks.filter((block) => block.kind === 'settings'));
+    for (const module of MODULE_SETTINGS.filter((item) => item.settings.length > 0)) {
+      const block = blocks.find((item) => item.kind === 'settings' && item.module === module.dir);
+      expect(block, `the manual has no settings table of ${module.dir}`).toBeDefined();
+      for (const setting of module.settings) {
+        expect(block && block.kind === 'settings' && block.notes[setting.key], `${module.dir}: ${setting.key} has no note`).toBeTruthy();
+      }
+    }
+  });
+});

@@ -221,7 +221,7 @@ export function ChatLauncher({
       )}
       {mounted && (
         <Suspense fallback={null}>
-          <ChatPanel open={open} onOpenChange={setOpen} language={language} strings={strings} plusKey={plusKey} context={context} onPlus={onPlus} onNavigate={onNavigate} initialQuestion={request?.question ?? null} />
+          <ChatPanel open={open} onOpenChange={setOpen} language={language} strings={strings} plusKey={plusKey} context={context} onPlus={onPlus} onNavigate={onNavigate} initialQuestion={request?.question ?? null} requestId={request?.at ?? null} />
         </Suspense>
       )}
     </div>

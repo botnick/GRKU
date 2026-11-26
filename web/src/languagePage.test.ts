@@ -190,7 +190,13 @@ describe('edge worker', () => {
     const response = await edge.fetch(request('/', { 'Accept-Language': 'en-US,en;q=0.9' }, 'US'), { ASSETS: assets });
     expect(response.status).toBe(302);
     expect(response.headers.get('Location')).toBe('https://grku.app/en/');
-    expect(response.headers.get('Vary')).toBe('Accept-Language, Cookie, User-Agent');
+    expect(response.headers.get('Vary')).toBe('Accept-Language, Cookie, User-Agent, X-GRKU-Head');
+  });
+
+  it('serves the Thai page itself to the head of the app after a move', async () => {
+    vi.stubGlobal('__SITE_HEADERS__', {});
+    const response = await edge.fetch(request('/docs/firmware/', { 'Accept-Language': 'en-US', 'X-GRKU-Head': '1' }, 'US'), { ASSETS: assets });
+    expect(response.status).toBe(200);
   });
 
   it('serves the Thai pages to search engines, which crawl from abroad', async () => {
@@ -203,7 +209,7 @@ describe('edge worker', () => {
       { ASSETS: assets },
     );
     expect(english.status).toBe(200);
-    expect(english.headers.get('Vary')).toBe('Accept-Language, Cookie, User-Agent');
+    expect(english.headers.get('Vary')).toBe('Accept-Language, Cookie, User-Agent, X-GRKU-Head');
     expect(assets.fetch).toHaveBeenCalledTimes(2);
   });
 
@@ -213,7 +219,7 @@ describe('edge worker', () => {
     expect(response.status).toBe(200);
     expect(await response.text()).toBe(page);
     expect(response.headers.get('Content-Security-Policy')).toBe("default-src 'self'");
-    expect(response.headers.get('Vary')).toBe('Accept-Language, Cookie, User-Agent');
+    expect(response.headers.get('Vary')).toBe('Accept-Language, Cookie, User-Agent, X-GRKU-Head');
   });
 
   it('sends the old looks pages to the install page of their language', async () => {

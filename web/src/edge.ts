@@ -30,7 +30,8 @@ export default {
       return Response.redirect(url.href, 301);
     }
     const page = Object.hasOwn(EDGE_PATHS, url.pathname) ? EDGE_PATHS[url.pathname] : undefined;
-    if (page && (request.method === 'GET' || request.method === 'HEAD')) {
+    // The page itself, for the head of the app after a move inside it (src/head.ts).
+    if (page && (request.method === 'GET' || request.method === 'HEAD') && request.headers.get('X-GRKU-Head') !== '1') {
       const language = visitorLanguage({
         cookie: request.headers.get('Cookie'),
         acceptLanguage: request.headers.get('Accept-Language'),
@@ -45,7 +46,7 @@ export default {
         url.pathname = target;
         return new Response(null, {
           status: 302,
-          headers: { Location: url.href, 'Cache-Control': 'private, no-store', Vary: 'Accept-Language, Cookie, User-Agent' },
+          headers: { Location: url.href, 'Cache-Control': 'private, no-store', Vary: 'Accept-Language, Cookie, User-Agent, X-GRKU-Head' },
         });
       }
     }
@@ -54,7 +55,9 @@ export default {
     for (const [name, value] of Object.entries(__SITE_HEADERS__)) {
       if (!response.headers.has(name)) response.headers.set(name, value);
     }
-    response.headers.append('Vary', 'Accept-Language, Cookie, User-Agent');
+    response.headers.append('Vary', 'Accept-Language, Cookie, User-Agent, X-GRKU-Head');
+    // A page that the worker could have sent elsewhere is the answer of this request only.
+    if (page) response.headers.set('Cache-Control', 'private, no-store');
     return response;
   },
 };

@@ -20,7 +20,7 @@ export const zhHans: Strings = {
     lead: '所有内容均可免费使用。如需在相机中使用十款以上的色彩风格，您可以支持 GRKU 解锁更多，或等待持续免费推出的新风格。全凭自愿，无需强制付费。',
     getMore: '更多风格',
     tierAll: '全部',
-    tierAllText: '全部 145 种风格及未来新增，永久存入您的存储卡',
+    tierAllText: "永久解锁全部现有与新增胶片预设，单张存储卡同时最多可载入 40 款",
     tierSlots: '25 槽位',
     tierSlotsText: '存储卡上可自选 25 种风格，替代原来的 10 种',
     tierPack: '单包',

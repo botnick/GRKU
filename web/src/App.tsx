@@ -82,6 +82,7 @@ import {
   type SitePage,
 } from './languagePage';
 import { isDocsPage } from './docs/pages';
+import { syncHead } from './head';
 import { loadDocs } from './docs/load';
 import { pageLink, type Navigate, type PageLink } from './navigation';
 import { hasCamera, loadCamera, loadModules, loadProgress, saveCamera, saveModules, saveProgress, visitStep } from './setup';
@@ -407,18 +408,48 @@ export function App({
     [targets, camera.id, language],
   );
 
+  // The page that shows now, for a language that arrives after a move to another page.
+  const pageNow = useRef(page);
+  useEffect(() => {
+    pageNow.current = page;
+  }, [page]);
+  const languageRun = useRef(0);
+  /** Each move of the history, so a Back or Forward that a later move overtook does nothing. */
+  const historyRun = useRef(0);
   function chooseLanguage(next: Language) {
     loadFonts(next);
-    // The text of the language downloads first; the page changes when it is there.
-    void Promise.all([loadStrings(next), isDocsPage(page) ? loadDocs(next) : null]).then(() => {
-      applyLanguage(next, page);
+    const run = ++languageRun.current;
+    // The text of the language downloads first; the page changes when it is there, on the page
+    // that shows then. A later choice wins over an earlier one that arrives late.
+    const target = pageNow.current;
+    void Promise.all([loadStrings(next), isDocsPage(target) ? loadDocs(next) : null]).then(async () => {
+      if (isDocsPage(pageNow.current)) await loadDocs(next);
+      if (run !== languageRun.current) return;
+      applyLanguage(next, pageNow.current);
       setLanguage(next);
     });
   }
 
+  // After a move or a change of language, the head takes the tags of the prerendered page.
+  const headSynced = useRef(false);
+  useEffect(() => {
+    const path = pagePath(language, page);
+    // The first render keeps the head of its HTML, unless the start moved to another address (`/#install`).
+    if (!headSynced.current) {
+      headSynced.current = true;
+      // og:url is the address of the HTML (showLanguage moves only the canonical link).
+      const prerendered = document.querySelector('meta[property="og:url"]')?.getAttribute('content');
+      if (prerendered && new URL(prerendered, location.href).pathname === path) return;
+    }
+    void syncHead(path);
+  }, [language, page]);
+
   /** Shows `next` without a reload, as a new entry of the history. */
   const navigate: Navigate = (next, hash = '') => {
     history.pushState(null, '', `${pagePath(language, next)}${hash}`);
+    // A language that arrives before the page shows applies to this page, and a Back still on its way is overtaken.
+    pageNow.current = next;
+    historyRun.current++;
     showLanguage(language, next);
     // A transition keeps the current page on screen while the part of the next one downloads.
     startTransition(() => {
@@ -432,16 +463,23 @@ export function App({
   // Back and forward show the page of the address, in its language.
   useEffect(() => {
     async function back() {
+      // A language that is still on its way would move this page back to the earlier one, and a
+      // later Back or Forward wins over this one when its text arrives first.
+      languageRun.current++;
+      const mine = ++historyRun.current;
       const next = pathPage(location.pathname) ?? 'home';
       const nextLanguage = pathLanguage(location.pathname);
+      const hash = location.hash;
+      pageNow.current = next;
       loadFonts(nextLanguage);
       await loadStrings(nextLanguage);
+      if (mine !== historyRun.current) return;
       showLanguage(nextLanguage, next);
       startTransition(() => {
         setMoved(true);
         setLanguage(nextLanguage);
         setPage(next);
-        setScrollTarget({ hash: location.hash });
+        setScrollTarget({ hash });
       });
     }
     addEventListener('popstate', back);

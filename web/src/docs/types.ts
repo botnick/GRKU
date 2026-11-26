@@ -8,8 +8,10 @@ import type { DocGroup, DocSlug } from './pages';
  */
 export type Inline = string;
 
-/** A mock-up of a camera screen (public/docs/screen-<name>.<camera language>-<width>.webp), drawn from the GRKU tiles, film boxes, and menu words. */
-export type DocScreen = 'adj' | 'film-look' | 'recipes' | 'menu' | 'settings' | 'date' | 'mode-dial' | 'modeset' | 'setup-gr3' | 'setup-gr4' | 'info-gr3' | 'info-gr4';
+/** A real camera screen of GRKU (public/docs/screen-<name>.en-<width>.webp): `modeset` is the camera's own
+ * framebuffer, `menu` a photo of a GR IV, `adj` the camera's ADJ panels (resources/images/grku-root.jpg)
+ * over a photo of GRKU, and `modeset-back` the guide picture with the MENU button (resources/images/camera-menu.png). */
+export type DocScreen = 'adj' | 'menu' | 'modeset' | 'modeset-back';
 
 /** A photo of GRKU's own, shot on a GR IV (public/docs/photo-<name>-<width>.webp). */
 export type DocPhoto = 'portra-heart' | 'pro400h' | 'portra-bloom' | 'chrome-grain' | 'neg-gr1s' | 'cinestill' | 'kodachrome-leak' | 'trix' | 'chrome-white' | 'gr2-soft' | 'velvia-wide' | 'acros-instant';
@@ -34,10 +36,15 @@ export type DocBlock =
   /** Framing, Crop, or Guides over a photo, with their choices to try. */
   | { kind: 'frame'; mode: 'framing' | 'crop' | 'guides'; alt: string }
   | { kind: 'camera'; screen: CameraScreen; press: readonly CameraKey[]; alt: string }
-  | { kind: 'cameras' };
+  | { kind: 'cameras' }
+  /** The settings of a module as the camera names them, with their values and defaults, from the code
+   * (docs/moduleSettings.generated.ts), and what each does (`notes`, by setting key). */
+  | { kind: 'settings'; module: string; notes: Readonly<Record<string, Inline>> };
 
 export interface DocText {
   title: string;
+  /** Where each fact of the page comes from (files of the repository, or RICOH pages), for an audit. Not shown. */
+  sources?: readonly string[];
   /** The title for search engines: the words people search for. */
   seo: string;
   /** The first line of the page, also its search result text and its description. */
@@ -87,6 +94,9 @@ export interface DocsContent {
     focal: string;
     style: string;
     guides: readonly string[];
+    settingCol: string;
+    choicesCol: string;
+    defaultMark: string;
     updated: string;
   };
   groups: Readonly<Record<DocGroup, string>>;

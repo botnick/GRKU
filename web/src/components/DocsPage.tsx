@@ -10,16 +10,14 @@ import { parseInline, plusTarget, targetUrl } from '../docs/inline';
 import { DOCS, loadDocs } from '../docs/load';
 import { DOC_GROUPS, DOC_PAGES, docSlug, type DocSlug, type DocsSitePage } from '../docs/pages';
 import { searchDocs } from '../docs/search';
+import { settingRows } from '../docs/settingsTable';
 import type { DocBlock, DocPhoto, DocsContent, Inline } from '../docs/types';
 import { siteUrl } from '../catalog';
-import { guideLines, LANDING_RATIOS, type LandingGuide } from '../landing';
+import { guideLines, type LandingGuide } from '../landing';
 import { showLanguage, type Language } from '../i18n';
 import { pathPage } from '../languagePage';
 import type { PageLink } from '../navigation';
 import { CameraBackArt } from './GuideArt';
-
-/** The camera language of the screens: the camera has no Thai, so the Thai manual shows the English menus. */
-const screenLanguage = (language: Language) => (language === 'th' ? 'en' : language);
 
 /** The address of a camera screen or a photo of the manual at a width. */
 const docsImage = (name: string, width: number) => siteUrl(`docs/${name}-${width}.webp`);
@@ -267,7 +265,11 @@ const MASKS = [
   { boxShadow: '0 0 0 2000px #000' },
   { outline: '2px solid #fff', outlineOffset: '-2px' },
 ] as const;
-const RATIOS = [...LANDING_RATIOS, { label: '3:4', ratio: 3 / 4 }];
+// The ratios in the order of the camera (runtime/framing_ratios.h: FRAMING_RATIO_ROWS), from the widest.
+const RATIOS = ['XPan 65:24', '2.35:1', '16:9', '4:3', '5:4', '7:6', '1:1', '3:4'].map((label) => {
+  const [w, h] = label.replace('XPan ', '').split(':').map(Number) as [number, number];
+  return { label, ratio: w / h };
+});
 /** Crop of GR III and GR IV: the 28 mm lens, cropped to each focal length. */
 const FOCALS = [35, 40, 50, 70];
 const GUIDES: readonly LandingGuide[] = ['thirds', 'center', 'golden', 'diagonals'];
@@ -358,6 +360,46 @@ function CardTree({ block }: { block: Extract<DocBlock, { kind: 'card' }> }) {
         })}
       </ul>
     </figure>
+  );
+}
+
+/** The settings of a module as the camera shows them, from the code, with what each does. */
+function SettingsTable({ block, ctx }: { block: Extract<DocBlock, { kind: 'settings' }>; ctx: Ctx }) {
+  const t = ctx.content.ui;
+  const rows = settingRows(block.module, ctx.language) ?? [];
+  return (
+    <div className="my-6 overflow-x-auto rounded-xl border">
+      <table className="w-full text-left text-[15px]">
+        <thead className="bg-muted/60 text-[13px] text-muted-foreground">
+          <tr>
+            <th scope="col" className="px-4 py-2.5 font-medium">{t.settingCol}</th>
+            <th scope="col" className="px-4 py-2.5 font-medium">{t.choicesCol}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.key} className="border-t align-top">
+              <td className="min-w-[8.5em] px-4 py-3 font-semibold">{row.name}</td>
+              <td className="px-4 py-3 leading-relaxed">
+                <span className="flex flex-wrap gap-1.5">
+                  {row.values.map((value, index) => (
+                    <span key={index} className={cn('rounded-md border px-1.5 py-0.5 font-mono text-[12.5px]', index === row.default ? 'border-foreground/60 bg-accent font-semibold' : 'border-border text-muted-foreground')}>
+                      {value}
+                      {index === row.default && <span className="ml-1 font-sans text-[11px] font-normal text-muted-foreground">({t.defaultMark})</span>}
+                    </span>
+                  ))}
+                </span>
+                {block.notes[row.key] && (
+                  <span className="mt-1.5 block text-foreground/85">
+                    <Text text={block.notes[row.key]!} ctx={ctx} />
+                  </span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -496,10 +538,11 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
         </ul>
       );
     case 'screen': {
-      const name = `screen-${block.screen}.${block.screen === 'modeset' || /^(setup|info)-/.test(block.screen) ? 'en' : screenLanguage(ctx.language)}`;
+      // The screens are captures of a camera in English, the menu language of a Thai reader too.
+      const name = `screen-${block.screen}.en`;
       return (
         <figure className="my-6">
-          <img src={docsImage(name, 720)} srcSet={`${docsImage(name, 720)} 720w, ${docsImage(name, 1080)} 1080w`} sizes="(min-width: 768px) 560px, 100vw" alt={block.alt} width={720} height={480} loading="lazy" className="block h-auto w-full max-w-[560px] rounded-xl border-[6px] border-[#1c1c1e] bg-black shadow-sm" />
+          <img src={docsImage(name, 720)} srcSet={`${docsImage(name, 720)} 720w, ${docsImage(name, 1080)} 1080w`} sizes="(min-width: 768px) 560px, 100vw" alt={block.alt} width={720} height={480} loading="lazy" className={cn("block h-auto w-full max-w-[560px] rounded-xl", block.screen !== "modeset-back" && "border-[6px] border-[#1c1c1e] bg-black shadow-sm")} />
           <figcaption className="mt-2 max-w-[560px] text-[13px] leading-relaxed text-muted-foreground">{block.alt}</figcaption>
         </figure>
       );
@@ -528,6 +571,8 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
       );
     case 'cameras':
       return <CameraTable ctx={ctx} />;
+    case 'settings':
+      return <SettingsTable block={block} ctx={ctx} />;
   }
 }
 
