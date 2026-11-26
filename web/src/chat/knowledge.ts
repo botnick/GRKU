@@ -14,7 +14,7 @@ import { brandOf, filmKind, type FilmKind } from '../filmKind';
 import type { GuideStrings } from '../guide';
 import type { Strings } from '../i18n';
 import { LAUNCH_ENDS, LAUNCH_PRICES, packOf, REGULAR_PRICES, FREE_SLOTS, PACKS } from '../plus';
-import { LEARN } from './learn';
+import { LEARN_TOPICS } from './learn';
 import { blockText } from '../docs/search';
 import { DOC_PAGES } from '../docs/pages';
 import type { DocsContent } from '../docs/types';
@@ -147,7 +147,10 @@ export function buildKnowledge(sources: KnowledgeSources): Knowledge {
   });
   const counts = Object.fromEntries(PACKS.map((pack) => [pack, looks.filter((look) => look.pack === pack).length]));
   const freeLooks = looks.filter((look) => look.pack === 'free').length;
-  const ends = new Date(LAUNCH_ENDS).toISOString().slice(0, 10);
+  // The launch ends at midnight in Thailand: its last day and the first day of the regular prices, in Thai time.
+  const thaiDay = (ms: number) => new Date(ms + 7 * 3600_000).toISOString().slice(0, 10);
+  const lastLaunchDay = thaiDay(LAUNCH_ENDS - 1);
+  const regularFrom = thaiDay(LAUNCH_ENDS);
 
   const sections: KnowledgeSection[] = [
     {
@@ -182,7 +185,8 @@ export function buildKnowledge(sources: KnowledgeSources): Knowledge {
       id: 'camera',
       title: 'On the camera: using GRKU and fixing problems (package README)',
       tags: ['adj', 'fn', 'option', 'order', 'menu', 'customize', 'install.err', 'report', 'not show', 'format', 'dng', 'raw', 'jpeg', 'use', 'how to', 'ใช้', 'ยังไง', 'ปรับ', 'เมนู', 'ฟอร์แมต', 'ไม่ขึ้น', 'ไม่ได้', '使用', '使い方', '사용'],
-      text: markdownSections(sources.manual, ['Use', 'Troubleshooting', 'The camera starts a firmware update when you hold MENU', 'The camera does not show Mode Set Command', 'GRKU does not show in ADJ', 'GRKU stops working after you format the card']),
+      // The README names the manual by its full address; the assistant links paths only.
+      text: markdownSections(sources.manual, ['Use', 'Troubleshooting', 'The camera starts a firmware update when you hold MENU', 'The camera does not show Mode Set Command', 'GRKU does not show in ADJ', 'GRKU stops working after you format the card']).replace(/https:\/\/grku\.app\/(?:[a-z-]+\/)?docs\//g, '/docs/'),
     },
     {
       id: 'install',
@@ -214,7 +218,7 @@ export function buildKnowledge(sources: KnowledgeSources): Knowledge {
       text: [
         t.plus.lead,
         `Free: every look previews free on the site; any ${FREE_SLOTS} looks of the library go on the card free; every module, recipes, and the Develop page are free. ${freeLooks} camera looks (FUJIFILM film simulations and RICOH's own) are in no pack.`,
-        `Tiers, one-time payment, in Thai baht. Launch prices until ${ends}: Everything ${LAUNCH_PRICES.plus} (${t.plus.tierAllText.replace(/\d+ looks/, `${looks.length} looks`)}), 25 slots ${LAUNCH_PRICES.slots25} (${t.plus.tierSlotsText}), one pack ${LAUNCH_PRICES['pack:kodak']} each (${t.plus.tierPackText}). From ${ends}: Everything ${REGULAR_PRICES.plus}, 25 slots ${REGULAR_PRICES.slots25}, one pack ${REGULAR_PRICES['pack:kodak']}. Earlier payments count toward Everything and 25 slots.`,
+        `Tiers, one-time payment, in Thai baht. Launch prices through ${lastLaunchDay} (Thai time): Everything ${LAUNCH_PRICES.plus} (${t.plus.tierAllText.replace(/\d+ looks/, `${looks.length} looks`)}), 25 slots ${LAUNCH_PRICES.slots25} (${t.plus.tierSlotsText}), one pack ${LAUNCH_PRICES['pack:kodak']} each (${t.plus.tierPackText}). From ${regularFrom}: Everything ${REGULAR_PRICES.plus}, 25 slots ${REGULAR_PRICES.slots25}, one pack ${REGULAR_PRICES['pack:kodak']}. Earlier payments count toward Everything and 25 slots.`,
         `Packs: ${PACKS.map((pack) => `${t.plus.packs[pack]} (${counts[pack]} looks)`).join(', ')}.`,
         `Any purchase also opens ${t.plus.studioFull}. Payment: PromptPay QR from any Thai bank app, or a TrueMoney gift link; upload the slip and the looks unlock at once. The key comes by email and works on every device ("I have a key" on the site).`,
         markdownSections(sources.terms, ['Refunds']),
@@ -250,12 +254,8 @@ export function buildKnowledge(sources: KnowledgeSources): Knowledge {
       tags: ['new', 'latest', 'version', 'release', 'changelog', 'update', 'ใหม่', 'เวอร์ชัน', 'เวอร์ชั่น', 'อัปเดต', '新', 'バージョン', '버전'],
       text: sources.news.map((release) => `${release.version} (${release.date}): ${release.items.join(' ')}`).join('\n'),
     },
-    {
-      id: 'learn',
-      title: 'Learn: photography with a GR and GRKU',
-      tags: LEARN.tags,
-      text: LEARN.text,
-    },
+    // Learn: photography with a GR and GRKU, one section a topic.
+    ...LEARN_TOPICS,
     ...(sources.docs ? docsSections(sources.docs, sources.docsKeywords ?? []) : []),
   ];
 
@@ -310,14 +310,50 @@ const CARD_TROUBLES = [
 /** Words that would bring a manual page into nearly every prompt. */
 const COMMON_WORDS = new Set(['grku', 'the', 'and', 'for', 'film', 'photo', 'photos', 'camera', 'menu', 'adj', 'free', 'card', 'sd', 'on', 'off', 'gr', 'use', 'new', 'look', 'looks', 'settings', 'setting', 'page', 'site', 'help', 'version', 'white', 'black', 'กล้อง', 'การ์ด', 'ฟิล์มลุค', 'ลุค', 'カメラ', '카메라', '相机', '相機']);
 
-/** The tags of a manual page: its search words and title in every language, less the common ones. */
+/**
+ * The words people ask with, for each page of the manual, on top of its search words: the search
+ * words are the manual's own (such as เวอร์ชันเฟิร์มแวร์), while a question says เช็คเฟิร์มแวร์ or
+ * ครอปได้กี่มิล. Lower case; Thai as people type it.
+ */
+const DOC_EXTRA_TAGS: Partial<Record<keyof DocsContent['pages'], readonly string[]>> = {
+  start: ['what do i need', 'beginner', 'มือใหม่', 'ต้องมีอะไร', 'ต้องใช้อะไร', 'เริ่มใช้'],
+  firmware: ['firmware version', 'camera information', 'about this device', 'เฟิร์มแวร์', 'เฟิมแวร์', 'เช็ค', 'ดูเวอร์ชัน', 'เวอร์ชันกล้อง', 'อัปเฟิร์มแวร์', 'อัพเฟิร์มแวร์', 'เฟิร์มแวร์ใหม่'],
+  install: ['mode set command', 'script - enable', 'modeset', 'develop.mod', 'sd_root', 'first start', 'ลง grku', 'ติดตั้ง', 'กด menu ค้าง', 'menu ค้าง'],
+  controls: ['adj', 'fn', 'options', 'ปุ่ม', 'ซ่อน', 'ปิดลุค', 'ลบลุค'],
+  update: ['update grku', 'uninstall', 'format', 'อัปเดต grku', 'อัพเดท grku', 'ถอน', 'ฟอร์แมต', 'เปลี่ยนลุค', 'เพิ่มลุค', 'ลบของเดิม'],
+  'film-look': ['film look', 'image control', 'ฟิล์มลุค', 'ปรับโทน', 'ปรับลุค', 'ใช้งานฟิล์ม'],
+  recipes: ['recipe', 'save settings', 'undo', 'สูตร', 'ย้อนกลับ'],
+  framing: ['xpan', 'framing', '65:24', 'อัตราส่วน', 'พาโนรามา'],
+  crop: ['crop', 'focal length', 'mm', 'ครอป', 'มิล', 'ทางยาวโฟกัส'],
+  guides: ['guides', 'grid', 'เส้นตาราง', 'เส้นช่วย', 'เส้น'],
+  date: ['date imprint', 'วันที่', 'ใส่วันที่', 'ฟอนต์'],
+  glow: ['glow', 'halation', 'bloom', 'ฮาเลชัน', 'ฮาเลชั่น'],
+  'light-leak': ['light leak', 'แสงรั่ว'],
+  diffusion: ['diffusion', 'pro-mist', 'mist', 'ฟุ้ง'],
+  grain: ['grain', 'film-like', 'เกรน'],
+  border: ['border', 'ขอบ', 'กรอบรูป'],
+  'mode-dial': ['u1', 'u2', 'u3', 'mode dial', 'save current settings', 'แป้นหมุน', 'โหมด u'],
+  raw: ['raw', 'dng', 'raw develop', 'ไฟล์ raw', 'ล้าง raw'],
+  settings: ['grku settings', 'enable at start', 'adj order', 'uncropped raw', 'top 1', 'distance unit'],
+  looks: ['import', 'lut', 'cube', 'xmp', 'นำเข้า', 'กี่ลุค', 'เลือกลุค'],
+  plus: ['key', 'คีย์', 'ซื้อ', 'จ่าย', 'ใช้คีย์'],
+  shutdown: ['shutdown', 'goodbye', 'studio', 'ตอนปิดกล้อง', 'ปิดกล้องแล้ว', 'รูปตอนปิด'],
+  develop: ['develop', 'my own photo', 'รูปตัวเอง', 'ลองกับรูป'],
+  assistant: ['assistant', 'ผู้ช่วย', 'แชท'],
+  'not-showing': ['install.err', 'report.txt', 'not show', 'ไม่ขึ้น', 'ไม่เห็น', 'ไม่เจอ grku', 'เออเรอร์', 'error'],
+  stuck: ['stuck', 'freeze', 'ค้าง', 'เปิดไม่ติด'],
+  faq: ['first photos', 'menu again', 'รูปแรก', 'ไม่มีฟิล์มลุค', 'อีกไหม'],
+  cameras: ['supported', 'gr iii', 'gr iiix', 'gr iv', 'monochrome', 'รองรับ', 'รุ่น'],
+};
+
+/** The tags of a manual page: its search words and title in every language, less the common ones, and the words people ask with. */
 function docTags(slug: keyof DocsContent['pages'], all: readonly DocsContent[]): string[] {
   const words = all.flatMap((content) => {
     const page = content.pages[slug];
     // Thai and the CJK languages write no spaces between words: the whole title is one tag.
     return [...page.keywords.toLowerCase().split(/\s+/), page.title.toLowerCase()];
   });
-  return [...new Set(words.map((word) => word.trim()).filter((word) => [...word].length >= 3 && !COMMON_WORDS.has(word)))];
+  return [...new Set([...words.map((word) => word.trim()).filter((word) => [...word].length >= 3 && !COMMON_WORDS.has(word)), ...(DOC_EXTRA_TAGS[slug] ?? [])])];
 }
 
 /** A section of the knowledge for each page of the manual, with the link of each of its parts. */

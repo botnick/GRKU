@@ -54,7 +54,7 @@ const PACK: Knowledge = {
     { id: 'plus', title: 'GRKU Plus and prices', tags: ['price', 'ราคา'], text: 'Everything 199 baht.' },
   ],
   looks: [{ id: 'portra-400-endura-v1', name: 'Portra 400', brand: 'Kodak', kind: 'negative', pack: 'kodak' }],
-  lookTags: ['look', 'ลุค'],
+  lookTags: ['look', 'ลุค', 'แนะนำ'],
 };
 
 /** An SSE body as an OpenAI-compatible provider sends it. */
@@ -219,9 +219,9 @@ describe('payloads', () => {
     ]).flat();
     const all = [...turns, { role: 'user', content: 'last' }];
     const messages = await readMessages(all, limits, async () => true);
-    expect(messages.length).toBe(17);
-    expect(messages[0]).toEqual({ role: 'user', content: 'q4' });
-    expect(earlierQuestions(all, limits)).toBe('"q0"; "q1"; "q2"; "q3"');
+    expect(messages.length).toBe(13);
+    expect(messages[0]).toEqual({ role: 'user', content: 'q6' });
+    expect(earlierQuestions(all, limits)).toBe('"q2"; "q3"; "q4"; "q5"');
   });
 
   it('keeps only known page context and drops an injected error text', () => {
@@ -277,7 +277,7 @@ describe('the system prompt', () => {
     expect(price.prompt).toContain('Everything 199 baht.');
     expect(price.topics).toEqual(['plus']);
     const look = systemPrompt(PACK, [{ role: 'user', content: 'แนะนำลุคหน่อย' }], 'th', {}, 'free');
-    expect(look.prompt).toContain('portra-400-endura-v1 | Portra 400');
+    expect(look.prompt).toContain('portra-400-endura-v1 | Kodak Portra 400');
   });
 
   it('describes the page context as data', () => {
@@ -385,10 +385,18 @@ describe('providers', () => {
     const h = harness({ env: { ...PAID, CHAT_ALLOW_PAID: '1', CHAT_FORCE_PROVIDER: 'paid' } as Partial<ChatEnv>, answer: () => stream(['Hi'], { prompt_tokens: 4000, completion_tokens: 200 }) });
     await (await ask(h, await session(h), 'hello')).text();
     await Promise.all(h.pending);
-    expect(h.calls[0]!.body.provider).toEqual({ only: ['google-vertex', 'google-ai-studio'], allow_fallbacks: false, max_price: { prompt: 0.25, completion: 1.5 } });
+    expect(h.calls[0]!.body.provider).toEqual({ order: ['google-vertex', 'google-ai-studio'], only: ['google-vertex', 'google-ai-studio'], allow_fallbacks: false, max_price: { prompt: 0.25, completion: 1.5 } });
     // 4000 × 0.25 + 200 × 1.5 = 1300 micro-dollars.
     expect((await h.store.get(dayOf(NOW), 'usd')).tokens).toBe(1300);
     expect((await h.store.get(dayOf(NOW).slice(0, 7), 'usd')).tokens).toBe(1300);
+  });
+
+  it('counts what OpenRouter billed when it says, cached tokens cheaper', async () => {
+    const usage = { prompt_tokens: 6000, completion_tokens: 200, prompt_tokens_details: { cached_tokens: 4000 }, cost: 0.000925 };
+    const h = harness({ env: { ...PAID, CHAT_ALLOW_PAID: '1', CHAT_FORCE_PROVIDER: 'paid' } as Partial<ChatEnv>, answer: () => stream(['Hi'], usage as unknown as { prompt_tokens: number; completion_tokens: number }) });
+    await (await ask(h, await session(h), 'hello')).text();
+    await Promise.all(h.pending);
+    expect((await h.store.get(dayOf(NOW), 'usd')).tokens).toBe(925);
   });
 
   it('stops paid calls at the caps, and keeps half the month for Plus', async () => {

@@ -54,7 +54,7 @@ CHAT_PER_MINUTE = "6"
 CHAT_MAX_INPUT = "600"
 CHAT_MAX_OUTPUT_FREE = "600"
 CHAT_MAX_OUTPUT_PLUS = "1200"
-CHAT_HISTORY_TURNS = "8"
+CHAT_HISTORY_TURNS = "6"
 CHAT_VIOLATIONS_PER_HOUR = "4"
 # The kill switch: the whole site's messages and tokens a day, sized inside the free quotas below.
 CHAT_DAILY_MESSAGES = "600"
@@ -79,6 +79,9 @@ CHAT_PAID_FREE_SHARE = "50"
 CHAT_PLUS_TIER = "flash"
 CHAT_PRO_MODELS = "google/gemini-3.1-pro-preview"
 CHAT_HISTORY_TURNS_PLUS = "16"
+# The answer cache (src/chat/cache.ts): first questions asked the same way get the stored answer
+# for 7 days, at no cost. The admin page can turn it off and clear it.
+CHAT_ANSWER_CACHE = "on"
 # Provider 1: Google AI Studio, Gemini API free tier, OpenAI-compatible endpoint. Secret: CHAT_API_KEY.
 # Free: Flash-Lite with low thinking; Plus: Flash with high thinking. _RPD is our own daily cap per
 # model, under the free quota that AI Studio shows for the project (check there).
@@ -106,7 +109,7 @@ CHAT3_MODEL_FREE = "google/gemini-3.1-flash-lite"
 CHAT3_MODEL_PLUS = "google/gemini-3.8-flash"
 CHAT3_REASONING_FREE = "low"
 CHAT3_REASONING_PLUS = "high"
-CHAT3_ROUTING = "google-vertex,google-ai-studio"
+CHAT3_ROUTING = "google-ai-studio,google-vertex"
 CHAT3_PRICES = "google/gemini-3.1-flash-lite=0.25/1.5,google/gemini-3.8-flash=0.825/4.125,google/gemini-3.1-pro-preview=2/12"
 # Provider 4 (optional): Cloudflare Workers AI, free daily allocation. Secrets: CHAT4_BASE_URL
 # (https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1) and CHAT4_API_KEY.

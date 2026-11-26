@@ -22,6 +22,7 @@ import { FIRMWARE_FILE, messageLanguage, postFilter, preFilter, type Language, t
 import { PROMPT_FRAGMENTS, PROMPT_VERSION, rules } from './prompt';
 import { ImageError, readImages, withImages, type ChatImage } from './image';
 import { REPLIES } from './replies';
+import { answerKey, cacheableQuestion, type AnswerCache } from './cache';
 
 export { PROMPT_VERSION };
 
@@ -76,6 +77,10 @@ export interface ChatEnv {
   /** Development only: try only the provider of this name (to test one path, such as the paid one). */
   CHAT_FORCE_PROVIDER?: string;
   CHAT_HISTORY_TURNS_PLUS?: string;
+  /** "off" turns the answer cache off (cache.ts); on by default. */
+  CHAT_ANSWER_CACHE?: string;
+  /** Development only: "1" sends the token usage of each answer with its `done` event (eval/graded.mjs). */
+  CHAT_DEBUG_USAGE?: string;
   // Providers: CHAT_* is the first, CHAT2_* … CHAT4_* the next. Each has _NAME, _BASE_URL,
   // _API_KEY (a secret), _MODEL_FREE and _MODEL_PLUS (a model or a comma-separated list, tried in
   // order; a provider without _MODEL_PLUS serves only the free tier), _MODEL_QUICK (optional),
@@ -138,7 +143,7 @@ export function limitsOf(env: Partial<ChatEnv>): Limits {
     maxInput: int(env.CHAT_MAX_INPUT, 600),
     maxOutputFree: int(env.CHAT_MAX_OUTPUT_FREE, 600),
     maxOutputPlus: int(env.CHAT_MAX_OUTPUT_PLUS, 1600),
-    historyTurns: int(env.CHAT_HISTORY_TURNS, 8),
+    historyTurns: int(env.CHAT_HISTORY_TURNS, 6),
     historyTurnsPlus: int(env.CHAT_HISTORY_TURNS_PLUS, 16),
     dailyMessages: int(env.CHAT_DAILY_MESSAGES, 600),
     dailyTokens: int(env.CHAT_DAILY_TOKENS, 6_000_000),
@@ -403,6 +408,8 @@ export interface ChatDeps {
   waitUntil: (promise: Promise<unknown>) => void;
   /** The knowledge pack; null when it cannot be read. */
   knowledge: () => Promise<Knowledge | null>;
+  /** The answer cache of first questions (cache.ts); none: no cache. */
+  cache?: AnswerCache;
   /** Notes how a provider answered: ok, or the HTTP status or error name (for the admin page). */
   providerStatus?: (provider: Provider, ok: boolean, code: string) => void;
 }
@@ -546,6 +553,19 @@ export async function readMessages(value: unknown, limits: Limits, verify: (text
   return kept;
 }
 
+/** How much of an older answer a free conversation sends again: the gist, not the whole text. */
+export const OLD_ANSWER_CHARS = 500;
+
+/**
+ * The history of a free conversation, shorter: the latest answer stays whole (the user may reply
+ * to any of it), and the older ones are cut to their start, which holds the gist. Every turn
+ * costs tokens again on each message.
+ */
+export function shortHistory(messages: readonly ChatMessage[]): ChatMessage[] {
+  const latest = messages.map((m) => m.role).lastIndexOf('assistant');
+  return messages.map((m, i) => (m.role === 'assistant' && i !== latest && [...m.content].length > OLD_ANSWER_CHARS ? { ...m, content: `${[...m.content].slice(0, OLD_ANSWER_CHARS).join('')}…` } : m));
+}
+
 /**
  * A short memory of a long conversation, without a model call: the user questions that fell out
  * of the history window, each cut to 80 characters, at most four, newest last.
@@ -630,7 +650,7 @@ export function contextLines(context: PageContext, tier: Tier): string {
 export function isQuick(messages: readonly ChatMessage[], topics: readonly string[]): boolean {
   const users = messages.filter((m) => m.role === 'user');
   const last = users[users.length - 1]!.content;
-  return users.length === 1 && [...last].length <= 60 && !topics.some((t) => ['recovery', 'camera', 'install', 'learn'].includes(t));
+  return users.length === 1 && [...last].length <= 60 && !topics.some((t) => ['recovery', 'camera', 'install', 'learn'].includes(t) || t.startsWith('learn-'));
 }
 
 /** POST /chat {messages, lang, context} with `Authorization: Bearer <session>`: an SSE answer. */
@@ -661,7 +681,8 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
       photoOnly = true;
     }
   }
-  const messages = await readMessages(body.messages, turns, async (text, sig) => (await signReply(env.KEY_SECRET, text)) === sig);
+  const read = await readMessages(body.messages, turns, async (text, sig) => (await signReply(env.KEY_SECRET, text)) === sig);
+  const messages = session.t === 'plus' ? read : shortHistory(read);
   const context = readContext(body.context);
   const earlier = earlierQuestions(body.messages, turns);
   if (earlier) context.earlier = earlier;
@@ -731,6 +752,17 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
 
   const pack = await deps.knowledge();
   const { prompt, topics } = systemPrompt(pack, messages, language, context, session.t, images.length > 0);
+
+  // A first question that many ask the same way: the answer from the cache, if it has one.
+  let cacheKey: string | null = null;
+  if (deps.cache && pack && env.CHAT_ANSWER_CACHE !== 'off' && cacheable(messages, context, images.length > 0 || photoOnly)) {
+    cacheKey = await answerKey({ question, language, tier: session.t, page: context.page ?? '', prompt: PROMPT_VERSION, knowledge: pack.hash ?? pack.version });
+    const hit = await deps.cache.get(cacheKey, now).catch(() => null);
+    const counted = [{ key: hit ? 'cache:hit' : 'cache:miss', n: 1 }, ...(hit && topics[0] ? [{ key: `t:${topics[0]}`, n: 1 }] : [])];
+    deps.waitUntil(store.add(day, counted).catch(() => {}));
+    if (hit) return cachedAnswer(hit.text, meta, env.KEY_SECRET);
+    if (Math.random() < 0.02) deps.waitUntil(deps.cache.prune(now).catch(() => {}));
+  }
   const quick = !images.length && isQuick(messages, topics);
   const maxTokens = plus ? limits.maxOutputPlus : limits.maxOutputFree;
   // The photos go with the last turn only, to the model, and nowhere else.
@@ -746,7 +778,28 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
   const retry = () => callProviders(deps, session.t, sent, maxTokens, day, false, limits, true, vision);
   // Photos of an answer that never came are given back.
   const photosBack = () => (imageKeys.length ? store.add(day, imageKeys.map((item) => ({ key: item.key, n: -item.n }))).then(() => {}) : Promise.resolve());
-  return new Response(relay(upstream, meta, deps, day, topics[0] ?? '', maxTokens, language, retry, photosBack), { headers: SSE_HEADERS });
+  // A clean answer to a cacheable question goes into the cache for the next one who asks.
+  const keep = cacheKey && deps.cache ? (text: string) => deps.cache!.put(cacheKey!, text, deps.now()) : undefined;
+  return new Response(relay(upstream, meta, deps, day, topics[0] ?? '', maxTokens, language, retry, photosBack, keep), { headers: SSE_HEADERS });
+}
+
+/**
+ * Whether a conversation may use the answer cache: its first question, no photo, nothing in the
+ * page context but the page (no camera, card, looks, error, or memory of the device), and a
+ * question without personal data.
+ */
+export function cacheable(messages: readonly ChatMessage[], context: PageContext, photo: boolean): boolean {
+  if (photo || messages.length !== 1 || messages[0]!.role !== 'user') return false;
+  const { page, ...rest } = context;
+  void page;
+  if (Object.values(rest).some((value) => value !== undefined)) return false;
+  return cacheableQuestion(messages[0]!.content);
+}
+
+/** An answer from the cache, as the stream of a model answer would bring it. */
+async function cachedAnswer(text: string, meta: Record<string, unknown>, secret: string): Promise<Response> {
+  const body = sse('meta', meta) + sse(null, { d: text }) + sse('done', { remaining: meta.remaining, sig: await signReply(secret, text), cache: true });
+  return new Response(body, { headers: SSE_HEADERS });
 }
 
 const SSE_HEADERS = { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
@@ -818,10 +871,12 @@ async function callProviders(
       temperature: 0.3,
     };
     if (provider.reasoning) body.reasoning_effort = provider.reasoning;
-    // OpenRouter: only the named upstream providers, no fallback to others, and never above our price.
+    // OpenRouter: only the named upstream providers, in our order (the first one keeps the
+    // implicit prompt cache warm: Google AI Studio reports and bills cached tokens, Vertex did not
+    // hit), no fallback to others, and never above our price.
     if (/openrouter\.ai/i.test(provider.url) && provider.paid) {
       body.provider = {
-        ...(provider.routing.length ? { only: provider.routing } : {}),
+        ...(provider.routing.length ? { order: provider.routing, only: provider.routing } : {}),
         allow_fallbacks: false,
         ...(provider.price ? { max_price: { prompt: provider.price.in, completion: provider.price.out } } : {}),
       };
@@ -892,13 +947,43 @@ export function stripThinking(state: { mode: 'start' | 'think' | 'text'; buffer:
 /** The characters that the post-filter holds back, so a leak that spans two pieces is caught whole. */
 const HOLD = 48;
 
+/** The tokens of one answer, as the provider counted them. */
+export interface Usage {
+  prompt: number;
+  completion: number;
+  /** Prompt tokens served from the provider's cache (implicit caching), when it says. */
+  cached: number;
+  /** Reasoning tokens inside `completion`, when it says. */
+  reasoning: number;
+  /** What the provider billed, in US dollars (OpenRouter's usage accounting), when it says. */
+  cost?: number;
+}
+
+/** The usage of a stream chunk (OpenAI-compatible, with OpenRouter's cost) over what came before. */
+export function readUsage(raw: Record<string, unknown>, before: Usage): Usage {
+  const num = (value: unknown, fallback: number) => (typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : fallback);
+  const details = (raw.prompt_tokens_details ?? {}) as Record<string, unknown>;
+  const out = (raw.completion_tokens_details ?? {}) as Record<string, unknown>;
+  const usage: Usage = {
+    prompt: num(raw.prompt_tokens, before.prompt),
+    completion: num(raw.completion_tokens, before.completion),
+    cached: num(details.cached_tokens, before.cached),
+    reasoning: num(out.reasoning_tokens, before.reasoning),
+  };
+  const cost = num(raw.cost, before.cost ?? -1);
+  if (cost >= 0) usage.cost = cost;
+  return usage;
+}
+
 interface Attempt {
   answer: string;
-  usage: { prompt: number; completion: number };
+  usage: Usage;
   /** The stream failed (an error event, or it broke). */
   failed: boolean;
   /** Why the post-filter cut it, or null. */
   cut: string | null;
+  /** It ended at the length cap, or the model stopped for its token limit. */
+  truncated?: boolean;
 }
 
 /**
@@ -917,6 +1002,7 @@ function relay(
   language: Language,
   retry: () => Promise<Upstream | null>,
   photosBack: () => Promise<void> = () => Promise.resolve(),
+  keep?: (text: string) => Promise<void>,
 ): ReadableStream<Uint8Array> {
   const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
   const writer = writable.getWriter();
@@ -927,7 +1013,7 @@ function relay(
   /** Streams one provider's answer to the page, holding back the end for the post-filter. */
   const run = async (current: Upstream): Promise<Attempt> => {
     const reader = current.response.body!.pipeThrough(new TextDecoderStream()).getReader();
-    const attempt: Attempt = { answer: '', usage: { prompt: 0, completion: 0 }, failed: false, cut: null };
+    const attempt: Attempt = { answer: '', usage: { prompt: 0, completion: 0, cached: 0, reasoning: 0 }, failed: false, cut: null };
     const thinking = { mode: 'start' as 'start' | 'think' | 'text', buffer: '' };
     let pending = '';
     let sent = 0;
@@ -953,7 +1039,7 @@ function relay(
           if (data === '[DONE]') break outer;
           let chunk: {
             choices?: { delta?: { content?: string | null }; finish_reason?: string | null }[];
-            usage?: { prompt_tokens?: number; completion_tokens?: number } | null;
+            usage?: Record<string, unknown> | null;
             error?: unknown;
           };
           try {
@@ -965,7 +1051,8 @@ function relay(
             attempt.failed = true;
             break outer;
           }
-          if (chunk.usage) attempt.usage = { prompt: chunk.usage.prompt_tokens ?? attempt.usage.prompt, completion: chunk.usage.completion_tokens ?? attempt.usage.completion };
+          if (chunk.usage && typeof chunk.usage === 'object') attempt.usage = readUsage(chunk.usage, attempt.usage);
+          if (chunk.choices?.[0]?.finish_reason === 'length') attempt.truncated = true;
           const piece = chunk.choices?.[0]?.delta?.content;
           if (typeof piece !== 'string' || !piece) continue;
           const text = stripThinking(thinking, piece);
@@ -982,7 +1069,10 @@ function relay(
           if (!attempt.cut && FIRMWARE_FILE.test(attempt.answer)) holding = true;
           if (attempt.cut) break outer;
           if (!holding) await release(false);
-          if (attempt.answer.length > maxChars) break outer;
+          if (attempt.answer.length > maxChars) {
+            attempt.truncated = true;
+            break outer;
+          }
         }
       }
       if (holding) attempt.cut = postFilter(attempt.answer, PROMPT_FRAGMENTS);
@@ -1007,18 +1097,26 @@ function relay(
       // Without usage, count the whole prompt as about 4000 tokens and three characters a token out.
       const prompt = attempt.usage.prompt || 4000;
       const completion = attempt.usage.completion || Math.ceil(attempt.answer.length / 3);
-      const micro = costOf(current.provider.price, prompt, completion);
+      // OpenRouter says what it billed (cached tokens cost less); else our price list.
+      const micro = attempt.usage.cost !== undefined ? Math.ceil(attempt.usage.cost * 1_000_000) : costOf(current.provider.price, prompt, completion);
       items.push({ key: 'usd', tokens: micro }, { key: `$:${current.provider.model}`, n: 1, tokens: micro });
       await deps.store.add(day.slice(0, 7), [{ key: 'usd', tokens: micro }, { key: `$:${current.provider.model}`, n: 1, tokens: micro }]).catch(() => {});
     }
     await deps.store.add(day, items).catch(() => {});
   };
 
+  /** Development only (CHAT_DEBUG_USAGE=1): the usage of each attempt, sent with `done` for the eval. */
+  const spent: (Usage & { provider: string; model: string })[] = [];
+  const debug = deps.env.CHAT_DEBUG_USAGE === '1';
+  const note = (current: Upstream, attempt: Attempt) => {
+    if (debug) spent.push({ ...attempt.usage, provider: current.provider.name, model: current.provider.model });
+  };
   const pump = async () => {
     try {
       await write(sse('meta', meta));
       let current = upstream;
       let attempt = await run(current);
+      note(current, attempt);
       await record(current, attempt);
       // A free answer that failed, came back empty, or was garbled: once more, on a paid model.
       const bad = attempt.failed || !attempt.answer.trim() || attempt.cut === 'garbage';
@@ -1028,6 +1126,7 @@ function relay(
           if (attempt.answer) await write(sse('replace', { text: '' }));
           current = second;
           attempt = await run(current);
+          note(current, attempt);
           await record(current, attempt);
           await deps.store.add(day, [{ key: 'retry:paid', n: 1 }]).catch(() => {});
         }
@@ -1045,7 +1144,9 @@ function relay(
         await photosBack().catch(() => {});
         await write(sse('error', { code: 'interrupted' }));
       } else {
-        await write(sse('done', { remaining: meta.remaining, sig: await signReply(secret, attempt.answer) }));
+        await write(sse('done', { remaining: meta.remaining, sig: await signReply(secret, attempt.answer), ...(debug ? { usage: spent } : {}) }));
+        // Only an answer that ended as it should: not cut by the length cap.
+        if (keep && !attempt.truncated) await keep(attempt.answer).catch(() => {});
       }
     } catch {
       // The visitor left.
@@ -1067,6 +1168,8 @@ export interface Knowledge {
   sections: { id: string; title: string; tags: string[]; core?: boolean; text: string }[];
   looks: { id: string; name: string; brand: string; kind: string; pack: string; film?: string; hint?: string }[];
   lookTags: string[];
+  /** Set by the server: a hash of the pack as read, for the answer cache. */
+  hash?: string;
 }
 
 let cached: { at: number; pack: Knowledge | null } | null = null;
@@ -1077,8 +1180,12 @@ export async function fetchKnowledge(env: ChatEnv, fetcher: typeof fetch, now: n
   const url = env.CHAT_KNOWLEDGE_URL || `${env.SITE_URL}/chat/knowledge.json`;
   try {
     const response = await fetcher(url, { cf: { cacheTtl: 600 } } as RequestInit);
-    const pack = response.ok ? ((await response.json()) as Knowledge) : null;
+    const text = response.ok ? await response.text() : '';
+    const pack = text ? (JSON.parse(text) as Knowledge) : null;
     if (pack?.schema !== 'grku-chat-knowledge-v1') throw new Error('schema');
+    // The answer cache starts over whenever the facts change.
+    const digest = await crypto.subtle.digest('SHA-256', encoder.encode(text));
+    pack.hash = b64url(new Uint8Array(digest)).slice(0, 16);
     cached = { at: now, pack };
     return pack;
   } catch {
@@ -1096,18 +1203,13 @@ const LANGUAGE_NAMES: Record<Language, string> = {
   ko: 'Korean',
 };
 
-/** The most characters of sections that one prompt carries, past the core. */
-const SECTION_BUDGET = 12000;
-/** GRKU Plus gets twice the room for the sections that a question brings in. */
-const SECTION_BUDGET_PLUS = 24000;
-
 /**
- * The system prompt for a conversation. It starts with what every conversation shares, the rules
- * and the core sections, so the provider's prompt cache can reuse that prefix; then come the manual page the user reads (from the page context), the
- * sections whose tags the user's last messages mention (more of them for GRKU Plus), the look list
- * when they ask about looks, and last the page context. Only the server builds it; nothing of the request but the user's words and the page (a known page name) choose sections.
- * `topics` are the matched sections, for the anonymous topic counter and the model choice.
+ * How many sections a question brings past the core, and how many characters of them at most:
+ * the few that match best, so the prompt stays short (cheaper, faster, and the model is not
+ * distracted). GRKU Plus gets one more and more room.
  */
+export const SECTION_LIMITS = { free: { count: 4, chars: 7000 }, plus: { count: 5, chars: 11000 } } as const;
+
 /**
  * The sections that a question with a photo always brings, first and in this order: a photo is
  * most often of a camera screen (the firmware update screen, Mode Set Command, an error) or of the
@@ -1115,35 +1217,191 @@ const SECTION_BUDGET_PLUS = 24000;
  */
 const PHOTO_SECTIONS = ['card-troubles', 'install', 'recovery', 'camera'];
 
-export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMessage[], language: Language, context: PageContext, tier: Tier, photo = false): { prompt: string; topics: string[] } {
-  const asked = messages
-    .filter((m) => m.role === 'user')
-    .slice(tier === 'plus' ? -3 : -2)
-    .map((m) => m.content.toLowerCase())
+const ASCII = /^[\x20-\x7e]+$/;
+const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const tagPatterns = new Map<string, RegExp>();
+
+/** Thai vowels written before their consonant: a tag that starts with the consonant is then inside another word (ปิด in เปิด). */
+const THAI_LEADING = /[เแโใไ]$/;
+/** Thai marks written after a consonant (vowels above and below, tone marks): a tag cut before one is inside another syllable. */
+const THAI_FOLLOWING = /^[\u0e31\u0e33-\u0e3a\u0e47-\u0e4e]/;
+
+/**
+ * Whether `text` (lower case) mentions `tag`: a Latin tag as a whole word (a plural counts, and a
+ * number may stand before it, as in 50mm); a Thai tag anywhere but inside a syllable (Thai has no
+ * spaces between words); Chinese, Japanese, and Korean anywhere.
+ */
+export function mentions(text: string, tag: string): boolean {
+  if (/^[\u0e00-\u0e7f]/.test(tag)) {
+    for (let at = text.indexOf(tag); at >= 0; at = text.indexOf(tag, at + 1)) {
+      if (!THAI_LEADING.test(text.slice(0, at)) && !THAI_FOLLOWING.test(text.slice(at + tag.length))) return true;
+    }
+    return false;
+  }
+  if (!ASCII.test(tag)) return text.includes(tag);
+  let pattern = tagPatterns.get(tag);
+  if (!pattern) {
+    pattern = new RegExp(`(?<![a-z])${escape(tag)}(?:s|es)?(?![a-z0-9])`);
+    if (tagPatterns.size > 5000) tagPatterns.clear();
+    tagPatterns.set(tag, pattern);
+  }
+  return pattern.test(text);
+}
+
+/**
+ * The mentioned tags of a pack that each occurrence of which in `text` is part of a longer mentioned
+ * tag: they say nothing of their own (เสีย of "broken" inside เสียเงิน, "to pay").
+ */
+function shadowed(text: string, counts: ReadonlyMap<string, number>): Set<string> {
+  const out = new Set<string>();
+  if (!text) return out;
+  // Thai only: it writes words without spaces, so a short word is often a piece of a longer one.
+  const found = [...counts.keys()].filter((tag) => /^[\u0e00-\u0e7f]/.test(tag) && mentions(text, tag));
+  for (const tag of found) {
+    const longer = found.filter((other) => other.length > tag.length && other.includes(tag));
+    if (!longer.length) continue;
+    // Every place of the tag lies inside a place of a longer one.
+    let inside = true;
+    for (let at = text.indexOf(tag); at >= 0 && inside; at = text.indexOf(tag, at + 1)) {
+      inside = longer.some((other) => {
+        for (let o = text.indexOf(other); o >= 0; o = text.indexOf(other, o + 1)) if (o <= at && at + tag.length <= o + other.length) return true;
+        return false;
+      });
+    }
+    if (inside && text.includes(tag)) out.add(tag);
+  }
+  return out;
+}
+
+/** Tags that nearly any question has (how, use, does not work): they count only a little. */
+const GENERIC_TAGS = new Set(['use', 'how to', 'help', 'problem', 'start', 'not show', 'error', 'ใช้', 'ยังไง', 'วิธี', 'ใช้ยังไง', 'ไม่ได้', 'ปรับ', 'แก้', 'ปัญหา', 'เริ่ม', 'ลง', 'ไม่มี', 'หาย', 'ข้อมูล', 'เวลา', 'ขนาด', 'ข้อความ', 'ใหม่', 'ภาพ', 'รูป', 'แสง', 'สี', 'เมนู']);
+
+/** How many sections of a pack carry each tag, worked out once a pack. */
+const tagCounts = new WeakMap<Knowledge, Map<string, number>>();
+function countsOf(pack: Knowledge): Map<string, number> {
+  let counts = tagCounts.get(pack);
+  if (!counts) {
+    counts = new Map();
+    for (const section of pack.sections) for (const tag of new Set(section.tags)) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    tagCounts.set(pack, counts);
+  }
+  return counts;
+}
+
+/**
+ * How well `text` matches the tags of a section: each mentioned tag counts by its length (a long
+ * tag says more than a short one), up to 12, less when other sections have it too (`counts`), and
+ * not at all when it is only a piece of a longer mentioned tag (`shadow`, of any section: เสีย in
+ * เสียเงิน).
+ */
+export function tagScore(text: string, tags: readonly string[], counts?: ReadonlyMap<string, number>, shadow?: ReadonlySet<string>): number {
+  const found = tags.filter((tag) => tag && !shadow?.has(tag) && mentions(text, tag));
+  return found
+    .filter((tag) => !found.some((other) => other !== tag && other.includes(tag)))
+    .reduce((sum, tag) => sum + weightOf(tag) / Math.sqrt(counts?.get(tag) ?? 1), 0);
+}
+
+/** The weight of a tag by itself: its length up to 12; a short Latin word (u1, fn, mm) is as exact as a longer one. */
+function weightOf(tag: string): number {
+  if (GENERIC_TAGS.has(tag)) return 1;
+  const length = [...tag].length;
+  return Math.min(12, ASCII.test(tag) ? Math.max(4, length) : length);
+}
+
+/**
+ * Words of the look tags that, alone, say nothing about wanting a look (they are in nearly every
+ * question about Film Look, or name Chrome the browser): the look list comes only with a look
+ * named, or a word of choosing or of a scene.
+ */
+const WEAK_LOOK_TAGS = new Set(['look', 'film', 'which', 'best', 'color', 'colour', 'tone', 'chrome', 'negative', 'slide', 'mono', 'cinema', 'ลุค', 'ฟิล์ม', 'โทน', 'สี', 'หนัง']);
+
+/** Words of look names that are common words or other things (Chrome the browser, Gold the halation color, Plus). */
+const COMMON_LOOK_WORDS = new Set(['classic', 'color', 'colour', 'film', 'black', 'white', 'instant', 'cinema', 'slide', 'chrome', 'negative', 'positive', 'plus', 'pro', 'gold', 'super', 'premium', 'natural', 'vivid', 'soft', 'hard', 'mono', 'expired', 'cross', 'process', 'standard', 'retro', 'vintage', 'bleach', 'bypass', 'high', 'contrast', 'camera', 'print', 'paper', 'type', 'wide', 'mini', 'extra', 'cool', 'cold', 'warm', 'red', 'iii', 'std', 'time', 'zero', 'ultra', 'ace', 'pan', 'tonal', 'elite', 'gr2', 'grii', 'delta', 'neg']);
+const lookWordsOf = new WeakMap<Knowledge, string[]>();
+
+/**
+ * The words that name a look in a question: each whole name, and each word of a name with a letter
+ * and at least three characters that is not a common word (portra, ektar, hp5, 500t, superia).
+ */
+function lookWords(pack: Knowledge): string[] {
+  let words = lookWordsOf.get(pack);
+  if (!words) {
+    const all = new Set<string>();
+    for (const look of pack.looks) {
+      const name = look.name.toLowerCase();
+      if (name.length > 3) all.add(name);
+      for (const word of name.split(/[\s/]+/)) if (word.length >= 3 && /[a-z]/.test(word) && !COMMON_LOOK_WORDS.has(word)) all.add(word);
+    }
+    words = [...all];
+    lookWordsOf.set(pack, words);
+  }
+  return words;
+}
+
+/** The look list for the prompt: grouped by pack, one `id | name` line each, with the hint when there is one. */
+export function lookList(looks: Knowledge['looks']): string {
+  const packs = [...new Set(looks.map((l) => l.pack))];
+  return packs
+    .map((pack) => {
+      const items = looks.filter((l) => l.pack === pack);
+      const kinds = [...new Set(items.map((l) => l.kind))].join(', ');
+      return `[${pack === 'free' ? 'free: camera looks, in no pack' : `pack ${pack}`}; ${kinds}]\n` + items.map((l) => `${l.id} | ${l.name.startsWith(l.brand) ? "" : `${l.brand} `}${l.name}${l.hint ? ` | ${l.hint}` : ''}`).join('\n');
+    })
     .join('\n');
+}
+
+/**
+ * The system prompt for a conversation. It starts with what every conversation shares, the rules
+ * and the core sections, so the provider's prompt cache can reuse that prefix; then come the manual
+ * page the user reads (from the page context), the photo sections for a photo, the few sections
+ * whose tags the user's last messages match best (the latest message counts double), the look list
+ * when they want a look, and last the page context. Only the server builds it; nothing of the
+ * request but the user's words and the page (a known page name) choose sections. `topics` are the
+ * sections it took, for the anonymous topic counter and the model choice.
+ */
+export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMessage[], language: Language, context: PageContext, tier: Tier, photo = false): { prompt: string; topics: string[] } {
+  const users = messages.filter((m) => m.role === 'user').slice(tier === 'plus' ? -3 : -2).map((m) => m.content.toLowerCase());
+  const latest = users[users.length - 1] ?? '';
+  const earlier = users.slice(0, -1).join('\n');
+  const asked = users.join('\n');
   const parts: string[] = [rules(LANGUAGE_NAMES[language], '')];
   const topics: string[] = [];
   if (pack) {
     for (const section of pack.sections.filter((s) => s.core)) parts.push(`## ${section.title}\n${section.text}`);
-    let budget = tier === 'plus' ? SECTION_BUDGET_PLUS : SECTION_BUDGET;
+    const limit = SECTION_LIMITS[tier];
+    const counts = countsOf(pack);
+    const shadowLatest = shadowed(latest, counts);
+    const shadowEarlier = shadowed(earlier, counts);
     // On a page of the manual, its section comes first (the server picks it from its own pack);
-    // with a photo, the sections of the photo next.
+    // with a photo, the sections of the photo next; they do not count against the limits.
     const reading = context.page?.startsWith('docs/') ? `docs-${context.page.slice(5)}` : null;
-    const rank = (id: string) => (id === reading ? -1 : photo && PHOTO_SECTIONS.includes(id) ? PHOTO_SECTIONS.indexOf(id) : PHOTO_SECTIONS.length);
-    const others = pack.sections.filter((s) => !s.core).sort((a, b) => rank(a.id) - rank(b.id));
-    for (const section of others) {
-      if (section.id !== reading && !(photo && PHOTO_SECTIONS.includes(section.id)) && !section.tags.some((tag) => asked.includes(tag))) continue;
-      if (section.text.length > budget) continue;
-      budget -= section.text.length;
+    const fixed = pack.sections.filter((s) => !s.core && (s.id === reading || (photo && PHOTO_SECTIONS.includes(s.id))));
+    fixed.sort((a, b) => (a.id === reading ? -1 : b.id === reading ? 1 : PHOTO_SECTIONS.indexOf(a.id) - PHOTO_SECTIONS.indexOf(b.id)));
+    const scored = pack.sections
+      .filter((s) => !s.core && !fixed.includes(s))
+      // The manual's pages are the most exact: they win a tie, and a little more.
+      .map((s, order) => ({ s, order, score: (s.id.startsWith('docs-') ? 1.25 : 1) * (2 * tagScore(latest, s.tags, counts, shadowLatest) + (earlier ? tagScore(earlier, s.tags, counts, shadowEarlier) : 0)) }))
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score || a.order - b.order);
+    // A section far behind the best one is noise: a short word that happens to be in the question.
+    const best = scored[0]?.score ?? 0;
+    const chosen = [...fixed];
+    let chars = 0;
+    for (const { s, score } of scored) {
+      if (chosen.length - fixed.length >= limit.count || score * 4 < best) break;
+      if (chars + s.text.length > limit.chars) continue;
+      chars += s.text.length;
+      chosen.push(s);
+    }
+    for (const section of chosen) {
       topics.push(section.id);
       parts.push(`## ${section.title}\n${section.text}`);
     }
-    const named = pack.looks.some((look) => look.name.length > 3 && asked.includes(look.name.toLowerCase()));
-    if (named || pack.lookTags.some((tag) => asked.includes(tag))) {
+    const named = lookWords(pack).some((word) => mentions(asked, word));
+    if (named || pack.lookTags.some((tag) => !WEAK_LOOK_TAGS.has(tag) && mentions(asked, tag))) {
       topics.push('looks');
       parts.push(
-        `## Film looks (id | name | brand | kind | pack | film | hint)\nPack "free" is a camera look in no pack; the other packs are GRKU Plus packs, but any 10 looks of any pack go on the card free.\n` +
-          pack.looks.map((l) => [l.id, l.name, l.brand, l.kind, l.pack, l.film ?? '', l.hint ?? ''].join(' | ')).join('\n'),
+        `## Film looks (id | brand and name | hint)\nPack "free" is a camera look in no pack; the other packs are GRKU Plus packs, but any 10 looks of any pack go on the card free.\n` + lookList(pack.looks),
       );
     }
   } else {

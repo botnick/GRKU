@@ -55,3 +55,16 @@ npx wrangler secret put CHAT4_API_KEY     # a token with Workers AI Read (option
 
 `CHAT_ENABLED = "off"` closes it. Test: `pnpm test`; run the test set against `wrangler dev`
 (without TURNSTILE_SECRET, with high limits in `.dev.vars`): `node eval/eval.mjs http://127.0.0.1:8787 OUT_DIR` (add `--thai`, `--tier plus --key KEY`, `--ids a,b`, `--name NAME`; `--var CHAT_FORCE_PROVIDER:paid` on `wrangler dev` tests the paid path alone).
+
+The graded set (`eval/graded-cases.mjs`: Thai-first questions with the facts each answer must
+carry, from the knowledge pack) grades by rule and by a cheap judge (Gemini Flash-Lite on
+`JUDGE_KEY` or `GEMINI_API_KEY`): `node eval/graded.mjs http://127.0.0.1:8787 knowledge.json OUT_DIR`
+(add `--tier plus --key KEY`, `--sets real,docs`, `--ids a,b`, `--name NAME`, `--no-judge`;
+`--rejudge OLD.json` grades an earlier run again). Run `wrangler dev` with `CHAT_DEBUG_USAGE=1`
+(each answer brings its tokens, cached tokens, and model) and `CHAT_ANSWER_CACHE=off`. Record the
+result in `CHAT_EVAL` in `wrangler.toml`; the admin page shows it.
+
+The answer cache (`src/chat/cache.ts`, table `chat_cache`) answers a first question that many ask
+the same way from D1 for 7 days: only without photos, page details, or personal data, keyed by the
+prompt version and the knowledge pack, so either change starts it over. The admin page turns it off
+(`CHAT_ANSWER_CACHE`) and clears it.

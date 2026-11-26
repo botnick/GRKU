@@ -13,6 +13,7 @@
  * Turnstile secret, so a GRKU Plus key raises the assistant's tier without another service.
  */
 import { chat, ChatError, d1Store, dayOf, fetchKnowledge, startSession, type ChatDeps, type ChatEnv } from './chat';
+import { d1Cache } from './chat/cache';
 
 export interface Env extends ChatEnv {
   DB: D1Database;
@@ -206,6 +207,7 @@ async function chatRoute(request: Request, url: URL, vars: Env, ctx?: ExecutionC
     fetch: (input, init) => fetch(input, init),
     waitUntil: (promise) => (ctx ? ctx.waitUntil(promise) : void promise),
     knowledge: () => fetchKnowledge(env, (input, init) => fetch(input, init), Date.now()),
+    cache: d1Cache(env.DB),
     // For the admin page: the last answer and the last failure of each provider, and the failures of the day.
     providerStatus(provider, ok, code) {
       const now = Date.now();

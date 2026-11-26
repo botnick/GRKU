@@ -192,7 +192,8 @@ describe('the knowledge pack', () => {
     expect(text('recovery')).toContain('Remove the battery.');
     expect(text('camera')).toContain('(Picture: The ADJ menu)');
     expect(text('questions')).toContain('Script - Enable');
-    expect(text('learn')).toContain('snap focus');
+    expect(text('learn-snap-focus-and-street-photography')).toContain('snap focus');
+    expect(pack.sections.filter((s) => s.id.startsWith('learn-')).length).toBeGreaterThan(8);
     expect(pack.sections.filter((s) => s.core).map((s) => s.id)).toEqual(['about', 'faq', 'questions']);
   });
 

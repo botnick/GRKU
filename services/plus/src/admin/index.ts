@@ -55,6 +55,7 @@ export const SETTINGS = [
   'CHAT_IMAGE_PLUS_PER_DAY',
   'CHAT_IMAGE_DAILY',
   'CHAT_IMAGE_WEIGHT',
+  'CHAT_ANSWER_CACHE',
 ] as const;
 
 /** The form of each setting's value. */
@@ -65,6 +66,7 @@ const SETTING_FORMS: Record<string, RegExp> = {
   CHAT_PAID_MONTHLY_USD: /^\d{1,5}(\.\d{1,2})?$/,
   CHAT_PAID_DAILY_USD: /^\d{1,5}(\.\d{1,2})?$/,
   CHAT_IMAGE_WEIGHT: /^[1-9]$/,
+  CHAT_ANSWER_CACHE: /^(on|off)$/,
 };
 
 class AdminError extends Error {
@@ -143,6 +145,7 @@ async function route(request: Request, deps: AdminDeps): Promise<Response> {
   if (method === 'POST' && api === 'resend') return resend(request, deps);
   if (method === 'GET' && api === 'chat') return reply(await chatView(deps));
   if (method === 'POST' && api === 'settings') return saveSettings(request, deps);
+  if (method === 'POST' && api === 'cache/clear') return clearCache(deps);
   throw new AdminError(404, 'not found');
 }
 
@@ -445,7 +448,23 @@ async function chatView(deps: AdminDeps) {
   // The assistant counts by UTC day (src/chat dayOf), so the day starts at 07:00 Bangkok time.
   const day = new Date(deps.now()).toISOString().slice(0, 10);
   const available = typeof deps.env.CHAT_NAME === 'string' && deps.env.CHAT_NAME !== '';
-  return { available, settings: values, defaults, stats: available ? await chatStats({ ...deps.env, ...values } as AdminEnv, day, deps.now()) : null };
+  return { available, settings: values, defaults, evaluation: evaluationOf(deps.env.CHAT_EVAL), stats: available ? await chatStats({ ...deps.env, ...values } as AdminEnv, day, deps.now()) : null };
+}
+
+/**
+ * The last graded eval of the assistant (services/plus/eval/graded.mjs), as wrangler.toml's
+ * CHAT_EVAL records it with the change it measured: {"date", "prompt", "cases", "free", "plus"}
+ * (the share of cases that passed, in percent). Null when it is missing or not that form.
+ */
+export function evaluationOf(value: unknown): { date: string; prompt: string; cases: number; free: number; plus: number } | null {
+  if (typeof value !== 'string' || !value) return null;
+  try {
+    const v = JSON.parse(value) as Record<string, unknown>;
+    if (typeof v.date !== 'string' || typeof v.free !== 'number') return null;
+    return { date: v.date, prompt: String(v.prompt ?? ''), cases: Number(v.cases ?? 0), free: v.free, plus: Number(v.plus ?? 0) };
+  } catch {
+    return null;
+  }
 }
 
 async function saveSettings(request: Request, deps: AdminDeps): Promise<Response> {
@@ -469,6 +488,12 @@ async function saveSettings(request: Request, deps: AdminDeps): Promise<Response
   return reply({ ok: true, settings: await settingsOf(DB, now) });
 }
 
+/** Empties the assistant's answer cache (chat_cache): the next first questions go to the model again. */
+async function clearCache(deps: AdminDeps): Promise<Response> {
+  const done = await deps.env.DB.prepare('DELETE FROM chat_cache').run();
+  return reply({ ok: true, cleared: done.meta?.changes ?? 0 });
+}
+
 /** The daily caps of a provider's models: "model=n,model=n", or one number for every model. */
 function capsOf(text: string): Map<string, number> {
   const caps = new Map<string, number>();
@@ -485,13 +510,16 @@ export async function chatStats(env: AdminEnv, day: string, now = Date.now()) {
   type Row = { k: string; n: number; tokens: number };
   const empty = { results: [] as Row[] };
   const month = day.slice(0, 7);
-  const [rows, monthRows, status] = await Promise.all([
+  const [rows, monthRows, status, cacheRow] = await Promise.all([
     env.DB.prepare('SELECT k, n, tokens FROM chat_usage WHERE day = ?').bind(day).all<Row>().catch(() => empty),
     env.DB.prepare("SELECT k, n, tokens FROM chat_usage WHERE day = ? AND (k = 'usd' OR k LIKE '$:%')").bind(month).all<Row>().catch(() => empty),
     env.DB.prepare('SELECT name, model, ok_at, err_at, err_code FROM chat_provider')
       .all<{ name: string; model: string; ok_at: number | null; err_at: number | null; err_code: string | null }>()
       .catch(() => ({ results: [] as { name: string; model: string; ok_at: number | null; err_at: number | null; err_code: string | null }[] })),
+    env.DB.prepare('SELECT COUNT(*) AS n, COALESCE(SUM(hits), 0) AS hits FROM chat_cache').first<{ n: number; hits: number }>().catch(() => null),
   ]);
+  // The answer cache: answers kept, and today's first questions that it could answer, found or not.
+  const cache = { entries: cacheRow?.n ?? 0, hitsAll: cacheRow?.hits ?? 0, hits: 0, misses: 0 };
   let global = { n: 0, tokens: 0 };
   let sessions = 0;
   let visitors = 0;
@@ -533,6 +561,8 @@ export async function chatStats(env: AdminEnv, day: string, now = Date.now()) {
     if (r.k === 'global') global = { n: r.n, tokens: r.tokens };
     else if (r.k === 'usd') usdToday = r.tokens;
     else if (r.k === 'retry:paid') retries = r.n;
+    else if (r.k === 'cache:hit') cache.hits = r.n;
+    else if (r.k === 'cache:miss') cache.misses = r.n;
     else if (r.k === 'ig') images.n = r.n;
     else if (r.k === 'img:msg') images.messages = r.n;
     else if (r.k.startsWith('ii:') || r.k.startsWith('io:')) images.visitors += r.n > 0 ? 1 : 0;
@@ -592,7 +622,8 @@ export async function chatStats(env: AdminEnv, day: string, now = Date.now()) {
     violations,
     retries,
     images,
-    paid: { usdToday: usdToday / 1e6, usdMonth: usdMonth / 1e6 },
+    paid: { usdToday: usdToday / 1e6, usdMonth: usdMonth / 1e6, perMessage: global.n > 0 ? usdToday / 1e6 / global.n : 0 },
+    cache,
     providers: providerView,
     models: [...models.values()].sort((a, b) => Number(a.paid) - Number(b.paid) || providers.findIndex((p) => p.name === a.provider) - providers.findIndex((p) => p.name === b.provider) || b.n - a.n),
     refusals: refusals.sort(byCount),
