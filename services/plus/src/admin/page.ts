@@ -148,8 +148,9 @@ h2:first-child{margin-top:0}
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:12px;font-size:14px;font-weight:500;transition:opacity .2s,transform .2s;pointer-events:none;max-width:calc(100% - 32px);z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 #toast.bad{background:var(--bad);color:#fff}
+.stats.four{grid-template-columns:repeat(4,1fr)}
 @media (max-width:720px){
-  .stats{grid-template-columns:1fr 1fr}
+  .stats,.stats.four{grid-template-columns:1fr 1fr}
   .stats .stat.hero{grid-column:1/-1}
   .stats>.stat:not(.hero):last-child:nth-child(odd){grid-column:1/-1}
   .stat .value{font-size:26px}
@@ -424,7 +425,7 @@ function setMailBadge(n) { const b = $('#mail-badge'); b.hidden = !n; b.textCont
 function refreshMailBadge() { api('/admin/api/mail').then((d) => setMailBadge(d.failed30)).catch(() => {}); }
 
 // ---- chat ----
-const LIMITS = [['CHAT_FREE_PER_DAY', 'limitFreePerDay'], ['CHAT_PLUS_PER_DAY', 'limitPlusPerDay'], ['CHAT_IP_PER_DAY', 'limitIpPerDay'], ['CHAT_DAILY_MESSAGES', 'limitDailyMessages'], ['CHAT_DAILY_TOKENS', 'limitDailyTokens']];
+const LIMITS = [['CHAT_FREE_PER_DAY', 'limitFreePerDay'], ['CHAT_PLUS_PER_DAY', 'limitPlusPerDay'], ['CHAT_IP_PER_DAY', 'limitIpPerDay'], ['CHAT_DAILY_MESSAGES', 'limitDailyMessages'], ['CHAT_DAILY_TOKENS', 'limitDailyTokens'], ['CHAT_IMAGE_FREE_PER_DAY', 'limitImageFree'], ['CHAT_IMAGE_PLUS_PER_DAY', 'limitImagePlus'], ['CHAT_IMAGE_DAILY', 'limitImageDaily'], ['CHAT_IMAGE_WEIGHT', 'limitImageWeight']];
 function meter(used, capN) {
   const p = capN > 0 ? Math.min(100, (used / capN) * 100) : 0;
   return h('div', { class: 'meter' }, h('i', { class: p >= 100 ? 'full' : p >= 75 ? 'hot' : '', style: 'width:' + (capN > 0 ? p : 0) + '%' }));
@@ -446,6 +447,8 @@ async function loadChat() {
   const g = s.global || { n: 0, tokens: 0 };
   const capMsgs = Number(eff('CHAT_DAILY_MESSAGES')) || 0;
   const capTokens = Number(eff('CHAT_DAILY_TOKENS')) || 0;
+  const capImages = Number(eff('CHAT_IMAGE_DAILY')) || 0;
+  const im = s.images || { n: 0, messages: 0, visitors: 0 };
   const overridden = (k) => (data.settings[k] != null ? h('span', { class: 'pill red', style: 'font-size:11px' }, tr('overrides')) : null);
   const toggle = h('button', { class: 'btn ' + (on ? 'danger' : 'primary') }, on ? tr('turnOff') : tr('turnOn'));
   toggle.addEventListener('click', () => { if (on && !confirm(tr('turnOffConfirm'))) return; save({ CHAT_ENABLED: on ? 'off' : 'on' }, toggle); });
@@ -524,10 +527,11 @@ async function loadChat() {
     h('h2', null, tr('paidTitle')),
     paidCard,
     h('h2', null, tr('today') + ' · ' + tr('chatDayHint')),
-    h('div', { class: 'stats' },
+    h('div', { class: 'stats four' },
       statBox(tr('messagesToday'), num(g.n), capMsgs ? tr('used', { used: num(g.n), cap: num(capMsgs) }) : null, meter(g.n, capMsgs)),
       statBox(tr('sessionsToday'), num(s.sessions), tr('visitors') + ' ' + num(s.visitors)),
-      statBox(tr('tokensToday'), num(g.tokens), capTokens ? tr('used', { used: num(g.tokens), cap: num(capTokens) }) : null, meter(g.tokens, capTokens))),
+      statBox(tr('tokensToday'), num(g.tokens), capTokens ? tr('used', { used: num(g.tokens), cap: num(capTokens) }) : null, meter(g.tokens, capTokens)),
+      statBox(tr('imagesToday'), num(im.n), [capImages ? tr('used', { used: num(im.n), cap: num(capImages) }) : tr('imagesOff'), tr('imageMessages', { n: num(im.messages), people: num(im.visitors) })].join(' · '), meter(im.n, capImages))),
     h('h2', null, tr('providerStatus')),
     h('div', { class: 'card' }, providers.length ? h('ul', { class: 'list' }, providers) : h('div', { class: 'empty' }, tr('nothingYet'))),
     h('h2', null, tr('models')),

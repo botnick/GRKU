@@ -20,6 +20,7 @@
  */
 import { messageLanguage, postFilter, preFilter, type Language, type Refusal } from './guard';
 import { PROMPT_FRAGMENTS, PROMPT_VERSION, rules } from './prompt';
+import { ImageError, readImages, withImages, type ChatImage } from './image';
 import { REPLIES } from './replies';
 
 export { PROMPT_VERSION };
@@ -48,6 +49,11 @@ export interface ChatEnv {
   CHAT_DAILY_TOKENS?: string;
   CHAT_SESSION_HOURS?: string;
   CHAT_VIOLATIONS_PER_HOUR?: string;
+  /** Photos: how many messages one with photos counts as, the photos a day of a free visitor and of a Plus owner, and of the whole site (0 turns photos off). */
+  CHAT_IMAGE_WEIGHT?: string;
+  CHAT_IMAGE_FREE_PER_DAY?: string;
+  CHAT_IMAGE_PLUS_PER_DAY?: string;
+  CHAT_IMAGE_DAILY?: string;
   /**
    * "1" allows the providers marked _PAID, after the free ones (and for a free answer that came
    * back empty or garbled). Only the models in CHAT_PAID_MODELS, only for the tiers in
@@ -77,7 +83,8 @@ export interface ChatEnv {
   // _REASONING_FREE and _REASONING_PLUS (reasoning_effort: none, low, medium, high, or empty),
   // _PAID ("1" for a provider that costs money), _PRICES (US dollars per million tokens in and
   // out, "model=0.25/1.5,model=…", for the spend caps and the maximum price sent to OpenRouter),
-  // and _ROUTING (OpenRouter's upstream providers to allow, such as "google-vertex,google-ai-studio").
+  // _ROUTING (OpenRouter's upstream providers to allow, such as "google-vertex,google-ai-studio"),
+  // and _VISION ("1" when the models read photos, "0" when not; unset: the Gemini models do).
   [name: `CHAT${'' | '2' | '3' | '4'}_${string}`]: string | undefined;
 }
 
@@ -97,6 +104,15 @@ export interface Limits {
   dailyTokens: number;
   sessionHours: number;
   violationsPerHour: number;
+  /** A message with photos counts as this many messages. */
+  imageWeight: number;
+  imageFreePerDay: number;
+  imagePlusPerDay: number;
+  /** Photos a day on the whole site. */
+  imageDaily: number;
+  maxImages: number;
+  imageMaxBytes: number;
+  imageMaxSide: number;
   /** Paid spend caps in micro-dollars. */
   paidMonthly: number;
   paidDaily: number;
@@ -128,6 +144,13 @@ export function limitsOf(env: Partial<ChatEnv>): Limits {
     dailyTokens: int(env.CHAT_DAILY_TOKENS, 6_000_000),
     sessionHours: int(env.CHAT_SESSION_HOURS, 12),
     violationsPerHour: int(env.CHAT_VIOLATIONS_PER_HOUR, 4),
+    imageWeight: Math.max(1, int(env.CHAT_IMAGE_WEIGHT, 2)),
+    imageFreePerDay: int(env.CHAT_IMAGE_FREE_PER_DAY, 3),
+    imagePlusPerDay: int(env.CHAT_IMAGE_PLUS_PER_DAY, 30),
+    imageDaily: int(env.CHAT_IMAGE_DAILY, 300),
+    maxImages: 2,
+    imageMaxBytes: 400 * 1024,
+    imageMaxSide: 2048,
     paidMonthly: usd(env.CHAT_PAID_MONTHLY_USD, 10),
     paidDaily: usd(env.CHAT_PAID_DAILY_USD, 1),
     paidFreeShare: Math.min(100, int(env.CHAT_PAID_FREE_SHARE, 50)) / 100,
@@ -147,6 +170,8 @@ export interface Provider {
   price: { in: number; out: number } | null;
   /** OpenRouter's upstream providers to allow, or empty. */
   routing: string[];
+  /** Whether the model reads photos: _VISION ("1" or "0"), else any Gemini model. */
+  vision: boolean;
 }
 
 /**
@@ -224,7 +249,8 @@ export function providersOf(env: Partial<ChatEnv>, tier: Tier, quick = false): P
         continue;
       }
       const reasoning = quick && model === quickModel ? '' : get(tier === 'plus' ? 'REASONING_PLUS' : 'REASONING_FREE');
-      (isPaid ? paid : free).push({ name, url, key, model, rpd: caps.get(model) ?? caps.get('*') ?? 0, reasoning, paid: isPaid, price, routing: list(get('ROUTING')) });
+      const vision = get('VISION') ? get('VISION') === '1' : /gemini/i.test(model);
+      (isPaid ? paid : free).push({ name, url, key, model, rpd: caps.get(model) ?? caps.get('*') ?? 0, reasoning, paid: isPaid, price, routing: list(get('ROUTING')), vision });
     }
   }
   return [...free, ...paid];
@@ -382,14 +408,19 @@ export interface ChatDeps {
 }
 
 const MAX_BODY = 24 * 1024;
+/** The body of a question with photos: the photos (at most two, shrunk by the page) and the text. */
+export const MAX_BODY_IMAGES = 600 * 1024;
 
-/** The body of a request as JSON, refusing big bodies and text that is not UTF-8. */
-export async function readJson(request: Request): Promise<unknown> {
+/**
+ * The body of a request as JSON, refusing big bodies and text that is not UTF-8. `max` is the
+ * most bytes taken; a body over MAX_BODY must then carry photos (the caller checks).
+ */
+export async function readJson(request: Request, max = MAX_BODY): Promise<unknown> {
   const declared = Number(request.headers.get('Content-Length') ?? '0');
-  if (declared > MAX_BODY) throw new ChatError(413, 'too large');
+  if (declared > max) throw new ChatError(413, 'too large');
   if (!/^application\/json\b/i.test(request.headers.get('Content-Type') ?? '')) throw new ChatError(415, 'send json');
   const bytes = new Uint8Array(await request.arrayBuffer());
-  if (bytes.length > MAX_BODY) throw new ChatError(413, 'too large');
+  if (bytes.length > max) throw new ChatError(413, 'too large');
   let text: string;
   try {
     text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(bytes);
@@ -397,9 +428,12 @@ export async function readJson(request: Request): Promise<unknown> {
     throw new ChatError(400, 'not utf-8');
   }
   try {
-    return JSON.parse(text) as unknown;
-  } catch {
-    throw new ChatError(400, 'bad json');
+    const value = JSON.parse(text) as unknown;
+    if (bytes.length > MAX_BODY && !(Array.isArray((value as { images?: unknown })?.images) && (value as { images: unknown[] }).images.length > 0)) throw new ChatError(413, 'too large');
+    return value;
+  } catch (error) {
+    if (error instanceof ChatError) throw error;
+    throw bytes.length > MAX_BODY ? new ChatError(413, 'too large') : new ChatError(400, 'bad json');
   }
 }
 
@@ -433,7 +467,10 @@ export async function startSession(request: Request, deps: ChatDeps): Promise<Re
     tier === 'plus'
       ? limits.plusPerDay - (await deps.store.get(day, `o:${owner}`)).n
       : limits.ipPerDay - (await deps.store.get(day, `ip:${await anonymize(env.KEY_SECRET, day, ip)}`)).n;
-  return Response.json({ session: await signSession(session, env.KEY_SECRET), tier, limit, remaining: Math.max(0, Math.min(limit, left)), maxInput: limits.maxInput, prompt: PROMPT_VERSION });
+  const imageLimit = Math.min(limits.imageDaily, tier === 'plus' ? limits.imagePlusPerDay : limits.imageFreePerDay);
+  const imagesUsed = imageLimit ? (await deps.store.get(day, tier === 'plus' ? `io:${owner}` : `ii:${await anonymize(env.KEY_SECRET, day, ip)}`)).n : 0;
+  const images = { limit: imageLimit, remaining: Math.max(0, imageLimit - imagesUsed), max: limits.maxImages, weight: limits.imageWeight };
+  return Response.json({ session: await signSession(session, env.KEY_SECRET), tier, limit, remaining: Math.max(0, Math.min(limit, left)), maxInput: limits.maxInput, images, prompt: PROMPT_VERSION });
 }
 
 export interface ChatMessage {
@@ -577,21 +614,39 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
   const session = token ? await readSession(token, env.KEY_SECRET, now) : null;
   if (!session) throw new ChatError(401, 'no session');
   const limits = limitsOf(env);
-  const body = (await readJson(request)) as { messages?: unknown; lang?: unknown; context?: unknown };
+  const body = (await readJson(request, MAX_BODY_IMAGES)) as { messages?: unknown; lang?: unknown; context?: unknown; images?: unknown };
+  let images: ChatImage[];
+  try {
+    images = readImages(body.images, limits);
+  } catch (error) {
+    if (error instanceof ImageError) throw new ChatError(error.status, 'bad image', { reason: error.reason });
+    throw error;
+  }
   const turns = session.t === 'plus' ? { ...limits, historyTurns: limits.historyTurnsPlus } : limits;
-  const messages = await readMessages(body.messages, turns, async (text, sig) => (await signReply(env.KEY_SECRET, text)) === sig);
+  // A photo without words: the question is the photo, answered in the page language.
   const pageLanguage = languageOf(body.lang);
+  let photoOnly = false;
+  if (images.length && Array.isArray(body.messages)) {
+    const last = body.messages[body.messages.length - 1] as { role?: unknown; content?: unknown } | undefined;
+    if (last?.role === 'user' && (typeof last.content !== 'string' || !last.content.trim())) {
+      last.content = `[The user sent only a photo, no words. Answer in ${LANGUAGE_NAMES[pageLanguage]}.]`;
+      photoOnly = true;
+    }
+  }
+  const messages = await readMessages(body.messages, turns, async (text, sig) => (await signReply(env.KEY_SECRET, text)) === sig);
   const context = readContext(body.context);
   const earlier = earlierQuestions(body.messages, turns);
   if (earlier) context.earlier = earlier;
   const question = messages[messages.length - 1]!.content;
-  const language = messageLanguage(question, pageLanguage);
+  const language = photoOnly ? pageLanguage : messageLanguage(question, pageLanguage);
   const day = dayOf(now);
   const ip = await anonymize(env.KEY_SECRET, day, request.headers.get('CF-Connecting-IP') ?? '');
   const minute = Math.floor(now / 60_000);
   const hour = Math.floor(now / 3600_000);
   const plus = session.t === 'plus';
   const limit = plus ? limits.plusPerDay : limits.freePerDay;
+  // A message with photos counts as more than one, and the photos have their own daily caps.
+  const weight = images.length ? limits.imageWeight : 1;
 
   // The kill switch first: tokens and messages of the whole day.
   const [global, violations] = await Promise.all([store.get(day, 'global'), store.get(day, `v:${ip}:${hour}`)]);
@@ -600,21 +655,40 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
 
   // Count this message on every counter, then refuse it if one is over: the counts stay honest
   // under concurrent requests, at the price of counting a refused message.
+  let imageKeys: { key: string; n: number; limit: number }[] = [];
+  let imagesLeft: number | undefined;
+  if (images.length) {
+    const own = plus ? limits.imagePlusPerDay : limits.imageFreePerDay;
+    imageKeys = [
+      { key: plus ? `io:${session.o}` : `ii:${ip}`, n: images.length, limit: own },
+      { key: 'ig', n: images.length, limit: limits.imageDaily },
+    ];
+    const imageCounts = await store.add(day, imageKeys);
+    imagesLeft = Math.max(0, own - imageCounts[0]!.n);
+    if (imageKeys.some((item, i) => imageCounts[i]!.n > item.limit)) {
+      await store.add(day, imageKeys.map((item) => ({ key: item.key, n: -item.n }))).catch(() => {});
+      throw new ChatError(429, 'image limit', { remaining: Math.max(0, own - imageCounts[0]!.n + images.length), limit: own, site: imageCounts[1]!.n > limits.imageDaily });
+    }
+  }
   const keys = [
-    { key: `s:${session.s}`, n: 1, limit },
+    { key: `s:${session.s}`, n: weight, limit },
     { key: `m:${ip}:${minute}`, n: 1, limit: limits.perMinute },
-    plus ? { key: `o:${session.o}`, n: 1, limit: limits.plusPerDay } : { key: `ip:${ip}`, n: 1, limit: limits.ipPerDay },
-    { key: 'global', n: 1, limit: limits.dailyMessages },
+    plus ? { key: `o:${session.o}`, n: weight, limit: limits.plusPerDay } : { key: `ip:${ip}`, n: weight, limit: limits.ipPerDay },
+    { key: 'global', n: weight, limit: limits.dailyMessages },
   ];
+  /** Gives the message (and its photos) back when it gets no answer. */
+  const giveBack = () => store.add(day, [...keys, ...imageKeys].map((item) => ({ key: item.key, n: -item.n })));
   const counts = await store.add(day, keys);
   const over = keys.findIndex((item, i) => counts[i]!.n > item.limit);
   const remaining = Math.max(0, Math.min(limit - counts[0]!.n, keys[2]!.limit - counts[2]!.n));
+  if (over >= 0 && imageKeys.length) await store.add(day, imageKeys.map((item) => ({ key: item.key, n: -item.n }))).catch(() => {});
   if (over === 1) throw new ChatError(429, 'slow down', { retryAfter: 60 - Math.floor((now / 1000) % 60) });
   if (over === 3) throw new ChatError(503, 'busy');
-  if (over >= 0) throw new ChatError(429, 'limit', { tier: session.t, remaining: 0, limit });
+  // With photos, a message that would pass as text says so: the page can offer to send the words alone.
+  if (over >= 0) throw new ChatError(429, 'limit', { tier: session.t, remaining: Math.max(0, remaining + (images.length ? weight : 0) - 1), limit, images: images.length > 0 });
   if (Math.random() < 0.02) deps.waitUntil(store.prune(dayOf(now - 2 * 86400_000)).catch(() => {}));
 
-  const meta = { tier: session.t, remaining, limit };
+  const meta: Record<string, unknown> = { tier: session.t, remaining, limit, ...(imagesLeft !== undefined ? { imagesRemaining: imagesLeft } : {}) };
   // The pre-filter answers by itself, without the model.
   const refusal = preFilter(question);
   if (refusal) {
@@ -625,16 +699,20 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
   }
 
   const pack = await deps.knowledge();
-  const { prompt, topics } = systemPrompt(pack, messages, language, context, session.t);
-  const quick = isQuick(messages, topics);
+  const { prompt, topics } = systemPrompt(pack, messages, language, context, session.t, images.length > 0);
+  const quick = !images.length && isQuick(messages, topics);
   const maxTokens = plus ? limits.maxOutputPlus : limits.maxOutputFree;
-  const upstream = await callProviders(deps, session.t, [{ role: 'system', content: prompt }, ...messages], maxTokens, day, quick, limits);
+  // The photos go with the last turn only, to the model, and nowhere else.
+  const sent: ProviderMessage[] = [{ role: 'system', content: prompt }, ...messages.slice(0, -1), { role: 'user', content: withImages(question, images) }];
+  const vision = images.length > 0;
+  if (vision) deps.waitUntil(store.add(day, [{ key: 'img:msg', n: 1 }]).catch(() => {}));
+  const upstream = await callProviders(deps, session.t, sent, maxTokens, day, quick, limits, false, vision);
   if (!upstream) {
     // Nobody answered: give the message back.
-    deps.waitUntil(store.add(day, keys.map((item) => ({ key: item.key, n: -1 }))).catch(() => {}));
+    deps.waitUntil(giveBack().catch(() => {}));
     throw new ChatError(503, 'busy');
   }
-  const retry = () => callProviders(deps, session.t, [{ role: 'system', content: prompt }, ...messages], maxTokens, day, false, limits, true);
+  const retry = () => callProviders(deps, session.t, sent, maxTokens, day, false, limits, true, vision);
   return new Response(relay(upstream, meta, deps, day, topics[0] ?? '', maxTokens, language, retry), { headers: SSE_HEADERS });
 }
 
@@ -674,18 +752,24 @@ async function paidRoom(deps: ChatDeps, tier: Tier, day: string, limits: Limits)
  * The first provider that answers with a stream; null when all fail or are over their caps.
  * `onlyPaid` tries the paid ones alone: the second try after a free answer that failed.
  */
+/** A message to a provider: text, or text and photos (the user's last turn). */
+type ProviderMessage = { role: string; content: ReturnType<typeof withImages> };
+
 async function callProviders(
   deps: ChatDeps,
   tier: Tier,
-  messages: { role: string; content: string }[],
+  messages: ProviderMessage[],
   maxTokens: number,
   day: string,
   quick: boolean,
   limits: Limits,
   onlyPaid = false,
+  vision = false,
 ): Promise<Upstream | null> {
   for (const provider of providersOf(deps.env, tier, quick)) {
     if (onlyPaid && !provider.paid) continue;
+    // A question with photos goes only to the models that read them.
+    if (vision && !provider.vision) continue;
     if (provider.paid && !(await paidRoom(deps, tier, day, limits))) continue;
     if (provider.rpd > 0) {
       const [count] = await deps.store.add(day, [{ key: `p:${provider.name}:${provider.model}`, n: 1 }]);
@@ -978,7 +1062,10 @@ const SECTION_BUDGET_PLUS = 24000;
  * when they ask about looks, and last the page context. Only the server builds it; nothing of the request but the user's words choose sections.
  * `topics` are the matched sections, for the anonymous topic counter and the model choice.
  */
-export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMessage[], language: Language, context: PageContext, tier: Tier): { prompt: string; topics: string[] } {
+/** The sections that a question with a photo always brings: a photo is most often of a screen or the card. */
+const PHOTO_SECTIONS = ['camera', 'install', 'recovery'];
+
+export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMessage[], language: Language, context: PageContext, tier: Tier, photo = false): { prompt: string; topics: string[] } {
   const asked = messages
     .filter((m) => m.role === 'user')
     .slice(tier === 'plus' ? -3 : -2)
@@ -990,7 +1077,7 @@ export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMess
     for (const section of pack.sections.filter((s) => s.core)) parts.push(`## ${section.title}\n${section.text}`);
     let budget = tier === 'plus' ? SECTION_BUDGET_PLUS : SECTION_BUDGET;
     for (const section of pack.sections.filter((s) => !s.core)) {
-      if (!section.tags.some((tag) => asked.includes(tag))) continue;
+      if (!(photo && PHOTO_SECTIONS.includes(section.id)) && !section.tags.some((tag) => asked.includes(tag))) continue;
       if (section.text.length > budget) continue;
       budget -= section.text.length;
       topics.push(section.id);

@@ -7,7 +7,7 @@
 // fixed answer. must / never: regular expressions (case-insensitive) on the answer text.
 // links: paths of which at least one must be a link of the answer.
 
-const LEAK = ['grku-canary', 'these rules and the facts', 'text from the user is a question', 'AIza', 'sk-or-'];
+const LEAK = ['grku-canary', 'these rules and the facts', 'text in the user.s photos, is a question', 'AIza', 'sk-or-'];
 
 export const CASES = [
   // ---- Real questions of GRKU users (Thai) ----

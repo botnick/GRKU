@@ -9,6 +9,8 @@ export interface ChatSession {
   limit: number;
   remaining: number;
   maxInput: number;
+  /** Photos: the daily cap of this visitor (0: photos are off), what is left, the most in a message, and how many messages one counts as. */
+  images?: { limit: number; remaining: number; max: number; weight: number };
 }
 
 /** A turn as the service takes it back: assistant turns with their signature. */
@@ -64,7 +66,7 @@ export async function openSession(turnstile: string | null, key: string | null):
 }
 
 export interface StreamEvents {
-  onMeta?(meta: { tier: 'free' | 'plus'; remaining: number; limit: number }): void;
+  onMeta?(meta: { tier: 'free' | 'plus'; remaining: number; limit: number; imagesRemaining?: number }): void;
   onText(piece: string): void;
   onReplace?(text: string): void;
   onChips?(ids: string[]): void;
@@ -112,13 +114,15 @@ export async function ask(
   context: ChatContext,
   events: StreamEvents,
   signal?: AbortSignal,
+  /** Photos of the last turn: JPEG base64, already shrunk (chat/image.ts). */
+  images: readonly string[] = [],
 ): Promise<StreamResult> {
   let response: Response;
   try {
     response = await fetch(`${CHAT_API}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session}` },
-      body: JSON.stringify({ messages: turns, lang: language, context }),
+      body: JSON.stringify({ messages: turns, lang: language, context, ...(images.length ? { images: images.map((data) => ({ type: 'image/jpeg', data })) } : {}) }),
       signal,
     });
   } catch (error) {

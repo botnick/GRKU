@@ -60,6 +60,10 @@ CHAT_VIOLATIONS_PER_HOUR = "4"
 CHAT_DAILY_MESSAGES = "600"
 CHAT_DAILY_TOKENS = "6000000"
 CHAT_SESSION_HOURS = "12"
+CHAT_IMAGE_WEIGHT = "2"
+CHAT_IMAGE_FREE_PER_DAY = "3"
+CHAT_IMAGE_PLUS_PER_DAY = "30"
+CHAT_IMAGE_DAILY = "300"
 # Paid fallback: on. Free first (the AI Studio free key, then OpenRouter :free), then paid Gemini
 # through OpenRouter (never by billing the AI Studio project, which would end its free tier). Only
 # the models listed, only with a price below, under these caps; the free tier may use at most

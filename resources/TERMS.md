@@ -71,6 +71,8 @@ GRKU Plus is a one-time purchase that unlocks more film looks on the site: more 
 
 The site has an assistant that answers questions about GRKU. Its answers are written by an AI model of an outside provider: Google's Gemini API, and when it is busy, OpenRouter or Cloudflare Workers AI. What you type is sent to that provider so it can write the answer, and the provider may keep and use it under its own terms, including to improve its services. Do not type personal data, such as your name, email, phone number, or a key. The answers can be wrong; the guide and these terms prevail over them.
 
+You can also send photos to the assistant, such as a picture of the camera screen or of the files on your card. Your browser shrinks each photo and removes its metadata (such as the place and the time) before it is sent. The photo goes to the same provider only so it can write the answer; we never store or log photos, and the conversation keeps only a small preview, in your browser. Do not send photos of people or of documents with personal data.
+
 We do not store the content of the messages. We keep anonymous daily counts (how many messages and tokens, and the topic) to keep the assistant within its limits; the address of your connection is used only as a salted code that changes every day. Your conversations, and the optional memory of your camera and the looks you like, stay in your browser; "Delete chat history" in the chat deletes them. If this browser holds a GRKU Plus key, the assistant checks it to give its owner more messages.
 
 ## No warranty
