@@ -3,7 +3,9 @@
 // the first page before the first render, and a link loads the part of its page when the pointer
 // or the focus comes to it, so a move between pages does not wait.
 import { lazy, type ComponentType, type JSX } from 'react';
-import { INSTALL_STEPS, isInstallStep, pathPage, type SitePage } from './languagePage';
+import { loadAllDocs, loadDocs } from './docs/load';
+import { isDocsPage } from './docs/pages';
+import { INSTALL_STEPS, isInstallStep, pathLanguage, pathPage, type SitePage } from './languagePage';
 
 export interface Part<P extends object> {
   (props: P): JSX.Element;
@@ -47,10 +49,11 @@ export const RecipesPanel = part(() => import('./components/RecipesPanel').then(
 export const PlusSheet = part(() => import('./components/PlusSheet').then((module) => module.PlusSheet));
 export const ShutdownSection = part(() => import('./components/ShutdownSection').then((module) => module.ShutdownSection));
 export const Develop = part(() => import('./components/Develop').then((module) => module.Develop));
+export const Docs = part(() => import('./components/DocsPage').then((module) => module.DocsPage));
 export const ShutdownDownload = part(() => import('./components/ShutdownSection').then((module) => module.ShutdownDownload));
 
 /** The parts that each page shows at once. */
-const PAGE_PARTS: Record<SitePage, readonly { preload(): Promise<unknown> }[]> = {
+const PAGE_PARTS: Record<Exclude<SitePage, `docs${string}`>, readonly { preload(): Promise<unknown> }[]> = {
   home: [Home],
   guide: [Guide],
   install: [Workbench],
@@ -62,12 +65,14 @@ const PAGE_PARTS: Record<SitePage, readonly { preload(): Promise<unknown> }[]> =
 
 /** Loads the parts of `page`. */
 export function preloadPage(page: SitePage): Promise<unknown> {
+  // A page of the manual loads its text in the language of the address too.
+  if (isDocsPage(page)) return Promise.all([Docs.preload(), loadDocs(pathLanguage(location.pathname))]);
   return Promise.all(PAGE_PARTS[page].map((item) => item.preload()));
 }
 
 /** Loads every part, for the prerender, which renders each page at once. */
 export function preloadAll(): Promise<unknown> {
-  return Promise.all([Home, Guide, Workbench, ModulesStep, RecipesPanel, PlusSheet, ShutdownSection, ShutdownDownload, Develop].map((item) => item.preload()));
+  return Promise.all([Home, Guide, Workbench, ModulesStep, RecipesPanel, PlusSheet, ShutdownSection, ShutdownDownload, Develop, Docs].map((item) => item.preload()).concat(loadAllDocs()));
 }
 
 /**

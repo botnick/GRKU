@@ -736,6 +736,8 @@ export const en = {
   scriptsOffError: 'The files cannot be prepared. Try again.',
   /** The first section: write the card or download a GRKU.zip. */
   card: 'How to install',
+  /** The header link to the user manual (/docs/). */
+  docsNav: 'Manual',
   uninstallText: 'Uninstall GRKU from this card. Photos stay.',
   uninstallData: 'Also delete settings and film looks',
   uninstallButton: 'Uninstall GRKU',

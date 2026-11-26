@@ -1,6 +1,7 @@
 // The language pages of the site. The edge worker (edge.ts) and the page share this module, so
 // it must not touch the DOM at import time.
 import type { Language } from './i18n';
+import { DOCS_SITE_PAGES, type DocsSitePage } from './docs/pages.ts';
 
 /** The address of each language page. Thai is the root page; the edge worker sends visitors of other languages to theirs. */
 export const LANGUAGE_PATHS: Readonly<Record<Language, string>> = {
@@ -59,7 +60,7 @@ export function fastbootPath(language: Language): string {
  * gives photos that the visitor already has the looks and the modules of GRKU in the browser.
  * `/install/` is the Thai first step and `/en/install/` the English one.
  */
-export const SITE_PAGES = {
+const APP_PAGES = {
   home: '',
   install: 'install/',
   camera: 'install/camera/',
@@ -69,7 +70,13 @@ export const SITE_PAGES = {
   develop: 'develop/',
 } as const;
 
-export type SitePage = keyof typeof SITE_PAGES;
+/** A page of the site: a page of the app, the manual home (`docs`), or a page of the manual (`docs/install`, docs/pages.ts). */
+export type SitePage = keyof typeof APP_PAGES | DocsSitePage;
+
+export const SITE_PAGES: Readonly<Record<SitePage, string>> = {
+  ...APP_PAGES,
+  ...(Object.fromEntries(DOCS_SITE_PAGES.map((page) => [page, `${page}/`])) as Record<DocsSitePage, string>),
+};
 
 /** The steps of the install, in order. The first is the film looks. */
 export const INSTALL_STEPS = ['install', 'camera', 'modules', 'write'] as const satisfies readonly SitePage[];
@@ -83,7 +90,7 @@ export const isInstallStep = (page: SitePage): page is InstallStep => (INSTALL_S
  * the first step, the install guide, and the Develop page. The later steps hold only the controls of one step, so they ask not to be
  * indexed and lead search engines on to the first step.
  */
-export const INDEXED_PAGES: readonly SitePage[] = ['home', 'install', 'guide', 'develop'];
+export const INDEXED_PAGES: readonly SitePage[] = ['home', 'install', 'guide', 'develop', ...DOCS_SITE_PAGES];
 
 const PAGE_NAMES = Object.keys(SITE_PAGES) as SitePage[];
 

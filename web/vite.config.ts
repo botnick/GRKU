@@ -6,6 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin, type PreviewServer, type ViteDevServer } from 'vite';
 import { addPlausible, allowPlausible, plausibleOrigin } from './plausible.ts';
 import { BUILD_SIGNATURE } from './scripts/build-signature.mjs';
+import { lastModified } from './scripts/lastmod.mjs';
 
 /**
  * The GRKU version from the workspace Cargo.toml. The Release workflow builds the site
@@ -148,7 +149,12 @@ export default defineConfig({
     siteData(process.env.GRKU_SITE_DATA ?? '../dist/site-data'),
     plausible(process.env.PLAUSIBLE_HOST || undefined),
   ],
-  define: { __GRKU_VERSION__: JSON.stringify(workspaceVersion()), __GRKU_SIG__: JSON.stringify(BUILD_SIGNATURE) },
+  define: {
+    __GRKU_VERSION__: JSON.stringify(workspaceVersion()),
+    __GRKU_SIG__: JSON.stringify(BUILD_SIGNATURE),
+    // The day the manual last changed, which each doc shows (null without the git history).
+    __DOCS_UPDATED__: JSON.stringify(lastModified(import.meta.dirname, ['src/docs'])),
+  },
   // The landing page shows the camera screens of the README from resources/images.
   server: { fs: { allow: ['.', '../resources/images'] } },
   build: {

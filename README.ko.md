@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![grku.app](https://img.shields.io/badge/site-grku.app-d94135)](https://grku.app)
 
-GRKU는 [BOTNICK](https://github.com/botnick)이 태국의 GR 사용자들을 최우선으로, 나아가 모든 사용자를 위해 만든 독자적인 프로젝트입니다. SD 카드에서 GR의 코드를 실행하는 방법을 찾아낸 ahonn의 [GRKit](https://github.com/ahonn/GRKit) 코드에서 시작되었으며, 이후 하나씩 새롭게 재구축되었습니다: 실제 필름 상자 아이콘을 갖춘 152가지 룩의 필름 라이브러리, 레시피, 더 많은 모듈, 원샷 시작, 카드에 직접 기록하고 추가 룩을 판매하는 사이트, 태국어 지원 및 자체 릴리스 파이프라인을 갖추었습니다. [기원](#origins) 섹션에서 GRKit에서 가져온 부분과 GRKU가 새롭게 만든 부분을 설명합니다.
+GRKU는 태국의 GR 사용자를 우선으로, 이어서 전 세계 사용자를 위해 [BOTNICK](https://github.com/botnick)이 제작한 독립 프로젝트입니다. 실제 필름 박스 아이콘이 포함된 152개 필름 룩 라이브러리, 레시피, 추가 모듈, 원샷 시작, 카드 쓰기와 추가 룩 판매를 지원하는 웹, 태국어 음성, 자체 릴리스 파이프라인을 갖추고 있습니다. 사용 설명서는 [grku.app/docs](https://grku.app/docs/)에서 확인할 수 있습니다.
 
 <p>
   <img src="resources/images/grku-root.jpg" alt="ADJ 메뉴의 GRKU 페이지" width="49%">
@@ -29,7 +29,7 @@ GRKU는 [BOTNICK](https://github.com/botnick)이 태국의 GR 사용자들을 �
 - **Glow**: 조명과 하이라이트 주변의 Bloom, 영화 필름 색상의 적주황색 후광인 Halation.
 - **Light Leak**: 비네트, 먼지와 머리카락, 라이트 리크, 스크래치, 또는 Faded, Dusty, Leaky, Expired 프리셋. 매 촬영마다 다르게 나타납니다.
 - **Diffusion**: 1/8, 1/4, 1/2 강도의 Black Pro-Mist 필터, 섀도 위의 Black Mist 베일, 점 광원의 아나모픽 스트릭. 또한 단독으로 사용할 수 있는 필름 부드러움(약, 중, 강)은 필름 스캔 특유의 은은한 부드러움을 표현합니다.
-- **Grain**: 네 가지 강도, 네 가지 크기.
+- **그레인**: 4단계 강도와 4단계 크기. 카메라 기본 표현 또는 필름형(인화지 위 컬러 네거티브 그레인, Andrea Volpato의 [spektrafilm](https://github.com/andreavolpato/spektrafilm) 그레인 모델 기반, piratenpanda 제작).
 - **Border**: 사진 전체에 얇게, 넓게 또는 인스턴트 스타일의 흰색/검은색 테두리를 적용합니다. 원본 픽셀을 그대로 유지한 채 테두리만큼 JPEG 크기가 확장됩니다.
 - **Enable at Start**: 전원을 켤 때마다 GRKU를 켜짐, 꺼짐, 또는 마지막 상태 그대로 유지.
 - **Distance Unit**: MENU의 GRKU Settings에서 스냅 초점 거리 및 수동 초점 눈금을 미터(m) 또는 피트(ft)로 설정할 수 있습니다.
@@ -45,7 +45,7 @@ GRKU는 전원을 켠 후 약 9초 후에 나타납니다(설치 후 첫 시작 
 | GR IV, GR IV HDF | 1.11 | 1.11, 1.20, 1.21 |
 | GR IV Monochrome | — | 1.00, 1.10, 1.11 |
 
-GRKU의 자체 변경 사항은 펌웨어 1.11이 설치된 GR IV에서 실행되었습니다. GR III 및 GR IIIx 패키지는 동일한 코드와 GRKit의 테스트로부터 빌드되었지만, 아직 아무도 해당 카메라에서 GRKU를 실행해 보지 않았습니다. 실행해 보신다면 작동 여부와 관계없이 [이슈](https://github.com/botnick/GRKU/issues)로 알려 주십시오. 2026년 11월 10일에 Ricoh가 출시한 펌웨어(GR III 2.21, GR IIIx 1.71, GR IV 1.21, GR IV Monochrome 1.11)를 위한 빌드는 Ricoh의 펌웨어 파일과 대조하여 확인되었으나, 아직 카메라에서 실행되지는 않았습니다.
+GRKU 자체 변경 사항은 펌웨어 1.11이 설치된 GR IV에서 실행 확인되었습니다. GR III 및 GR IIIx 패키지는 동일한 코드와 테스트로 빌드되었으나 아직 실제 카메라에서 실행된 사례는 없습니다. 직접 실행해 보셨다면 작동 여부를 [이슈](https://github.com/botnick/GRKU/issues)로 알려주십시오. 2026년 11월 10일 Ricoh가 배포한 펌웨어(GR III 2.21, GR IIIx 1.71, GR IV 1.21, GR IV Monochrome 1.11)용 빌드는 Ricoh 펌웨어 파일과 대조 검증을 마쳤으며 아직 카메라에서 실행해 보지는 않았습니다.
 
 > [!WARNING]
 > GRKU는 실험적인 프로젝트입니다. 사용에 따른 책임은 본인에게 있습니다.
@@ -60,32 +60,13 @@ GRKU의 자체 변경 사항은 펌웨어 1.11이 설치된 GR IV에서 실행�
 
 처음 한 번만 MENU를 누른 채 전원을 켭니다. ZIP으로 업데이트할 때는 카드의 `SCRIPT` 폴더를 교체합니다. 설정은 `GRKU`에 유지됩니다. 카드를 포맷하면 GRKU가 제거됩니다.
 
-GRKit(GRKU의 모태가 된 프로젝트)에서 전환하는 경우: 사이트에서 설정과 룩을 `GRKIT` 폴더에서 `GRKU`로 이동해 줍니다. 대신 직접 파일을 복사하는 경우에는 첫 시작 전에 카드 루트에서 `GRKIT`의 이름을 `GRKU`로 바꾸거나 삭제하십시오.
+`GRKIT` 폴더가 있는 이전 카드에서 옮겨오는 경우: 웹사이트가 설정과 룩을 `GRKU`로 옮겨 줍니다. 파일을 직접 복사한다면 첫 실행 전에 카드 루트의 `GRKIT` 이름을 `GRKU`로 바꾸거나 삭제하십시오.
 
 GRKU가 나타나지 않으면 `GRKU/REPORT.TXT`, `GRKU/BOOT.TXT`, `SCRIPT/GRKU/INSTALL.ERR`(있는 경우)을 첨부하여 [이슈](https://github.com/botnick/GRKU/issues/new)를 등록해 주십시오. [각 줄의 의미](docs/diagnostics.md)를 참고하십시오.
 
 ## GRKU Plus
 
 무료 사이트에서는 10개의 룩을 카드에 기록할 수 있습니다. GRKU Plus는 PromptPay를 통한 일회성 결제로 25개의 슬롯, 브랜드 팩, 또는 모든 기능(40개 슬롯 및 모든 룩)을 잠금 해제합니다. 키는 이메일로 전송되며 모든 기기에서 작동합니다. 이 서비스는 `services/plus`에서 실행되며 카드를 직접 보지 않습니다.
-
-## 기원
-
-GRKU는 GRKit 1.5.2와 GRKit의 `feat/recipes` 브랜치에서 시작되었습니다. 런타임 기술, 모듈 ABI 및 테스트 하네스는 GRKit의 것이며, GRKU는 해당 MIT 고지 사항을 그대로 유지합니다. GRKit의 빠른 부팅 펌웨어는 의도적으로 제외되었습니다. 아래의 그 외 모든 내용은 GRKU의 자체 작업입니다.
-
-| 영역 | GRKit (GRKU의 시작점) | 현재의 GRKU | 방법 |
-| --- | --- | --- | --- |
-| 필름 라이브러리 | 21가지 룩 | 152가지 룩, 카드당 40가지, 모든 룩이 포함된 필름 라이브러리 ZIP | Pat David (CC BY-SA 4.0), t3mujinpack (MIT), spektrafilm, Spectral Film LUT, Fotufilm의 오픈 필름 프리셋과 10가지 필름 시뮬레이션을 위한 FUJIFILM 자체 LUT에서 피팅하고, `docs/popular-films-2026.md`의 2026년 인기도 조사를 바탕으로 기본 40가지를 선정 |
-| 아이콘 | 평면 타일 | 모든 룩에 실제 상자 색상의 필름 박스, 메뉴용 컬러 타일, 고유한 PNG 아이콘을 가져오는 효과 | `scripts/flap-icons.py`가 상자를 그리고, 효과 컴파일러가 `icon: {"png": ...}`를 처리 |
-| 레시피 | 병합되지 않은 브랜치 | 병합 완료, 태국어 친화적 설명, ricohcookbook.com의 인기 레시피, 3단계 편집기, 예시 사진, 카메라 스타일의 설정 시트 포함 | `modules/recipes`, `web/src/components/Recipe*.tsx` |
-| 모듈 | Film Look, Framing, Guides, Date, Glow, Grain | 추가: Crop, Light Leak, Diffusion, Border, Recipes, Enable at Start, 피트(feet) 레이블, Golden Spiral 및 Dynamic Symmetry 가이드 | MustafaCisse 및 kkasemsa 포크에서 이식하고 새로 작성, 패키지당 10개 모듈 수용 |
-| 시작 | 전원을 켤 때마다 여러 번의 카드 요청 | 1회 요청: 코어가 한 번의 프로세스로 스캔, 설치, 보고를 수행하고 RAM의 로더에 진행 상황을 전달 | `docs/one-shot-start.md` |
-| 빠른 부팅 | 선택 사항인 패치된 펌웨어 | 원칙상 없음: GRKU는 카드의 스크립트일 뿐임 | `docs/fastboot.md`는 기록으로 유지 |
-| 사이트 | 영어, 중국어, 일본어, 한국어 | 태국어 우선, 6개 언어, shadcn/ui 기반의 다크 단일 페이지 설치 프로그램, 6장의 샘플 사진에 대한 라이브 프리뷰, GRKU Plus, SEO 및 링크 프리뷰 | `web/`, `services/plus` |
-| 카드 | `GRKIT` 폴더 | `GRKU` 폴더; 사이트와 `scripts/card.py`가 기존 `GRKIT` 폴더를 이동하며, 카메라는 이를 전혀 건드리지 않음 | `web/src/card.ts`, `scripts/card.py` |
-| 브랜드 | GRKit | GRKU: 빨간 마침표가 있는 워드마크, 태국어 어조, `docs/brand.md` | |
-| 릴리스 | GitHub Actions로 grkit.app에 배포 | grku.app을 위한 동일한 파이프라인: 푸시 시 릴리스 풀 리퀘스트 생성, 병합 시 공식 펌웨어에서 빌드하고 Cloudflare Pages를 통해 사이트 배포, Plus 서비스는 `services/plus`에서 배포 | `.github/workflows`, `docs/releasing.md` |
-
-GRKU는 GRKit의 모듈 ABI를 유지하여(GRKit SDK로 빌드된 모듈도 계속 불러와짐) 라이선스를 준수하며, 해당 사항이 있는 수정 사항은 업스트림인 GRKit으로 다시 보냅니다. 이는 GRKit의 미러가 아니지만 GRKit을 따릅니다. GRKit 1.5.4의 ADJ 메모리, 2026년 11월 펌웨어, GRKit 1.5.5의 상태 표시줄 및 레시피 수정 사항처럼 해당 사항이 있을 때마다 GRKit의 이후 변경 사항을 이식합니다. GRKit의 빠른 부팅 펌웨어에 대한 변경 사항은 제외된 상태로 유지됩니다.
 
 ## 소스에서 빌드
 
@@ -118,7 +99,7 @@ grku verify dist/GRKU-gr4.zip
 - [효과](effects/README.md), [LUT 소스](docs/lut-sources.md) 및 [2026년 인기 필름](docs/popular-films-2026.md)
 - [웹사이트](web/README.md), [브랜드](docs/brand.md) 및 [제품 노트](docs/PRODUCT.md)
 - [로드맵](docs/roadmap.md), [커뮤니티 설문조사](docs/community-survey.md) 및 [인수인계 노트](HANDOFF.md)
-- [릴리스 절차](docs/releasing.md); GRKit에서 온 문서인 GRKU가 사용하지 않는 [빠른 부팅 펌웨어](docs/fastboot.md)
+- grku.app의 [릴리스 안내](docs/releasing.md) 및 [사용 설명서](https://grku.app/docs/)
 
 ## 라이선스
 
@@ -128,4 +109,4 @@ grku verify dist/GRKU-gr4.zip
 - 메뉴와 라이브 뷰의 텍스트에는 [Roboto Condensed](https://github.com/googlefonts/roboto-classic)를 [SIL Open Font License 1.1](crates/grku-core/assets/RobotoCondensed-LICENSE.txt)에 따라 사용합니다.
 - 효과 피팅은 [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods)에서 [MIT 라이선스](crates/grku-core/GR3_FILM_MODS_LICENSE.txt)에 따라 이식되었습니다.
 
-RICOH와 GR은 Ricoh Company, Ltd.의 상표입니다. 필름 이름은 각 소유자의 상표입니다. GRKU는 [BOTNICK](https://github.com/botnick)의 독립적인 프로젝트이며 Ricoh, GRKit의 개발자, 또는 그 어떤 필름 제조사와도 관련이 없습니다.
+RICOH 및 GR은 Ricoh Company, Ltd.의 상표입니다. 필름 명칭은 각 소유자의 상표입니다. GRKU는 [BOTNICK](https://github.com/botnick)이 진행하는 독립 프로젝트이며 Ricoh 또는 필름 제조사와 제휴 관계가 없습니다.

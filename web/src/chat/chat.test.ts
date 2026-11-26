@@ -243,3 +243,25 @@ describe('looks that models get a little wrong', () => {
     expect(JSON.stringify(reply.blocks)).not.toContain('gritty');
   });
 });
+
+describe('the manual in the assistant', () => {
+  it('links the manual pages and their sections', () => {
+    expect(siteLink('/docs/', 'th')).toMatchObject({ kind: 'page', href: '/docs/' });
+    expect(siteLink('/docs/install/#first-start', 'en')).toMatchObject({ href: '/en/docs/install/#first-start' });
+    expect(siteLink('/docs/firmware/', 'ja')).toMatchObject({ href: '/ja/docs/firmware/' });
+    expect(siteLink('/docs/nothing/', 'en')).toBeNull();
+    expect(siteLink('/install/#first-start', 'en')).toBeNull();
+  });
+
+  it('gives each manual page a section with its links and tags, outside the core', async () => {
+    const { loadAllDocs } = await import('../docs/load');
+    const { docsSections } = await import('./knowledge');
+    const [docs, ...others] = await loadAllDocs();
+    const sections = docsSections(docs!, others);
+    const firmware = sections.find((section) => section.id === 'docs-firmware')!;
+    expect(firmware.core).toBeUndefined();
+    expect(firmware.text).toContain('/docs/firmware/#older');
+    expect(firmware.tags).toContain('firmware');
+    expect(sections.every((section) => section.tags.length > 3 && section.text.length < 6000)).toBe(true);
+  });
+});

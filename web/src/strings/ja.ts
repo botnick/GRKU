@@ -671,6 +671,8 @@ export const ja: Strings = {
   scriptsOff: (camera) => `${camera} の SD スクリプトをオフにするファイルをダウンロード`,
   scriptsOffError: 'ファイルを準備できません。もう一度お試しください。',
   card: 'インストール方法',
+  /** The header link to the user manual (/docs/). */
+  docsNav: "マニュアル",
   uninstallText: 'このカードから GRKU をアンインストールします。写真はそのままです。',
   uninstallData: '設定とフィルムルックも削除',
   uninstallButton: 'GRKU をアンインストール',

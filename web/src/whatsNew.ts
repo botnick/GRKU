@@ -128,7 +128,7 @@ export const RELEASES: Release[] = [
 
 const STRINGS: Record<Language, Record<string, string>> = {
   "en": {
-    "1100.1": "Grain has a Film-like style: the colored grain of a color negative print, strongest in the middle tones, after the spektrafilm grain model. From GRKit by piratenpanda.",
+    "1100.1": "Grain has a Film-like style: the colored grain of a color negative print, strongest in the middle tones, after the spektrafilm grain model, by piratenpanda.",
     "1100.2": "Date Imprint has a new caption, GRKU ♥.",
     "1100.3": "A simpler shutdown screen card, and GRKU Studio takes your own pictures as layers: a logo, a cut-out PNG, or a photo.",
     "1100.4": "Any GRKU Plus purchase unlocks all of GRKU Studio and the designs. Shutdown pictures are smaller, and the design thumbnails no longer shift after you choose one.",
@@ -178,7 +178,7 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "1101.3": "The film kinds on the install page wrap onto more lines, so they are easier to choose."
   },
   "zh-Hans": {
-    "1100.1": "Grain 新增 Film-like 风格：模拟彩色负片冲印照片的彩色颗粒感，中间调最明显，采用 spektrafilm 的颗粒模型。来自 piratenpanda 的 GRKit。",
+    "1100.1": "Grain 新增 Film-like 风格：模拟彩色负片冲印照片的彩色颗粒感，中间调最明显，采用 spektrafilm 的颗粒模型，由 piratenpanda 贡献。",
     "1100.2": "Date Imprint 新增文字：GRKU ♥。",
     "1100.3": "关机画面卡片设计更加简洁。GRKU Studio 现在支持将自己的图片作为图层添加：例如 Logo、抠图后的 PNG 或照片。",
     "1100.4": "购买任意 GRKU Plus 均可解锁全部 GRKU Studio 功能和设计。关机图片占用空间更小，选择设计后，设计缩略图也不再发生偏移。",
@@ -228,7 +228,7 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "1101.3": "安装页面上的胶片类型现在会自动换行显示，方便选择。"
   },
   "zh-Hant": {
-    "1100.1": "Grain 新增 Film-like 風格：模擬彩色負片沖印照片中的彩色顆粒，顆粒在中間調最明顯，採用 spektrafilm 的顆粒模型。收錄自 piratenpanda 的 GRKit。",
+    "1100.1": "Grain 新增 Film-like 風格：模擬彩色負片沖印照片中的彩色顆粒，顆粒在中間調最明顯，採用 spektrafilm 的顆粒模型，由 piratenpanda 貢獻。",
     "1100.2": "Date Imprint 新增標題文字：GRKU ♥。",
     "1100.3": "關機畫面的卡片設計更簡潔，GRKU Studio 現在也能將自己的圖片新增為圖層，例如 Logo、去背 PNG 或照片。",
     "1100.4": "購買任一種 GRKU Plus 方案，即可解鎖完整的 GRKU Studio 和所有設計。關機圖片的檔案大小縮小了，選取設計後，設計縮圖也不再移位。",
@@ -278,7 +278,7 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "1101.3": "安裝頁面的底片種類會分成更多行顯示，選擇時更加方便。"
   },
   "ja": {
-    "1100.1": "GrainにFilm-likeスタイルを追加しました。spektrafilmの粒状感モデルをもとに、カラーネガプリントの色付き粒子を再現。中間調で最も強く現れます。GRKit by piratenpanda。",
+    "1100.1": "GrainにFilm-likeスタイルを追加しました。spektrafilmの粒状感モデルをもとに、カラーネガプリントの色付き粒子を再現。中間調で最も強く現れます。piratenpanda による実装です。",
     "1100.2": "Date Imprintの新しいキャプション「GRKU ♥」を追加しました。",
     "1100.3": "シャットダウン画面のカード表示をシンプルにしました。GRKU Studioでは、ロゴ、切り抜いたPNG、写真など、お手持ちの画像をレイヤーとして追加できます。",
     "1100.4": "GRKU Plusをいずれかのプランで購入すると、GRKU Studioの全機能とすべてのデザインが利用できるようになります。シャットダウン画面の画像を小さくし、デザインを選択した後もサムネイルの位置がずれないようにしました。",
@@ -328,7 +328,7 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "1101.3": "インストールページのフィルムの種類を複数行で表示するように変更し、選びやすくしました。"
   },
   "ko": {
-    "1100.1": "Grain에 Film-like 스타일이 추가되었습니다. spektrafilm의 Grain 모델을 기반으로 컬러 네거티브 필름 인화물의 색상 입자를 재현하며, 중간 톤에서 가장 두드러집니다. piratenpanda의 GRKit을 기반으로 했습니다.",
+    "1100.1": "Grain에 Film-like 스타일이 추가되었습니다. spektrafilm의 Grain 모델을 기반으로 컬러 네거티브 필름 인화물의 색상 입자를 재현하며, 중간 톤에서 가장 두드러집니다. piratenpanda가 구현했습니다.",
     "1100.2": "Date Imprint에 새로운 캡션 GRKU ♥가 추가되었습니다.",
     "1100.3": "Shutdown 화면 카드가 더 간결해졌으며, GRKU Studio에서 로고, 배경이 제거된 PNG, 사진 등 직접 준비한 이미지를 레이어로 사용할 수 있습니다.",
     "1100.4": "GRKU Plus를 구매하면 구매한 상품 종류와 관계없이 GRKU Studio의 모든 기능과 디자인을 사용할 수 있습니다. Shutdown 이미지의 용량이 줄었으며, 디자인을 선택해도 미리보기 타일의 위치가 바뀌지 않습니다.",
@@ -378,7 +378,7 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "1101.3": "설치 페이지의 필름 종류가 여러 줄로 표시되어 원하는 항목을 더 쉽게 선택할 수 있습니다."
   },
   "th": {
-    "1100.1": "Grain มีสไตล์ Film-like เป็นเกรนสีแบบภาพพิมพ์จากฟิล์มเนกาทีฟสี โดยเห็นชัดที่สุดในโทนกลาง อ้างอิงโมเดลเกรนของ spektrafilm จาก GRKit โดย piratenpanda",
+    "1100.1": "Grain มีสไตล์ Film-like เป็นเกรนสีแบบภาพพิมพ์จากฟิล์มเนกาทีฟสี โดยเห็นชัดที่สุดในโทนกลาง อ้างอิงโมเดลเกรนของ spektrafilm โดย piratenpanda",
     "1100.2": "Date Imprint เพิ่มข้อความกำกับใหม่เป็น GRKU ♥",
     "1100.3": "การ์ดภาพตอนปิดกล้องเรียบง่ายขึ้น และ GRKU Studio เพิ่มรูปของคุณเป็นเลเยอร์ได้ ทั้งโลโก้, PNG พื้นหลังโปร่งใส และภาพถ่าย",
     "1100.4": "การซื้อ GRKU Plus แพ็กเกจใดก็ได้ จะปลดล็อก GRKU Studio และดีไซน์ทั้งหมด ภาพหน้าจอปิดกล้องมีขนาดเล็กลง และภาพตัวอย่างดีไซน์จะไม่เลื่อนตำแหน่งอีกต่อไปหลังเลือกดีไซน์",

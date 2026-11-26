@@ -43,6 +43,8 @@ Photo: [MIKI Yoshihito](https://www.flickr.com/photos/mujitra/53311001084/), [CC
 
 All the settings are also in the **GRKU** section at the end of the Customize tab (C) of MENU. Each module has a row. Turn the module on or off there, check the effects, ratios, or styles that ADJ shows in **Options**, put them in your order in **Order**, and set the order of the modules in **ADJ Order**. GRKU keeps your settings after power-off.
 
+Every feature and every setting, step by step with pictures, is in the GRKU manual: https://grku.app/en/docs/
+
 ## Update
 
 In Chrome or Edge on a computer, [grku.app](https://grku.app/) can update the card in a card reader. It replaces steps 2 and 3.

@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![grku.app](https://img.shields.io/badge/site-grku.app-d94135)](https://grku.app)
 
-GRKU 是一个独立项目，由 [BOTNICK](https://github.com/botnick) 首先为泰国的 GR 用户、随后为所有其他人打造。它起步于 ahonn 的 [GRKit](https://github.com/ahonn/GRKit) 代码，GRKit 找到了在 GR 上通过 SD 卡运行代码的方法，此后它被逐一重构：包含 152 种风格且带有逼真胶卷盒图标的胶片库、色彩配方、更多模块、一次性启动、一个可以直接写入存储卡并出售额外风格的网站、泰语语调以及它自己的发布流水线。[渊源](#origins)小节说明了哪些来自 GRKit，以及 GRKU 是如何在此基础上构建的。
+GRKU 是由 [BOTNICK](https://github.com/botnick) 开发的独立项目，最初面向泰国 GR 用户，随后扩展至所有用户：包含 152 款胶片色彩预设及真实胶片盒图标、配方、更多功能模块、一键启动、支持写入存储卡及售卖额外预设的网站、泰语语音，以及独立的发布流程。用户手册位于 [grku.app/docs](https://grku.app/docs/)。
 
 <p>
   <img src="resources/images/grku-root.jpg" alt="ADJ 菜单中的 GRKU 页面" width="49%">
@@ -29,7 +29,7 @@ GRKU 是一个独立项目，由 [BOTNICK](https://github.com/botnick) 首先为
 - **Glow**：灯光和高光周围的柔光（Bloom），以及模拟电影胶片配色的橙红色光晕（Halation）。
 - **Light Leak**：暗角、灰尘和毛发、漏光、划痕，或 Faded、Dusty、Leaky 和 Expired 预设。每张照片上的分布都不同。
 - **Diffusion**：黑柔滤镜（Black Pro-Mist）效果，强度可选 1/8、1/4 或 1/2，阴影上的 Black Mist 薄纱感，以及点光源的变形宽银幕横向眩光；此外还可单独使用胶片柔和度（弱、中、强），呈现胶片扫描般的柔和质感。
-- **Grain**：四档强度，四种大小。
+- **颗粒**：提供四档强度与四档尺寸，支持相机原生渲染或“胶片感”（还原彩色负片印在相纸上的颗粒效果，参考 Andrea Volpato 开发的 [spektrafilm](https://github.com/andreavolpato/spektrafilm) 颗粒模型，由 piratenpanda 实现）。
 - **Border**：为整张照片添加窄、宽或拍立得样式的黑白边框；JPEG 图像尺寸随边框扩展，完整保留照片全部像素。
 - **Enable at Start**：每次开机时开启、关闭或保持上次退出时的状态。
 - **Distance Unit**：可在 MENU 的 GRKU Settings 中，将快拍对焦距离和手动对焦标尺切换为米或英尺。
@@ -45,7 +45,7 @@ GRKU 在开机后约 9 秒出现（安装后的第一次开机耗时更长）。
 | GR IV、GR IV HDF | 1.11 | 1.11、1.20、1.21 |
 | GR IV Monochrome | — | 1.00、1.10、1.11 |
 
-GRKU 本身的改动已在固件 1.11 的 GR IV 上运行过。GR III 和 GR IIIx 的安装包由同一份代码以及 GRKit 的测试构建，但目前还没有人在这些相机上运行过 GRKU。如果您尝试了，无论是否成功，都请在 [issue](https://github.com/botnick/GRKU/issues) 中告诉我们。针对理光于 2026 年 11 月 10 日发布的固件（GR III 2.21、GR IIIx 1.71、GR IV 1.21、GR IV Monochrome 1.11）的构建版本已对照理光官方固件文件进行过校验；它们尚未在真机上运行过。
+GRKU 自身的修改已在固件 1.11 的 GR IV 上运行通过。GR III 与 GR IIIx 安装包由相同的代码和测试构建而成，但目前尚无人在这两款机型上实际运行过 GRKU。如果你进行了测试，无论成功与否，都请在 [issue](https://github.com/botnick/GRKU/issues) 中告诉我们。针对理光于 2026 年 11 月 10 日发布的固件（GR III 2.21、GR IIIx 1.71、GR IV 1.21、GR IV Monochrome 1.11）所构建的版本，已对照理光固件文件完成校验，但尚未在实机上运行。
 
 > [!WARNING]
 > GRKU 仍是实验性项目。使用风险自负。
@@ -60,32 +60,13 @@ GRKU 本身的改动已在固件 1.11 的 GR IV 上运行过。GR III 和 GR III
 
 只有第一次需要按住 MENU 开机。若要通过 ZIP 更新，替换存储卡上的 `SCRIPT` 文件夹即可；你的设置保存在 `GRKU` 中。格式化存储卡会删除 GRKU。
 
-从 GRKit（GRKU 的前身项目）迁移：网站会将你的设置和风格从 `GRKIT` 文件夹移动到 `GRKU`。如果你改为手动复制文件，请在首次开机前将存储卡根目录下的 `GRKIT` 重命名为 `GRKU`，或者将其删除。
+如果你使用的是包含 `GRKIT` 文件夹的旧存储卡：网站会将其中的设置和预设迁移至 `GRKU`。如果改为手动复制文件，请在首次启动前将存储卡根目录下的 `GRKIT` 重命名为 `GRKU`，或将其删除。
 
 如果 GRKU 没有显示，请在 [issue](https://github.com/botnick/GRKU/issues/new) 中附上 `GRKU/REPORT.TXT`、`GRKU/BOOT.TXT` 和 `SCRIPT/GRKU/INSTALL.ERR`（如果存在）。[每一行的含义](docs/diagnostics.md)。
 
 ## GRKU Plus
 
 免费网站可将任意 10 种风格写入存储卡。GRKU Plus 是通过 PromptPay 进行的一次性付款，可解锁 25 个卡位、品牌包或全部内容（40 个卡位和所有风格）。密钥会通过电子邮件发送，并可在所有设备上使用。该服务运行在 `services/plus` 中；它绝不会接触到您的存储卡。
-
-## 起源
-
-GRKU 起步于 GRKit 1.5.2 以及 GRKit 的 `feat/recipes` 分支；运行时技术、模块 ABI 和测试套件归 GRKit 所有，GRKU 保留了它们的 MIT 声明。GRKit 的快速启动固件被有意舍弃。以下其他所有内容均为 GRKU 自己的工作。
-
-| 方面 | GRKit（GRKU 的起点） | 如今的 GRKU | 实现方式 |
-| --- | --- | --- | --- |
-| 胶片库 | 21 种风格 | 152 种风格，每张卡 40 种；包含所有风格的胶片库 ZIP | 拟合自 Pat David（CC BY-SA 4.0）、t3mujinpack（MIT）、spektrafilm、Spectral Film LUT 和 Fotufilm 的开源胶片预设，以及 FUJIFILM 自家十款胶片模拟的 LUT，并通过 `docs/popular-films-2026.md` 中的 2026 年流行度调研选出默认的 40 款 |
-| 图标 | 扁平色块 | 每种风格都有与真实胶卷盒配色一致的胶卷盒图标、菜单彩色色块，以及自带 PNG 图标的效果 | `scripts/flap-icons.py` 绘制胶卷盒；效果编译器支持 `icon: {"png": ...}` |
-| 配方（Recipes） | 未合并的分支 | 已合并，配有对泰语友好的说明、来自 ricohcookbook.com 的热门配方、三步编辑器、示例照片以及相机风格的设置表 | `modules/recipes`、`web/src/components/Recipe*.tsx` |
-| 模块 | Film Look、Framing、Guides、Date、Glow、Grain | 加上 Crop、Light Leak、Diffusion、Border、Recipes、Enable at Start、英尺标注、黄金螺旋和动态对称辅助线 | 移植自 MustafaCisse 和 kkasemsa 的分支并全新编写；一个安装包可容纳十个模块 |
-| 启动 | 每次开机发起多次存储卡请求 | 一次请求：核心在一个进程中完成扫描、安装和报告，并将进度发送给内存中的加载器 | `docs/one-shot-start.md` |
-| 快速启动 | 可选的修补固件 | 坚决不采用：GRKU 始终只是存储卡上的一个脚本 | 保留 `docs/fastboot.md` 作为记录 |
-| 网站 | 英语、中文、日语、韩语 | 泰语优先、六种语言、基于 shadcn/ui 构建的深色单页安装器、六张样张的实时预览、GRKU Plus、SEO 与链接预览 | `web/`、`services/plus` |
-| 存储卡 | `GRKIT` 文件夹 | `GRKU` 文件夹；网站和 `scripts/card.py` 会迁移旧的 `GRKIT` 文件夹，相机绝不触碰它 | `web/src/card.ts`、`scripts/card.py` |
-| 品牌 | GRKit | GRKU：带有红点的文字商标、泰语语调、`docs/brand.md` | |
-| 发布 | GitHub Actions 部署至 grkit.app | 针对 grku.app 的相同流水线：推送触发发布 pull request，合并后基于官方固件构建并通过 Cloudflare Pages 部署网站；Plus 服务从 `services/plus` 部署 | `.github/workflows`、`docs/releasing.md` |
-
-GRKU 保留了 GRKit 的模块 ABI（用 GRKit SDK 构建的模块仍可加载）及其许可证，并在适用时将修复内容回馈给 GRKit。它不是 GRKit 的镜像，但会紧随其后：GRKit 后续的每项改动只要适用都会被移植，比如 GRKit 1.5.4 的 ADJ 记忆、2026 年 11 月的固件支持，以及 GRKit 1.5.5 的状态行和配方修复。GRKit 快速启动固件的改动则被排除在外。
 
 ## 从源码构建
 
@@ -118,7 +99,7 @@ grku verify dist/GRKU-gr4.zip
 - [效果](effects/README.md)、[LUT 来源](docs/lut-sources.md)以及 [2026 年热门胶片](docs/popular-films-2026.md)
 - [网站](web/README.md)、[品牌](docs/brand.md)与[产品说明](docs/PRODUCT.md)
 - [路线图](docs/roadmap.md)、[社区调查](docs/community-survey.md)与[交接说明](HANDOFF.md)
-- [发布流程](docs/releasing.md)；来自 GRKit 的[快速启动固件](docs/fastboot.md)（GRKU 不使用）
+- [发布说明](docs/releasing.md)，以及 grku.app 上的[用户手册](https://grku.app/docs/)
 
 ## 许可
 
@@ -128,4 +109,4 @@ grku verify dist/GRKU-gr4.zip
 - 菜单和取景画面的文字使用 [Roboto Condensed](https://github.com/googlefonts/roboto-classic) 字体，采用 [SIL Open Font License 1.1](crates/grku-core/assets/RobotoCondensed-LICENSE.txt)。
 - 效果拟合方法移植自 [gr3-film-mods](https://github.com/idontknownihil/gr3-film-mods)，采用 [MIT 许可证](crates/grku-core/GR3_FILM_MODS_LICENSE.txt)。
 
-RICOH 和 GR 是 Ricoh Company, Ltd. 的商标。胶片名称是各自所有者的商标。GRKU 是 [BOTNICK](https://github.com/botnick) 的独立项目，与理光、GRKit 的作者及任何胶片厂商均无关联。
+RICOH 与 GR 是理光株式会社（Ricoh Company, Ltd.）的商标。各胶片名称归其各自所有者所有。GRKU 是由 [BOTNICK](https://github.com/botnick) 开发的独立项目，与理光或任何胶片制造商均无隶属或关联关系。

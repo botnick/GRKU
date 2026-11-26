@@ -148,6 +148,7 @@ export function ChatLauncher({
   page,
   plusKey,
   context,
+  request = null,
   onPlus,
   onNavigate,
 }: {
@@ -156,6 +157,8 @@ export function ChatLauncher({
   page: SitePage;
   plusKey: string | null;
   context: ChatContext;
+  /** A question to ask at once, from outside the chat (Ask AI about this page of the manual); a new `at` asks again. */
+  request?: { question: string; at: number } | null;
   onPlus: (start: 'tiers' | 'key') => void;
   onNavigate: (href: string) => void;
 }) {
@@ -168,6 +171,12 @@ export function ChatLauncher({
   const bubble = hint ? text.hint : greeting ? text.greet : null;
   const dismissBubble = hint ? dismissHint : dismissGreeting;
   if (open && !mounted) setMounted(true);
+  // A new request opens the panel, which asks it.
+  const [asked, setAsked] = useState<number | null>(null);
+  if (request && request.at !== asked) {
+    setAsked(request.at);
+    setOpen(true);
+  }
 
   const show = () => {
     dismissHint();
@@ -212,7 +221,7 @@ export function ChatLauncher({
       )}
       {mounted && (
         <Suspense fallback={null}>
-          <ChatPanel open={open} onOpenChange={setOpen} language={language} strings={strings} plusKey={plusKey} context={context} onPlus={onPlus} onNavigate={onNavigate} />
+          <ChatPanel open={open} onOpenChange={setOpen} language={language} strings={strings} plusKey={plusKey} context={context} onPlus={onPlus} onNavigate={onNavigate} initialQuestion={request?.question ?? null} />
         </Suspense>
       )}
     </div>

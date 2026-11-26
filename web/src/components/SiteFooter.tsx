@@ -38,6 +38,7 @@ export function SiteFooter({
   link?: PageLink;
 }) {
   const guide = link ? link('guide') : { href: pagePath(language, 'guide') };
+  const docs = link ? link('docs') : { href: pagePath(language, 'docs') };
   const news = link ? link('home', '#news') : { href: `${LANGUAGE_PATHS[language]}#news` };
   return (
     <footer className="border-t border-border text-sm">
@@ -56,6 +57,11 @@ export function SiteFooter({
             <li>
               <a className={LINK} {...guide}>
                 {t.card}
+              </a>
+            </li>
+            <li>
+              <a className={LINK} {...docs}>
+                {t.docsNav}
               </a>
             </li>
             <li>

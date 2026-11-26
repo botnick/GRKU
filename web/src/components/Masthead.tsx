@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { LANGUAGES, type Language, type Strings } from '../i18n';
 import { newsStrings } from '../whatsNew';
 import { isInstallStep, type SitePage } from '../languagePage';
+import { isDocsPage } from '../docs/pages';
 import type { PageLink } from '../navigation';
 import { cn } from '@/lib/utils';
 import { THEME_PREFERENCES, themeStrings, useThemePreference, type ThemePreference } from '../theme';
@@ -97,12 +98,13 @@ export function Masthead({
       ['home', t.site.home],
       ['develop', t.develop.nav],
       ['guide', t.card],
+      ['docs', t.docsNav],
       ['install', t.install],
     ] as const
   ).map(([name, text]) => ({
     name: name === 'install' ? installStep : name,
     text,
-    current: name === 'install' ? isInstallStep(page) : page === name,
+    current: name === 'install' ? isInstallStep(page) : name === 'docs' ? isDocsPage(page) : page === name,
   }));
   return (
     <header className="sticky top-0 z-30 border-b border-border/80 bg-background/85 backdrop-blur-md">

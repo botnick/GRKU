@@ -15,6 +15,9 @@ import type { GuideStrings } from '../guide';
 import type { Strings } from '../i18n';
 import { LAUNCH_ENDS, LAUNCH_PRICES, packOf, REGULAR_PRICES, FREE_SLOTS, PACKS } from '../plus';
 import { LEARN } from './learn';
+import { blockText } from '../docs/search';
+import { DOC_PAGES } from '../docs/pages';
+import type { DocsContent } from '../docs/types';
 
 export const KNOWLEDGE_SCHEMA = 'grku-chat-knowledge-v1';
 
@@ -73,6 +76,10 @@ export interface KnowledgeSources {
   terms: string;
   /** The package README of the camera (resources/INSTALLATION-GR4.md): use and troubleshooting on the camera. */
   manual: string;
+  /** The user manual (/docs/) in English: a section for each page, brought in by its tags. */
+  docs?: DocsContent;
+  /** The manual in the other languages, whose titles and search words become tags too. */
+  docsKeywords?: readonly DocsContent[];
 }
 
 /** Text with inline code (the RichText of the strings) as plain text. */
@@ -154,7 +161,7 @@ export function buildKnowledge(sources: KnowledgeSources): Knowledge {
         `Film looks: ${looks.length} in the library (${KIND_SUMMARY(looks)}). A package carries up to 40 looks to the camera. ${t.plus.lead}`,
         'Supported cameras and firmware (the camera shows its version in MENU; other versions and older GR models are not supported):',
         ...cameraLines,
-        'Pages: /install/ (pick looks, camera, modules, then write the SD card or download GRKU.zip), /guide/ (install guide), /develop/ (try every look and effect on your own photos in the browser, no camera needed), /recovery/ (camera stuck at startup), /terms/, /#plus (GRKU Plus). Support: support@grku.app.',
+        'Pages: /install/ (pick looks, camera, modules, then write the SD card or download GRKU.zip), /guide/ (install guide), /develop/ (try every look and effect on your own photos in the browser, no camera needed), /recovery/ (camera stuck at startup), /terms/, /#plus (GRKU Plus), /docs/ (the user manual: every feature and setting, one page each). Support: support@grku.app.',
       ].join('\n'),
     },
     {
@@ -243,6 +250,7 @@ export function buildKnowledge(sources: KnowledgeSources): Knowledge {
       tags: LEARN.tags,
       text: LEARN.text,
     },
+    ...(sources.docs ? docsSections(sources.docs, sources.docsKeywords ?? []) : []),
   ];
 
   return {
@@ -286,3 +294,31 @@ const COMMON_QUESTIONS = [
   'Q: I held MENU and pressed power, and the camera shows "Updates the camera firmware. Ver.1.60 → Ver.1.60" with Execute and Cancel. What do I do? A: Choose Cancel and press OK; do not choose Execute. The screen shows because a camera firmware file (a .bin file whose name starts with fwdc, from RICOH or a fast-boot file) is at the top level of the card, and the camera reads it before the ModeSet file when MENU is held at power-on. Turn the camera off, put the card in a computer, delete only that fwdc….bin file from the top level of the card, and keep SCRIPT, DEVELOP.MOD, and the ModeSet file (such as 00078490.609). Put the card back, hold MENU and press power again: now the Mode Set Command screen shows Script - Enable and Complete. Then turn the camera on normally and wait 8 to 10 seconds until GRKU shows in ADJ. If the same screen still shows, ask which files are at the top level of the card. Links: /guide/#camera, /guide/#help.',
   'Q: I put these 3 items on the card (SCRIPT, DEVELOP.MOD, and the ModeSet file), held MENU and pressed power, and it showed Script - Enable. Is that done? A: Yes. The Mode Set Command screen shows Script - Enable and Complete, then the camera turns itself off: SD scripts are on. Now turn the camera on normally and wait a few seconds until GRKU shows at the top of the screen (the first start takes longer); then press ADJ and choose GRKU. Afterwards you may delete the ModeSet file and DEVELOP.MOD from the card; keep SCRIPT. Links: /guide/#camera, /guide/#use.',
 ].join('\n');
+
+/** Words that would bring a manual page into nearly every prompt. */
+const COMMON_WORDS = new Set(['grku', 'the', 'and', 'for', 'film', 'photo', 'photos', 'camera', 'menu', 'adj', 'free', 'card', 'sd', 'on', 'off', 'gr', 'use', 'new', 'look', 'looks', 'settings', 'setting', 'page', 'site', 'help', 'version', 'white', 'black', 'กล้อง', 'การ์ด', 'ฟิล์มลุค', 'ลุค', 'カメラ', '카메라', '相机', '相機']);
+
+/** The tags of a manual page: its search words and title in every language, less the common ones. */
+function docTags(slug: keyof DocsContent['pages'], all: readonly DocsContent[]): string[] {
+  const words = all.flatMap((content) => {
+    const page = content.pages[slug];
+    // Thai and the CJK languages write no spaces between words: the whole title is one tag.
+    return [...page.keywords.toLowerCase().split(/\s+/), page.title.toLowerCase()];
+  });
+  return [...new Set(words.map((word) => word.trim()).filter((word) => [...word].length >= 3 && !COMMON_WORDS.has(word)))];
+}
+
+/** A section of the knowledge for each page of the manual, with the link of each of its parts. */
+export function docsSections(docs: DocsContent, others: readonly DocsContent[]): KnowledgeSection[] {
+  return DOC_PAGES.map(({ slug }) => {
+    const page = docs.pages[slug];
+    const lines = [`Manual page /docs/${slug}/: ${page.lead}`];
+    for (const block of page.blocks) {
+      if (block.kind === 'h2') lines.push(`[${block.text}] /docs/${slug}/#${block.id}`);
+      else if (block.kind === 'cameras') lines.push('(the table of supported cameras, firmware, and ModeSet files)');
+      else if (block.kind === 'steps') lines.push(block.items.map((item, index) => `${index + 1}. ${blockText({ kind: 'p', text: item })}`).join(' '));
+      else if (block.kind !== 'screen' && block.kind !== 'photo' && block.kind !== 'camera' && block.kind !== 'frame') lines.push(blockText(block));
+    }
+    return { id: `docs-${slug}`, title: `Manual: ${page.title}`, tags: docTags(slug, [docs, ...others]), text: lines.join('\n') };
+  });
+}

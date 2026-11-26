@@ -684,6 +684,8 @@ export const ko: Strings = {
   scriptsOff: (camera) => `${camera}의 SD 스크립트를 끄는 파일 다운로드`,
   scriptsOffError: '파일을 준비할 수 없습니다. 다시 시도하세요.',
   card: '설치 방법',
+  /** The header link to the user manual (/docs/). */
+  docsNav: "설명서",
   uninstallText: '이 카드에서 GRKU을 제거합니다. 사진은 그대로 남습니다.',
   uninstallData: '설정과 필름 룩도 삭제',
   uninstallButton: 'GRKU 제거',

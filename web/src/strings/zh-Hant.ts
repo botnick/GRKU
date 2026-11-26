@@ -667,6 +667,8 @@ export const zhHant: Strings = {
   scriptsOff: (camera) => `下載關閉 ${camera} SD 腳本的檔案`,
   scriptsOffError: '無法準備檔案。請再試一次。',
   card: '安裝方式',
+  /** The header link to the user manual (/docs/). */
+  docsNav: "說明書",
   uninstallText: '從這張卡上解除安裝 GRKU，照片不受影響。',
   uninstallData: '同時刪除設定和底片風格',
   uninstallButton: '解除安裝 GRKU',

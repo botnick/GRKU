@@ -81,6 +81,8 @@ import {
   type InstallStep,
   type SitePage,
 } from './languagePage';
+import { isDocsPage } from './docs/pages';
+import { loadDocs } from './docs/load';
 import { pageLink, type Navigate, type PageLink } from './navigation';
 import { hasCamera, loadCamera, loadModules, loadProgress, saveCamera, saveModules, saveProgress, visitStep } from './setup';
 import { RichText } from './components/RichText';
@@ -146,7 +148,7 @@ import {
 import { designChoice, loadDesigns, saveDesigns, type DesignState } from './shutdownDesigns';
 import { TransferError } from './transfer';
 import { useCatalog } from './useCatalog';
-import { Develop, Guide, Home, ModulesStep, PlusSheet, RecipesPanel, ShutdownDownload, ShutdownSection, Workbench } from './parts';
+import { Develop, Docs, Guide, Home, ModulesStep, PlusSheet, RecipesPanel, ShutdownDownload, ShutdownSection, Workbench } from './parts';
 import { readInstallQuery } from './develop/install';
 
 /** The Tally form for problems, feature ideas, and questions. A plain link, so the page loads nothing from Tally. */
@@ -408,7 +410,7 @@ export function App({
   function chooseLanguage(next: Language) {
     loadFonts(next);
     // The text of the language downloads first; the page changes when it is there.
-    void loadStrings(next).then(() => {
+    void Promise.all([loadStrings(next), isDocsPage(page) ? loadDocs(next) : null]).then(() => {
       applyLanguage(next, page);
       setLanguage(next);
     });
@@ -990,6 +992,8 @@ export function App({
   const [plusMounted, setPlusMounted] = useState(plusOpen);
   if (plusOpen && !plusMounted) setPlusMounted(true);
   const [plusStart, setPlusStart] = useState<'tiers' | 'key'>('tiers');
+  // A question for the assistant from a page of the manual (Ask AI about this page).
+  const [chatRequest, setChatRequest] = useState<{ question: string; at: number } | null>(null);
   useEffect(() => {
     if (!plusKey) return;
     let live = true;
@@ -1307,6 +1311,19 @@ export function App({
 
         {page === 'develop' && <Develop strings={t} language={language} owned={owned} onPlus={openPlus} />}
 
+        {isDocsPage(page) && (
+          <Docs
+            language={language}
+            page={page}
+            link={link}
+            onPlus={(start) => {
+              setPlusStart(start);
+              setPlusOpen(true);
+            }}
+            onAsk={(question) => setChatRequest({ question, at: Date.now() })}
+          />
+        )}
+
         {isInstallStep(page) && (
           // The steps of the install, each its own page. A short fade marks the change of step.
           <div key={page} className={cn(moved && 'motion-safe:animate-[step-in_160ms_ease-out]')}>
@@ -1605,6 +1622,7 @@ export function App({
         strings={t}
         page={page}
         plusKey={plusKey}
+        request={chatRequest}
         context={{
           page,
           camera: cameraChosen ? camera.name : undefined,

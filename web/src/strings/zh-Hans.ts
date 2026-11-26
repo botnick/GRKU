@@ -667,6 +667,8 @@ export const zhHans: Strings = {
   scriptsOff: (camera) => `下载关闭 ${camera} SD 脚本的文件`,
   scriptsOffError: '无法准备文件。请重试。',
   card: '安装方式',
+  /** The header link to the user manual (/docs/). */
+  docsNav: "说明书",
   uninstallText: '从这张卡上卸载 GRKU，照片不受影响。',
   uninstallData: '同时删除设置和胶片风格',
   uninstallButton: '卸载 GRKU',
