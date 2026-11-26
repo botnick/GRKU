@@ -221,7 +221,7 @@ export function buildKnowledge(sources: KnowledgeSources): Knowledge {
     },
     {
       id: 'card-troubles',
-      title: 'Firmware update screen at MENU start, and GRKit still on the card',
+      title: 'Firmware update screen at MENU start, and old or missing looks after GRKit',
       tags: ['firmware', 'update', 'execute', 'cancel', 'ver.', 'fwdc', '.bin', 'grkit', 'huji', 'old look', 'still show', 'เฟิร์มแวร์', 'เฟิมแวร์', 'อัปเดต', 'อัพเดท', 'ยังขึ้น', 'ลุคเก่า', 'ไม่เข้า', 'เปลี่ยนเมม', 'เมมใหม่', '固件', 'ファームウェア', '펌웨어'],
       text: CARD_TROUBLES,
     },
@@ -295,6 +295,6 @@ const COMMON_QUESTIONS = [
 /** Card problems with their own screens or leftovers, sent when the question mentions them. */
 const CARD_TROUBLES = [
   'Q: I held MENU and pressed power, and the camera shows "Updates the camera firmware. Ver.1.60 → Ver.1.60" with Execute and Cancel. What do I do? A: Choose Cancel and press OK; do not choose Execute. The screen shows because a camera firmware file (a .bin file whose name starts with fwdc, from RICOH or a fast-boot file) is at the top level of the card, and the camera reads it before the ModeSet file when MENU is held at power-on. Turn the camera off, put the card in a computer, delete only that fwdc….bin file from the top level of the card, and keep SCRIPT, DEVELOP.MOD, and the ModeSet file (such as 00078490.609). Put the card back, hold MENU and press power again: now the Mode Set Command screen shows Script - Enable and Complete. Then turn the camera on normally and wait 8 to 10 seconds until GRKU shows in ADJ. If the same screen still shows, ask which files are at the top level of the card. Links: /guide/#camera, /guide/#help.',
-  'Q: I wrote GRKU to a card but the camera still shows GRKit looks (such as HUJI Cam Style), not mine. A: The card still has GRKit: SCRIPT/STARTUP.TTL starts SCRIPT/GRKIT (often after unzipping GRKU.zip over a GRKit card without replacing files, or copying the old card). Turn the camera off, copy the photos off, delete SCRIPT and the top-level GRKIT folder (or format the card in the camera, which erases photos), then write the card again from grku.app. No need to hold MENU again. Wait 8 to 10 s after power-on for GRKU in ADJ. Still GRKit: ask for a photo of the card files. Links: /install/write/, /guide/#help.',
+  'Q: I used GRKit before, wrote GRKU (40 looks) to another card, but the camera shows an old look such as HUJI Cam Style and not the looks I chose. A: Neither GRKU nor GRKit has a look called HUJI Cam Style: it is a LUT someone imported, with its own name. GRKU keeps imported LUTs: writing a card that had GRKit moves its looks and imports into GRKU, and the site writes your imports to every card. So an old look is not proof that GRKit runs. Do not guess; check: (1) scroll the whole Film Look list, which can be long; (2) the GRKU folder on the card has REPORT.TXT, which names what loaded; (3) a photo of the files at the top of the card and in SCRIPT (SCRIPT/GRKIT there means GRKit files were copied over); (4) how the card was written (the site button or GRKU.zip) and whether GRKU Plus covers 40 looks (free is 10). To start clean: copy the photos off, format the card in the camera, and write it again from grku.app. Links: /install/write/, /guide/#help.',
 ].join('\n');
 
