@@ -3,51 +3,109 @@ import { provideTable } from '../preview/render';
 import type { NativeRequest, NativeResponse } from './native.worker';
 import { base64 } from './names';
 
-/** grku-core `gr4_looks::MAX_FILE_SIZE`. An official ZIP has about 35 MB. */
+/** grku-core `gr4_looks::MAX_FILE_SIZE`. An official GR IV ZIP has about 35 MB, a GR II ZIP less. */
 export const MAX_FIRMWARE_BYTES = 96 * 1024 * 1024;
 /** The read of an official ZIP takes a few seconds. */
 const READ_TIMEOUT = 60_000;
 /** Makes each preview table key new, so a later unlock with the same ID gets no cached preview. */
 let tableCount = 0;
 
-/** Ricoh's GR IV support page, which shows the firmware with its license. */
-export const FIRMWARE_PAGE = 'https://www.ricoh-imaging.co.jp/english/support/digital/gr4_s.html';
+/** The camera whose firmware file holds a native look. */
+export type NativeFirmware = 'gr4' | 'gr2';
+
+/** Ricoh's support page of each camera, which shows the firmware with its license. */
+export const FIRMWARE_PAGES: Readonly<Record<NativeFirmware, string>> = {
+  gr4: 'https://www.ricoh-imaging.co.jp/english/support/digital/gr4_s.html',
+  gr2: 'https://www.ricoh-imaging.co.jp/english/support/digital/gr2_s.html',
+};
+
+/** Ricoh's GR IV support page (`FIRMWARE_PAGES.gr4`). */
+export const FIRMWARE_PAGE = FIRMWARE_PAGES.gr4;
 
 /** A cover of a native look. The icon that grku-wasm draws has the same fields. */
 const cinema = (number: string): Cover => ({ template: 'cine', brand: 'RICOH', name: 'CINEMA', number });
+const mono = (number: string): Cover => ({ template: 'box', brand: 'RICOH', name: 'MONO', number, band: false });
+
+/** GR IV has the Cinema looks built in, and on it these converted copies would show wrong colors. */
+const CINEMA_CAMERAS: readonly string[] = ['gr3', 'gr3x'];
+/** GR IV Monochrome has its own looks built in. */
+const MONO_CAMERAS: readonly string[] = ['gr3', 'gr3x', 'gr4'];
+
+/** A look that `nativeLooks` of grku-wasm reads from a camera firmware file. */
+export interface NativeLook {
+  id: string;
+  name: string;
+  firmware: NativeFirmware;
+  cover: Cover;
+  monochrome: boolean;
+  /** The camera entries (`Camera.key`) that can use the look. */
+  cameras: readonly string[];
+}
+
+const monoLook = (id: string, name: string, number: string): NativeLook => ({
+  id,
+  name,
+  firmware: 'gr4',
+  cover: mono(number),
+  monochrome: true,
+  cameras: MONO_CAMERAS,
+});
+
+const gr2Positive = (id: string, cameras: readonly string[]): NativeLook => ({
+  id,
+  name: 'GR II Positive',
+  firmware: 'gr2',
+  cover: { template: 'cine', brand: 'RICOH', name: 'GR II', number: 'POSITIVE' },
+  monochrome: false,
+  cameras,
+});
 
 /**
  * The native looks that `nativeLooks` reads (the offered looks of grku-core
- * `gr4_looks::LOOKS`), in its order.
+ * `gr4_looks::LOOKS` and `gr2_looks::TARGETS`), in its order for each firmware. GR II Positive has
+ * an effect for GR III's Standard and one for GR IV's.
  */
-export const NATIVE_LOOKS: readonly { id: string; name: string; cover: Cover }[] = [
-  { id: 'gr4-cinema-yellow', name: 'Cinema Yellow', cover: cinema('YELLOW') },
-  { id: 'gr4-cinema-green', name: 'Cinema Green', cover: cinema('GREEN') },
+export const NATIVE_LOOKS: readonly NativeLook[] = [
+  { id: 'gr4-cinema-yellow', name: 'Cinema Yellow', firmware: 'gr4', cover: cinema('YELLOW'), monochrome: false, cameras: CINEMA_CAMERAS },
+  { id: 'gr4-cinema-green', name: 'Cinema Green', firmware: 'gr4', cover: cinema('GREEN'), monochrome: false, cameras: CINEMA_CAMERAS },
+  monoLook('gr4-mono-standard', 'Mono Standard', 'STD'),
+  monoLook('gr4-mono-solid', 'Mono Solid', 'SOLID'),
+  monoLook('gr4-mono-soft', 'Mono Soft', 'SOFT'),
+  monoLook('gr4-mono-high-contrast', 'Mono Hi-Contrast', 'HI'),
+  monoLook('gr4-mono-grainy', 'Mono Grainy', 'GRAINY'),
+  monoLook('gr4-mono-solarized-1', 'Solarized 1', 'SOLAR 1'),
+  monoLook('gr4-mono-solarized-2', 'Solarized 2', 'SOLAR 2'),
+  monoLook('gr4-mono-solarized-3', 'Solarized 3', 'SOLAR 3'),
+  gr2Positive('gr2-positive-film', CINEMA_CAMERAS),
+  gr2Positive('gr2-positive-film-gr4', ['gr4']),
 ];
 
-/**
- * The cameras whose Standard the native looks follow. GR IV has the looks built in, and on it
- * these converted copies would show wrong colors.
- */
-const NATIVE_LOOK_CAMERAS: ReadonlySet<string> = new Set(['gr3', 'gr3x']);
+/** The native looks that the camera entry `camera` (`Camera.key`) can use. */
+export const nativeLooksFor = (camera: string): readonly NativeLook[] =>
+  NATIVE_LOOKS.filter((look) => look.cameras.includes(camera));
 
-/** True when the camera entry `camera` (`Camera.key`) can use native looks. */
-export const takesNativeLooks = (camera: string): boolean => NATIVE_LOOK_CAMERAS.has(camera);
+/** True when the camera entry `camera` can use a native look. */
+export const takesNativeLooks = (camera: string): boolean => nativeLooksFor(camera).length > 0;
 
 /**
- * The imports that the camera entry `camera` can use: every import on GR III and GR IIIx, and
- * no native look on the others. The page keeps the others for a later change of camera.
+ * The imports that the camera entry `camera` can use: each LUT import, and the native looks of
+ * `nativeLooksFor`. The page keeps the others for a later change of camera.
  */
 export function importsForCamera<T extends ImportedEffect>(
   imported: readonly T[],
   camera: string,
 ): readonly T[] {
-  return takesNativeLooks(camera) ? imported : imported.filter((effect) => effect.imported.kind !== 'native');
+  const looks = nativeLooksFor(camera);
+  return imported.filter(
+    (effect) => effect.imported.kind !== 'native' || looks.some((look) => look.id === effect.id),
+  );
 }
 
-/** The native looks that `imported` lacks, which the list offers to unlock. */
-export const missingNativeLooks = (imported: readonly ImportedEffect[]) =>
-  NATIVE_LOOKS.filter((look) => !imported.some((effect) => effect.id === look.id));
+/** The looks of `looks` that `imported` lacks, which the list offers to unlock. */
+export const missingNativeLooks = (
+  imported: readonly { readonly id: string }[],
+  looks: readonly NativeLook[] = NATIVE_LOOKS,
+) => looks.filter((look) => !imported.some((effect) => effect.id === look.id));
 
 /** True when `imported` has each native look. */
 export const hasNativeLooks = (imported: readonly ImportedEffect[]): boolean =>
@@ -59,7 +117,7 @@ export type NativeProblem = 'unsupported' | 'notFirmware' | 'tooLarge' | 'failed
 /** The problem of an error of `unlockNativeLooks`, from the English messages of grku-core. */
 export function nativeProblem(error: unknown): NativeProblem {
   const message = error instanceof Error ? error.message : String(error);
-  if (message.includes('not a supported GR IV firmware file')) return 'unsupported';
+  if (/not a supported GR (II|IV) firmware file/.test(message)) return 'unsupported';
   if (message.includes('The ZIP file has no') || message.includes('Invalid ZIP file')) return 'notFirmware';
   if (message.includes('too large')) return 'tooLarge';
   return 'failed';
@@ -91,8 +149,7 @@ function run(request: NativeRequest, signal: AbortSignal): Promise<NativeRespons
 }
 
 /**
- * Reads Cinema Yellow and Cinema Green from an official GR IV ZIP or its firmware file, in a
- * worker, and returns them as effects of the page. The file stays in the browser. `baseGamma` is
+ * Reads the native looks from an official GR IV or GR II ZIP or its firmware file, in a worker, and returns them as effects of the page. The file stays in the browser. `baseGamma` is
  * the catalog's, for the previews.
  */
 export async function unlockNativeLooks(

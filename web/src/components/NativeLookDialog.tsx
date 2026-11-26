@@ -51,7 +51,7 @@ interface PickerHost {
   }) => Promise<{ getFile(): Promise<File> }[]>;
 }
 
-const ACCEPT = '.zip,.bin';
+const ACCEPT = '.zip,.bin,.frm';
 
 /**
  * The dialog that unlocks the GR IV Cinema looks: a link to Ricoh's firmware page, a file choice
@@ -121,7 +121,7 @@ export function NativeLookDialog({ strings: t, baseGamma, onImport, ref }: Props
         types: [
           {
             description: t.nativeFileType,
-            accept: { 'application/zip': ['.zip'], 'application/octet-stream': ['.bin'] },
+            accept: { 'application/zip': ['.zip'], 'application/octet-stream': ['.bin', '.frm'] },
           },
         ],
       });
