@@ -139,8 +139,8 @@ static const u8 rotate_pixels[] __attribute__((aligned(4))) = { /* 6400 values, 
 static const u8 scale_feet_pixels[] __attribute__((aligned(4))) = { /* 2400 values, SHA-256 3035b84a34c34a48cf875d679bf732869c4b70c8e01f9a1a6c904e721f5bc1ef */ };
 static const u8 scale_sixteen_pixels[] __attribute__((aligned(4))) = { /* 2400 values, SHA-256 39ce4c2f7f5579af5c39910e572b3987d7875b3aa451cf90726fb42d0a56148b */ };
 static const u8 recipe_card_pixels[] __attribute__((aligned(4))) = { /* 6400 values, SHA-256 08f40ffcc7f1ac6a7839fba8956becc7493be6a5f2f7cb4a23f4752dda76fff8 */ };
-#define MENU_TEXT_BYTES 7344U
-static const u8 menu_text[] __attribute__((aligned(4))) = { /* 7344 values, SHA-256 61fc967dc02f22bc18a151cfd2396e588cc865dec1e8f9eef13b991311afd9d2 */ };
+#define MENU_TEXT_BYTES 7526U
+static const u8 menu_text[] __attribute__((aligned(4))) = { /* 7526 values, SHA-256 dbd81aefe377ead1c3879c2e804b9f79aee7f88000e021a75550ae903597ce13 */ };
 #define LABELS_BYTES 77256U
 static const u8 overlay_labels[] __attribute__((aligned(4))) = { /* 77256 values, SHA-256 36ba22e1c9f8764802c5684bfd2b542f0886d9e1bb9ecac96e3a38455df9e711 */ };
 static const u8 stock_tables[] __attribute__((aligned(4))) = { /* 312 values, SHA-256 43c6a333770e97d39d0749933c4cc8fd3d39ab51233e06eaefe7dda15bae5cb6 */ };

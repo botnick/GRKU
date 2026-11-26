@@ -1136,6 +1136,7 @@ fn library_recipes() -> Vec<grku_core::recipes::Recipe> {
                 halation: 3,
                 halation_color: Some(2),
             }),
+            grain_style: None,
             border: Some(Border {
                 style: 3,
                 color: Some(1),
@@ -1173,6 +1174,7 @@ fn library_recipes() -> Vec<grku_core::recipes::Recipe> {
             }),
             grain: None,
             glow: None,
+            grain_style: None,
             border: None,
             white_balance: None,
             corrections: [None; 4],
@@ -1192,6 +1194,7 @@ fn library_recipes() -> Vec<grku_core::recipes::Recipe> {
                 halation: 1,
                 halation_color: None,
             }),
+            grain_style: None,
             border: None,
             white_balance: None,
             corrections: [None; 4],
