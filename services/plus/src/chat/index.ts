@@ -974,7 +974,7 @@ function relay(
           attempt.cut = postFilter(attempt.answer, PROMPT_FRAGMENTS);
           // An answer that names the firmware file may say to delete it further on: hold the rest
           // back and decide on the whole answer.
-          if (attempt.cut === 'firmware' && !holding) {
+          if (attempt.cut === 'firmware') {
             attempt.cut = null;
             holding = true;
           }
