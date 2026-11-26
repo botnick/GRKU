@@ -10,8 +10,8 @@ export const MAX_ORIGINAL = 8 * 1024 * 1024;
 export const MAX_SIDE = 1280;
 /** The long side of the small copy that stays with the conversation on this device. */
 export const THUMB_SIDE = 240;
-/** The most base64 characters of one sent photo (the service takes 400 KB decoded, 600 KB a body). */
-export const MAX_BASE64 = 270_000;
+/** The most base64 characters of one sent photo (the service takes 400 KB decoded, 700 KB a body). */
+export const MAX_BASE64 = 250_000;
 
 export type PhotoProblem = 'notImage' | 'tooBig' | 'unreadable';
 
@@ -98,7 +98,9 @@ export async function preparePhoto(file: File): Promise<Photo> {
     throw new PhotoError('unreadable');
   }
   try {
-    if (!source.width || !source.height) throw new PhotoError('unreadable');
+    // The service takes 16 px and more on each side: a very thin strip cannot be a screen.
+    const sent = fitSize(source.width, source.height, MAX_SIDE);
+    if (!source.width || !source.height || Math.min(sent.width, sent.height) < 16) throw new PhotoError('unreadable');
     // Smaller and softer until it fits: screens with fine text stay readable at these steps.
     let url = '';
     for (const [side, quality] of [
@@ -112,8 +114,7 @@ export async function preparePhoto(file: File): Promise<Photo> {
     }
     const data = url.slice(url.indexOf(',') + 1);
     if (!url.startsWith('data:image/jpeg;base64,') || data.length > MAX_BASE64) throw new PhotoError('unreadable');
-    const size = fitSize(source.width, source.height, MAX_SIDE);
-    return { data, url, thumb: draw(source, THUMB_SIDE, 0.7), ...size };
+    return { data, url, thumb: draw(source, THUMB_SIDE, 0.7), ...sent };
   } finally {
     source.close?.();
   }

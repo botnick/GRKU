@@ -18,7 +18,7 @@
  * per-minute burst, the owner of a GRKU Plus key, and global daily caps of messages and tokens
  * (the kill switch). Counters live in D1. The content of the messages is never logged or stored.
  */
-import { messageLanguage, postFilter, preFilter, type Language, type Refusal } from './guard';
+import { FIRMWARE_FILE, messageLanguage, postFilter, preFilter, type Language, type Refusal } from './guard';
 import { PROMPT_FRAGMENTS, PROMPT_VERSION, rules } from './prompt';
 import { ImageError, readImages, withImages, type ChatImage } from './image';
 import { REPLIES } from './replies';
@@ -409,7 +409,7 @@ export interface ChatDeps {
 
 const MAX_BODY = 24 * 1024;
 /** The body of a question with photos: the photos (at most two, shrunk by the page) and the text. */
-export const MAX_BODY_IMAGES = 600 * 1024;
+export const MAX_BODY_IMAGES = 700 * 1024;
 
 /**
  * The body of a request as JSON, refusing big bodies and text that is not UTF-8. `max` is the
@@ -419,8 +419,7 @@ export async function readJson(request: Request, max = MAX_BODY): Promise<unknow
   const declared = Number(request.headers.get('Content-Length') ?? '0');
   if (declared > max) throw new ChatError(413, 'too large');
   if (!/^application\/json\b/i.test(request.headers.get('Content-Type') ?? '')) throw new ChatError(415, 'send json');
-  const bytes = new Uint8Array(await request.arrayBuffer());
-  if (bytes.length > max) throw new ChatError(413, 'too large');
+  const bytes = await readBody(request, max);
   let text: string;
   try {
     text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(bytes);
@@ -435,6 +434,31 @@ export async function readJson(request: Request, max = MAX_BODY): Promise<unknow
     if (error instanceof ChatError) throw error;
     throw bytes.length > MAX_BODY ? new ChatError(413, 'too large') : new ChatError(400, 'bad json');
   }
+}
+
+/** The bytes of a body, stopping at `max` without reading the rest (a body may come without Content-Length). */
+async function readBody(request: Request, max: number): Promise<Uint8Array> {
+  if (!request.body) return new Uint8Array(0);
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    size += value.length;
+    if (size > max) {
+      await reader.cancel().catch(() => {});
+      throw new ChatError(413, 'too large');
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(size);
+  let at = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, at);
+    at += chunk.length;
+  }
+  return bytes;
 }
 
 const LANGUAGES = ['en', 'th', 'zh-Hans', 'zh-Hant', 'ja', 'ko'] as const;
@@ -469,7 +493,8 @@ export async function startSession(request: Request, deps: ChatDeps): Promise<Re
       : limits.ipPerDay - (await deps.store.get(day, `ip:${await anonymize(env.KEY_SECRET, day, ip)}`)).n;
   const imageLimit = Math.min(limits.imageDaily, tier === 'plus' ? limits.imagePlusPerDay : limits.imageFreePerDay);
   const imagesUsed = imageLimit ? (await deps.store.get(day, tier === 'plus' ? `io:${owner}` : `ii:${await anonymize(env.KEY_SECRET, day, ip)}`)).n : 0;
-  const images = { limit: imageLimit, remaining: Math.max(0, imageLimit - imagesUsed), max: limits.maxImages, weight: limits.imageWeight };
+  const siteLeft = imageLimit ? limits.imageDaily - (await deps.store.get(day, 'ig')).n : 0;
+  const images = { limit: imageLimit, remaining: Math.max(0, Math.min(imageLimit - imagesUsed, siteLeft)), max: limits.maxImages, weight: limits.imageWeight };
   return Response.json({ session: await signSession(session, env.KEY_SECRET), tier, limit, remaining: Math.max(0, Math.min(limit, left)), maxInput: limits.maxInput, images, prompt: PROMPT_VERSION });
 }
 
@@ -681,18 +706,21 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
   const counts = await store.add(day, keys);
   const over = keys.findIndex((item, i) => counts[i]!.n > item.limit);
   const remaining = Math.max(0, Math.min(limit - counts[0]!.n, keys[2]!.limit - counts[2]!.n));
-  if (over >= 0 && imageKeys.length) await store.add(day, imageKeys.map((item) => ({ key: item.key, n: -item.n }))).catch(() => {});
+  // A refused message with photos takes nothing: its weight could otherwise use up what a text message still may.
+  if (over >= 0 && imageKeys.length) await giveBack().catch(() => {});
   if (over === 1) throw new ChatError(429, 'slow down', { retryAfter: 60 - Math.floor((now / 1000) % 60) });
   if (over === 3) throw new ChatError(503, 'busy');
   // With photos, a message that would pass as text says so: the page can offer to send the words alone.
-  if (over >= 0) throw new ChatError(429, 'limit', { tier: session.t, remaining: Math.max(0, remaining + (images.length ? weight : 0) - 1), limit, images: images.length > 0 });
+  // What is left once this message is given back (unclamped, so a photo over the last message says 0 or 1 right).
+  const left = Math.max(0, Math.min(limit - counts[0]!.n, keys[2]!.limit - counts[2]!.n) + (images.length ? weight : 0));
+  if (over >= 0) throw new ChatError(429, 'limit', { tier: session.t, remaining: images.length ? left : 0, limit, images: images.length > 0 });
   if (Math.random() < 0.02) deps.waitUntil(store.prune(dayOf(now - 2 * 86400_000)).catch(() => {}));
 
   const meta: Record<string, unknown> = { tier: session.t, remaining, limit, ...(imagesLeft !== undefined ? { imagesRemaining: imagesLeft } : {}) };
   // The pre-filter answers by itself, without the model.
   const refusal = preFilter(question);
   if (refusal) {
-    const items: { key: string; n: number }[] = [{ key: `r:${refusal}`, n: 1 }];
+    const items: { key: string; n: number }[] = [{ key: `r:${refusal}`, n: 1 }, ...imageKeys.map((item) => ({ key: item.key, n: -item.n }))];
     if (refusal !== 'selfharm') items.push({ key: `v:${ip}:${hour}`, n: 1 });
     deps.waitUntil(store.add(day, items).catch(() => {}));
     return fixedAnswer(refusal, language, meta, env.KEY_SECRET);
@@ -713,7 +741,9 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
     throw new ChatError(503, 'busy');
   }
   const retry = () => callProviders(deps, session.t, sent, maxTokens, day, false, limits, true, vision);
-  return new Response(relay(upstream, meta, deps, day, topics[0] ?? '', maxTokens, language, retry), { headers: SSE_HEADERS });
+  // Photos of an answer that never came are given back.
+  const photosBack = () => (imageKeys.length ? store.add(day, imageKeys.map((item) => ({ key: item.key, n: -item.n }))).then(() => {}) : Promise.resolve());
+  return new Response(relay(upstream, meta, deps, day, topics[0] ?? '', maxTokens, language, retry, photosBack), { headers: SSE_HEADERS });
 }
 
 const SSE_HEADERS = { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
@@ -883,6 +913,7 @@ function relay(
   maxTokens: number,
   language: Language,
   retry: () => Promise<Upstream | null>,
+  photosBack: () => Promise<void> = () => Promise.resolve(),
 ): ReadableStream<Uint8Array> {
   const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
   const writer = writable.getWriter();
@@ -897,6 +928,7 @@ function relay(
     const thinking = { mode: 'start' as 'start' | 'think' | 'text', buffer: '' };
     let pending = '';
     let sent = 0;
+    let holding = false;
     const release = async (all: boolean) => {
       const until = all ? attempt.answer.length : Math.max(sent, attempt.answer.length - HOLD);
       if (until > sent) {
@@ -937,11 +969,20 @@ function relay(
           if (!text) continue;
           attempt.answer += text;
           attempt.cut = postFilter(attempt.answer, PROMPT_FRAGMENTS);
+          // An answer that names the firmware file may say to delete it further on: hold the rest
+          // back and decide on the whole answer.
+          if (attempt.cut === 'firmware' && !holding) {
+            attempt.cut = null;
+            holding = true;
+          }
+          // From the first firmware file name on, the whole rest waits for the end.
+          if (!attempt.cut && FIRMWARE_FILE.test(attempt.answer)) holding = true;
           if (attempt.cut) break outer;
-          await release(false);
+          if (!holding) await release(false);
           if (attempt.answer.length > maxChars) break outer;
         }
       }
+      if (holding) attempt.cut = postFilter(attempt.answer, PROMPT_FRAGMENTS);
       if (!attempt.cut && !attempt.failed) await release(true);
     } catch {
       attempt.failed = true;
@@ -995,8 +1036,10 @@ function relay(
         await write(sse('done', { remaining: meta.remaining, sig: await signReply(secret, safe) }));
       } else if (!attempt.answer.trim()) {
         // Nothing came, even on the second try: the page offers to try again.
+        await photosBack().catch(() => {});
         await write(sse('error', { code: 'interrupted' }));
       } else if (attempt.failed) {
+        await photosBack().catch(() => {});
         await write(sse('error', { code: 'interrupted' }));
       } else {
         await write(sse('done', { remaining: meta.remaining, sig: await signReply(secret, attempt.answer) }));

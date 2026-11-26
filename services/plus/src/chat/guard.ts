@@ -139,6 +139,16 @@ const HOSTS = ['grku.app', 'ricoh-imaging.co.jp', 'ricoh-imaging.com', 'ricoh-im
 /** Whether `host` is one of HOSTS or a subdomain of one (RICOH has a site per region). */
 const allowedHost = (host: string) => HOSTS.some((h) => host === h || host.endsWith(`.${h}`));
 
+export const FIRMWARE_FILE = /\b(fwdc\w*|[a-z0-9_]{2,}\.bin)\b/i;
+const DELETE = /\b(delete|remove)\b|ลบ|เอาออก|削除|删除|刪除|삭제/i;
+/** Flashing. */
+const FLASH: RegExp[] = [/\b(flash\w*|downgrad\w*|patch\w*|modif\w*)\b[^.\n]{0,30}\bfirmware/i, /แฟลช(?!ไดรฟ์)|ดาวน์เกรด|แก้ไขเฟิร์มแวร์/];
+/** Choosing Execute on the firmware update screen, unless the answer says not to. */
+const EXECUTE: RegExp[] = [
+  /(?<!(not|never|don't|do not|ห้าม|อย่า|ไม่ต้อง|ไม่)\s*\**\s*)\b(choose|select|press|pick|tap)\s+\**["“]?execute/i,
+  /(?<!(ห้าม|อย่า|ไม่ต้อง|ไม่)\s*)(เลือก|กด)\s*\**["“]?\s*Execute/i,
+];
+
 /** Why an answer must not reach the page, or null. `fragments` are pieces of the system prompt. */
 export function postFilter(text: string, fragments: readonly string[]): string | null {
   // Key shapes: Google (AIza…, AQ.…), OpenRouter (sk-or-…), Cloudflare and other bearer tokens.
@@ -151,12 +161,15 @@ export function postFilter(text: string, fragments: readonly string[]): string |
   for (const match of text.matchAll(/\bwww\.([a-z0-9-]+\.)+[a-z]{2,}/gi)) {
     if (!allowedHost(match[0].toLowerCase())) return 'url';
   }
+  if (EXECUTE.some((p) => p.test(text))) return 'firmware';
   // Firmware files and flashing steps. Naming the camera's firmware file (fwdc….bin) to tell the
-  // user to delete it from the card is the fix for the update screen at a MENU start, so it stays.
-  if (/\b(fwdc\w*|[a-z0-9_]{2,}\.bin)\b/i.test(text) && /firmware|เฟิร์มแวร์/i.test(text)) {
-    const deletes = /\b(delete|remove)\b|ลบ|削除|删除|刪除|삭제/i.test(text);
-    const flashes = /\b(flash\w*|downgrad\w*|patch\w*|modif\w*)\b[^.\n]{0,30}\bfirmware|แฟลช|ดาวน์เกรด|แก้ไขเฟิร์มแวร์/i.test(text);
-    if (!deletes || flashes) return 'firmware';
+  // user to delete it from the card is the fix for the update screen at a MENU start, so it stays
+  // when a deletion is said near the name and nothing flashes or picks Execute. While the answer
+  // streams, relay in index.ts holds it back and decides on the whole answer.
+  if (FIRMWARE_FILE.test(text) && /firmware|เฟิร์มแวร์/i.test(text)) {
+    const near = [...text.matchAll(new RegExp(FIRMWARE_FILE.source, 'gi'))].every((m) => DELETE.test(text.slice(Math.max(0, m.index - 120), m.index + m[0].length + 120)));
+    const flashes = FLASH.some((p) => p.test(text));
+    if (!near || flashes) return 'firmware';
   }
   if (NEVER.some((p) => p.test(lower))) return 'topic';
   // Garbage: a share of scripts that none of the six languages uses.

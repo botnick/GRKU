@@ -137,6 +137,8 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
   // The mascot smiles for a moment after an answer.
   const [happy, setHappy] = useState(false);
   const pendingQuestion = useRef<string | null>(null);
+  /** Changes when the conversation is wiped, so a send that was cut by it restores nothing. */
+  const generation = useRef(0);
   const abort = useRef<AbortController | null>(null);
   const list = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
@@ -199,7 +201,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
         setNotice(null);
         const question = pendingQuestion.current;
         pendingQuestion.current = null;
-        if (question !== null) void send(question, opened);
+        if (question !== null) void sendRef.current(question, opened);
       } catch (error) {
         setNeedHuman(false);
         setNotice(error instanceof ChatFailure && error.code === 'closed' ? { kind: 'closed' } : error instanceof ChatFailure && error.status === 403 ? { kind: 'human' } : { kind: 'error', retry: false });
@@ -213,6 +215,12 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
   useEffect(() => {
     if (needHuman && !SITEKEY) void startSession(null);
   }, [needHuman, startSession]);
+
+  // The newest send(), for callbacks made before the last render (a new session).
+  const sendRef = useRef<(input: string, using?: ChatSession | null) => Promise<void>>(async () => {});
+  useEffect(() => {
+    sendRef.current = send;
+  });
 
   async function addPhotos(files: File[]) {
     if (!files.length) return;
@@ -254,6 +262,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
       setNotice({ kind: 'tooLong', max: maxInput });
       return;
     }
+    const sentIn = generation.current;
     if (!using) {
       pendingQuestion.current = question;
       setNeedHuman(true);
@@ -300,6 +309,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
         photos.map((p) => p.data),
       );
       if (result.remaining !== null) setRemaining(result.remaining);
+      if (generation.current !== sentIn) return;
       const answer: StoredTurn = { role: 'assistant', content: text, sig: result.sig ?? undefined, at: Date.now() };
       persist({ ...base, turns: [...base.turns, answer], updated: Date.now() });
       if (result.remaining === 0) setNotice({ kind: 'limit' });
@@ -307,7 +317,9 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
       setTimeout(() => setHappy(false), 2400);
     } catch (error) {
       const code = error instanceof ChatFailure ? error.code : 'error';
-      if (code === 'aborted' && text) {
+      if (generation.current !== sentIn) {
+        // The visitor deleted the chat meanwhile: keep nothing of this send.
+      } else if (code === 'aborted' && text) {
         // A stopped answer stays, unsigned: it does not go back to the service.
         persist({ ...base, turns: [...base.turns, { role: 'assistant', content: text, at: Date.now() }], updated: Date.now() });
       } else {
@@ -323,7 +335,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
           setHumanReset((n) => n + 1);
           setNeedHuman(true);
         } else if (code === 'image limit') {
-          setImagesLeft(0);
+          setImagesLeft(error instanceof ChatFailure && !error.detail.site && typeof error.detail.remaining === 'number' ? error.detail.remaining : 0);
           setNotice({ kind: 'photo', problem: 'limit' });
         } else if (code === 'bad image') setNotice({ kind: 'photo', problem: 'bad' });
         else if (code === 'limit' && photos.length && error instanceof ChatFailure && Number(error.detail.remaining) > 0) {
@@ -353,6 +365,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
   }
 
   function newChat() {
+    generation.current += 1;
     abort.current?.abort();
     persist(newConversation());
     setAttachments([]);
@@ -364,8 +377,11 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
 
   function deleteAll() {
     abort.current?.abort();
+    generation.current += 1;
     forgetAll(storage);
     setSession(null);
+    setAttachments([]);
+    pendingQuestion.current = null;
     setMemory({ on: false });
     setConversation(newConversation());
     setConfirmDelete(false);

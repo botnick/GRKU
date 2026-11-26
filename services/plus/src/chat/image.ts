@@ -52,6 +52,27 @@ const u16le = (b: Uint8Array, i: number) => b[i]! | (b[i + 1]! << 8);
 const u24le = (b: Uint8Array, i: number) => b[i]! | (b[i + 1]! << 8) | (b[i + 2]! << 16);
 const u32be = (b: Uint8Array, i: number) => ((b[i]! << 24) >>> 0) + ((b[i + 1]! << 16) | (b[i + 2]! << 8) | b[i + 3]!);
 
+/**
+ * Whether the file looks whole: a JPEG ends with its end marker, a PNG with its IEND chunk, and a
+ * WebP's RIFF size matches its length. A cut or padded file is refused before it reaches a model.
+ */
+export function wholeFile(bytes: Uint8Array, type: ImageType): boolean {
+  const n = bytes.length;
+  // And has pixels: a JPEG a start of scan, a PNG an IDAT chunk, a WebP a VP8 or VP8L chunk.
+  if (type === 'image/jpeg') return n > 4 && bytes[n - 2] === 0xff && bytes[n - 1] === 0xd9 && has(bytes, [0xff, 0xda]);
+  if (type === 'image/png') return n >= 57 && u32be(bytes, 8) === 13 && ascii(bytes, n - 8, n - 4) === 'IEND' && has(bytes, [0x49, 0x44, 0x41, 0x54]);
+  return n >= 20 && (bytes[4]! | (bytes[5]! << 8) | (bytes[6]! << 16) | (bytes[7]! << 24)) + 8 === n && (has(bytes, [0x56, 0x50, 0x38, 0x20], 12) || has(bytes, [0x56, 0x50, 0x38, 0x4c], 12));
+}
+
+/** Whether `needle` occurs in `bytes` from `from` on. */
+function has(bytes: Uint8Array, needle: number[], from = 2): boolean {
+  outer: for (let i = from; i + needle.length <= bytes.length; i++) {
+    for (let j = 0; j < needle.length; j++) if (bytes[i + j] !== needle[j]) continue outer;
+    return true;
+  }
+  return false;
+}
+
 /** The width and height that an image's header gives, or null when the header is not whole. */
 export function dimensionsOf(bytes: Uint8Array, type: ImageType): { width: number; height: number } | null {
   if (type === 'image/png') {
@@ -85,6 +106,7 @@ export function dimensionsOf(bytes: Uint8Array, type: ImageType): { width: numbe
     const length = u16be(bytes, i + 2);
     if (length < 2) return null;
     const frame = marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
+    if (frame && (length < 8 || i + 2 + length > bytes.length)) return null;
     if (frame) return { width: u16be(bytes, i + 7), height: u16be(bytes, i + 5) };
     if (marker === 0xd9 || marker === 0xda) return null;
     i += 2 + length;
@@ -113,6 +135,7 @@ export function readImages(value: unknown, limits: ImageLimits): ChatImage[] {
     }
     const type = sniffType(bytes);
     if (!type) throw new ImageError(415, 'type');
+    if (!wholeFile(bytes, type)) throw new ImageError(400, 'encoding');
     const box = dimensionsOf(bytes, type);
     if (!box || box.width < 16 || box.height < 16 || Math.max(box.width, box.height) > limits.imageMaxSide) throw new ImageError(400, 'dimensions');
     images.push({ type, data, bytes: bytes.length, ...box });
