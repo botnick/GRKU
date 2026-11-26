@@ -16,7 +16,8 @@ export const RELEASES: Release[] = [
     "items": [
       "1102.1",
       "1102.2",
-      "1102.3"
+      "1102.3",
+      "1102.4"
     ]
   },
   {
@@ -137,6 +138,7 @@ export const RELEASES: Release[] = [
 
 const STRINGS: Record<Language, Record<string, string>> = {
   "en": {
+    "1102.4": "A full user manual at grku.app/docs: every setting explained in simple steps, with real camera screens, a firmware version check, and help when something goes wrong. You can also send the assistant a photo of your camera screen and it will tell you what to do.",
     "1102.1": "Meet the GRKU assistant: tap the little camera at the bottom right of any page and ask about installing GRKU, your GR, film looks, or photography. It answers in your language, suggests looks you can try on your own photos, and links you to the right step. GRKU Plus owners get deeper conversations and more detailed answers.",
     "1102.2": "Smarter film-look search: it understands Thai and other names (ฟูจิ, โกดัก, พอร์ตร้า, ขาวดำ, b&w…), forgives typos, and suggests close looks when nothing matches.",
     "1102.3": "GRKU Plus: after paying, your key shows large on screen with Copy and Download buttons, and you can have the key emailed to you again from the \"I have a key\" tab.",
@@ -190,6 +192,7 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "1101.3": "The film kinds on the install page wrap onto more lines, so they are easier to choose."
   },
   "zh-Hans": {
+    "1102.4": "grku.app/docs 提供完整用户手册：用简单步骤说明各项设置，附真实相机画面、固件版本核对，以及遇错排查说明。你还可以给助手发送相机屏幕照片，获取下一步操作提示。",
     "1102.1": "认识 GRKU 助手：轻点任意页面右下角的小相机图标，即可咨询安装 GRKU、你的 GR 相机、胶片色彩或摄影相关问题。它会以你的语言回复，为你推荐适合套用在照片上的胶片色彩，并提供对应步骤的链接。GRKU Plus 用户可享受更深入的对话与更详尽的解答。",
     "1102.2": "更智能的胶片色彩搜索：支持泰语及其他名称（ฟูจิ、โกดัก、พอร์ตร้า、ขาวดำ、b&w…），容忍拼写误差，并在无精确匹配时推荐相近的色彩。",
     "1102.3": "GRKU Plus：付款完成后，密钥将在屏幕上醒目显示，并提供“复制”和“下载”按钮；你也可以随时在“我已有密钥”标签页中重新发送密钥至邮箱。",
@@ -243,6 +246,7 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "1101.3": "安装页面上的胶片类型现在会自动换行显示，方便选择。"
   },
   "zh-Hant": {
+    "1102.4": "grku.app/docs 完整使用手冊上線：以簡單步驟說明每項設定，附上實際相機畫面、韌體版本檢查，以及遇到問題時的排解指引。你也可以傳送相機螢幕照片給小幫手，它會告訴你該怎麼做。",
     "1102.1": "認識 GRKU 助手：點選任一頁面右下角的小相機，即可詢問 GRKU 安裝、你的 GR 相機、底片風格或攝影問題。它會以你的語言回覆，建議適合套用在你照片上的風格，並連結到對應的操作步驟；GRKU Plus 使用者還可進行更深入的對話並獲得更詳細的解答。",
     "1102.2": "更聰明的底片風格搜尋：支援泰文與其他名稱（ฟูจิ、โกดัก、พอร์ตร้า、ขาวดำ、b&w 等），容許錯字，並在找不到完全相符的結果時建議相近的風格。",
     "1102.3": "GRKU Plus：付款完成後，金鑰會以大字體顯示在畫面上，並提供複製與下載按鈕；你也可以在「我已有金鑰」分頁中再次將金鑰寄送到你的信箱。",
@@ -296,6 +300,7 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "1101.3": "安裝頁面的底片種類會分成更多行顯示，選擇時更加方便。"
   },
   "ja": {
+    "1102.4": "grku.app/docs で完全版ユーザーマニュアルを公開しました。各設定をやさしい手順で解説し、実際のカメラ画面やファームウェアバージョンの確認、困ったときの対処法も掲載しています。アシスタントにカメラ画面の写真を送ると、次の操作も案内します。",
     "1102.1": "GRKUアシスタントが登場しました。各ページの右下にある小さなカメラアイコンをタップすると、GRKUの導入方法、お使いのGR、フィルムルック、写真撮影について質問できます。あなたの言語で回答し、お手持ちの写真で試せるルックを提案して、適切な手順へ案内します。GRKU Plusをお持ちの方は、より踏み込んだ会話や詳細な回答をご利用いただけます。",
     "1102.2": "フィルムルック検索が賢くなりました。タイ語などの名称（ฟูจิ、โกดัก、พอร์ตร้า、ขาวดำ、b&w…）にも対応し、入力ミスを許容するほか、一致するものがなかった場合でも近いルックを提案します。",
     "1102.3": "GRKU Plus：お支払い完了後、キーが画面に大きく表示され、「コピー」および「ダウンロード」ボタンから操作できます。また、「キーを持っています」タブからキーの再送信をメールで依頼することも可能です。",
@@ -349,6 +354,7 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "1101.3": "インストールページのフィルムの種類を複数行で表示するように変更し、選びやすくしました。"
   },
   "ko": {
+    "1102.4": "grku.app/docs에서 전체 사용자 설명서를 확인하세요. 실제 카메라 화면과 함께 모든 설정을 쉬운 단계로 안내하며, 펌웨어 버전 확인과 문제 해결 도움말을 제공합니다. 카메라 화면 사진을 어시스턴트에 보내면 어떻게 해야 할지도 알려줍니다.",
     "1102.1": "GRKU 어시스턴트를 만나보세요: 어느 페이지에서든 오른쪽 아래의 작은 카메라를 눌러 GRKU 설치, 보유한 GR 기기, 필름 룩, 사진 촬영에 대해 물어보세요. 사용하는 언어로 답하고, 내 사진에 적용해 볼 만한 룩을 추천하며, 알맞은 단계로 연결해 줍니다. GRKU Plus 사용자는 더 깊이 있는 대화와 상세한 답변을 이용할 수 있습니다.",
     "1102.2": "더 똑똑해진 필름 룩 검색: 태국어 표기 등 다양한 이름(ฟูจิ, โกดัก, พอร์ตร้า, ขาวดำ, b&w…)을 인식하고, 오타를 너그럽게 처리하며, 일치하는 결과가 없을 때 비슷한 룩을 추천합니다.",
     "1102.3": "GRKU Plus: 결제 후 화면에 키가 크게 표시되며 복사 및 다운로드 버튼이 제공되고, '키가 있어요' 탭에서 키를 다시 이메일로 받을 수 있습니다.",
@@ -402,6 +408,7 @@ const STRINGS: Record<Language, Record<string, string>> = {
     "1101.3": "설치 페이지의 필름 종류가 여러 줄로 표시되어 원하는 항목을 더 쉽게 선택할 수 있습니다."
   },
   "th": {
+    "1102.4": "คู่มือฉบับเต็มที่ grku.app/docs อธิบายทุกการตั้งค่าเป็นขั้นตอนง่ายๆ พร้อมภาพหน้าจอกล้องจริง เช็กเวอร์ชันเฟิร์มแวร์ และวิธีแก้ปัญหาเวลาเกิดข้อผิดพลาด แถมส่งรูปหน้าจอกล้องให้ผู้ช่วยดูได้ด้วยว่าจะต้องทำยังไงต่อ",
     "1102.1": "พบกับผู้ช่วย GRKU แตะกล้องตัวเล็กที่มุมขวาล่างของหน้าไหนก็ได้ แล้วถามเรื่องการติดตั้ง GRKU รุ่น GR ของคุณ ฟิล์มลุค หรือการถ่ายภาพ ผู้ช่วยจะตอบตามภาษาของคุณ แนะนำฟิล์มลุคให้ลองกับรูปของคุณเอง และส่งลิงก์ไปยังขั้นตอนที่ใช่ ส่วนคนที่มี GRKU Plus จะคุยได้ลึกขึ้นและได้คำตอบละเอียดกว่าเดิม",
     "1102.2": "ค้นหาฟิล์มลุคได้ฉลาดขึ้น เข้าใจทั้งชื่อภาษาไทยและชื่ออื่น ๆ อย่าง ฟูจิ โกดัก พอร์ตร้า ขาวดำ b&w… พิมพ์ผิดนิดหน่อยก็ยังหาเจอ และช่วยแนะนำฟิล์มลุคที่ใกล้เคียงให้เวลาไม่เจอผลลัพธ์",
     "1102.3": "GRKU Plus หลังจ่ายเงินเสร็จ คีย์จะขึ้นตัวใหญ่บนหน้าจอพร้อมปุ่มคัดลอกและดาวน์โหลด และสั่งส่งคีย์เข้าอีเมลซ้ำได้จากแท็บ \"ฉันมีคีย์อยู่แล้ว\"",
