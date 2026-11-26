@@ -429,16 +429,21 @@ export function App({
   // After a move or a change of language, the head takes the tags of the prerendered page.
   const headSynced = useRef(false);
   useEffect(() => {
+    const path = pagePath(language, page);
+    // The first render keeps the head of its HTML, unless the start moved to another address (`/#install`).
     if (!headSynced.current) {
       headSynced.current = true;
-      return;
+      const canonical = document.querySelector('link[rel="canonical"]')?.getAttribute('href');
+      if (canonical && new URL(canonical, location.href).pathname === path) return;
     }
-    void syncHead(pagePath(language, page));
+    void syncHead(path);
   }, [language, page]);
 
   /** Shows `next` without a reload, as a new entry of the history. */
   const navigate: Navigate = (next, hash = '') => {
     history.pushState(null, '', `${pagePath(language, next)}${hash}`);
+    // A language that arrives before the page shows applies to this page.
+    pageNow.current = next;
     showLanguage(language, next);
     // A transition keeps the current page on screen while the part of the next one downloads.
     startTransition(() => {
@@ -452,18 +457,22 @@ export function App({
   // Back and forward show the page of the address, in its language.
   useEffect(() => {
     async function back() {
-      // A language that is still on its way would move this page back to the earlier one.
-      languageRun.current++;
+      // A language that is still on its way would move this page back to the earlier one, and a
+      // later Back or Forward wins over this one when its text arrives first.
+      const mine = ++languageRun.current;
       const next = pathPage(location.pathname) ?? 'home';
       const nextLanguage = pathLanguage(location.pathname);
+      const hash = location.hash;
+      pageNow.current = next;
       loadFonts(nextLanguage);
       await loadStrings(nextLanguage);
+      if (mine !== languageRun.current) return;
       showLanguage(nextLanguage, next);
       startTransition(() => {
         setMoved(true);
         setLanguage(nextLanguage);
         setPage(next);
-        setScrollTarget({ hash: location.hash });
+        setScrollTarget({ hash });
       });
     }
     addEventListener('popstate', back);

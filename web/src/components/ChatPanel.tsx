@@ -395,7 +395,8 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
   const asked = useRef<string | number | null>(null);
   useEffect(() => {
     const key = requestId ?? initialQuestion ?? null;
-    if (open && initialQuestion && key !== null && asked.current !== key && !busy && !preparing) {
+    // Photos or a draft that a failed answer gave back stay with the visitor, not with this question.
+    if (open && initialQuestion && key !== null && asked.current !== key && !busy && !preparing && attachmentsRef.current.length === 0) {
       asked.current = key;
       void send(initialQuestion);
     }

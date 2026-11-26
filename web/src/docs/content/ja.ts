@@ -90,13 +90,19 @@ export const ja: DocsContent = {
   "pages": {
     "start": {
       "title": "GRKUとは",
+      "sources": [
+        "web/src/plus.ts",
+        "web/src/generated/modules.ts",
+        "web/src/strings/en.ts (faq)",
+        "resources/TERMS.md"
+      ],
       "seo": "GRKUとは？RICOH GR III、IIIx、IV向けの無料フィルムルック",
       "lead": "GRKUはSDカードからRICOH GRにフィルムルックや撮影効果を追加します。",
       "keywords": "about introduction overview begin beginner free safe firmware 概要 紹介 はじめる 初心者 無料 安全 ファームウェア",
       "blocks": [
         {
           "kind": "p",
-          "text": "GRKUはRICOH GR III、GR IIIx、GR IV向けの無料アドオンです。150種類以上のフィルムルックから選び、1枚のカードに最大40個まで入れられます。日付印字や粒状感、XPan比率などのレシピや効果も使えます。"
+          "text": "GRKUはRICOH GR III、GR IIIx、GR IV向けの無料アドオンです。150種類以上のフィルムルックから選び、1枚のカードに最大40個まで入れられます。日付の印字や粒子感、XPan比率などのレシピや効果も使えます。"
         },
         {
           "kind": "p",
@@ -136,7 +142,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "すべてのルックはサイトで無料プレビューでき、ライブラリのルックは10個まで無料でカードに入れられます。自分で読み込んだルックは数に入りません。すべてのモジュール、レシピ、Developページは無料です。[GRKU Plus](doc:plus)は、カードに入れられるルックを増やすための買い切りオプションです。"
+          "text": "すべてのルックはサイトで無料プレビューでき、ライブラリのルックは10個まで無料でカードに入れられます。自分で読み込んだルックは数に入りません。すべてのモジュールやレシピ、Developページは無料です。[GRKU Plus](doc:plus)は、カードに入れられるルックを増やすための買い切りオプションです。"
         },
         {
           "kind": "h2",
@@ -165,13 +171,23 @@ export const ja: DocsContent = {
     },
     "firmware": {
       "title": "ファームウェアのバージョンを確認",
+      "sources": [
+        "crates/grku-core/src/camera.rs",
+        "web/src/generated/cameras.ts",
+        "web/src/package.ts (gr4-1.20-0528 not published)",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr3_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr3x_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr4_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr-4-mono_s.html",
+        "web/src/chat/knowledge.ts (firmware update screen)"
+      ],
       "seo": "RICOH GR III、GR IIIx、GR IVのファームウェアのバージョンを確認する方法",
-      "lead": "MENUを押してセットアップメニュー（レンチのアイコン）を開きます。GRKUは、このページの表にあるファームウェアのバージョンでだけ動きます。",
+      "lead": "MENUを押してセットアップメニュー（レンチのアイコン）を開きます。GRKUは、このページの表にあるファームウェアのバージョンでのみ動作します。",
       "keywords": "ファームウェア バージョン 確認 メニュー セットアップ レンチ 機器情報 カメラ情報 更新 リコー 古い 新しい firmware version check menu setup wrench about this device firmware info camera information update ricoh older newer fwdc bin",
       "blocks": [
         {
           "kind": "p",
-          "text": "ファームウェアはRICOHが作ったカメラの中のソフトです。どのカメラもメニューでファームウェアのバージョンを確認できます。GRKUをインストールする前に確認してください。"
+          "text": "FirmwareはRICOHが作ったカメラの中のソフトです。どのカメラもメニューでファームウェアのバージョンを確認できます。GRKUをインストールする前に確認してください。"
         },
         {
           "kind": "h2",
@@ -189,22 +205,13 @@ export const ja: DocsContent = {
           ]
         },
         {
-          "kind": "camera",
-          "screen": "loaded",
-          "press": [
-            "menu"
-          ],
-          "alt": "カメラ背面のMENUボタンを押します。"
-        },
-        {
-          "kind": "screen",
-          "screen": "setup-gr3",
-          "alt": "GR IIIとGR IIIx：（1）スパナアイコンのセットアップメニュー、（2）About This Device。"
-        },
-        {
-          "kind": "screen",
-          "screen": "info-gr3",
-          "alt": "GR IIIとGR IIIx：（3）Firmware Info / オプション画面のファームウェアバージョン。"
+          "kind": "path",
+          "items": [
+            "MENU",
+            "Setup",
+            "About This Device",
+            "Firmware Info / Options"
+          ]
         },
         {
           "kind": "h2",
@@ -222,20 +229,12 @@ export const ja: DocsContent = {
           ]
         },
         {
-          "kind": "screen",
-          "screen": "setup-gr4",
-          "alt": "GR IV：（1）スパナアイコンのセットアップメニュー、（2）Camera Information。"
-        },
-        {
-          "kind": "screen",
-          "screen": "info-gr4",
-          "alt": "GR IV：（3）Camera Information画面のファームウェアバージョン。"
-        },
-        {
-          "kind": "note",
-          "tone": "plain",
-          "title": "知っておくと便利なこと",
-          "text": "この画像ではほかのメニュー項目がグレーになっています。名前は機種やファームウェアによって異なります。"
+          "kind": "path",
+          "items": [
+            "MENU",
+            "Setup",
+            "Camera Information"
+          ]
         },
         {
           "kind": "p",
@@ -251,7 +250,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GR IV 30th Anniversary Editionには専用の工場出荷版1.20が入っており、grku.appではまだ対応していません。先にRICOHから1.21へアップデートしてください。"
+          "text": "GR IV 30th Anniversary Editionには専用の工場出荷版1.20が入っており、grku.appではまだ提供していません。先にRICOHから1.21へアップデートしてください。"
         },
         {
           "kind": "h2",
@@ -281,6 +280,15 @@ export const ja: DocsContent = {
     },
     "install": {
       "title": "GRKU をインストール",
+      "sources": [
+        "resources/INSTALLATION-GR4.md",
+        "web/src/guide.ts",
+        "web/src/strings/en.ts (cardConnect, cardApplyInstall, download)",
+        "crates/grku-core/src/runtime/files.rs",
+        "resources/images/modeset.png",
+        "resources/images/camera-menu.png",
+        "resources/images/grku-root.jpg"
+      ],
       "seo": "RICOH GR III、GR IIIx、GR IVへのGRKUインストール方法",
       "lead": "GRKUをSDカードに書き込み、カメラでSDスクリプトを一度有効にします。",
       "keywords": "セットアップ インストール SDカード Chrome Edge zip sd_root modeset mode set command menu 初回起動 setup install sd card chrome edge zip sd_root modeset mode set command menu first start",
@@ -377,12 +385,8 @@ export const ja: DocsContent = {
           ]
         },
         {
-          "kind": "camera",
-          "screen": "modeset",
-          "press": [
-            "menu",
-            "power"
-          ],
+          "kind": "screen",
+          "screen": "modeset-back",
           "alt": "MENUを押したまま電源ボタンを押します。画面にモードセットコマンドが表示されます。"
         },
         {
@@ -394,13 +398,13 @@ export const ja: DocsContent = {
           "kind": "note",
           "tone": "tip",
           "title": "このように表示されないときは",
-          "text": "**Mode Set Command**画面が出ないときは、電源を切ります。先に{{MENU}}を押し続けてから電源ボタンを押し、画面が出るまで{{MENU}}を押し続けてください。`DEVELOP.MOD`とModeSetファイルがフォルダの中ではなく、カードの一番上の階層にあるか確かめてください。"
+          "text": "**Mode Set Command**画面が出ないときは、カメラの電源を切ります。先に{{MENU}}を押し続けたまま電源ボタンを押し、画面が出るまで{{MENU}}を押し続けてください。`DEVELOP.MOD`とModeSetファイルがフォルダの中ではなく、カードの一番上の階層にあるか確かめてください。"
         },
         {
           "kind": "note",
           "tone": "warning",
           "title": "ファームウェア更新の画面が出たときは？",
-          "text": "カードにRICOHのファームウェアファイル（名前が `fwdc` で始まる `.bin` ファイル）が入っています。**Cancel** を選び、**Execute** は絶対に選ばないでください。電源を切り、カードのトップレベルからそのファイルを消して、この手順をやり直してください。"
+          "text": "カードにRICOHのファームウェアファイル（名前が `fwdc` で始まる `.bin` ファイル）が入っています。**Cancel**を選び、**Execute**は絶対に選ばないでください。カメラの電源を切り、カードの一番上の階層からそのファイルを消して、この手順をやり直してください。"
         },
         {
           "kind": "p",
@@ -429,7 +433,7 @@ export const ja: DocsContent = {
         {
           "kind": "screen",
           "screen": "adj",
-          "alt": "GRKUのADJ画面に各モジュールのアイコンが表示されている。画面の左上にはGRKUと使用中のルックが表示されている。"
+          "alt": "GRKUのADJ画面が開き、各モジュールのアイコンが表示されています。画面の左上には「GRKU」と「Film Look: オフ」と表示されています。"
         },
         {
           "kind": "p",
@@ -439,6 +443,13 @@ export const ja: DocsContent = {
     },
     "controls": {
       "title": "ADJとMENU",
+      "sources": [
+        "runtime/menu.c",
+        "runtime/manage.h",
+        "runtime/menu_listed.h",
+        "crates/grku-core/src/menu_text.rs",
+        "resources/images/grku-menu.jpg"
+      ],
       "seo": "GRでのGRKUの使い方：ADJレバーとMENU",
       "lead": "カメラ上のGRKUの位置と、各ボタンの働きを説明します。",
       "keywords": "adj lever menu customize fn ok button options order enable grku about version navigate adjレバー メニュー カスタマイズ fn ok ボタン オプション 並び順 有効化 grku 概要 バージョン 操作",
@@ -565,6 +576,10 @@ export const ja: DocsContent = {
     },
     "update": {
       "title": "アップデートまたはアンインストール",
+      "sources": [
+        "resources/INSTALLATION-GR4.md",
+        "web/src/strings/en.ts (updateSteps, removeSteps, uninstall*, scriptsOff*)"
+      ],
       "seo": "GRKUのアップデートやアンインストール方法、SDスクリプトの無効化",
       "lead": "アップデートしても設定とフィルムルックは維持されます。再度 MENU を押し続ける必要はありません。",
       "keywords": "アップデート アップグレード 新バージョン アンインストール 削除 消去 sd スクリプト オフ フォーマット カード バックアップ update upgrade new version uninstall remove delete sd scripts off format card backup",
@@ -607,7 +622,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "インストールの最後のステップでカードを接続し、**GRKUのアンインストール**を押します。設定やフィルムルックも消すかどうかを選び、**Uninstall**を押してください。カメラの電源を切って、自分で`SCRIPT`フォルダと`GRKU`フォルダを消してもかまいません。写真はそのまま残ります。"
+          "text": "インストールの最後のステップでカードを接続し、**GRKU をアンインストール**を押します。設定やフィルムルックも消すかどうかを選び、**アンインストール**を押してください。カメラの電源を切って、自分で`SCRIPT`フォルダと`GRKU`フォルダを消してもかまいません。写真はそのまま残ります。"
         },
         {
           "kind": "h2",
@@ -621,7 +636,7 @@ export const ja: DocsContent = {
         {
           "kind": "steps",
           "items": [
-            "インストールの最後のステップで**SDスクリプトをオフにする**を使って、ファイルをカードに書き込みます。またはダウンロードして、`SD_ROOT`の中身をカードにコピーしてください。",
+            "インストールの最後のステップで**SD スクリプトをオフにする**を使って、ファイルをカードに書き込みます。またはダウンロードして、`SD_ROOT`の中身をカードにコピーしてください。",
             "カードを挿入します。{{MENU}} を押したまま電源を入れ、自動で切れるまで待ちます。",
             "カードから ModeSet ファイルと `DEVELOP.MOD` を削除します。"
           ]
@@ -639,6 +654,12 @@ export const ja: DocsContent = {
     },
     "film-look": {
       "title": "フィルムルック",
+      "sources": [
+        "modules/film-look/module.toml",
+        "runtime/menu_listed.h",
+        "crates/grku-core/src/menu_text.rs (film, adjustments)",
+        "CHANGELOG.md"
+      ],
       "seo": "RICOH GRのフィルムルック：フィルムルックの使い方",
       "lead": "イメージコントロールの代わりに、ライブプレビュー付きで実際のフィルムのルックを使えます。",
       "keywords": "フィルムルック エフェクト イメージコントロール LUT ポートラ クラシッククローム コダック 富士フイルム ファインピックス ポジティブ プレビュー Fn パラメータ フィルムストック film look effect image control lut portra classic chrome kodak fuji fujifilm finepix positive preview fn parameters film stock",
@@ -661,8 +682,8 @@ export const ja: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "film-look",
-          "alt": "ADJのフィルムルック画面：カード上のルックのフィルムボックスが表示され、Kodak Portra 400が選択されている。"
+          "screen": "adj",
+          "alt": "ADJのGRKU：1つ目のモジュールがフィルムルックで、画面にフィルムルック: オフと表示されています。"
         },
         {
           "kind": "h2",
@@ -731,6 +752,12 @@ export const ja: DocsContent = {
     },
     "recipes": {
       "title": "レシピ",
+      "sources": [
+        "modules/recipes/module.toml",
+        "runtime/recipe_page.h",
+        "crates/grku-core/src/menu_text.rs (recipe_*)",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "GRのフィルムレシピ：設定をワンステップで保存・切り替え",
       "lead": "カメラの設定を含めたルック全体を保存し、ワンステップで切り替えられます。",
       "keywords": "レシピ recipe สูตรสี preset save settings undo rename delete apply view white balance exposure",
@@ -746,11 +773,6 @@ export const ja: DocsContent = {
             "GRKU",
             "レシピ"
           ]
-        },
-        {
-          "kind": "screen",
-          "screen": "recipes",
-          "alt": "ADJのレシピ：元に戻す、マイレシピ、設定を保存。"
         },
         {
           "kind": "h2",
@@ -806,6 +828,10 @@ export const ja: DocsContent = {
     },
     "framing": {
       "title": "フレーミング",
+      "sources": [
+        "modules/framing/module.toml",
+        "modules/framing/text/en.toml"
+      ],
       "seo": "RICOH GRのXPanなどのアスペクト比（フレーミング）",
       "lead": "XPan、2.35:1、16:9、1:1などのアスペクト比で撮影します。",
       "keywords": "フレーミング アスペクト比 画面比 XPan パノラマ 65:24 16:9 4:3 2.35:1 1:1 5:4 7:6 3:4 マスク 枠線 ガイド クロップ framing aspect ratio xpan panorama 65:24 16:9 4:3 2.35:1 1:1 5:4 7:6 3:4 mask frame lines guides only crop",
@@ -866,6 +892,11 @@ export const ja: DocsContent = {
     },
     "crop": {
       "title": "クロップ",
+      "sources": [
+        "modules/crop/module.toml",
+        "modules/crop/text/en.toml",
+        "runtime/modules.h (GR IIIx focal lengths)"
+      ],
       "seo": "RICOH GRの35mm・50mm・70mmクロップ",
       "lead": "ライブビューに枠を表示し、デジタルテレコンバーターのように長い焦点距離で撮影します。",
       "keywords": "クロップ 焦点距離 ズーム テレ フレーム マスク 枠のみ 未トリミング RAW crop focal length 35mm 40mm 50mm 70mm 57mm 71mm 100mm zoom tele frame only mask uncropped raw",
@@ -918,6 +949,10 @@ export const ja: DocsContent = {
     },
     "guides": {
       "title": "構図ガイド",
+      "sources": [
+        "modules/guides/module.toml",
+        "modules/guides/text/en.toml"
+      ],
       "seo": "GRの構図ガイド：三分割法、黄金比、螺旋",
       "lead": "画面に表示される構図の線です。写真には写りません。",
       "keywords": "構図ガイド グリッド ガイドライン 9分割 画面中央 黄金比 対角線 黄金螺旋 ダイナミックシンメトリー 構図 表示 不透明度 色 guides grid lines thirds center golden ratio diagonals golden spiral dynamic symmetry composition disp opacity color",
@@ -972,6 +1007,11 @@ export const ja: DocsContent = {
     },
     "date": {
       "title": "日付入れ撮影",
+      "sources": [
+        "modules/date/module.toml",
+        "modules/date/text/en.toml",
+        "CHANGELOG.md 1.9.0, 1.10.0"
+      ],
       "seo": "RICOH GR写真の日付スタンプ（日付入れ撮影）",
       "lead": "フィルムカメラのように写真へ日付を印字します。3種類のフォント、5色のカラー、キャプションに対応しています。",
       "keywords": "日付入れ撮影 スタンプ 時刻 フォント クラシック gr1s gr ii 色 オレンジ サイズ 位置 角 キャプション ありがとう ハッピーバースデー grku グロー date imprint stamp time font classic gr1s gr ii color orange size position corner caption thank you happy birthday grku glow",
@@ -1022,11 +1062,11 @@ export const ja: DocsContent = {
             ],
             [
               "**日付の色**",
-              "標準（デフォルト）：フォントの色はClassicとGR IIではオレンジ、GR1sでは黄色、モノクロ写真では白です。そのほか、オレンジ、白、セピア、LEDイエローを選べます。"
+              "標準（デフォルト）：フォントの色はClassicとGR IIではオレンジ、GR1sでは黄色、モノクロ写真では白になります。または、オレンジ、白、セピア、LEDイエロー。"
             ],
             [
               "**日付の光彩**",
-              "オフ（デフォルト）またはオン: 数字の周りに柔らかい光のにじみ（グロー）が出ます。GR IIでは、にじみのないフラットな数字で印刷されます。"
+              "オフ（デフォルト）またはオン：数字の周りに柔らかい光のにじみ（グロー）が出ます。GR IIでは、にじみのないフラットな数字で印刷されます。"
             ],
             [
               "**キャプション**",
@@ -1042,16 +1082,15 @@ export const ja: DocsContent = {
           "kind": "photo",
           "photo": "neg-gr1s",
           "alt": "黒枠付きのクラシック ネガと、GR1sフォントの日付。"
-        },
-        {
-          "kind": "screen",
-          "screen": "date",
-          "alt": "MENUの日付入れ撮影画面と各設定。"
         }
       ]
     },
     "glow": {
       "title": "グロー",
+      "sources": [
+        "modules/glow/module.toml",
+        "modules/glow/text/en.toml"
+      ],
       "seo": "RICOH GRのブルームとハレーション（グロー）",
       "lead": "光やハイライトのにじむブルームと、映画フィルムのような赤やオレンジのハレーション。",
       "keywords": "グロー ブルーム ハレーション シネスティル 赤 オレンジ ゴールド 白 ハイライト 光 夜 glow bloom halation cinestill red orange gold white highlights lights night",
@@ -1108,8 +1147,13 @@ export const ja: DocsContent = {
     },
     "light-leak": {
       "title": "ライトリーク",
+      "sources": [
+        "modules/lightleak/module.toml",
+        "modules/lightleak/text/en.toml",
+        "modules/lightleak/lightleak.c"
+      ],
       "seo": "GRの光漏れ、ダスト、周辺減光エフェクト",
-      "lead": "古いフィルムの痕跡：周辺減光、ホコリや髪の毛、光漏れ、キズ。",
+      "lead": "古いフィルムのあと：周辺減光、ホコリや髪の毛、光漏れ、キズ。",
       "keywords": "ライトリーク 周辺減光 ダスト キズ 色あせ 期限切れ 古いフィルム ロモ レトロ light leak vignette dust scratches faded dusty leaky expired old film lomo retro",
       "blocks": [
         {
@@ -1134,7 +1178,7 @@ export const ja: DocsContent = {
           "rows": [
             [
               "**ルック**",
-              "オフ、カスタム、退色、ダスト、光漏れ、期限切れ。カスタムは下の独自の値を使います。ほかはあらかじめ用意された組み合わせです。"
+              "オフ、カスタム、退色、ダスト、光漏れ、期限切れ。カスタムは下で決めた強さを使います。ほかはあらかじめ用意された組み合わせです。"
             ],
             [
               "**周辺減光**",
@@ -1156,12 +1200,16 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "**カスタム**を選び、{{Fn}}を押して各効果の強さを設定します。ダスト、光漏れ、キズは写真ごとに異なる入り方をします。Light LeakはJPEGのみに変更を加え、ライブビューには表示されません。"
+          "text": "**カスタム**を選び、{{Fn}}を押して各パーツの強さを設定します。ダスト、光漏れ、キズは写真ごとに違う入り方をします。ライトリークはJPEGだけを変え、ライブビューには表示されません。"
         }
       ]
     },
     "diffusion": {
       "title": "ディフュージョン",
+      "sources": [
+        "modules/diffusion/module.toml",
+        "modules/diffusion/text/en.toml"
+      ],
       "seo": "GRでのブラックプロミストディフュージョンとフィルムの柔らかさ",
       "lead": "ブラックプロミストフィルターの柔らかなにじみと、フィルムスキャンのようなやさしい柔らかさ。",
       "keywords": "ディフュージョン フィルター プロミスト ブラックミスト ストリーク アナモルフィック 柔らかさ フィルム 優しい diffusion filter pro mist black mist streak anamorphic softness film softness soft dreamy",
@@ -1216,6 +1264,12 @@ export const ja: DocsContent = {
     },
     "grain": {
       "title": "粒状感",
+      "sources": [
+        "modules/grain/module.toml",
+        "modules/grain/text/en.toml",
+        "modules/grain/grain.c",
+        "CHANGELOG.md 1.10.0"
+      ],
       "seo": "RICOH GRのフィルム粒状感：強さ、サイズ、フィルム調",
       "lead": "4段階の強度と4段階のサイズでフィルム粒状感を表現し、カメラの粒状感または**フィルム調**を選べます。",
       "keywords": "粒状感 ノイズ フィルム調 システム サイズ 強度 弱 中 強 特強 grain noise film-like system size strength weak medium strong extra",
@@ -1250,7 +1304,7 @@ export const ja: DocsContent = {
             ],
             [
               "**スタイル**",
-              "**システム**（デフォルト）はカメラの粒状感です。**フィルム調**はカラーネガプリントの粒状感で、中間調でいちばん強く、白や黒には出ず、カラー写真では色がつきます。"
+              "**システム**（デフォルト）はカメラの粒状感です。**フィルム調**はカラーネガプリントの粒状感で、中間調でいちばん強く、白や黒には出ず、カラー写真ではカラーになります。"
             ],
             [
               "**アイコン表示**",
@@ -1266,6 +1320,12 @@ export const ja: DocsContent = {
     },
     "border": {
       "title": "ボーダー",
+      "sources": [
+        "modules/border/module.toml",
+        "modules/border/text/en.toml",
+        "CHANGELOG.md 1.8.5",
+        "web/src/generated/modules.ts (DEFAULT_MODULES)"
+      ],
       "seo": "GRでの白、黒、インスタント写真の枠",
       "lead": "写真全体の周囲に白または黒のボーダーを追加します。写真の画素はすべて保持されます。",
       "keywords": "border frame white black thin wide instant polaroid edge ボーダー フレーム 白 黒 細い 太い インスタント ポラロイド 縁",
@@ -1317,12 +1377,17 @@ export const ja: DocsContent = {
           "kind": "note",
           "tone": "plain",
           "title": "カードに入っていない場合",
-          "text": "ボーダーは初期状態ではオフになっています。[インストール](site:install)のステップ3で、ボーダーをオンにしてください。カードには最大10個のモジュールを入れられます。10個すべてがオンのときは、あまり使わないものをオフにしてください。"
+          "text": "使い始めのとき、ボーダーはオフになっています。[インストール](site:install)のステップ3で、ボーダーをオンにしてください。カードには最大10個のモジュールを入れられます。10個ともオンになっているときは、あまり使わないものをオフにしてください。"
         }
       ]
     },
     "mode-dial": {
       "title": "モードダイヤルとU1–U3",
+      "sources": [
+        "runtime/mode_dial.h",
+        "runtime/menu_dial.h",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "モードダイヤルのGRKU：U1、U2、U3設定",
       "lead": "ダイヤルの各ポジションでGRKUのオン・オフを切り替え、U1、U2、U3にルックをまとめて保存できます。",
       "keywords": "モードダイヤル ユーザーモード 現在の設定を保存 ポジション カメラメニュー mode dial u1 u2 u3 user mode save current settings p av tv m sn position",
@@ -1338,13 +1403,8 @@ export const ja: DocsContent = {
           ]
         },
         {
-          "kind": "screen",
-          "screen": "mode-dial",
-          "alt": "モードダイヤル画面：各位置でのGRKUオン/オフと、U3での現在の設定保存。"
-        },
-        {
           "kind": "p",
-          "text": "P、Av、Tv、M、Sn（GR IV）は、GRKUの設定セットを共有します。各ポジションでGRKUを**オン**または**オフ**にできます。これらは**GRKU を有効**がオンのときに動きます。"
+          "text": "P、Av、Tv、M、Sn（GR IV）はGRKUの設定セットを1つ共有します。各ポジションでGRKUを**オン**または**オフ**にでき、**GRKUを有効**がオンのときに動きます。"
         },
         {
           "kind": "h2",
@@ -1356,7 +1416,7 @@ export const ja: DocsContent = {
           "items": [
             "**オン**: 共有のGRKU設定を使います。P、Av、Tv、Mと同じ動作です。",
             "**オフ**: GRKUを使わずに撮影します。",
-            "**現在の設定を保存**: 現在のカメラの設定とGRKUの設定をこのポジションに保存します。ダイヤルをそこに回すと、両方の設定が戻ります。その後、ポジションには保存した名前が表示されます。ADJ順、起動時に有効、GRKU有効、またはモードダイヤルの設定は保存されません。"
+            "**現在の設定を保存**: 現在のカメラの設定とGRKUの設定をこのポジションに保存します。ダイヤルをそこに回すと、両方の設定が戻ります。その後、ポジションには保存したものの名前が表示されます。ADJ順、起動時に有効、GRKU を有効、またはモードダイヤルの設定は保存されません。"
           ]
         },
         {
@@ -1369,6 +1429,11 @@ export const ja: DocsContent = {
     },
     "raw": {
       "title": "RAW現像",
+      "sources": [
+        "runtime/develop_settings.h",
+        "runtime/picture.c",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "GRのDNGファイルをフィルムルックで現像（RAW現像）",
       "lead": "GRKUは生データを変更しません。カメラ内でGRKUを使ってDNGを現像するか、パソコンで現像できます。",
       "keywords": "RAW現像 再生 DNG カメラ内現像 パソコン現像 raw dng development develop in camera playback lightroom camera raw exiftool xmp uncropped",
@@ -1398,7 +1463,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GRKUをオンにして撮った写真には、設定がXMPに記録されるため、exiftoolなどのXMPリーダーで表示されます。**RAW クロップなし**をオンにすると、LightroomやCamera Rawで撮影時のクロップ枠付きのDNGが開き、そのクロップを元に戻せます。"
+          "text": "GRKUをオンにして撮った写真には設定がXMPに記録されるため、exiftoolなどのXMPリーダーで確認できます。**RAW クロップなし**をオンにすると、LightroomやCamera Rawで撮影時のクロップ枠付きのDNGが開き、そのクロップを元に戻せます。"
         },
         {
           "kind": "p",
@@ -1408,6 +1473,12 @@ export const ja: DocsContent = {
     },
     "settings": {
       "title": "GRKU 設定",
+      "sources": [
+        "runtime/menu_settings.h",
+        "runtime/manage.h",
+        "runtime/playback_info.h",
+        "crates/grku-core/src/menu_text.rs"
+      ],
       "seo": "MENUのGRKU 設定：各オプションの解説",
       "lead": "MENU にある GRKU 自体の設定です。",
       "keywords": "grku settings enable at start keep last uncropped raw distance unit meters feet battery playback icons shutdown screen custom picture show text adj order hidden top GRKU 設定 起動時に有効 前回のまま RAW クロップなし 距離単位 メートル フィート バッテリー 再生アイコン 終了画面 カスタム イメージ テキスト表示 ADJ メニューの順番 非表示 トップ",
@@ -1420,11 +1491,6 @@ export const ja: DocsContent = {
             "GRKU",
             "GRKU 設定"
           ]
-        },
-        {
-          "kind": "screen",
-          "screen": "settings",
-          "alt": "MENUのGRKU 設定画面。"
         },
         {
           "kind": "table",
@@ -1496,7 +1562,7 @@ export const ja: DocsContent = {
             ],
             [
               "**再生時の効果アイコン**",
-              "詳細再生情報の1ページ目に、写真の粒状感、ブルーム、ハレーション、ボーダー、日付入れ撮影のアイコンと、写真のクロップを表示します。デフォルトでオンです。"
+              "詳細再生情報の1ページ目に、粒状感、ブルーム、ハレーション、ボーダー、日付入れ撮影のアイコンと、写真の切り抜きを表示します。デフォルトでオンです。"
             ]
           ]
         },
@@ -1526,6 +1592,12 @@ export const ja: DocsContent = {
     },
     "looks": {
       "title": "サイトでルックを選ぶ",
+      "sources": [
+        "web/src/plus.ts (FREE_SLOTS)",
+        "web/src/lookSearch.ts",
+        "web/src/strings/en.ts (importOpen, kindImported)",
+        "CHANGELOG.md 1.9.0 (xmp)"
+      ],
       "seo": "フィルムルックの選び方とLUTまたはLightroomプリセットの読み込み",
       "lead": "カードに入れるフィルムルックを選び、ライブラリを検索して、自分のLUTを読み込みます。",
       "keywords": "ライブラリ ルックを選ぶ 検索 スロット 無料 10 40 読み込み lut cube xmp lightroom プリセット 種類 ネガ リバーサル 白黒 library choose looks search slots free 10 40 import lut cube xmp lightroom preset kinds negative slide black and white",
@@ -1581,6 +1653,11 @@ export const ja: DocsContent = {
     },
     "plus": {
       "title": "GRKU Plus",
+      "sources": [
+        "web/src/plus.ts",
+        "web/src/strings/en.ts (plus)",
+        "web/src/components/PlusSheet.tsx"
+      ],
       "seo": "GRKU Plus：料金、支払い、ライセンスキー",
       "lead": "SDカードにさらに多くのルックを追加できる買い切りのオプションです。なしでもGRKUは無料で使えます。",
       "keywords": "プラス 料金 支払い 購入 キー メール PromptPay TrueMoney スロット パック すべて 解除 返金 バーツ plus price pay buy key email promptpay truemoney slots pack everything unlock refund baht",
@@ -1633,6 +1710,12 @@ export const ja: DocsContent = {
     },
     "shutdown": {
       "title": "終了画面とGRKU Studio",
+      "sources": [
+        "web/src/strings/en.ts (shutdown)",
+        "web/src/shutdownDesigns.ts",
+        "CHANGELOG.md 1.9.0, 1.10.0",
+        "runtime/manage.h (Custom Picture, Show Text)"
+      ],
       "seo": "RICOH GRのカスタム終了画面（GRKU Studio）",
       "lead": "カメラの電源を切るときに好みの画像を表示したり、GRKU Studioでデザインを作成したりできます。",
       "keywords": "シャットダウン 終了画面 画像 グッバイ 電源オフ Studio デザイン ステッカー テンプレート ロゴ カスタム画像 shutdown screen picture goodbye power off studio design sticker template logo custom picture",
@@ -1650,8 +1733,8 @@ export const ja: DocsContent = {
           "kind": "steps",
           "items": [
             "[インストール](site:install)のステップ3で、終了画面カードを開きます。",
-            "用意されたデザインを選ぶか、自作するか、カメラ自身の画面にするには「オフ」を選びます。",
-            "いつも通りにカードを書き込みます。次の電源オンから新しい画面が表示されます。GRKU.zipの場合は `GOODBYE.JPG` もダウンロードし、カードの `GRKU` フォルダーに入れてください。"
+            "用意されたデザインを選ぶか、自作するか、カメラ標準の画面にするには オフ を選びます。",
+            "いつも通りにカードを書き込みます。次の電源オンから新しい画面が表示されます。GRKU.zipの場合は `GOODBYE.JPG` もダウンロードして、カードの `GRKU` フォルダーに入れてください。"
           ]
         },
         {
@@ -1684,6 +1767,12 @@ export const ja: DocsContent = {
     },
     "develop": {
       "title": "現像ページ",
+      "sources": [
+        "web/src/components/Develop.tsx",
+        "web/src/develop/gating.ts",
+        "web/src/develop/install.ts",
+        "CHANGELOG.md 1.10.1"
+      ],
       "seo": "写真向けの無料オンラインフィルムフィルター（Develop）",
       "lead": "お手持ちの写真に、GRKUのフィルムルックや効果をブラウザー上で適用できます。",
       "keywords": "現像 編集 写真 ブラウザー オンライン フィルター 試す プレビュー ダウンロード カメラ不要 スマホ develop edit photo browser online filter try preview download no camera phone",
@@ -1708,6 +1797,11 @@ export const ja: DocsContent = {
     },
     "assistant": {
       "title": "AIアシスタント",
+      "sources": [
+        "web/src/chat/strings.ts",
+        "web/src/components/ChatPanel.tsx",
+        "services/plus/src/chat/index.ts"
+      ],
       "seo": "GRKU AIアシスタント：GRやフィルムルックについて質問",
       "lead": "インストール方法やカメラ、写真に合うルックについてGRKUアシスタントに質問できます。",
       "keywords": "AIアシスタント チャット 質問 ヘルプ ボット マスコット メモリ ai assistant chat ask question help bot mascot memory",
@@ -1751,6 +1845,11 @@ export const ja: DocsContent = {
     },
     "not-showing": {
       "title": "GRKUが表示されない",
+      "sources": [
+        "docs/diagnostics.md",
+        "resources/INSTALLATION-GR4.md (Troubleshooting)",
+        "web/src/strings/en.ts (faq adj)"
+      ],
       "seo": "カメラにGRKUが表示されないときの対処法",
       "lead": "上から順に、1つずつ確認してください。",
       "keywords": "表示されない 動かない 見つからない ADJ GRKUなし エラー install.err レポート boot.txt 47 48 ファームウェア モード設定 not showing not working missing adj no grku error install.err report boot.txt 47 48 firmware mode set",
@@ -1790,7 +1889,7 @@ export const ja: DocsContent = {
           "rows": [
             [
               "47, 48",
-              "このファームウェアビルドにはGRKUが合いません。",
+              "このファームウェアビルドにGRKUは対応していません。",
               "対応ファームウェアか確認してから、GRKUを更新してください。改善しない場合はレポートを送信してください。"
             ],
             [
@@ -1809,14 +1908,14 @@ export const ja: DocsContent = {
               "カードに書き込み直してください。改善しない場合は別のカードをお試しください。"
             ],
             [
-              "50 to 55, 57",
+              "50〜55、57",
               "モジュールが読み込まれませんでした。",
               "GRKU をアップデートしてください。解消しない場合はレポートを送信してください。"
             ],
             [
               "56",
-              "GR IV Monochromeではカラー写真用のモジュールが省略されています。これは正常な動作です。",
-              "なし。"
+              "GR IV Monochromeにはカラー写真用のモジュールが入っていません。故障ではありません。",
+              "特に不要です。"
             ],
             [
               "その他",
@@ -1832,7 +1931,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "カメラのモデルとファームウェアのバージョンを添えて [support@grku.app](support) までメールをお送りください。その際、カードからこれらのファイルを添付してください。これらには写真は含まれていません。レシピの名前やインポートされたルックの名前が含まれている場合があるため、必要に応じて事前に開いて確認してください。"
+          "text": "カメラの機種とファームウェアのバージョンを書き、SDカード内の以下のファイルを添付して [support@grku.app](support) までメールをお送りください。ファイルに写真は含まれませんが、レシピ名やインポートしたルック名が含まれることがあります。気になる場合は、送る前にファイルを開いて中身を確認してください。"
         },
         {
           "kind": "files",
@@ -1855,6 +1954,9 @@ export const ja: DocsContent = {
     },
     "stuck": {
       "title": "起動時に停止する",
+      "sources": [
+        "resources/RECOVERY.md"
+      ],
       "seo": "RICOH GRが起動で止まるときの復旧方法",
       "lead": "GRKU の変更は電源を切るまでのみ有効です。カードを入れずに起動してください。",
       "keywords": "フリーズ 起動しない 画面がつかない 復旧 リカバリ リセット バッテリー stuck freeze hang frozen not start black screen brick recover recovery reset battery",
@@ -1900,6 +2002,11 @@ export const ja: DocsContent = {
     },
     "faq": {
       "title": "よくある質問",
+      "sources": [
+        "web/src/strings/en.ts (faq)",
+        "runtime/mode_dial.h",
+        "resources/INSTALLATION-GR4.md"
+      ],
       "seo": "GRKU に関する質問と回答",
       "lead": "よく寄せられる質問への短い回答です。",
       "keywords": "faq 質問 なぜ 最初の写真 フィルムルックなし ボックス 初期化 フォーマット スマホ 取り込み gr 世界 安全 保証 faq question why first photos no look box recall format phone import gr world safe warranty",
@@ -1980,6 +2087,11 @@ export const ja: DocsContent = {
     },
     "cameras": {
       "title": "対応カメラ",
+      "sources": [
+        "web/src/cameras.ts",
+        "web/src/generated/cameras.ts",
+        "web/src/package.ts"
+      ],
       "seo": "GRKU が対応する RICOH GR カメラとファームウェア",
       "lead": "GRKU は、RICOH の純正ファームウェアを搭載したこれらのカメラとファームウェアバージョンで動作します。",
       "keywords": "カメラ 対応 ファームウェア バージョン cameras supported firmware version gr iii iiix iv hdf monochrome modeset dump",
@@ -1989,11 +2101,11 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "カメラで MENU を開いてファームウェアのバージョンを確認します：[ファームウェアのバージョンを確認する](doc:firmware) を参照してください。以前のGRモデルやその他のカメラはサポートされていません。GR IV Monochromeには「フィルムルック」以外のすべてのモジュールが備わっています。"
+          "text": "カメラの MENU を開いてファームウェアのバージョンを確認してください（詳しくは「[ファームウェアのバージョンを確認する](doc:firmware)」をご覧ください）。これより古いGRモデルや他社製カメラには対応していません。GR IV Monochromeでは「フィルムルック」以外のすべてのモジュールが使えます。"
         },
         {
           "kind": "p",
-          "text": "GR IV 30th Anniversary Editionには専用の工場出荷版1.20が入っており、grku.appではまだ対応していません。先にRICOHから1.21へアップデートしてください。"
+          "text": "GR IV 30th Anniversary Editionには専用の工場出荷版1.20が入っており、grku.appではまだ提供していません。先にRICOHから1.21へアップデートしてください。"
         },
         {
           "kind": "h2",

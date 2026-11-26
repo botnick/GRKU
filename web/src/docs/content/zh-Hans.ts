@@ -90,6 +90,12 @@ export const zhHans: DocsContent = {
   "pages": {
     "start": {
       "title": "GRKU 是什么",
+      "sources": [
+        "web/src/plus.ts",
+        "web/src/generated/modules.ts",
+        "web/src/strings/en.ts (faq)",
+        "resources/TERMS.md"
+      ],
       "seo": "什么是 GRKU？适用于 RICOH GR III、IIIx 和 IV 的免费胶片色彩预设",
       "lead": "GRKU 可通过 SD 卡为 RICOH GR 增添胶片色彩与照片效果。",
       "keywords": "关于 简介 概览 开始 新手 免费 安全 固件 about introduction overview begin beginner free safe firmware",
@@ -165,13 +171,23 @@ export const zhHans: DocsContent = {
     },
     "firmware": {
       "title": "查看固件版本",
+      "sources": [
+        "crates/grku-core/src/camera.rs",
+        "web/src/generated/cameras.ts",
+        "web/src/package.ts (gr4-1.20-0528 not published)",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr3_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr3x_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr4_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr-4-mono_s.html",
+        "web/src/chat/knowledge.ts (firmware update screen)"
+      ],
       "seo": "如何查看 RICOH GR III、GR IIIx 或 GR IV 的固件版本",
       "lead": "按下 MENU 并打开设置菜单（扳手图标）。GRKU 仅支持本页表格中列出的固件版本。",
       "keywords": "固件 版本 检查 菜单 设置 扳手 关于本机 固件信息 相机信息 更新 firmware version check menu setup wrench about this device firmware info camera information update ricoh older newer fwdc bin",
       "blocks": [
         {
           "kind": "p",
-          "text": "固件是相机内部的软件，由 RICOH 制作。每台相机都会在菜单里显示自己的固件版本。安装 GRKU 前请先查看。"
+          "text": "Firmware 是相机内部的软件，由 RICOH 制作。每台相机都会在菜单里显示自己的固件版本。安装 GRKU 前请先查看。"
         },
         {
           "kind": "h2",
@@ -184,27 +200,18 @@ export const zhHans: DocsContent = {
             "打开相机电源。",
             "按下 {{MENU}}。",
             "进入设置菜单，切换到扳手图标标签页，打开 **About This Device**。",
-            "选择 **Firmware Info / Options**，然后按右键。",
+            "选择 **Firmware Info / Options**，然后按右方向键。",
             "屏幕上会显示固件版本，例如 2.21。"
           ]
         },
         {
-          "kind": "camera",
-          "screen": "loaded",
-          "press": [
-            "menu"
-          ],
-          "alt": "按下相机背面的 MENU 按钮。"
-        },
-        {
-          "kind": "screen",
-          "screen": "setup-gr3",
-          "alt": "GR III 和 GR IIIx：(1) 带有扳手图标的设置菜单，(2) 关于本机。"
-        },
-        {
-          "kind": "screen",
-          "screen": "info-gr3",
-          "alt": "GR III 和 GR IIIx：(3) Firmware Info / Options 界面上的固件版本。"
+          "kind": "path",
+          "items": [
+            "MENU",
+            "Setup",
+            "About This Device",
+            "Firmware Info / Options"
+          ]
         },
         {
           "kind": "h2",
@@ -217,25 +224,17 @@ export const zhHans: DocsContent = {
             "打开相机电源。",
             "按下 {{MENU}}。",
             "进入设置菜单，切换到扳手图标标签页，选择 **Camera Information**。",
-            "按右键。",
+            "按右方向键。",
             "屏幕上会显示固件版本，例如 1.21。"
           ]
         },
         {
-          "kind": "screen",
-          "screen": "setup-gr4",
-          "alt": "GR IV：(1) 带有扳手图标的设置菜单，(2) 相机信息。"
-        },
-        {
-          "kind": "screen",
-          "screen": "info-gr4",
-          "alt": "GR IV：(3) 相机信息界面上的固件版本。"
-        },
-        {
-          "kind": "note",
-          "tone": "plain",
-          "title": "实用提示",
-          "text": "这些图片中的其他菜单项呈灰色。不同型号和固件版本的名称有所不同。"
+          "kind": "path",
+          "items": [
+            "MENU",
+            "Setup",
+            "Camera Information"
+          ]
         },
         {
           "kind": "p",
@@ -251,7 +250,7 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GR IV 30th Anniversary Edition 相机出厂自带专属的 1.20 版本，grku.app 暂未支持。请先前往 RICOH 官网将其更新至 1.21。"
+          "text": "GR IV 30th Anniversary Edition 相机出厂自带专属 1.20 版本，grku.app 暂未提供对应版本。请先从 RICOH 更新至 1.21。"
         },
         {
           "kind": "h2",
@@ -269,7 +268,7 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "先不要安装 GRKU，请等待 GRKU 更新支持你的版本，具体时间请关注 [grku.app 上的最新消息](site:home)。"
+          "text": "暂不安装 GRKU。请等到 GRKU 更新支持你的版本后再安装，详情见 [grku.app 上的最新消息](site:home)。"
         },
         {
           "kind": "note",
@@ -281,6 +280,15 @@ export const zhHans: DocsContent = {
     },
     "install": {
       "title": "安装 GRKU",
+      "sources": [
+        "resources/INSTALLATION-GR4.md",
+        "web/src/guide.ts",
+        "web/src/strings/en.ts (cardConnect, cardApplyInstall, download)",
+        "crates/grku-core/src/runtime/files.rs",
+        "resources/images/modeset.png",
+        "resources/images/camera-menu.png",
+        "resources/images/grku-root.jpg"
+      ],
       "seo": "如何在 RICOH GR III、GR IIIx 或 GR IV 上安装 GRKU",
       "lead": "将 GRKU 写入 SD 卡，然后在相机上开启一次 SD 脚本功能。",
       "keywords": "设置 安装 SD卡 SD 卡 chrome edge zip sd_root modeset mode set command menu 首次启动",
@@ -306,7 +314,7 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "不确定相机的固件版本？请参阅[查看固件版本](doc:firmware)。"
+          "text": "不确定相机的固件版本？请查看[查看固件版本](doc:firmware)。"
         },
         {
           "kind": "note",
@@ -350,7 +358,7 @@ export const zhHans: DocsContent = {
             ],
             [
               "GRKU",
-              "你的设置和胶片风格。网站或相机会生成它。"
+              "您的设置与胶片风格。由本网站或相机生成。"
             ],
             [
               "DCIM",
@@ -377,12 +385,8 @@ export const zhHans: DocsContent = {
           ]
         },
         {
-          "kind": "camera",
-          "screen": "modeset",
-          "press": [
-            "menu",
-            "power"
-          ],
+          "kind": "screen",
+          "screen": "modeset-back",
           "alt": "按住 MENU，然后按下电源键。屏幕显示 Mode Set Command。"
         },
         {
@@ -394,13 +398,13 @@ export const zhHans: DocsContent = {
           "kind": "note",
           "tone": "tip",
           "title": "如果画面不是这样",
-          "text": "没有看到 **Mode Set Command** 屏幕？先关机。先按住 {{MENU}}，再按电源键，一直按住 {{MENU}} 直到屏幕出现该画面。检查 `DEVELOP.MOD` 和 ModeSet 文件是否在存储卡根目录，而不是文件夹里。"
+          "text": "没有看到 **Mode Set Command** 屏幕？先关机。先按住 {{MENU}}，再按电源键，并一直按住 {{MENU}} 直到屏幕显示。检查 `DEVELOP.MOD` 和 ModeSet 文件是否在卡的根目录，而不是文件夹里。"
         },
         {
           "kind": "note",
           "tone": "warning",
           "title": "出现固件更新屏幕？",
-          "text": "卡内包含 RICOH 固件文件（一个以 `fwdc` 开头的 `.bin` 文件）。请选择 **Cancel**，切勿执行。请关闭相机电源，从卡根目录删除该文件，然后重新执行此步骤。"
+          "text": "卡内包含 RICOH 固件文件（一个以 `fwdc` 开头的 `.bin` 文件）。请选择 **Cancel**，切勿选 Execute。请关闭相机电源，从卡根目录删除该文件，然后重新执行此步骤。"
         },
         {
           "kind": "p",
@@ -429,7 +433,7 @@ export const zhHans: DocsContent = {
         {
           "kind": "screen",
           "screen": "adj",
-          "alt": "ADJ 中打开了 GRKU，显示各功能模块的图标。屏幕左上角显示 GRKU 和当前使用的风格。"
+          "alt": "GRKU 的 ADJ 菜单已打开，显示各模块图标。屏幕左上角显示 GRKU 和 胶片风格：关闭。"
         },
         {
           "kind": "p",
@@ -439,6 +443,13 @@ export const zhHans: DocsContent = {
     },
     "controls": {
       "title": "ADJ 和 MENU",
+      "sources": [
+        "runtime/menu.c",
+        "runtime/manage.h",
+        "runtime/menu_listed.h",
+        "crates/grku-core/src/menu_text.rs",
+        "resources/images/grku-menu.jpg"
+      ],
       "seo": "如何在 GR 上使用 GRKU：ADJ 拨杆与 MENU",
       "lead": "GRKU 在相机的哪个位置，以及每个按键的作用。",
       "keywords": "adj 拨杆 菜单 自定义 fn ok 按钮 选项 顺序 启用 grku 关于 版本 导览 adj lever menu customize fn ok button options order enable grku about version navigate",
@@ -473,7 +484,7 @@ export const zhHans: DocsContent = {
             ],
             [
               "{{Fn}}",
-              "执行该行的额外操作：模块的更多设置、黄金螺旋线的下一个角，或配方的“重命名”和“删除”。"
+              "执行该行的附加操作：模块的更多设置、黄金螺旋线的下一个角，或配方的重命名和删除。"
             ],
             [
               "{{MENU}}",
@@ -565,6 +576,10 @@ export const zhHans: DocsContent = {
     },
     "update": {
       "title": "更新或卸载",
+      "sources": [
+        "resources/INSTALLATION-GR4.md",
+        "web/src/strings/en.ts (updateSteps, removeSteps, uninstall*, scriptsOff*)"
+      ],
       "seo": "如何更新或卸载 GRKU，以及关闭 SD 脚本",
       "lead": "更新会保留你的设置和胶片风格，无需再次按住 MENU。",
       "keywords": "更新 升级 新版本 卸载 移除 删除 存储卡 脚本 关闭 格式化 备份 update upgrade new version uninstall remove delete sd scripts off format card backup",
@@ -639,6 +654,12 @@ export const zhHans: DocsContent = {
     },
     "film-look": {
       "title": "胶片风格",
+      "sources": [
+        "modules/film-look/module.toml",
+        "runtime/menu_listed.h",
+        "crates/grku-core/src/menu_text.rs (film, adjustments)",
+        "CHANGELOG.md"
+      ],
       "seo": "RICOH GR 的胶片风格：如何使用胶片风格",
       "lead": "真实胶片风格，支持实时预览，替代图像控制。",
       "keywords": "胶片风格 效果 图像控制 实时预览 参数 胶片 反转片 film look effect image control lut portra classic chrome kodak fuji fujifilm finepix positive preview fn parameters film stock",
@@ -661,8 +682,8 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "film-look",
-          "alt": "ADJ 中的胶片风格：显示存储卡上各风格的胶片盒，其中 Kodak Portra 400 处于高亮选中状态。"
+          "screen": "adj",
+          "alt": "ADJ 中的 GRKU：胶片风格为第一个模块，屏幕显示 Film Look：关闭。"
         },
         {
           "kind": "h2",
@@ -731,6 +752,12 @@ export const zhHans: DocsContent = {
     },
     "recipes": {
       "title": "配方",
+      "sources": [
+        "modules/recipes/module.toml",
+        "runtime/recipe_page.h",
+        "crates/grku-core/src/menu_text.rs (recipe_*)",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "GR 胶片配方：一步保存与切换设置",
       "lead": "将整套风格连同相机设置一起保存，一步即可切换。",
       "keywords": "recipe 配方 สูตรสี preset 保存 设置 撤销 重命名 删除 应用 查看 白平衡 曝光 save settings undo rename delete apply view white balance exposure",
@@ -746,11 +773,6 @@ export const zhHans: DocsContent = {
             "GRKU",
             "配方"
           ]
-        },
-        {
-          "kind": "screen",
-          "screen": "recipes",
-          "alt": "ADJ 中的配方：撤销、你的配方和保存设置。"
         },
         {
           "kind": "h2",
@@ -806,6 +828,10 @@ export const zhHans: DocsContent = {
     },
     "framing": {
       "title": "画幅",
+      "sources": [
+        "modules/framing/module.toml",
+        "modules/framing/text/en.toml"
+      ],
       "seo": "RICOH GR 的 XPan 与其他画幅（取景画幅）",
       "lead": "切换其他画幅比例拍摄：XPan、2.35:1、16:9、1:1 等。",
       "keywords": "画幅 画幅比例 宽幅 全景 framing aspect ratio xpan panorama 65:24 16:9 4:3 2.35:1 1:1 5:4 7:6 3:4 遮罩 画幅框 构图线 仅参考线 裁剪 mask frame lines guides only crop",
@@ -866,6 +892,11 @@ export const zhHans: DocsContent = {
     },
     "crop": {
       "title": "裁切",
+      "sources": [
+        "modules/crop/module.toml",
+        "modules/crop/text/en.toml",
+        "runtime/modules.h (GR IIIx focal lengths)"
+      ],
       "seo": "RICOH GR 的 35、50 与 70 mm 裁切（数码裁切）",
       "lead": "使用更长焦段拍摄，就像数字增距镜一样，实时取景中会显示画幅框。",
       "keywords": "裁切 焦距 35mm 40mm 50mm 70mm 57mm 71mm 100mm 变焦 长焦 画幅框 仅辅助构图 遮罩 未裁切 raw crop focal length 35mm 40mm 50mm 70mm 57mm 71mm 100mm zoom tele frame only mask uncropped raw",
@@ -918,6 +949,10 @@ export const zhHans: DocsContent = {
     },
     "guides": {
       "title": "辅助线",
+      "sources": [
+        "modules/guides/module.toml",
+        "modules/guides/text/en.toml"
+      ],
       "seo": "GR 上的构图辅助线：三分法、黄金比例、螺旋线",
       "lead": "屏幕上的构图线条，不会出现在照片中。",
       "keywords": "辅助线 网格线 三分法 中心 黄金分割 对角线 黄金螺线 动态对称 构图 显示 不透明度 颜色 guides grid lines thirds center golden ratio diagonals golden spiral dynamic symmetry composition disp opacity color",
@@ -972,6 +1007,11 @@ export const zhHans: DocsContent = {
     },
     "date": {
       "title": "加印日期",
+      "sources": [
+        "modules/date/module.toml",
+        "modules/date/text/en.toml",
+        "CHANGELOG.md 1.9.0, 1.10.0"
+      ],
       "seo": "RICOH GR 照片上的日期印记（加印日期）",
       "lead": "像胶片相机一样在照片上打印日期，提供三种字体、五种颜色和字幕功能。",
       "keywords": "加印日期 日期 印章 时间 字体 经典 gr1s gr ii 颜色 橙色 大小 位置 角落 字幕 谢谢 生日快乐 grku 辉光 date imprint stamp time font classic gr1s gr ii color orange size position corner caption thank you happy birthday grku glow",
@@ -1022,11 +1062,11 @@ export const zhHans: DocsContent = {
             ],
             [
               "**日期颜色**",
-              "标准（默认）：字体颜色。Classic 和 GR II 为橙色，GR1s 为黄色；黑白照片上为白色。也可设为橙色、白色、棕褐色或 LED 黄。"
+              "标准（默认）：字体颜色，Classic 和 GR II 为橙色，GR1s 为黄色；黑白照片上为白色。也可以选橙色、白色、棕褐色或 LED 黄。"
             ],
             [
               "**日期辉光**",
-              "关闭（默认）或开启：数字周围有柔和光晕。GR II 打印的是平整数字，没有光晕。"
+              "关闭（默认）或开启：数字周围有柔和的光晕。GR II 打印出的数字是平的，没有光晕。"
             ],
             [
               "**附加文字**",
@@ -1042,16 +1082,15 @@ export const zhHans: DocsContent = {
           "kind": "photo",
           "photo": "neg-gr1s",
           "alt": "带有黑框和 GR1s 字体日期的 Classic Neg。"
-        },
-        {
-          "kind": "screen",
-          "screen": "date",
-          "alt": "MENU 中的加印日期页面及其设置。"
         }
       ]
     },
     "glow": {
       "title": "光晕",
+      "sources": [
+        "modules/glow/module.toml",
+        "modules/glow/text/en.toml"
+      ],
       "seo": "RICOH GR 的柔光与光晕（弥散光晕）",
       "lead": "灯光与高光周围的柔光，以及电影胶片的红橙色胶片光晕。",
       "keywords": "光晕 柔光 胶片光晕 电影胶片 红色 橙色 金色 白色 高光 灯光 夜景 glow bloom halation cinestill red orange gold white highlights lights night",
@@ -1108,6 +1147,11 @@ export const zhHans: DocsContent = {
     },
     "light-leak": {
       "title": "漏光",
+      "sources": [
+        "modules/lightleak/module.toml",
+        "modules/lightleak/text/en.toml",
+        "modules/lightleak/lightleak.c"
+      ],
       "seo": "GR 上的漏光、灰尘与暗角效果",
       "lead": "老胶片的痕迹：暗角、灰尘和毛发、漏光与划痕。",
       "keywords": "漏光 暗角 灰尘 发丝 划痕 褪色 多尘 过期 老胶片 复古 light leak vignette dust scratches faded dusty leaky expired old film lomo retro",
@@ -1162,6 +1206,10 @@ export const zhHans: DocsContent = {
     },
     "diffusion": {
       "title": "柔光镜",
+      "sources": [
+        "modules/diffusion/module.toml",
+        "modules/diffusion/text/en.toml"
+      ],
       "seo": "GR 上的黑柔光镜扩散与胶片柔和度",
       "lead": "类似黑柔滤镜的柔和光晕，以及胶片扫描般的细腻柔和感。",
       "keywords": "柔光镜 滤镜 黑柔 拉丝光 变形镜头 柔和 胶片柔和 梦幻 diffusion filter pro mist black mist streak anamorphic softness film softness soft dreamy",
@@ -1216,6 +1264,12 @@ export const zhHans: DocsContent = {
     },
     "grain": {
       "title": "颗粒感",
+      "sources": [
+        "modules/grain/module.toml",
+        "modules/grain/text/en.toml",
+        "modules/grain/grain.c",
+        "CHANGELOG.md 1.10.0"
+      ],
       "seo": "RICOH GR 胶片颗粒感：强度、尺寸、胶片质感",
       "lead": "四种强度与四种尺寸的胶片颗粒，支持相机原生绘制或胶片质感。",
       "keywords": "颗粒 噪点 胶片质感 系统 尺寸 强度 弱 中 强 特强 grain noise film-like system size strength weak medium strong extra",
@@ -1250,7 +1304,7 @@ export const zhHans: DocsContent = {
             ],
             [
               "**样式**",
-              "**System**（默认）是相机的颗粒感。**Film-like** 是彩色负片冲印的颗粒感：中间调最强，纯白和纯黑处没有颗粒，彩色照片上带色彩。"
+              "**System**（默认）是相机的颗粒。**Film-like** 是彩色负片冲印的颗粒：中间调最明显，黑白处没有颗粒，彩色照片上带色彩。"
             ],
             [
               "**图标显示**",
@@ -1266,6 +1320,12 @@ export const zhHans: DocsContent = {
     },
     "border": {
       "title": "边框",
+      "sources": [
+        "modules/border/module.toml",
+        "modules/border/text/en.toml",
+        "CHANGELOG.md 1.8.5",
+        "web/src/generated/modules.ts (DEFAULT_MODULES)"
+      ],
       "seo": "GR 上的白边、黑边与拍立得相纸边框",
       "lead": "照片四周添加白色或黑色边框，完整保留每一个像素。",
       "keywords": "边框 相框 白边 黑边 细边 宽边 拍立得 边缘 border frame white black thin wide instant polaroid edge",
@@ -1317,12 +1377,17 @@ export const zhHans: DocsContent = {
           "kind": "note",
           "tone": "plain",
           "title": "存储卡中没有？",
-          "text": "刚启用时边框为关闭。在[安装](site:install)的第 3 步中开启边框。一张卡最多可启用 10 个模块：如果 10 个都已开启，请关闭一个较少使用的模块。"
+          "text": "边框默认关闭。在[安装](site:install)的第 3 步开启边框。一张卡最多启用 10 个模块：如果 10 个都开了，就关掉一个不常用的。"
         }
       ]
     },
     "mode-dial": {
       "title": "模式转盘与 U1–U3",
+      "sources": [
+        "runtime/mode_dial.h",
+        "runtime/menu_dial.h",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "模式转盘上的 GRKU：U1、U2、U3 设置",
       "lead": "在每个转盘位置开启或关闭 GRKU，并将整套外观保存到 U1、U2 或 U3。",
       "keywords": "模式转盘 用户模式 保存当前设置 位置 mode dial u1 u2 u3 user mode save current settings p av tv m sn position",
@@ -1338,13 +1403,8 @@ export const zhHans: DocsContent = {
           ]
         },
         {
-          "kind": "screen",
-          "screen": "mode-dial",
-          "alt": "“模式转盘”页面：各挡位上的 GRKU 开启或关闭，以及 U3 上的保存当前设置。"
-        },
-        {
           "kind": "p",
-          "text": "P、Av、Tv、M 和 Sn（GR IV）共享同一组 GRKU 设置。每个档位都可以把 GRKU 设为 **On** 或 **Off**。这些设置在 **Enable GRKU** 开启时生效。"
+          "text": "P、Av、Tv、M 和 Sn（GR IV）共用同一组 GRKU 设置。每个档位都能把 GRKU 设为**On**或**Off**。这些功能在**Enable GRKU**开启时生效。"
         },
         {
           "kind": "h2",
@@ -1356,7 +1416,7 @@ export const zhHans: DocsContent = {
           "items": [
             "**开启**：该位置使用共用的 GRKU 设置，与 P、Av、Tv 和 M 相同。",
             "**关闭**：该位置拍摄时不使用 GRKU。",
-            "**Save Current Settings**：将当前的相机设置与当时的 GRKU 设置保存到此档位。转动拨盘到该位置，两者即可恢复。随后该档位会显示所保存设置的名称。它不保存 ADJ 顺序、开机启用、启用 GRKU 或模式转盘设置。"
+            "**Save Current Settings**：把当前的相机设置和 GRKU 设置存到这个档位。转到这个档位，就能把它们调回来。之后这个档位会显示保存的名称。它不会保存 ADJ 顺序、开机启用、启用 GRKU 或模式转盘设置。"
           ]
         },
         {
@@ -1369,6 +1429,11 @@ export const zhHans: DocsContent = {
     },
     "raw": {
       "title": "RAW 显像",
+      "sources": [
+        "runtime/develop_settings.h",
+        "runtime/picture.c",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "使用胶片效果冲洗 GR DNG 文件（RAW 冲洗）",
       "lead": "GRKU 不会更改原始数据。可在相机中使用 GRKU 显像 DNG，或在电脑上处理。",
       "keywords": "raw dng 显像 机内显像 回放 lightroom camera raw exiftool xmp 未裁剪 development develop in camera playback uncropped",
@@ -1398,7 +1463,7 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "开启 GRKU 后拍摄的照片会将设置记录在 XMP 中，exiftool 等 XMP 读取工具会显示这些信息。开启 **RAW 不裁切** 后，Lightroom 和 Camera Raw 打开 DNG 时会带有拍摄时的裁切，你也可以取消该裁切。"
+          "text": "开启 GRKU 后拍摄的照片会将设置记录在 XMP 中，exiftool 等 XMP 读取工具会显示这些信息。开启 **RAW 不裁切** 后，Lightroom 和 Camera Raw 打开 DNG 时会带有拍摄时的裁切，你也可以撤销该裁切。"
         },
         {
           "kind": "p",
@@ -1408,6 +1473,12 @@ export const zhHans: DocsContent = {
     },
     "settings": {
       "title": "GRKU 设置",
+      "sources": [
+        "runtime/menu_settings.h",
+        "runtime/manage.h",
+        "runtime/playback_info.h",
+        "crates/grku-core/src/menu_text.rs"
+      ],
       "seo": "MENU 中的 GRKU 设置：各项选项说明",
       "lead": "MENU 中 GRKU 自身的设置。",
       "keywords": "grku settings enable at start keep last uncropped raw distance unit meters feet battery playback icons shutdown screen custom picture show text adj order hidden top grku 设置 开机启用 保持上次 raw 不裁切 距离单位 米 英尺 电池 回放图标 关机画面 自定义影像 显示文字 adj 菜单顺序 隐藏 顶部",
@@ -1420,11 +1491,6 @@ export const zhHans: DocsContent = {
             "GRKU",
             "GRKU 设置"
           ]
-        },
-        {
-          "kind": "screen",
-          "screen": "settings",
-          "alt": "MENU 中的 GRKU 设置页面。"
         },
         {
           "kind": "table",
@@ -1496,7 +1562,7 @@ export const zhHans: DocsContent = {
             ],
             [
               "**回放效果图标**",
-              "在详细播放信息第一页显示照片的颗粒感、柔光、胶片光晕、边框和日期印记图标，以及照片裁切。默认开启。"
+              "在详细播放信息第一页显示照片的颗粒、柔光、光晕、边框和日期印记图标，以及照片裁切。默认开启。"
             ]
           ]
         },
@@ -1526,6 +1592,12 @@ export const zhHans: DocsContent = {
     },
     "looks": {
       "title": "在网站选择胶片风格",
+      "sources": [
+        "web/src/plus.ts (FREE_SLOTS)",
+        "web/src/lookSearch.ts",
+        "web/src/strings/en.ts (importOpen, kindImported)",
+        "CHANGELOG.md 1.9.0 (xmp)"
+      ],
       "seo": "如何选择胶片效果以及导入 LUT 或 Lightroom 预设",
       "lead": "挑选要存入存储卡的胶片风格、搜索片库，并导入自己的 LUT。",
       "keywords": "片库 选择风格 搜索 槽位 免费 10 40 导入 lut cube xmp lightroom 预设 类型 负片 反转片 黑白 library choose looks search slots free 10 40 import lut cube xmp lightroom preset kinds negative slide black and white",
@@ -1581,6 +1653,11 @@ export const zhHans: DocsContent = {
     },
     "plus": {
       "title": "GRKU Plus",
+      "sources": [
+        "web/src/plus.ts",
+        "web/src/strings/en.ts (plus)",
+        "web/src/components/PlusSheet.tsx"
+      ],
       "seo": "GRKU Plus：价格、付款与密钥",
       "lead": "可选的一次性付费，用于在卡上存放更多胶片效果。没有它，GRKU 依然免费。",
       "keywords": "plus 价格 付费 购买 密钥 邮箱 promptpay truemoney 槽位 组合包 全部 解锁 退款 泰铢 plus price pay buy key email promptpay truemoney slots pack everything unlock refund baht",
@@ -1615,7 +1692,7 @@ export const zhHans: DocsContent = {
           "kind": "steps",
           "items": [
             "打开 [GRKU Plus](site:plus) 并选择要解锁的内容。",
-            "用任意泰国银行 App 扫描 PromptPay 二维码付款，然后上传付款凭证。或者，当表格提供该选项时，粘贴 TrueMoney 红包链接。",
+            "用任意泰国银行 App 扫描 PromptPay 二维码付款，然后上传付款凭证。或者，当弹窗提供该选项时，粘贴 TrueMoney 红包链接。",
             "胶片风格会立即解锁。",
             "密钥会通过邮件发送，可在所有设备上使用。"
           ]
@@ -1633,6 +1710,12 @@ export const zhHans: DocsContent = {
     },
     "shutdown": {
       "title": "关机画面与 GRKU Studio",
+      "sources": [
+        "web/src/strings/en.ts (shutdown)",
+        "web/src/shutdownDesigns.ts",
+        "CHANGELOG.md 1.9.0, 1.10.0",
+        "runtime/manage.h (Custom Picture, Show Text)"
+      ],
       "seo": "RICOH GR 自定义关机画面（GRKU Studio）",
       "lead": "在相机关机时显示自己的图片，或在 GRKU Studio 中设计图片。",
       "keywords": "关机 屏幕 图片 告别 断电 studio 设计 贴纸 模板 徽标 自定义 图片 shutdown screen picture goodbye power off studio design sticker template logo custom picture",
@@ -1650,7 +1733,7 @@ export const zhHans: DocsContent = {
           "kind": "steps",
           "items": [
             "在[安装](site:install)的第 3 步中，打开关机画面卡片。",
-            "选择现成的设计、自己制作，或选择 **关闭** 使用相机自带的画面。",
+            "选择现成的设计、自己制作，或选 **关闭** 沿用相机自带的画面。",
             "像平时一样写入存储卡。新画面会在下次开机时显示。如果是 GRKU.zip，请一并下载 `GOODBYE.JPG`，并复制到存储卡的 `GRKU` 文件夹中。"
           ]
         },
@@ -1684,6 +1767,12 @@ export const zhHans: DocsContent = {
     },
     "develop": {
       "title": "冲洗页",
+      "sources": [
+        "web/src/components/Develop.tsx",
+        "web/src/develop/gating.ts",
+        "web/src/develop/install.ts",
+        "CHANGELOG.md 1.10.1"
+      ],
       "seo": "免费在线照片胶片滤镜（“冲洗”页面）",
       "lead": "在浏览器中为已有照片套用 GRKU 的胶片色彩和效果。",
       "keywords": "冲洗 编辑 照片 浏览器 在线 滤镜 试用 预览 下载 无相机 手机 develop edit photo browser online filter try preview download no camera phone",
@@ -1702,12 +1791,17 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "免费版可保存使用相机自带风格、入门风格或无风格的导出，最大 2048 px，并带有较小的 GRKU 署名。只要购买过一次 GRKU Plus，就能无此署名保存所有胶片风格的原尺寸照片。"
+          "text": "免费版可保存使用相机风格、入门风格或无风格的导出，最大 2048 px，并带有较小的 GRKU 署名。任意购买一次 GRKU Plus，即可无此署名保存所有胶片风格的原尺寸照片。"
         }
       ]
     },
     "assistant": {
       "title": "AI 助手",
+      "sources": [
+        "web/src/chat/strings.ts",
+        "web/src/components/ChatPanel.tsx",
+        "services/plus/src/chat/index.ts"
+      ],
       "seo": "GRKU AI 助手：咨询你的 GR 和胶片效果",
       "lead": "向 GRKU 助手咨询安装方法、你的相机，或哪款色彩适合你的照片。",
       "keywords": "AI 助手 聊天 提问 帮助 机器人 吉祥物 记忆 ai assistant chat ask question help bot mascot memory",
@@ -1751,6 +1845,11 @@ export const zhHans: DocsContent = {
     },
     "not-showing": {
       "title": "GRKU 未显示",
+      "sources": [
+        "docs/diagnostics.md",
+        "resources/INSTALLATION-GR4.md (Troubleshooting)",
+        "web/src/strings/en.ts (faq adj)"
+      ],
       "seo": "相机不显示 GRKU：解决方法",
       "lead": "按顺序逐一检查以下各项。",
       "keywords": "未显示 不生效 缺少 adj no grku 错误 install.err report boot.txt 47 48 固件 模式 设置 not showing not working missing adj no grku error install.err report boot.txt 47 48 firmware mode set",
@@ -1832,7 +1931,7 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "请发送电子邮件至 [support@grku.app](support)，附上您的相机型号和固件版本，并将卡中的这些文件作为附件发送。这些文件中不包含照片。它们可能会包含您的配方名称和导入的风格，如果您愿意，可以先打开它们查看。"
+          "text": "发邮件到 [support@grku.app](support)，附上相机型号和固件版本，再把存储卡里的这些文件附上去。里面没有照片，但可能有你的配方名称和导入的风格，不放心可以先打开看看。"
         },
         {
           "kind": "files",
@@ -1855,6 +1954,9 @@ export const zhHans: DocsContent = {
     },
     "stuck": {
       "title": "相机卡在启动界面",
+      "sources": [
+        "resources/RECOVERY.md"
+      ],
       "seo": "RICOH GR 卡在开机界面：恢复方法",
       "lead": "GRKU 仅在开机期间生效，关机后会恢复。请取出存储卡后再开机。",
       "keywords": "卡死 死机 冻结 无响应 无法开机 黑屏 变砖 恢复 还原 电池 stuck freeze hang frozen not start black screen brick recover recovery reset battery",
@@ -1900,6 +2002,11 @@ export const zhHans: DocsContent = {
     },
     "faq": {
       "title": "常见问题",
+      "sources": [
+        "web/src/strings/en.ts (faq)",
+        "runtime/mode_dial.h",
+        "resources/INSTALLATION-GR4.md"
+      ],
       "seo": "GRKU 常见问题解答",
       "lead": "常见问题的简短解答。",
       "keywords": "faq 常见问题 问题 为什么 第一张 照片 没有 胶片 色彩 盒装 召回 格式化 手机 导入 gr 全球 安全 保修 why first photos no look box recall format phone import gr world safe warranty",
@@ -1911,7 +2018,7 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GRKU 加载完成前，相机使用的是自己的设置。开机后大约等 8 到 10 秒，直到屏幕上方出现 **GRKU**。"
+          "text": "GRKU 加载完成前，相机使用的是它自己的设置。开机后等大约 8 到 10 秒，等屏幕上出现 **GRKU**。"
         },
         {
           "kind": "h2",
@@ -1965,7 +2072,7 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "安装 GRKU 不会更改 `DCIM` 文件夹里的照片。请把 GR WORLD 更新到最新版本。如果还是失败，请[发邮件联系支持](support)。"
+          "text": "安装 GRKU 不会改动 `DCIM` 文件夹里的照片。请把 GR WORLD 更新到最新版本。如果还是失败，请[发邮件联系支持](support)。"
         },
         {
           "kind": "h2",
@@ -1980,6 +2087,11 @@ export const zhHans: DocsContent = {
     },
     "cameras": {
       "title": "支持的相机",
+      "sources": [
+        "web/src/cameras.ts",
+        "web/src/generated/cameras.ts",
+        "web/src/package.ts"
+      ],
       "seo": "GRKU 支持哪些 RICOH GR 相机机型与固件版本？",
       "lead": "GRKU 在官方 RICOH 固件下支持以下相机与固件版本。",
       "keywords": "相机 支持 固件 版本 gr iii iiix iv hdf monochrome modeset dump cameras supported firmware version gr iii iiix iv hdf monochrome modeset dump",
@@ -1989,11 +2101,11 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "在相机上打开 MENU 以查看其固件版本：请参阅 [检查您的固件版本](doc:firmware)。早期 GR 型号和其他相机不受支持。GR IV Monochrome 拥有除胶片风格之外的所有模块。"
+          "text": "打开相机上的 MENU 查看固件版本，详见 [查看固件版本](doc:firmware)。更早的 GR 型号和其他相机不支持。GR IV Monochrome 除了胶片风格外，其他模块都有。"
         },
         {
           "kind": "p",
-          "text": "GR IV 30th Anniversary Edition 相机出厂自带专属的 1.20 版本，grku.app 暂未支持。请先前往 RICOH 官网将其更新至 1.21。"
+          "text": "GR IV 30th Anniversary Edition 相机出厂自带专属 1.20 版本，grku.app 暂未提供对应版本。请先从 RICOH 更新至 1.21。"
         },
         {
           "kind": "h2",

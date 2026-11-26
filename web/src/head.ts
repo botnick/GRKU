@@ -21,14 +21,16 @@ export async function syncHead(path: string): Promise<void> {
   const mine = ++run;
   let html: string;
   try {
-    const response = await fetch(path, { headers: { Accept: 'text/html' } });
+    // The edge worker sends a visitor of a Thai page to the page of their language; this header
+    // asks it for the page itself (src/edge.ts).
+    const response = await fetch(path, { headers: { Accept: 'text/html', 'X-GRKU-Head': '1' }, credentials: 'omit' });
     if (!response.ok || response.redirected || !response.headers.get('Content-Type')?.includes('text/html')) return;
     html = await response.text();
   } catch {
     return;
   }
-  // A later move won.
-  if (mine !== run) return;
+  // A later move won, or the address changed meanwhile.
+  if (mine !== run || location.pathname !== path) return;
   const next = new DOMParser().parseFromString(html, 'text/html');
   const fresh = [...next.head.querySelectorAll(PAGE_TAGS)];
   if (fresh.length === 0) return;

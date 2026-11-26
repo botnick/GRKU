@@ -60,6 +60,7 @@ export const en: DocsContent = {
   pages: {
     start: {
       title: 'What GRKU is',
+      sources: ['web/src/plus.ts','web/src/generated/modules.ts','web/src/strings/en.ts (faq)','resources/TERMS.md'],
       seo: 'What is GRKU? Free film looks for the RICOH GR III, IIIx, and IV',
       lead: 'GRKU adds film looks and photo effects to a RICOH GR, from the SD card.',
       keywords: 'about introduction overview begin beginner free safe firmware',
@@ -79,6 +80,7 @@ export const en: DocsContent = {
     },
     firmware: {
       title: 'Check your firmware version',
+      sources: ['crates/grku-core/src/camera.rs','web/src/generated/cameras.ts','web/src/package.ts (gr4-1.20-0528 not published)','https://www.ricoh-imaging.co.jp/english/support/digital/gr3_s.html','https://www.ricoh-imaging.co.jp/english/support/digital/gr3x_s.html','https://www.ricoh-imaging.co.jp/english/support/digital/gr4_s.html','https://www.ricoh-imaging.co.jp/english/support/digital/gr-4-mono_s.html','web/src/chat/knowledge.ts (firmware update screen)'],
       seo: 'How to check the firmware version of a RICOH GR III, GR IIIx, or GR IV',
       lead: 'Press MENU and open the setup menu (the wrench icon). GRKU works only on the firmware versions in the table on this page.',
       keywords: 'firmware version check menu setup wrench about this device firmware info camera information update ricoh older newer fwdc bin',
@@ -86,14 +88,10 @@ export const en: DocsContent = {
         { kind: 'p', text: 'Firmware is the software inside the camera, made by RICOH. Each camera shows its firmware version in the menu. Check it before you install GRKU.' },
         { kind: 'h2', id: 'gr3', text: 'GR III and GR IIIx' },
         { kind: 'steps', items: ['Turn the camera on.', 'Press {{MENU}}.', 'Go to the setup menu, the tab with the wrench icon, and open **About This Device**.', 'Choose **Firmware Info / Options** and press right.', 'The screen shows the firmware version, for example 2.21.'] },
-        { kind: 'camera', screen: 'loaded', press: ['menu'], alt: 'Press the MENU button on the back of the camera.' },
-        { kind: 'screen', screen: 'setup-gr3', alt: 'GR III and GR IIIx: (1) the setup menu with the wrench icon, (2) About This Device.' },
-        { kind: 'screen', screen: 'info-gr3', alt: 'GR III and GR IIIx: (3) the firmware version on the Firmware Info / Options screen.' },
+        { kind: 'path', items: ['MENU', 'Setup', 'About This Device', 'Firmware Info / Options'] },
         { kind: 'h2', id: 'gr4', text: 'GR IV and GR IV HDF' },
         { kind: 'steps', items: ['Turn the camera on.', 'Press {{MENU}}.', 'Go to the setup menu, the tab with the wrench icon, and choose **Camera Information**.', 'Press right.', 'The screen shows the firmware version, for example 1.21.'] },
-        { kind: 'screen', screen: 'setup-gr4', alt: 'GR IV: (1) the setup menu with the wrench icon, (2) Camera Information.' },
-        { kind: 'screen', screen: 'info-gr4', alt: 'GR IV: (3) the firmware version on the Camera Information screen.' },
-        { kind: 'note', tone: 'plain', title: 'Good to know', text: 'The other rows of the menu are grey in these pictures. Their names differ by model and firmware.' },
+        { kind: 'path', items: ['MENU', 'Setup', 'Camera Information'] },
         { kind: 'p', text: 'GR IV Monochrome: [RICOH\'s support page of the camera](https://www.ricoh-imaging.co.jp/english/support/digital/gr-4-mono_s.html) lists its firmware versions.' },
         { kind: 'h2', id: 'supported', text: 'Which versions does GRKU support?' },
         { kind: 'cameras' },
@@ -107,6 +105,7 @@ export const en: DocsContent = {
     },
     install: {
       title: 'Install GRKU',
+      sources: ['resources/INSTALLATION-GR4.md','web/src/guide.ts','web/src/strings/en.ts (cardConnect, cardApplyInstall, download)','crates/grku-core/src/runtime/files.rs','resources/images/modeset.png','resources/images/camera-menu.png','resources/images/grku-root.jpg'],
       seo: 'How to install GRKU on a RICOH GR III, GR IIIx, or GR IV',
       lead: 'Write GRKU to the SD card, then turn on SD scripts once on the camera.',
       keywords: 'setup install sd card chrome edge zip sd_root modeset mode set command menu first start',
@@ -123,7 +122,7 @@ export const en: DocsContent = {
         { kind: 'h2', id: 'first-start', text: 'First start: turn on SD scripts' },
         { kind: 'p', text: 'Do this once. The setting stays on for every card, and updates do not need it.' },
         { kind: 'steps', items: ['Turn the camera off and insert the card.', 'Hold {{MENU}} and press the power button.', 'The screen shows **Mode Set Command**, then **Script - Enable** and **Complete**. The camera turns itself off.', 'Turn the camera on as usual. Wait until **GRKU** shows at the top of the screen. It takes about 8 to 10 seconds, longer on GR IV and the first time after an install.'] },
-        { kind: 'camera', screen: 'modeset', press: ['menu', 'power'], alt: 'Hold MENU, then press the power button. The screen shows Mode Set Command.' },
+        { kind: 'screen', screen: 'modeset-back', alt: 'Hold MENU, then press the power button. The screen shows Mode Set Command.' },
         { kind: 'screen', screen: 'modeset', alt: 'The Mode Set Command screen with Script - Enable and Complete.' },
         { kind: 'note', tone: 'tip', title: 'If it does not look like this', text: 'No **Mode Set Command** screen? Turn the camera off. Press and hold {{MENU}} first, then press the power button, and keep holding {{MENU}} until the screen shows. Check that `DEVELOP.MOD` and the ModeSet file are at the top level of the card, not inside a folder.' },
         { kind: 'note', tone: 'warning', title: 'A firmware update screen?', text: 'The card has a RICOH firmware file (a `.bin` file whose name starts with `fwdc`). Choose **Cancel**, never Execute. Turn the camera off, delete that file from the top level of the card, and do this step again.' },
@@ -131,12 +130,13 @@ export const en: DocsContent = {
         { kind: 'h2', id: 'use', text: 'Use GRKU' },
         { kind: 'steps', items: ['While you shoot, press {{ADJ}}.', 'Choose **GRKU**. It is usually the sixth entry.', 'Choose a feature, such as **Film Look**, and highlight a choice to see it on the screen.', 'Press {{OK}} to keep it. Press {{Fn}} for more settings.'] },
         { kind: 'note', tone: 'tip', title: 'If it does not look like this', text: 'No **GRKU** in ADJ? Wait 10 seconds after power-on and try again. Still nothing? See [GRKU does not show](doc:not-showing).' },
-        { kind: 'screen', screen: 'adj', alt: 'ADJ is open on GRKU with the icons of its modules. The top left of the screen shows GRKU and the look in use.' },
+        { kind: 'screen', screen: 'adj', alt: 'ADJ is open on GRKU with the icons of its modules. The top left of the screen shows GRKU and Film Look: Off.' },
         { kind: 'p', text: 'Photos taken before GRKU loads have no GRKU effects. See [ADJ and MENU](doc:controls) for every way to move around.' },
       ],
     },
     controls: {
       title: 'ADJ and MENU',
+      sources: ['runtime/menu.c','runtime/manage.h','runtime/menu_listed.h','crates/grku-core/src/menu_text.rs','resources/images/grku-menu.jpg'],
       seo: 'How to use GRKU on the GR: the ADJ lever and MENU',
       lead: 'Where GRKU is on the camera, and which button does what.',
       keywords: 'adj lever menu customize fn ok button options order enable grku about version navigate',
@@ -159,6 +159,7 @@ export const en: DocsContent = {
     },
     update: {
       title: 'Update or uninstall',
+      sources: ['resources/INSTALLATION-GR4.md','web/src/strings/en.ts (updateSteps, removeSteps, uninstall*, scriptsOff*)'],
       seo: 'How to update or uninstall GRKU, and turn off SD scripts',
       lead: 'An update keeps your settings and film looks. You do not hold MENU again.',
       keywords: 'update upgrade new version uninstall remove delete sd scripts off format card backup',
@@ -179,13 +180,14 @@ export const en: DocsContent = {
     },
     'film-look': {
       title: 'Film Look',
+      sources: ['modules/film-look/module.toml','runtime/menu_listed.h','crates/grku-core/src/menu_text.rs (film, adjustments)','CHANGELOG.md'],
       seo: 'Film looks on the RICOH GR: how to use Film Look',
       lead: 'Film looks of real films, with a live preview, in place of Image Control.',
       keywords: 'film look effect image control lut portra classic chrome kodak fuji fujifilm finepix positive preview fn parameters film stock',
       blocks: [
         { kind: 'path', items: ['ADJ', 'GRKU', 'Film Look'] },
         { kind: 'steps', items: ['Press {{ADJ}}, choose **GRKU**, then **Film Look**.', 'Highlight a look. The live view shows it at once, with its film box icon.', 'Press {{OK}} to keep it. Choose **Off** to shoot without a look.'] },
-        { kind: 'screen', screen: 'film-look', alt: 'Film Look in ADJ: the film boxes of the looks on the card, with Kodak Portra 400 highlighted.' },
+        { kind: 'screen', screen: 'adj', alt: 'GRKU in ADJ: Film Look is the first module, and the screen shows Film Look: Off.' },
         { kind: 'h2', id: 'adjust', text: 'Adjust a look' },
         { kind: 'p', text: 'Highlight a look and press {{Fn}}. The camera opens the adjustments of the look, as for an Image Control: saturation, contrast, Shading, Clarity, and the others of your camera. Each look keeps its own adjustments.' },
         { kind: 'h2', id: 'image-control', text: 'Film Look and Image Control' },
@@ -199,13 +201,13 @@ export const en: DocsContent = {
     },
     recipes: {
       title: 'Recipes',
+      sources: ['modules/recipes/module.toml','runtime/recipe_page.h','crates/grku-core/src/menu_text.rs (recipe_*)','CHANGELOG.md 1.9.0'],
       seo: 'GR film recipes: save and switch settings in one step',
       lead: 'Save a whole look with its camera settings, and switch to it in one step.',
       keywords: 'recipe สูตรสี preset save settings undo rename delete apply view white balance exposure',
       blocks: [
         { kind: 'p', text: 'A recipe holds Film Look or Image Control, Grain, Glow, Border, white balance, and the correction and exposure settings of the camera.' },
         { kind: 'path', items: ['ADJ', 'GRKU', 'Recipes'] },
-        { kind: 'screen', screen: 'recipes', alt: 'Recipes in ADJ: Undo, your recipes, and Save Settings.' },
         { kind: 'h2', id: 'save', text: 'Save a recipe' },
         { kind: 'steps', items: ['Set the camera and GRKU the way you like.', 'Press {{ADJ}}, choose **GRKU**, then **Recipes**.', 'Choose **Save Settings**. Type a name with the camera keyboard and press {{OK}}.'] },
         { kind: 'h2', id: 'apply', text: 'Use a recipe' },
@@ -219,6 +221,7 @@ export const en: DocsContent = {
     },
     framing: {
       title: 'Framing',
+      sources: ['modules/framing/module.toml','modules/framing/text/en.toml'],
       seo: 'XPan and other aspect ratios on the RICOH GR (Framing)',
       lead: 'Shoot in another aspect ratio: XPan, 2.35:1, 16:9, 1:1, and more.',
       keywords: 'framing aspect ratio xpan panorama 65:24 16:9 4:3 2.35:1 1:1 5:4 7:6 3:4 mask frame lines guides only crop',
@@ -233,6 +236,7 @@ export const en: DocsContent = {
     },
     crop: {
       title: 'Crop',
+      sources: ['modules/crop/module.toml','modules/crop/text/en.toml','runtime/modules.h (GR IIIx focal lengths)'],
       seo: '35, 50, and 70 mm crop on the RICOH GR (Crop)',
       lead: 'Shoot at a longer focal length, like a digital teleconverter, with the frame in the live view.',
       keywords: 'crop focal length 35mm 40mm 50mm 70mm 57mm 71mm 100mm zoom tele frame only mask uncropped raw',
@@ -246,6 +250,7 @@ export const en: DocsContent = {
     },
     guides: {
       title: 'Guides',
+      sources: ['modules/guides/module.toml','modules/guides/text/en.toml'],
       seo: 'Composition guides on the GR: thirds, golden ratio, spiral',
       lead: 'Composition lines on the screen. They never show in the photo.',
       keywords: 'guides grid lines thirds center golden ratio diagonals golden spiral dynamic symmetry composition disp opacity color',
@@ -258,6 +263,7 @@ export const en: DocsContent = {
     },
     date: {
       title: 'Date Imprint',
+      sources: ['modules/date/module.toml','modules/date/text/en.toml','CHANGELOG.md 1.9.0, 1.10.0'],
       seo: 'Date stamp on RICOH GR photos (Date Imprint)',
       lead: 'Print the date on photos like a film camera, in three fonts, five colors, and with a caption.',
       keywords: 'date imprint stamp time font classic gr1s gr ii color orange size position corner caption thank you happy birthday grku glow',
@@ -267,11 +273,11 @@ export const en: DocsContent = {
         { kind: 'p', text: 'Highlight a date style and press {{OK}}. Press {{Fn}} for the other settings. The camera prints the date and time of its clock, so set the clock first.' },
         { kind: 'table', head: ['Setting', 'Choices'], rows: [['**Date Style**', "Off, 'YY M D, 'YY M D H:MM, M D 'YY, D M 'YY, D M 'YY H:MM"], ['**Date Position**', '**Film** (default) prints it where a film camera does. **Upright** keeps it upright in a vertical photo.'], ['**Date Corner**', 'Bottom Right (default), Bottom Left, Top Right, or Bottom Split: the date at the left and the caption at the right.'], ['**Date Size**', 'S, M (default), M-L, L'], ['**Date Font**', 'Classic (default), GR1s (dot matrix), GR II'], ['**Date Color**', 'Standard (default): the color of the font, orange for Classic and GR II, yellow for GR1s; white on black and white photos. Or Orange, White, Sepia, LED Yellow.'], ['**Date Glow**', 'Off (default) or On: a soft glow around the digits. GR II prints flat digits, without glow.'], ['**Caption**', 'Off (default), THANK YOU, HAPPY BIRTHDAY, I <3 GR, I <3 YOU, GOOD TIMES, HOLIDAY, CHEERS, GRKU <3. The photo shows <3 as a heart.'], ['**Show Icon**', 'Shows the date style on the shooting screen: On (default) or Off.']] },
         { kind: 'photo', photo: 'neg-gr1s', alt: 'Classic Neg with a black border and the date in the GR1s font.' },
-        { kind: 'screen', screen: 'date', alt: 'The Date Imprint page in MENU with its settings.' },
       ],
     },
     glow: {
       title: 'Glow',
+      sources: ['modules/glow/module.toml','modules/glow/text/en.toml'],
       seo: 'Bloom and halation on the RICOH GR (Glow)',
       lead: 'Bloom around lights and highlights, and the red-orange Halation of motion-picture film.',
       keywords: 'glow bloom halation cinestill red orange gold white highlights lights night',
@@ -285,6 +291,7 @@ export const en: DocsContent = {
     },
     'light-leak': {
       title: 'Light Leak',
+      sources: ['modules/lightleak/module.toml','modules/lightleak/text/en.toml','modules/lightleak/lightleak.c'],
       seo: 'Light leak, dust, and vignette effects on the GR',
       lead: 'The marks of old film: a vignette, dust and hairs, a light leak, and scratches.',
       keywords: 'light leak vignette dust scratches faded dusty leaky expired old film lomo retro',
@@ -297,6 +304,7 @@ export const en: DocsContent = {
     },
     diffusion: {
       title: 'Diffusion',
+      sources: ['modules/diffusion/module.toml','modules/diffusion/text/en.toml'],
       seo: 'Black Pro-Mist diffusion and film softness on the GR',
       lead: 'The soft glow of a Black Pro-Mist filter, and the gentle softness of a film scan.',
       keywords: 'diffusion filter pro mist black mist streak anamorphic softness film softness soft dreamy',
@@ -310,6 +318,7 @@ export const en: DocsContent = {
     },
     grain: {
       title: 'Grain',
+      sources: ['modules/grain/module.toml','modules/grain/text/en.toml','modules/grain/grain.c','CHANGELOG.md 1.10.0'],
       seo: 'Film grain on the RICOH GR: strength, size, Film-like',
       lead: 'Film grain in four strengths and four sizes, as the camera draws it or Film-like.',
       keywords: 'grain noise film-like system size strength weak medium strong extra',
@@ -322,6 +331,7 @@ export const en: DocsContent = {
     },
     border: {
       title: 'Border',
+      sources: ['modules/border/module.toml','modules/border/text/en.toml','CHANGELOG.md 1.8.5','web/src/generated/modules.ts (DEFAULT_MODULES)'],
       seo: 'White, black, and instant photo borders on the GR',
       lead: 'A white or black border around the whole photo. The photo keeps every pixel.',
       keywords: 'border frame white black thin wide instant polaroid edge',
@@ -336,12 +346,12 @@ export const en: DocsContent = {
     },
     'mode-dial': {
       title: 'Mode dial and U1–U3',
+      sources: ['runtime/mode_dial.h','runtime/menu_dial.h','CHANGELOG.md 1.9.0'],
       seo: 'GRKU on the mode dial: U1, U2, U3 settings',
       lead: 'Turn GRKU on or off at each dial position, and save a whole look to U1, U2, or U3.',
       keywords: 'mode dial u1 u2 u3 user mode save current settings p av tv m sn position',
       blocks: [
         { kind: 'path', items: ['MENU', 'Customize (C)', 'GRKU', 'GRKU Settings', 'Mode Dial'] },
-        { kind: 'screen', screen: 'mode-dial', alt: 'The Mode Dial page: GRKU On or Off at each position, and Save Current Settings on U3.' },
         { kind: 'p', text: 'P, Av, Tv, M, and Sn (GR IV) share one set of GRKU settings. Each position can turn GRKU **On** or **Off**. These work while **Enable GRKU** is On.' },
         { kind: 'h2', id: 'user', text: 'U1, U2, and U3' },
         { kind: 'list', items: ['**On**: the position uses the shared GRKU settings, as P, Av, Tv, and M do.', '**Off**: the position shoots without GRKU.', '**Save Current Settings**: saves the camera settings and the GRKU settings of now to this position. Turn the dial to it, and both come back. The position then shows the name of what it saved. It does not save the ADJ order, Enable at Start, Enable GRKU, or the Mode Dial settings.'] },
@@ -350,6 +360,7 @@ export const en: DocsContent = {
     },
     raw: {
       title: 'RAW development',
+      sources: ['runtime/develop_settings.h','runtime/picture.c','CHANGELOG.md 1.9.0'],
       seo: 'Develop GR DNG files with film looks (RAW development)',
       lead: 'GRKU never changes the raw data. Develop a DNG in the camera with GRKU, or on your computer.',
       keywords: 'raw dng development develop in camera playback lightroom camera raw exiftool xmp uncropped',
@@ -364,12 +375,12 @@ export const en: DocsContent = {
     },
     settings: {
       title: 'GRKU Settings',
+      sources: ['runtime/menu_settings.h','runtime/manage.h','runtime/playback_info.h','crates/grku-core/src/menu_text.rs'],
       seo: 'GRKU Settings in MENU: every option explained',
       lead: 'The settings of GRKU itself, in MENU.',
       keywords: 'grku settings enable at start keep last uncropped raw distance unit meters feet battery playback icons shutdown screen custom picture show text adj order hidden top',
       blocks: [
         { kind: 'path', items: ['MENU', 'Customize (C)', 'GRKU', 'GRKU Settings'] },
-        { kind: 'screen', screen: 'settings', alt: 'The GRKU Settings page in MENU.' },
         { kind: 'table', head: ['Row', 'What it does'], rows: [['**Enable at Start**', 'GRKU at each power-on: **On**, **Off**, or **Keep Last**, as you left it.'], ['**Mode Dial**', 'GRKU on or off at each dial position, and U1 to U3. See [Mode dial](doc:mode-dial).'], ['**ADJ Order**', 'The order of the modules in the GRKU list of ADJ.']] },
         { kind: 'h2', id: 'adj-order', text: 'ADJ Order' },
         { kind: 'p', text: 'Moves a module up or down in the GRKU list. **Top 1** to **Top 4** give a module its own entry in the ADJ toolbar, before GRKU, so it is one press away. **Hidden** hides a module from ADJ while it keeps working.' },
@@ -383,6 +394,7 @@ export const en: DocsContent = {
     },
     looks: {
       title: 'Choose looks on the site',
+      sources: ['web/src/plus.ts (FREE_SLOTS)','web/src/lookSearch.ts','web/src/strings/en.ts (importOpen, kindImported)','CHANGELOG.md 1.9.0 (xmp)'],
       seo: 'How to choose film looks and import a LUT or Lightroom preset',
       lead: 'Pick the film looks for your card, search the library, and import your own LUT.',
       keywords: 'library choose looks search slots free 10 40 import lut cube xmp lightroom preset kinds negative slide black and white',
@@ -400,6 +412,7 @@ export const en: DocsContent = {
     },
     plus: {
       title: 'GRKU Plus',
+      sources: ['web/src/plus.ts','web/src/strings/en.ts (plus)','web/src/components/PlusSheet.tsx'],
       seo: 'GRKU Plus: prices, payment, and your key',
       lead: 'An optional one-time payment for more looks on the card. GRKU stays free without it.',
       keywords: 'plus price pay buy key email promptpay truemoney slots pack everything unlock refund baht',
@@ -416,6 +429,7 @@ export const en: DocsContent = {
     },
     shutdown: {
       title: 'Shutdown picture and GRKU Studio',
+      sources: ['web/src/strings/en.ts (shutdown)','web/src/shutdownDesigns.ts','CHANGELOG.md 1.9.0, 1.10.0','runtime/manage.h (Custom Picture, Show Text)'],
       seo: 'Custom shutdown picture for the RICOH GR (GRKU Studio)',
       lead: 'Show your own picture when the camera turns off, or design one in GRKU Studio.',
       keywords: 'shutdown screen picture goodbye power off studio design sticker template logo custom picture',
@@ -433,6 +447,7 @@ export const en: DocsContent = {
     },
     develop: {
       title: 'Develop page',
+      sources: ['web/src/components/Develop.tsx','web/src/develop/gating.ts','web/src/develop/install.ts','CHANGELOG.md 1.10.1'],
       seo: 'Free online film filter for your photos (Develop page)',
       lead: 'Give the photos you already have the film looks and effects of GRKU, in your browser.',
       keywords: 'develop edit photo browser online filter try preview download no camera phone',
@@ -444,6 +459,7 @@ export const en: DocsContent = {
     },
     assistant: {
       title: 'AI assistant',
+      sources: ['web/src/chat/strings.ts','web/src/components/ChatPanel.tsx','services/plus/src/chat/index.ts'],
       seo: 'GRKU AI assistant: ask about your GR and film looks',
       lead: 'Ask the GRKU assistant about installing, your camera, or which look suits your photos.',
       keywords: 'ai assistant chat ask question help bot mascot memory',
@@ -458,6 +474,7 @@ export const en: DocsContent = {
     },
     'not-showing': {
       title: 'GRKU does not show',
+      sources: ['docs/diagnostics.md','resources/INSTALLATION-GR4.md (Troubleshooting)','web/src/strings/en.ts (faq adj)'],
       seo: 'GRKU does not show on the camera: how to fix it',
       lead: 'Check these in order, one at a time.',
       keywords: 'not showing not working missing adj no grku error install.err report boot.txt 47 48 firmware mode set',
@@ -474,6 +491,7 @@ export const en: DocsContent = {
     },
     stuck: {
       title: 'Camera stops at startup',
+      sources: ['resources/RECOVERY.md'],
       seo: 'RICOH GR stuck at startup: how to recover',
       lead: 'GRKU changes the camera only until it turns off. Start it without the card.',
       keywords: 'stuck freeze hang frozen not start black screen brick recover recovery reset battery',
@@ -488,6 +506,7 @@ export const en: DocsContent = {
     },
     faq: {
       title: 'Common questions',
+      sources: ['web/src/strings/en.ts (faq)','runtime/mode_dial.h','resources/INSTALLATION-GR4.md'],
       seo: 'GRKU questions and answers',
       lead: 'Short answers to what people ask most.',
       keywords: 'faq question why first photos no look box recall format phone import gr world safe warranty',
@@ -512,6 +531,7 @@ export const en: DocsContent = {
     },
     cameras: {
       title: 'Supported cameras',
+      sources: ['web/src/cameras.ts','web/src/generated/cameras.ts','web/src/package.ts'],
       seo: 'Which RICOH GR cameras and firmware does GRKU support?',
       lead: 'GRKU runs on these cameras and firmware versions, with the official RICOH firmware.',
       keywords: 'cameras supported firmware version gr iii iiix iv hdf monochrome modeset dump',

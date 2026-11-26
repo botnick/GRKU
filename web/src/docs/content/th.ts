@@ -90,6 +90,12 @@ export const th: DocsContent = {
   "pages": {
     "start": {
       "title": "GRKU คืออะไร",
+      "sources": [
+        "web/src/plus.ts",
+        "web/src/generated/modules.ts",
+        "web/src/strings/en.ts (faq)",
+        "resources/TERMS.md"
+      ],
       "seo": "GRKU คืออะไร ฟิล์มลุคฟรีสำหรับ RICOH GR III, IIIx และ IV",
       "lead": "GRKU เพิ่มโทนฟิล์มและเอฟเฟกต์ภาพให้ RICOH GR จาก SD การ์ด",
       "keywords": "เกี่ยวกับ แนะนำ ภาพรวม เริ่มต้น มือใหม่ ฟรี ปลอดภัย เฟิร์มแวร์ about introduction overview begin beginner free safe firmware",
@@ -136,35 +142,45 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "ดูตัวอย่างฟิล์มลุคได้ฟรีบนเว็บ และใส่ฟิล์มลุคจากคลังลงการ์ดได้ฟรี 10 แบบ ฟิล์มลุคที่คุณนำเข้าเองไม่นับรวม โมดูลทั้งหมด สูตรสี และหน้า Develop ใช้ได้ฟรี [GRKU Plus](doc:plus) คือการจ่ายครั้งเดียวแบบไม่บังคับ เพื่อเพิ่มจำนวนฟิล์มลุคบนการ์ด"
+          "text": "ดูตัวอย่างฟิล์มลุคได้ฟรีบนเว็บ และใส่ฟิล์มลุคจากคลังลงการ์ดได้ฟรี 10 แบบ ฟิล์มลุคที่คุณนำเข้าเองไม่นับรวม โมดูลทั้งหมด สูตรสี และหน้า Develop ใช้ได้ฟรี [GRKU Plus](doc:plus) คือการจ่ายครั้งเดียวแบบไม่บังคับ เพื่อใส่ฟิล์มลุคบนการ์ดได้มากขึ้น"
         },
         {
           "kind": "h2",
           "id": "words",
-          "text": "คำที่ใช้ในคู่มือนี้"
+          "text": "คำศัพท์ที่ใช้ในคู่มือนี้"
         },
         {
           "kind": "list",
           "items": [
             "**SD card**: การ์ดความจำขนาดเล็กที่กล้องใช้เก็บรูป",
             "**Card reader**: อุปกรณ์ขนาดเล็กที่ช่วยให้คอมพิวเตอร์เปิดอ่านการ์ดได้",
-            "**ZIP file**: ไฟล์เดียวที่เก็บหลายไฟล์ไว้ข้างใน เปิดออกเพื่อเอาไฟล์ข้างในออกมา",
-            "**Firmware**: ซอฟต์แวร์ข้างในกล้องที่ RICOH ทำ GRKU ไม่เคยแก้ไฟล์ส่วนนี้",
+            "**ZIP file**: ไฟล์เดียวที่รวมหลายไฟล์ไว้ข้างใน เปิดออกเพื่อเอาไฟล์ข้างในออกมา",
+            "**Firmware**: ซอฟต์แวร์ข้างในกล้องที่ RICOH ทำ GRKU จะไม่แก้ไขส่วนนี้",
             "**SD scripts**: การตั้งค่าของกล้องที่ให้รัน GRKU จากการ์ด เปิดใช้แค่ครั้งเดียว",
             "**ModeSet file**: ไฟล์ที่เปิดใช้ SD scripts ชื่อไฟล์จะเป็นตัวเลข เช่น `00078560.636`",
-            "**ADJ lever**: ก้านเล็กๆ ด้านหลังของ GR ข้างจอ"
+            "**ADJ lever**: ก้านโยกเล็กๆ ด้านหลังของ GR ข้างหน้าจอ"
           ]
         },
         {
           "kind": "note",
           "tone": "warning",
           "title": "ทดลองใช้งาน",
-          "text": "GRKU เป็นซอฟต์แวร์ทดลอง ไม่มีรับประกัน หากเกิดข้อผิดพลาด กล้องอาจค้างตอนเปิดเครื่อง อ่าน [กล้องค้างตอนเปิดเครื่อง](doc:stuck) ก่อนติดตั้ง"
+          "text": "GRKU เป็นซอฟต์แวร์ทดลอง ไม่มีการรับประกัน หากผิดพลาด กล้องอาจค้างตอนเปิดเครื่อง อ่าน [กล้องค้างตอนเปิดเครื่อง](doc:stuck) ก่อนติดตั้ง"
         }
       ]
     },
     "firmware": {
       "title": "เช็กเวอร์ชันเฟิร์มแวร์",
+      "sources": [
+        "crates/grku-core/src/camera.rs",
+        "web/src/generated/cameras.ts",
+        "web/src/package.ts (gr4-1.20-0528 not published)",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr3_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr3x_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr4_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr-4-mono_s.html",
+        "web/src/chat/knowledge.ts (firmware update screen)"
+      ],
       "seo": "วิธีเช็กเวอร์ชันเฟิร์มแวร์ของ RICOH GR III, GR IIIx หรือ GR IV",
       "lead": "กด MENU แล้วเปิดเมนูตั้งค่า (ไอคอนประแจ) GRKU ใช้ได้เฉพาะกับเวอร์ชันเฟิร์มแวร์ในตารางหน้านี้",
       "keywords": "เวอร์ชันเฟิร์มแวร์ เช็ก เมนู ตั้งค่า ประแจ เกี่ยวกับอุปกรณ์นี้ ข้อมูลเฟิร์มแวร์ ข้อมูลกล้อง อัปเดต ริโก้ เก่ากว่า ใหม่กว่า firmware version check menu setup wrench about this device firmware info camera information update ricoh older newer fwdc bin",
@@ -189,22 +205,13 @@ export const th: DocsContent = {
           ]
         },
         {
-          "kind": "camera",
-          "screen": "loaded",
-          "press": [
-            "menu"
-          ],
-          "alt": "กดปุ่ม MENU ที่ด้านหลังกล้อง"
-        },
-        {
-          "kind": "screen",
-          "screen": "setup-gr3",
-          "alt": "GR III และ GR IIIx: (1) เมนูตั้งค่ารูปประแจ (2) About This Device"
-        },
-        {
-          "kind": "screen",
-          "screen": "info-gr3",
-          "alt": "GR III และ GR IIIx: (3) เวอร์ชันเฟิร์มแวร์บนหน้า Firmware Info / Options"
+          "kind": "path",
+          "items": [
+            "MENU",
+            "Setup",
+            "About This Device",
+            "Firmware Info / Options"
+          ]
         },
         {
           "kind": "h2",
@@ -222,20 +229,12 @@ export const th: DocsContent = {
           ]
         },
         {
-          "kind": "screen",
-          "screen": "setup-gr4",
-          "alt": "GR IV: (1) เมนูตั้งค่ารูปประแจ (2) Camera Information"
-        },
-        {
-          "kind": "screen",
-          "screen": "info-gr4",
-          "alt": "GR IV: (3) เวอร์ชันเฟิร์มแวร์บนหน้า Camera Information"
-        },
-        {
-          "kind": "note",
-          "tone": "plain",
-          "title": "เรื่องน่ารู้",
-          "text": "แถวอื่นในเมนูเป็นสีเทาในรูปเหล่านี้ ชื่อแถวต่างกันไปตามรุ่นกล้องและเฟิร์มแวร์"
+          "kind": "path",
+          "items": [
+            "MENU",
+            "Setup",
+            "Camera Information"
+          ]
         },
         {
           "kind": "p",
@@ -251,12 +250,12 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "กล้อง GR IV 30th Anniversary Edition มาพร้อมเฟิร์มแวร์ 1.20 จากโรงงาน ซึ่ง grku.app ยังไม่มีให้โหลด ให้อัปเดตกล้องรุ่นนี้เป็น 1.21 จาก RICOH ก่อน"
+          "text": "กล้อง GR IV 30th Anniversary Edition มาพร้อมเฟิร์มแวร์ 1.20 จากโรงงานซึ่ง grku.app ยังไม่รองรับ ให้อัปเดตกล้องรุ่นนี้เป็น 1.21 จาก RICOH ก่อน"
         },
         {
           "kind": "h2",
           "id": "older",
-          "text": "เวอร์ชันของฉันเก่ากว่า"
+          "text": "เวอร์ชันของฉันเก่าไป"
         },
         {
           "kind": "p",
@@ -275,12 +274,21 @@ export const th: DocsContent = {
           "kind": "note",
           "tone": "warning",
           "title": "มีหน้าจออัปเดตเฟิร์มแวร์ตอนเปิดครั้งแรกไหม",
-          "text": "ถ้าในการ์ดมีไฟล์เฟิร์มแวร์ของ RICOH (ไฟล์ `.bin` ที่ชื่อขึ้นต้นด้วย `fwdc`) การกด {{MENU}} ค้างตอนเปิดเครื่องจะขึ้นหน้าจออัปเดตเฟิร์มแวร์ ให้เลือก **Cancel** แล้วลบไฟล์นั้นออกจากการ์ดและลองใหม่"
+          "text": "ถ้าในการ์ดมีไฟล์เฟิร์มแวร์ของ RICOH (ไฟล์ `.bin` ที่ชื่อขึ้นต้นด้วย `fwdc`) การกด {{MENU}} ค้างตอนเปิดเครื่องจะขึ้นหน้าจออัปเดตเฟิร์มแวร์ ให้เลือก **Cancel** แล้วลบไฟล์นั้นออกจากการ์ดและลองใหม่อีกครั้ง"
         }
       ]
     },
     "install": {
       "title": "ติดตั้ง GRKU",
+      "sources": [
+        "resources/INSTALLATION-GR4.md",
+        "web/src/guide.ts",
+        "web/src/strings/en.ts (cardConnect, cardApplyInstall, download)",
+        "crates/grku-core/src/runtime/files.rs",
+        "resources/images/modeset.png",
+        "resources/images/camera-menu.png",
+        "resources/images/grku-root.jpg"
+      ],
       "seo": "วิธีติดตั้ง GRKU บน RICOH GR III, GR IIIx หรือ GR IV",
       "lead": "เขียน GRKU ลงการ์ด แล้วเปิดสคริปต์บนการ์ดบนกล้องหนึ่งครั้ง",
       "keywords": "ติดตั้ง การ์ด sd โครม เอดจ์ ซิป sd_root modeset mode set command เมนู เปิดครั้งแรก setup install sd card chrome edge zip sd_root modeset mode set command menu first start",
@@ -312,16 +320,16 @@ export const th: DocsContent = {
           "kind": "note",
           "tone": "tip",
           "title": "ถ้าหน้าจอไม่เหมือนแบบนี้",
-          "text": "ไม่มีปุ่ม **เชื่อมต่อการ์ด SD** ใช่ไหม เปิดหน้านี้ใน Chrome หรือ Edge บนคอม ถ้าใช้บนมือถือ หรือใช้ Safari ให้ใช้ GRKU.zip ด้านล่าง"
+          "text": "ไม่มีปุ่ม **เชื่อมต่อการ์ด SD** ใช่ไหม ให้เปิดหน้านี้ใน Chrome หรือ Edge บนคอม ถ้าเปิดบนมือถือ หรือใช้ Safari ให้ใช้ GRKU.zip ด้านล่าง"
         },
         {
           "kind": "h2",
           "id": "zip",
-          "text": "หรือก๊อปปี้ GRKU.zip เอง"
+          "text": "หรือคัดลอก GRKU.zip เอง"
         },
         {
           "kind": "p",
-          "text": "ใช้ได้ในทุกเบราว์เซอร์ รวมถึงบนมือถือหรือ Mac ผ่าน Safari"
+          "text": "ใช้ได้ในทุกเบราว์เซอร์ รวมถึงบนมือถือหรือ Mac ที่ใช้ Safari"
         },
         {
           "kind": "steps",
@@ -346,7 +354,7 @@ export const th: DocsContent = {
             ],
             [
               "00078560.636",
-              "ไฟล์ ModeSet ของกล้องคุณ ที่ช่วยเปิดใช้งานสคริปต์บนการ์ด SD: 00078350.588 สำหรับ GR III, 00078490.609 สำหรับ GR IIIx, 00078560.636 สำหรับ GR IV หลังจากเริ่มใช้งานครั้งแรกจะลบออกก็ได้"
+              "ไฟล์ ModeSet ของกล้องคุณ ที่ช่วยเปิดใช้งานสคริปต์บนการ์ด: 00078350.588 สำหรับ GR III, 00078490.609 สำหรับ GR IIIx, 00078560.636 สำหรับ GR IV หลังจากเริ่มใช้งานครั้งแรกจะลบออกก็ได้"
             ],
             [
               "GRKU",
@@ -354,7 +362,7 @@ export const th: DocsContent = {
             ],
             [
               "DCIM",
-              "รูปของคุณ การติดตั้ง GRKU จะไม่ไปยุ่งกับรูปพวกนี้"
+              "รูปของคุณ การติดตั้ง GRKU จะไม่ยุ่งกับรูปเหล่านี้"
             ]
           ]
         },
@@ -377,12 +385,8 @@ export const th: DocsContent = {
           ]
         },
         {
-          "kind": "camera",
-          "screen": "modeset",
-          "press": [
-            "menu",
-            "power"
-          ],
+          "kind": "screen",
+          "screen": "modeset-back",
           "alt": "กด MENU ค้างไว้ แล้วกดปุ่มเปิดปิด หน้าจอจะขึ้น Mode Set Command"
         },
         {
@@ -394,13 +398,13 @@ export const th: DocsContent = {
           "kind": "note",
           "tone": "tip",
           "title": "ถ้าหน้าจอไม่เหมือนแบบนี้",
-          "text": "ไม่เจอหน้า **Mode Set Command** ใช่ไหม ปิดกล้องก่อน แล้วกด {{MENU}} ค้างไว้ก่อนกดปุ่มเปิดปิด และกด {{MENU}} ค้างไว้จนกว่าหน้าจอจะขึ้น เช็กดูว่า `DEVELOP.MOD` และไฟล์ ModeSet อยู่ที่ชั้นบนสุดของการ์ด ไม่ได้อยู่ในโฟลเดอร์"
+          "text": "ไม่เจอหน้า **Mode Set Command** ใช่ไหม ให้ปิดกล้องก่อน กด {{MENU}} ค้างไว้ก่อน แล้วค่อยกดปุ่มเปิดปิด และกด {{MENU}} ค้างไว้จนกว่าหน้าจอจะขึ้น ตรวจดูว่า `DEVELOP.MOD` และไฟล์ ModeSet อยู่ที่ชั้นบนสุดของการ์ด ไม่ได้อยู่ในโฟลเดอร์"
         },
         {
           "kind": "note",
           "tone": "warning",
           "title": "ขึ้นหน้าอัปเดตเฟิร์มแวร์ใช่ไหม",
-          "text": "การ์ดมีไฟล์เฟิร์มแวร์ของ RICOH อยู่ (ไฟล์ `.bin` ที่ชื่อขึ้นต้นด้วย `fwdc`) ให้เลือก **Cancel** ห้ามเลือก Execute เด็ดขาด ปิดกล้อง ลบไฟล์นั้นออกจากชั้นบนสุดของการ์ด แล้วทำขั้นตอนนี้ใหม่อีกครั้ง"
+          "text": "การ์ดมีไฟล์เฟิร์มแวร์ของ RICOH อยู่ (ไฟล์ `.bin` ที่ชื่อขึ้นต้นด้วย `fwdc`) ให้เลือก **Cancel** ห้ามเลือก Execute เด็ดขาด จากนั้นปิดกล้อง ลบไฟล์นั้นออกจากชั้นบนสุดของการ์ด แล้วทำขั้นตอนนี้ใหม่อีกครั้ง"
         },
         {
           "kind": "p",
@@ -424,12 +428,12 @@ export const th: DocsContent = {
           "kind": "note",
           "tone": "tip",
           "title": "ถ้าหน้าจอไม่เหมือนแบบนี้",
-          "text": "ใน ADJ ไม่มี **GRKU** ใช่ไหม รอ 10 วินาทีหลังเปิดกล้องแล้วลองใหม่ ถ้ายังไม่ขึ้น ดูที่ [GRKU ไม่แสดงผล](doc:not-showing)"
+          "text": "ใน ADJ ไม่มี **GRKU** ใช่ไหม ให้รอ 10 วินาทีหลังเปิดกล้องแล้วลองใหม่ ถ้ายังไม่ขึ้น ดูที่ [GRKU ไม่แสดงผล](doc:not-showing)"
         },
         {
           "kind": "screen",
           "screen": "adj",
-          "alt": "หน้า ADJ บน GRKU ที่แสดงไอคอนของโมดูลต่างๆ มุมซ้ายบนของหน้าจอแสดง GRKU และลุคที่ใช้อยู่"
+          "alt": "เปิด ADJ บน GRKU และเห็นไอคอนของโมดูลต่างๆ มุมซ้ายบนของหน้าจอแสดง GRKU และ Film Look: Off"
         },
         {
           "kind": "p",
@@ -439,6 +443,13 @@ export const th: DocsContent = {
     },
     "controls": {
       "title": "ADJ และ MENU",
+      "sources": [
+        "runtime/menu.c",
+        "runtime/manage.h",
+        "runtime/menu_listed.h",
+        "crates/grku-core/src/menu_text.rs",
+        "resources/images/grku-menu.jpg"
+      ],
       "seo": "วิธีใช้ GRKU บน GR: ก้าน ADJ และ MENU",
       "lead": "GRKU อยู่ตรงไหนบนกล้อง และปุ่มไหนทำหน้าที่อะไรบ้าง",
       "keywords": "adj ก้านปรับ menu ปรับแต่ง fn ok ปุ่ม ตัวเลือก ลำดับ เปิดใช้งาน grku เกี่ยวกับ เวอร์ชัน นำทาง adj lever menu customize fn ok button options order enable grku about version navigate",
@@ -450,7 +461,7 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "ระหว่างถ่ายรูป ให้กดก้าน {{ADJ}} แล้วเลือก **GRKU** ซึ่งปกติจะอยู่ที่ลำดับที่หก หน้านี้จะแสดงโมดูลที่อยู่บนการ์ดของคุณ เช่น **Film Look**, **Framing** และ **Grain**"
+          "text": "ระหว่างถ่ายรูป ให้กดก้าน {{ADJ}} แล้วเลือก **GRKU** ซึ่งปกติจะอยู่ที่ลำดับที่หก หน้านี้จะแสดงโมดูลที่อยู่บนการ์ด เช่น **Film Look**, **Framing** และ **Grain**"
         },
         {
           "kind": "table",
@@ -461,7 +472,7 @@ export const th: DocsContent = {
           "rows": [
             [
               "{{ADJ}}",
-              "เปิด ADJ ถ้าคุณปิดไปตอนอยู่ที่ GRKU ก็จะกลับมาเปิดที่เดิมอีก แม้ปิดแล้วเปิดกล้องใหม่"
+              "เปิด ADJ ถ้าปิดไปตอนอยู่ที่ GRKU ก็จะกลับมาเปิดที่เดิมอีก แม้ปิดแล้วเปิดกล้องใหม่"
             ],
             [
               "ขึ้น, ลง",
@@ -473,7 +484,7 @@ export const th: DocsContent = {
             ],
             [
               "{{Fn}}",
-              "ทำงานเพิ่มเติมของแถวนั้น เช่น การตั้งค่าเพิ่มของโมดูล มุมถัดไปของ golden spiral หรือการเปลี่ยนชื่อและลบสูตรสี"
+              "ทำงานเพิ่มเติมของแถวนั้น เช่น ตั้งค่าเพิ่มของโมดูล เปลี่ยนมุมถัดไปของ golden spiral หรือเปลี่ยนชื่อและลบสูตรสี"
             ],
             [
               "{{MENU}}",
@@ -483,7 +494,7 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "แถว **Enable** ที่อยู่ถัดจากโมดูล ใช้เปิดหรือปิด GRKU เมื่อเปิดใช้งาน จะเริ่มทำงานโมดูลที่เปิดไว้แต่ละตัวอีกครั้ง"
+          "text": "แถว **Enable** ที่อยู่ถัดจากโมดูล ใช้เปิดหรือปิด GRKU เมื่อเปิดใช้งาน จะเริ่มทำงานโมดูลที่เปิดไว้แต่ละอันอีกครั้ง"
         },
         {
           "kind": "h2",
@@ -511,7 +522,7 @@ export const th: DocsContent = {
           "rows": [
             [
               "**Enable GRKU**",
-              "เปิดหรือปิด GRKU เมื่อเปิดใช้งาน จะเริ่มทำงานโมดูลที่เปิดไว้แต่ละตัวอีกครั้ง"
+              "เปิดหรือปิด GRKU เมื่อเปิดใช้งาน จะเริ่มทำงานโมดูลที่เปิดไว้แต่ละอันอีกครั้ง"
             ],
             [
               "**GRKU Settings**",
@@ -565,6 +576,10 @@ export const th: DocsContent = {
     },
     "update": {
       "title": "อัปเดตหรือถอนการติดตั้ง",
+      "sources": [
+        "resources/INSTALLATION-GR4.md",
+        "web/src/strings/en.ts (updateSteps, removeSteps, uninstall*, scriptsOff*)"
+      ],
       "seo": "วิธีอัปเดตหรือถอนการติดตั้ง GRKU และปิดสคริปต์การ์ด",
       "lead": "อัปเดตแล้วการตั้งค่าและฟิล์มลุคยังอยู่ครบ ไม่ต้องกด MENU ค้างอีก",
       "keywords": "อัปเดต อัปเกรด เวอร์ชันใหม่ ถอนการติดตั้ง ลบ ลบออก sd สคริปต์ ปิด ฟอร์แมต การ์ด สำรองข้อมูล update upgrade new version uninstall remove delete sd scripts off format card backup",
@@ -607,7 +622,7 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "ในขั้นตอนสุดท้ายของการติดตั้ง ให้ต่อการ์ดแล้วกด **ถอนการติดตั้ง GRKU** เลือกด้วยว่าจะลบค่าตั้งและฟิล์มลุคด้วยไหม แล้วกด **Uninstall** หรือปิดกล้องแล้วลบโฟลเดอร์ `SCRIPT` กับ `GRKU` เอง รูปของคุณยังอยู่เหมือนเดิม"
+          "text": "ในขั้นตอนสุดท้ายของการติดตั้ง ให้ต่อการ์ดแล้วกด **Uninstall GRKU** เลือกด้วยว่าจะลบค่าตั้งและฟิล์มลุคด้วยไหม แล้วกด **Uninstall** หรือปิดกล้องแล้วลบโฟลเดอร์ `SCRIPT` กับ `GRKU` เอง รูปของคุณยังอยู่เหมือนเดิม"
         },
         {
           "kind": "h2",
@@ -621,7 +636,7 @@ export const th: DocsContent = {
         {
           "kind": "steps",
           "items": [
-            "ในขั้นตอนสุดท้ายของการติดตั้ง ให้ใช้ **ปิดสคริปต์การ์ด SD** เพื่อเขียนไฟล์ลงการ์ด หรือดาวน์โหลดแล้วคัดลอกสิ่งที่อยู่ใน `SD_ROOT` ไปใส่การ์ด",
+            "ในขั้นตอนสุดท้ายของการติดตั้ง ให้ใช้ **Turn off SD scripts** เพื่อเขียนไฟล์ลงการ์ด หรือดาวน์โหลดแล้วคัดลอกสิ่งที่อยู่ใน `SD_ROOT` ไปใส่การ์ด",
             "ใส่การ์ด กด {{MENU}} ค้างไว้แล้วเปิดกล้อง รอจนกล้องปิดเครื่องเอง",
             "ลบไฟล์ ModeSet และ `DEVELOP.MOD` ออกจากการ์ด"
           ]
@@ -639,6 +654,12 @@ export const th: DocsContent = {
     },
     "film-look": {
       "title": "ฟิล์มลุค",
+      "sources": [
+        "modules/film-look/module.toml",
+        "runtime/menu_listed.h",
+        "crates/grku-core/src/menu_text.rs (film, adjustments)",
+        "CHANGELOG.md"
+      ],
       "seo": "ฟิล์มลุคบน RICOH GR: วิธีใช้ Film Look",
       "lead": "ฟิล์มลุคจากฟิล์มจริง ดูภาพตัวอย่างสดได้ แทน Image Control",
       "keywords": "ฟิล์มลุค สไตล์ฟิล์ม ฟิล์ม สี ภาพตัวอย่าง ฟิล์มเนกาทีฟ ฟิล์มสไลด์ film look effect image control lut portra classic chrome kodak fuji fujifilm finepix positive preview fn parameters film stock",
@@ -661,8 +682,8 @@ export const th: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "film-look",
-          "alt": "Film Look ใน ADJ ที่แสดงกล่องฟิล์มของฟิล์มลุคในการ์ด โดยไฮไลต์ Kodak Portra 400"
+          "screen": "adj",
+          "alt": "GRKU ใน ADJ: Film Look เป็นโมดูลแรก และหน้าจอแสดง Film Look: Off"
         },
         {
           "kind": "h2",
@@ -731,6 +752,12 @@ export const th: DocsContent = {
     },
     "recipes": {
       "title": "Recipes",
+      "sources": [
+        "modules/recipes/module.toml",
+        "runtime/recipe_page.h",
+        "crates/grku-core/src/menu_text.rs (recipe_*)",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "สูตรสีฟิล์ม GR: บันทึกและสลับการตั้งค่าในขั้นตอนเดียว",
       "lead": "บันทึกทั้งลุคพร้อมการตั้งค่ากล้อง แล้วสลับมาใช้ได้ในขั้นตอนเดียว",
       "keywords": "recipe สูตรสี preset save settings undo rename delete apply view white balance exposure บันทึก ตั้งค่า ยกเลิก เปลี่ยนชื่อ ลบ ใช้งาน ดู ไวต์บาลานซ์ ชดเชยแสง",
@@ -746,11 +773,6 @@ export const th: DocsContent = {
             "GRKU",
             "Recipes"
           ]
-        },
-        {
-          "kind": "screen",
-          "screen": "recipes",
-          "alt": "สูตรสีใน ADJ: ย้อนกลับ สูตรสีของคุณ และบันทึกค่าตั้ง"
         },
         {
           "kind": "h2",
@@ -806,6 +828,10 @@ export const th: DocsContent = {
     },
     "framing": {
       "title": "Framing",
+      "sources": [
+        "modules/framing/module.toml",
+        "modules/framing/text/en.toml"
+      ],
       "seo": "XPan และสัดส่วนภาพอื่นๆ บน RICOH GR (Framing)",
       "lead": "ถ่ายในสัดส่วนภาพแบบอื่น เช่น XPan, 2.35:1, 16:9, 1:1 และอื่นๆ",
       "keywords": "framing aspect ratio xpan panorama 65:24 16:9 4:3 2.35:1 1:1 5:4 7:6 3:4 mask frame lines guides only crop เฟรม อัตราส่วนภาพ พาโนรามา กรอบ เส้นไกด์ ครอป",
@@ -866,6 +892,11 @@ export const th: DocsContent = {
     },
     "crop": {
       "title": "Crop",
+      "sources": [
+        "modules/crop/module.toml",
+        "modules/crop/text/en.toml",
+        "runtime/modules.h (GR IIIx focal lengths)"
+      ],
       "seo": "ครอป 35, 50 และ 70 มม. บน RICOH GR (Crop)",
       "lead": "ถ่ายด้วยทางยาวโฟกัสที่ยาวขึ้น เหมือนเทเลคอนเวอร์เตอร์ดิจิทัล โดยมีกรอบแสดงในไลฟ์วิว",
       "keywords": "ครอป ระยะโฟกัส ทางยาวโฟกัส ซูม เทเล กรอบ มาสก์ ไม่ครอป ดิบ crop focal length 35mm 40mm 50mm 70mm 57mm 71mm 100mm zoom tele frame only mask uncropped raw",
@@ -918,6 +949,10 @@ export const th: DocsContent = {
     },
     "guides": {
       "title": "Guides",
+      "sources": [
+        "modules/guides/module.toml",
+        "modules/guides/text/en.toml"
+      ],
       "seo": "เส้นจัดองค์ประกอบภาพบน GR: สามส่วน สัดส่วนทองคำ ก้นหอย",
       "lead": "เส้นจัดองค์ประกอบบนหน้าจอ ไม่มีผลกับภาพที่ถ่ายออกมา",
       "keywords": "guides grid lines thirds center golden ratio diagonals golden spiral dynamic symmetry composition disp opacity color เส้นไกด์ เส้นตาราง จุดตัดเก้าช่อง กึ่งกลาง สัดส่วนทองคำ เส้นทแยงมุม ก้นหอยทองคำ องค์ประกอบภาพ ความทึบแสง สี",
@@ -972,6 +1007,11 @@ export const th: DocsContent = {
     },
     "date": {
       "title": "Date Imprint",
+      "sources": [
+        "modules/date/module.toml",
+        "modules/date/text/en.toml",
+        "CHANGELOG.md 1.9.0, 1.10.0"
+      ],
       "seo": "ประทับวันที่บนรูป RICOH GR (Date Imprint)",
       "lead": "พิมพ์วันที่ลงบนรูปเหมือนกล้องฟิล์ม มีฟอนต์ให้เลือก 3 แบบ สี 5 สี และใส่ข้อความสั้นๆ ได้",
       "keywords": "พิมพ์วันที่ ประทับวันที่ เวลา ฟอนต์ คลาสสิก สี ส้ม ขนาด ตำแหน่ง มุม ข้อความ ขอบคุณ สุขสันต์วันเกิด เรืองแสง date imprint stamp time font classic gr1s gr ii color orange size position corner caption thank you happy birthday grku glow",
@@ -1022,7 +1062,7 @@ export const th: DocsContent = {
             ],
             [
               "**Date Color**",
-              "Standard (ค่าเริ่มต้น): สีของตัวหนังสือจะเป็นสีส้มสำหรับ Classic และ GR II สีเหลืองสำหรับ GR1s และสีขาวบนภาพขาวดำ หรือเลือก Orange, White, Sepia, LED Yellow"
+              "Standard (ค่าเริ่มต้น): สีของตัวหนังสือ สีส้มสำหรับ Classic และ GR II สีเหลืองสำหรับ GR1s สีขาวบนรูปภาพขาวดำ หรือเลือก Orange, White, Sepia, LED Yellow"
             ],
             [
               "**Date Glow**",
@@ -1042,16 +1082,15 @@ export const th: DocsContent = {
           "kind": "photo",
           "photo": "neg-gr1s",
           "alt": "Classic Neg พร้อมขอบสีดำและวันที่ฟอนต์ GR1s"
-        },
-        {
-          "kind": "screen",
-          "screen": "date",
-          "alt": "หน้า Date Imprint ใน MENU พร้อมการตั้งค่า"
         }
       ]
     },
     "glow": {
       "title": "Glow",
+      "sources": [
+        "modules/glow/module.toml",
+        "modules/glow/text/en.toml"
+      ],
       "seo": "แสงฟุ้งและฮาเลชันบน RICOH GR (Glow)",
       "lead": "แสงฟุ้งรอบดวงไฟและส่วนสว่าง รวมถึง Halation สีแดงอมส้มแบบฟิล์มหนัง",
       "keywords": "glow bloom halation cinestill red orange gold white highlights lights night แสงฟุ้ง ฟุ้ง ฮาเลชัน สีแดง สีส้ม สีทอง สีขาว ส่วนสว่าง ดวงไฟ กลางคืน",
@@ -1108,6 +1147,11 @@ export const th: DocsContent = {
     },
     "light-leak": {
       "title": "Light Leak",
+      "sources": [
+        "modules/lightleak/module.toml",
+        "modules/lightleak/text/en.toml",
+        "modules/lightleak/lightleak.c"
+      ],
       "seo": "เอฟเฟกต์แสงรั่ว ฝุ่น และขอบมืดบน GR",
       "lead": "ร่องรอยของฟิล์มเก่า ทั้งขอบมืด ฝุ่นและเส้นผม แสงรั่ว และรอยขีดข่วน",
       "keywords": "light leak vignette dust scratches faded dusty leaky expired old film lomo retro แสงรั่ว ขอบมืด ฝุ่น รอยขีดข่วน ฟิล์มซีด ฟิล์มเก่า ฟิล์มหมดอายุ โลโม่ เรโทร",
@@ -1156,12 +1200,16 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "เลือก **Custom** แล้วกด {{Fn}} เพื่อตั้งความแรงของแต่ละส่วน ฝุ่น แสงรั่ว และรอยขีดข่วนจะตกต่างกันไปในแต่ละรูป Light Leak เปลี่ยนเฉพาะ JPEG และไม่แสดงในภาพพรีวิวสด"
+          "text": "เลือก **Custom** แล้วกด {{Fn}} เพื่อตั้งความแรงของแต่ละส่วน ฝุ่น แสงรั่ว และรอยขีดข่วนจะตกต่างกันไปในแต่ละรูป Light Leak เปลี่ยนเฉพาะ JPEG และไม่แสดงในภาพสด"
         }
       ]
     },
     "diffusion": {
       "title": "Diffusion",
+      "sources": [
+        "modules/diffusion/module.toml",
+        "modules/diffusion/text/en.toml"
+      ],
       "seo": "ฟิลเตอร์ฟุ้ง Black Pro-Mist และความนุ่มนวลแบบฟิล์มบน GR",
       "lead": "แสงฟุ้งนุ่มๆ แบบฟิลเตอร์ Black Pro-Mist และความนุ่มละมุนแบบสแกนฟิล์ม",
       "keywords": "diffusion filter pro mist black mist streak anamorphic softness film softness soft dreamy ฟิลเตอร์ฟุ้ง แสงฟุ้ง นุ่มละมุน ฟุ้งฝัน สแกนฟิล์ม",
@@ -1216,6 +1264,12 @@ export const th: DocsContent = {
     },
     "grain": {
       "title": "Grain",
+      "sources": [
+        "modules/grain/module.toml",
+        "modules/grain/text/en.toml",
+        "modules/grain/grain.c",
+        "CHANGELOG.md 1.10.0"
+      ],
       "seo": "เกรนฟิล์มบน RICOH GR: ความแรง ขนาด และโหมด Film-like",
       "lead": "เกรนฟิล์ม 4 ระดับความแรงและ 4 ขนาด เลือกได้ทั้งแบบที่กล้องสร้างหรือ Film-like",
       "keywords": "grain noise film-like system size strength weak medium strong extra เกรน นอยส์ ฟิล์ม ขนาด ความแรง อ่อน กลาง แรง พิเศษ",
@@ -1266,6 +1320,12 @@ export const th: DocsContent = {
     },
     "border": {
       "title": "Border",
+      "sources": [
+        "modules/border/module.toml",
+        "modules/border/text/en.toml",
+        "CHANGELOG.md 1.8.5",
+        "web/src/generated/modules.ts (DEFAULT_MODULES)"
+      ],
       "seo": "ขอบภาพสีขาว สีดำ และขอบภาพอินสแตนท์บน GR",
       "lead": "ขอบสีขาวหรือสีดำรอบทั้งภาพ ตัวภาพยังอยู่ครบทุกพิกเซล",
       "keywords": "ขอบภาพ กรอบ ขาว ดำ บาง กว้าง อินสแตนท์ โพลารอยด์ ขอบ border frame white black thin wide instant polaroid edge",
@@ -1323,6 +1383,11 @@ export const th: DocsContent = {
     },
     "mode-dial": {
       "title": "แป้นหมุนโหมดและ U1–U3",
+      "sources": [
+        "runtime/mode_dial.h",
+        "runtime/menu_dial.h",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "GRKU บนปุ่มหมุนโหมด: การตั้งค่า U1, U2, U3",
       "lead": "เปิดหรือปิด GRKU ในแต่ละตำแหน่งแป้นหมุน แล้วบันทึกทั้งลุคเก็บไว้ใน U1, U2 หรือ U3",
       "keywords": "แป้นหมุนโหมด โหมดผู้ใช้ บันทึกค่าปัจจุบัน ตำแหน่ง mode dial u1 u2 u3 user mode save current settings p av tv m sn position",
@@ -1338,13 +1403,8 @@ export const th: DocsContent = {
           ]
         },
         {
-          "kind": "screen",
-          "screen": "mode-dial",
-          "alt": "หน้า Mode Dial: เปิดหรือปิด GRKU ในแต่ละตำแหน่ง และ Save Current Settings บน U3"
-        },
-        {
           "kind": "p",
-          "text": "P, Av, Tv, M และ Sn (GR IV) ใช้การตั้งค่า GRKU ชุดเดียวกัน แต่ละตำแหน่งเลือกเปิด **On** หรือปิด **Off** GRKU ได้ โดยจะทำงานเมื่อเปิด **Enable GRKU** ไว้"
+          "text": "P, Av, Tv, M และ Sn (GR IV) ใช้ชุดการตั้งค่า GRKU อันเดียวกัน แต่ละตำแหน่งเลือกเปิด **On** หรือปิด **Off** GRKU ได้ ทำงานเมื่อเปิด **Enable GRKU** ไว้"
         },
         {
           "kind": "h2",
@@ -1369,6 +1429,11 @@ export const th: DocsContent = {
     },
     "raw": {
       "title": "การโพรเซส RAW",
+      "sources": [
+        "runtime/develop_settings.h",
+        "runtime/picture.c",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "ล้างไฟล์ GR DNG ด้วยฟิล์มลุค (การล้าง RAW ในกล้อง)",
       "lead": "GRKU ไม่เคยแก้ข้อมูลดิบ โพรเซสไฟล์ DNG ในกล้องด้วย GRKU หรือบนคอมพิวเตอร์ก็ได้",
       "keywords": "raw dng โพรเซส ในกล้อง เล่นภาพ raw dng development develop in camera playback lightroom camera raw exiftool xmp uncropped",
@@ -1398,7 +1463,7 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "รูปที่ถ่ายโดยเปิด GRKU จะบันทึกค่าต่าง ๆ ไว้ใน XMP ทำให้ exiftool และโปรแกรมอ่าน XMP ตัวอื่นแสดงค่าเหล่านี้ได้ เมื่อเปิด **Uncropped RAW** อยู่ Lightroom และ Camera Raw จะเปิดไฟล์ DNG พร้อมครอปตามช็อตที่ถ่าย และคุณยกเลิกครอปนั้นทีหลังได้"
+          "text": "รูปที่ถ่ายตอนเปิด GRKU จะบันทึกค่าต่าง ๆ ไว้ใน XMP ทำให้ exiftool และโปรแกรมอ่าน XMP ตัวอื่นแสดงค่าเหล่านี้ได้ เมื่อเปิด **Uncropped RAW** อยู่ Lightroom และ Camera Raw จะเปิดไฟล์ DNG พร้อมครอปตามช็อตที่ถ่าย และคุณยกเลิกครอปนั้นทีหลังได้"
         },
         {
           "kind": "p",
@@ -1408,6 +1473,12 @@ export const th: DocsContent = {
     },
     "settings": {
       "title": "GRKU Settings",
+      "sources": [
+        "runtime/menu_settings.h",
+        "runtime/manage.h",
+        "runtime/playback_info.h",
+        "crates/grku-core/src/menu_text.rs"
+      ],
       "seo": "GRKU Settings ใน MENU: อธิบายทุกตัวเลือก",
       "lead": "การตั้งค่าตัว GRKU เอง ใน MENU",
       "keywords": "ตั้งค่า grku เปิดตั้งแต่เริ่มใช้งาน เก็บค่าล่าสุด uncropped raw หน่วยระยะ เมตร ฟุต แบตเตอรี่ ไอคอนหน้าจอดูภาพ หน้าจอปิดเครื่อง custom picture แสดงข้อความ ลำดับ adj ซ่อน บนสุด grku settings enable at start keep last uncropped raw distance unit meters feet battery playback icons shutdown screen custom picture show text adj order hidden top",
@@ -1420,11 +1491,6 @@ export const th: DocsContent = {
             "GRKU",
             "GRKU Settings"
           ]
-        },
-        {
-          "kind": "screen",
-          "screen": "settings",
-          "alt": "หน้า GRKU Settings ใน MENU"
         },
         {
           "kind": "table",
@@ -1496,7 +1562,7 @@ export const th: DocsContent = {
             ],
             [
               "**Effect Icons in Playback**",
-              "แสดงไอคอนของ Grain, Bloom, Halation, Border และ Date Imprint รวมถึงสัดส่วนครอปของภาพในหน้าแรกของข้อมูลการดูภาพแบบละเอียด เปิดไว้เป็นค่าเริ่มต้น"
+              "แสดงไอคอนสำหรับ Grain, Bloom, Halation, Border และ Date Imprint ของภาพในหน้าแรกของข้อมูลการเล่นภาพอย่างละเอียด รวมถึงการครอปภาพ เปิดใช้งานเป็นค่าเริ่มต้น"
             ]
           ]
         },
@@ -1526,6 +1592,12 @@ export const th: DocsContent = {
     },
     "looks": {
       "title": "เลือกลุคบนเว็บ",
+      "sources": [
+        "web/src/plus.ts (FREE_SLOTS)",
+        "web/src/lookSearch.ts",
+        "web/src/strings/en.ts (importOpen, kindImported)",
+        "CHANGELOG.md 1.9.0 (xmp)"
+      ],
       "seo": "วิธีเลือกฟิล์มลุคและนำเข้า LUT หรือ Lightroom preset",
       "lead": "เลือกฟิล์มลุคให้การ์ด ค้นหาในคลัง และนำเข้า LUT ของคุณเอง",
       "keywords": "คลัง เลือกลุค ค้นหา ช่อง ฟรี 10 40 นำเข้า lut cube xmp lightroom preset ชนิด ฟิล์มเนกาทีฟ ฟิล์มสไลด์ ขาวดำ library choose looks search slots free 10 40 import lut cube xmp lightroom preset kinds negative slide black and white",
@@ -1543,7 +1615,7 @@ export const th: DocsContent = {
           "kind": "steps",
           "items": [
             "แตะฟิล์มลุคเพื่อดูตัวอย่างกับรูปตัวอย่าง",
-            "ติ๊กเลือกฟิล์มลุคที่ต้องการใส่ลงการ์ด ใช้ฟรีได้ 10 ฟิล์มลุค และการ์ดหนึ่งใส่ได้สูงสุด 40 ฟิล์มลุค",
+            "ติ๊กเลือกฟิล์มลุคที่ต้องการใส่ลงการ์ด ใช้ฟรีได้ 10 ตัว การ์ดหนึ่งใส่ได้สูงสุด 40 ตัว",
             "ค้นหาจากชื่อ ยี่ห้อ หรือประเภท เช่น \"portra\" \"fuji\" หรือ \"ขาวดำ\" พิมพ์คำยาวผิดนิดหน่อยก็ได้"
           ]
         },
@@ -1581,13 +1653,18 @@ export const th: DocsContent = {
     },
     "plus": {
       "title": "GRKU Plus",
+      "sources": [
+        "web/src/plus.ts",
+        "web/src/strings/en.ts (plus)",
+        "web/src/components/PlusSheet.tsx"
+      ],
       "seo": "GRKU Plus: ราคา การชำระเงิน และคีย์ของคุณ",
       "lead": "จ่ายครั้งเดียวสำหรับลุคบนการ์ดเพิ่มแบบไม่บังคับ ส่วน GRKU ยังใช้ฟรีได้เหมือนเดิม",
       "keywords": "plus ราคา จ่าย ซื้อ คีย์ อีเมล promptpay truemoney สล็อต แพ็ก ทั้งหมด ปลดล็อก คืนเงิน บาท pay buy key email slots pack everything unlock refund baht",
       "blocks": [
         {
           "kind": "p",
-          "text": "ทุกอย่างใน GRKU ใช้ได้ฟรี พรีวิวทุกฟิล์มลุคได้ฟรี ใส่ฟิล์มลุคจากคลังลงการ์ดได้ฟรี 10 ฟิล์มลุค และทุกโมดูล สูตรสี กับหน้า Develop ก็ฟรี GRKU Plus มีไว้สำหรับคนที่อยากใส่ฟิล์มลุคลงการ์ดเพิ่มและอยากสนับสนุนโปรเจกต์"
+          "text": "ทุกอย่างใน GRKU ใช้ได้ฟรี พรีวิวทุกฟิล์มลุคได้ฟรี ใส่ฟิล์มลุคจากคลังลงการ์ดได้ฟรี 10 ตัว และทุกโมดูล สูตรสี กับหน้า Develop ก็ฟรี GRKU Plus มีไว้สำหรับคนที่อยากใส่ฟิล์มลุคลงการ์ดเพิ่มและอยากสนับสนุนโปรเจกต์"
         },
         {
           "kind": "h2",
@@ -1633,6 +1710,12 @@ export const th: DocsContent = {
     },
     "shutdown": {
       "title": "รูปตอนปิดเครื่องและ GRKU Studio",
+      "sources": [
+        "web/src/strings/en.ts (shutdown)",
+        "web/src/shutdownDesigns.ts",
+        "CHANGELOG.md 1.9.0, 1.10.0",
+        "runtime/manage.h (Custom Picture, Show Text)"
+      ],
       "seo": "ภาพหน้าจอตอนปิดเครื่องแบบกำหนดเองสำหรับ RICOH GR (GRKU Studio)",
       "lead": "แสดงรูปของตัวเองตอนปิดกล้อง หรือออกแบบรูปใน GRKU Studio",
       "keywords": "ปิดเครื่อง หน้าจอ รูปภาพ ลาก่อน ปิดกล้อง studio ออกแบบ สติกเกอร์ เทมเพลต โลโก้ รูปกำหนดเอง shutdown screen picture goodbye power off design sticker template logo custom picture",
@@ -1684,6 +1767,12 @@ export const th: DocsContent = {
     },
     "develop": {
       "title": "หน้า Develop",
+      "sources": [
+        "web/src/components/Develop.tsx",
+        "web/src/develop/gating.ts",
+        "web/src/develop/install.ts",
+        "CHANGELOG.md 1.10.1"
+      ],
       "seo": "ฟิลเตอร์ฟิล์มออนไลน์ฟรีสำหรับรูปของคุณ (หน้า Develop)",
       "lead": "แต่งรูปที่มีอยู่แล้วให้ได้ฟิล์มลุคและเอฟเฟกต์ของ GRKU บนเบราว์เซอร์",
       "keywords": "develop แต่งรูป รูปภาพ แก้ไข เบราว์เซอร์ ออนไลน์ ฟิลเตอร์ ลองใช้ พรีวิว ดาวน์โหลด ไม่ใช้กล้อง มือถือ edit photo browser online filter try preview download no camera phone",
@@ -1697,7 +1786,7 @@ export const th: DocsContent = {
           "items": [
             "เปิด[หน้า Develop](site:develop) แล้วเพิ่มรูป",
             "เลือกฟิล์มลุค แล้วเพิ่มเอฟเฟกต์ Glow, Light Leak, Diffusion, Film Softness, Grain, Date Imprint และ Border",
-            "บันทึกรูป หรือกด **เพิ่มลงใน GR ของฉัน** หน้าติดตั้งจะเปิดขึ้นมาพร้อมฟิล์มลุคและโมดูลที่เลือกไว้ คุณตั้งความแรงของแต่ละเอฟเฟกต์บนกล้องได้เอง"
+            "บันทึกรูป หรือกด **Put on my GR** หน้าติดตั้งจะเปิดขึ้นมาพร้อมฟิล์มลุคและโมดูลที่เลือกไว้ คุณตั้งความแรงของแต่ละเอฟเฟกต์บนกล้องได้เอง"
           ]
         },
         {
@@ -1708,6 +1797,11 @@ export const th: DocsContent = {
     },
     "assistant": {
       "title": "ผู้ช่วย AI",
+      "sources": [
+        "web/src/chat/strings.ts",
+        "web/src/components/ChatPanel.tsx",
+        "services/plus/src/chat/index.ts"
+      ],
       "seo": "ผู้ช่วย AI ของ GRKU: ถามเรื่องกล้อง GR และฟิล์มลุคได้",
       "lead": "ถามผู้ช่วย GRKU เรื่องการติดตั้ง กล้องของคุณ หรือฟิล์มลุคที่เหมาะกับรูปของคุณ",
       "keywords": "ผู้ช่วย ai แชท ถามคำถาม ช่วยเหลือ บอท มาสคอต ความจำ ai assistant chat ask question help bot mascot memory",
@@ -1751,8 +1845,13 @@ export const th: DocsContent = {
     },
     "not-showing": {
       "title": "GRKU ไม่ขึ้น",
+      "sources": [
+        "docs/diagnostics.md",
+        "resources/INSTALLATION-GR4.md (Troubleshooting)",
+        "web/src/strings/en.ts (faq adj)"
+      ],
       "seo": "GRKU ไม่ขึ้นบนกล้อง: วิธีแก้ไข",
-      "lead": "ตรวจเช็กตามลำดับนี้ทีละข้อ",
+      "lead": "เช็กตามลำดับนี้ ทีละข้อ",
       "keywords": "ไม่ขึ้น ใช้งานไม่ได้ หาย adj ไม่มี grku เออเรอร์ ติดตั้ง รายงาน บูต เฟิร์มแวร์ โหมด not showing not working missing adj no grku error install.err report boot.txt 47 48 firmware mode set",
       "blocks": [
         {
@@ -1778,7 +1877,7 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "ถ้า GRKU หยุดทำงาน บนการ์ดอาจมีไฟล์ `SCRIPT/GRKU/INSTALL.ERR` พร้อมตัวเลข"
+          "text": "ถ้า GRKU หยุดทำงาน บนการ์ดอาจมี `SCRIPT/GRKU/INSTALL.ERR` พร้อมตัวเลข"
         },
         {
           "kind": "table",
@@ -1815,7 +1914,7 @@ export const th: DocsContent = {
             ],
             [
               "56",
-              "โมดูลสำหรับภาพสีถูกตัดออกบน GR IV Monochrome ซึ่งเป็นเรื่องปกติ",
+              "ไม่มีโมดูลภาพสีบน GR IV Monochrome ซึ่งเป็นเรื่องปกติ",
               "ไม่มีอะไร"
             ],
             [
@@ -1832,7 +1931,7 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "อีเมลไปที่ [support@grku.app](support) พร้อมระบุรุ่นกล้องและเวอร์ชันเฟิร์มแวร์ของคุณ แล้วแนบไฟล์เหล่านี้จากการ์ดมาด้วย ไฟล์เหล่านี้ไม่มีรูปภาพ แต่อาจมีชื่อสูตรสีและฟิล์มลุคที่คุณนำเข้าไว้ เปิดดูก่อนได้ถ้าต้องการ"
+          "text": "ส่งอีเมลไปที่ [support@grku.app](support) แจ้งรุ่นกล้องและเวอร์ชันเฟิร์มแวร์ แล้วแนบไฟล์เหล่านี้จากการ์ดมาด้วย ไฟล์พวกนี้ไม่มีรูปภาพ แต่อาจมีชื่อสูตรสีและฟิล์มลุคที่นำเข้าไว้ เปิดดูก่อนได้ถ้าอยากดู"
         },
         {
           "kind": "files",
@@ -1855,6 +1954,9 @@ export const th: DocsContent = {
     },
     "stuck": {
       "title": "กล้องค้างตอนเปิดเครื่อง",
+      "sources": [
+        "resources/RECOVERY.md"
+      ],
       "seo": "RICOH GR ค้างตอนเปิดเครื่อง: วิธีแก้ปัญหา",
       "lead": "GRKU เปลี่ยนแปลงการทำงานของกล้องเฉพาะตอนที่เปิดอยู่เท่านั้น ลองเปิดกล้องโดยไม่ใส่การ์ด",
       "keywords": "ค้าง แข็ง เปิดไม่ติด จอดำ กู้คืน รีเซ็ต แบตเตอรี่ stuck freeze hang frozen not start black screen brick recover recovery reset battery",
@@ -1900,6 +2002,11 @@ export const th: DocsContent = {
     },
     "faq": {
       "title": "คำถามที่พบบ่อย",
+      "sources": [
+        "web/src/strings/en.ts (faq)",
+        "runtime/mode_dial.h",
+        "resources/INSTALLATION-GR4.md"
+      ],
       "seo": "คำถามและคำตอบเกี่ยวกับ GRKU",
       "lead": "คำตอบสั้นๆ สำหรับเรื่องที่คนถามบ่อยที่สุด",
       "keywords": "faq คำถาม ทำไม รูปแรก ไม่มี ฟิล์มลุค สูตรสี กล่อง เรียกคืน ฟอร์แมต โทรศัพท์ นำเข้า gr โลก ปลอดภัย ประกัน question why first photos no look box recall format phone import gr world safe warranty",
@@ -1938,7 +2045,7 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "ไม่ GRKU โหลดจากการ์ดตอนที่กล้องเปิดอยู่ ส่วน SD scripts ซึ่งเป็นค่าในกล้อง จะเปิดอยู่จนกว่าคุณจะ [ปิด](doc:update#scripts-off) และ **Save Current Settings** ก็บันทึกลงในโหมดผู้ใช้ของกล้องด้วย"
+          "text": "ไม่ GRKU โหลดจากการ์ดตอนที่กล้องเปิดอยู่ SD scripts ซึ่งเป็นค่าในกล้อง จะเปิดอยู่จนกว่าคุณจะ [ปิดมัน](doc:update#scripts-off) **Save Current Settings** ก็บันทึกลงในโหมดผู้ใช้ของกล้องด้วย"
         },
         {
           "kind": "h2",
@@ -1965,7 +2072,7 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "การติดตั้ง GRKU ไม่เปลี่ยนรูปในโฟลเดอร์ `DCIM` ลองอัปเดต GR WORLD เป็นเวอร์ชันล่าสุด ถ้ายังไม่ได้ผล ให้ [ส่งอีเมลหาฝ่ายช่วยเหลือ](support)"
+          "text": "การติดตั้ง GRKU ไม่เปลี่ยนรูปในโฟลเดอร์ `DCIM` อัปเดต GR WORLD ให้เป็นเวอร์ชันล่าสุด ถ้ายังไม่ได้ผล ให้ [ส่งอีเมลหาฝ่ายช่วยเหลือ](support)"
         },
         {
           "kind": "h2",
@@ -1980,6 +2087,11 @@ export const th: DocsContent = {
     },
     "cameras": {
       "title": "กล้องที่รองรับ",
+      "sources": [
+        "web/src/cameras.ts",
+        "web/src/generated/cameras.ts",
+        "web/src/package.ts"
+      ],
       "seo": "GRKU รองรับกล้อง RICOH GR และเฟิร์มแวร์รุ่นไหนบ้าง",
       "lead": "GRKU ทำงานบนกล้องและเฟิร์มแวร์เหล่านี้ร่วมกับเฟิร์มแวร์ทางการของ RICOH",
       "keywords": "กล้อง ที่รองรับ เฟิร์มแวร์ เวอร์ชัน cameras supported firmware version gr iii iiix iv hdf monochrome modeset dump",
@@ -1989,11 +2101,11 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "เปิด **MENU** บนกล้องเพื่อดูเวอร์ชันเฟิร์มแวร์: ดูที่ [ตรวจดูเวอร์ชันเฟิร์มแวร์ของคุณ](doc:firmware) รุ่น GR รุ่นก่อนหน้าและกล้องอื่นๆ ไม่รองรับ GR IV Monochrome มีทุกโมดูลยกเว้นฟิล์มลุค"
+          "text": "เปิด **MENU** บนกล้องเพื่อดูเวอร์ชันเฟิร์มแวร์ ดูได้ที่ [ตรวจดูเวอร์ชันเฟิร์มแวร์ของคุณ](doc:firmware) รุ่น GR ก่อนหน้านี้และกล้องอื่นไม่รองรับ GR IV Monochrome มีทุกโมดูลยกเว้นฟิล์มลุค"
         },
         {
           "kind": "p",
-          "text": "กล้อง GR IV 30th Anniversary Edition มาพร้อมเฟิร์มแวร์ 1.20 จากโรงงาน ซึ่ง grku.app ยังไม่มีให้โหลด ให้อัปเดตกล้องรุ่นนี้เป็น 1.21 จาก RICOH ก่อน"
+          "text": "กล้อง GR IV 30th Anniversary Edition มาพร้อมเฟิร์มแวร์ 1.20 จากโรงงานซึ่ง grku.app ยังไม่รองรับ ให้อัปเดตกล้องรุ่นนี้เป็น 1.21 จาก RICOH ก่อน"
         },
         {
           "kind": "h2",

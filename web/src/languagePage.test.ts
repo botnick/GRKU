@@ -193,6 +193,12 @@ describe('edge worker', () => {
     expect(response.headers.get('Vary')).toBe('Accept-Language, Cookie, User-Agent');
   });
 
+  it('serves the Thai page itself to the head of the app after a move', async () => {
+    vi.stubGlobal('__SITE_HEADERS__', {});
+    const response = await edge.fetch(request('/docs/firmware/', { 'Accept-Language': 'en-US', 'X-GRKU-Head': '1' }, 'US'), { ASSETS: assets });
+    expect(response.status).toBe(200);
+  });
+
   it('serves the Thai pages to search engines, which crawl from abroad', async () => {
     vi.stubGlobal('__SITE_HEADERS__', {});
     // Googlebot crawls from the US without a language.

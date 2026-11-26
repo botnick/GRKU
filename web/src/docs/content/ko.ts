@@ -90,6 +90,12 @@ export const ko: DocsContent = {
   "pages": {
     "start": {
       "title": "GRKU 소개",
+      "sources": [
+        "web/src/plus.ts",
+        "web/src/generated/modules.ts",
+        "web/src/strings/en.ts (faq)",
+        "resources/TERMS.md"
+      ],
       "seo": "GRKU란 무엇인가요? RICOH GR III, IIIx, IV를 위한 무료 필름 룩",
       "lead": "GRKU는 SD 카드에서 RICOH GR에 필름 룩과 사진 효과를 추가합니다.",
       "keywords": "소개 입문 개요 시작 초보자 무료 안전 펌웨어 about introduction overview begin beginner free safe firmware",
@@ -136,7 +142,7 @@ export const ko: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "모든 룩은 사이트에서 무료로 미리 볼 수 있고, 라이브러리 룩 10개를 카드에 무료로 넣을 수 있습니다. 직접 가져온 룩은 개수에 포함되지 않습니다. 모든 모듈과 레시피, Develop 페이지는 무료입니다. [GRKU Plus](doc:plus)는 카드에 더 많은 룩을 넣기 위한 선택형 일회성 결제입니다."
+          "text": "모든 룩은 사이트에서 무료로 미리 볼 수 있고, 라이브러리 룩 10개를 카드에 무료로 넣을 수 있습니다. 직접 가져온 룩은 개수에 포함되지 않습니다. 모든 모듈과 레시피, Develop 페이지는 무료입니다. [GRKU Plus](doc:plus)는 카드에 더 많은 룩을 담기 위한 선택형 일회성 결제입니다."
         },
         {
           "kind": "h2",
@@ -149,7 +155,7 @@ export const ko: DocsContent = {
             "**SD card**: 카메라가 사진을 저장하는 작은 메모리 카드입니다.",
             "**Card reader**: 컴퓨터가 SD 카드를 열 수 있게 해 주는 작은 장치입니다.",
             "**ZIP file**: 여러 파일을 하나로 묶은 파일입니다. 열어서 안에 있는 파일을 꺼냅니다.",
-            "**Firmware**: RICOH에서 만든 카메라 안의 소프트웨어입니다. GRKU는 이를 절대 바꾸지 않습니다.",
+            "**Firmware**: RICOH에서 만든 카메라 안의 소프트웨어입니다. GRKU는 펌웨어를 절대 바꾸지 않습니다.",
             "**SD scripts**: 카메라가 카드에서 GRKU를 실행하게 해 주는 설정입니다. 한 번만 켜면 됩니다.",
             "**ModeSet file**: SD scripts를 켜는 파일입니다. 이름은 `00078560.636` 같은 숫자입니다.",
             "**ADJ lever**: GR 뒷면 화면 옆에 있는 작은 레버입니다."
@@ -159,12 +165,22 @@ export const ko: DocsContent = {
           "kind": "note",
           "tone": "warning",
           "title": "실험적 기능",
-          "text": "GRKU는 보증이 없는 실험용 소프트웨어입니다. 오류가 나면 카메라가 켜지다 멈출 수 있습니다. 설치하기 전에 [카메라가 켜지다 멈출 때](doc:stuck)를 읽어 보세요."
+          "text": "GRKU는 보증이 없는 실험용 소프트웨어입니다. 오류가 나면 카메라가 켜지다 멈출 수 있습니다. 설치하기 전에 [카메라가 켜지다 멈출 때](doc:stuck)를 먼저 읽어 주세요."
         }
       ]
     },
     "firmware": {
       "title": "펌웨어 버전 확인",
+      "sources": [
+        "crates/grku-core/src/camera.rs",
+        "web/src/generated/cameras.ts",
+        "web/src/package.ts (gr4-1.20-0528 not published)",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr3_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr3x_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr4_s.html",
+        "https://www.ricoh-imaging.co.jp/english/support/digital/gr-4-mono_s.html",
+        "web/src/chat/knowledge.ts (firmware update screen)"
+      ],
       "seo": "RICOH GR III, GR IIIx 또는 GR IV의 펌웨어 버전을 확인하는 방법",
       "lead": "MENU를 누르고 설정 메뉴(스패너 아이콘)를 여세요. GRKU는 이 페이지의 표에 나온 펌웨어 버전에서만 작동합니다.",
       "keywords": "펌웨어 버전 확인 메뉴 설정 스패너 이 기기 정보 펌웨어 정보 카메라 정보 업데이트 ricoh 이전 버전 최신 버전 fwdc bin firmware version check menu setup wrench about this device firmware info camera information update ricoh older newer fwdc bin",
@@ -189,22 +205,13 @@ export const ko: DocsContent = {
           ]
         },
         {
-          "kind": "camera",
-          "screen": "loaded",
-          "press": [
-            "menu"
-          ],
-          "alt": "카메라 뒷면의 MENU 버튼을 누릅니다."
-        },
-        {
-          "kind": "screen",
-          "screen": "setup-gr3",
-          "alt": "GR III 및 GR IIIx: (1) 스패너 아이콘이 있는 설정 메뉴, (2) About This Device."
-        },
-        {
-          "kind": "screen",
-          "screen": "info-gr3",
-          "alt": "GR III 및 GR IIIx: (3) Firmware Info / 옵션 화면의 펌웨어 버전."
+          "kind": "path",
+          "items": [
+            "MENU",
+            "Setup",
+            "About This Device",
+            "Firmware Info / Options"
+          ]
         },
         {
           "kind": "h2",
@@ -222,20 +229,12 @@ export const ko: DocsContent = {
           ]
         },
         {
-          "kind": "screen",
-          "screen": "setup-gr4",
-          "alt": "GR IV: (1) 스패너 아이콘이 있는 설정 메뉴, (2) Camera Information."
-        },
-        {
-          "kind": "screen",
-          "screen": "info-gr4",
-          "alt": "GR IV: (3) Camera Information 화면의 펌웨어 버전."
-        },
-        {
-          "kind": "note",
-          "tone": "plain",
-          "title": "알아두면 좋은 점",
-          "text": "이 사진에서 나머지 메뉴 항목은 회색으로 표시됩니다. 항목 이름은 기종과 펌웨어에 따라 다릅니다."
+          "kind": "path",
+          "items": [
+            "MENU",
+            "Setup",
+            "Camera Information"
+          ]
         },
         {
           "kind": "p",
@@ -265,7 +264,7 @@ export const ko: DocsContent = {
         {
           "kind": "h2",
           "id": "newer",
-          "text": "내 버전이 표보다 더 최신인 경우"
+          "text": "내 버전이 표에 있는 것보다 최신인 경우"
         },
         {
           "kind": "p",
@@ -275,12 +274,21 @@ export const ko: DocsContent = {
           "kind": "note",
           "tone": "warning",
           "title": "처음 켤 때 펌웨어 업데이트 화면이 뜨나요?",
-          "text": "카드에 RICOH 펌웨어 파일(이름이 `fwdc`로 시작하는 `.bin` 파일)이 있으면 전원을 켤 때 {{MENU}} 버튼을 누르고 있으면 펌웨어 업데이트 화면이 나타납니다. **Cancel**을 선택하세요. 그런 다음 카드에서 그 파일을 지우고 다시 시도하세요."
+          "text": "카드에 RICOH 펌웨어 파일(이름이 `fwdc`로 시작하는 `.bin` 파일)이 있으면, 전원을 켤 때 {{MENU}} 버튼을 길게 누르면 펌웨어 업데이트 화면이 나타납니다. **Cancel**을 선택하세요. 그런 다음 카드에서 그 파일을 지우고 다시 시도하세요."
         }
       ]
     },
     "install": {
       "title": "GRKU 설치",
+      "sources": [
+        "resources/INSTALLATION-GR4.md",
+        "web/src/guide.ts",
+        "web/src/strings/en.ts (cardConnect, cardApplyInstall, download)",
+        "crates/grku-core/src/runtime/files.rs",
+        "resources/images/modeset.png",
+        "resources/images/camera-menu.png",
+        "resources/images/grku-root.jpg"
+      ],
       "seo": "RICOH GR III, GR IIIx 또는 GR IV에 GRKU를 설치하는 방법",
       "lead": "GRKU를 SD 카드에 기록한 다음 카메라에서 SD 스크립트를 한 번 켜세요.",
       "keywords": "설정 설치 sd 카드 chrome edge zip sd_root modeset mode set command menu first start",
@@ -312,7 +320,7 @@ export const ko: DocsContent = {
           "kind": "note",
           "tone": "tip",
           "title": "이렇게 보이지 않는다면",
-          "text": "**SD 카드 연결** 버튼이 없나요? 컴퓨터의 Chrome이나 Edge에서 페이지를 여세요. 휴대폰이나 Safari에서는 아래 GRKU.zip을 이용하세요."
+          "text": "**SD 카드 연결** 버튼이 없나요? 컴퓨터에서 Chrome이나 Edge로 페이지를 여세요. 휴대폰이나 Safari에서는 아래 GRKU.zip을 쓰세요."
         },
         {
           "kind": "h2",
@@ -321,7 +329,7 @@ export const ko: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "모든 브라우저에서 되고, 스마트폰이나 Safari를 쓰는 Mac에서도 쓸 수 있습니다."
+          "text": "모든 브라우저에서 작동하며, 스마트폰이나 Safari를 쓰는 Mac에서도 사용할 수 있습니다."
         },
         {
           "kind": "steps",
@@ -350,11 +358,11 @@ export const ko: DocsContent = {
             ],
             [
               "GRKU",
-              "내 설정과 필름 룩입니다. 사이트나 카메라에서 만듭니다."
+              "설정과 필름 룩입니다. 사이트나 카메라에서 만듭니다."
             ],
             [
               "DCIM",
-              "사진들입니다. GRKU를 설치해도 그대로 남습니다."
+              "내 사진입니다. GRKU를 설치해도 그대로 남습니다."
             ]
           ]
         },
@@ -373,16 +381,12 @@ export const ko: DocsContent = {
             "카메라 전원을 끄고 카드를 넣으세요.",
             "{{MENU}} 버튼을 누른 상태에서 전원 버튼을 누르세요.",
             "화면에 **모드 Set Command**, 이어서 **Script - 사용**과 **Complete**가 나타납니다. 카메라가 스스로 꺼집니다.",
-            "평소처럼 카메라를 켜세요. 화면 위에 **GRKU**가 뜰 때까지 기다리세요. 약 8~10초가 걸리며, GR IV나 설치 후 첫 실행에는 더 오래 걸립니다."
+            "평소처럼 카메라를 켜세요. 화면 위에 **GRKU**가 뜰 때까지 기다리세요. 약 8~10초가 걸리고, GR IV나 설치 후 첫 실행 때는 더 오래 걸립니다."
           ]
         },
         {
-          "kind": "camera",
-          "screen": "modeset",
-          "press": [
-            "menu",
-            "power"
-          ],
+          "kind": "screen",
+          "screen": "modeset-back",
           "alt": "MENU를 누른 상태에서 전원 버튼을 누르세요. 화면에 Mode Set Command가 표시됩니다."
         },
         {
@@ -394,13 +398,13 @@ export const ko: DocsContent = {
           "kind": "note",
           "tone": "tip",
           "title": "이렇게 보이지 않는다면",
-          "text": "**Mode Set Command** 화면이 없나요? 카메라를 끄세요. {{MENU}}를 먼저 길게 누른 다음 전원 버튼을 누르고, 화면이 뜰 때까지 {{MENU}}를 계속 누르세요. `DEVELOP.MOD`와 ModeSet 파일이 폴더 안이 아니라 카드 최상위에 있는지 확인하세요."
+          "text": "**Mode Set Command** 화면이 없나요? 카메라를 끄세요. {{MENU}}를 먼저 길게 누른 다음 전원 버튼을 누르고, 화면이 뜰 때까지 {{MENU}}를 계속 누르세요. `DEVELOP.MOD`와 ModeSet 파일이 폴더 안이 아니라 카드 맨 위에 있는지 확인하세요."
         },
         {
           "kind": "note",
           "tone": "warning",
           "title": "펌웨어 업데이트 화면이 뜨나요?",
-          "text": "카드에 RICOH 펌웨어 파일(이름이 `fwdc`로 시작하는 `.bin` 파일)이 있습니다. **취소**를 선택하고, 절대 실행하지 마세요. 카메라를 끄고 카드 최상위에서 해당 파일을 지운 뒤 이 단계를 다시 하세요."
+          "text": "카드에 RICOH 펌웨어 파일(이름이 `fwdc`로 시작하는 `.bin` 파일)이 있습니다. **취소**를 고르고 절대 실행하지 마세요. 카메라를 끄고 카드 맨 위에서 그 파일을 지운 뒤 이 단계를 다시 하세요."
         },
         {
           "kind": "p",
@@ -429,7 +433,7 @@ export const ko: DocsContent = {
         {
           "kind": "screen",
           "screen": "adj",
-          "alt": "GRKU에서 모듈 아이콘과 함께 ADJ가 열린 화면입니다. 화면 왼쪽 상단에는 GRKU와 현재 사용 중인 룩이 표시됩니다."
+          "alt": "GRKU에서 모듈 아이콘과 함께 ADJ가 열린 화면. 왼쪽 위에 GRKU와 필름 룩: 꺼짐이 보입니다."
         },
         {
           "kind": "p",
@@ -439,6 +443,13 @@ export const ko: DocsContent = {
     },
     "controls": {
       "title": "ADJ와 MENU",
+      "sources": [
+        "runtime/menu.c",
+        "runtime/manage.h",
+        "runtime/menu_listed.h",
+        "crates/grku-core/src/menu_text.rs",
+        "resources/images/grku-menu.jpg"
+      ],
       "seo": "GR에서 GRKU 사용 방법: ADJ 레버와 MENU",
       "lead": "카메라에서 GRKU가 있는 위치와 각 버튼의 기능입니다.",
       "keywords": "adj lever menu customize fn ok button options order enable grku about version navigate adj 레버 메뉴 사용자 지정 fn ok 버튼 옵션 순서 활성화 grku 정보 버전 탐색",
@@ -461,7 +472,7 @@ export const ko: DocsContent = {
           "rows": [
             [
               "{{ADJ}}",
-              "ADJ를 엽니다. GRKU에서 닫았다면 전원을 껐다 켜도 그 화면이 다시 열립니다."
+              "ADJ를 엽니다. GRKU에서 닫았다면 전원을 껐다 켜도 거기서 다시 열립니다."
             ],
             [
               "위, 아래",
@@ -473,7 +484,7 @@ export const ko: DocsContent = {
             ],
             [
               "{{Fn}}",
-              "선택한 항목의 추가 동작을 합니다. 모듈의 세부 설정, 황금나선의 다음 모서리, 레시피 이름 변경과 삭제를 할 수 있습니다."
+              "그 줄의 추가 동작을 합니다. 모듈 세부 설정, 황금나선 다음 모서리, 레시피 이름 변경과 삭제가 있습니다."
             ],
             [
               "{{MENU}}",
@@ -483,7 +494,7 @@ export const ko: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "모듈 목록 아래에 있는 **사용** 항목으로 GRKU를 켜거나 끕니다. 켜짐으로 하면 켜 둔 모듈들이 다시 실행됩니다."
+          "text": "모듈 뒤에 있는 **사용** 항목으로 GRKU를 켜거나 끕니다. 켜기로 하면 켜 둔 모듈들이 다시 시작합니다."
         },
         {
           "kind": "h2",
@@ -511,7 +522,7 @@ export const ko: DocsContent = {
           "rows": [
             [
               "**GRKU 사용**",
-              "GRKU를 켜거나 끕니다. 켜짐으로 하면 켜 둔 모듈들이 다시 실행됩니다."
+              "GRKU를 켜거나 끕니다. 켜기로 하면 켜 둔 모듈들이 다시 시작합니다."
             ],
             [
               "**GRKU 설정**",
@@ -565,6 +576,10 @@ export const ko: DocsContent = {
     },
     "update": {
       "title": "업데이트 또는 제거",
+      "sources": [
+        "resources/INSTALLATION-GR4.md",
+        "web/src/strings/en.ts (updateSteps, removeSteps, uninstall*, scriptsOff*)"
+      ],
       "seo": "GRKU 업데이트 또는 제거 방법 및 SD 스크립트 끄기",
       "lead": "업데이트해도 설정과 필름 룩이 유지됩니다. MENU를 다시 길게 누를 필요가 없습니다.",
       "keywords": "업데이트 업그레이드 새 버전 제거 삭제 sd 스크립트 끄기 카드 포맷 백업 update upgrade new version uninstall remove delete sd scripts off format card backup",
@@ -639,6 +654,12 @@ export const ko: DocsContent = {
     },
     "film-look": {
       "title": "필름 룩",
+      "sources": [
+        "modules/film-look/module.toml",
+        "runtime/menu_listed.h",
+        "crates/grku-core/src/menu_text.rs (film, adjustments)",
+        "CHANGELOG.md"
+      ],
       "seo": "RICOH GR의 필름 룩: 필름 룩 사용 방법",
       "lead": "실제 필름의 필름 룩을 실시간 미리보기와 함께 Image Control 대신 사용합니다.",
       "keywords": "필름 룩 효과 이미지 컨트롤 LUT 포트라 클래식 크롬 코닥 후지 후지필름 파인픽스 포지티브 미리보기 Fn 파라미터 필름 스톡 film look effect image control lut portra classic chrome kodak fuji fujifilm finepix positive preview fn parameters film stock",
@@ -661,8 +682,8 @@ export const ko: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "film-look",
-          "alt": "ADJ의 필름 룩 화면: 카드에 있는 룩의 필름 박스가 보이고 Kodak Portra 400이 강조되어 있습니다."
+          "screen": "adj",
+          "alt": "ADJ 메뉴의 GRKU 화면: 첫 번째 모듈이 필름 룩이고 화면에 Film Look: 꺼짐이 표시됩니다."
         },
         {
           "kind": "h2",
@@ -731,6 +752,12 @@ export const ko: DocsContent = {
     },
     "recipes": {
       "title": "레시피",
+      "sources": [
+        "modules/recipes/module.toml",
+        "runtime/recipe_page.h",
+        "crates/grku-core/src/menu_text.rs (recipe_*)",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "GR 필름 레시피: 한 단계로 설정 저장 및 전환",
       "lead": "카메라 설정과 함께 룩 전체를 저장하고 한 번에 전환합니다.",
       "keywords": "레시피 สูตรสี 프리셋 저장 설정 실행 취소 이름 변경 삭제 적용 보기 화이트 밸런스 노출 recipe preset save settings undo rename delete apply view white balance exposure",
@@ -746,11 +773,6 @@ export const ko: DocsContent = {
             "GRKU",
             "레시피"
           ]
-        },
-        {
-          "kind": "screen",
-          "screen": "recipes",
-          "alt": "ADJ의 **레시피**: **실행 취소**, 내 레시피, **설정 저장**."
         },
         {
           "kind": "h2",
@@ -806,6 +828,10 @@ export const ko: DocsContent = {
     },
     "framing": {
       "title": "프레이밍",
+      "sources": [
+        "modules/framing/module.toml",
+        "modules/framing/text/en.toml"
+      ],
       "seo": "RICOH GR의 XPan 및 기타 화면 비율(프레이밍)",
       "lead": "XPan, 2.35:1, 16:9, 1:1 등 다른 화상비율로 촬영하세요.",
       "keywords": "프레이밍 화상비율 파노라마 프레임 라인 가이드 크롭 framing aspect ratio xpan panorama 65:24 16:9 4:3 2.35:1 1:1 5:4 7:6 3:4 mask frame lines guides only crop",
@@ -866,6 +892,11 @@ export const ko: DocsContent = {
     },
     "crop": {
       "title": "크롭",
+      "sources": [
+        "modules/crop/module.toml",
+        "modules/crop/text/en.toml",
+        "runtime/modules.h (GR IIIx focal lengths)"
+      ],
       "seo": "RICOH GR의 35, 50, 70mm 크롭(크롭)",
       "lead": "라이브 뷰에 프레임을 띄운 채 디지털 텔레컨버터처럼 더 긴 초점 거리로 촬영하세요.",
       "keywords": "크롭 초점 거리 35mm 40mm 50mm 70mm 57mm 71mm 100mm 줌 텔레 프레임 마스크 무크롭 RAW crop focal length 35mm 40mm 50mm 70mm 57mm 71mm 100mm zoom tele frame only mask uncropped raw",
@@ -892,7 +923,7 @@ export const ko: DocsContent = {
           "rows": [
             [
               "**초점 거리**",
-              "**꺼짐**, 35, 40, 50, 또는 70 mm. GR IIIx에서는 **꺼짐**, 50, 57, 71, 또는 100 mm."
+              "**꺼짐**, 35, 40, 50 또는 70 mm. GR IIIx에서는 **꺼짐**, 50, 57, 71 또는 100 mm."
             ],
             [
               "**모드**",
@@ -918,6 +949,10 @@ export const ko: DocsContent = {
     },
     "guides": {
       "title": "구도 가이드",
+      "sources": [
+        "modules/guides/module.toml",
+        "modules/guides/text/en.toml"
+      ],
       "seo": "GR의 구도 가이드: 삼분할, 황금비, 나선",
       "lead": "화면의 구도 선입니다. 사진에는 나타나지 않습니다.",
       "keywords": "구도 가이드 격자 선 9분할 중앙 황금비 대각선 황금 나선 동적 대칭 구도 표시 불투명도 색상 guides grid lines thirds center golden ratio diagonals golden spiral dynamic symmetry composition disp opacity color",
@@ -972,6 +1007,11 @@ export const ko: DocsContent = {
     },
     "date": {
       "title": "날짜 각인",
+      "sources": [
+        "modules/date/module.toml",
+        "modules/date/text/en.toml",
+        "CHANGELOG.md 1.9.0, 1.10.0"
+      ],
       "seo": "RICOH GR 사진의 날짜 스탬프(날짜 각인)",
       "lead": "필름 카메라처럼 사진에 날짜를 인쇄합니다. 세 가지 글꼴과 다섯 가지 색상을 지원하며 캡션을 넣을 수 있습니다.",
       "keywords": "날짜 각인 스탬프 시간 글꼴 클래식 gr1s gr ii 색상 주황 크기 위치 모서리 캡션 고마워요 생일 축하 grku 글로우 date imprint stamp time font classic gr1s gr ii color orange size position corner caption thank you happy birthday grku glow",
@@ -1022,11 +1062,11 @@ export const ko: DocsContent = {
             ],
             [
               "**날짜 색상**",
-              "표준(기본값): 글자 색으로, 클래식과 GR II는 주황색, GR1s는 노란색이며 흑백 사진에서는 흰색입니다. 아니면 주황색, 흰색, 세피아, LED 노랑을 씁니다."
+              "표준(기본값): 글자 색으로, 클래식과 GR II는 주황색, GR1s는 노란색이며 흑백 사진에서는 흰색입니다. 주황색, 흰색, 세피아, LED 노랑 중에서도 고를 수 있습니다."
             ],
             [
               "**날짜 빛 번짐**",
-              "꺼짐(기본값) 또는 켜짐: 숫자 주위로 빛이 은은하게 번집니다. GR II는 빛 번짐 없이 납작한 숫자로 찍힙니다."
+              "꺼짐(기본값) 또는 켜짐: 숫자 주위로 빛이 은은하게 번집니다. GR II는 빛 번짐 없이 평평한 숫자로 찍힙니다."
             ],
             [
               "**캡션**",
@@ -1042,16 +1082,15 @@ export const ko: DocsContent = {
           "kind": "photo",
           "photo": "neg-gr1s",
           "alt": "검은색 테두리와 GR1s 글꼴의 날짜가 적용된 클래식 네그."
-        },
-        {
-          "kind": "screen",
-          "screen": "date",
-          "alt": "설정 항목이 있는 MENU의 날짜 각인 페이지."
         }
       ]
     },
     "glow": {
       "title": "글로우",
+      "sources": [
+        "modules/glow/module.toml",
+        "modules/glow/text/en.toml"
+      ],
       "seo": "RICOH GR의 블룸 및 할레이션(글로우)",
       "lead": "빛과 하이라이트 주변의 블룸과 영화 필름 특유의 붉은 주황빛 헐레이션 효과입니다.",
       "keywords": "글로우 블룸 헐레이션 시네스틸 레드 오렌지 골드 화이트 하이라이트 빛 야경 glow bloom halation cinestill red orange gold white highlights lights night",
@@ -1108,6 +1147,11 @@ export const ko: DocsContent = {
     },
     "light-leak": {
       "title": "라이트 리크",
+      "sources": [
+        "modules/lightleak/module.toml",
+        "modules/lightleak/text/en.toml",
+        "modules/lightleak/lightleak.c"
+      ],
       "seo": "GR의 빛샘, 먼지, 비네트 효과",
       "lead": "오래된 필름의 흔적이에요: 비네트, 먼지와 머리카락, 빛샘, 스크래치.",
       "keywords": "라이트 리크 빛샘 비네팅 먼지 머리카락 스크래치 바랜 먼지 많은 빛샘 유통기한 지난 오래된 필름 로모 레트로 light leak vignette dust scratches faded dusty leaky expired old film lomo retro",
@@ -1134,7 +1178,7 @@ export const ko: DocsContent = {
           "rows": [
             [
               "**룩**",
-              "**꺼짐**, **커스텀**, **빛바램**, **먼지**, **빛샘**, **만료**. **커스텀**은 아래에서 내가 정한 강도를 사용해요. 나머지는 미리 만들어진 조합이에요."
+              "**꺼짐**, **커스텀**, **빛바램**, **먼지**, **빛샘**, **만료**. **커스텀**은 아래에서 내가 정한 강도를 써요. 나머지는 미리 만들어진 조합이에요."
             ],
             [
               "**비네팅**",
@@ -1162,6 +1206,10 @@ export const ko: DocsContent = {
     },
     "diffusion": {
       "title": "디퓨전",
+      "sources": [
+        "modules/diffusion/module.toml",
+        "modules/diffusion/text/en.toml"
+      ],
       "seo": "GR의 블랙 프로미스트 디퓨전과 필름 감성",
       "lead": "블랙 프로미스트 필터의 부드러운 빛 번짐과 필름 스캔의 은은한 부드러움을 더합니다.",
       "keywords": "디퓨전 필터 프로미스트 블랙미스트 스트릭 아나모픽 부드러움 필름 부드러움 소프트 몽환적 diffusion filter pro mist black mist streak anamorphic softness film softness soft dreamy",
@@ -1216,6 +1264,12 @@ export const ko: DocsContent = {
     },
     "grain": {
       "title": "입자감",
+      "sources": [
+        "modules/grain/module.toml",
+        "modules/grain/text/en.toml",
+        "modules/grain/grain.c",
+        "CHANGELOG.md 1.10.0"
+      ],
       "seo": "RICOH GR의 필름 입자감: 강도, 크기, 필름 느낌",
       "lead": "카메라 방식 또는 필름 느낌의 필름 입자감을 4단계 강도와 4단계 크기로 조절합니다.",
       "keywords": "입자감 노이즈 필름 느낌 시스템 크기 강도 약 중 강 매우 강 grain noise film-like system size strength weak medium strong extra",
@@ -1250,7 +1304,7 @@ export const ko: DocsContent = {
             ],
             [
               "**스타일**",
-              "**시스템**(기본값)은 카메라 입자감입니다. **필름 느낌**은 컬러 네거티브 인화지 입자감으로, 중간 톤에서 가장 강하고 흰색이나 검은색에는 없으며 컬러 사진에서는 컬러로 보입니다."
+              "**시스템**(기본값)은 카메라 자체의 입자감입니다. **필름 느낌**은 컬러 네거티브 인화지의 입자감으로, 중간 톤에서 가장 강하고 흰색이나 검은색에는 없으며 컬러 사진에서는 컬러로 표현됩니다."
             ],
             [
               "**아이콘 표시**",
@@ -1266,6 +1320,12 @@ export const ko: DocsContent = {
     },
     "border": {
       "title": "테두리",
+      "sources": [
+        "modules/border/module.toml",
+        "modules/border/text/en.toml",
+        "CHANGELOG.md 1.8.5",
+        "web/src/generated/modules.ts (DEFAULT_MODULES)"
+      ],
       "seo": "GR의 흰색, 검정, 인스턴트 사진 테두리",
       "lead": "사진 전체를 감싸는 흰색 또는 검정 테두리입니다. 사진의 픽셀은 그대로 유지됩니다.",
       "keywords": "border frame white black thin wide instant polaroid edge 테두리 프레임 흰색 검정 얇게 넓게 인스턴트 폴라로이드 가장자리",
@@ -1323,6 +1383,11 @@ export const ko: DocsContent = {
     },
     "mode-dial": {
       "title": "모드 다이얼과 U1–U3",
+      "sources": [
+        "runtime/mode_dial.h",
+        "runtime/menu_dial.h",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "모드 다이얼의 GRKU: U1, U2, U3 설정",
       "lead": "각 다이얼 위치에서 GRKU를 켜거나 끄고, 전체 룩을 U1, U2 또는 U3에 저장합니다.",
       "keywords": "모드 다이얼 u1 u2 u3 사용자 모드 현재 설정 저장 p av tv m sn 위치 mode dial u1 u2 u3 user mode save current settings p av tv m sn position",
@@ -1338,13 +1403,8 @@ export const ko: DocsContent = {
           ]
         },
         {
-          "kind": "screen",
-          "screen": "mode-dial",
-          "alt": "모드 다이얼 화면: 각 위치별 GRKU 켜짐·꺼짐 및 U3 현재 설정 저장입니다."
-        },
-        {
           "kind": "p",
-          "text": "P, Av, Tv, M, Sn(GR IV)은 GRKU 설정 한 세트를 같이 씁니다. 다이얼 위치마다 GRKU를 **켜짐**이나 **꺼짐**으로 둘 수 있습니다. **GRKU 사용**이 켜져 있을 때 작동합니다."
+          "text": "P, Av, Tv, M, Sn(GR IV)은 GRKU 설정 세트 하나를 함께 씁니다. 각 위치마다 GRKU를 **켜짐** 또는 **꺼짐**으로 둘 수 있고, **GRKU 사용**이 켜져 있을 때 동작합니다."
         },
         {
           "kind": "h2",
@@ -1356,7 +1416,7 @@ export const ko: DocsContent = {
           "items": [
             "**켜짐**: P, Av, Tv, M과 마찬가지로 해당 위치에서 공유 GRKU 설정을 사용합니다.",
             "**꺼짐**: GRKU 없이 촬영합니다.",
-            "**현재 설정 저장**: 현재의 카메라 설정과 GRKU 설정을 이 위치에 저장해요. 다이얼을 그쪽으로 돌리면 둘 다 다시 돌아와요. 그러면 그 위치에 저장된 이름이 표시돼요. ADJ 순서, 시작 시 사용, GRKU 사용 또는 모드 다이얼 설정은 저장되지 않아요."
+            "**현재 설정 저장**: 지금의 카메라 설정과 GRKU 설정을 이 자리에 저장해요. 다이얼을 그 위치로 돌리면 둘 다 다시 불러와져요. 그러면 그 자리에 저장된 이름이 보여요. ADJ 순서, 시작 시 사용, GRKU 사용, 모드 다이얼 설정은 저장되지 않아요."
           ]
         },
         {
@@ -1369,6 +1429,11 @@ export const ko: DocsContent = {
     },
     "raw": {
       "title": "RAW 현상",
+      "sources": [
+        "runtime/develop_settings.h",
+        "runtime/picture.c",
+        "CHANGELOG.md 1.9.0"
+      ],
       "seo": "필름 룩으로 GR DNG 파일 현상하기(RAW 현상)",
       "lead": "GRKU는 원본 데이터를 변경하지 않습니다. 카메라에서 GRKU로 DNG를 현상하거나 컴퓨터에서 현상하세요.",
       "keywords": "raw dng 현상 카메라 내 현상 재생 lightroom camera raw exiftool xmp 무크롭 raw dng development develop in camera playback lightroom camera raw exiftool xmp uncropped",
@@ -1398,7 +1463,7 @@ export const ko: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GRKU를 켜고 찍은 사진은 설정이 XMP에 기록되어 exiftool 같은 XMP 뷰어에서 볼 수 있어요. **RAW 크롭 없음**을 켜면 Lightroom과 Camera Raw에서 촬영한 크롭이 적용된 DNG를 열고, 그 크롭을 되돌릴 수도 있어요."
+          "text": "GRKU를 켜고 찍은 사진에는 설정이 XMP로 기록되어 exiftool 같은 XMP 뷰어에서 볼 수 있어요. **RAW 크롭 없음**을 켜면 Lightroom과 Camera Raw에서 촬영한 크롭이 적용된 DNG를 열고, 그 크롭을 되돌릴 수도 있어요."
         },
         {
           "kind": "p",
@@ -1408,6 +1473,12 @@ export const ko: DocsContent = {
     },
     "settings": {
       "title": "GRKU 설정",
+      "sources": [
+        "runtime/menu_settings.h",
+        "runtime/manage.h",
+        "runtime/playback_info.h",
+        "crates/grku-core/src/menu_text.rs"
+      ],
       "seo": "MENU의 GRKU 설정: 모든 옵션 설명",
       "lead": "MENU에 있는 GRKU 자체의 설정입니다.",
       "keywords": "grku 설정 시작 시 사용 이전 상태 raw 크롭 없음 거리 단위 미터 피트 배터리 재생 아이콘 종료 화면 커스텀 텍스트 표시 adj 메뉴 순서 숨김 상단 grku settings enable at start keep last uncropped raw distance unit meters feet battery playback icons shutdown screen custom picture show text adj order hidden top",
@@ -1420,11 +1491,6 @@ export const ko: DocsContent = {
             "GRKU",
             "GRKU 설정"
           ]
-        },
-        {
-          "kind": "screen",
-          "screen": "settings",
-          "alt": "MENU의 GRKU 설정 화면입니다."
         },
         {
           "kind": "table",
@@ -1518,7 +1584,7 @@ export const ko: DocsContent = {
             ],
             [
               "**텍스트 표시**",
-              "카메라가 종료 화면 위에 그리는 촬영 횟수와 펌웨어 버전을 보이게 하거나 숨겨요."
+              "카메라가 종료 화면 위에 그리는 촬영 횟수와 펌웨어 버전을 보이거나 숨겨요."
             ]
           ]
         }
@@ -1526,6 +1592,12 @@ export const ko: DocsContent = {
     },
     "looks": {
       "title": "사이트에서 룩 고르기",
+      "sources": [
+        "web/src/plus.ts (FREE_SLOTS)",
+        "web/src/lookSearch.ts",
+        "web/src/strings/en.ts (importOpen, kindImported)",
+        "CHANGELOG.md 1.9.0 (xmp)"
+      ],
       "seo": "필름 룩 선택 방법과 LUT 또는 Lightroom 프리셋 가져오기",
       "lead": "카드에 넣을 필름 룩을 고르고 라이브러리를 검색하며 나만의 LUT을 가져오세요.",
       "keywords": "라이브러리 룩 고르기 검색 슬롯 무료 10 40 가져오기 lut cube xmp lightroom 프리셋 종류 네거티브 슬라이드 흑백 library choose looks search slots free 10 40 import lut cube xmp lightroom preset kinds negative slide black and white",
@@ -1581,13 +1653,18 @@ export const ko: DocsContent = {
     },
     "plus": {
       "title": "GRKU Plus",
+      "sources": [
+        "web/src/plus.ts",
+        "web/src/strings/en.ts (plus)",
+        "web/src/components/PlusSheet.tsx"
+      ],
       "seo": "GRKU Plus: 가격, 결제, 키 안내",
       "lead": "카드에 더 많은 룩을 담기 위한 선택적 일회성 결제입니다. 없어도 GRKU는 무료로 계속 쓸 수 있습니다.",
       "keywords": "플러스 가격 결제 구매 키 이메일 프롬프트페이 트루머니 슬롯 팩 전체 잠금해제 환불 바트 plus price pay buy key email promptpay truemoney slots pack everything unlock refund baht",
       "blocks": [
         {
           "kind": "p",
-          "text": "GRKU의 모든 기능은 무료예요. 모든 룩 미리보기는 무료이고, 라이브러리의 룩 10개도 카드에 무료로 넣을 수 있으며, 모든 모듈과 레시피, Develop 페이지도 무료예요. GRKU Plus는 카드에 더 많은 룩을 넣고 프로젝트를 응원하고 싶은 분들을 위한 옵션이에요."
+          "text": "GRKU의 모든 기능은 무료예요. 모든 룩 미리보기는 무료이고, 라이브러리에서 룩 10개는 카드에 무료로 넣을 수 있으며, 모든 모듈과 레시피, Develop 페이지도 무료예요. GRKU Plus는 카드에 더 많은 룩을 넣고 프로젝트를 응원하고 싶은 분들을 위한 옵션이에요."
         },
         {
           "kind": "h2",
@@ -1633,6 +1710,12 @@ export const ko: DocsContent = {
     },
     "shutdown": {
       "title": "종료 화면과 GRKU Studio",
+      "sources": [
+        "web/src/strings/en.ts (shutdown)",
+        "web/src/shutdownDesigns.ts",
+        "CHANGELOG.md 1.9.0, 1.10.0",
+        "runtime/manage.h (Custom Picture, Show Text)"
+      ],
       "seo": "RICOH GR용 커스텀 종료 화면(GRKU Studio)",
       "lead": "카메라가 꺼질 때 원하는 사진을 띄우거나 GRKU Studio에서 직접 만드세요.",
       "keywords": "종료 화면 사진 작별 전원 끄기 스튜디오 디자인 스티커 템플릿 로고 사용자 지정 사진 shutdown screen picture goodbye power off studio design sticker template logo custom picture",
@@ -1650,7 +1733,7 @@ export const ko: DocsContent = {
           "kind": "steps",
           "items": [
             "[설치](site:install) 3단계에서 종료 화면 카드를 엽니다.",
-            "미리 만든 디자인을 고르거나 직접 만들거나, 카메라 기본 화면을 쓰려면 꺼짐을 고르세요.",
+            "미리 만든 디자인을 고르거나 직접 만들고, 카메라 기본 화면을 쓰려면 꺼짐을 고르세요.",
             "평소처럼 카드를 쓰세요. 다음 전원 켜기부터 새 화면이 보여요. GRKU.zip을 쓸 때는 `GOODBYE.JPG`도 내려받아 카드의 `GRKU` 폴더에 넣으세요."
           ]
         },
@@ -1684,13 +1767,19 @@ export const ko: DocsContent = {
     },
     "develop": {
       "title": "현상 페이지",
+      "sources": [
+        "web/src/components/Develop.tsx",
+        "web/src/develop/gating.ts",
+        "web/src/develop/install.ts",
+        "CHANGELOG.md 1.10.1"
+      ],
       "seo": "사진용 무료 온라인 필름 필터(Develop 화면)",
       "lead": "이미 찍은 사진에 브라우저에서 GRKU의 필름 룩과 효과를 적용합니다.",
       "keywords": "현상 편집 사진 브라우저 온라인 필터 체험 미리보기 다운로드 카메라 없음 폰 develop edit photo browser online filter try preview download no camera phone",
       "blocks": [
         {
           "kind": "p",
-          "text": "[Develop 페이지](site:develop)에서는 내 사진에 GRKU 필름 룩을 미리 적용해 볼 수 있으며, 효과는 카메라 모듈 코드로 만들어져요. 카메라가 없어도 되고, 사진은 내 기기 밖으로 나가지 않아요."
+          "text": "[Develop 페이지](site:develop)에서는 내 사진에 GRKU 필름 룩을 볼 수 있고, 효과는 카메라 모듈 코드로 만들어져요. 카메라가 없어도 되고, 사진은 내 기기 밖으로 나가지 않아요."
         },
         {
           "kind": "steps",
@@ -1708,6 +1797,11 @@ export const ko: DocsContent = {
     },
     "assistant": {
       "title": "AI 어시스턴트",
+      "sources": [
+        "web/src/chat/strings.ts",
+        "web/src/components/ChatPanel.tsx",
+        "services/plus/src/chat/index.ts"
+      ],
       "seo": "GRKU AI 어시스턴트: GR과 필름 룩에 대해 질문하기",
       "lead": "설치 방법, 카메라, 사진에 어울리는 룩을 GRKU 어시스턴트에게 물어보세요.",
       "keywords": "ai 어시스턴트 채팅 질문 도움말 봇 마스코트 메모리 ai assistant chat ask question help bot mascot memory",
@@ -1751,6 +1845,11 @@ export const ko: DocsContent = {
     },
     "not-showing": {
       "title": "GRKU가 보이지 않을 때",
+      "sources": [
+        "docs/diagnostics.md",
+        "resources/INSTALLATION-GR4.md (Troubleshooting)",
+        "web/src/strings/en.ts (faq adj)"
+      ],
       "seo": "카메라에 GRKU가 표시되지 않을 때: 해결 방법",
       "lead": "아래 항목을 한 번에 하나씩 순서대로 확인해 보세요.",
       "keywords": "안 보임 작동 안 함 누락 adj no grku 오류 install.err report boot.txt 47 48 펌웨어 모드 설정 not showing not working missing adj no grku error install.err report boot.txt 47 48 firmware mode set",
@@ -1763,7 +1862,7 @@ export const ko: DocsContent = {
         {
           "kind": "steps",
           "items": [
-            "**기다리기.** GRKU는 전원을 켠 뒤 약 8~10초 뒤에 불러와지며, GR IV나 설치·업데이트 뒤에는 더 오래 걸려요. 그전에 찍은 사진에는 GRKU가 적용되지 않아요.",
+            "**기다리기.** GRKU는 전원을 켠 뒤 약 8~10초 뒤에 불러와지고, GR IV나 설치·업데이트 뒤에는 더 오래 걸려요. 그전에 찍은 사진에는 GRKU가 없어요.",
             "**카메라와 펌웨어.** MENU를 열고 펌웨어 버전을 확인하세요. [지원 카메라](doc:cameras) 목록에 있어야 해요. [펌웨어 버전 확인하기](doc:firmware)를 참고하세요.",
             "**SD 스크립트.** 처음 전원을 켤 때 {{MENU}}를 길게 눌러 **모드 Set Command**와 **Complete**가 표시되었나요? 표시되지 않았다면 [첫 실행](doc:install#first-start)을 다시 하세요.",
             "**최상위 파일.** 카드의 최상위 경로에 `SCRIPT` 폴더가 있어야 하며 `DCIM`이나 다른 폴더 안에 있으면 안 됩니다.",
@@ -1800,7 +1899,7 @@ export const ko: DocsContent = {
             ],
             [
               "36, 37",
-              "GRKU가 카드에 설정 파일을 읽거나 쓰지 못했어요.",
+              "GRKU가 카드에서 계획을 쓰거나 읽지 못했어요.",
               "카드에 다시 쓰세요."
             ],
             [
@@ -1815,7 +1914,7 @@ export const ko: DocsContent = {
             ],
             [
               "56",
-              "GR IV 모노크롬에서는 컬러 사진용 모듈이 제외되었습니다. 이는 정상입니다.",
+              "GR IV 모노크롬에는 컬러 사진용 모듈이 없습니다. 정상이에요.",
               "없음."
             ],
             [
@@ -1832,7 +1931,7 @@ export const ko: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "카메라 모델과 펌웨어 버전을 적어 [support@grku.app](support)로 이메일을 보내고, 카드에 있는 이 파일들을 첨부해 주세요. 여기에는 사진이 포함되어 있지 않습니다. 레시피와 가져온 룩의 이름이 포함되어 있을 수 있으므로 원하시는 경우 먼저 열어보셔도 됩니다."
+          "text": "카메라 모델과 펌웨어 버전을 적어 [support@grku.app](support)로 보내고, 카드에서 이 파일들을 첨부해 주세요. 사진은 들어 있지 않아요. 레시피와 가져온 룩의 이름이 들어 있을 수 있으니 원하면 먼저 열어보세요."
         },
         {
           "kind": "files",
@@ -1855,6 +1954,9 @@ export const ko: DocsContent = {
     },
     "stuck": {
       "title": "시작 시 카메라 멈춤",
+      "sources": [
+        "resources/RECOVERY.md"
+      ],
       "seo": "시작 화면에서 멈춘 RICOH GR: 복구 방법",
       "lead": "GRKU는 카메라가 꺼질 때까지만 설정을 적용합니다. 카드를 빼고 켜세요.",
       "keywords": "멈춤 프리징 행 얼어붙음 시작 안 됨 블랙 스크린 벽돌 복구 복원 초기화 배터리 stuck freeze hang frozen not start black screen brick recover recovery reset battery",
@@ -1900,6 +2002,11 @@ export const ko: DocsContent = {
     },
     "faq": {
       "title": "자주 묻는 질문",
+      "sources": [
+        "web/src/strings/en.ts (faq)",
+        "runtime/mode_dial.h",
+        "resources/INSTALLATION-GR4.md"
+      ],
       "seo": "GRKU 자주 묻는 질문과 답변",
       "lead": "가장 많이 묻는 질문에 대한 짧은 답변입니다.",
       "keywords": "faq 질문 왜 첫 사진 필름 룩 없음 박스 리콜 포맷 휴대폰 가져오기 gr 월드 안전 보증 question why first photos no look box recall format phone import gr world safe warranty",
@@ -1911,7 +2018,7 @@ export const ko: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "전원을 켠 뒤 약 8~10초 동안 GRKU가 불려오기 전까지는 카메라 자체 설정을 씁니다. 화면 위에 **GRKU**가 뜰 때까지 기다리세요."
+          "text": "전원을 켠 뒤 약 8~10초 동안은 GRKU가 불러와지기 전이라 카메라 자체 설정이 적용됩니다. 화면 위에 **GRKU**가 뜰 때까지 기다리세요."
         },
         {
           "kind": "h2",
@@ -1938,7 +2045,7 @@ export const ko: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "아니요. 카메라가 켜진 동안 카드에서 GRKU를 불러옵니다. 카메라 설정인 SD 스크립트는 [끄기](doc:update#scripts-off) 전까지 켜져 있습니다. **현재 설정 저장**도 카메라 사용자 모드에 저장됩니다."
+          "text": "아니요. 카메라가 켜져 있는 동안 카드에서 GRKU를 불러옵니다. 카메라 설정인 SD 스크립트는 [끄기](doc:update#scripts-off) 전까지 켜진 채로 유지됩니다. **현재 설정 저장**도 카메라 사용자 모드에 저장합니다."
         },
         {
           "kind": "h2",
@@ -1965,7 +2072,7 @@ export const ko: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GRKU를 설치해도 `DCIM` 폴더의 사진은 그대로입니다. GR WORLD를 최신 버전으로 업데이트하세요. 그래도 안 되면 [지원 팀에 메일 보내기](support)로 연락하세요."
+          "text": "GRKU를 설치해도 `DCIM` 폴더의 사진은 그대로 남습니다. GR WORLD를 최신 버전으로 업데이트하세요. 그래도 안 되면 [지원 팀에 메일 보내기](support)로 문의하세요."
         },
         {
           "kind": "h2",
@@ -1980,6 +2087,11 @@ export const ko: DocsContent = {
     },
     "cameras": {
       "title": "지원 카메라",
+      "sources": [
+        "web/src/cameras.ts",
+        "web/src/generated/cameras.ts",
+        "web/src/package.ts"
+      ],
       "seo": "GRKU는 어떤 RICOH GR 카메라와 펌웨어를 지원하나요?",
       "lead": "GRKU는 정식 RICOH 펌웨어가 설치된 아래 카메라와 펌웨어 버전에서 동작합니다.",
       "keywords": "카메라 지원 펌웨어 버전 gr iii iiix iv hdf 모노크롬 모드셋 덤프 cameras supported firmware version gr iii iiix iv hdf monochrome modeset dump",
@@ -1989,7 +2101,7 @@ export const ko: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "카메라에서 MENU를 열어 펌웨어 버전을 확인하세요: [펌웨어 버전 확인](doc:firmware)을 참고하세요. 이전 GR 모델 및 기타 카메라는 지원되지 않습니다. GR IV 모노크롬은 필름 룩을 제외한 모든 모듈을 지원합니다."
+          "text": "카메라에서 MENU를 열어 펌웨어 버전을 보세요. [펌웨어 버전 확인](doc:firmware)을 참고하세요. 예전 GR 모델이나 다른 카메라는 지원하지 않아요. GR IV 모노크롬은 필름 룩을 빼고 모든 모듈이 있습니다."
         },
         {
           "kind": "p",

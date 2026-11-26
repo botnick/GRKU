@@ -18,9 +18,6 @@ import { pathPage } from '../languagePage';
 import type { PageLink } from '../navigation';
 import { CameraBackArt } from './GuideArt';
 
-/** The camera language of the screens: the camera has no Thai, so the Thai manual shows the English menus. */
-const screenLanguage = (language: Language) => (language === 'th' ? 'en' : language);
-
 /** The address of a camera screen or a photo of the manual at a width. */
 const docsImage = (name: string, width: number) => siteUrl(`docs/${name}-${width}.webp`);
 
@@ -496,7 +493,8 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
         </ul>
       );
     case 'screen': {
-      const name = `screen-${block.screen}.${block.screen === 'modeset' || /^(setup|info)-/.test(block.screen) ? 'en' : screenLanguage(ctx.language)}`;
+      // The screens are captures of a camera in English, the menu language of a Thai reader too.
+      const name = `screen-${block.screen}.en`;
       return (
         <figure className="my-6">
           <img src={docsImage(name, 720)} srcSet={`${docsImage(name, 720)} 720w, ${docsImage(name, 1080)} 1080w`} sizes="(min-width: 768px) 560px, 100vw" alt={block.alt} width={720} height={480} loading="lazy" className="block h-auto w-full max-w-[560px] rounded-xl border-[6px] border-[#1c1c1e] bg-black shadow-sm" />
