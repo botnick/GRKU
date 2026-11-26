@@ -1,5 +1,0 @@
----
-default: minor
----
-
-The site has a user manual at /docs/ (คู่มือ in the header, the footer, and the install guide), in all six languages, Thai first: 28 short pages for beginners on installing GRKU, checking the camera firmware, ADJ and MENU, every module and setting with its choices and defaults, GRKU Settings, the mode dial, RAW development, the site (film looks, GRKU Plus, the shutdown picture, Develop, the assistant), and troubleshooting. Each page has numbered steps, "if it does not look like this" tips, pictures of the camera screens drawn from GRKU's own tiles and film boxes, photos shot with GRKU on a GR IV, a search, previous and next pages, and "Ask AI about this page", which opens the assistant with the page in mind. The assistant knows the manual and links to its exact sections. Search and answer engines get a page for each language with its own title, structured data (TechArticle, HowTo, FAQPage), link previews, the sitemap, /llms-full.txt, and the Markdown of each page. The README files and the camera guides point to the manual.
