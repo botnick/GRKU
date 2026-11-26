@@ -330,7 +330,7 @@ dependencies = [
 
 [[package]]
 name = "grku-serve"
-version = "1.10.1"
+version = "1.11.0"
 dependencies = [
  "anyhow",
  "crc32fast",
