@@ -1,4 +1,5 @@
 // The search of the manual: every word of the query in a page, best first. After GRKit (MIT).
+import { CAMERAS } from '../cameras';
 import { plainInline } from './inline';
 import { DOC_PAGES, type DocSlug } from './pages';
 import type { DocBlock, DocsContent } from './types';
@@ -36,6 +37,8 @@ export function blockText(block: DocBlock): string {
       return block.alt;
     case 'card':
       return block.items.map(([name, about]) => `${name}: ${about}`).join('\n');
+    case 'cameras':
+      return CAMERAS.filter((camera) => camera.support).map((camera) => `${camera.name} ${camera.support!.firmware.replaceAll(' / ', ' ')} ${camera.support!.modeset}`).join('\n');
     default:
       return '';
   }

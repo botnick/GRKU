@@ -590,7 +590,7 @@ const PAGE_NAMES: Record<string, string> = {
 /** The context as a few lines for the prompt. Quoted values are data from the page. */
 export function contextLines(context: PageContext, tier: Tier): string {
   const lines = [`- Tier: ${tier === 'plus' ? 'GRKU Plus owner' : 'free (no GRKU Plus purchase on this device)'}.`];
-  if (context.page) lines.push(`- Now on: ${PAGE_NAMES[context.page] ?? (context.page === 'docs' ? 'the user manual (/docs/)' : `the user manual page /${context.page}/ (its text is in the facts)`)}.`);
+  if (context.page) lines.push(`- Now on: ${PAGE_NAMES[context.page] ?? (context.page === 'docs' ? 'the user manual (/docs/)' : `the user manual page /${context.page}/`)}.`);
   if (context.camera) lines.push(`- Camera chosen in the install: "${context.camera}".`);
   if (context.card !== undefined) lines.push(`- SD card connected to the site: ${context.card ? 'yes' : 'no'}.`);
   if (context.looks !== undefined) lines.push(`- Film looks chosen for the card: ${context.looks}.`);

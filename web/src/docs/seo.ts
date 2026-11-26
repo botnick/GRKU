@@ -34,12 +34,15 @@ export function docsStructuredData(content: DocsContent, language: Language, pag
       ...(lastmod ? { dateModified: lastmod } : {}),
     },
   ];
-  const steps = doc.blocks.find((block) => block.kind === 'steps');
+  // The first list of steps, named by the heading above it: each doc says which procedure it is.
+  const at = doc.blocks.findIndex((block) => block.kind === 'steps');
+  const steps = doc.blocks[at];
+  const heading = doc.blocks.slice(0, Math.max(at, 0)).reverse().find((block) => block.kind === 'h2');
   if (steps && steps.kind === 'steps' && steps.items.length >= 3) {
     nodes.push({
       '@type': 'HowTo',
       '@id': `${url}#howto`,
-      name: doc.seo,
+      name: heading && heading.kind === 'h2' ? `${doc.title}: ${heading.text}` : doc.title,
       description: doc.lead,
       inLanguage: language,
       step: steps.items.map((item, index) => ({ '@type': 'HowToStep', position: index + 1, text: plainInline(item) })),

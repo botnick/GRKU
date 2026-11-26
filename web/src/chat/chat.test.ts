@@ -250,6 +250,7 @@ describe('the manual in the assistant', () => {
     expect(siteLink('/docs/', 'th')).toMatchObject({ kind: 'page', href: '/docs/' });
     expect(siteLink('/docs/install/#first-start', 'en')).toMatchObject({ href: '/en/docs/install/#first-start' });
     expect(siteLink('/docs/firmware/', 'ja')).toMatchObject({ href: '/ja/docs/firmware/' });
+    expect(siteLink('/docs/firmware/#gr4', 'en')).toMatchObject({ href: '/en/docs/firmware/#gr4' });
     expect(siteLink('/docs/nothing/', 'en')).toBeNull();
     expect(siteLink('/install/#first-start', 'en')).toBeNull();
   });

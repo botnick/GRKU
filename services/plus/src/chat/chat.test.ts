@@ -547,7 +547,7 @@ describe('the manual page the user reads', () => {
     const reading = systemPrompt(pack, [{ role: 'user', content: 'explain this' }], 'th', { page: 'docs/firmware' }, 'free');
     expect(reading.prompt).toContain('Manual page /docs/firmware/');
     expect(reading.topics).toContain('docs-firmware');
-    expect(reading.prompt).toContain('the user manual page /docs/firmware/');
+    expect(reading.prompt).toContain('the user manual page /docs/firmware/.');
     const elsewhere = systemPrompt(pack, [{ role: 'user', content: 'explain this' }], 'th', { page: 'docs/grain' }, 'free');
     expect(elsewhere.prompt).not.toContain('Manual page /docs/firmware/');
   });

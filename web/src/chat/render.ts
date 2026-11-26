@@ -47,7 +47,7 @@ export function siteLink(target: string, language: Language): SiteLink | null {
   if (EXTERNAL.test(raw)) return { kind: 'external', href: raw };
   if (raw === '/#plus' || raw === '#plus') return { kind: 'plus', start: 'tiers' };
   if (raw === '/#plus-key' || raw === '#plus-key') return { kind: 'plus', start: 'key' };
-  const match = /^(\/[a-z/-]*?)(?:\?look=([a-z0-9-]+))?(?:#([a-z-]+))?$/.exec(raw);
+  const match = /^(\/[a-z/-]*?)(?:\?look=([a-z0-9-]+))?(?:#([a-z0-9-]+))?$/.exec(raw);
   if (!match) return null;
   let path = match[1]!.endsWith('/') ? match[1]! : `${match[1]}/`;
   // A path given with a language prefix, such as /en/install/.
@@ -57,7 +57,7 @@ export function siteLink(target: string, language: Language): SiteLink | null {
   const anchor = match[3];
   if (look && (!LOOK_ID.test(look) || (path !== '/develop/' && path !== '/install/'))) return null;
   // A section of the manual: any heading id of a page of the manual (docs/content).
-  const docsAnchor = path.startsWith('/docs/') && path !== '/docs/' && !!anchor && /^[a-z][a-z-]{1,30}$/.test(anchor);
+  const docsAnchor = path.startsWith('/docs/') && path !== '/docs/' && !!anchor && /^[a-z][a-z0-9-]{1,30}$/.test(anchor);
   if (anchor && !(path === '/guide/' && GUIDE_ANCHORS.includes(anchor)) && !docsAnchor) return null;
   const href = `${LANGUAGE_PATHS[language]}${path.slice(1)}${look ? `?look=${look}` : ''}${anchor ? `#${anchor}` : ''}`;
   return { kind: 'page', href, path };

@@ -58,6 +58,7 @@ describe('docs', () => {
     expect(searchDocs(en, 'xpan')[0]?.slug).toBe('framing');
     expect(searchDocs(en, 'firmware version')[0]?.slug).toBe('firmware');
     expect(searchDocs(en, 'zzzz')).toEqual([]);
+    expect(searchDocs(en, '1.71').map((result) => result.slug)).toContain('cameras');
   });
 
   it('maps each docs page to its slug', () => {

@@ -38,11 +38,18 @@ const pending: Partial<Record<Language, Tracked<DocsContent>>> = {};
 function useDocs(language: Language): DocsContent {
   const ready = DOCS[language];
   if (ready) return ready;
-  const promise = (pending[language] ??= loadDocs(language).then((content) => {
-    promise.status = 'fulfilled';
-    promise.value = content;
-    return content;
-  }) as Tracked<DocsContent>);
+  const promise = (pending[language] ??= loadDocs(language).then(
+    (content) => {
+      promise.status = 'fulfilled';
+      promise.value = content;
+      return content;
+    },
+    (error: unknown) => {
+      // A failed download (a new deploy, a lost connection) can try again on the next render.
+      delete pending[language];
+      throw error;
+    },
+  ) as Tracked<DocsContent>);
   return use(promise as Promise<DocsContent>);
 }
 
