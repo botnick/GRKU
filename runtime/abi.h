@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6548
+#define GRKU_HOST_HEADER_SIZE 6556
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -165,7 +165,8 @@
 #define GRKU_MANAGE_COPY_GOODBYE 5U
 #define GRKU_MANAGE_COPY_GOODBYE_TEXT 6U
 #define GRKU_MANAGE_COPY_PLAYBACK_INFO 7U
-#define GRKU_MANAGE_COPY_WORDS 8U
+#define GRKU_MANAGE_COPY_BATTERY_PERCENT 8U
+#define GRKU_MANAGE_COPY_WORDS 9U
 #define GRKU_MANAGE_COPY_KEY 992003007U
 #define GRKU_DIAL_VALUE_ON 0U
 #define GRKU_DIAL_VALUE_OFF 1U
@@ -181,7 +182,8 @@
 /* Icon slots: the host icons, then the effect icons, then the module tiles, in
    chunks of GRKU_ICONS_PER_CHUNK (GRKU_HOST_ICON_CHUNKS).
    GRKU_ICON_MODULE_TILE(n) is the icon ID of module tile n. */
-#define GRKU_HOST_ICON_COUNT 21
+#define GRKU_HOST_ICON_COUNT 25
+#define GRKU_BATTERY_ICON_SLOTS 4U
 #define GRKU_ICONS_PER_CHUNK 40
 #define GRKU_MODULE_TILES_MAX 128
 #define GRKU_ICON_MODULE_TILE(n) (0x7000U+(n))
@@ -546,27 +548,30 @@
    HOST_DIAL_SHARED_OFF, in the same file. INSTALL takes them from the copy
    before the main state file, and writes the values of the start here. */
 #define GRKU_HOST_MANAGE_COPY 6488
-#define GRKU_HOST_MANAGE_COPY_WORDS 8
+#define GRKU_HOST_MANAGE_COPY_WORDS 9
 /* The native Image Control type plus 1 when ADJ last opened, or 0 when it was
    not readable. A half-press on the native Image Control slot with another
    type selects that type, as OK does (runtime/menu.c). */
-#define GRKU_HOST_ADJ_IC_TYPE 6520
+#define GRKU_HOST_ADJ_IC_TYPE 6524
 /* Word index of the PERSIST buffer within modulecode, not a native address. */
-#define GRKU_HOST_PERSIST_WORD 6524
+#define GRKU_HOST_PERSIST_WORD 6528
 /* The record of the ADJ preview of a recipe whose Fn adjustments the live view
    takes from GRKU_HOST_PREVIEW_FN_BYTES, not from the record, while
    GRKU_HOST_PREVIEW is that record; else 0 (runtime/recipe_preview.h,
    runtime/processing.h). */
-#define GRKU_HOST_PREVIEW_FN 6528
+#define GRKU_HOST_PREVIEW_FN 6532
 /* Those adjustments: one stored byte each, in the order of RECORD_PARAMETERS.
    It follows GRKU_HOST_PREVIEW_FN. */
-#define GRKU_HOST_PREVIEW_FN_BYTES 6532
+#define GRKU_HOST_PREVIEW_FN_BYTES 6536
 #define GRKU_HOST_PREVIEW_FN_BYTES_WORDS 3
 /* The copy of the native settings record from the start of the ADJ preview of
    a recipe, in the services block, or 0 while no preview writes native
    settings. A capture of the current settings reads the native settings from
    it (runtime/recipes.h). */
-#define GRKU_HOST_RECIPE_PREVIEW 6544
+#define GRKU_HOST_RECIPE_PREVIEW 6548
+/* Battery Percentage: the value that the icon shows, 0 for the native icon,
+   and the picture that has it (runtime/battery_percent.h). */
+#define GRKU_HOST_BATTERY_ICON 6552
 /* Consumer request ticket, 1..2147483647. Zero means no request. */
 #define GRKU_PERSIST_REQUEST 0
 /* Producer publishes this ticket after all payload stores are visible. */
@@ -1006,6 +1011,8 @@
 #define GRKU_SMALL_GLYPH_HEIGHT 20
 #define GRKU_CAPTION_FIRST 212
 #define GRKU_CAPTION_CHARACTERS "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define GRKU_BATTERY_DIGIT_FIRST 248
+#define GRKU_BATTERY_DIGIT_HEIGHT 18
 #define GRKU_CAPTION_TOP 22
 #define GRKU_CAPTION_INK 255
 #define GRKU_TILE_FILL 51
@@ -1086,6 +1093,9 @@
 /* The Effect Icons in Playback row of Display Settings. Its values are
    TEXT_OFF and TEXT_ON. */
 #define TEXT_PLAYBACK_INFO 87
-#define GRKU_TEXT_STRINGS 88
+/* The Battery Percentage row of Display Settings. Its values are TEXT_OFF and
+   TEXT_ON. */
+#define TEXT_BATTERY_PERCENT 88
+#define GRKU_TEXT_STRINGS 89
 
 #endif

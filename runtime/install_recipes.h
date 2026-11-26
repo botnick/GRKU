@@ -368,14 +368,15 @@ static void read_manage_copy(void)
     static const char *const keys[GRKU_MANAGE_COPY_WORDS] = {MANAGE_SWITCH_KEY, MANAGE_START_KEY, MANAGE_UNIT_KEY,
                                                                MANAGE_RAW_KEY, MANAGE_BATTERY_KEY,
                                                                MANAGE_GOODBYE_KEY, MANAGE_GOODBYE_TEXT_KEY,
-                                                               MANAGE_PLAYBACK_INFO_KEY};
+                                                               MANAGE_PLAYBACK_INFO_KEY, MANAGE_BATTERY_PERCENT_KEY};
     static const u32 values[GRKU_MANAGE_COPY_WORDS] = {2U, MANAGE_START_VALUES, MANAGE_UNIT_VALUES, MANAGE_RAW_VALUES,
                                                         MANAGE_BATTERY_VALUES, MANAGE_GOODBYE_VALUES,
-                                                        MANAGE_GOODBYE_TEXT_VALUES, MANAGE_PLAYBACK_INFO_VALUES};
+                                                        MANAGE_GOODBYE_TEXT_VALUES, MANAGE_PLAYBACK_INFO_VALUES,
+                                                        MANAGE_BATTERY_PERCENT_VALUES};
     _Static_assert(GRKU_MANAGE_COPY_SWITCH == 0U && GRKU_MANAGE_COPY_START == 1U && GRKU_MANAGE_COPY_UNIT == 2U &&
                        GRKU_MANAGE_COPY_RAW == 3U && GRKU_MANAGE_COPY_BATTERY == 4U &&
                        GRKU_MANAGE_COPY_GOODBYE == 5U && GRKU_MANAGE_COPY_GOODBYE_TEXT == 6U &&
-                       GRKU_MANAGE_COPY_PLAYBACK_INFO == 7U,
+                       GRKU_MANAGE_COPY_PLAYBACK_INFO == 7U && GRKU_MANAGE_COPY_BATTERY_PERCENT == 8U,
                    "the keys follow the words of the copy");
     long n = read_text(dial_sets_path, recipes_text, sizeof(recipes_text));
     if (n < 0) n = read_text(dial_sets_tmp_path, recipes_text, sizeof(recipes_text));
@@ -388,7 +389,7 @@ static void read_manage_copy(void)
 }
 /* Write the copy of the switch, Enable at Start, Distance Unit, Uncropped RAW,
    Simplified Info. Battery, Custom Picture, Show Text,
-   and Effect Icons in Playback into the
+   Effect Icons in Playback, and Battery Percentage into the
    header: the values of this start in `table`, which apply_state restored,
    for the handles of the module list. No count of changes moves, so the
    file of the user modes saves only after a change on the camera. Without a
