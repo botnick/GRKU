@@ -151,8 +151,13 @@ export function postFilter(text: string, fragments: readonly string[]): string |
   for (const match of text.matchAll(/\bwww\.([a-z0-9-]+\.)+[a-z]{2,}/gi)) {
     if (!allowedHost(match[0].toLowerCase())) return 'url';
   }
-  // Firmware files and flashing steps.
-  if (/\b(fwdc\w*|[a-z0-9_]{2,}\.bin)\b/i.test(text) && /firmware|เฟิร์มแวร์/i.test(text)) return 'firmware';
+  // Firmware files and flashing steps. Naming the camera's firmware file (fwdc….bin) to tell the
+  // user to delete it from the card is the fix for the update screen at a MENU start, so it stays.
+  if (/\b(fwdc\w*|[a-z0-9_]{2,}\.bin)\b/i.test(text) && /firmware|เฟิร์มแวร์/i.test(text)) {
+    const deletes = /\b(delete|remove)\b|ลบ|削除|删除|刪除|삭제/i.test(text);
+    const flashes = /\b(flash\w*|downgrad\w*|patch\w*|modif\w*)\b[^.\n]{0,30}\bfirmware|แฟลช|ดาวน์เกรด|แก้ไขเฟิร์มแวร์/i.test(text);
+    if (!deletes || flashes) return 'firmware';
+  }
   if (NEVER.some((p) => p.test(lower))) return 'topic';
   // Garbage: a share of scripts that none of the six languages uses.
   const letters = text.match(/\p{L}/gu) ?? [];

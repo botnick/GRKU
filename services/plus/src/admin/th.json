@@ -151,5 +151,12 @@
   "refusal_personal": "ข้อมูลส่วนบุคคล",
   "refusal_firmware": "การดัดแปลงเฟิร์มแวร์",
   "refusal_piracy": "การละเมิดลิขสิทธิ์",
-  "refusal_spam": "สแปม"
+  "refusal_spam": "สแปม",
+  "imagesToday": "รูปภาพวันนี้",
+  "imagesOff": "ปิดรับรูปภาพอยู่",
+  "imageMessages": "${n} ข้อความ · ${people} คน",
+  "limitImageFree": "รูปภาพต่อคนต่อวัน (ฟรี)",
+  "limitImagePlus": "รูปภาพต่อคนต่อวัน (GRKU Plus)",
+  "limitImageDaily": "รูปภาพต่อวันทั้งเว็บ (0 คือปิดรับรูปภาพ)",
+  "limitImageWeight": "จำนวนข้อความที่นับรวมเมื่อส่งรูปภาพ 1 ข้อความ"
 }

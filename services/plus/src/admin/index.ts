@@ -51,6 +51,10 @@ export const SETTINGS = [
   'CHAT_PAID_TIERS',
   'CHAT_PAID_MONTHLY_USD',
   'CHAT_PAID_DAILY_USD',
+  'CHAT_IMAGE_FREE_PER_DAY',
+  'CHAT_IMAGE_PLUS_PER_DAY',
+  'CHAT_IMAGE_DAILY',
+  'CHAT_IMAGE_WEIGHT',
 ] as const;
 
 /** The form of each setting's value. */
@@ -60,6 +64,7 @@ const SETTING_FORMS: Record<string, RegExp> = {
   CHAT_PAID_TIERS: /^(free,plus|plus)$/,
   CHAT_PAID_MONTHLY_USD: /^\d{1,5}(\.\d{1,2})?$/,
   CHAT_PAID_DAILY_USD: /^\d{1,5}(\.\d{1,2})?$/,
+  CHAT_IMAGE_WEIGHT: /^[1-9]$/,
 };
 
 class AdminError extends Error {
@@ -493,6 +498,8 @@ export async function chatStats(env: AdminEnv, day: string, now = Date.now()) {
   let violations = 0;
   let usdToday = 0;
   let retries = 0;
+  // Photos: how many came today, in how many messages, from how many visitors. Never the photos.
+  const images = { n: 0, messages: 0, visitors: 0 };
   type Model = { provider: string; model: string; paid: boolean; n: number; tokens: number; cap: number; usd: number; usdMonth: number; nMonth: number };
   const models = new Map<string, Model>();
   const refusals: [string, number][] = [];
@@ -526,6 +533,9 @@ export async function chatStats(env: AdminEnv, day: string, now = Date.now()) {
     if (r.k === 'global') global = { n: r.n, tokens: r.tokens };
     else if (r.k === 'usd') usdToday = r.tokens;
     else if (r.k === 'retry:paid') retries = r.n;
+    else if (r.k === 'ig') images.n = r.n;
+    else if (r.k === 'img:msg') images.messages = r.n;
+    else if (r.k.startsWith('ii:') || r.k.startsWith('io:')) images.visitors += r.n > 0 ? 1 : 0;
     else if (r.k.startsWith('s:')) sessions += 1;
     else if (r.k.startsWith('ip:') || r.k.startsWith('o:')) visitors += 1;
     else if (r.k.startsWith('v:')) violations += r.n;
@@ -581,6 +591,7 @@ export async function chatStats(env: AdminEnv, day: string, now = Date.now()) {
     visitors,
     violations,
     retries,
+    images,
     paid: { usdToday: usdToday / 1e6, usdMonth: usdMonth / 1e6 },
     providers: providerView,
     models: [...models.values()].sort((a, b) => Number(a.paid) - Number(b.paid) || providers.findIndex((p) => p.name === a.provider) - providers.findIndex((p) => p.name === b.provider) || b.n - a.n),

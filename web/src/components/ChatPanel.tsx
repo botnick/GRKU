@@ -1,10 +1,14 @@
 // The panel of the GRKU assistant: a floating panel on a computer, a full-height sheet on a phone.
 // It loads only when the visitor opens the chat (ChatLauncher). The conversation stays on this
 // device (chat/store.ts); the service gets the turns, the page context, and, when the visitor
-// turned it on, the small memory.
+// turned it on, the small memory. A question can carry up to two photos (a camera screen, the
+// card's files): picked (camera or library on a phone), pasted, or dropped; chat/image.ts shrinks
+// them and strips their metadata first, and only a small copy stays with the conversation.
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Dialog as DialogPrimitive } from 'radix-ui';
-import { ArrowUp, Check, Copy, History, MessageSquarePlus, Square, Trash2, X } from 'lucide-react';
+import { ArrowUp, Camera, Check, Copy, History, ImagePlus, MessageSquarePlus, Square, Trash2, X } from 'lucide-react';
+import { Tooltip as TooltipPrimitive } from 'radix-ui';
+import { dragHasFiles, imageFiles, PhotoError, preparePhoto, type Photo, type PhotoProblem } from '../chat/image';
 import { ask, ChatFailure, openSession, type ChatContext, type ChatSession, type Turn } from '../chat/api';
 import { lookKey, parseReply, plainText, type Block, type Inline, type LookPick, type SiteLink } from '../chat/render';
 import { chatStrings, type ChatStrings, type ChipId } from '../chat/strings';
@@ -22,6 +26,7 @@ import {
   saveMemory,
   saveSession,
   titleOf,
+  turnsForService,
   type Conversation,
   type Memory,
   type StoredTurn,
@@ -89,7 +94,13 @@ type Notice =
   | { kind: 'closed' }
   | { kind: 'human' }
   | { kind: 'error'; retry: boolean; cut?: boolean }
-  | { kind: 'tooLong'; max: number };
+  | { kind: 'tooLong'; max: number }
+  | { kind: 'photo'; problem: PhotoProblem | 'max' | 'limit' | 'bad' };
+
+/** A photo waiting in the box. */
+interface Attachment extends Photo {
+  id: string;
+}
 
 export interface ChatPanelProps {
   open: boolean;
@@ -133,6 +144,21 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
   const maxInput = session?.maxInput ?? 600;
   const busy = streaming !== null;
   const sheet = useSheetViewport(open);
+  const [attachments, setAttachmentsState] = useState<Attachment[]>([]);
+  // send() also runs from callbacks made before the last render (a new session), so it reads a ref.
+  const attachmentsRef = useRef<Attachment[]>([]);
+  const setAttachments = (next: Attachment[]) => {
+    attachmentsRef.current = next;
+    setAttachmentsState(next);
+  };
+  const [preparing, setPreparing] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const [imagesLeft, setImagesLeft] = useState<number | null>(session?.images?.remaining ?? null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const maxImages = session?.images?.max ?? 2;
+  // Photos are off when the service says so (a cap of 0); a session of an older service has no field.
+  const photosOn = session?.images ? session.images.limit > 0 : true;
+  const photosUsedUp = imagesLeft !== null && imagesLeft <= 0;
 
   // A session from an earlier visit for another key (or none) is not this visitor's tier.
   useEffect(() => {
@@ -167,12 +193,13 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
         const opened = await openSession(token, plusKey);
         setSession(opened);
         setRemaining(opened.remaining);
+        setImagesLeft(opened.images?.remaining ?? null);
         saveSession(storage, opened, plusKey);
         setNeedHuman(false);
         setNotice(null);
         const question = pendingQuestion.current;
         pendingQuestion.current = null;
-        if (question) void send(question, opened);
+        if (question !== null) void send(question, opened);
       } catch (error) {
         setNeedHuman(false);
         setNotice(error instanceof ChatFailure && error.code === 'closed' ? { kind: 'closed' } : error instanceof ChatFailure && error.status === 403 ? { kind: 'human' } : { kind: 'error', retry: false });
@@ -187,9 +214,42 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
     if (needHuman && !SITEKEY) void startSession(null);
   }, [needHuman, startSession]);
 
+  async function addPhotos(files: File[]) {
+    if (!files.length) return;
+    const room = maxImages - attachmentsRef.current.length - preparing;
+    if (room <= 0) {
+      setNotice({ kind: 'photo', problem: 'max' });
+      return;
+    }
+    if (photosUsedUp) {
+      setNotice({ kind: 'photo', problem: 'limit' });
+      return;
+    }
+    const picked = files.slice(0, room);
+    setNotice(files.length > room ? { kind: 'photo', problem: 'max' } : null);
+    setPreparing((n) => n + picked.length);
+    for (const file of picked) {
+      try {
+        const photo = await preparePhoto(file);
+        setAttachments([...attachmentsRef.current, { ...photo, id: `p${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}` }].slice(0, maxImages));
+      } catch (error) {
+        setNotice({ kind: 'photo', problem: error instanceof PhotoError ? error.problem : 'unreadable' });
+      } finally {
+        setPreparing((n) => n - 1);
+      }
+    }
+    input.current?.focus({ preventScroll: true });
+  }
+
+  const pickPhoto = () => {
+    if (photosUsedUp) setNotice({ kind: 'photo', problem: 'limit' });
+    else fileInput.current?.click();
+  };
+
   async function send(input: string, using: ChatSession | null = session) {
     const question = input.trim();
-    if (!question || busy) return;
+    const photos = attachmentsRef.current;
+    if ((!question && !photos.length) || busy || preparing) return;
     if ([...question].length > maxInput) {
       setNotice({ kind: 'tooLong', max: maxInput });
       return;
@@ -202,14 +262,15 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
     setNotice(null);
     setChips([]);
     setDraft('');
-    const userTurn: StoredTurn = { role: 'user', content: question, at: Date.now() };
+    setAttachments([]);
+    const userTurn: StoredTurn = { role: 'user', content: question, at: Date.now(), ...(photos.length ? { images: photos.map((p) => p.thumb) } : {}) };
     const base = { ...conversation, turns: [...conversation.turns, userTurn], updated: Date.now() };
     persist(base);
     const found = firmwareIn(question);
     if (memory.on && ((found && found !== memory.firmware) || (context.camera && context.camera !== memory.camera))) {
       updateMemory({ ...memory, firmware: found ?? memory.firmware, camera: context.camera ?? memory.camera });
     }
-    const turns: Turn[] = base.turns.map(({ role, content, sig }) => (role === 'assistant' ? { role, content, sig } : { role, content }));
+    const turns: Turn[] = turnsForService(base.turns, c.photoOnly);
     const controller = new AbortController();
     abort.current = controller;
     let text = '';
@@ -221,7 +282,10 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
         language,
         { ...context, ...(memory.on ? { camera: context.camera ?? memory.camera, firmware: memory.firmware, likes: memory.likes } : {}) },
         {
-          onMeta: (meta) => setRemaining(meta.remaining),
+          onMeta: (meta) => {
+            setRemaining(meta.remaining);
+            if (typeof meta.imagesRemaining === 'number') setImagesLeft(meta.imagesRemaining);
+          },
           onText: (piece) => {
             text += piece;
             setStreaming(text);
@@ -233,6 +297,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
           onChips: (ids) => setChips(ids),
         },
         controller.signal,
+        photos.map((p) => p.data),
       );
       if (result.remaining !== null) setRemaining(result.remaining);
       const answer: StoredTurn = { role: 'assistant', content: text, sig: result.sig ?? undefined, at: Date.now() };
@@ -246,9 +311,10 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
         // A stopped answer stays, unsigned: it does not go back to the service.
         persist({ ...base, turns: [...base.turns, { role: 'assistant', content: text, at: Date.now() }], updated: Date.now() });
       } else {
-        // The question goes back to the box, so the visitor can send it again.
+        // The question and its photos go back to the box, so the visitor can send them again.
         persist(conversation);
         setDraft(question);
+        setAttachments(photos);
         if (code === 'no session') {
           setSession(null);
           saveSession(storage, null, plusKey);
@@ -256,6 +322,14 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
           setDraft('');
           setHumanReset((n) => n + 1);
           setNeedHuman(true);
+        } else if (code === 'image limit') {
+          setImagesLeft(0);
+          setNotice({ kind: 'photo', problem: 'limit' });
+        } else if (code === 'bad image') setNotice({ kind: 'photo', problem: 'bad' });
+        else if (code === 'limit' && photos.length && error instanceof ChatFailure && Number(error.detail.remaining) > 0) {
+          // A photo counts as more than one message: the words alone may still go.
+          setRemaining(Number(error.detail.remaining));
+          setNotice({ kind: 'photo', problem: 'limit' });
         } else if (code === 'limit') {
           setRemaining(0);
           setNotice({ kind: 'limit' });
@@ -281,6 +355,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
   function newChat() {
     abort.current?.abort();
     persist(newConversation());
+    setAttachments([]);
     setChips([]);
     setNotice(null);
     setView('chat');
@@ -347,6 +422,25 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
             input.current?.focus({ preventScroll: true });
           }}
           style={sheet}
+          onDragEnter={(event) => {
+            if (view !== 'chat' || !photosOn || !dragHasFiles(event.dataTransfer)) return;
+            event.preventDefault();
+            setDragging(true);
+          }}
+          onDragOver={(event) => {
+            if (!dragging) return;
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'copy';
+          }}
+          onDragLeave={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragging(false);
+          }}
+          onDrop={(event) => {
+            if (!dragging) return;
+            event.preventDefault();
+            setDragging(false);
+            void addPhotos(imageFiles(event.dataTransfer));
+          }}
           className={cn(
             'fixed z-50 flex flex-col overflow-hidden bg-background text-foreground outline-none',
             // A phone: the whole screen, above the keyboard. A computer: a panel at the bottom right.
@@ -355,6 +449,14 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
             'data-[state=open]:animate-chat-in motion-reduce:animate-none',
           )}
         >
+          {dragging && (
+            <div className="pointer-events-none absolute inset-2 z-10 grid place-items-center rounded-xl border-2 border-dashed border-foreground/40 bg-background/90 text-[15px] font-medium">
+              <span className="flex flex-col items-center gap-2">
+                <ImagePlus className="size-7 text-muted-foreground" aria-hidden="true" />
+                {c.photoDrop}
+              </span>
+            </div>
+          )}
           {/* The header: the name, the insider pill for GRKU Plus, the options, and Close. */}
           <header className="flex h-14 shrink-0 items-center gap-2 border-b pr-2 pl-3">
             <Mascot pose={pose} size={34} disc />
@@ -426,6 +528,17 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
                   <div className="flex flex-col gap-2">
                     <p className="text-[13px] text-muted-foreground">{c.startersTitle}</p>
                     <Chips ids={['install', 'photos', 'plus', 'trouble']} c={c} onPick={(text) => void send(text)} disabled={busy} />
+                    {photosOn && (
+                      <button
+                        type="button"
+                        onClick={pickPhoto}
+                        disabled={busy}
+                        className="inline-flex min-h-9 items-center gap-2 self-start rounded-full border bg-card px-3.5 py-1.5 text-left text-[13px] leading-snug hover:border-foreground/40 hover:bg-accent disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0"
+                      >
+                        <Camera aria-hidden="true" />
+                        {c.chips.screen}
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -434,7 +547,14 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
                     <li key={`${turn.at}-${index}`}>
                       {turn.role === 'user' ? (
                         <Bubble role="user" label={c.you}>
-                          <p className="whitespace-pre-wrap">{turn.content}</p>
+                          {turn.images?.length ? (
+                            <div className={cn('flex gap-1.5', turn.content && 'mb-2')}>
+                              {turn.images.map((src, i) => (
+                                <img key={i} src={src} alt={c.photoAlt} className="max-h-48 max-w-[min(100%,220px)] rounded-lg object-contain" />
+                              ))}
+                            </div>
+                          ) : null}
+                          {turn.content && <p className="whitespace-pre-wrap">{turn.content}</p>}
                         </Bubble>
                       ) : (
                         <Answer
@@ -504,11 +624,79 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
                 void send(draft);
               }}
             >
+              {(attachments.length > 0 || preparing > 0) && (
+                <div className="mb-2 flex flex-wrap items-center gap-2 px-1">
+                  {attachments.map((photo) => (
+                    <div key={photo.id} className="relative">
+                      <img src={photo.url} alt={c.photoAlt} className="size-16 rounded-lg border object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setAttachments(attachmentsRef.current.filter((p) => p.id !== photo.id))}
+                        aria-label={c.removePhoto}
+                        title={c.removePhoto}
+                        className="absolute -top-2 -right-2 grid size-6 place-items-center rounded-full border bg-background text-foreground shadow-sm hover:bg-accent [&_svg]:size-3.5"
+                      >
+                        <X aria-hidden="true" />
+                      </button>
+                    </div>
+                  ))}
+                  {preparing > 0 && (
+                    <div className="grid size-16 place-items-center rounded-lg border border-dashed text-muted-foreground" role="status" aria-label={c.photoPreparing}>
+                      <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-none" aria-hidden="true" />
+                    </div>
+                  )}
+                  <p className="min-w-0 flex-1 basis-40 text-[12px] leading-snug text-muted-foreground">{c.photoPrivacy}</p>
+                </div>
+              )}
               <div className="flex items-end gap-2 rounded-xl border bg-card px-3 py-2 focus-within:border-foreground/40">
+                {photosOn && (
+                  <>
+                    <TooltipPrimitive.Provider delayDuration={300}>
+                      <TooltipPrimitive.Root>
+                        <TooltipPrimitive.Trigger asChild>
+                          <button
+                            type="button"
+                            onClick={pickPhoto}
+                            disabled={busy || notice?.kind === 'limit' || notice?.kind === 'closed' || attachments.length + preparing >= maxImages}
+                            aria-label={c.attach}
+                            className={cn('-ml-1.5 grid size-8 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 [&_svg]:size-[19px]', photosUsedUp && 'opacity-50')}
+                          >
+                            <ImagePlus aria-hidden="true" />
+                          </button>
+                        </TooltipPrimitive.Trigger>
+                        <TooltipPrimitive.Portal>
+                          <TooltipPrimitive.Content side="top" align="start" sideOffset={6} className="z-[60] max-w-60 rounded-md bg-foreground px-2.5 py-1.5 text-[12px] leading-snug text-background shadow-md">
+                            <span className="block font-medium">{c.attach}</span>
+                            <span className="block opacity-80">{photosUsedUp ? c.photoLimit : c.attachHint}</span>
+                          </TooltipPrimitive.Content>
+                        </TooltipPrimitive.Portal>
+                      </TooltipPrimitive.Root>
+                    </TooltipPrimitive.Provider>
+                    <input
+                      ref={fileInput}
+                      type="file"
+                      accept="image/*"
+                      multiple={maxImages > 1}
+                      hidden
+                      onChange={(event) => {
+                        const files = [...(event.target.files ?? [])];
+                        event.target.value = '';
+                        void addPhotos(files);
+                      }}
+                    />
+                  </>
+                )}
                 <textarea
                   ref={input}
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
+                  onPaste={(event) => {
+                    if (!photosOn) return;
+                    const files = imageFiles(event.clipboardData).filter((file) => file.type.startsWith('image/'));
+                    if (!files.length) return;
+                    event.preventDefault();
+                    void addPhotos(files);
+                  }}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
                       event.preventDefault();
@@ -527,7 +715,7 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
                     <Square className="size-3.5 fill-current" aria-hidden="true" />
                   </button>
                 ) : (
-                  <button type="submit" disabled={!draft.trim()} className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-brand-foreground transition-opacity disabled:opacity-30" aria-label={c.send}>
+                  <button type="submit" disabled={(!draft.trim() && !attachments.length) || preparing > 0} className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-brand-foreground transition-opacity disabled:opacity-30" aria-label={c.send}>
                     <ArrowUp className="size-4" aria-hidden="true" />
                   </button>
                 )}
@@ -540,7 +728,11 @@ export function ChatPanel({ open, onOpenChange, language, strings: t, plusKey, c
                   </a>
                 </span>
                 {/* The visitor's own messages left today, only when few are left. */}
-                {remaining !== null && remaining <= LOW_REMAINING && <span className="tabular-nums">{c.remaining(remaining)}</span>}
+                {attachments.length > 0 && imagesLeft !== null ? (
+                  <span className="shrink-0 tabular-nums">{c.photosLeft(Math.max(0, imagesLeft - attachments.length))}</span>
+                ) : (
+                  remaining !== null && remaining <= LOW_REMAINING && <span className="shrink-0 tabular-nums">{c.remaining(remaining)}</span>
+                )}
               </div>
             </form>
           )}
@@ -849,6 +1041,10 @@ function NoticeLine({ notice, c, tier, onPlus, onRetry, onGuide }: { notice: Not
       return <p className="mt-4 text-[13px] text-destructive" role="alert">{c.humanFailed}</p>;
     case 'tooLong':
       return <p className="mt-4 text-[13px] text-destructive" role="alert">{c.tooLong(notice.max)}</p>;
+    case 'photo': {
+      const text = { notImage: c.photoNotImage, tooBig: c.photoTooBig, unreadable: c.photoUnreadable, max: c.photoMax(2), limit: c.photoLimit, bad: c.photoBad }[notice.problem];
+      return <p className={cn('mt-4 text-[13px]', notice.problem === 'limit' ? 'text-muted-foreground' : 'text-destructive')} role={notice.problem === 'limit' ? 'status' : 'alert'}>{text}</p>;
+    }
     case 'error':
       return (
         <div className="mt-4 flex items-center gap-3 text-[13px]" role="alert">
@@ -899,7 +1095,7 @@ function ChatMenu({
             {recent.map((item) => (
               <li key={item.id}>
                 <button type="button" onClick={() => onOpen(item)} className="flex h-11 w-full items-center rounded-lg px-2 text-left text-[14px] hover:bg-accent">
-                  <span className="truncate">{titleOf(item)}</span>
+                  <span className="truncate">{titleOf(item, c.photoAlt)}</span>
                 </button>
               </li>
             ))}

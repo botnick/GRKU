@@ -8,7 +8,8 @@ import { buildKnowledge, KNOWLEDGE_SCHEMA } from './knowledge';
 import { lookKey, parseReply, plainText, siteLink } from './render';
 import { chatStrings } from './strings';
 import { launcherText } from './label';
-import { firmwareIn, forgetAll, likeLook, loadCurrent, loadMemory, loadRecent, loadSession, newConversation, saveCurrent, saveMemory, saveSession, sessionExpiry, titleOf } from './store';
+import { firmwareIn, forgetAll, likeLook, loadCurrent, loadMemory, loadRecent, loadSession, newConversation, saveCurrent, saveMemory, saveSession, sessionExpiry, titleOf, turnsForService } from './store';
+import { checkFile, fitSize, MAX_ORIGINAL } from './image';
 import { LANGUAGES } from '../i18n';
 
 describe('links in answers', () => {
@@ -263,5 +264,60 @@ describe('the manual in the assistant', () => {
     expect(firmware.text).toContain('/docs/firmware/#older');
     expect(firmware.tags).toContain('firmware');
     expect(sections.every((section) => section.tags.length > 3 && section.text.length < 6000)).toBe(true);
+  });
+});
+
+describe('photos', () => {
+  it('takes only image files up to 8 MB, never SVG', () => {
+    expect(checkFile({ type: 'image/jpeg', size: 3_000_000 })).toBeNull();
+    expect(checkFile({ type: 'image/png', size: MAX_ORIGINAL + 1 })).toBe('tooBig');
+    expect(checkFile({ type: 'application/pdf', size: 1000 })).toBe('notImage');
+    expect(checkFile({ type: 'image/svg+xml', size: 1000 })).toBe('notImage');
+    // iOS sometimes gives a HEIC photo no type; the name tells.
+    expect(checkFile({ type: '', size: 1000, name: 'IMG_0001.HEIC' })).toBeNull();
+    expect(checkFile({ type: '', size: 1000, name: 'notes.txt' })).toBe('notImage');
+  });
+
+  it('shrinks to 1280 px on the long side and never enlarges', () => {
+    expect(fitSize(4000, 3000, 1280)).toEqual({ width: 1280, height: 960 });
+    expect(fitSize(3024, 4032, 1280)).toEqual({ width: 960, height: 1280 });
+    expect(fitSize(800, 600, 1280)).toEqual({ width: 800, height: 600 });
+  });
+
+  it('sends the photos with the last turn only and marks the earlier ones', () => {
+    const thumb = 'data:image/jpeg;base64,/9j/4AAQ';
+    const turns = turnsForService(
+      [
+        { role: 'user', content: '', images: [thumb], at: 1 },
+        { role: 'assistant', content: 'The screen asks to update.', sig: 's', at: 2 },
+        { role: 'user', content: 'and this one?', images: [thumb], at: 3 },
+      ],
+      'Please look at this photo.',
+    );
+    expect(turns).toEqual([
+      { role: 'user', content: '[photo] Please look at this photo.' },
+      { role: 'assistant', content: 'The screen asks to update.', sig: 's' },
+      { role: 'user', content: 'and this one?' },
+    ]);
+  });
+
+  it('keeps small JPEG previews with a turn and drops anything else', () => {
+    const storage = memoryStorage();
+    const ok = 'data:image/jpeg;base64,/9j/4AAQSkZJRg==';
+    storage.setItem(
+      'grku.chat.current',
+      JSON.stringify({ id: 'c', updated: 1, turns: [{ role: 'user', content: '', images: [ok], at: 1 }, { role: 'user', content: 'x', images: ['javascript:alert(1)'], at: 2 }, { role: 'user', content: 'y', images: ['data:image/svg+xml;base64,PHN2Zz4='], at: 3 }] }),
+    );
+    const loaded = loadCurrent(storage)!;
+    expect(loaded.turns).toHaveLength(1);
+    expect(titleOf(loaded, 'Your photo')).toBe('Your photo');
+  });
+
+  it('has the photo text in every language', () => {
+    for (const { code } of LANGUAGES) {
+      expect(chatStrings(code).photosLeft(2)).toContain('2');
+      expect(chatStrings(code).photoMax(2)).toContain('2');
+      if (code === 'th') expect(chatStrings(code).chips.screen).toMatch(/รูป/);
+    }
   });
 });

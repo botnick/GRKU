@@ -8,6 +8,8 @@ import type { ChatSession, Turn } from './api';
 export interface StoredTurn extends Turn {
   /** When the turn was made, milliseconds. */
   at: number;
+  /** Small copies of the photos of a user turn (JPEG data URLs), for the bubble; the photos themselves are not kept. */
+  images?: string[];
   /** Look cards and quick replies stay with the turn's text; nothing else is kept. */
 }
 
@@ -62,8 +64,30 @@ export function deviceStorage(): Storage | null {
 
 const isTurn = (value: unknown): value is StoredTurn => {
   const turn = value as StoredTurn | null;
-  return !!turn && (turn.role === 'user' || turn.role === 'assistant') && typeof turn.content === 'string' && (turn.sig === undefined || typeof turn.sig === 'string');
+  return (
+    !!turn &&
+    (turn.role === 'user' || turn.role === 'assistant') &&
+    typeof turn.content === 'string' &&
+    (turn.sig === undefined || typeof turn.sig === 'string') &&
+    (turn.images === undefined || (Array.isArray(turn.images) && turn.images.length <= 2 && turn.images.every(isThumb)))
+  );
 };
+
+/** A small photo that a turn may keep: a JPEG data URL, at most about 60 KB. */
+export const isThumb = (value: unknown): value is string => typeof value === 'string' && value.length < 80_000 && /^data:image\/jpeg;base64,[A-Za-z0-9+/]+=*$/.test(value);
+
+/**
+ * The turns as the service takes them: assistant turns with their signature; a user turn that had
+ * photos says so ("[photo]"), as the photos go only with the turn they were sent with (the last).
+ */
+export function turnsForService(turns: readonly StoredTurn[], photoOnly: string): Turn[] {
+  return turns.map(({ role, content, sig, images }, index) => {
+    if (role === 'assistant') return { role, content, sig };
+    const text = content.trim() || (images?.length ? photoOnly : content);
+    // The last turn sends its photos along; an earlier one only says it had them.
+    return { role, content: images?.length && index < turns.length - 1 ? `[photo] ${text}` : text };
+  });
+}
 
 function validConversation(value: unknown): Conversation | null {
   const conversation = value as Conversation | null;
@@ -92,8 +116,9 @@ export function loadRecent(storage: Storage | null): Conversation[] {
 }
 
 /** The title of a conversation in the list: its first question, short. */
-export function titleOf(conversation: Conversation): string {
-  const first = conversation.turns.find((turn) => turn.role === 'user')?.content ?? '';
+export function titleOf(conversation: Conversation, photo = ''): string {
+  const turn = conversation.turns.find((t) => t.role === 'user');
+  const first = turn?.content.trim() || (turn?.images?.length ? photo : '');
   const chars = [...first.replace(/\s+/g, ' ').trim()];
   return chars.length > 48 ? `${chars.slice(0, 47).join('')}…` : chars.join('');
 }
