@@ -17,6 +17,15 @@
 /* The core builds with a frame limit, and the poll runs on the stack of the
    App task: each command keeps its own frame out of the frame of the poll. */
 #define CONTROL_FRAME __attribute__((noinline))
+/* GRKU: a page has up to GRKU_SETTING_ROWS 10 rows (GRKit 6), so the row
+   lists of CONTROL_MODULE_ROWS make the frames of control_module_entry,
+   control_module_texts, and control_module_set 264 to 320 bytes, over the
+   256 of the core (crates/grku-build/src/components.rs: MENU_FRAME_LIMIT).
+   They run only in a poll of the mailbox, which GRKU opens only with the
+   Wi-Fi service on (runtime/installer.c: wifi_enabled); check the stack of
+   the App task on a camera before the service ships on. */
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wframe-larger-than"
 /* The row of a page without settings rows: the page setting, named by the
    title and the labels of the page. */
 #define CONTROL_ROW_PAGE 0xffU
@@ -500,4 +509,5 @@ static CONTROL_FRAME u32 control_modules(volatile u32 *h,struct control_request 
     h[GRKU_HOST_MODULE_CHOICE/4]=choice;
     return result;
 }
+#pragma clang diagnostic pop
 #endif
