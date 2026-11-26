@@ -36,7 +36,10 @@ export type DocBlock =
   /** Framing, Crop, or Guides over a photo, with their choices to try. */
   | { kind: 'frame'; mode: 'framing' | 'crop' | 'guides'; alt: string }
   | { kind: 'camera'; screen: CameraScreen; press: readonly CameraKey[]; alt: string }
-  | { kind: 'cameras' };
+  | { kind: 'cameras' }
+  /** The settings of a module as the camera names them, with their values and defaults, from the code
+   * (docs/moduleSettings.generated.ts), and what each does (`notes`, by setting key). */
+  | { kind: 'settings'; module: string; notes: Readonly<Record<string, Inline>> };
 
 export interface DocText {
   title: string;
@@ -91,6 +94,9 @@ export interface DocsContent {
     focal: string;
     style: string;
     guides: readonly string[];
+    settingCol: string;
+    choicesCol: string;
+    defaultMark: string;
     updated: string;
   };
   groups: Readonly<Record<DocGroup, string>>;

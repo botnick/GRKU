@@ -20,7 +20,7 @@ export const zhHant: Strings = {
     lead: '所有功能皆可免費使用。若想在相機中使用超過 10 款外觀，您可以贊助 GRKU 以解鎖更多名額，或是等待持續推出的免費新外觀。無任何強制費用。',
     getMore: '更多風格',
     tierAll: '全部',
-    tierAllText: '全部 145 種風格及未來新增風格，永久保存於您的記憶卡',
+    tierAllText: "收錄現有與未來所有底片風格，永久擁有；記憶卡每次最多存放 40 款",
     tierSlots: '25 個名額',
     tierSlotsText: '記憶卡上可存放自選的 25 種風格，而非 10 種',
     tierPack: '單一組合',

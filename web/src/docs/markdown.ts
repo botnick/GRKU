@@ -4,6 +4,7 @@ import type { Language } from '../i18n';
 import { CAMERAS } from '../cameras';
 import { LANGUAGE_PATHS } from '../languagePage';
 import { parseInline, targetUrl } from './inline';
+import { settingRows } from './settingsTable';
 import { DOC_PAGES, type DocSlug } from './pages';
 import type { DocBlock, DocsContent } from './types';
 
@@ -51,6 +52,12 @@ function blockMarkdown(block: DocBlock, content: DocsContent, language: Language
     case 'files':
     case 'card':
       return block.items.map(([name, about]) => `- \`${name}\`: ${about}`).join('\n');
+    case 'settings':
+      return [
+        `| ${content.ui.settingCol} | ${content.ui.choicesCol} |`,
+        '| --- | --- |',
+        ...(settingRows(block.module, language) ?? []).map((row) => `| **${row.name}** | ${row.values.map((value, index) => (index === row.default ? `**${value}** (${content.ui.defaultMark})` : value)).join(', ')}. ${md(block.notes[row.key] ?? '')} |`),
+      ].join('\n');
     case 'cameras':
       return [
         `| ${content.ui.camera} | ${content.ui.firmware} | ${content.ui.modeset} |`,
