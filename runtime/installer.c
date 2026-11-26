@@ -1016,6 +1016,9 @@ static int install_planned(void)
     }
     if (!sync_alias(arrays.base, size)) return STATUS_SYNC;
     if (!sync_alias(arrays.tail, GRKU_TAIL_SIZE)) return STATUS_SYNC;
+    /* The text area holds the menu text and the labels that the tail held
+       before it (HOST_TEXT_AREA), so it is published as the tail is. */
+    if (!sync_alias(arrays.text, GRKU_TEXT_AREA_SIZE)) return STATUS_SYNC;
     for (u32 i = 0; i < icon_chunks; ++i)
         if (!sync_alias(arrays.icon_bases[i], chunk_count(i) * ICON_STRIDE)) return STATUS_SYNC;
     if ((status = publish_patches())) return status;
