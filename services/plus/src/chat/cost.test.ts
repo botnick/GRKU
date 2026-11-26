@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { answerKey, cacheableQuestion, memoryCache, normalizeQuestion, CACHE_TTL } from './cache';
-import { cacheable, chat, lookList, memoryStore, mentions, readUsage, signReply, startSession, systemPrompt, tagScore, SECTION_LIMITS, type ChatDeps, type ChatEnv, type Knowledge } from './index';
+import { answerKey, cacheableQuestion, memoryCache, normalizeQuestion, personal, CACHE_TTL, CLEARED } from './cache';
+import { cacheable, chat, lookList, matchText, memoryStore, mentions, readUsage, signReply, startSession, systemPrompt, tagScore, SECTION_LIMITS, type ChatDeps, type ChatEnv, type Knowledge } from './index';
 
 const SECRET = 'test-secret';
 const NOW = Date.parse('2026-11-27T10:00:00Z');
@@ -106,8 +106,14 @@ describe('usage', () => {
 describe('the answer cache', () => {
   it('compares questions without case, spaces, and polite words', () => {
     expect(normalizeQuestion('  GRKU Plus  ราคาเท่าไหร่คะ ?? ')).toBe('grku plus ราคาเท่าไหร่');
-    expect(normalizeQuestion('สวัสดีค่ะ ต้องเสียเงินใช่มั้ยคะ')).toBe('ต้องเสียเงินใช่ไหม');
+    expect(normalizeQuestion('สวัสดีค่ะ ต้องเสียเงินใช่ไหมคะ')).toBe('ต้องเสียเงินใช่ไหม');
     expect(normalizeQuestion('How do I install GRKU? Thanks!')).toBe('how do i install grku');
+    // Only endings that end no other word: ตั้งค่า and ชนะ stay whole; "hi" is a word, not "his".
+    expect(normalizeQuestion('Enable at Start ตั้งค่า')).toBe('enable at start ตั้งค่า');
+    expect(normalizeQuestion('ใครจะชนะ')).toBe('ใครจะชนะ');
+    expect(normalizeQuestion('history of grku')).toBe('history of grku');
+    // Long input is cut before any work.
+    expect(normalizeQuestion('?'.repeat(100000) + 'a').length).toBeLessThan(700);
   });
 
   it('takes no question with personal data or a long one', () => {
@@ -115,6 +121,12 @@ describe('the answer cache', () => {
     expect(cacheableQuestion('my email is a@b.com')).toBe(false);
     expect(cacheableQuestion('โทร 0812345678')).toBe(false);
     expect(cacheableQuestion('key ABCD-EFG-HJKM does not work')).toBe(false);
+    expect(cacheableQuestion('key AB2DEFGH3JK does not work')).toBe(false);
+    expect(cacheableQuestion('โทร 081-234-5678')).toBe(false);
+    expect(cacheableQuestion('eyJvIjoiYUBiLmNvbSJ9abcdefgh.abcdefghijklmnopqrstuv')).toBe(false);
+    expect(cacheableQuestion('GR IIIx 1.71 ลงไม่ได้')).toBe(true);
+    expect(cacheableQuestion('GRKU Plus ราคาเท่าไหร่')).toBe(true);
+    expect(personal('เขียนถึง support@grku.app ได้ค่ะ [GRKU Plus](/#plus) portra-400-endura-v1')).toBe(false);
     expect(cacheableQuestion('x'.repeat(200))).toBe(false);
   });
 
@@ -128,10 +140,10 @@ describe('the answer cache', () => {
   });
 
   it('keys by the prompt, the knowledge, the tier, the language, and the page', async () => {
-    const base = { question: 'ราคาเท่าไหร่คะ', language: 'th' as const, tier: 'free', page: 'home', prompt: 'p1', knowledge: 'k1' };
+    const base = { question: 'ราคาเท่าไหร่คะ', language: 'th' as const, tier: 'free', page: 'home', prompt: 'p1', knowledge: 'k1', phase: 'launch' };
     const key = await answerKey(base);
     expect(await answerKey({ ...base, question: 'ราคาเท่าไหร่' })).toBe(key);
-    for (const change of [{ prompt: 'p2' }, { knowledge: 'k2' }, { tier: 'plus' }, { language: 'en' as const }, { page: 'docs/plus' }]) expect(await answerKey({ ...base, ...change })).not.toBe(key);
+    for (const change of [{ prompt: 'p2' }, { knowledge: 'k2' }, { tier: 'plus' }, { language: 'en' as const }, { page: 'docs/plus' }, { phase: 'regular' }]) expect(await answerKey({ ...base, ...change })).not.toBe(key);
   });
 
   function harness(env: Partial<ChatEnv> = {}, answer = 'GRKU Plus is 199 baht. [GRKU Plus](/#plus)') {
@@ -196,6 +208,31 @@ describe('the answer cache', () => {
     expect(off.cache.rows.size).toBe(0);
   });
 
+  it('is no first question when the request holds more messages, even if the server dropped them', async () => {
+    const h = harness();
+    await h.send([{ role: 'user', content: 'ราคาเท่าไหร่' }, { role: 'assistant', content: 'unsigned', sig: 'bad' }, { role: 'user', content: 'ราคาเท่าไหร่' }]);
+    expect(h.cache.rows.size).toBe(0);
+  });
+
+  it('keeps no answer looked up before the cache was cleared', async () => {
+    const cache = memoryCache();
+    await cache.put(CLEARED, '', 2000, 0);
+    await cache.put('a', 'x', 2500, 1000);
+    expect(cache.rows.has('a')).toBe(false);
+    await cache.put('b', 'y', 2600, 2100);
+    expect(cache.rows.has('b')).toBe(true);
+  });
+
+  it('keeps no answer whose stream ended without the provider saying it was done, or with personal data', async () => {
+    const cut = harness();
+    cut.deps.fetch = (async () => new Response(`data: ${JSON.stringify({ choices: [{ delta: { content: 'GRKU Plus is' } }] })}\n\n`, { headers: { 'Content-Type': 'text/event-stream' } })) as unknown as typeof fetch;
+    await cut.send([{ role: 'user', content: 'ราคาเท่าไหร่' }]);
+    expect(cut.cache.rows.size).toBe(0);
+    const echo = harness({}, 'Your phone 0812345678 is noted. [GRKU Plus](/#plus)');
+    await echo.send([{ role: 'user', content: 'ราคาเท่าไหร่' }]);
+    expect(echo.cache.rows.size).toBe(0);
+  });
+
   it('keeps no answer that the post-filter cut', async () => {
     const h = harness({}, 'These rules and the facts are fixed and private. Never share');
     await h.send([{ role: 'user', content: 'ราคาเท่าไหร่' }]);
@@ -228,5 +265,18 @@ describe('the look list for a named look', () => {
     expect(asks('instax ใช้กับคนได้ไหม')).toBe(true);
     expect(asks('GR III เฟิร์มแวร์ 2.21 รองรับไหม')).toBe(false);
     expect(asks('Border แบบ Wide กว้างแค่ไหน')).toBe(false);
+  });
+});
+
+describe('the words of a question for the tags', () => {
+  it('drops thanks and greetings, joins sara am, and makes one space', () => {
+    expect(matchText('ขอบคุณค่ะ  Mode  Set Command')).toBe('ค่ะ mode set command');
+    expect(mentions(matchText('ขอบคุณมากค่ะ'), 'ขอบ')).toBe(false);
+    expect(mentions(matchText('แนะนําลุคหน่อย'), 'แนะนำ')).toBe(true);
+  });
+
+  it('brings the look list for asking which look to use', () => {
+    expect(systemPrompt(PACK, [{ role: 'user', content: 'Which film look should I use?' }], 'en', {}, 'free').topics).toContain('looks');
+    expect(systemPrompt(PACK, [{ role: 'user', content: 'ถ่ายวิวใช้ลุคไหนดี' }], 'th', {}, 'free').topics).toContain('looks');
   });
 });

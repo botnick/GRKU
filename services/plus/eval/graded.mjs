@@ -50,17 +50,29 @@ async function ask(token, messages, lang) {
     body: JSON.stringify({ messages, lang, context: { page: 'home' } }),
   });
   if (!response.ok) return { error: `${response.status} ${(await response.json().catch(() => ({}))).error ?? ''}`, text: '', ms: Date.now() - started };
-  let text = '', fixed = null, sig = null, usage = [], first = null, cache = null;
-  for (const block of (await response.text()).split('\n\n')) {
-    const event = /^event: (.*)$/m.exec(block)?.[1] ?? 'message';
-    const data = /^data: (.*)$/m.exec(block)?.[1];
-    if (!data) continue;
-    const parsed = JSON.parse(data);
-    if (event === 'message') { text += parsed.d; first ??= Date.now() - started; }
-    if (event === 'replace') text = parsed.text;
-    if (event === 'done') { fixed = parsed.fixed ?? null; sig = parsed.sig; usage = parsed.usage ?? []; cache = parsed.cache ?? null; }
-    if (event === 'error') return { error: parsed.code, text, ms: Date.now() - started };
+  let text = '', fixed = null, sig = null, usage = [], first = null, cache = null, error = null;
+  // Read the stream as it comes, so `first` is the time to the first words.
+  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+  let pending = '';
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    pending += value;
+    let end;
+    while ((end = pending.indexOf('\n\n')) >= 0) {
+      const block = pending.slice(0, end);
+      pending = pending.slice(end + 2);
+      const event = /^event: (.*)$/m.exec(block)?.[1] ?? 'message';
+      const data = /^data: (.*)$/m.exec(block)?.[1];
+      if (!data) continue;
+      const parsed = JSON.parse(data);
+      if (event === 'message') { text += parsed.d; first ??= Date.now() - started; }
+      if (event === 'replace') text = parsed.text;
+      if (event === 'done') { fixed = parsed.fixed ?? null; sig = parsed.sig; usage = parsed.usage ?? []; cache = parsed.cache ?? null; }
+      if (event === 'error') error = parsed.code;
+    }
   }
+  if (error) return { error, text, ms: Date.now() - started };
   return { text, fixed, sig, usage, cache, ms: Date.now() - started, first };
 }
 
@@ -221,6 +233,7 @@ const summary = {
   pass: score(results), accuracy: pct(results),
   bySet: Object.fromEntries(setNames.map((s) => [s, score(results.filter((r) => r.set === s))])),
   judgeFlags: results.filter((r) => r.judge && (r.judge.wrong.length || r.judge.invented.length)).length,
+  judged: results.filter((r) => r.judge && !r.judge.error).length,
   tokens: { prompt: per((u) => u.prompt), cached: per((u) => u.cached), completion: per((u) => u.completion), reasoning: per((u) => u.reasoning) },
   usdPer1000IfPaid: Math.round(usd * 1000 * 100) / 100,
   medianMs: median(answered.map((r) => r.ms)), medianFirstMs: median(answered.map((r) => r.first ?? r.ms)),

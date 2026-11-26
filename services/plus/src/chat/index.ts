@@ -22,7 +22,7 @@ import { FIRMWARE_FILE, messageLanguage, postFilter, preFilter, type Language, t
 import { PROMPT_FRAGMENTS, PROMPT_VERSION, rules } from './prompt';
 import { ImageError, readImages, withImages, type ChatImage } from './image';
 import { REPLIES } from './replies';
-import { answerKey, cacheableQuestion, type AnswerCache } from './cache';
+import { answerKey, cacheableQuestion, personal, type AnswerCache } from './cache';
 
 export { PROMPT_VERSION };
 
@@ -410,6 +410,8 @@ export interface ChatDeps {
   knowledge: () => Promise<Knowledge | null>;
   /** The answer cache of first questions (cache.ts); none: no cache. */
   cache?: AnswerCache;
+  /** Which prices hold now ("launch" or "regular"), for the cache key: an answer about prices ends with them. */
+  pricePhase?: () => string;
   /** Notes how a provider answered: ok, or the HTTP status or error name (for the admin page). */
   providerStatus?: (provider: Provider, ok: boolean, code: string) => void;
 }
@@ -755,13 +757,17 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
 
   // A first question that many ask the same way: the answer from the cache, if it has one.
   let cacheKey: string | null = null;
-  if (deps.cache && pack && env.CHAT_ANSWER_CACHE !== 'off' && cacheable(messages, context, images.length > 0 || photoOnly)) {
-    cacheKey = await answerKey({ question, language, tier: session.t, page: context.page ?? '', prompt: PROMPT_VERSION, knowledge: pack.hash ?? pack.version });
+  // The request itself must hold one message: a follow-up whose earlier turns were dropped (an
+  // unsigned answer) is still a follow-up.
+  const sentOne = Array.isArray(body.messages) && body.messages.length === 1;
+  const lookedUp = now;
+  if (deps.cache && Math.random() < 0.01) deps.waitUntil(deps.cache.prune(now).catch(() => {}));
+  if (deps.cache && pack && env.CHAT_ANSWER_CACHE !== 'off' && sentOne && cacheable(messages, context, images.length > 0 || photoOnly)) {
+    cacheKey = await answerKey({ question, language, tier: session.t, page: context.page ?? '', prompt: PROMPT_VERSION, knowledge: pack.hash ?? pack.version, phase: deps.pricePhase?.() ?? '' });
     const hit = await deps.cache.get(cacheKey, now).catch(() => null);
     const counted = [{ key: hit ? 'cache:hit' : 'cache:miss', n: 1 }, ...(hit && topics[0] ? [{ key: `t:${topics[0]}`, n: 1 }] : [])];
     deps.waitUntil(store.add(day, counted).catch(() => {}));
     if (hit) return cachedAnswer(hit.text, meta, env.KEY_SECRET);
-    if (Math.random() < 0.02) deps.waitUntil(deps.cache.prune(now).catch(() => {}));
   }
   const quick = !images.length && isQuick(messages, topics);
   const maxTokens = plus ? limits.maxOutputPlus : limits.maxOutputFree;
@@ -779,7 +785,8 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
   // Photos of an answer that never came are given back.
   const photosBack = () => (imageKeys.length ? store.add(day, imageKeys.map((item) => ({ key: item.key, n: -item.n }))).then(() => {}) : Promise.resolve());
   // A clean answer to a cacheable question goes into the cache for the next one who asks.
-  const keep = cacheKey && deps.cache ? (text: string) => deps.cache!.put(cacheKey!, text, deps.now()) : undefined;
+  // Never an answer with personal data in it (the model may repeat what the user wrote).
+  const keep = cacheKey && deps.cache ? (text: string) => (personal(text) ? Promise.resolve() : deps.cache!.put(cacheKey!, text, deps.now(), lookedUp)) : undefined;
   return new Response(relay(upstream, meta, deps, day, topics[0] ?? '', maxTokens, language, retry, photosBack, keep), { headers: SSE_HEADERS });
 }
 
@@ -984,6 +991,8 @@ interface Attempt {
   cut: string | null;
   /** It ended at the length cap, or the model stopped for its token limit. */
   truncated?: boolean;
+  /** The provider said the answer is complete (finish_reason "stop"); a stream that just ends may be cut. */
+  finished?: boolean;
 }
 
 /**
@@ -1053,6 +1062,7 @@ function relay(
           }
           if (chunk.usage && typeof chunk.usage === 'object') attempt.usage = readUsage(chunk.usage, attempt.usage);
           if (chunk.choices?.[0]?.finish_reason === 'length') attempt.truncated = true;
+          if (chunk.choices?.[0]?.finish_reason === 'stop') attempt.finished = true;
           const piece = chunk.choices?.[0]?.delta?.content;
           if (typeof piece !== 'string' || !piece) continue;
           const text = stripThinking(thinking, piece);
@@ -1146,7 +1156,7 @@ function relay(
       } else {
         await write(sse('done', { remaining: meta.remaining, sig: await signReply(secret, attempt.answer), ...(debug ? { usage: spent } : {}) }));
         // Only an answer that ended as it should: not cut by the length cap.
-        if (keep && !attempt.truncated) await keep(attempt.answer).catch(() => {});
+        if (keep && attempt.finished && !attempt.truncated) await keep(attempt.answer).catch(() => {});
       }
     } catch {
       // The visitor left.
@@ -1220,6 +1230,21 @@ const PHOTO_SECTIONS = ['card-troubles', 'install', 'recovery', 'camera'];
 const ASCII = /^[\x20-\x7e]+$/;
 const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const tagPatterns = new Map<string, RegExp>();
+
+/**
+ * A question as the tags are matched against it: lower case, one space, Thai sara am written as
+ * one letter (นํา typed as nikhahit and sara aa is นำ), and without greetings and thanks, whose
+ * letters hold tags of their own (ขอบ, the border, in ขอบคุณ).
+ */
+export function matchText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFC')
+    .replace(/\u0e4d\u0e32/g, '\u0e33')
+    .replace(/ขอบคุณ|ขอบใจ|สวัสดี/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 /** Thai vowels written before their consonant: a tag that starts with the consonant is then inside another word (ปิด in เปิด). */
 const THAI_LEADING = /[เแโใไ]$/;
@@ -1338,6 +1363,9 @@ function lookWords(pack: Knowledge): string[] {
   return words;
 }
 
+/** Asking which look to use, in words that are weak one by one. */
+const LOOK_PHRASES = ['which look', 'what look', 'which film', 'which film look', 'look should i', 'look for', 'ลุคไหน', 'ลุคอะไร', 'ฟิล์มไหน', 'ฟิล์มอะไร', 'ใช้ลุค', 'ลุคแบบไหน', 'โทนไหน'];
+
 /** The look list for the prompt: grouped by pack, one `id | name` line each, with the hint when there is one. */
 export function lookList(looks: Knowledge['looks']): string {
   const packs = [...new Set(looks.map((l) => l.pack))];
@@ -1360,7 +1388,7 @@ export function lookList(looks: Knowledge['looks']): string {
  * sections it took, for the anonymous topic counter and the model choice.
  */
 export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMessage[], language: Language, context: PageContext, tier: Tier, photo = false): { prompt: string; topics: string[] } {
-  const users = messages.filter((m) => m.role === 'user').slice(tier === 'plus' ? -3 : -2).map((m) => m.content.toLowerCase());
+  const users = messages.filter((m) => m.role === 'user').slice(tier === 'plus' ? -3 : -2).map((m) => matchText(m.content));
   const latest = users[users.length - 1] ?? '';
   const earlier = users.slice(0, -1).join('\n');
   const asked = users.join('\n');
@@ -1398,7 +1426,7 @@ export function systemPrompt(pack: Knowledge | null, messages: readonly ChatMess
       parts.push(`## ${section.title}\n${section.text}`);
     }
     const named = lookWords(pack).some((word) => mentions(asked, word));
-    if (named || pack.lookTags.some((tag) => !WEAK_LOOK_TAGS.has(tag) && mentions(asked, tag))) {
+    if (named || LOOK_PHRASES.some((phrase) => mentions(asked, phrase)) || pack.lookTags.some((tag) => !WEAK_LOOK_TAGS.has(tag) && mentions(asked, tag))) {
       topics.push('looks');
       parts.push(
         `## Film looks (id | brand and name | hint)\nPack "free" is a camera look in no pack; the other packs are GRKU Plus packs, but any 10 looks of any pack go on the card free.\n` + lookList(pack.looks),

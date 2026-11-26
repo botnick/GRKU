@@ -208,6 +208,7 @@ async function chatRoute(request: Request, url: URL, vars: Env, ctx?: ExecutionC
     waitUntil: (promise) => (ctx ? ctx.waitUntil(promise) : void promise),
     knowledge: () => fetchKnowledge(env, (input, init) => fetch(input, init), Date.now()),
     cache: d1Cache(env.DB),
+    pricePhase: () => (Date.now() < LAUNCH_ENDS ? 'launch' : 'regular'),
     // For the admin page: the last answer and the last failure of each provider, and the failures of the day.
     providerStatus(provider, ok, code) {
       const now = Date.now();

@@ -10,6 +10,7 @@
  * working). Every attempt also waits about a second.
  */
 import { page } from './page';
+import { CACHE_TTL, CLEARED } from '../chat/cache';
 
 export interface AdminEnv {
   DB: D1Database;
@@ -488,10 +489,18 @@ async function saveSettings(request: Request, deps: AdminDeps): Promise<Response
   return reply({ ok: true, settings: await settingsOf(DB, now) });
 }
 
-/** Empties the assistant's answer cache (chat_cache): the next first questions go to the model again. */
+/**
+ * Empties the assistant's answer cache (chat_cache): the next first questions go to the model
+ * again. The CLEARED row keeps the time, so an answer on its way that was looked up before it is
+ * not kept (src/chat/cache.ts put).
+ */
 async function clearCache(deps: AdminDeps): Promise<Response> {
-  const done = await deps.env.DB.prepare('DELETE FROM chat_cache').run();
-  return reply({ ok: true, cleared: done.meta?.changes ?? 0 });
+  const { DB } = deps.env;
+  const [done] = await DB.batch([
+    DB.prepare('DELETE FROM chat_cache WHERE k != ?').bind(CLEARED),
+    DB.prepare('INSERT INTO chat_cache (k, answer, created, hits) VALUES (?, ?, ?, 0) ON CONFLICT(k) DO UPDATE SET created = excluded.created').bind(CLEARED, '', deps.now()),
+  ]);
+  return reply({ ok: true, cleared: (done as D1Result | undefined)?.meta?.changes ?? 0 });
 }
 
 /** The daily caps of a provider's models: "model=n,model=n", or one number for every model. */
@@ -516,7 +525,9 @@ export async function chatStats(env: AdminEnv, day: string, now = Date.now()) {
     env.DB.prepare('SELECT name, model, ok_at, err_at, err_code FROM chat_provider')
       .all<{ name: string; model: string; ok_at: number | null; err_at: number | null; err_code: string | null }>()
       .catch(() => ({ results: [] as { name: string; model: string; ok_at: number | null; err_at: number | null; err_code: string | null }[] })),
-    env.DB.prepare('SELECT COUNT(*) AS n, COALESCE(SUM(hits), 0) AS hits FROM chat_cache').first<{ n: number; hits: number }>().catch(() => null),
+    // The answers still alive (7 days), and how often all of them were served.
+    env.DB.prepare('SELECT COUNT(*) AS n, COALESCE(SUM(hits), 0) AS hits FROM chat_cache WHERE k != ? AND created > ?').bind(CLEARED, now - CACHE_TTL).first<{ n: number; hits: number }>().catch(() => null),
+    env.DB.prepare('DELETE FROM chat_cache WHERE k != ? AND created <= ?').bind(CLEARED, now - CACHE_TTL).run().catch(() => null),
   ]);
   // The answer cache: answers kept, and today's first questions that it could answer, found or not.
   const cache = { entries: cacheRow?.n ?? 0, hitsAll: cacheRow?.hits ?? 0, hits: 0, misses: 0 };

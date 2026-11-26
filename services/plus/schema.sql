@@ -86,3 +86,4 @@ CREATE TABLE IF NOT EXISTS chat_cache (
   created INTEGER NOT NULL,
   hits INTEGER NOT NULL DEFAULT 0
 );
+CREATE INDEX IF NOT EXISTS chat_cache_created ON chat_cache(created);
