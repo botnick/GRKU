@@ -7,7 +7,7 @@
 /* The private header: the start of the registry array. ARM code addresses it
    through the literal GRKU_HEADER_REFERENCE, which the installer relocates. */
 #define GRKU_HEADER_REFERENCE 0x58012340
-#define GRKU_HOST_HEADER_SIZE 6560
+#define GRKU_HOST_HEADER_SIZE 6568
 /* The most module pages, layers, and plane filters that the header holds. */
 #define GRKU_MODULE_PAGES_MAX 16
 #define GRKU_MODULE_LAYERS_MAX 16
@@ -576,6 +576,14 @@
 /* Battery Percentage: the average of the charge and the time of its last
    sample (runtime/battery_percent.h). */
 #define GRKU_HOST_BATTERY_AVERAGE 6556
+/* The Toning track that the parameter page shows for a native look with Toning
+   (runtime/menu.c: toning_track): an 8-byte icon descriptor, then the pixels,
+   in a firmware block that the core makes at its first use; else 0. */
+#define GRKU_HOST_TONING_TRACK 6560
+/* The record whose Toning in the RAW development differs from its own
+   (runtime/develop.h): while a development runs, its builds take the curves at
+   GRKU_DEVELOP_CURVES of the tail for it; else 0. */
+#define GRKU_HOST_DEVELOP_TONED 6564
 /* Consumer request ticket, 1..2147483647. Zero means no request. */
 #define GRKU_PERSIST_REQUEST 0
 /* Producer publishes this ticket after all payload stores are visible. */
@@ -982,12 +990,16 @@
 #define GRKU_PROFILE_FILTER 1
 #define GRKU_PROFILE_CALL 2
 /* Everything after the records: the script array must hold it. */
-#define GRKU_TAIL_SIZE 248956
+#define GRKU_TAIL_SIZE 250492
 /* The own red and blue curves of the native looks with Toning: for each of
    GRKU_TONE_SLOTS slots, 256 u16 red samples, then the blue ones. */
 #define GRKU_TONE_CURVES 244860
 #define GRKU_TONE_SLOTS 4
 #define GRKU_TONE_SLOT_SIZE 1024
+/* The red, green, and blue curves of a RAW development with its own Toning
+   (GRKU_HOST_DEVELOP_TONED), 256 u16 samples each. */
+#define GRKU_DEVELOP_CURVES 248956
+#define GRKU_DEVELOP_CURVES_SIZE 1536
 #define GRKU_TEXT_SUMMARY 8192
 /* The parameter page title of a GRKU session, after the summaries: the page,
    its vtable, and the descriptor of the effect name. */
