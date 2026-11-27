@@ -319,7 +319,7 @@ function Frame({ block, ctx }: { block: Extract<DocBlock, { kind: 'frame' }>; ct
   return (
     <figure className="my-6 overflow-hidden rounded-xl border bg-[#161616]">
       <div className="relative aspect-[3/2] overflow-hidden bg-black">
-        <img src={docsImage(FRAME_PHOTO, 1200)} srcSet={`${docsImage(FRAME_PHOTO, 600)} 600w, ${docsImage(FRAME_PHOTO, 900)} 900w, ${docsImage(FRAME_PHOTO, 1200)} 1200w`} sizes="(min-width: 1024px) 720px, 100vw" alt={block.alt} width={1200} height={800} fetchPriority="high" className="block size-full object-cover" />
+        <img src={docsImage(FRAME_PHOTO, 1200)} srcSet={`${docsImage(FRAME_PHOTO, 600)} 600w, ${docsImage(FRAME_PHOTO, 720)} 720w, ${docsImage(FRAME_PHOTO, 900)} 900w, ${docsImage(FRAME_PHOTO, 1200)} 1200w`} sizes="(min-width: 1024px) 720px, calc(100vw - 32px)" alt={block.alt} width={1200} height={800} fetchPriority="high" className="block size-full object-cover" />
         {area && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-[width,height] duration-200" style={{ ...area, ...MASKS[mask] }} />}
         {lines.length > 0 && (
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 size-full" aria-hidden="true">
@@ -941,7 +941,7 @@ function DocArticle({ ctx, slug, onAsk }: { ctx: Ctx; slug: DocSlug; onAsk: (que
             </ol>
           </nav>
         )}
-        <div className="mt-6">
+        <div className="docs-flow mt-6">
           {page.blocks.map((block, blockIndex) => (
             <Block key={blockIndex} block={block} ctx={ctx} />
           ))}

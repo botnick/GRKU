@@ -302,3 +302,10 @@
   30% { transform: rotate(-8deg); }
   65% { transform: rotate(5deg); }
 }
+
+/* The manual: the blocks past the first screen lay out when they come near, which keeps the first
+   paint of a long page (and the line breaking of Thai) short. */
+.docs-flow > :nth-child(n + 7) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
+}
