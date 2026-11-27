@@ -3,6 +3,7 @@
  * when there is one), the frame, and the layers from the bottom up.
  */
 import { DESIGNS, drawDesign, drawPixelText, findDesign, pixelBlocks } from '../shutdownDesigns';
+import { artImage, findArt } from './art';
 import { cssFont } from './fonts';
 import {
   fittedSize,
@@ -191,6 +192,17 @@ export function drawBackground(context: Context, background: Background, area: R
         context.translate(area.x + (area.w - W * scale) / 2, area.y + (area.h - H * scale) / 2);
         context.scale(scale, scale);
         drawDesign(context, { id: findDesign(background.design)?.id ?? DESIGNS[0].id, theme: background.theme, text: '' });
+        break;
+      }
+      case 'art': {
+        context.fillStyle = findArt(background.art)?.color ?? '#F4EFE6';
+        context.fillRect(area.x, area.y, area.w, area.h);
+        const image = artImage(background.art);
+        if (image && image.width > 0 && image.height > 0) {
+          const crop = photoCrop(image, area, 1, 0.5, 0.5);
+          context.imageSmoothingQuality = 'high';
+          context.drawImage(image, crop.x, crop.y, crop.w, crop.h, area.x, area.y, area.w, area.h);
+        }
         break;
       }
     }
