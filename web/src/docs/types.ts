@@ -11,7 +11,7 @@ export type Inline = string;
 /** A real camera screen of GRKU (public/docs/screen-<name>.en-<width>.webp): `modeset` is the camera's own
  * framebuffer, `menu` a photo of a GR IV, `adj` the camera's ADJ panels (resources/images/grku-root.jpg)
  * over a photo of GRKU, and `modeset-back` the guide picture with the MENU button (resources/images/camera-menu.png). */
-export type DocScreen = 'adj' | 'menu' | 'modeset' | 'modeset-back';
+export type DocScreen = 'adj' | 'menu-photo' | 'menu-top' | 'menu-bottom' | 'modeset-back';
 
 /** A photo of the owner's GR IV rendered with GRKU's own code (the site's look tables and the camera's module code, as the promo renders): the Standard look,
  * and the same photo with only one setting (public/docs/render-<name>-<width>.webp). `-crop` is a part at full size. */
@@ -33,7 +33,8 @@ export type DocBlock =
   | { kind: 'path'; items: readonly string[] }
   | { kind: 'table'; head: readonly string[]; rows: readonly (readonly Inline[])[] }
   | { kind: 'files'; items: readonly (readonly [path: string, about: string])[] }
-  | { kind: 'screen'; screen: DocScreen; alt: string }
+  /** `source`: a photo of the camera, a capture of its screen (the ADJ panels over a photo of GRKU, the Mode Set Command screen), or drawn after a photo of the menu with the rows of the code. */
+  | { kind: 'screen'; screen: DocScreen; alt: string; source: 'photo' | 'capture' | 'drawn' }
   /** The same photo without and with one setting. */
   | { kind: 'compare'; before: DocRender; after: DocRender; label: string; alt: string }
   /** The top level of the SD card: each name and what it is. */
@@ -109,6 +110,9 @@ export interface DocsContent {
     choicesCol: string;
     defaultMark: string;
     withoutLabel: string;
+    photoBadge: string;
+    captureBadge: string;
+    drawnBadge: string;
     updated: string;
   };
   groups: Readonly<Record<DocGroup, string>>;

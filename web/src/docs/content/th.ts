@@ -83,6 +83,9 @@ export const th: DocsContent = {
     "choicesCol": "ตัวเลือกและการทำงาน",
     "defaultMark": "ค่าเริ่มต้น",
     "withoutLabel": "ไม่มี",
+    "photoBadge": "ภาพถ่ายจากกล้อง",
+    "captureBadge": "ภาพหน้าจอจากกล้อง",
+    "drawnBadge": "ภาพจำลองจากเมนูจริง",
     "updated": "อัปเดตแล้ว"
   },
   "groups": {
@@ -364,7 +367,7 @@ export const th: DocsContent = {
         {
           "kind": "art",
           "art": "copy",
-          "alt": "โฟลเดอร์ SCRIPT, DEVELOP.MOD และไฟล์ ModeSet จาก SD_ROOT ถูกคัดลอกไปยังชั้นบนสุดของการ์ด ข้างๆ DCIM"
+          "alt": "โฟลเดอร์ SCRIPT ไฟล์ DEVELOP.MOD และไฟล์ ModeSet จาก SD_ROOT ถูกคัดลอกไปวางไว้ที่ชั้นบนสุดของการ์ด ข้างๆ โฟลเดอร์ DCIM"
         },
         {
           "kind": "steps",
@@ -413,7 +416,7 @@ export const th: DocsContent = {
         {
           "kind": "art",
           "art": "insert",
-          "alt": "ใส่การ์ดลงช่องเสียบของกล้อง"
+          "alt": "การ์ดถูกใส่ลงในช่องเสียบการ์ดของกล้อง"
         },
         {
           "kind": "steps",
@@ -433,6 +436,7 @@ export const th: DocsContent = {
         {
           "kind": "screen",
           "screen": "modeset-back",
+          "source": "capture",
           "alt": "ด้านหลังของกล้อง GR ที่มีวงกลมล้อมปุ่ม MENU บนหน้าจอขึ้น Mode Set Command, Script - Enable และ Complete"
         },
         {
@@ -474,6 +478,7 @@ export const th: DocsContent = {
         {
           "kind": "screen",
           "screen": "adj",
+          "source": "capture",
           "alt": "เปิด ADJ อยู่บน GRKU และเห็นไอคอนโมดูลต่างๆ มุมซ้ายบนของหน้าจอขึ้น GRKU และ Film Look: Off"
         },
         {
@@ -558,34 +563,95 @@ export const th: DocsContent = {
           "text": "ทุกการตั้งค่าอยู่ในเมนูกล้องด้วย กด {{MENU}} ไปที่แท็บ Customize (C) แล้วเลื่อนลงไปท้ายสุด ส่วนของ GRKU จะมีแถวพวกนี้"
         },
         {
+          "kind": "screen",
+          "screen": "menu-top",
+          "source": "drawn",
+          "alt": "ส่วนบนของหัวข้อ GRKU: Enable GRKU On, GRKU Settings, Recipes, Film Look, Framing, Crop และ Guides"
+        },
+        {
+          "kind": "screen",
+          "screen": "menu-bottom",
+          "source": "drawn",
+          "alt": "ส่วนท้ายของหัวข้อ GRKU: Guides, Date Imprint, Glow, Light Leak, Diffusion, Grain และ About GRKU พร้อมเวอร์ชัน"
+        },
+        {
+          "kind": "p",
+          "text": "แถวจากบนลงล่าง บนการ์ดที่มีโมดูลตามปกติ การ์ดใหม่ทุกแถวจะแสดง Off จนกว่าคุณจะเลือกค่า"
+        },
+        {
           "kind": "table",
           "head": [
             "แถว",
-            "หน้าที่"
+            "สิ่งที่แสดงและหน้าที่"
           ],
           "rows": [
             [
               "**Enable GRKU**",
-              "เปิดหรือปิด GRKU พอเปิด โมดูลที่เปิดไว้จะเริ่มทำงานอีกครั้ง"
+              "เปิดตัวเลือก On (ค่าเริ่มต้น) และ Off เปิดหรือปิด GRKU เมื่อเป็น On จะเริ่มทำงานทุกโมดูลที่เปิดไว้"
             ],
             [
               "**GRKU Settings**",
-              "การตั้งค่าของตัว GRKU เอง ดูที่ [GRKU Settings](doc:settings)"
+              "ไม่มีค่า เปิดการตั้งค่าของ GRKU เอง: Enable at Start, Shooting Settings, Display Settings, Shutdown Screen, Mode Dial และ ADJ Order ดู [GRKU Settings](doc:settings)"
             ],
             [
-              "**Recipes**, **Film Look** และโมดูลอื่น ๆ",
-              "มีอย่างละแถวต่อโมดูลหนึ่งตัวในการ์ด พร้อมการตั้งค่าทั้งหมดของโมดูลนั้น"
+              "**Recipes**",
+              "แสดงชื่อสูตรสีเมื่อกล้องตรงกับสูตรใดสูตรหนึ่ง ไม่แสดงอะไรเลยถ้าไม่ตรง และแสดง Off เมื่อ GRKU ปิดอยู่ เปิดสูตรสีของคุณ (ถ้าไม่ได้เปิดสูตรสีไหน จะเห็นแค่ Enable และ Save Settings): ใช้ ดูปรับเปลี่ยนชื่อ หรือลบสูตรสี และ Save Settings ดู [Recipes](doc:recipes)"
+            ],
+            [
+              "**Film Look**",
+              "แสดงฟิล์มลุคที่กำลังใช้ หรือ Off ดูที่ [Film Look](doc:film-look)"
+            ],
+            [
+              "**Framing**",
+              "แสดงสัดส่วนภาพ หรือ Off ดูที่ [Framing](doc:framing)"
+            ],
+            [
+              "**Crop**",
+              "แสดงความยาวโฟกัส หรือ Off ดูที่ [Crop](doc:crop)"
+            ],
+            [
+              "**Guides**",
+              "แสดงเส้นช่วยจัดองค์ประกอบ หรือ Off ดูที่ [Guides](doc:guides)"
+            ],
+            [
+              "**Date Imprint**",
+              "แสดงรูปแบบวันที่ หรือ Off ดู [Date Imprint](doc:date)"
+            ],
+            [
+              "**Glow**",
+              "แสดง Bloom และ Halation เมื่อเปิดใช้งาน หรือ Off ดู [Glow](doc:glow)"
+            ],
+            [
+              "**Light Leak**",
+              "แสดงลุค หรือ Off ดู [Light Leak](doc:light-leak)"
+            ],
+            [
+              "**Diffusion**",
+              "แสดง Filter และ Softness เมื่อเปิดใช้งาน หรือ Off ดู [Diffusion](doc:diffusion)"
+            ],
+            [
+              "**Border**",
+              "มีเฉพาะเมื่อเปิด Border ในการ์ด อยู่ระหว่าง Diffusion กับ Grain แสดงสไตล์ หรือ Off ดู [Border](doc:border)"
+            ],
+            [
+              "**Grain**",
+              "แสดงความเข้ม หรือ Off ดู [Grain](doc:grain)"
             ],
             [
               "**About GRKU**",
-              "เวอร์ชันของ GRKU บนการ์ดและบนเว็บ"
+              "แสดงเวอร์ชัน GRKU บนการ์ด เช่น 1.11.0 และเปิดหน้าที่มีข้อมูลเวอร์ชัน จำนวนฟิล์มลุค และเว็บไซต์ หากอยู่ในโหมดพิเศษ จะแสดง Safe mode หรือ Restart to apply แทน"
             ]
           ]
         },
         {
+          "kind": "p",
+          "text": "หน้าโมดูลใน MENU เริ่มด้วย **Enable** (สำหรับโมดูลนั้นเท่านั้น) จากนั้นเป็น **Options** และ **Order** ถ้ามี แล้วตามด้วยการตั้งค่า การตั้งค่าบางรายการจะอยู่ในหน้าที่ {{Fn}} เปิดใน ADJ เท่านั้น เช่น Date Style และ Date Position"
+        },
+        {
           "kind": "screen",
-          "screen": "menu",
-          "alt": "รูปส่วน GRKU ใน MENU บนกล้อง GR IV ที่ไฮไลต์ Guides อยู่ และแถวด้านล่างลงไปถึง Recipes"
+          "screen": "menu-photo",
+          "source": "photo",
+          "alt": "รูปส่วน GRKU บนกล้อง GR IV ที่ใช้ GRKU เวอร์ชันเก่า ซึ่ง Recipes อยู่หลัง Grain โดย Guides ถูกไฮไลต์ไว้"
         },
         {
           "kind": "h2",
@@ -725,13 +791,14 @@ export const th: DocsContent = {
           "kind": "steps",
           "items": [
             "กด {{ADJ}} เลือก **GRKU** แล้วเลือก **Film Look**",
-            "เลือกฟิล์มลุค หน้าจอ Live View จะเปลี่ยนทันที พร้อมแสดงไอคอนของลุคนั้น",
+            "เลือกฟิล์มลุค หน้าจอแสดงภาพจะเปลี่ยนทันที พร้อมไอคอนของฟิล์มลุคนั้น",
             "กด {{OK}} เพื่อใช้งาน เลือก **Off** หากต้องการถ่ายแบบไม่ใช้ฟิล์มลุค"
           ]
         },
         {
           "kind": "screen",
           "screen": "adj",
+          "source": "capture",
           "alt": "GRKU ใน ADJ: Film Look อยู่เป็นตัวแรก และหน้าจอขึ้น Film Look: Off"
         },
         {
@@ -739,14 +806,14 @@ export const th: DocsContent = {
           "before": "chairs-standard",
           "after": "chairs-portra",
           "label": "Kodak Portra 400",
-          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบระหว่าง Standard ของกล้อง กับฟิล์มลุค Kodak Portra 400"
+          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบระหว่างฟิล์มลุค Standard ของกล้อง กับ Kodak Portra 400"
         },
         {
           "kind": "compare",
           "before": "chairs-standard",
           "after": "chairs-chrome",
           "label": "Fujifilm Classic Chrome",
-          "alt": "ภาพเดียวกัน เปรียบเทียบระหว่าง Standard กับฟิล์มลุค Fujifilm Classic Chrome"
+          "alt": "ภาพถ่ายเดียวกัน เปรียบเทียบระหว่าง Standard กับ Fujifilm Classic Chrome"
         },
         {
           "kind": "h2",
@@ -859,7 +926,7 @@ export const th: DocsContent = {
           "kind": "steps",
           "items": [
             "ใน **Recipes** เลื่อนแถบไปที่สูตรสีที่ต้องการ ภาพสดจะแสดงผลให้ดู และค่าต่าง ๆ จะขึ้นทางซ้ายของจอ",
-            "กด {{OK}} เพื่อใช้งาน ADJ จะปิด หรือแสดงข้อความเมื่อบางค่าของสูตรสีใช้ไม่ได้",
+            "กด {{OK}} เพื่อใช้งาน ADJ จะปิดลง หรือแสดงข้อความเมื่อบางค่าของสูตรสีไม่สามารถใช้งานได้",
             "เปลี่ยนใจไหม เลือก **Undo** จะดึงค่ากล้องที่สูตรสีเปลี่ยนไปกลับคืนได้สูงสุด 5 สูตรสีล่าสุด"
           ]
         },
@@ -921,7 +988,7 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "เลื่อนไปที่สัดส่วนภาพที่ต้องการแล้วหน้าจอจะแสดงกรอบ กด {{OK}} เพื่อเก็บค่านี้ไว้ ในโหมด Crop ไฟล์ JPEG จะถูกครอปตามสัดส่วนภาพ ส่วนไฟล์ DNG จะไม่ถูกครอปตามสัดส่วนภาพ"
+          "text": "เลื่อนไปที่สัดส่วนภาพที่ต้องการ แล้วหน้าจอจะแสดงกรอบ กด {{OK}} เพื่อยืนยัน ในโหมด Crop ไฟล์ JPEG จะถูกครอปตามสัดส่วน ส่วนไฟล์ DNG จะไม่ถูกครอป"
         },
         {
           "kind": "settings",
@@ -980,7 +1047,7 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "กด {{Fn}} บนหน้า Crop เพื่อตั้งค่า **Mode** และ **Mask** ที่ 35, 40 และ 50 mm ภาพบนหน้าจอจะซูมเข้าโดยไม่มีกรอบ ที่ 70 mm จะแสดงกรอบในมุมมอง 50 mm และบน GR IV 40 mm จะแสดงกรอบในมุมมอง 35 mm ในโหมด Crop ทั้ง JPEG และ DNG จะถูกครอป ยกเว้นเมื่อเปิด **Uncropped RAW** อยู่ ใน ADJ หน้าจอจะแสดงกรอบของทางยาวโฟกัสที่เลือกไว้ Crop ใช้ได้กับทุกสัดส่วนของ Framing"
+          "text": "กด {{Fn}} บนหน้า Crop เพื่อตั้งค่า **Mode** และ **Mask** ที่ระยะ 35, 40 และ 50 mm ภาพบนหน้าจอจะซูมเข้าโดยไม่มีกรอบ ที่ระยะ 70 mm จะแสดงกรอบในมุมมอง 50 mm และบน GR IV ระยะ 40 mm จะแสดงกรอบในมุมมอง 35 mm ในโหมด Crop ทั้ง JPEG และ DNG จะถูกครอป ยกเว้นเมื่อเปิด **Uncropped RAW** ไว้ ใน ADJ หน้าจอจะแสดงกรอบของทางยาวโฟกัสที่เลือกไว้ Crop ใช้ได้กับทุกสัดส่วนของ Framing"
         },
         {
           "kind": "note",
@@ -1054,7 +1121,7 @@ export const th: DocsContent = {
           "before": "chairs-standard",
           "after": "chairs-date",
           "label": "Date Imprint: 'YY M D",
-          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบแบบไม่ประทับวันที่ และแบบใช้ Date Imprint: 'YY M D ตำแหน่ง Film มุมขวาล่าง ขนาด M ฟอนต์ Classic สี Standard"
+          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบแบบไม่ประทับวันที่ กับแบบที่ประทับวันที่ Date Imprint: 'YY M D ตำแหน่ง Film มุมขวาล่าง ขนาด M ฟอนต์ Classic สี Standard"
         },
         {
           "kind": "p",
@@ -1995,7 +2062,7 @@ export const th: DocsContent = {
           "kind": "flow",
           "steps": [
             {
-              "see": "กล้องค้างระหว่างกำลังเปิด",
+              "see": "กล้องค้างตอนกำลังเปิดเครื่อง",
               "then": "ถอดแบตเตอรี่และการ์ดออก แล้วลองเปิดเครื่องโดยไม่มีการ์ด"
             },
             {
