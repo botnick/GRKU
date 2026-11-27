@@ -387,6 +387,31 @@ describe('orders, sales, mail, settings', () => {
     ]);
   });
 
+  it('shows the answer cache, the cost per message, and the last eval, and clears the cache', async () => {
+    Object.assign(env, { CHAT_NAME: 'gemini', CHAT_MODEL_FREE: 'lite', CHAT_EVAL: JSON.stringify({ date: '2026-11-27', prompt: 'p4', cases: 73, free: 90, plus: 92 }) });
+    const day = '2026-11-25';
+    const add = (k: string, n: number, tokens: number) => env.DB.prepare('INSERT INTO chat_usage (day, k, n, tokens) VALUES (?, ?, ?, ?)').bind(day, k, n, tokens).run();
+    await add('global', 50, 0);
+    await add('usd', 0, 100_000);
+    await add('cache:hit', 6, 0);
+    await add('cache:miss', 14, 0);
+    for (const k of ['a', 'b']) await env.DB.prepare('INSERT INTO chat_cache (k, answer, created, hits) VALUES (?, ?, ?, ?)').bind(k, 'x', now, 3).run();
+    type View = { evaluation: unknown; stats: { cache: unknown; paid: { perMessage: number } } };
+    const view = (await (await call('/admin/api/chat', { cookie })).json()) as View;
+    expect(view.evaluation).toEqual({ date: '2026-11-27', prompt: 'p4', cases: 73, free: 90, plus: 92 });
+    expect(view.stats.cache).toEqual({ entries: 2, hitsAll: 6, hits: 6, misses: 14 });
+    expect(view.stats.paid.perMessage).toBeCloseTo(0.002);
+    const cleared = await call('/admin/api/cache/clear', { method: 'POST', body: {}, cookie });
+    expect(await cleared.json()).toMatchObject({ ok: true, cleared: 2 });
+    expect(((await (await call('/admin/api/chat', { cookie })).json()) as View).stats.cache).toMatchObject({ entries: 0 });
+    // The switch is a setting of the page, on or off only.
+    expect((await call('/admin/api/settings', { method: 'POST', body: { CHAT_ANSWER_CACHE: 'off' }, cookie })).status).toBe(200);
+    expect((await call('/admin/api/settings', { method: 'POST', body: { CHAT_ANSWER_CACHE: 'maybe' }, cookie })).status).toBe(400);
+    // Without a recorded eval, or with a broken one, there is none.
+    env.CHAT_EVAL = 'not json';
+    expect(((await (await call('/admin/api/chat', { cookie })).json()) as View).evaluation).toBeNull();
+  });
+
   it('shows the assistant as not live without its vars', async () => {
     const chat = (await (await call('/admin/api/chat', { cookie })).json()) as { available: boolean };
     expect(chat.available).toBe(false);
