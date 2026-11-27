@@ -7,6 +7,7 @@
  * A text layer's box is as wide as its longest line and as tall as its lines; a sticker's box is a
  * square of `size`.
  */
+import { ART_IDS } from './art';
 
 export const STUDIO_WIDTH = 720;
 export const STUDIO_HEIGHT = 480;
@@ -84,7 +85,9 @@ export type Background =
   /** The photo of the visitor, cover-cropped to 3:2, then `zoom` times larger around `cx`, `cy` (0 to 1 of the photo). */
   | { kind: 'photo'; zoom: number; cx: number; cy: number; color: string }
   /** The art of a ready-made design (`shutdownDesigns`) without its text. */
-  | { kind: 'design'; design: string; theme: number };
+  | { kind: 'design'; design: string; theme: number }
+  /** The painted picture of a seasonal template (`art`), by its id. */
+  | { kind: 'art'; art: string };
 
 export interface StudioDoc {
   version: 1;
@@ -488,6 +491,8 @@ function sanitizeBackground(value: unknown, designs: (id: string) => number): Ba
       if (!themes) return fallback;
       return { kind: 'design', design: raw.design as string, theme: Number.isInteger(raw.theme) && (raw.theme as number) >= 0 && (raw.theme as number) < themes ? (raw.theme as number) : 0 };
     }
+    case 'art':
+      return typeof raw.art === 'string' && ART_IDS.includes(raw.art) ? { kind: 'art', art: raw.art } : fallback;
     default:
       return fallback;
   }
@@ -560,6 +565,8 @@ export function canAddLayer(doc: StudioDoc, plus: boolean): boolean {
 export function plusItems(doc: StudioDoc, catalog: Catalog): Locked[] {
   const found: Locked[] = [];
   if (doc.template && !catalog.freeTemplates.has(doc.template)) found.push({ kind: 'template', id: doc.template });
+  // The painted background of a seasonal template stays a part of that template.
+  if (doc.background.kind === 'art' && doc.background.art !== doc.template && !catalog.freeTemplates.has(doc.background.art)) found.push({ kind: 'template', id: doc.background.art });
   if (doc.frame) found.push({ kind: 'frame', id: doc.frame });
   for (const layer of doc.layers) {
     if (layer.type === 'sticker' && !catalog.freeStickers.has(layer.sticker)) found.push({ kind: 'sticker', id: layer.sticker });

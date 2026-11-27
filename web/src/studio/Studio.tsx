@@ -139,11 +139,14 @@ import {
   designThemes,
   findTemplate,
   FREE_TEMPLATES,
+  HOLIDAY_TEMPLATES,
+  holidaySeason,
   TEMPLATES,
   type Template,
 } from "./templates";
 import { loadPhoto, savePhoto } from "./photo";
 import { addImage, loadImages, pruneImages } from "./images";
+import { ART_IDS, loadArt, onArtLoaded } from "./art";
 
 const CATALOG: Catalog = {
   freeTemplates: FREE_TEMPLATES,
@@ -229,14 +232,21 @@ function useMediaQuery(query: string): boolean {
   return matches;
 }
 
-/** Bumps a number whenever a font finishes loading, so the canvas draws again with it. */
+/**
+ * Bumps a number whenever a font or the painted background of a template finishes loading, so the
+ * canvas draws again with it.
+ */
 function useFontTick(): number {
   const [tick, setTick] = useState(0);
   useEffect(() => {
-    if (typeof document === "undefined" || !document.fonts) return;
     const bump = () => setTick((n) => n + 1);
+    const stopArt = onArtLoaded(bump);
+    if (typeof document === "undefined" || !document.fonts) return stopArt;
     document.fonts.addEventListener("loadingdone", bump);
-    return () => document.fonts.removeEventListener("loadingdone", bump);
+    return () => {
+      stopArt();
+      document.fonts.removeEventListener("loadingdone", bump);
+    };
   }, []);
   return tick;
 }
@@ -1031,12 +1041,20 @@ function TemplatesPanel({
     () => new Map(TEMPLATES.map((template) => [template.id, template.build()])),
     [],
   );
+  // The painted backgrounds of the seasonal templates, for their tiles.
+  useEffect(() => {
+    for (const id of ART_IDS) void loadArt(id);
+  }, []);
   const name = (template: Template) =>
     s.templates[template.id as keyof typeof s.templates] ??
     strings.shutdown.designs[
       template.id as keyof typeof strings.shutdown.designs
     ] ??
     template.id;
+  // From November 15 to January 15 the Christmas and New Year pictures come first; the rest of
+  // the year they wait with the other seasons.
+  const inHoliday = useMemo(() => holidaySeason(new Date()), []);
+  const holiday = [...HOLIDAY_TEMPLATES].map((id) => findTemplate(id)!);
   const group = (title: string, list: readonly Template[]) => (
     <Section title={title}>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">
@@ -1060,13 +1078,16 @@ function TemplatesPanel({
   );
   return (
     <div className="flex flex-col gap-6">
+      {inHoliday && group(s.holidayTitle, holiday)}
       {group(
         s.templatesTitle,
         TEMPLATES.filter((t) => !t.season),
       )}
       {group(
         s.seasonsTitle,
-        TEMPLATES.filter((t) => t.season),
+        TEMPLATES.filter(
+          (t) => t.season && !(inHoliday && HOLIDAY_TEMPLATES.has(t.id)),
+        ),
       )}
     </div>
   );
@@ -1371,8 +1392,8 @@ function BackgroundPanel({
     { kind: "gradient", label: s.bgGradient },
     { kind: "pattern", label: s.bgPattern },
     { kind: "photo", label: s.bgPhoto },
-    ...(background.kind === "design"
-      ? [{ kind: "design" as const, label: s.bgDesign }]
+    ...(background.kind === "design" || background.kind === "art"
+      ? [{ kind: background.kind, label: s.bgDesign }]
       : []),
   ];
   function pick(kind: Background["kind"]) {
@@ -1922,6 +1943,11 @@ export default function Studio({
       live = false;
     };
   }, []);
+  // The painted background of a seasonal template, read once a visit.
+  const art = doc.background.kind === "art" ? doc.background.art : null;
+  useEffect(() => {
+    if (art) void loadArt(art);
+  }, [art]);
   // The pictures of the picture layers, read once each from this browser.
   const imageIds = doc.layers
     .flatMap((layer) => (layer.type === "image" ? [layer.image] : []))
@@ -2107,6 +2133,7 @@ export default function Studio({
       await prepareFonts(
         doc.layers.filter((layer): layer is TextLayer => layer.type === "text"),
       );
+      if (doc.background.kind === "art") await loadArt(doc.background.art);
       const canvas =
         typeof OffscreenCanvas !== "undefined"
           ? new OffscreenCanvas(W, H)
