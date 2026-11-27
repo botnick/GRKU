@@ -80,10 +80,15 @@ export const zhHant: DocsContent = {
       "對角線"
     ],
     "settingCol": "在相機上",
-    "choicesCol": "選項與說明",
+    "choicesCol": "選項與功能",
     "defaultMark": "預設",
     "withoutLabel": "無",
     "photoBadge": "相機實拍",
+    "readingTime": "${n} 分鐘閱讀",
+    "copyStep": "複製此步驟",
+    "copiedStep": "已複製",
+    "askStep": "詢問 AI 此步驟",
+    "askStepPrompt": "在說明書頁面「${title}」中，第 ${n} 步寫道：「${step}」。請簡單地向我解釋這個步驟。",
     "captureBadge": "螢幕截圖",
     "drawnBadge": "依真實選單繪製",
     "updated": "已更新"
@@ -109,11 +114,11 @@ export const zhHant: DocsContent = {
       "blocks": [
         {
           "kind": "p",
-          "text": "GRKU 是 RICOH GR III、GR IIIx 和 GR IV 的免費 SD 卡擴充套件。你可以從超過 150 種底片風格中挑選，一張記憶卡最多能放 40 種，還包含日期浮水印、顆粒感與 XPan 寬幅等配方與效果。"
+          "text": "GRKU 是 RICOH GR III、GR IIIx 和 GR IV 的免費 SD 卡擴充功能。你可以從超過 150 種底片風格中挑選，一張記憶卡最多可放 40 種，並搭配配方與效果，例如日期浮水印、顆粒感與 XPan 寬幅構圖。"
         },
         {
           "kind": "p",
-          "text": "相機開機時，它從 SD 卡執行。若無此卡，GRKU 不會載入，相機維持原廠設定運作。僅「SD 腳本」設定會保持**開啟**。GRKU 絕不修改相機韌體。"
+          "text": "相機開機時，它從 SD 卡執行。若沒有這張卡，GRKU 不會載入，相機會以原廠設定運作。只有「SD 腳本」這個相機設定會保持**開啟**。GRKU 絕不修改相機韌體。"
         },
         {
           "kind": "h2",
@@ -149,7 +154,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "網站上所有風格都能免費預覽，你也可以免費將 10 款內建風格放入記憶卡。自己匯入的風格不佔額度。Develop 頁面上的所有模組、配方與試用功能都是免費的。[GRKU Plus](doc:plus) 是一次性付費升級方案，讓記憶卡能容納更多風格。"
+          "text": "網站上所有風格都能免費預覽，你也可以免費將 10 款內建風格放入記憶卡。自己匯入的風格不佔用額度。Develop 頁面上的所有模組、配方與風格試用都是免費的。[GRKU Plus](doc:plus) 是一次性付費升級方案，讓記憶卡能存放更多風格。"
         },
         {
           "kind": "h2",
@@ -159,8 +164,8 @@ export const zhHant: DocsContent = {
         {
           "kind": "list",
           "items": [
-            "**SD card**：相機用來儲存照片的小記憶卡。GR IV 使用 microSD 卡。本手冊將兩者統稱為「卡片」。",
-            "**Card reader**：讓電腦可以讀取 SD card 的小裝置。",
+            "**SD card**：相機用來儲存照片的小記憶卡。GR IV 使用 microSD 卡。本手冊統稱兩者為「記憶卡」。",
+            "**Card reader**：讓電腦可以讀取 SD 卡的小裝置。",
             "**ZIP file**：把很多檔案包在一起的單一檔案，打開後就能取出裡面的檔案。",
             "**Firmware**：由 RICOH 製作、裝在相機裡的軟體。GRKU 絕不會修改它。",
             "**SD scripts**：讓相機從記憶卡執行 GRKU 的設定，只要開啟一次就好。",
@@ -198,49 +203,59 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "h2",
-          "id": "gr3",
-          "text": "GR III 與 GR IIIx"
+          "id": "check",
+          "text": "在相機上找到版本資訊"
         },
         {
-          "kind": "steps",
-          "items": [
-            "開啟相機電源。",
-            "按下 {{MENU}}。",
-            "前往設定選單（扳手圖示分頁），開啟 **關於本機**。",
-            "選擇 **韌體資訊 / 選項**，然後按右鍵。",
-            "畫面會顯示韌體版本，例如 2.21。"
-          ]
-        },
-        {
-          "kind": "path",
-          "items": [
-            "MENU",
-            "Setup",
-            "About This Device",
-            "Firmware Info / Options"
-          ]
-        },
-        {
-          "kind": "h2",
-          "id": "gr4",
-          "text": "GR IV 與 GR IV HDF"
-        },
-        {
-          "kind": "steps",
-          "items": [
-            "開啟相機電源。",
-            "按下 {{MENU}}。",
-            "前往設定選單（扳手圖示分頁），選擇 **相機資訊**。",
-            "按右鍵。",
-            "畫面會顯示韌體版本，例如 1.21。"
-          ]
-        },
-        {
-          "kind": "path",
-          "items": [
-            "MENU",
-            "Setup",
-            "Camera Information"
+          "kind": "tabs",
+          "tabs": [
+            {
+              "label": "GR III / GR IIIx",
+              "blocks": [
+                {
+                  "kind": "steps",
+                  "items": [
+                    "開啟相機電源。",
+                    "按下 {{MENU}}。",
+                    "前往設定選單（扳手圖示分頁），開啟 **關於本裝置**。",
+                    "選擇 **韌體資訊 / 選項**，然後按右鍵。",
+                    "畫面會顯示韌體版本，例如 2.21。"
+                  ]
+                },
+                {
+                  "kind": "path",
+                  "items": [
+                    "MENU",
+                    "設定",
+                    "關於此裝置",
+                    "韌體資訊 / 選項"
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "GR IV",
+              "blocks": [
+                {
+                  "kind": "steps",
+                  "items": [
+                    "開啟相機電源。",
+                    "按下 {{MENU}}。",
+                    "前往設定選單（扳手圖示分頁），選擇 **相機資訊**。",
+                    "按右鍵。",
+                    "畫面會顯示韌體版本，例如 1.21。"
+                  ]
+                },
+                {
+                  "kind": "path",
+                  "items": [
+                    "MENU",
+                    "設定",
+                    "相機資訊"
+                  ]
+                }
+              ]
+            }
           ]
         },
         {
@@ -256,7 +271,7 @@ export const zhHant: DocsContent = {
           "kind": "flow",
           "steps": [
             {
-              "see": "您的版本列於表格中。",
+              "see": "您的版本在表格中。",
               "then": "[安裝 GRKU](doc:install)。"
             },
             {
@@ -274,7 +289,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GRKU 已在韌體 1.11 的 GR IV 上測試過。其他版本和機型使用相同程式碼製作，並比對過 RICOH 韌體檔案，但尚未在相機上實際運行。"
+          "text": "GRKU 已在韌體 1.11 的 GR IV 上測試過。其他版本和機型使用相同程式碼製作，並比對過 RICOH 韌體檔案，但尚未在相機上實際執行。"
         },
         {
           "kind": "p",
@@ -340,7 +355,7 @@ export const zhHant: DocsContent = {
           "items": [
             "開啟 [安裝頁面](site:install)。",
             "選擇你的軟片風格，再選擇相機型號，最後選擇模組。",
-            "最後一步選擇 **Write to the SD card**，再按 **Connect SD card**。選取卡片本身，然後允許編輯。",
+            "最後一步選擇 **Write to the SD card**，然後按 **Connect SD card**。選取卡片本身，再允許編輯。",
             "檢查變更清單，然後按下 **安裝 GRKU**。你的照片會留在記憶卡上。",
             "在電腦上退出記憶卡後再取出。"
           ]
@@ -353,7 +368,7 @@ export const zhHant: DocsContent = {
           "kind": "note",
           "tone": "tip",
           "title": "如果畫面不是這樣",
-          "text": "沒有看到 **連接 SD 卡** 按鈕嗎？請用電腦上的 Chrome 或 Edge 開啟這個頁面；如果是手機或 Safari，請使用下方的 GRKU.zip。"
+          "text": "沒看到 **連接 SD 卡** 按鈕？請用電腦的 Chrome 或 Edge 開啟此頁面；手機或 Safari 用戶請改用下方的 GRKU.zip。"
         },
         {
           "kind": "h2",
@@ -362,7 +377,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "適用於其他瀏覽器，也支援手機或使用 Safari 的 Mac。如果 App 內的瀏覽器無法儲存檔案，請改用手機自帶的瀏覽器開啟這個頁面。"
+          "text": "適用於其他瀏覽器，也支援手機或使用 Safari 的 Mac。如果 App 內的瀏覽器無法儲存檔案，請改用手機的瀏覽器開啟這個頁面。"
         },
         {
           "kind": "art",
@@ -373,7 +388,7 @@ export const zhHant: DocsContent = {
           "kind": "steps",
           "items": [
             "在安裝的最後一步，按下 **下載 GRKU.zip**。",
-            "檔案儲存為 `GRKU-….zip`。請解壓縮。部分瀏覽器會自動解壓。",
+            "檔案會儲存為 `GRKU-….zip`。將它解壓縮。有些瀏覽器會自動幫你解壓縮。",
             "將 `SD_ROOT` 內的檔案複製到記憶卡的最上層，不要複製資料夾本身。",
             "現在記憶卡的最上層會有 `SCRIPT` 資料夾、`DEVELOP.MOD` 與你的相機模式 Set 檔案。"
           ]
@@ -396,11 +411,11 @@ export const zhHant: DocsContent = {
             ],
             [
               "GRKU",
-              "您的設定與底片風格檔。由網站或相機產生。"
+              "你的設定與底片風格檔。由網站或相機產生。"
             ],
             [
               "DCIM",
-              "你的照片。安裝 GRKU 不會影響它們。"
+              "你的照片。安裝 GRKU 不會動到它們。"
             ]
           ]
         },
@@ -411,7 +426,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "只需執行一次。此設定會保存在相機中，適用於所有記憶卡，且後續更新無需重複操作。"
+          "text": "只要做這一次就好。換任何一張記憶卡相機都會保留這個設定，而且之後更新也不用再做一次。"
         },
         {
           "kind": "art",
@@ -449,7 +464,7 @@ export const zhHant: DocsContent = {
           "kind": "note",
           "tone": "warning",
           "title": "出現韌體更新畫面？",
-          "text": "記憶卡裡有相機韌體檔（檔名開頭為 `fwdc` 的 `.bin` 檔）。選擇 **Cancel** 並按下 {{OK}}，千萬不要選 Execute。將相機關機，從記憶卡最上層刪除該檔案，再重新做這一步。"
+          "text": "記憶卡裡有韌體更新檔（檔名以 `fwdc` 開頭的 `.bin` 檔）。請選 **Cancel** 並按 {{OK}}，千萬別選 Execute。關機後，從記憶卡根目錄刪掉該檔案，再重做這一步。"
         },
         {
           "kind": "p",
@@ -479,7 +494,7 @@ export const zhHant: DocsContent = {
           "kind": "screen",
           "screen": "adj",
           "source": "capture",
-          "alt": "ADJ 開啟 GRKU 介面，顯示各模組圖示。螢幕左上角顯示 GRKU 與 Film Look: Off。"
+          "alt": "ADJ 畫面開啟著 GRKU 模組圖示。螢幕左上角顯示 GRKU 與 Film Look: Off。"
         },
         {
           "kind": "p",
@@ -521,7 +536,7 @@ export const zhHant: DocsContent = {
           "rows": [
             [
               "{{ADJ}}",
-              "開啟 ADJ。如果上次關閉時停在 GRKU，下次也會從這裡打開。"
+              "開啟 ADJ。若上次關閉時停在 GRKU，下次開機也會直接進入這裡。"
             ],
             [
               "上、下",
@@ -587,7 +602,7 @@ export const zhHant: DocsContent = {
           "rows": [
             [
               "**啟用 GRKU**",
-              "提供**開啟**（預設）和**關閉**選項。開啟或關閉 GRKU；選**開啟**會重新啟動所有已啟用的模組。"
+              "提供**開啟**（預設）與**關閉**選項。可開啟或關閉 GRKU；選擇**開啟**會重新啟動所有已啟用的模組。"
             ],
             [
               "**GRKU 設定**",
@@ -595,7 +610,7 @@ export const zhHant: DocsContent = {
             ],
             [
               "**配方**",
-              "相機符合配方時顯示名稱，否則不顯示；GRKU 關閉時顯示**關閉**。開啟你的配方（若未啟用任何配方，僅有**啟用**和**儲存設定**）：套用、檢視、重新命名或刪除配方，以及**儲存設定**。請參閱 [配方](doc:recipes)。"
+              "相機符合配方時顯示名稱，否則不顯示；GRKU 關閉時顯示**關閉**。開啟配方清單（若未啟用任何配方，僅有**啟用**和**儲存設定**）：可套用、檢視、重新命名或刪除配方，以及**儲存設定**。請參閱 [配方](doc:recipes)。"
             ],
             [
               "**底片風格**",
@@ -631,27 +646,27 @@ export const zhHant: DocsContent = {
             ],
             [
               "**邊框**",
-              "僅當 SD 卡上有邊框功能時，位於柔光與粒紋之間。顯示樣式或關閉。請參閱 [邊框](doc:border)。"
+              "僅當 SD 卡上有邊框功能時，位於柔光鏡與粒紋感之間。顯示樣式或關閉。請參閱 [邊框](doc:border)。"
             ],
             [
-              "**粒紋**",
-              "顯示強度或關閉。請參閱 [粒紋](doc:grain)。"
+              "**粒紋感**",
+              "顯示強度，或關閉。請參閱 [粒紋感](doc:grain)。"
             ],
             [
               "**關於 GRKU**",
-              "顯示卡上的 GRKU 版本（例如 1.11.0），並開啟一個頁面，顯示版本、底片風格數量與網站。必要時會改為顯示**安全模式**或**重新開機後生效**。"
+              "顯示卡上的 GRKU 版本（例如 1.11.0），並開啟頁面顯示版本、底片風格數量與網站。必要時會改為顯示**安全模式**或**重新開機後生效**。"
             ]
           ]
         },
         {
           "kind": "p",
-          "text": "MENU 中的模組頁面開頭是 **啟用**（僅限該模組），接著若有提供則顯示 **可選項** 和 **順序**，最後是其設定。某些設定只出現在按 {{Fn}} 於 ADJ 中開啟的頁面，例如日期樣式和日期位置。"
+          "text": "MENU 裡的模組頁面，開頭是 **啟用**（僅限該模組），接著若有提供則顯示 **可選項** 和 **順序**，最後才是其他設定。有些設定只出現在按 {{Fn}} 於 ADJ 開啟的頁面，例如日期樣式和日期位置。"
         },
         {
           "kind": "screen",
           "screen": "menu-photo",
           "source": "photo",
-          "alt": "GR IV 上 GRKU 區塊的照片，使用較舊版本的 GRKU，其中配方位於粒紋之後：輔助線已反白顯示。"
+          "alt": "GR IV 上 GRKU 區塊的照片，使用較舊版本的 GRKU，其中配方位於粒紋感之後：輔助線已反白顯示。"
         },
         {
           "kind": "h2",
@@ -715,7 +730,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "要新增或移除底片風格：先插入記憶卡，再在網站上調整風格，確認變更清單，然後按下寫入按鈕。"
+          "text": "要新增或移除底片風格：先連接卡片，再在網站上變更風格，核對變更清單，然後按下寫入按鈕。"
         },
         {
           "kind": "h2",
@@ -737,7 +752,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "在安裝的最後一步，插入記憶卡並按下 **解除安裝 GRKU**。你可以選擇是否連同設定和底片風格一起刪除，再按 **Uninstall**。也可以關掉相機後，自己刪除 `SCRIPT` 和 `GRKU` 資料夾。你的照片不會受影響。"
+          "text": "在安裝的最後一步，接上記憶卡並按下 **解除安裝 GRKU**。你可以選擇是否連同設定和底片風格一起刪除，再按 **Uninstall**。也可以關掉相機後，自己刪除 `SCRIPT` 和 `GRKU` 資料夾。你的照片不會受影響。"
         },
         {
           "kind": "h2",
@@ -776,15 +791,24 @@ export const zhHant: DocsContent = {
         "CHANGELOG.md"
       ],
       "seo": "RICOH GR 底片風格：如何使用底片風格",
-      "lead": "提供真實底片與其他相機風格，具備即時預覽，取代 Image Control。",
+      "lead": "提供真實底片與其他相機的風格，具備即時預覽，取代 Image Control。",
       "keywords": "底片風格 效果 影像控制 LUT Portra Classic Chrome Kodak Fuji Fujifilm FinePix 正片 預覽 Fn 參數 底片 film look effect image control lut portra classic chrome kodak fuji fujifilm finepix positive preview fn parameters film stock",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "底片風格"
+          "kind": "facts",
+          "cells": [
+            [
+              "位置",
+              "ADJ › GRKU › 底片風格"
+            ],
+            [
+              "JPEG",
+              "套用風格"
+            ],
+            [
+              "DNG",
+              "保留原始數據，不套用風格"
+            ]
           ]
         },
         {
@@ -813,7 +837,7 @@ export const zhHant: DocsContent = {
           "before": "chairs-standard",
           "after": "chairs-chrome",
           "label": "Fujifilm Classic Chrome",
-          "alt": "同一張照片，左邊是標準風格，右邊是 Fujifilm Classic Chrome 風格。"
+          "alt": "同一張照片，分別為標準風格與 Fujifilm Classic Chrome 風格。"
         },
         {
           "kind": "h2",
@@ -859,7 +883,7 @@ export const zhHant: DocsContent = {
             ],
             [
               "**順序**",
-              "勾選兩個以上時，設定其在 ADJ 中的順序。"
+              "勾選兩個以上時，設定它們在 ADJ 中的順序。"
             ]
           ]
         },
@@ -897,11 +921,20 @@ export const zhHant: DocsContent = {
           "text": "一份配方包含底片風格或 Image Control、粒紋感、光暈、邊框、白平衡，以及相機的校正與曝光設定。"
         },
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "配方"
+          "kind": "facts",
+          "cells": [
+            [
+              "位置",
+              "ADJ › GRKU › 配方"
+            ],
+            [
+              "配方包含",
+              "風格、顆粒、光暈、邊框、白平衡、曝光"
+            ],
+            [
+              "限制",
+              "64 個配方，ADJ 中顯示 40 個，可復原 5 次"
+            ]
           ]
         },
         {
@@ -934,7 +967,7 @@ export const zhHant: DocsContent = {
           "kind": "list",
           "items": [
             "ADJ 會依序列出 **復原**（有可還原的項目時）、已開啟的配方，最後是 **儲存設定**。",
-            "記憶卡最多可存 64 個配方，ADJ 裡最多可開啟其中 40 個。在 MENU 的 **選項** 中選擇要顯示哪些配方。"
+            "記憶卡最多可存 64 個配方，ADJ 裡最多可開啟其中 40 個。在 MENU 裡，**選項** 可以選擇要顯示哪些配方。"
           ]
         },
         {
@@ -974,17 +1007,26 @@ export const zhHant: DocsContent = {
       "keywords": "framing aspect ratio xpan panorama 65:24 16:9 4:3 2.35:1 1:1 5:4 7:6 3:4 mask frame lines guides only crop 構圖比例 長寬比 寬景 遮罩 框線 輔助線 裁切",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "構圖比例"
-          ]
-        },
-        {
           "kind": "frame",
           "mode": "framing",
-          "alt": "通往石屋的花園小徑，使用 GRKU 拍攝，顯示選定比例的框線。"
+          "alt": "通往石屋的花園小徑，使用 GRKU 拍攝，畫面上有選定比例的框線。"
+        },
+        {
+          "kind": "facts",
+          "cells": [
+            [
+              "位置",
+              "ADJ › GRKU › 構圖比例"
+            ],
+            [
+              "JPEG",
+              "裁切至該比例（裁切模式）"
+            ],
+            [
+              "DNG",
+              "不裁切至該比例"
+            ]
+          ]
         },
         {
           "kind": "p",
@@ -1024,17 +1066,26 @@ export const zhHant: DocsContent = {
       "keywords": "裁切 焦距 35mm 40mm 50mm 70mm 57mm 71mm 100mm 變焦 增距 構圖框 遮罩 未裁切 RAW crop focal length 35mm 40mm 50mm 70mm 57mm 71mm 100mm zoom tele frame only mask uncropped raw",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "裁切"
-          ]
-        },
-        {
           "kind": "frame",
           "mode": "crop",
           "alt": "通往石屋的花園小徑，使用 GRKU 拍攝，帶有選定焦距的框線。"
+        },
+        {
+          "kind": "facts",
+          "cells": [
+            [
+              "位置",
+              "ADJ › GRKU › 裁切"
+            ],
+            [
+              "選項",
+              "35, 40, 50, 70 mm"
+            ],
+            [
+              "GR IIIx",
+              "50, 57, 71, 100 mm"
+            ]
+          ]
         },
         {
           "kind": "settings",
@@ -1068,17 +1119,26 @@ export const zhHant: DocsContent = {
       "keywords": "輔助線 格線 三分法 中心 黃金分割 對角線 黃金螺旋 動態對稱 構圖 顯示 不透明度 色彩 guides grid lines thirds center golden ratio diagonals golden spiral dynamic symmetry composition disp opacity color",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "輔助線"
-          ]
-        },
-        {
           "kind": "frame",
           "mode": "guides",
-          "alt": "通往石屋的花園小徑，使用 GRKU 拍攝，帶有選定輔助線。"
+          "alt": "通往石屋的花園小徑，使用 GRKU 拍攝，帶有選定輔助線的線條。"
+        },
+        {
+          "kind": "facts",
+          "cells": [
+            [
+              "位置",
+              "ADJ › GRKU › 輔助線"
+            ],
+            [
+              "照片",
+              "照片中絕不出現"
+            ],
+            [
+              "{{Fn}}",
+              "開啟黃金螺旋"
+            ]
+          ]
         },
         {
           "kind": "settings",
@@ -1109,11 +1169,20 @@ export const zhHant: DocsContent = {
       "keywords": "date imprint stamp time font classic gr1s gr ii color orange size position corner caption thank you happy birthday grku glow 加印日期 日期戳記 時間 字體 經典 gr1s gr ii 顏色 橘色 大小 位置 角落 文字 感謝 生日快樂 grku 發光",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "加印日期"
+          "kind": "facts",
+          "cells": [
+            [
+              "位置",
+              "ADJ › GRKU › 加印日期"
+            ],
+            [
+              "JPEG",
+              "會印上日期"
+            ],
+            [
+              "DNG",
+              "無日期"
+            ]
           ]
         },
         {
@@ -1121,7 +1190,7 @@ export const zhHant: DocsContent = {
           "before": "chairs-standard",
           "after": "chairs-date",
           "label": "加印日期：'YY M D",
-          "alt": "遮陽傘下的兩張躺椅，未加印與加印日期的對比：'YY M D，位置為底片右下角，大小 M，經典字體，標準顏色。"
+          "alt": "遮陽傘下的兩張躺椅，左邊未加印日期，右邊加印日期：'YY M D，位置為底片右下角，大小 M，經典字體，標準顏色。"
         },
         {
           "kind": "p",
@@ -1138,7 +1207,7 @@ export const zhHant: DocsContent = {
             "LOOK": "字體樣式：經典、GR1s（點陣字體）或 GR II。",
             "COLOR": "標準是字體的顏色：經典與 GR II 為橘色，GR1s 為黃色。黑白照片會變成白色。",
             "GLOW": "數字周圍的柔和光暈。GR II 印出的是平面數字，沒有光暈。",
-            "CAPTION": "日期前面的字。照片中會把 <3 顯示成愛心。",
+            "CAPTION": "日期前面的文字。照片中會把 <3 顯示成愛心。",
             "ICON": "在拍攝畫面上顯示日期樣式。"
           }
         },
@@ -1146,6 +1215,7 @@ export const zhHant: DocsContent = {
           "kind": "compare",
           "before": "chairs-date-crop",
           "after": "chairs-date-gr1s-crop",
+          "beforeLabel": "日期字體：經典",
           "label": "日期字體：GR1s",
           "alt": "照片右下角：左邊使用經典字體的日期，右邊使用 GR1s 字體的日期，其他設定相同。"
         }
@@ -1162,11 +1232,20 @@ export const zhHant: DocsContent = {
       "keywords": "光暈 柔光 底片光暈 電影底片 紅色 橙色 金色 白色 亮部 光源 夜景 glow bloom halation cinestill red orange gold white highlights lights night",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "光暈"
+          "kind": "facts",
+          "cells": [
+            [
+              "位置",
+              "ADJ › GRKU › 光暈"
+            ],
+            [
+              "JPEG",
+              "僅 JPEG"
+            ],
+            [
+              "即時取景",
+              "無預覽：請在回放中確認"
+            ]
           ]
         },
         {
@@ -1182,7 +1261,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "在 ADJ 選單中，反白 **Bloom** 或 **Halation**，按 {{Fn}} 可調整其他設定，例如 Halation 的顏色與圖示。"
+          "text": "在 ADJ 中選取**柔光 (Bloom)** 或 **Halation**，按 {{Fn}} 可設定其他選項，例如 Halation 的顏色與圖示。"
         },
         {
           "kind": "settings",
@@ -1215,11 +1294,20 @@ export const zhHant: DocsContent = {
       "keywords": "漏光 暗角 灰塵 刮痕 褪色 舊底片 復古 light leak vignette dust scratches faded dusty leaky expired old film lomo retro",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "漏光"
+          "kind": "facts",
+          "cells": [
+            [
+              "位置",
+              "ADJ › GRKU › 漏光"
+            ],
+            [
+              "JPEG",
+              "僅 JPEG"
+            ],
+            [
+              "即時取景",
+              "無預覽：請在回放中確認"
+            ]
           ]
         },
         {
@@ -1257,11 +1345,20 @@ export const zhHant: DocsContent = {
       "keywords": "柔光鏡 濾鏡 黑柔 拉絲光 變形鏡頭 柔和度 底片柔和度 柔和 夢幻 diffusion filter pro mist black mist streak anamorphic softness film softness soft dreamy",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "柔光鏡"
+          "kind": "facts",
+          "cells": [
+            [
+              "位置",
+              "ADJ › GRKU › Diffusion"
+            ],
+            [
+              "JPEG",
+              "僅 JPEG"
+            ],
+            [
+              "即時取景",
+              "無預覽：請在回放中確認"
+            ]
           ]
         },
         {
@@ -1286,10 +1383,10 @@ export const zhHant: DocsContent = {
           "kind": "settings",
           "module": "diffusion",
           "notes": {
-            "STRENGTH": "**濾鏡**：柔焦濾鏡的光暈效果，類似其強度等級。",
+            "STRENGTH": "**濾鏡**：柔焦濾鏡的光暈效果，就像它的等級一樣。",
             "MIST": "**濾鏡**：像一層薄紗蓋在暗部上。**強度**不是**關閉**時才會生效。",
             "STREAK": "**濾鏡**：點光源出現像變形鏡頭的水平光條。**強度**不是**關閉**時才會生效。",
-            "SOFTNESS": "**柔和度**：細節變淡，亮部過渡更平滑，就像底片掃描一樣。可單獨使用。"
+            "SOFTNESS": "**柔和度**：細部慢慢淡出，亮部過渡更滑順，就像底片掃描一樣。可單獨使用。"
           }
         },
         {
@@ -1311,18 +1408,27 @@ export const zhHant: DocsContent = {
       "keywords": "粒紋感 雜訊 膠片質感 系統 尺寸 強度 弱 中 強 特強 grain noise film-like system size strength weak medium strong extra",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "粒紋感"
+          "kind": "facts",
+          "cells": [
+            [
+              "位置",
+              "ADJ › GRKU › Grain"
+            ],
+            [
+              "樣式",
+              "系統或類膠片"
+            ],
+            [
+              "大小自動",
+              "依拍攝 ISO 自動調整"
+            ]
           ]
         },
         {
           "kind": "compare",
           "before": "house-standard-crop",
           "after": "house-grain-crop",
-          "label": "粒紋感：強，大小中，膠片質感",
+          "label": "粒紋：強，大小中，膠片質感",
           "alt": "石牆與遮篷的全尺寸近拍，未開啟與開啟強粒紋感、大小中、樣式膠片質感的對比。"
         },
         {
@@ -1330,8 +1436,8 @@ export const zhHant: DocsContent = {
           "module": "grain",
           "notes": {
             "CORE.GRAIN": "顆粒有多明顯。",
-            "CORE.GRAIN_SIZE": "顆粒的大小。**自動**會跟著拍攝時的 ISO 調整。",
-            "STYLE": "**系統**是相機本身的顆粒。**膠片質感**是彩色負片印相的顆粒：中間調最明顯，純白與純黑沒有顆粒，彩色照片上會帶有色彩。",
+            "CORE.GRAIN_SIZE": "顆粒的大小。**自動**會依拍攝時的 ISO 調整。",
+            "STYLE": "**系統**是相機本身的顆粒。**膠片質感**是彩色負片印相的顆粒：中間調最明顯，純白與純黑沒有顆粒，在彩色照片上會帶有色彩。",
             "ICON": "在拍攝畫面上顯示顆粒圖示。"
           }
         },
@@ -1354,11 +1460,20 @@ export const zhHant: DocsContent = {
       "keywords": "邊框 相框 白色 黑色 細 寬 拍立得 邊緣 border frame white black thin wide instant polaroid edge",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "邊框"
+          "kind": "facts",
+          "cells": [
+            [
+              "位置",
+              "ADJ › GRKU › Border"
+            ],
+            [
+              "JPEG",
+              "尺寸隨邊框增加"
+            ],
+            [
+              "DNG",
+              "無邊框"
+            ]
           ]
         },
         {
@@ -1379,7 +1494,7 @@ export const zhHant: DocsContent = {
           "kind": "settings",
           "module": "border",
           "notes": {
-            "CORE.BORDER": "**細**大約是短邊的 3%，**寬**大約 6%，**拍立得**大約 4%，底部則是三倍寬。在 GR IV 上，記憶體不足時，大邊框可能會稍微變窄。",
+            "CORE.BORDER": "**細**大約是短邊的 3%，**寬**大約 6%，**拍立得**大約 4%，底部則是三倍寬。在 GR IV 上，相機記憶體不足時，大邊框可能會稍微變窄一點。",
             "CORE.BORDER_COLOR": "邊框的顏色。",
             "ICON": "在拍攝畫面上顯示邊框圖示。"
           }
@@ -1419,7 +1534,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "P、Av、Tv、M 與 Sn（GR IV）共用同一組 GRKU 設定。在 GR IV 上，這一頁順序為 P、Av、Tv、Sn，接著是 M。每個位置都可將 GRKU 設為**開啟**或**關閉**。這些設定在**啟用 GRKU** 為**開啟**時生效。"
+          "text": "P、Av、Tv、M 與 Sn（GR IV）共用同一組 GRKU 設定。在 GR IV 上，這一頁的順序是 P、Av、Tv、Sn，接著才是 M。每個位置都可以把 GRKU 設為**開啟**或**關閉**。這些設定會在**啟用 GRKU** 為**開啟**時生效。"
         },
         {
           "kind": "h2",
@@ -1431,7 +1546,7 @@ export const zhHant: DocsContent = {
           "items": [
             "**開啟**：此位置使用共用的 GRKU 設定，與 P、Av、Tv、M 相同。",
             "**關閉**：此位置拍攝時不使用 GRKU。",
-            "**儲存目前設定**：將現在的相機與 GRKU 設定存到此位置。覆寫使用者模式前，相機會先詢問，並開啟鍵盤讓你輸入名稱。轉到該位置，兩組設定就會一起回來。此位置之後會顯示儲存的名稱。它不會儲存 ADJ 順序、**開機啟用**、**啟用 GRKU** 或**模式轉盤**設定。"
+            "**儲存目前設定**：將當下的相機設定與 GRKU 設定存到此位置。覆寫使用者模式前，相機會先詢問，接著開啟鍵盤讓你輸入名稱。轉到該位置時，兩組設定就會一起回來。此位置之後會顯示儲存的名稱。它不會儲存 ADJ 順序、**開機啟用**、**啟用 GRKU** 或**模式轉盤**設定。"
           ]
         },
         {
@@ -1469,7 +1584,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "如果 DNG 裡有記錄 GRKU 設定，顯影就會從這些設定開始。GRKU 這一列只會改變這份顯影。你也可以在顯影的清單裡選其他**構圖比例**。"
+          "text": "如果 DNG 裡有記錄 GRKU 設定，顯影就會從這些設定開始。GRKU 這一列只會改變這份顯影。你也可以在顯影清單中選其他**構圖比例**。"
         },
         {
           "kind": "h2",
@@ -1478,7 +1593,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "使用 GRKU 拍攝的照片會將設定記錄在 XMP 中，因此 exiftool 等讀取工具能看到這些資訊。開啟 **RAW 不裁切** 後，Lightroom 與 Camera Raw 會以原始構圖開啟 DNG，你也可以還原該裁切。"
+          "text": "使用 GRKU 拍攝的照片會將設定記錄在 XMP 中，因此 exiftool 等讀取工具能看到這些資訊。開啟 **RAW 不裁切** 後，Lightroom 與 Camera Raw 會以原始構圖開啟 DNG，你也可以取消該裁切。"
         },
         {
           "kind": "p",
@@ -1530,7 +1645,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "在相機上，這一頁列出**開機啟用**、**拍攝設定**、**顯示設定**、**關機畫面**、**模式轉盤**，接著是 **ADJ 選單順序**。每個開關都是開啟排在關閉前面。"
+          "text": "在相機上，這一頁會列出**開機啟用**、**拍攝設定**、**顯示設定**、**關機畫面**、**模式轉盤**，接著是 **ADJ 選單順序**。每個開關都是開啟排在關閉前面。"
         },
         {
           "kind": "h2",
@@ -1555,7 +1670,7 @@ export const zhHant: DocsContent = {
           "rows": [
             [
               "**RAW 不裁切**",
-              "預設為關閉。開啟後：每張 DNG 都會保留完整的感光元件畫面，拍攝時的裁切變成可還原的設定，Lightroom 和 Camera Raw 可以調整。這樣 Lightroom 可能不會套用其 RAW 預設值。"
+              "預設為關閉。開啟：每張 DNG 都會保留完整的感光元件畫面，拍攝時的裁切會變成可還原的設定（Lightroom 和 Camera Raw 可取消）。這樣 Lightroom 可能不會套用它自己的 RAW 預設值。"
             ]
           ]
         },
@@ -1577,7 +1692,7 @@ export const zhHant: DocsContent = {
             ],
             [
               "**簡單資訊電量**",
-              "預設為關閉。開啟時，即時取景的精簡資訊中也會顯示電池圖示。"
+              "預設為關閉。開啟時，即時取景的精簡資訊也會顯示電池圖示。"
             ],
             [
               "**播放效果圖示**",
@@ -1666,7 +1781,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "第 3 步選擇模組。一張記憶卡最多可容納 11 個模組中的 10 個；安裝時預設不包含邊框。第 3 步也會加入配方與[關機畫面](doc:shutdown)。"
+          "text": "第 3 步會選擇模組。一張記憶卡最多可放 11 個模組中的 10 個；安裝一開始不會加入邊框。第 3 步也會加入配方與[關機畫面](doc:shutdown)。"
         }
       ]
     },
@@ -1700,7 +1815,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "任何購買都會解鎖完整的 GRKU Studio 及其設計。價格請見 [GRKU Plus](site:plus) 頁面。你之前的付款會算入 Everything 與 25 個名額，不算入組合包。首發優惠價於 2027 年 1 月 1 日結束。"
+          "text": "任何購買也會解鎖完整的 GRKU Studio 與其設計。價格請見 [GRKU Plus](site:plus) 頁面。你之前支付的款項會算入 Everything 方案與 25 個名額，但不算入組合包。首發優惠價於 2027 年 1 月 1 日結束。"
         },
         {
           "kind": "h2",
@@ -1721,7 +1836,7 @@ export const zhHant: DocsContent = {
           "kind": "note",
           "tone": "plain",
           "title": "退款說明",
-          "text": "商品為即時交付，因此不接受因個人因素改變主意的退款。若金鑰未送達，或因我方錯誤導致無法解鎖且 14 天內無法修復，可獲全額退款。詳見 [使用條款](site:terms)。"
+          "text": "購買後立即交付，因此不接受因改變主意而退款。若未收到啟動金鑰，或因我方錯誤導致無法解鎖且 14 天內無法修復，將提供全額退款。請參閱[使用條款](site:terms)。"
         },
         {
           "kind": "h2",
@@ -1771,7 +1886,7 @@ export const zhHant: DocsContent = {
           "kind": "note",
           "tone": "warning",
           "title": "相機無法關機？",
-          "text": "損壞的 `GOODBYE.JPG` 可能導致相機無法關機。請取出電池，在電腦上刪除記憶卡中的 `GRKU/GOODBYE.JPG`，再從網站重新寫入圖片。"
+          "text": "損壞的 `GOODBYE.JPG` 可能會讓相機無法關機。取出電池，在電腦上刪除記憶卡裡的 `GRKU/GOODBYE.JPG`，再從網站重新寫入圖片。"
         },
         {
           "kind": "h2",
@@ -1896,7 +2011,7 @@ export const zhHant: DocsContent = {
             },
             {
               "see": "按住 {{MENU}} 時，相機顯示韌體更新畫面。",
-              "then": "選擇 **取消**，然後從記憶卡刪除 `fwdc….bin` 檔案。"
+              "then": "選擇 **Cancel**，然後從記憶卡刪除 `fwdc….bin` 檔案。"
             },
             {
               "see": "按住 {{MENU}} 時，沒有顯示 **Mode Set Command** 畫面。",
@@ -1921,7 +2036,7 @@ export const zhHant: DocsContent = {
             "**SD 腳本。**首次開機時是否按住 {{MENU}}，並看到 **模式 Set Command** 與 **Complete**？若沒有，請再做一次[首次啟動](doc:install#first-start)。",
             "**檔案位於最上層。**記憶卡的最上層必須有 `SCRIPT` 資料夾，不能放在 `DCIM` 或其他資料夾內。",
             "**讀卡機。**請使用讀卡機寫入記憶卡，不要透過相機的 USB 連接線。",
-            "**啟用 GRKU。**在 MENU > Customize (C) > GRKU 中，確認 **Enable GRKU** 為開啟，且 GRKU Settings 中的 **Enable at Start** 不是關閉狀態。"
+            "**啟用 GRKU。**在 MENU 的 Customize (C) > GRKU 中，確認**啟用 GRKU** 為開啟，且 GRKU 設定中的**開機啟用**不是關閉。"
           ]
         },
         {
@@ -1953,7 +2068,7 @@ export const zhHant: DocsContent = {
             ],
             [
               "36, 37",
-              "GRKU 無法寫入或讀取記憶卡上的安裝計畫。",
+              "GRKU 無法寫入或讀取記憶卡上的規劃檔案。",
               "重新寫入記憶卡。"
             ],
             [
@@ -1964,7 +2079,7 @@ export const zhHant: DocsContent = {
             [
               "23, 24",
               "對相機做的變更沒有套用。",
-              "請將相機關機再重新開機。若問題仍存在，請送出回報。"
+              "把相機關機再重新開機。如果問題還在，請傳送回報。"
             ],
             [
               "其他",
@@ -1980,7 +2095,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "沒載入的模組在 MENU 名稱後會顯示數字，`GRKU/REPORT.TXT` 也會列出。GRKU 仍能正常啟動。"
+          "text": "沒載入的模組在 MENU 裡名稱後面會顯示數字，`GRKU/REPORT.TXT` 也會列出。GRKU 還是能正常啟動。"
         },
         {
           "kind": "table",
@@ -1997,8 +2112,8 @@ export const zhHant: DocsContent = {
             ],
             [
               "56",
-              "在 GR IV Monochrome 上，彩色模組不會載入，這是正常現象。",
-              "無影響。"
+              "在 GR IV Monochrome 上，彩色模組不會載入，這是正常的。",
+              "沒有影響。"
             ]
           ]
         },
@@ -2010,9 +2125,9 @@ export const zhHant: DocsContent = {
         {
           "kind": "list",
           "items": [
-            "`GRKU/REPORT.TXT`：記錄 GRKU 版本、韌體版本、每個模組與底片風格的狀態（已載入、已停止或錯誤碼），以及支援所需的詳細資訊。內容變動時會自動更新。",
-            "`GRKU/BOOT.TXT`：每次啟動記錄一段文字，包含各步驟時間，約保留最近 20 次啟動紀錄。",
-            "`SCRIPT/GRKU/INSTALL.ERR`：僅在啟動失敗時產生，並附帶錯誤編號。"
+            "`GRKU/REPORT.TXT`：記錄 GRKU 版本與韌體版本、每個模組和底片風格的狀態（已載入、已停止或錯誤代碼），以及支援所需的詳細資訊。內容變動時會重新寫入。",
+            "`GRKU/BOOT.TXT`：每次開機都有一段文字，記下每個步驟的時間，大約保留最近 20 次開機紀錄。",
+            "`SCRIPT/GRKU/INSTALL.ERR`：僅在開機失敗時出現，並包含錯誤編號。"
           ]
         },
         {
@@ -2104,7 +2219,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "相機能開機但無法關機時，可能是關機畫面損壞所致，請參考 [關機畫面](doc:shutdown)。若仍無法解決，請停止使用 GRKU 並聯繫 RICOH 客服。[修復指南](site:recovery) 提供完整步驟。"
+          "text": "相機開得了卻關不掉時，可能是關機畫面損壞造成的，請看 [關機畫面](doc:shutdown)。如果還是開不了機，請停止使用 GRKU 並聯絡 RICOH 客服。[修復說明](site:recovery) 裡有完整步驟。"
         }
       ]
     },
@@ -2209,7 +2324,7 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GRKU 已在韌體 1.11 的 GR IV 上測試過。其他版本和機型使用相同程式碼製作，並比對過 RICOH 韌體檔案，但尚未在相機上實際運行。"
+          "text": "GRKU 已在韌體 1.11 的 GR IV 上測試過。其他版本和機型使用相同程式碼製作，並比對過 RICOH 韌體檔案，但尚未在相機上實際執行。"
         },
         {
           "kind": "p",

@@ -58,6 +58,10 @@ function blockMarkdown(block: DocBlock, content: DocsContent, language: Language
         '| --- | --- |',
         ...(settingRows(block.module, language) ?? []).map((row) => `| **${row.name}** | ${row.values.map((value, index) => (index === row.default ? `**${value}** (${content.ui.defaultMark})` : value)).join(', ')}. ${md(block.notes[row.key] ?? '')} |`),
       ].join('\n');
+    case 'tabs':
+      return block.tabs.map((tab) => [`**${tab.label}**`, ...tab.blocks.map((inner) => blockMarkdown(inner, content, language))].join('\n\n')).join('\n\n');
+    case 'facts':
+      return block.cells.map(([label, value]) => `${label}: ${md(value)}`).join(' · ');
     case 'flow':
       return block.steps.map((step) => `- ${md(step.see)} → ${md(step.then)}`).join('\n');
     case 'cameras':

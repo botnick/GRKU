@@ -42,6 +42,10 @@ export function blockText(block: DocBlock): string {
       return (settingRows(block.module, 'en') ?? []).map((row) => `${row.name}: ${row.values.map((value, index) => (index === row.default ? `${value} (default)` : value)).join(', ')}. ${plainInline(block.notes[row.key] ?? '')}`).join('\n');
     case 'art':
       return block.alt;
+    case 'tabs':
+      return block.tabs.map((tab) => `${tab.label}: ${tab.blocks.map(blockText).join(' ')}`).join('\n');
+    case 'facts':
+      return block.cells.map(([label, value]) => `${label}: ${plainInline(value)}`).join(' · ');
     case 'flow':
       return block.steps.map((step) => `${plainInline(step.see)} → ${plainInline(step.then)}`).join('\n');
     case 'cameras':
