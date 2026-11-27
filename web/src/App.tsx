@@ -96,7 +96,7 @@ import { FEEDBACK, guideUrl, releaseUrl } from './links';
 import { loadFonts } from './fonts';
 import { encodeLibrary, IMPORTS_FILE, nativeTone, readLibrary, withDetails, type LibraryDetails } from './import/library';
 import { restoreImports } from './import/lut';
-import { importsForCamera, NATIVE_LOOKS } from './import/native';
+import { importsForCamera, NATIVE_LOOKS, nativeLooksFor } from './import/native';
 import { isLutImportId } from './import/names';
 import { deleteImport, saveImport, updateImport } from './import/store';
 import { applyLanguage, loadStrings, showLanguage, STRINGS, type Language, type Strings } from './i18n';
@@ -1385,6 +1385,7 @@ export function App({
                 onPlus={openPlus}
                 initialLook={installRequest?.look ?? null}
                 developLink={(look) => `${pagePath(language, 'develop')}?look=${encodeURIComponent(look)}`}
+                nativeLooks={available.includes('filmLook') ? nativeLooksFor(camera.key) : []}
                 plusKey={plusKey}
                 onOtherKey={() => {
                   setPlusStart('key');

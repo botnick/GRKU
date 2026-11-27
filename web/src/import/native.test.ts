@@ -109,7 +109,7 @@ describe('nativeLooks errors', () => {
 const zip = process.env.GRKU_TEST_GR4_ZIP;
 
 describe.skipIf(!zip)('nativeLooks with an official GR IV ZIP', () => {
-  it('reads Cinema Yellow and Cinema Green', async () => {
+  it('reads the GR IV looks: Solarized only from 1.20', async () => {
     const wasm = await loadWasm();
     const read = wasm.nativeLooks(readFileSync(zip!), baseGamma).map((look) => {
       try {
@@ -118,10 +118,13 @@ describe.skipIf(!zip)('nativeLooks with an official GR IV ZIP', () => {
         look.free();
       }
     });
-    expect(read.map((look) => look.id)).toEqual(NATIVE_LOOKS.map((look) => look.id));
-    expect(read.map((look) => look.name)).toEqual(NATIVE_LOOKS.map((look) => look.name));
+    const gr4 = NATIVE_LOOKS.filter((look) => look.firmware === 'gr4');
+    const version = read[0]?.version ?? '';
+    const expected = version === '1.11' ? gr4.filter((look) => !look.id.includes('solarized')) : gr4;
+    expect(read.map((look) => look.id)).toEqual(expected.map((look) => look.id));
+    expect(read.map((look) => look.name)).toEqual(expected.map((look) => look.name));
     for (const look of read) {
-      expect(['1.11', '1.20']).toContain(look.version);
+      expect(['1.11', '1.20', '1.21']).toContain(look.version);
       expect(new TextDecoder().decode(look.blob.subarray(0, 8))).toBe('GRFX0001');
       expect(look.preview.length).toBe(33 ** 3 * 3);
     }

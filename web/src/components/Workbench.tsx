@@ -97,6 +97,17 @@ import { EffectIcon } from "./EffectIcon";
 import { ChangeBadge } from "./ChangeBadge";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { ImportDialog, type ImportDialogHandle } from "./ImportDialog";
+import {
+  NativeLookDialog,
+  nativeSource,
+  type NativeLookDialogHandle,
+} from "./NativeLookDialog";
+import { CoverIcon } from "./EffectIcon";
+import {
+  missingNativeLooks,
+  type NativeFirmware,
+  type NativeLook,
+} from "../import/native";
 import { LookSearchEmpty } from "./LookSearchEmpty";
 import { closestLooks, POPULAR_SEARCH, searchLooks } from "../lookSearch";
 
@@ -182,6 +193,8 @@ interface Props {
   initialLook?: string | null;
   /** The address of the Develop page with a look, for "Try on your photo". */
   developLink?: (look: string) => string;
+  /** The looks that the camera can take from a RICOH firmware file (`nativeLooksFor`). */
+  nativeLooks?: readonly NativeLook[];
 }
 
 /** The grid of looks, which the kind tabs filter: the tabs have no panels of their own. */
@@ -231,6 +244,7 @@ export function Workbench({
   notice,
   initialLook = null,
   developLink,
+  nativeLooks = [],
 }: Props) {
   const { catalog, error, retry } = useCatalog(PREVIEW_TARGET);
   const effects: readonly Effect[] = catalog
@@ -269,6 +283,7 @@ export function Workbench({
   const [source, setSource] = useState<Source>(DEFAULT_SAMPLE);
   const photo = useRef<Source | null>(null);
   const importer = useRef<ImportDialogHandle>(null);
+  const nativeDialog = useRef<NativeLookDialogHandle>(null);
   const editor = useRef<EditDialogHandle>(null);
   const [loader] = useState(() => new PhotoLoader());
   const [decoding, setDecoding] = useState(false);
@@ -349,7 +364,7 @@ export function Workbench({
   const look = !requested
     ? ""
     : requested.imported?.kind === "native"
-      ? t.nativeFrom(requested.imported.version)
+      ? nativeSource(t, requested.id, requested.imported.version)
       : requested.imported?.kind === "restored"
         ? t.restoredFrom(requested.imported.source)
         : requested.imported
@@ -1488,6 +1503,14 @@ export function Workbench({
             </span>
           </div>
         )}
+        {catalog?.baseGamma && (
+          <NativeLooks
+            strings={t}
+            looks={nativeLooks}
+            owned={[...imported, ...cardEffects]}
+            onOpen={(firmware) => nativeDialog.current?.open(firmware)}
+          />
+        )}
         <p className="mt-4 text-[13px] text-muted-foreground">
           {t.countLimit(MAX_EFFECTS)}
           {onCard && ` ${t.effectsCardNote}`}
@@ -1505,8 +1528,93 @@ export function Workbench({
             onAddRecipe={onAddRecipe}
           />
         )}
+        {catalog?.baseGamma && nativeLooks.length > 0 && (
+          <NativeLookDialog
+            ref={nativeDialog}
+            strings={t}
+            baseGamma={catalog.baseGamma}
+            looks={nativeLooks}
+            onImport={importEffects}
+          />
+        )}
         <EditDialog ref={editor} strings={t} onSave={onEdit} />
       </div>
+    </section>
+  );
+}
+
+/**
+ * The looks that the camera can take from the firmware file of another RICOH camera, one card
+ * for each firmware with looks that the page lacks: the covers, what they are, and a button that
+ * opens the steps (NativeLookDialog). Nothing shows when the page has them all or the camera has
+ * none, such as GR IV Monochrome.
+ */
+function NativeLooks({
+  strings: t,
+  looks,
+  owned,
+  onOpen,
+}: {
+  strings: Strings;
+  looks: readonly NativeLook[];
+  owned: readonly { readonly id: string }[];
+  onOpen: (firmware: NativeFirmware) => void;
+}) {
+  const n = t.native;
+  const groups = (["gr4", "gr2"] as const)
+    .map((firmware) => {
+      const all = looks.filter((look) => look.firmware === firmware);
+      return { firmware, all, missing: missingNativeLooks(owned, all) };
+    })
+    .filter((group) => group.missing.length > 0);
+  if (groups.length === 0) return null;
+  return (
+    <section className="mt-6 rounded-xl border bg-card p-4 sm:p-5" aria-labelledby="native-looks-title">
+      <h3 id="native-looks-title" className="text-base font-semibold">
+        {n.sectionTitle}
+      </h3>
+      <p className="mt-1 max-w-prose text-sm text-muted-foreground">{n.sectionText}</p>
+      <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+        {groups.map(({ firmware, all, missing }) => {
+          const title = firmware === "gr2" ? n.gr2Title : n.gr4Title;
+          const text =
+            firmware === "gr2"
+              ? n.gr2Text
+              : all.some((look) => !look.monochrome)
+                ? n.gr4TextColor
+                : n.gr4TextMono;
+          // GR II Positive is one look for each camera family: show each name once.
+          const shown = missing.filter((look, i, list) => list.findIndex((other) => other.name === look.name) === i);
+          return (
+            <li key={firmware} className="flex flex-col gap-3 rounded-lg border bg-background p-3">
+              <div className="flex items-center gap-1.5" aria-hidden="true">
+                {shown.slice(0, 5).map((look) => (
+                  <CoverIcon key={look.id} cover={look.cover} className="size-10" />
+                ))}
+                {shown.length > 5 && (
+                  <span className="pl-1 text-[13px] text-muted-foreground tabular-nums">+{shown.length - 5}</span>
+                )}
+              </div>
+              <div>
+                <p className="flex items-baseline gap-2 text-sm font-medium">
+                  {title}
+                  <span className="text-[13px] font-normal text-muted-foreground">{n.count(shown.length)}</span>
+                </p>
+                <p className="mt-0.5 text-[13px] text-muted-foreground">{text}</p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-auto self-start"
+                aria-label={n.getOf(title)}
+                onClick={() => onOpen(firmware)}
+              >
+                {n.get}
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }

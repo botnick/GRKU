@@ -461,39 +461,51 @@ export const th: Strings = {
   haldNote:
     'ดาวน์โหลดภาพ HALD แล้วเปิดในโปรแกรมแต่งภาพ ใช้พรีเซ็ตโดยปิดเกรน ความคมชัด และขอบมืด ส่งออกเป็นไฟล์ขนาดเต็มแบบ 16-bit TIFF หรือ PNG ในโหมดสี sRGB แล้วนำเข้าไฟล์ที่ส่งออกด้วยอินพุตแบบ Standard',
   haldDownload: 'ดาวน์โหลดภาพ HALD',
-  /** The locked entry of the GR IV Cinema looks in the effects list, for GR III and GR IIIx. */
-  nativeNeeds: 'ต้องใช้เฟิร์มแวร์ GR IV ของคุณ',
-  nativeUnlock: 'Unlock',
-  /** The label of the locked row of one look, for screen readers. */
-  nativeUnlockOf: (name: string) => `ปลดล็อก ${name}`,
-  /** The locked group of the GR IV looks: its name and the number of looks in it. */
-  nativeGroup: 'ฟิล์มลุค GR IV',
-  nativeCount: (count: number) => (count === 1 ? '1 ลุค' : `${count} ลุค`),
-  nativeTitle: 'ปลดล็อกฟิล์มลุคของ GR IV',
-  nativeIntro:
-    'Cinema Yellow และ Cinema Green คือลุคโทนภาพยนตร์ 2 แบบที่มีใน GR IV โดย GRKU จะสร้างลุคเหล่านี้จากเฟิร์มแวร์ของ GR IV ให้เป็นฟิล์มลุคสำหรับ GR III และ GR IIIx',
-  nativeStepDownload: 'ดาวน์โหลดเฟิร์มแวร์ GR IV จาก Ricoh: เวอร์ชัน 1.11, 1.20 หรือ 1.21',
-  nativeOpenRicoh: 'เปิดหน้าดาวน์โหลดของ Ricoh',
-  nativeStepChoose: 'เลือกไฟล์ ZIP ที่ดาวน์โหลดมา หรือลากมาวางที่นี่',
-  nativeChoose: 'เลือกไฟล์',
-  nativeStepRead: 'GRKU จะอ่านข้อมูลลุคจากไฟล์ในเบราว์เซอร์นี้ ใช้เวลาไม่กี่วินาที',
-  /** The file type in the file picker. */
-  nativeFileType: 'เฟิร์มแวร์ GR IV',
-  nativeReading: 'กำลังอ่านเฟิร์มแวร์…',
-  nativeDone: (version: string) => `พบ GR IV ${version} เพิ่มลุคเข้าในฟิล์มลุคของคุณแล้ว`,
-  nativeUnchecked: (max: number) =>
-    `หนึ่งแพ็กเกจใส่ได้ ${max} ฟิล์มลุค นำเครื่องหมายถูกออกบางอันเพื่อเพิ่มลุคเหล่านี้`,
-  /** Why a file gave no looks (`NativeProblem`). */
-  nativeErrors: {
-    unsupported: 'ไฟล์นี้ใช้ไม่ได้ ใช้ได้เฉพาะเฟิร์มแวร์ GR IV 1.11, 1.20 และ 1.21 เท่านั้น',
-    notFirmware: "ไฟล์นี้ไม่ใช่ ZIP เฟิร์มแวร์ GR IV เลือกไฟล์ ZIP จากหน้า GR IV ของ Ricoh",
-    tooLarge: 'ไฟล์นี้ใหญ่เกินกว่าจะเป็นเฟิร์มแวร์ GR IV',
-    failed: 'อ่านลุคจากไฟล์นี้ไม่ได้ ลองอีกครั้ง',
-  } as Readonly<Record<NativeProblem, string>>,
-  /** The source of a native look under the previewed name. */
-  nativeFrom: (version: string) => `จากเฟิร์มแวร์ GR IV ${version}`,
-  nativePrivacy: 'ไฟล์จะอยู่ในเบราว์เซอร์นี้เท่านั้นและไม่ถูกอัปโหลด',
-  nativeLicense: "การใช้เฟิร์มแวร์อยู่ภายใต้สัญญาอนุญาตซอฟต์แวร์ของ Ricoh",
+  /** The looks that GRKU copies from the firmware file of another RICOH camera (NativeLookDialog). */
+  native: {
+    sectionTitle: "ลุคเพิ่มเติมจาก RICOH",
+    sectionText: "บางลุคมีอยู่ในกล้อง RICOH รุ่นอื่น GRKU คัดลอกมาให้ฟรีจากไฟล์เฟิร์มแวร์ทางการที่คุณดาวน์โหลดจาก RICOH",
+    count: (count: number) => `${count} ลุค`,
+    get: "รับลุคเหล่านี้",
+    getOf: (name: string) => `รับ ${name}`,
+    gr4Title: "ลุคของ GR IV",
+    /** The GR IV group on GR III and GR IIIx, with the Cinema looks. */
+    gr4TextColor: "Cinema Yellow และ Cinema Green ของ GR IV รวมถึงลุคขาวดำของ GR IV Monochrome",
+    /** The GR IV group on GR IV: the Monochrome looks only. */
+    gr4TextMono: "ลุคขาวดำของ GR IV Monochrome พร้อม Solarized",
+    gr2Title: "GR II Positive",
+    gr2Text: "ลุค Positive Film ของ GR II ให้สีสดแบบฟิล์มสไลด์",
+    dialogGr4: "รับลุคของ GR IV",
+    dialogGr2: "รับ GR II Positive",
+    stepDownloadGr4: "ดาวน์โหลดเฟิร์มแวร์ GR IV จากเว็บไซต์ RICOH ใช้เวอร์ชัน 1.11, 1.20 หรือ 1.21 ได้ ส่วน Solarized ต้องใช้เวอร์ชัน 1.20 หรือ 1.21",
+    stepDownloadGr2: "ดาวน์โหลดเฟิร์มแวร์ GR II จากเว็บไซต์ RICOH ใช้เวอร์ชัน 3.00 ได้",
+    noUpdate: "คุณไม่ต้องอัปเดตกล้องด้วยไฟล์นี้ GRKU แค่ดึงลุคออกมาจากไฟล์เท่านั้น",
+    openRicoh: "เปิดหน้าดาวน์โหลดของ RICOH",
+    stepChoose: "เลือกไฟล์ที่คุณดาวน์โหลดมา หรือลากไฟล์มาวางที่นี่ ใช้ไฟล์ ZIP ได้เลย ไม่ต้องแตกไฟล์",
+    choose: "เลือกไฟล์",
+    stepRead: "GRKU จะคัดลอกลุคในเบราว์เซอร์นี้ ใช้เวลาเพียงไม่กี่วินาที",
+    reading: "กำลังอ่านไฟล์…",
+    doneGr4: (version: string) => `เสร็จแล้ว ลุคของเฟิร์มแวร์ GR IV ${version} อยู่ในรายการของคุณแล้ว`,
+    doneGr2: "เสร็จแล้ว GR II Positive อยู่ในรายการของคุณแล้ว",
+    noneForCamera: "ไฟล์นี้ใช้ได้ แต่ไม่มีลุคสำหรับกล้องของคุณ",
+    unchecked: (max: number) => `การ์ดเก็บฟิล์มลุคได้สูงสุด ${max} ลุค เอาลุคอื่นออกเพื่อเพิ่มลุคเหล่านี้`,
+    fromGr4: (version: string) => `จากเฟิร์มแวร์ GR IV ${version}`,
+    fromGr2: (version: string) => `จากเฟิร์มแวร์ GR II ${version}`,
+    privacy: "ไฟล์จะอยู่ในอุปกรณ์ของคุณ ไม่มีการอัปโหลด",
+    license: "เฟิร์มแวร์เป็นของ RICOH การใช้ต้องเป็นไปตามสัญญาอนุญาตซอฟต์แวร์ของ RICOH",
+    errorsGr4: {
+      unsupported: "ไฟล์นี้ใช้ไม่ได้ เลือกเฟิร์มแวร์ GR IV เวอร์ชัน 1.11, 1.20 หรือ 1.21",
+      notFirmware: "นี่ไม่ใช่เฟิร์มแวร์ GR IV เลือกไฟล์ ZIP จากหน้า GR IV ของ RICOH",
+      tooLarge: "ไฟล์นี้มีขนาดใหญ่เกินไปที่จะเป็นเฟิร์มแวร์ GR IV",
+      failed: "อ่านลุคจากไฟล์นี้ไม่สำเร็จ ลองอีกครั้ง หรือดาวน์โหลดไฟล์ใหม่",
+    } as Readonly<Record<NativeProblem, string>>,
+    errorsGr2: {
+      unsupported: "ไฟล์นี้ใช้ไม่ได้ เลือกเฟิร์มแวร์ GR II เวอร์ชัน 3.00",
+      notFirmware: "นี่ไม่ใช่เฟิร์มแวร์ GR II เลือกไฟล์ ZIP จากหน้า GR II ของ RICOH",
+      tooLarge: "ไฟล์นี้มีขนาดใหญ่เกินไปที่จะเป็นเฟิร์มแวร์ GR II",
+      failed: "อ่านลุคจากไฟล์นี้ไม่สำเร็จ ลองอีกครั้ง หรือดาวน์โหลดไฟล์ใหม่",
+    } as Readonly<Record<NativeProblem, string>>,
+  },
   printFilm: (code: string) => `ภาพพิมพ์ ${code}`,
   effectCount: 'ฟิล์มลุค',
   loading: 'กำลังโหลดฟิล์มลุค…',
