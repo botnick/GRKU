@@ -2297,6 +2297,31 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "h2",
+          "id": "safe-mode",
+          "text": "安全模式：不加载模块启动 GRKU"
+        },
+        {
+          "kind": "p",
+          "text": "如果相机在没有存储卡时能正常启动，但插入后再次停止，则可能是某个模块导致的。安全模式会在不加载任何模块的情况下启动 GRKU，以便您关闭该模块。"
+        },
+        {
+          "kind": "steps",
+          "items": [
+            "将存储卡插入电脑的读卡器。",
+            "在存储卡的 `GRKU` 文件夹中，创建一个名为 `SAFE.TXT`（或 `SAFE`）的空文件。",
+            "将存储卡插入相机并开机。此时不会加载任何模块，MENU 中的 **About GRKU** 会显示 **Safe mode**。",
+            "在 MENU、Customize (C)、GRKU 中，关闭您最近添加或修改的模块。",
+            "关闭相机，从存储卡中删除 `SAFE` 文件，然后重新开启相机。"
+          ]
+        },
+        {
+          "kind": "note",
+          "tone": "tip",
+          "title": "安全模式",
+          "text": "安全模式不会自动启动。只要存储卡上存在 `SAFE` 文件，拍摄的照片就不会应用 GRKU 效果。"
+        },
+        {
+          "kind": "h2",
           "id": "still",
           "text": "如果仍无法开机"
         },
