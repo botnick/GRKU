@@ -663,12 +663,6 @@ export const ko: DocsContent = {
           "text": "MENU의 모듈 페이지는 **사용**(해당 모듈만), 그 다음 **옵션**과 **순서**(모듈에 있는 경우), 그리고 설정 순으로 시작해요. 날짜 서식이나 날짜 위치처럼 {{Fn}}으로 ADJ에서 여는 페이지에만 있는 설정도 몇 가지 있어요."
         },
         {
-          "kind": "screen",
-          "screen": "menu-photo",
-          "source": "photo",
-          "alt": "레시피가 입자감 뒤에 있던 이전 GRKU가 설치된 GR IV의 GRKU 섹션 사진입니다. 구도 가이드가 강조되어 있습니다."
-        },
-        {
           "kind": "h2",
           "id": "module-rows",
           "text": "모듈 페이지"

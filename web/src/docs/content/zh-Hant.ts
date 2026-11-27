@@ -663,12 +663,6 @@ export const zhHant: DocsContent = {
           "text": "MENU 裡的模組頁面，開頭是 **啟用**（僅限該模組），接著若有提供則顯示 **可選項** 和 **順序**，最後才是其他設定。有些設定只出現在按 {{Fn}} 於 ADJ 開啟的頁面，例如日期樣式和日期位置。"
         },
         {
-          "kind": "screen",
-          "screen": "menu-photo",
-          "source": "photo",
-          "alt": "GR IV 上 GRKU 區塊的照片，使用較舊版本的 GRKU，其中配方位於粒紋感之後：輔助線已反白顯示。"
-        },
-        {
           "kind": "h2",
           "id": "module-rows",
           "text": "模組頁面"
