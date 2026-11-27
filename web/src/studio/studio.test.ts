@@ -47,7 +47,7 @@ import {
 import { FONTS } from './fonts';
 import { FRAMES, photoCrop, renderDoc, type Context } from './render';
 import { FREE_STICKERS, STICKER_GROUPS, STICKERS } from './stickers';
-import { designThemes, findTemplate, FREE_TEMPLATES, HOLIDAY_TEMPLATES, holidaySeason, TEMPLATES } from './templates';
+import { designThemes, findTemplate, FREE_TEMPLATES, HOLIDAY_TEMPLATES, holidaySeason, holidayYears, TEMPLATES } from './templates';
 import { ART_IDS, artUrl } from './art';
 import { STUDIO_STRINGS } from './strings';
 
@@ -348,6 +348,10 @@ describe('the library of the Studio', () => {
     const off = ['2026-11-14', '2027-01-16', '2027-04-13', '2027-10-31'];
     for (const day of on) expect(holidaySeason(new Date(`${day}T12:00:00`)), day).toBe(true);
     for (const day of off) expect(holidaySeason(new Date(`${day}T12:00:00`)), day).toBe(false);
+    // The pictures name the coming New Year, and the Christmas before it.
+    expect(holidayYears(new Date(2026, 10, 27))).toEqual({ christmas: 2026, newYear: 2027 });
+    expect(holidayYears(new Date(2027, 0, 10))).toEqual({ christmas: 2026, newYear: 2027 });
+    expect(holidayYears(new Date(2027, 11, 1))).toEqual({ christmas: 2027, newYear: 2028 });
   });
 
   it('keeps the painted background of a seasonal picture, and only a known one', () => {

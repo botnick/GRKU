@@ -2133,7 +2133,9 @@ export default function Studio({
       await prepareFonts(
         doc.layers.filter((layer): layer is TextLayer => layer.type === "text"),
       );
-      if (doc.background.kind === "art") await loadArt(doc.background.art);
+      // A painted background that does not load fails the picture, never saves a plain color.
+      if (doc.background.kind === "art" && !(await loadArt(doc.background.art)))
+        throw new Error(`The background ${doc.background.art} did not load`);
       const canvas =
         typeof OffscreenCanvas !== "undefined"
           ? new OffscreenCanvas(W, H)

@@ -59,11 +59,11 @@ export function loadArt(id: string): Promise<Photo | null> {
         return image;
       } catch {
         return null;
-      } finally {
-        pending.delete(id);
       }
     })();
     pending.set(id, request);
+    // Only a read on its way is shared; a read that failed is tried again the next time.
+    void request.then(() => pending.delete(id));
   }
   return request;
 }

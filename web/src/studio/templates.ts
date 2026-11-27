@@ -55,7 +55,6 @@ export const SEASON_WORDS = {
   loykrathong: 'สุขสันต์วันลอยกระทง',
   newyear: 'สวัสดีปีใหม่',
   christmas: 'สุขสันต์วันคริสต์มาส',
-  newyear2570: 'สวัสดีปีใหม่ 2570',
 } as const;
 
 const doc = (template: string, background: StudioDoc['background'], layers: Layer[]): StudioDoc => ({ ...emptyDoc(), background, layers, template });
@@ -126,6 +125,16 @@ const SEASONS: Template[] = [
 ];
 
 /**
+ * The years that the holiday pictures name, for the season of `date`: the Christmas of this year
+ * (of last year in January), and the New Year that comes next (this one in January). The Thai
+ * picture adds 543 for the Buddhist year (2027 is 2570).
+ */
+export function holidayYears(date = new Date()): { christmas: number; newYear: number } {
+  const year = date.getFullYear();
+  return date.getMonth() === 0 ? { christmas: year - 1, newYear: year } : { christmas: year, newYear: year + 1 };
+}
+
+/**
  * The Christmas and New Year pictures: the GRKU mascot painted for the season (`art`) under
  * text in IBM Plex, and two plain ones. Every word sits above the bar of the shot counts.
  */
@@ -179,7 +188,7 @@ const HOLIDAYS: Template[] = [
         stickerLayer('sparkle', { x: 104, y: 126, size: 26, tint: '#D9B46A' }),
         stickerLayer('sparkle', { x: 556, y: 232, size: 24, tint: '#D9B46A' }),
         textLayer({ text: 'Merry Christmas', font: 'condensed', size: 62, color: '#F3E6C8', spacing: 2, x: 360, y: 182 }),
-        textLayer({ text: 'MMXXVI', font: 'condensed', size: 18, color: '#D9B46A', spacing: 10, x: 360, y: 250 }),
+        textLayer({ text: String(holidayYears().christmas), font: 'condensed', size: 18, color: '#D9B46A', spacing: 10, x: 360, y: 250 }),
       ]),
   },
   {
@@ -189,7 +198,7 @@ const HOLIDAYS: Template[] = [
     build: () =>
       doc('ny-party', { kind: 'art', art: 'ny-party' }, [
         textLayer({ text: 'Happy New Year', font: 'condensed', size: 44, color: '#FFE8A3', x: 176, y: 84 }),
-        textLayer({ text: '2027', font: 'condensed', size: 88, color: '#FFFFFF', spacing: 4, x: 176, y: 164 }),
+        textLayer({ text: String(holidayYears().newYear), font: 'condensed', size: 88, color: '#FFFFFF', spacing: 4, x: 176, y: 164 }),
       ]),
   },
   {
@@ -198,8 +207,8 @@ const HOLIDAYS: Template[] = [
     season: true,
     build: () =>
       doc('ny-balloons', { kind: 'art', art: 'ny-balloons' }, [
-        textLayer({ text: SEASON_WORDS.newyear2570, font: 'condensed', size: 46, color: '#B4485A', x: 520, y: 150, maxWidth: 360 }),
-        textLayer({ text: 'HAPPY NEW YEAR 2027', font: 'condensed', size: 18, color: '#8A5A4A', spacing: 6, x: 520, y: 206 }),
+        textLayer({ text: `${SEASON_WORDS.newyear} ${holidayYears().newYear + 543}`, font: 'condensed', size: 46, color: '#B4485A', x: 520, y: 150, maxWidth: 360 }),
+        textLayer({ text: `HAPPY NEW YEAR ${holidayYears().newYear}`, font: 'condensed', size: 18, color: '#8A5A4A', spacing: 6, x: 520, y: 206 }),
       ]),
   },
   {
@@ -210,7 +219,7 @@ const HOLIDAYS: Template[] = [
       doc('ny-minimal', { kind: 'solid', color: '#0F0F14' }, [
         stickerLayer('sparkle', { x: 540, y: 74, size: 34, tint: '#E2C27A' }),
         stickerLayer('sparkle', { x: 140, y: 222, size: 24, tint: '#E2C27A' }),
-        textLayer({ text: '2027', font: 'condensed', size: 150, color: '#E2C27A', spacing: 12, x: 360, y: 150 }),
+        textLayer({ text: String(holidayYears().newYear), font: 'condensed', size: 150, color: '#E2C27A', spacing: 12, x: 360, y: 150 }),
         textLayer({ text: 'HAPPY NEW YEAR', font: 'condensed', size: 22, color: '#F3EBDD', spacing: 12, x: 360, y: 262 }),
       ]),
   },
