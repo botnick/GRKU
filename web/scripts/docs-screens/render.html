@@ -1,0 +1,113 @@
+<!doctype html><meta charset=utf-8>
+<!-- The camera screens of the manual (web/public/docs/screen-*.en-*.webp), drawn the way the camera
+     shows them: the RICOH words, icons, and layout cut from captures of the camera in ref/ (from the
+     docs of GRKit, MIT), the tiles and look icons of GRKU from modules/ and effects/, the photo from
+     web/public/docs/. Run: node web/scripts/docs-screens/serve.mjs web/scripts/docs-screens . then open
+     http://localhost:5288/render.html and call renderAll() in the console; the PNGs go to out/. -->
+<link rel=stylesheet href="https://fonts.googleapis.com/css2?family=M+PLUS+1:wght@400;500&display=block">
+<body style="background:#333">
+<script>
+const UP = '/repo/', DOCS = '/repo/web/public/docs/';
+const Y = '#ffe100', FONT = '400 31px "M PLUS 1"';
+const cache = {};
+const img = (u) => cache[u] ??= new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => no(new Error(u)); i.src = u; });
+async function effectIcon(id) { const j = await (await fetch(UP + 'effects/' + id + '/effect.json')).json(); return img('data:image/png;base64,' + j.icon.png); }
+const tile = (m, n) => img(UP + 'modules/' + m + '/tiles/' + n + '.png');
+const grku = () => img(UP + 'crates/grku-core/assets/tiles/grk.png');
+
+// The camera's own icons and words, cut from captures of the camera (GRKit docs, MIT).
+const REF = Object.fromEntries(Object.entries({ film: 'film-look', gr4: 'adj-grk-gr4', menu: 'menu-grkit', set: 'grkit-settings', dial: 'mode-dial-gr4' }).map(([k, v]) => [k, 'ref/' + v + '.en.jpg']));
+async function cut(ref, x, y, w, h) { const i = await img(REF[ref]); const c = new OffscreenCanvas(w, h); c.getContext('2d').drawImage(i, x, y, w, h, 0, 0, w, h); return c; }
+
+function canvas(scale) { const c = document.createElement('canvas'); c.width = 720 * scale; c.height = 480 * scale; const x = c.getContext('2d'); x.scale(scale, scale); x.imageSmoothingQuality = 'high'; document.body.append(c); return [c, x]; }
+
+function text(x, s, px, py, color = '#fff', align = 'left') { x.font = FONT; x.letterSpacing = '0.6px'; x.fillStyle = color; x.textAlign = align; x.fillText(s, px, py); }
+function label(x, s, y) { x.font = FONT; x.letterSpacing = '0.6px'; const w = x.measureText(s).width; x.fillStyle = 'rgba(0,0,0,.5)'; x.fillRect(0, y, Math.ceil(w) + 3, 40); text(x, s, 1, y + 31); }
+
+async function adj(scale, o) {
+  const [c, x] = canvas(scale);
+  const photo = await img(DOCS + o.photo + '-' + (o.size ?? 1200) + '.webp');
+  { const k = Math.max(720 / photo.width, 480 / photo.height), w = photo.width * k, h = photo.height * k; x.drawImage(photo, (720 - w) / 2, (480 - h) / 2, w, h); }
+  if (o.band) { x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(0, 0, 720, o.band[0]); x.fillRect(0, o.band[1], 720, 480 - o.band[1]); }
+  label(x, o.title, 0); if (o.value) label(x, o.value, 50);
+  // The ADJ. strip: four or five of the camera's settings, then GRKU.
+  x.fillStyle = 'rgba(0,0,0,.5)'; x.fillRect(415, 5, 305, 50);
+  for (let i = 0; i < 5; i++) x.drawImage(await cut(o.gr4 ? 'gr4' : 'film', 421 + 50 * i, 11, 38, 38), 421 + 50 * i, 11);
+  x.fillStyle = Y; x.fillRect(665, 5, 50, 50); x.fillStyle = '#000'; x.fillRect(670, 10, 40, 40);
+  x.drawImage(await grku(), 670, 10, 40, 40);
+  // The list of the page.
+  const top = o.listTop ?? 60, n = o.rows.length;
+  x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(620, top, 80, 60 * n);
+  for (let i = 0; i < n; i++) {
+    const r = o.rows[i], ry = top + 60 * i;
+    if (i === o.sel) { x.fillStyle = Y; x.fillRect(620, ry, 80, 60); }
+    if (r.dot) { x.fillStyle = Y; x.beginPath(); x.arc(629, ry + 30, 4, 0, 7); x.fill(); }
+    if (r.icon) x.drawImage(await r.icon, 640, ry + 10, 40, 40);
+  }
+  if (o.scroll) { x.fillStyle = 'rgba(255,255,255,.22)'; x.fillRect(708, 70, 4, 340); x.fillStyle = '#fff'; x.fillRect(708, 70 + 340 * o.scroll[0], 4, 340 * o.scroll[1]); }
+  // Fn and the gear on pages with options, then OK.
+  if (o.fn) {
+    x.fillStyle = '#000'; x.fillRect(302, 433, 36, 32); x.strokeStyle = '#777'; x.lineWidth = 1.5; x.strokeRect(302, 433, 36, 32);
+    x.font = '500 21px "M PLUS 1"'; x.fillStyle = '#fff'; x.textAlign = 'center'; x.fillText('Fn', 320, 457);
+    gear(x, 370, 449);
+  }
+  x.fillStyle = '#000'; x.fillRect(630, 433, 36, 32); x.strokeStyle = '#777'; x.lineWidth = 1.5; x.strokeRect(630, 433, 36, 32);
+  x.font = '500 19px "M PLUS 1"'; x.fillStyle = '#fff'; x.textAlign = 'center'; x.fillText('OK', 648, 456);
+  x.font = FONT; x.textAlign = 'left'; x.fillText('OK', 668, 461);
+  return c;
+}
+function gear(x, cx, cy) {
+  x.save(); x.translate(cx, cy); x.fillStyle = '#fff'; x.beginPath();
+  for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; x.save(); x.rotate(a); x.rect(-4, -17, 8, 8); x.restore(); }
+  x.fill(); x.beginPath(); x.arc(0, 0, 12, 0, 7); x.fill(); x.fillStyle = '#000'; x.beginPath(); x.arc(0, 0, 5, 0, 7); x.fill(); x.restore();
+}
+
+async function menu(scale, o) {
+  const [c, x] = canvas(scale);
+  const left = o.tabs ? 100 : 0;
+  x.fillStyle = '#191919'; x.fillRect(0, 0, 720, 480);
+  x.fillStyle = o.tabs ? '#000' : '#191919'; x.fillRect(0, 0, 720, 58);
+  x.fillStyle = '#c0c0c0'; x.fillRect(0, 58, 720, 2);
+  if (o.tabs) { x.drawImage(await cut('menu', 0, 60, 100, 420), 0, 60); x.drawImage(await cut('menu', 55, 10, 50, 44), 55, 10); x.fillStyle = '#000'; x.fillRect(700, 60, 20, 420); }
+  text(x, o.title, o.tabs ? 121 : 10, 42);
+  const n = o.rows.length;
+  for (let i = 0; i < n; i++) {
+    const [name, value, more] = o.rows[i], ry = 60 + 60 * i, sel = i === o.sel;
+    x.fillStyle = sel ? Y : '#191919'; x.fillRect(left, ry, 700 - left, 58);
+    x.fillStyle = '#404040'; x.fillRect(left, ry + 58, 700 - left, 2);
+    const ink = sel ? '#000' : '#fff';
+    text(x, name, left + 20 + (o.indent ?? 0), ry + 42, ink);
+    if (value) text(x, value, 540, ry + 42, ink);
+    if (more) text(x, '›', 686, ry + 40, ink);
+  }
+  if (o.scroll) { x.fillStyle = '#232323'; x.fillRect(708, 70, 4, 400); x.fillStyle = '#fff'; x.fillRect(708, 70 + 400 * o.scroll[0], 4, 400 * o.scroll[1]); }
+  if (o.footer === 'back') { x.fillStyle = '#2e2e2e'; x.fillRect(0, 420, 720, 60); x.drawImage(await cut('set', 0, 424, 120, 56), 0, 424); }
+  if (o.footer === 'cancel') { x.fillStyle = '#2e2e2e'; x.fillRect(0, 420, 720, 60); x.drawImage(await cut('dial', 0, 424, 180, 56), 0, 424); x.drawImage(await cut('dial', 620, 424, 100, 56), 620, 424); }
+  return c;
+}
+
+window.SCREENS = {
+  'menu-grku': (s) => menu(s, { tabs: true, title: 'GRKU', sel: 0, scroll: [0.65, 0.2], rows: [['Enable GRKU', 'On', 1], ['GRKU Settings'], ['Recipes'], ['Film Look', 'Off'], ['Framing', 'Off'], ['Crop', 'Off'], ['Guides', 'Off']] }),
+  'menu-grku-end': (s) => menu(s, { tabs: true, title: 'GRKU', sel: 6, scroll: [0.8, 0.2], rows: [['Guides', 'Off'], ['Date Imprint', 'Off'], ['Glow', 'Off'], ['Light Leak', 'Off'], ['Diffusion', 'Off'], ['Grain', 'Off'], ['About GRKU', '1.11.0']] }),
+  'grku-settings': (s) => menu(s, { title: 'GRKU Settings', sel: 0, footer: 'back', rows: [['Enable at Start', 'On', 1], ['Shooting Settings'], ['Display Settings'], ['Shutdown Screen'], ['Mode Dial'], ['ADJ Order']] }),
+  'mode-dial-gr4': (s) => menu(s, { title: 'Mode Dial', sel: 0, indent: 20, footer: 'cancel', scroll: [0, 0.68], rows: [['P: On'], ['Av: On'], ['Tv: On'], ['Sn: On'], ['M: On'], ['U1: On']] }),
+  'mode-dial': (s) => menu(s, { title: 'Mode Dial', sel: 0, indent: 20, footer: 'cancel', scroll: [0, 0.75], rows: [['P: On'], ['Av: On'], ['Tv: On'], ['M: On'], ['U1: On'], ['U2: On']] }),
+  'adj-grku': (s) => adj(s, { photo: 'render-house-standard', title: 'GRKU', value: 'Recipes', sel: 0, scroll: [0, 0.6], rows: [{ icon: tile('recipes', '0-module') }, { icon: tile('film-look', '0-module') }, { icon: tile('framing', '0-module') }, { icon: tile('crop', '0-module') }, { icon: tile('guides', '0-module') }, { icon: tile('date', '0-module') }] }),
+  'adj-grku-gr4': (s) => adj(s, { gr4: true, photo: 'render-house-standard', title: 'GRKU', value: 'Recipes', sel: 0, scroll: [0, 0.6], rows: [{ icon: tile('recipes', '0-module') }, { icon: tile('film-look', '0-module') }, { icon: tile('framing', '0-module') }, { icon: tile('crop', '0-module') }, { icon: tile('guides', '0-module') }, { icon: tile('date', '0-module') }] }),
+  'film-look': (s) => adj(s, { photo: 'render-chairs-portra', title: 'Film Look', value: 'Portra 400', sel: 3, fn: true, scroll: [0.45, 0.12], rows: [{ icon: cut('film', 640, 70, 40, 40), dot: true }, { icon: effectIcon('ektar-100-edge-v1') }, { icon: effectIcon('pro-400h-crystal-v1') }, { icon: effectIcon('portra-400-endura-v1') }, { icon: effectIcon('portra-800-push2-v1') }, { icon: effectIcon('gold-200-premier-v1') }] }),
+  framing: (s) => adj(s, { photo: 'render-chairs-standard', band: [107, 373], title: 'Framing', value: 'XPan 65:24', sel: 1, fn: true, scroll: [0, 0.6], rows: [{ icon: cut('film', 640, 70, 40, 40), dot: true }, { icon: tile('framing', '1-xpan') }, { icon: tile('framing', '4-2-35') }, { icon: tile('framing', '2-16-9') }, { icon: tile('framing', '3-4-3') }, { icon: tile('framing', '6-5-4') }] }),
+  crop: (s) => adj(s, { photo: 'render-house-standard-crop', size: 900, title: 'Crop', value: '50mm', sel: 3, fn: true, listTop: 120, rows: [{ icon: cut('film', 640, 70, 40, 40), dot: true }, { icon: tile('crop', '1-35') }, { icon: tile('crop', '2-40') }, { icon: tile('crop', '3-50') }, { icon: tile('crop', '4-70') }] }),
+  recipes: (s) => adj(s, { photo: 'render-house-standard', title: 'Recipes', value: 'Save Settings', sel: 0, listTop: 360, rows: [{ icon: tile('recipes', '2-save') }] }),
+};
+
+window.renderAll = async (names) => {
+  await document.fonts.load(FONT); await document.fonts.load('500 21px "M PLUS 1"');
+  const done = [];
+  for (const name of names ?? Object.keys(SCREENS)) for (const s of [1, 1.5]) {
+    const c = await SCREENS[name](s);
+    await fetch('/save?name=' + name + '-' + (s === 1 ? 720 : 1080) + '.png', { method: 'POST', body: c.toDataURL('image/png') });
+    done.push(name);
+  }
+  return done.length;
+};
+</script>
