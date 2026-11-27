@@ -329,7 +329,7 @@ export function docsSections(docs: DocsContent, others: readonly DocsContent[]):
       if (block.kind === 'h2') lines.push(`[${block.text}] /docs/${slug}/#${block.id}`);
       else if (block.kind === 'cameras') lines.push('(the table of supported cameras, firmware, and ModeSet files)');
       else if (block.kind === 'steps') lines.push(block.items.map((item, index) => `${index + 1}. ${blockText({ kind: 'p', text: item })}`).join(' '));
-      else if (block.kind !== 'screen' && block.kind !== 'photo' && block.kind !== 'camera' && block.kind !== 'frame') lines.push(blockText(block));
+      else if (block.kind !== 'screen' && block.kind !== 'compare' && block.kind !== 'camera' && block.kind !== 'frame' && block.kind !== 'art' && block.kind !== 'modules') lines.push(blockText(block));
     }
     return { id: `docs-${slug}`, title: `Manual: ${page.title}`, tags: docTags(slug, [docs, ...others]), text: lines.join('\n') };
   });

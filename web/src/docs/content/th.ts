@@ -82,6 +82,7 @@ export const th: DocsContent = {
     "settingCol": "บนกล้อง",
     "choicesCol": "ตัวเลือกและการทำงาน",
     "defaultMark": "ค่าเริ่มต้น",
+    "withoutLabel": "ไม่มี",
     "updated": "อัปเดตแล้ว"
   },
   "groups": {
@@ -249,6 +250,23 @@ export const th: DocsContent = {
           "text": "GRKU รองรับเวอร์ชันไหนบ้าง"
         },
         {
+          "kind": "flow",
+          "steps": [
+            {
+              "see": "เวอร์ชันของคุณอยู่ในตาราง",
+              "then": "[ติดตั้ง GRKU](doc:install)"
+            },
+            {
+              "see": "เวอร์ชันของคุณเก่ากว่า",
+              "then": "อัปเดตกล้องจาก RICOH ก่อน ดู [ด้านล่าง](doc:firmware#older)"
+            },
+            {
+              "see": "เวอร์ชันของคุณใหม่กว่าในตาราง",
+              "then": "รอการอัปเดต GRKU ดู [ด้านล่าง](doc:firmware#newer)"
+            }
+          ]
+        },
+        {
           "kind": "cameras"
         },
         {
@@ -310,6 +328,11 @@ export const th: DocsContent = {
           "text": "ใช้ Chrome หรือ Edge บนคอมพิวเตอร์ โดยใส่การ์ดในเครื่องอ่านการ์ด สาย USB ของกล้องใช้กับขั้นตอนนี้ไม่ได้"
         },
         {
+          "kind": "art",
+          "art": "computer",
+          "alt": "คอมพิวเตอร์ที่เปิดหน้า grku.app และการ์ดที่เสียบเข้ากับเครื่องอ่านการ์ด"
+        },
+        {
           "kind": "steps",
           "items": [
             "เปิด [หน้าติดตั้ง](site:install)",
@@ -337,6 +360,11 @@ export const th: DocsContent = {
         {
           "kind": "p",
           "text": "สำหรับเบราว์เซอร์อื่น รวมถึงบนมือถือหรือ Mac ที่ใช้ Safari ถ้าเบราว์เซอร์ในแอปบันทึกไฟล์ไม่ได้ ให้เปิดหน้านี้ในเบราว์เซอร์หลักของมือถือ"
+        },
+        {
+          "kind": "art",
+          "art": "copy",
+          "alt": "โฟลเดอร์ SCRIPT, DEVELOP.MOD และไฟล์ ModeSet จาก SD_ROOT ถูกคัดลอกไปยังชั้นบนสุดของการ์ด ข้างๆ DCIM"
         },
         {
           "kind": "steps",
@@ -381,6 +409,11 @@ export const th: DocsContent = {
         {
           "kind": "p",
           "text": "ทำแค่นี้ครั้งเดียว กล้องจะจำค่านี้ไว้ ใช้ได้กับการ์ดทุกใบ และตอนอัปเดตไม่ต้องทำซ้ำ"
+        },
+        {
+          "kind": "art",
+          "art": "insert",
+          "alt": "ใส่การ์ดลงช่องเสียบของกล้อง"
         },
         {
           "kind": "steps",
@@ -470,6 +503,9 @@ export const th: DocsContent = {
         {
           "kind": "p",
           "text": "ตอนถ่ายรูป ให้กดก้าน {{ADJ}} แล้วเลือก **GRKU** ปกติจะอยู่ลำดับที่หก หน้าจอจะแสดงรายการโมดูลบนการ์ดของคุณ เช่น **Film Look**, **Framing** และ **Grain**"
+        },
+        {
+          "kind": "modules"
         },
         {
           "kind": "table",
@@ -598,6 +634,11 @@ export const th: DocsContent = {
           "text": "อัปเดตจากเว็บ"
         },
         {
+          "kind": "art",
+          "art": "computer",
+          "alt": "คอมพิวเตอร์ที่เปิดหน้า grku.app และการ์ดที่เสียบเข้ากับเครื่องอ่านการ์ด"
+        },
+        {
           "kind": "steps",
           "items": [
             "ใส่การ์ด (microSD สำหรับ GR IV) ลงในเครื่องอ่านการ์ด แล้วเปิด [หน้าติดตั้ง](site:install) ใน Chrome หรือ Edge",
@@ -684,7 +725,7 @@ export const th: DocsContent = {
           "kind": "steps",
           "items": [
             "กด {{ADJ}} เลือก **GRKU** แล้วเลือก **Film Look**",
-            "เลื่อนไปที่ฟิล์มลุค หน้าจอสดจะแสดงผลทันทีพร้อมไอคอนของฟิล์มลุค",
+            "เลือกฟิล์มลุค หน้าจอ Live View จะเปลี่ยนทันที พร้อมแสดงไอคอนของลุคนั้น",
             "กด {{OK}} เพื่อใช้งาน เลือก **Off** หากต้องการถ่ายแบบไม่ใช้ฟิล์มลุค"
           ]
         },
@@ -692,6 +733,20 @@ export const th: DocsContent = {
           "kind": "screen",
           "screen": "adj",
           "alt": "GRKU ใน ADJ: Film Look อยู่เป็นตัวแรก และหน้าจอขึ้น Film Look: Off"
+        },
+        {
+          "kind": "compare",
+          "before": "chairs-standard",
+          "after": "chairs-portra",
+          "label": "Kodak Portra 400",
+          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบระหว่าง Standard ของกล้อง กับฟิล์มลุค Kodak Portra 400"
+        },
+        {
+          "kind": "compare",
+          "before": "chairs-standard",
+          "after": "chairs-chrome",
+          "label": "Fujifilm Classic Chrome",
+          "alt": "ภาพเดียวกัน เปรียบเทียบระหว่าง Standard กับฟิล์มลุค Fujifilm Classic Chrome"
         },
         {
           "kind": "h2",
@@ -804,7 +859,7 @@ export const th: DocsContent = {
           "kind": "steps",
           "items": [
             "ใน **Recipes** เลื่อนแถบไปที่สูตรสีที่ต้องการ ภาพสดจะแสดงผลให้ดู และค่าต่าง ๆ จะขึ้นทางซ้ายของจอ",
-            "กด {{OK}} เพื่อใช้งาน ADJ จะปิดลง หรือแสดงข้อความเมื่อบางค่าของสูตรสีใช้ไม่ได้",
+            "กด {{OK}} เพื่อใช้งาน ADJ จะปิด หรือแสดงข้อความเมื่อบางค่าของสูตรสีใช้ไม่ได้",
             "เปลี่ยนใจไหม เลือก **Undo** จะดึงค่ากล้องที่สูตรสีเปลี่ยนไปกลับคืนได้สูงสุด 5 สูตรสีล่าสุด"
           ]
         },
@@ -995,9 +1050,11 @@ export const th: DocsContent = {
           ]
         },
         {
-          "kind": "photo",
-          "photo": "portra-heart",
-          "alt": "เก้าอี้นั่งเล่นสองตัวใต้ร่มในสวน ฟิล์มลุค Kodak Portra 400 มีขอบรูปโพลารอยด์สีขาว และวันที่พร้อมคำบรรยาย GRKU <3"
+          "kind": "compare",
+          "before": "chairs-standard",
+          "after": "chairs-date",
+          "label": "Date Imprint: 'YY M D",
+          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบแบบไม่ประทับวันที่ และแบบใช้ Date Imprint: 'YY M D ตำแหน่ง Film มุมขวาล่าง ขนาด M ฟอนต์ Classic สี Standard"
         },
         {
           "kind": "p",
@@ -1019,9 +1076,11 @@ export const th: DocsContent = {
           }
         },
         {
-          "kind": "photo",
-          "photo": "neg-gr1s",
-          "alt": "บ้านหินและทางเดินในสวน: Classic Neg พร้อมขอบสีดำบางๆ และวันที่แบบฟอนต์ GR1s"
+          "kind": "compare",
+          "before": "chairs-date-crop",
+          "after": "chairs-date-gr1s-crop",
+          "label": "Date Font: GR1s",
+          "alt": "มุมขวาล่างของภาพ: วันที่ในฟอนต์ Classic (ซ้าย) และในฟอนต์ GR1s (ขวา) ส่วนการตั้งค่าอื่นๆ เหมือนเดิม"
         }
       ]
     },
@@ -1044,9 +1103,11 @@ export const th: DocsContent = {
           ]
         },
         {
-          "kind": "photo",
-          "photo": "portra-bloom",
-          "alt": "ดอกเดซี่: Kodak Portra 400 พร้อม Bloom Weak, Diffusion 1/4, Film Softness Low, Grain Weak ขอบสีขาวบางๆ และวันที่"
+          "kind": "compare",
+          "before": "daisy-standard",
+          "after": "daisy-bloom",
+          "label": "Bloom: Strong",
+          "alt": "ดอกเดซี่ในวันที่ฟ้าครึ้ม เปรียบเทียบแบบไม่มีและใช้ Bloom ที่ระดับ Strong จะเห็นผลชัดที่สุดตรงจุดสว่างจ้า"
         },
         {
           "kind": "p",
@@ -1095,9 +1156,11 @@ export const th: DocsContent = {
           ]
         },
         {
-          "kind": "photo",
-          "photo": "kodachrome-leak",
-          "alt": "บ้านหินกับทางเดินในสวนแนวตั้ง ใช้ Kodachrome 64 กับ Light Leak Faded, Grain Weak และวันที่"
+          "kind": "compare",
+          "before": "house-standard",
+          "after": "house-leak",
+          "label": "Light Leak: Leaky",
+          "alt": "บ้านหินและทางเดินในสวน เปรียบเทียบแบบไม่มีและใช้ Light Leak ที่ระดับ Leaky"
         },
         {
           "kind": "settings",
@@ -1135,9 +1198,18 @@ export const th: DocsContent = {
           ]
         },
         {
-          "kind": "photo",
-          "photo": "pro400h",
-          "alt": "ดอกเดซี่: Fujifilm Pro 400H กับ Diffusion 1/8, Film Softness Low, Grain Weak และวันที่"
+          "kind": "compare",
+          "before": "daisy-standard",
+          "after": "daisy-diffusion",
+          "label": "Filter: 1/2",
+          "alt": "ดอกเดซี่ เปรียบเทียบแบบไม่มีและใช้ฟิลเตอร์ Diffusion ที่ระดับ 1/2"
+        },
+        {
+          "kind": "compare",
+          "before": "daisy-standard",
+          "after": "daisy-softness",
+          "label": "Film Softness: High",
+          "alt": "ดอกเดซี่ เปรียบเทียบแบบไม่มีและใช้ Film Softness ที่ระดับ High"
         },
         {
           "kind": "p",
@@ -1180,9 +1252,11 @@ export const th: DocsContent = {
           ]
         },
         {
-          "kind": "photo",
-          "photo": "trix",
-          "alt": "บ้านหินและทางเดินในสวนแบบขาวดำ Kodak Tri-X 400 พร้อม Grain Medium วันที่แบบฟอนต์ GR1s และขอบแบบ Wide สีดำ"
+          "kind": "compare",
+          "before": "house-standard-crop",
+          "after": "house-grain-crop",
+          "label": "Grain: Strong, Size Medium, Film-like",
+          "alt": "ภาพขยายเต็มของผนังหินและกันสาด เปรียบเทียบแบบไม่มีและใช้ Grain ที่ระดับ Strong ขนาด Medium สไตล์ Film-like"
         },
         {
           "kind": "settings",
@@ -1221,14 +1295,18 @@ export const th: DocsContent = {
           ]
         },
         {
-          "kind": "photo",
-          "photo": "velvia-wide",
-          "alt": "บ้านหินและทางเดินในสวน Fujifilm Velvia พร้อมขอบแบบ Wide สีขาวและวันที่"
+          "kind": "compare",
+          "before": "house-standard",
+          "after": "house-border-wide",
+          "label": "Border: Wide, White",
+          "alt": "บ้านหิน เปรียบเทียบแบบไม่มีและใช้ขอบสีขาวแบบ Wide"
         },
         {
-          "kind": "photo",
-          "photo": "acros-instant",
-          "alt": "บ้านหินแบบขาวดำ แนวตั้ง Fujifilm Acros พร้อมขอบแบบ Instant สีขาวและคำบรรยาย GRKU <3"
+          "kind": "compare",
+          "before": "house-standard",
+          "after": "house-border-instant",
+          "label": "Border: Instant, White",
+          "alt": "บ้านหิน เปรียบเทียบแบบไม่มีและใช้ขอบสีขาวแบบ Instant"
         },
         {
           "kind": "settings",
@@ -1743,6 +1821,27 @@ export const th: DocsContent = {
       "keywords": "ไม่ขึ้น ไม่ทำงาน หาย adj no grku error install.err report boot.txt 47 48 firmware mode set เฟิร์มแวร์ โหมดเซ็ต สคริปต์",
       "blocks": [
         {
+          "kind": "flow",
+          "steps": [
+            {
+              "see": "ไม่มี **GRKU** ขึ้นที่ด้านบนของหน้าจอหลังเปิดเครื่อง",
+              "then": "ครั้งแรกอาจต้องรอประมาณหนึ่งนาที จากนั้นลองทำตามขั้นตอนด้านล่าง"
+            },
+            {
+              "see": "กล้องจะแสดงหน้าจออัปเดตเฟิร์มแวร์เมื่อคุณกดปุ่ม {{MENU}} ค้างไว้",
+              "then": "เลือก **Cancel** แล้วลบไฟล์ `fwdc….bin` ออกจากการ์ด"
+            },
+            {
+              "see": "ไม่มีหน้าจอ **Mode Set Command** ขึ้นเมื่อคุณกด {{MENU}} ค้างไว้",
+              "then": "ให้ทำ [การเปิดใช้งานครั้งแรก](doc:install#first-start) อีกครั้ง"
+            },
+            {
+              "see": "กล้องค้างตอนเปิดเครื่อง",
+              "then": "ดู [กล้องค้างตอนเปิดเครื่อง](doc:stuck)"
+            }
+          ]
+        },
+        {
           "kind": "h2",
           "id": "checks",
           "text": "ตรวจเช็กตามลำดับ"
@@ -1891,6 +1990,23 @@ export const th: DocsContent = {
           "tone": "warning",
           "title": "ก่อนเริ่มทำ",
           "text": "อย่าดันหรือดึงกระบอกเลนส์ ห้ามถอดไฟออกระหว่างอัปเดตเฟิร์มแวร์แท้ของกล้อง"
+        },
+        {
+          "kind": "flow",
+          "steps": [
+            {
+              "see": "กล้องค้างระหว่างกำลังเปิด",
+              "then": "ถอดแบตเตอรี่และการ์ดออก แล้วลองเปิดเครื่องโดยไม่มีการ์ด"
+            },
+            {
+              "see": "ยังเปิดไม่ติดแม้จะเอาการ์ดออกแล้ว",
+              "then": "เปิดในโหมดดูภาพ (Playback) แล้วรีเซ็ตการตั้งค่ากล้อง"
+            },
+            {
+              "see": "เปิดติดแต่ปิดไม่ได้",
+              "then": "ดู [ภาพตอนปิดเครื่อง](doc:shutdown)"
+            }
+          ]
         },
         {
           "kind": "h2",
