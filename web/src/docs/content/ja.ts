@@ -1478,7 +1478,7 @@ export const ja: DocsContent = {
       "blocks": [
         {
           "kind": "p",
-          "text": "[インストール](site:install)のステップ1では、ライブラリ全体を表示します。Kodak、Fujifilm、Ilford、CineStill、Polaroid、シネマフィルム、リバーサルフィルム、白黒、FUJIFILMカメラのフィルムシミュレーション、Positive GRIIやFinePix CCDなどのGRKU独自のルックがあります。"
+          "text": "[インストール](site:install)のステップ1では、ライブラリ全体を表示します。Kodak、Fujifilm、Ilford、CineStill、Polaroid、シネマフィルム、リバーサルフィルム、白黒、FUJIFILMカメラのフィルムシミュレーション、GR II Positive (GRKU)やFinePix CCDなどのGRKU独自のルックがあります。"
         },
         {
           "kind": "h2",

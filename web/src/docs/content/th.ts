@@ -1478,7 +1478,7 @@ export const th: DocsContent = {
       "blocks": [
         {
           "kind": "p",
-          "text": "ขั้นตอนที่ 1 ของการ [ติดตั้ง](site:install) แสดงคลังทั้งหมด: Kodak, Fujifilm, Ilford, CineStill, Polaroid, ฟิล์มหนังและฟิล์มสไลด์ ขาวดำ โทนฟิล์มของกล้อง FUJIFILM และฟิล์มลุคของ GRKU เองอย่าง Positive GRII และ FinePix CCD"
+          "text": "ขั้นตอนที่ 1 ของการ [ติดตั้ง](site:install) แสดงคลังทั้งหมด: Kodak, Fujifilm, Ilford, CineStill, Polaroid, ฟิล์มหนังและฟิล์มสไลด์ ขาวดำ โทนฟิล์มของกล้อง FUJIFILM และฟิล์มลุคของ GRKU เองอย่าง GR II Positive (GRKU) และ FinePix CCD"
         },
         {
           "kind": "h2",

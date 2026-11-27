@@ -193,7 +193,7 @@ export const zhHans: Strings = {
     toolLead: '点击胶片盒，即可在样张或您自己的 DNG 照片上预览效果。将所需的影调添加至存储卡，然后选择相机型号与模块进行安装。',
     home: '首页',
     heroCaption: '一张照片，五种风格。拖动分隔线，与基础显影效果进行对比。',
-    shelfText: '资料库中的每种风格都有自己的胶片盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及 GRKU 自有的 Positive GRII。可免费将其中 10 种添加到卡片中，随时更换。',
+    shelfText: '资料库中的每种风格都有自己的胶片盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及 GRKU 自有的 GR II Positive (GRKU)。可免费将其中 10 种添加到卡片中，随时更换。',
     featuresTitle: 'GRKU 为相机带来的功能',
     recipesTitle: '配方与模式转盘',
     camerasTitle: '支持的相机',
@@ -250,7 +250,7 @@ export const zhHans: Strings = {
   landing: {
     fact: '开机约九秒后载入。格式化存储卡，相机就回到原样。',
     shelf: '胶片架',
-    shelfText: '库中的每款色彩风格均拥有独立包装盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid 以及 GRKU 独创的 Positive GRII。单个配置包最多可向相机传输 40 款色彩风格，且随时可在此页面进行更换。',
+    shelfText: '库中的每款色彩风格均拥有独立包装盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid 以及 GRKU 独创的 GR II Positive (GRKU)。单个配置包最多可向相机传输 40 款色彩风格，且随时可在此页面进行更换。',
     shelfAlt: '架子上的 145 个胶片盒',
     moduleListText: '每个模块是相机 GRKU 菜单里的一行。只装你想要的。',
     install: '开始安装',
@@ -829,6 +829,7 @@ export const zhHans: Strings = {
   cardNotInserted: '找不到这张存储卡。请插入这张卡，或连接另一张卡。',
   cardEnable: '按住 MENU 按钮开机，等待相机自动关机。',
   looks: {
+    'positive-film-grii-v1': "GRKU 基于肉眼观察打造的 GR II 正片风格。官方版本见下方“更多理光风格”面板。",
     'portra-400-endura-v1': 'Kodak Portra 400，Portra Endura 相纸',
     'gold-200-premier-v1': 'Kodak Gold 200，Endura Premier 相纸',
     'ektar-100-edge-v1': 'Kodak Ektar 100，Ektacolor Edge 相纸',

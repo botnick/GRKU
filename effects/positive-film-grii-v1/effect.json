@@ -1,7 +1,7 @@
 {
   "schema": "grku-effect-v1",
   "effect_id": "positive-film-grii-v1",
-  "name": "Positive GRII",
+  "name": "GRII Pos. (GRKU)",
   "flags": 0,
   "matrix": [
     8111,

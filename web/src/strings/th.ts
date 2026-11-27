@@ -196,7 +196,7 @@ export const th: Strings = {
     toolLead: 'กดที่กล่องฟิล์มเพื่อดูลุคบนรูป ทั้งจากรูปตัวอย่างหรือไฟล์ DNG ของคุณ เพิ่มโทนที่ต้องการลงการ์ด จากนั้นเลือกรุ่นกล้องและโมดูล แล้วติดตั้ง',
     home: 'หน้าหลัก',
     heroCaption: 'ภาพเดียว 5 ฟิล์มลุค ลากเส้นแบ่งเพื่อเปรียบเทียบกับภาพตั้งต้น',
-    shelfText: 'ฟิล์มลุคแต่ละแบบในคลังมีกรอบกล่องเป็นของตัวเอง ทั้ง Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid และ Positive GRII ฟิล์มลุคที่ GRKU สร้างขึ้นเอง เลือกใส่การ์ดได้ฟรี 10 แบบ และเปลี่ยนได้ทุกเมื่อ',
+    shelfText: 'ฟิล์มลุคแต่ละแบบในคลังมีกรอบกล่องเป็นของตัวเอง ทั้ง Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid และ GR II Positive (GRKU) ฟิล์มลุคที่ GRKU สร้างขึ้นเอง เลือกใส่การ์ดได้ฟรี 10 แบบ และเปลี่ยนได้ทุกเมื่อ',
     featuresTitle: 'GRKU เพิ่มอะไรให้กล้องของคุณบ้าง',
     recipesTitle: 'สูตรสีและแป้นเลือกโหมด',
     camerasTitle: 'กล้องที่รองรับ',
@@ -256,7 +256,7 @@ export const th: Strings = {
   landing: {
     fact: 'โหลดประมาณเก้าวินาทีหลังเปิดเครื่อง ล้างการ์ดแล้วกล้องจะกลับสู่ค่าเดิมจากโรงงาน',
     shelf: 'ชั้นวางฟิล์ม',
-    shelfText: 'ทุกลุคในคลังมาพร้อมกล่องเฉพาะตัว ทั้ง Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid และ Positive GRII ของ GRKU เอง แพ็กเกจเดียวใส่ฟิล์มไปใช้ในกล้องได้ 40 แบบ สลับเปลี่ยนเมื่อไหร่ก็ได้จากหน้านี้',
+    shelfText: 'ทุกลุคในคลังมาพร้อมกล่องเฉพาะตัว ทั้ง Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid และ GR II Positive (GRKU) ของ GRKU เอง แพ็กเกจเดียวใส่ฟิล์มไปใช้ในกล้องได้ 40 แบบ สลับเปลี่ยนเมื่อไหร่ก็ได้จากหน้านี้',
     shelfAlt: 'กล่องฟิล์ม 145 กล่องบนชั้นวาง',
     moduleListText: 'แต่ละโมดูลคือหนึ่งแถวในเมนู GRKU บนกล้อง เลือกติดตั้งเฉพาะตัวที่คุณต้องการ',
     install: 'ติดตั้ง',
@@ -898,6 +898,7 @@ export const th: Strings = {
   cardNotInserted: "ไม่พบการ์ดใบนั้น ให้เสียบการ์ด หรือเชื่อมต่อการ์ดใบอื่น",
   cardEnable: 'กดปุ่ม MENU ค้างไว้ขณะเปิดกล้อง แล้วรอจนกว่ากล้องจะปิดเอง',
   looks: {
+    'positive-film-grii-v1': "ลุค GR II Positive ที่ GRKU ทำเองโดยดูจากตา ลุค GR II Positive แบบทางการอยู่ใน \"ลุคเพิ่มเติมจาก RICOH\" ด้านล่าง",
     'portra-400-endura-v1': 'Kodak Portra 400 บนกระดาษอัดภาพ Portra Endura',
     'gold-200-premier-v1': 'Kodak Gold 200 บนกระดาษอัดภาพ Endura Premier',
     'ektar-100-edge-v1': 'Kodak Ektar 100 บนกระดาษอัดภาพ Ektacolor Edge',

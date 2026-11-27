@@ -193,7 +193,7 @@ export const ko: Strings = {
     toolLead: '박스를 선택하면 샘플 사진 또는 보유한 DNG 파일에 적용된 룩을 확인할 수 있습니다. 원하는 룩을 카드에 추가한 뒤 카메라 기종과 모듈을 선택해 설치하세요.',
     home: '홈',
     heroCaption: '한 장의 사진, 다섯 가지 룩. 분할선을 움직여 기본 현상 결과와 비교하세요.',
-    shelfText: '라이브러리의 모든 룩에는 고유한 필름 상자가 있습니다. Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, 그리고 GRKU 자체 개발 Positive GRII까지. 10개를 무료로 카드에 넣을 수 있으며 언제든 바꿀 수 있습니다.',
+    shelfText: '라이브러리의 모든 룩에는 고유한 필름 상자가 있습니다. Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, 그리고 GRKU 자체 개발 GR II Positive (GRKU)까지. 10개를 무료로 카드에 넣을 수 있으며 언제든 바꿀 수 있습니다.',
     featuresTitle: 'GRKU가 카메라에 더하는 기능',
     recipesTitle: '레시피와 모드 다이얼',
     camerasTitle: '지원 카메라',
@@ -250,7 +250,7 @@ export const ko: Strings = {
   landing: {
     fact: '전원을 켠 뒤 약 9초면 불러옵니다. 카드를 포맷하면 카메라는 원래대로입니다.',
     shelf: '필름 선반',
-    shelfText: '라이브러리의 각 필름 룩이 개별 박스로 제공됩니다: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid 및 GRKU 오리지널 Positive GRII. 한 번에 최대 40개를 카메라에 담을 수 있으며, 이 페이지에서 언제든지 교체할 수 있습니다.',
+    shelfText: '라이브러리의 각 필름 룩이 개별 박스로 제공됩니다: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid 및 GRKU 오리지널 GR II Positive (GRKU). 한 번에 최대 40개를 카메라에 담을 수 있으며, 이 페이지에서 언제든지 교체할 수 있습니다.',
     shelfAlt: '선반 위의 필름 상자 145개',
     moduleListText: '각 모듈은 카메라 GRKU 메뉴의 한 줄입니다. 원하는 것만 설치하세요.',
     install: '설치하기',
@@ -846,6 +846,7 @@ export const ko: Strings = {
   cardNotInserted: '그 카드를 찾을 수 없습니다. 카드를 꽂거나 다른 카드를 연결하세요.',
   cardEnable: 'MENU 버튼을 누른 채 전원을 켜고, 전원이 저절로 꺼질 때까지 기다립니다.',
   looks: {
+    'positive-film-grii-v1': "GRKU가 눈으로 만든 GR II의 포지티브 필름 룩입니다. 공식 GR II Positive는 아래 \"리코의 다른 룩\" 패널에 있습니다.",
     'portra-400-endura-v1': 'Kodak Portra 400, Portra Endura 인화지',
     'gold-200-premier-v1': 'Kodak Gold 200, Endura Premier 인화지',
     'ektar-100-edge-v1': 'Kodak Ektar 100, Ektacolor Edge 인화지',

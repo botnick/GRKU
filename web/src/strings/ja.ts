@@ -193,7 +193,7 @@ export const ja: Strings = {
     toolLead: 'フィルム箱を選択すると、サンプル写真やお手持ちのDNGで仕上がりを確認できます。使いたい設定をカードに追加し、カメラとモジュールを選択してインストールしてください。',
     home: 'ホーム',
     heroCaption: '1枚の写真に、5つのルック。ラインをドラッグしてベース現像と比較できます。',
-    shelfText: 'ライブラリの各ルックには専用のフィルム箱を用意しています（Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid、GRKUオリジナルのPositive GRII）。10種類まで無料でカードに保存でき、いつでも入れ替え可能です。',
+    shelfText: 'ライブラリの各ルックには専用のフィルム箱を用意しています（Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid、GRKUオリジナルのGR II Positive (GRKU)）。10種類まで無料でカードに保存でき、いつでも入れ替え可能です。',
     featuresTitle: 'GRKUがカメラに追加する機能',
     recipesTitle: 'レシピとモードダイヤル',
     camerasTitle: '対応カメラ',
@@ -250,7 +250,7 @@ export const ja: Strings = {
   landing: {
     fact: '電源を入れて約 9 秒で読み込まれます。カードをフォーマットすればカメラは元どおりです。',
     shelf: 'フィルム棚',
-    shelfText: 'ライブラリ内の各ルックを専用パッケージで収録：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid、GRKUオリジナルの Positive GRII。カメラには最大40種類を登録可能。本ページからいつでも入れ替えできます。',
+    shelfText: 'ライブラリ内の各ルックを専用パッケージで収録：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid、GRKUオリジナルの GR II Positive (GRKU)。カメラには最大40種類を登録可能。本ページからいつでも入れ替えできます。',
     shelfAlt: '棚に並ぶ 145 個のフィルム箱',
     moduleListText: '各モジュールはカメラの GRKU メニューの 1 行です。使いたいものだけ入れます。',
     install: 'インストール',
@@ -831,6 +831,7 @@ export const ja: Strings = {
   cardNotInserted: 'そのカードが見つかりません。挿入するか、別のカードを接続してください。',
   cardEnable: 'MENU ボタンを押したまま電源を入れ、電源が自動で切れるまで待ちます。',
   looks: {
+    'positive-film-grii-v1': "GRKUが目視で再現した、GR IIのポジフィルム風ルックです。公式の「GR II Positive」は、下の「リコーのその他のルック」パネルにあります。",
     'portra-400-endura-v1': 'Kodak Portra 400、Portra Endura 印画紙',
     'gold-200-premier-v1': 'Kodak Gold 200、Endura Premier 印画紙',
     'ektar-100-edge-v1': 'Kodak Ektar 100、Ektacolor Edge 印画紙',

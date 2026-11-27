@@ -1478,7 +1478,7 @@ export const ko: DocsContent = {
       "blocks": [
         {
           "kind": "p",
-          "text": "[설치](site:install) 1단계에서 전체 라이브러리를 볼 수 있습니다: Kodak, Fujifilm, Ilford, CineStill, Polaroid, 시네마 및 슬라이드 필름, 흑백, FUJIFILM 카메라의 필름 시뮬레이션, 그리고 Positive GRII와 FinePix CCD 같은 GRKU 자체 룩이 있습니다."
+          "text": "[설치](site:install) 1단계에서 전체 라이브러리를 볼 수 있습니다: Kodak, Fujifilm, Ilford, CineStill, Polaroid, 시네마 및 슬라이드 필름, 흑백, FUJIFILM 카메라의 필름 시뮬레이션, 그리고 GR II Positive (GRKU)와 FinePix CCD 같은 GRKU 자체 룩이 있습니다."
         },
         {
           "kind": "h2",

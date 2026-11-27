@@ -30,7 +30,7 @@ fn builtin_effects() -> Result<Vec<Effect>> {
 }
 
 /// The looks that GRKU fitted itself (the library of `effects/NOTICE.md` past the 21 of GRKit):
-/// their IDs carry the prefix of their source, and Positive GRII is GRKU's own. Many of them
+/// their IDs carry the prefix of their source, and GR II Positive (GRKU) is GRKU's own. Many of them
 /// move mid gray by up to 0.7 EV (HANDOFF.md, 2026-11-11), so the mid-gray check below holds
 /// only for the looks of GRKit until they are refitted with `--exposure`.
 fn grku_fit(id: &str) -> bool {

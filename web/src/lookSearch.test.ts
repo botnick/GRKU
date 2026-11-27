@@ -10,7 +10,7 @@ const LOOKS: SearchableLook[] = [
   { id: 'gold-200-premier-v1', name: 'Gold 200', cover: box('Kodak', 'GOLD', '200'), look: 'Kodak Gold 200 on Endura Premier paper' },
   { id: 'ff-cinestill800t-v1', name: 'CineStill 800T', cover: box('CINESTILL', 'CINESTILL', '800T'), look: 'CineStill 800T on Kodak Ektacolor Edge paper' },
   { id: 'fj-classic-chrome-v1', name: 'Classic Chrome', cover: box('FUJIFILM', 'CLASSIC', 'CHROME'), look: 'The Classic Chrome film simulation' },
-  { id: 'positive-film-grii-v1', name: 'Positive GRII', cover: box('RICOH', 'POSITIVE', 'GRII'), look: 'The Positive Film image setting of the RICOH GR II' },
+  { id: 'positive-film-grii-v1', name: 'GR II Positive (GRKU)', cover: box('RICOH', 'POSITIVE', 'GRII'), look: 'The Positive Film image setting of the RICOH GR II' },
   { id: 'trix-400-mono-v1', name: 'Tri-X 400', cover: box('Kodak', 'TRI-X', '400'), monochrome: true, look: 'Kodak Tri-X 400 on Polymax Fine-Art paper' },
   { id: 'hp5-plus-400-mono-v1', name: 'HP5 Plus 400', cover: box('ILFORD', 'HP5 PLUS', '400'), monochrome: true, look: 'Ilford HP5 Plus 400' },
   { id: 'ff-instaxmini-v1', name: 'Instax Mini', cover: box('FUJIFILM', 'INSTAX', 'MINI'), look: 'Fujifilm instax mini print' },
@@ -71,6 +71,8 @@ describe('searchLooks', () => {
     expect(ids('B&W').sort()).toEqual(ids('bw').sort());
     expect(ids('agfa')).toEqual(['pd-apx-100-mono-v1']);
     expect(ids('ricoh')).toEqual(['positive-film-grii-v1']);
+    // GR II Positive (GRKU) was Positive GRII: its old name finds it.
+    for (const query of ['Positive GRII', 'grii', 'gr2 positive', 'GR II Positive']) expect(ids(query)[0]).toBe('positive-film-grii-v1');
   });
 
   it('knows the Thai names', () => {

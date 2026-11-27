@@ -33,6 +33,8 @@ const ALIASES: readonly (readonly string[])[] = [
   ['cinestill', 'cine still', 'ซีเนสติล', 'ซีเนสติลล์', 'ซินีสติล'],
   ['classic chrome', 'classicchrome', 'คลาสสิกโครม', 'คลาสสิคโครม'],
   ['classic neg', 'classic negative', 'คลาสสิกเนก', 'คลาสสิคเนก'],
+  // GR II Positive (GRKU) was Positive GRII before.
+  ['gr ii', 'grii', 'gr2', 'gr 2'],
   ['positive', 'positive film', 'โพสิทีฟ', 'โพสิทิฟ', 'โพสิทีฟฟิล์ม'],
   ['mono', 'bw', 'b w', 'b and w', 'black and white', 'black white', 'monochrome', 'ขาวดำ', 'ขาว ดำ'],
   ['instax', 'อินสแตกซ์', 'อินสตาซ์', 'อินสแต็กซ์', 'อินสแตก'],

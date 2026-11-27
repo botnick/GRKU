@@ -21,7 +21,7 @@ GRKU 是由 [BOTNICK](https://github.com/botnick) 开发的独立项目，最初
 
 拍摄时按下 ADJ 拨杆，选择第 6 项 GRKU。GRKU 的所有功能都在这里，以及 MENU 的 GRKU 小节中。再次按下 ADJ 时仍会停留在 GRKU 上，并停留在你离开时的那一行，即使关机后再开也是如此。
 
-- **Film Look**：152 种真实胶片风格，卡上一次最多 40 种。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 和 Rollei，以及源自 GR II 正片（Positive Film）的 GRKU 专属 Positive GRII 风格，还有富士相机的十款胶片模拟（从 Provia、Classic Chrome 到 Acros，均可免费使用）。每种风格都有采用真实胶卷盒配色的胶片盒图标。按 Fn 键可调整风格；也可以在网站上导入自己的 LUT。
+- **Film Look**：152 种真实胶片风格，卡上一次最多 40 种。Kodak、Fujifilm、Ilford、CineStill、Lomography、Polaroid、Agfa、Harman 和 Rollei，以及源自 GR II 正片（Positive Film）的 GRKU 专属 GR II Positive (GRKU) 风格，还有富士相机的十款胶片模拟（从 Provia、Classic Chrome 到 Acros，均可免费使用）。每种风格都有采用真实胶卷盒配色的胶片盒图标。按 Fn 键可调整风格；也可以在网站上导入自己的 LUT。
 - **Recipes**：将相机的整套风格以名称保存，或从网站载入热门配方，然后一键切换 Film Look 或 Image Control、颗粒、光晕、白平衡、校正与曝光，并支持撤销。
 - **Framing**：XPan、2.35:1、16:9、4:3、5:4、7:6、1:1 或 3:4，可直接裁切 JPEG，也可仅显示框线。**Crop**：35、40、50 或 70 mm，带有实时取景。
 - **Guides**：三分法、中心、黄金分割、对角线、黄金螺旋、动态对称。

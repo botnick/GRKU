@@ -1478,7 +1478,7 @@ export const zhHant: DocsContent = {
       "blocks": [
         {
           "kind": "p",
-          "text": "[安裝](site:install)的步驟 1 會顯示完整片庫：Kodak、Fujifilm、Ilford、CineStill、Polaroid、電影與正片底片、黑白底片、FUJIFILM 相機的軟片模擬，以及 GRKU 自製風格，例如 Positive GRII 與 FinePix CCD。"
+          "text": "[安裝](site:install)的步驟 1 會顯示完整片庫：Kodak、Fujifilm、Ilford、CineStill、Polaroid、電影與正片底片、黑白底片、FUJIFILM 相機的軟片模擬，以及 GRKU 自製風格，例如 GR II Positive (GRKU) 與 FinePix CCD。"
         },
         {
           "kind": "h2",

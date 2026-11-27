@@ -198,7 +198,7 @@ export const en = {
     toolLead: 'Press a box to see the look on the photo, on a sample or your own DNG. Add the ones you want to the card, then choose your camera and modules and install.',
     home: 'Home',
     heroCaption: 'One photo, five looks. Drag the line to compare with the base development.',
-    shelfText: 'Every look in the library has its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and GRKU\'s own Positive GRII. Ten go on the card for free, and you can swap them any time.',
+    shelfText: 'Every look in the library has its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and GRKU\'s own GR II Positive (GRKU). Ten go on the card for free, and you can swap them any time.',
     featuresTitle: 'What GRKU adds to the camera',
     recipesTitle: 'Recipes and the mode dial',
     camerasTitle: 'Supported cameras',
@@ -261,7 +261,7 @@ export const en = {
   landing: {
     fact: 'Loads about nine seconds after power-on. Format the card and the camera is stock again.',
     shelf: 'The film shelf',
-    shelfText: 'Every look in the library as its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and GRKU\'s own Positive GRII. A package carries 40 of them to the camera. Swap them any time from this page.',
+    shelfText: 'Every look in the library as its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and GRKU\'s own GR II Positive (GRKU). A package carries 40 of them to the camera. Swap them any time from this page.',
     shelfAlt: '145 film boxes on shelves',
     moduleListText: 'Each module is one row of the GRKU menu on the camera. Install the ones you want.',
     install: 'Install',
@@ -899,6 +899,7 @@ export const en = {
   cardNotInserted: "Can't find that card. Insert it, or connect another card.",
   cardEnable: 'Hold MENU while you turn the camera on, then wait until it turns itself off.',
   looks: {
+    'positive-film-grii-v1': "GRKU's own take on the Positive Film of GR II, made by eye. The official GR II Positive comes from the \"More looks from RICOH\" panel below.",
     'portra-400-endura-v1': 'Kodak Portra 400 on Portra Endura paper',
     'gold-200-premier-v1': 'Kodak Gold 200 on Endura Premier paper',
     'ektar-100-edge-v1': 'Kodak Ektar 100 on Ektacolor Edge paper',
