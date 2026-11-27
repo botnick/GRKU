@@ -28,14 +28,22 @@ const STYLES: Record<Exclude<Language, 'en'>, () => Promise<unknown>> = {
       import('@fontsource/noto-sans-kr/500.css'),
       import('@fontsource/noto-sans-kr/700.css'),
     ]),
+  // The regular and bold faces come first (a Thai page preloads them and declares them in its head);
+  // the medium and semibold faces wait until the page has loaded, so they do not slow its first paint.
   th: () =>
-    Promise.all([
-      import('@fontsource/ibm-plex-sans-thai/400.css'),
-      import('@fontsource/ibm-plex-sans-thai/500.css'),
-      import('@fontsource/ibm-plex-sans-thai/600.css'),
-      import('@fontsource/ibm-plex-sans-thai/700.css'),
-    ]),
+    Promise.all([import('@fontsource/ibm-plex-sans-thai/400.css'), import('@fontsource/ibm-plex-sans-thai/700.css')]).then(() =>
+      afterLoad(() => Promise.all([import('@fontsource/ibm-plex-sans-thai/500.css'), import('@fontsource/ibm-plex-sans-thai/600.css')])),
+    ),
 };
+
+/** Runs `task` once the page has loaded and the browser is idle. */
+function afterLoad(task: () => Promise<unknown>): Promise<unknown> {
+  return new Promise((resolve) => {
+    const idle = () => (window.requestIdleCallback ?? ((run: () => void) => setTimeout(run, 200)))(() => resolve(task()));
+    if (document.readyState === 'complete') idle();
+    else window.addEventListener('load', idle, { once: true });
+  });
+}
 
 const loaded = new Set<Language>();
 

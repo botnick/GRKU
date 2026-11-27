@@ -12,7 +12,8 @@ const EDGE = "rgba(255,255,255,0.14)";
 const KEY = "#3a3a3a";
 const LABEL = "#d4d4d4";
 const MONO = "JetBrains Mono, ui-monospace, monospace";
-const SANS = "Inter, sans-serif";
+// The font of the page: Inter, or IBM Plex Sans Thai on a Thai page, so a drawing loads no other font.
+const SANS = "inherit";
 
 function Art({
   viewBox,

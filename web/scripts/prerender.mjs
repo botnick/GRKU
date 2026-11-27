@@ -258,9 +258,33 @@ const THAI_FONTS = readdirSync(join(dist, 'assets'))
   .map((file) => `<link rel="preload" href="/assets/${file}" as="font" type="font/woff2" crossorigin="">`);
 if (THAI_FONTS.length !== 4) throw new Error(`dist/assets has ${THAI_FONTS.length} of the 4 IBM Plex Sans Thai fonts`);
 
+/**
+ * The faces of the preloaded IBM Plex Sans Thai fonts, in the head of a Thai page. fonts.ts adds the
+ * other weights after the script runs; until then a Thai page would set its text in Inter and the
+ * fonts of the system, which costs a second layout and the Inter files. The Unicode ranges are those
+ * of the fontsource styles.
+ */
+const THAI_STYLE = (() => {
+  const css = readFileSync(join(web, 'node_modules', '@fontsource', 'ibm-plex-sans-thai', '400.css'), 'utf8');
+  const range = (subset) => {
+    const found = new RegExp(`ibm-plex-sans-thai-${subset}-400-normal[\\s\\S]*?unicode-range:\\s*([^;]+);`).exec(css)?.[1];
+    if (!found) throw new Error(`@fontsource/ibm-plex-sans-thai/400.css has no ${subset} range`);
+    return found.trim();
+  };
+  return readdirSync(join(dist, 'assets'))
+    .filter((file) => /^ibm-plex-sans-thai-(thai|latin)-(400|700)-normal-[\w-]+\.woff2$/.test(file))
+    .sort()
+    .map((file) => {
+      const [, subset, weight] = /^ibm-plex-sans-thai-(thai|latin)-(\d+)-/.exec(file);
+      return `@font-face{font-family:'IBM Plex Sans Thai';font-style:normal;font-display:swap;font-weight:${weight};src:url(/assets/${file}) format('woff2');unicode-range:${range(subset)}}`;
+    })
+    .join('');
+})();
+
 /** The preloads of `html` with the fonts of `code`. */
 function preloadFonts(html, code) {
   if (code !== 'th') return html;
+  html = replaceOne(html, /<\/head>/, `  <style>${THAI_STYLE}</style>\n  </head>`);
   const inter = /\s*<link rel="preload" href="\/assets\/inter-latin-[^"]*" as="font"[^>]*>/g;
   if (!inter.test(html)) throw new Error('dist/index.html preloads no Inter font');
   return replaceOne(html.replace(inter, ''), /(<link rel="preload" href="\/assets\/jetbrains-mono-[^>]*>)/, `$1\n    ${THAI_FONTS.join('\n    ')}`);
@@ -324,8 +348,8 @@ const unescape = (text) =>
  * in the HTML needs its hash. Without them, the compare slider and the frames lose their layout
  * until the script runs.
  */
-function allowStyleAttributes(file, pages) {
-  const styles = new Set();
+function allowStyleAttributes(file, pages, elements = []) {
+  const styles = new Set(elements);
   for (const html of pages) {
     for (const match of html.matchAll(/\sstyle="([^"]*)"/g)) styles.add(unescape(match[1]));
   }
@@ -366,7 +390,7 @@ for (const code of codes) {
   }
 }
 
-allowStyleAttributes(join(dist, '_headers'), pages);
+allowStyleAttributes(join(dist, '_headers'), pages, [THAI_STYLE]);
 allowThemeScript(join(dist, '_headers'), template);
 
 // Pages serves 404.html with status 404 for a path without a file. Without it, Pages serves the
