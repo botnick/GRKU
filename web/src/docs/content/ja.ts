@@ -84,8 +84,13 @@ export const ja: DocsContent = {
     "defaultMark": "デフォルト",
     "withoutLabel": "なし",
     "photoBadge": "カメラの写真",
+    "readingTime": "${n}分で読めます",
+    "copyStep": "この手順をコピー",
+    "copiedStep": "コピーしました",
+    "askStep": "この手順についてAIに聞く",
+    "askStepPrompt": "マニュアルページ「${title}」のステップ ${n} に、次のように書かれています：「${step}」。この手順をわかりやすく説明してください。",
     "captureBadge": "カメラの画面",
-    "drawnBadge": "実際のメニューを描画",
+    "drawnBadge": "実メニューからの描画",
     "updated": "更新日"
   },
   "groups": {
@@ -113,7 +118,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "カメラの電源が入っている間、SDカードから動きます。カードがないとGRKUは読み込まれず、カメラはRICOH純正のまま使えます。設定項目「SDスクリプト」だけが **オン** のままになります。GRKUがカメラのファームウェアを書き換えることはありません。"
+          "text": "カメラの電源が入っている間、SDカードから動きます。カードがないとGRKUは読み込まれず、カメラはRICOH純正のまま動作します。「SDスクリプト」の設定だけが**オン**のまま残ります。GRKUがカメラのファームウェアを書き換えることはありません。"
         },
         {
           "kind": "h2",
@@ -198,49 +203,59 @@ export const ja: DocsContent = {
         },
         {
           "kind": "h2",
-          "id": "gr3",
-          "text": "GR IIIとGR IIIx"
+          "id": "check",
+          "text": "カメラでバージョンを確認する"
         },
         {
-          "kind": "steps",
-          "items": [
-            "カメラの電源を入れます。",
-            "{{MENU}}を押します。",
-            "セットアップメニュー（レンチアイコンのタブ）を開き、**About This Device**を選びます。",
-            "**Firmware Info / Options**を選び、右を押します。",
-            "画面にファームウェアのバージョン（例：2.21）が表示されます。"
-          ]
-        },
-        {
-          "kind": "path",
-          "items": [
-            "MENU",
-            "Setup",
-            "About This Device",
-            "Firmware Info / Options"
-          ]
-        },
-        {
-          "kind": "h2",
-          "id": "gr4",
-          "text": "GR IV と GR IV HDF"
-        },
-        {
-          "kind": "steps",
-          "items": [
-            "カメラの電源を入れます。",
-            "{{MENU}}を押します。",
-            "セットアップメニュー（レンチアイコンのタブ）を開き、**Camera Information**を選びます。",
-            "右を押します。",
-            "画面にファームウェアのバージョン（例：1.21）が表示されます。"
-          ]
-        },
-        {
-          "kind": "path",
-          "items": [
-            "MENU",
-            "Setup",
-            "Camera Information"
+          "kind": "tabs",
+          "tabs": [
+            {
+              "label": "GR III / GR IIIx",
+              "blocks": [
+                {
+                  "kind": "steps",
+                  "items": [
+                    "カメラの電源を入れます。",
+                    "{{MENU}}を押します。",
+                    "セットアップメニュー（レンチアイコンのタブ）を開き、**About This Device**を選びます。",
+                    "**Firmware Info / Options**を選び、右を押します。",
+                    "画面にファームウェアのバージョン（例：2.21）が表示されます。"
+                  ]
+                },
+                {
+                  "kind": "path",
+                  "items": [
+                    "MENU",
+                    "セットアップ",
+                    "この機器について",
+                    "ファームウェア情報 / オプション"
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "GR IV",
+              "blocks": [
+                {
+                  "kind": "steps",
+                  "items": [
+                    "カメラの電源を入れます。",
+                    "{{MENU}}を押します。",
+                    "セットアップメニュー（レンチアイコンのタブ）を開き、**Camera Information**を選びます。",
+                    "右を押します。",
+                    "画面にファームウェアのバージョン（例：1.21）が表示されます。"
+                  ]
+                },
+                {
+                  "kind": "path",
+                  "items": [
+                    "MENU",
+                    "セットアップ",
+                    "カメラ情報"
+                  ]
+                }
+              ]
+            }
           ]
         },
         {
@@ -265,7 +280,7 @@ export const ja: DocsContent = {
             },
             {
               "see": "お使いのバージョンが表より新しい場合。",
-              "then": "GRKU の更新を待ちます。[下記](doc:firmware#newer)を参照。"
+              "then": "GRKU の更新をお待ちください。[下記](doc:firmware#newer)を参照してください。"
             }
           ]
         },
@@ -274,11 +289,11 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GRKU はファームウェア 1.11 の GR IV で動作確認済みです。他のバージョンや機種向けのビルドも同じコードから作られ、RICOH のファイルと照合していますが、まだ実機で試していません。"
+          "text": "GRKUはファームウェア1.11のGR IVで動作確認済みです。他のバージョンや機種向けも同じコードから作られ、RICOHのファイルと照合しましたが、実機での動作はまだ未確認です。"
         },
         {
           "kind": "p",
-          "text": "GR IV 30th Anniversary Editionには専用の工場出荷版1.20が入っており、grku.appではまだ対応していません。先にRICOHから1.21へアップデートしてください。"
+          "text": "GR IV 30th Anniversary Editionには、専用の工場出荷版ファームウェア1.20が入っています。grku.appではまだこのバージョンに対応していないため、まずRICOHの公式サイトから1.21へアップデートしてください。"
         },
         {
           "kind": "h2",
@@ -287,7 +302,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "先にカメラをアップデートしてください。必ずRICOHの公式サポートページ（[GR III](https://www.ricoh-imaging.co.jp/english/support/digital/gr3_s.html)、[GR IIIx](https://www.ricoh-imaging.co.jp/english/support/digital/gr3x_s.html)、[GR IV](https://www.ricoh-imaging.co.jp/english/support/digital/gr4_s.html)、[GR IV Monochrome](https://www.ricoh-imaging.co.jp/english/support/digital/gr-4-mono_s.html)）から行い、そのページの手順に従ってください。GRKUがファームウェアを更新することはありません。"
+          "text": "先にカメラをアップデートしてください。必ずRICOHの公式サポートページ（[GR III](https://www.ricoh-imaging.co.jp/english/support/digital/gr3_s.html)、[GR IIIx](https://www.ricoh-imaging.co.jp/english/support/digital/gr3x_s.html)、[GR IV](https://www.ricoh-imaging.co.jp/english/support/digital/gr4_s.html)、[GR IV Monochrome](https://www.ricoh-imaging.co.jp/english/support/digital/gr-4-mono_s.html)）の手順に従って行いましょう。GRKUがファームウェアを更新することはありません。"
         },
         {
           "kind": "h2",
@@ -437,7 +452,7 @@ export const ja: DocsContent = {
           "kind": "screen",
           "screen": "modeset-back",
           "source": "capture",
-          "alt": "MENUボタンに丸印がついたGRの背面。画面にはMode Set Command、Script - **有効**、Completeが表示されています。"
+          "alt": "MENUボタンに丸印がついたGRの背面。画面には「Mode Set Command」、「Script - **有効**」、「Complete」が表示されています。"
         },
         {
           "kind": "note",
@@ -464,7 +479,7 @@ export const ja: DocsContent = {
           "kind": "steps",
           "items": [
             "撮影中に{{ADJ}}を押します。",
-            "**GRKU**を選びます。ふつうは6番目にありますが、ADJ メニューの順番でモジュールを独立した項目にしたときは、もっと右にあります。",
+            "**GRKU**を選びます。ふつうは6番目にありますが、ADJの並び順でモジュールを独立した項目にしている場合は、もっと右にあります。",
             "**フィルムルック**などの機能を選び、選択肢にカーソルを合わせて画面で確認します。",
             "確定するには{{OK}}を押します。その他の設定には{{Fn}}を押します。"
           ]
@@ -479,7 +494,7 @@ export const ja: DocsContent = {
           "kind": "screen",
           "screen": "adj",
           "source": "capture",
-          "alt": "GRKUのADJ画面です。モジュールのアイコンが表示されています。左上には「GRKU」と「Film Look: オフ」があります。"
+          "alt": "GRKUのADJ画面が開き、モジュールのアイコンが見えます。左上には「GRKU」と「Film Look: オフ」が表示されています。"
         },
         {
           "kind": "p",
@@ -566,7 +581,7 @@ export const ja: DocsContent = {
           "kind": "screen",
           "screen": "menu-top",
           "source": "drawn",
-          "alt": "GRKUセクションの上部：GRKU を有効、GRKU 設定、レシピ、フィルムルック、フレーミング、クロップ、ガイド。"
+          "alt": "GRKUセクションの上部：GRKUを有効、GRKU設定、レシピ、フィルムルック、フレーミング、クロップ、ガイド。"
         },
         {
           "kind": "screen",
@@ -591,7 +606,7 @@ export const ja: DocsContent = {
             ],
             [
               "**GRKU 設定**",
-              "値はありません。GRKUの設定を開きます: 起動時に有効、撮影設定、表示設定、終了画面、モードダイヤル、ADJメニューの順番。[GRKU 設定](doc:settings) を参照してください。"
+              "値はありません。GRKU自体の設定を開きます: 起動時に有効、撮影設定、表示設定、終了画面、モードダイヤル、ADJメニューの順番。[GRKU 設定](doc:settings) を参照してください。"
             ],
             [
               "**レシピ**",
@@ -631,11 +646,11 @@ export const ja: DocsContent = {
             ],
             [
               "**ボーダー**",
-              "カードにボーダーがある場合のみ表示されます。ディフュージョンと粒状感の間に表示されます。スタイル名または「オフ」が表示されます。[ボーダー](doc:border)を参照してください。"
+              "カードにボーダーがある場合のみ表示されます。ディフュージョンと粒状感の間に表示されます。スタイル名、または「オフ」が表示されます。[ボーダー](doc:border)を参照してください。"
             ],
             [
               "**粒状感**",
-              "強さ、またはオフを表示します。[粒状感](doc:grain)を参照してください。"
+              "強さ、または「オフ」を表示します。[粒状感](doc:grain)を参照してください。"
             ],
             [
               "**GRKU について**",
@@ -645,7 +660,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "MENU内のモジュールページは、まずそのモジュールだけの**有効**から始まり、次にオプションと順番があり、最後に設定項目が並びます。{{Fn}}でADJに表示されるページにしかない設定もあります。例えば、日付スタイルや日付位置などです。"
+          "text": "MENU内のモジュールページは、まずそのモジュールだけの**有効**から始まり、次にオプションと順番があり、最後に設定項目が並びます。{{Fn}}でADJに表示されるページにしかない設定もあります。例えば、日付のスタイルや日付の位置などです。"
         },
         {
           "kind": "screen",
@@ -780,18 +795,27 @@ export const ja: DocsContent = {
       "keywords": "フィルムルック エフェクト イメージコントロール LUT ポートラ クラシッククローム コダック 富士フイルム ファインピックス ポジティブ プレビュー Fn パラメータ フィルムストック film look effect image control lut portra classic chrome kodak fuji fujifilm finepix positive preview fn parameters film stock",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "フィルムルック"
+          "kind": "facts",
+          "cells": [
+            [
+              "場所",
+              "ADJ › GRKU › フィルムルック"
+            ],
+            [
+              "JPEG",
+              "ルックが適用されます"
+            ],
+            [
+              "DNG",
+              "ルックなしで、生データを保持します"
+            ]
           ]
         },
         {
           "kind": "steps",
           "items": [
             "{{ADJ}}を押して**GRKU**を選び、次に**フィルムルック**を選びます。",
-            "ルックを選ぶと、ライブビューにすぐに反映され、アイコンが表示されます。",
+            "ルックを選択すると、ライブビューにすぐに反映され、ルックアイコンが表示されます。",
             "{{OK}}を押して確定します。ルックを使わずに撮影する場合は**オフ**を選びます。"
           ]
         },
@@ -859,7 +883,7 @@ export const ja: DocsContent = {
             ],
             [
               "**順番**",
-              "2つ以上選んでいるとき、ADJでの並び順を設定します。"
+              "2つ以上選択されている場合、ADJでの並び順を設定します。"
             ]
           ]
         },
@@ -897,11 +921,20 @@ export const ja: DocsContent = {
           "text": "レシピには、フィルムルックまたはImage Control、粒状感、グロー、ボーダー、ホワイトバランス、カメラの補正や露出設定が保存されます。"
         },
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "レシピ"
+          "kind": "facts",
+          "cells": [
+            [
+              "場所",
+              "ADJ › GRKU › レシピ"
+            ],
+            [
+              "レシピに含まれる設定",
+              "ルック、粒状感、グロー、ボーダー、ホワイトバランス、露出"
+            ],
+            [
+              "制限",
+              "レシピは64個まで、ADJメニューに表示できるのは40個まで、取り消しは5回まで"
+            ]
           ]
         },
         {
@@ -975,17 +1008,26 @@ export const ja: DocsContent = {
       "keywords": "フレーミング アスペクト比 画面比 XPan パノラマ 65:24 16:9 4:3 2.35:1 1:1 5:4 7:6 3:4 マスク 枠線 ガイド クロップ framing aspect ratio xpan panorama 65:24 16:9 4:3 2.35:1 1:1 5:4 7:6 3:4 mask frame lines guides only crop",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "フレーミング"
-          ]
-        },
-        {
           "kind": "frame",
           "mode": "framing",
-          "alt": "GRKUで撮影した、石造りの家へ続く庭の小道。選んだ比率の枠線が見えます。"
+          "alt": "選んだ比率の枠線を表示して、GRKUで撮影した石造りの家へ続く庭の小道。"
+        },
+        {
+          "kind": "facts",
+          "cells": [
+            [
+              "場所",
+              "ADJ › GRKU › フレーミング"
+            ],
+            [
+              "JPEG",
+              "比率に合わせて切り抜く（クロップモード）"
+            ],
+            [
+              "DNG",
+              "比率に合わせて切り抜かない"
+            ]
+          ]
         },
         {
           "kind": "p",
@@ -1025,17 +1067,26 @@ export const ja: DocsContent = {
       "keywords": "クロップ 焦点距離 ズーム テレ フレーム マスク 枠のみ 未トリミング RAW crop focal length 35mm 40mm 50mm 70mm 57mm 71mm 100mm zoom tele frame only mask uncropped raw",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "クロップ"
-          ]
-        },
-        {
           "kind": "frame",
           "mode": "crop",
           "alt": "GRKUで撮影し、選んだ焦点距離の枠をつけた、石造りの家へ続く庭の小道。"
+        },
+        {
+          "kind": "facts",
+          "cells": [
+            [
+              "場所",
+              "ADJ › GRKU › クロップ"
+            ],
+            [
+              "選択肢",
+              "35, 40, 50, 70 mm"
+            ],
+            [
+              "GR IIIx",
+              "50, 57, 71, 100 mm"
+            ]
+          ]
         },
         {
           "kind": "settings",
@@ -1069,17 +1120,26 @@ export const ja: DocsContent = {
       "keywords": "構図ガイド グリッド ガイドライン 9分割 画面中央 黄金比 対角線 黄金螺旋 ダイナミックシンメトリー 構図 表示 不透明度 色 guides grid lines thirds center golden ratio diagonals golden spiral dynamic symmetry composition disp opacity color",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "構図ガイド"
-          ]
-        },
-        {
           "kind": "frame",
           "mode": "guides",
           "alt": "GRKUで撮影し、選んだガイドの線をつけた、石造りの家へ続く庭の小道。"
+        },
+        {
+          "kind": "facts",
+          "cells": [
+            [
+              "場所",
+              "ADJ › GRKU › 構図ガイド"
+            ],
+            [
+              "写真",
+              "写真には写りません"
+            ],
+            [
+              "{{Fn}}",
+              "黄金螺旋を回す"
+            ]
+          ]
         },
         {
           "kind": "settings",
@@ -1110,18 +1170,27 @@ export const ja: DocsContent = {
       "keywords": "日付入れ撮影 スタンプ 時刻 フォント クラシック gr1s gr ii 色 オレンジ サイズ 位置 角 キャプション ありがとう ハッピーバースデー grku グロー date imprint stamp time font classic gr1s gr ii color orange size position corner caption thank you happy birthday grku glow",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "日付入れ撮影"
+          "kind": "facts",
+          "cells": [
+            [
+              "場所",
+              "ADJ › GRKU › 日付印画"
+            ],
+            [
+              "JPEG",
+              "日付が書き込まれます"
+            ],
+            [
+              "DNG",
+              "日付なし"
+            ]
           ]
         },
         {
           "kind": "compare",
           "before": "chairs-standard",
           "after": "chairs-date",
-          "label": "日付入れ撮影: 'YY M D",
+          "label": "日付入れ撮影: YY M D",
           "alt": "パラソルの下のデッキチェア2脚。左は日付なし、右は「日付入れ」設定（YY M D、フィルム位置：右下、サイズ：M、書体：クラシック、色：標準）。"
         },
         {
@@ -1136,7 +1205,7 @@ export const ja: DocsContent = {
             "POSITION": "**フィルム**はフィルムカメラと同じ位置に写し込みます。**正位置**は縦位置の写真でも向きをそろえて写し込みます。MENUの項目ではなく、ADJで{{Fn}}を押して設定します。",
             "CORNER": "日付を入れる位置です。「下部左右」を選ぶと、左に日付、右にキャプションが入ります。",
             "SIZE": "数字の大きさです。",
-            "LOOK": "フォントの種類です。Classic、GR1s（ドット文字）、またはGR IIを選べます。",
+            "LOOK": "フォントです。Classic、GR1s（ドット文字）、またはGR IIを選べます。",
             "COLOR": "標準はフォントの色です。ClassicとGR IIはオレンジ、GR1sは黄色になります。白黒写真は白になります。",
             "GLOW": "数字のまわりのやわらかい光のにじみです。GR IIはにじみのないフラットな数字になります。",
             "CAPTION": "日付の前に入る言葉です。写真では<3がハートになります。",
@@ -1147,6 +1216,7 @@ export const ja: DocsContent = {
           "kind": "compare",
           "before": "chairs-date-crop",
           "after": "chairs-date-gr1s-crop",
+          "beforeLabel": "日付の書体: クラシック",
           "label": "日付の書体: GR1s",
           "alt": "写真の右下隅。左はクラシック書体、右は GR1s 書体での日付表示。他の設定は同じ。"
         }
@@ -1163,11 +1233,20 @@ export const ja: DocsContent = {
       "keywords": "グロー ブルーム ハレーション シネスティル 赤 オレンジ ゴールド 白 ハイライト 光 夜 glow bloom halation cinestill red orange gold white highlights lights night",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "グロー"
+          "kind": "facts",
+          "cells": [
+            [
+              "場所",
+              "ADJ › GRKU › グロー"
+            ],
+            [
+              "JPEG",
+              "JPEGのみ"
+            ],
+            [
+              "ライブビュー",
+              "プレビューなし：再生で確認してください"
+            ]
           ]
         },
         {
@@ -1183,16 +1262,16 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "ADJで**ブルーム**または**ハレーション**を選び、{{Fn}}を押すと、ハレーションの色やアイコンなどのほかの設定を開けます。"
+          "text": "ADJで**ブルーム**または**ハレーション**を選択し、{{Fn}}を押すと、ハレーションの色やアイコンなどの追加設定を開けます。"
         },
         {
           "kind": "settings",
           "module": "glow",
           "notes": {
             "BLOOM": "**ブルーム**：明るい部分のまわりのやわらかい光のにじみです。",
-            "BLOOM_ICON": "撮影画面にブルームのアイコンを表示します。",
+            "BLOOM_ICON": "撮影画面にBloomアイコンを表示します。",
             "HALATION": "**ハレーション**：CineStillフィルムのような、光のまわりの色のにじみです。",
-            "HALATION_COLOR": "ハレーションの色です。GR IV Monochromeでは使えません。",
+            "HALATION_COLOR": "ハローの色です。GR IV Monochromeでは設定できません。",
             "HALATION_ICON": "撮影画面にハレーションのアイコンを表示します。"
           }
         },
@@ -1216,11 +1295,20 @@ export const ja: DocsContent = {
       "keywords": "ライトリーク 周辺減光 ダスト キズ 色あせ 期限切れ 古いフィルム ロモ レトロ light leak vignette dust scratches faded dusty leaky expired old film lomo retro",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "ライトリーク"
+          "kind": "facts",
+          "cells": [
+            [
+              "場所",
+              "ADJ › GRKU › ライトリーク"
+            ],
+            [
+              "JPEG",
+              "JPEGのみ"
+            ],
+            [
+              "ライブビュー",
+              "プレビューなし：再生で確認してください"
+            ]
           ]
         },
         {
@@ -1235,7 +1323,7 @@ export const ja: DocsContent = {
           "module": "lightleak",
           "notes": {
             "LOOK": "**カスタム**は、下の項目で自分で強さを設定します。それ以外は、あらかじめ用意された組み合わせです。",
-            "VIGNETTE": "四隅を暗くします。**カスタム**と一緒に使います。",
+            "VIGNETTE": "四すみを暗くします。**カスタム**と一緒に使います。",
             "DUST": "ほこりや髪の毛のような写り込みです。**カスタム**と一緒に使います。",
             "LEAK": "はしから光がもれてフィルムがかぶったような写り込みです。**カスタム**と一緒に使います。",
             "SCRATCH": "フィルムのキズのような写り込みです。**カスタム**と一緒に使います。"
@@ -1258,11 +1346,20 @@ export const ja: DocsContent = {
       "keywords": "ディフュージョン フィルター プロミスト ブラックミスト ストリーク アナモルフィック 柔らかさ フィルム 優しい diffusion filter pro mist black mist streak anamorphic softness film softness soft dreamy",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "ディフュージョン"
+          "kind": "facts",
+          "cells": [
+            [
+              "場所",
+              "ADJ › GRKU › ディフュージョン"
+            ],
+            [
+              "JPEG",
+              "JPEGのみ"
+            ],
+            [
+              "ライブビュー",
+              "プレビューなし：再生で確認してください"
+            ]
           ]
         },
         {
@@ -1288,8 +1385,8 @@ export const ja: DocsContent = {
           "module": "diffusion",
           "notes": {
             "STRENGTH": "**フィルター**：ディフュージョンフィルターの効果の強さです。フィルターの番数のようなものです。",
-            "MIST": "**フィルター**：影にかかるうすい膜のような効果です。**強度**が**オフ**以外のときに有効です。",
-            "STREAK": "**フィルター**：点光源にアナモルフィックレンズのような横長の光条を出します。**強度**が**オフ**以外のときに有効です。",
+            "MIST": "**フィルター**：影にかかるうすい膜のような効果です。**強度**が**オフ**以外のときに有効になります。",
+            "STREAK": "**フィルター**：点光源にアナモルフィックレンズのような横長の光条を出します。**強度**が**オフ**以外のときに有効になります。",
             "SOFTNESS": "**ソフトネス**：フィルムスキャンのように細部がやわらかくなり、ハイライトがなだらかに落ちます。これだけでも効果があります。"
           }
         },
@@ -1312,11 +1409,20 @@ export const ja: DocsContent = {
       "keywords": "粒状感 ノイズ フィルム調 システム サイズ 強度 弱 中 強 特強 grain noise film-like system size strength weak medium strong extra",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "粒状感"
+          "kind": "facts",
+          "cells": [
+            [
+              "場所",
+              "ADJ › GRKU › グレイン"
+            ],
+            [
+              "スタイル",
+              "システムまたはフィルム調"
+            ],
+            [
+              "サイズ オート",
+              "撮影時のISOに連動します"
+            ]
           ]
         },
         {
@@ -1355,11 +1461,20 @@ export const ja: DocsContent = {
       "keywords": "border frame white black thin wide instant polaroid edge ボーダー フレーム 白 黒 細い 太い インスタント ポラロイド 縁",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "ボーダー"
+          "kind": "facts",
+          "cells": [
+            [
+              "場所",
+              "ADJ › GRKU › ボーダー"
+            ],
+            [
+              "JPEG",
+              "ボーダー分だけ大きくなります"
+            ],
+            [
+              "DNG",
+              "ボーダーなし"
+            ]
           ]
         },
         {
@@ -1479,7 +1594,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GRKUで撮影した写真には設定がXMPに記録されるため、exiftoolなどのXMPリーダーで確認できます。**Uncropped RAW**をオンにすると、LightroomやCamera Rawで撮影時のクロップ枠付きのDNGが開き、そのクロップを元に戻せます。"
+          "text": "GRKUをオンにして撮った写真には設定がXMPに記録されるため、exiftoolなどのXMPリーダーで確認できます。**RAW クロップなし**をオンにすると、LightroomやCamera Rawで撮影時のクロップ枠付きのDNGが開き、そのクロップを元に戻せます。"
         },
         {
           "kind": "p",
@@ -1788,7 +1903,7 @@ export const ja: DocsContent = {
           "kind": "note",
           "tone": "plain",
           "title": "返金について",
-          "text": "購入するとすぐに届くため、都合による返金はできません。キーが届かないときや、当方の不備で14日以内にルックが解除されないときは全額返金します。[利用規約](site:terms)をご覧ください。"
+          "text": "購入後すぐにデータが届くため、都合による返金はできません。キーが届かない場合や、当方の不備により14日以内にルックが解除されない場合は全額返金します。[利用規約](site:terms)をご覧ください。"
         },
         {
           "kind": "h2",
@@ -1878,7 +1993,7 @@ export const ja: DocsContent = {
       "blocks": [
         {
           "kind": "p",
-          "text": "[現像ページ](site:develop)では、お手持ちの写真にGRKUのフィルムルックを適用し、カメラのモジュールコードによる効果を確認できます。カメラは不要で、写真が端末の外に出ることはありません。"
+          "text": "[現像ページ](site:develop)では、お手持ちの写真にGRKUのフィルムルックを当てて、カメラのモジュールコードによる効果を確認できます。カメラは不要で、写真が端末の外に出ることはありません。"
         },
         {
           "kind": "steps",
@@ -2047,7 +2162,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "読み込めなかったモジュールは、MENU の名前の横に番号が表示されます。`GRKU/REPORT.TXT` にも記録されます。GRKU は起動できています。"
+          "text": "読み込めなかったモジュールは、MENUで名前の横に番号が表示されます。`GRKU/REPORT.TXT`にも記録されます。GRKUの起動自体は成功しています。"
         },
         {
           "kind": "table",
@@ -2276,7 +2391,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GRKU はファームウェア 1.11 の GR IV で動作確認済みです。他のバージョンや機種向けのビルドも同じコードから作られ、RICOH のファイルと照合していますが、まだ実機で試していません。"
+          "text": "GRKUはファームウェア1.11のGR IVで動作確認済みです。他のバージョンや機種向けも同じコードから作られ、RICOHのファイルと照合しましたが、実機での動作はまだ未確認です。"
         },
         {
           "kind": "p",
@@ -2284,7 +2399,7 @@ export const ja: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "GR IV 30th Anniversary Editionには専用の工場出荷版1.20が入っており、grku.appではまだ対応していません。先にRICOHから1.21へアップデートしてください。"
+          "text": "GR IV 30th Anniversary Editionには、専用の工場出荷版ファームウェア1.20が入っています。grku.appではまだこのバージョンに対応していないため、まずRICOHの公式サイトから1.21へアップデートしてください。"
         },
         {
           "kind": "h2",

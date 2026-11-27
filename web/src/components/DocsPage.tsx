@@ -3,13 +3,13 @@
 // "Ask AI about this page". After the docs of GRKit (MIT, github.com/ahonn/GRKit); the text is
 // GRKU's own (docs/content/).
 import { use, useEffect, useId, useState, type FormEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
-import { ArrowLeft, ArrowRight, ChevronDown, LifeBuoy, Search, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChevronDown, Copy, LifeBuoy, Search, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CAMERAS } from '../cameras';
-import { parseInline, plusTarget, targetUrl } from '../docs/inline';
+import { parseInline, plainInline, plusTarget, targetUrl } from '../docs/inline';
 import { DOCS, loadDocs } from '../docs/load';
 import { DOC_GROUPS, DOC_PAGES, docSlug, type DocSlug, type DocsSitePage } from '../docs/pages';
-import { searchDocs } from '../docs/search';
+import { blockText, searchDocs } from '../docs/search';
 import { settingRows } from '../docs/settingsTable';
 import type { DocBlock, DocsContent, Inline } from '../docs/types';
 import { siteUrl } from '../catalog';
@@ -18,6 +18,8 @@ import { showLanguage, type Language } from '../i18n';
 import { pathPage } from '../languagePage';
 import type { PageLink } from '../navigation';
 import { CameraBackArt, ComputerArt, CopyArt, InsertArt } from './GuideArt';
+import { Handle, HandleRoot, Item, Provider, Root } from 'react-compare-slider/components';
+import { useReactCompareSlider } from 'react-compare-slider/hooks';
 import { MODULE_SETTINGS } from '../docs/moduleSettings.generated';
 import { cameraLanguage } from '../docs/settingsTable';
 import type { DocSlug as Slug } from '../docs/pages';
@@ -66,6 +68,8 @@ interface Ctx {
   language: Language;
   link: PageLink;
   onPlus: DocsProps['onPlus'];
+  /** Asks the assistant about step `n` of the doc. */
+  onAskStep: (n: number, step: string) => void;
 }
 
 /** A link of the manual text: a page of the site opens in place, GRKU Plus opens its sheet. */
@@ -124,7 +128,7 @@ function Text({ text, ctx }: { text: Inline; ctx: Ctx }) {
         );
       case 'key':
         return (
-          <kbd key={index} className="mx-0.5 inline-flex min-w-6 items-center justify-center rounded-md border border-b-2 border-border bg-card px-1.5 font-mono text-[0.82em] font-semibold text-foreground">
+          <kbd key={index} className="mx-0.5 inline-flex min-w-6 items-center justify-center rounded-[5px] bg-foreground px-1.5 py-px font-mono text-[0.8em] font-semibold text-background">
             {part.text}
           </kbd>
         );
@@ -277,7 +281,7 @@ const GUIDES: readonly LandingGuide[] = ['thirds', 'center', 'golden', 'diagonal
 function Chips({ label, items, active, onPick }: { label: string; items: readonly string[]; active: number; onPick: (index: number) => void }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[12px] font-medium text-muted-foreground">{label}</span>
+      <span className="text-[12px] font-medium text-white/70">{label}</span>
       <div className="flex flex-wrap gap-1.5">
         {items.map((item, index) => (
           <button
@@ -285,7 +289,7 @@ function Chips({ label, items, active, onPick }: { label: string; items: readonl
             type="button"
             aria-pressed={index === active}
             onClick={() => onPick(index)}
-            className={cn('h-8 rounded-full border px-3 text-[13px] font-medium transition-colors', index === active ? 'border-foreground bg-foreground text-background' : 'border-input hover:border-foreground/40')}
+            className={cn('h-9 min-w-9 rounded-md border px-2.5 text-[13px] font-semibold transition-colors', index === active ? 'border-white bg-white text-black' : 'border-white/25 text-white hover:border-white/60')}
           >
             {item}
           </button>
@@ -313,9 +317,9 @@ function Frame({ block, ctx }: { block: Extract<DocBlock, { kind: 'frame' }>; ct
   }
   const lines = block.mode === 'guides' ? guideLines(GUIDES[choice]!) : [];
   return (
-    <figure className="my-6">
-      <div className="relative aspect-[3/2] overflow-hidden rounded-xl border bg-black">
-        <img src={docsImage(FRAME_PHOTO, 1200)} srcSet={`${docsImage(FRAME_PHOTO, 600)} 600w, ${docsImage(FRAME_PHOTO, 1200)} 1200w`} sizes="(min-width: 1024px) 720px, 100vw" alt={block.alt} width={1200} height={800} loading="lazy" className="block size-full object-cover" />
+    <figure className="my-6 overflow-hidden rounded-xl border bg-[#161616]">
+      <div className="relative aspect-[3/2] overflow-hidden bg-black">
+        <img src={docsImage(FRAME_PHOTO, 1200)} srcSet={`${docsImage(FRAME_PHOTO, 600)} 600w, ${docsImage(FRAME_PHOTO, 900)} 900w, ${docsImage(FRAME_PHOTO, 1200)} 1200w`} sizes="(min-width: 1024px) 720px, 100vw" alt={block.alt} width={1200} height={800} fetchPriority="high" className="block size-full object-cover" />
         {area && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-[width,height] duration-200" style={{ ...area, ...MASKS[mask] }} />}
         {lines.length > 0 && (
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 size-full" aria-hidden="true">
@@ -326,13 +330,97 @@ function Frame({ block, ctx }: { block: Extract<DocBlock, { kind: 'frame' }>; ct
         )}
         {tag && <span className="absolute top-2 left-2 rounded-md bg-black/65 px-2 py-0.5 font-mono text-[12px] text-white">{tag}</span>}
       </div>
-      <figcaption className="mt-3 flex flex-wrap gap-x-6 gap-y-3">
+      <figcaption className="flex flex-wrap justify-between gap-x-6 gap-y-3 px-3 py-3 text-white">
         {block.mode === 'framing' && <Chips label={t.ratio} items={RATIOS.map((ratio) => ratio.label)} active={choice} onPick={setChoice} />}
         {block.mode === 'crop' && <Chips label={t.focal} items={FOCALS.map((focal) => `${focal}mm`)} active={choice} onPick={setChoice} />}
         {block.mode === 'guides' && <Chips label={t.style} items={t.guides} active={choice} onPick={setChoice} />}
         {block.mode !== 'guides' && <Chips label={t.mask} items={t.masks} active={mask} onPick={setMask} />}
       </figcaption>
     </figure>
+  );
+}
+
+/** The reading time of a doc: about 200 words a minute, or 500 characters of Thai or CJK text. */
+function readingMinutes(page: DocsContent['pages'][DocSlug]): number {
+  const text = [page.lead, ...page.blocks.map(blockText)].join(' ');
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const dense = (text.match(/[\u0E00-\u0E7F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]/g) ?? []).length;
+  return Math.max(1, Math.round(dense > words ? dense / 500 : words / 200));
+}
+
+/** Copy a step, or ask the assistant about it. They show on hover and focus, and always on a phone. */
+function StepActions({ item, index, ctx }: { item: Inline; index: number; ctx: Ctx }) {
+  const t = ctx.content.ui;
+  const [copied, setCopied] = useState(false);
+  const text = plainInline(item);
+  const button = 'grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground';
+  return (
+    <span className="flex shrink-0 items-start gap-0.5 pt-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within/step:opacity-100 sm:group-hover/step:opacity-100">
+      <button
+        type="button"
+        className={button}
+        title={copied ? t.copiedStep : t.copyStep}
+        aria-label={copied ? t.copiedStep : t.copyStep}
+        onClick={() => {
+          void navigator.clipboard?.writeText(text).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+          });
+        }}
+      >
+        {copied ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
+      </button>
+      <button type="button" className={button} title={t.askStep} aria-label={t.askStep} onClick={() => ctx.onAskStep(index + 1, text)}>
+        <Sparkles className="size-4" aria-hidden="true" />
+      </button>
+    </span>
+  );
+}
+
+/** The key under which the manual remembers the camera tab of a reader. */
+const CAMERA_TAB = 'grku.docs.camera';
+/** Tabs for each camera where the cameras differ; the choice of a reader holds on every page. */
+function CameraTabs({ block, ctx }: { block: Extract<DocBlock, { kind: 'tabs' }>; ctx: Ctx }) {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(CAMERA_TAB);
+      const at = block.tabs.findIndex((tab) => tab.label === saved);
+      if (at >= 0) setActive(at);
+    } catch {
+      // Private mode: the first tab.
+    }
+  }, [block.tabs]);
+  const choose = (index: number) => {
+    setActive(index);
+    try {
+      localStorage.setItem(CAMERA_TAB, block.tabs[index]!.label);
+    } catch {
+      // Nothing to keep.
+    }
+  };
+  return (
+    <div className="my-6">
+      <div role="tablist" className="flex gap-1 border-b border-border">
+        {block.tabs.map((tab, index) => (
+          <button
+            key={tab.label}
+            type="button"
+            role="tab"
+            aria-selected={index === active}
+            onClick={() => choose(index)}
+            className={cn('-mb-px min-h-11 border-b-2 px-3 text-[14px] font-semibold', index === active ? 'border-brand text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground')}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      <div role="tabpanel">
+        {block.tabs[active]!.blocks.map((inner, index) => (
+          <Block key={index} block={inner} ctx={ctx} />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -361,17 +449,45 @@ function Compare({ block, ctx }: { block: Extract<DocBlock, { kind: 'compare' }>
   const image = (name: string) => {
     const crop = name.endsWith('-crop');
     const large = crop ? 900 : 1200;
-    return { src: docsImage(`render-${name}`, large), srcSet: `${docsImage(`render-${name}`, 600)} 600w, ${docsImage(`render-${name}`, large)} ${large}w`, sizes: '(min-width: 1024px) 360px, 50vw' };
+    return { src: docsImage(`render-${name}`, large), srcSet: `${docsImage(`render-${name}`, 600)} 600w, ${docsImage(`render-${name}`, large)} ${large}w`, sizes: '(min-width: 1024px) 720px, 100vw' };
   };
+  const comparison = useReactCompareSlider({ clip: 'itemTwo' });
+  const badge = 'pointer-events-none absolute top-2 z-[2] rounded-md px-2 py-0.5 text-[12px] font-medium';
+  // A border makes the photo larger, so a border is shown side by side; the others on one slider.
+  if (block.after.includes('border')) {
+    return (
+      <figure className="my-6">
+        <div className="grid grid-cols-2 gap-2">
+          {([[block.before, block.beforeLabel ?? ctx.content.ui.withoutLabel], [block.after, block.label]] as const).map(([name, caption], index) => (
+            <div key={index} className="relative overflow-hidden rounded-xl border bg-muted">
+              <img {...image(name)} sizes="(min-width: 1024px) 360px, 50vw" alt={index === 1 ? block.alt : ''} loading="lazy" className="block h-auto w-full" />
+              <span className={cn(badge, 'left-2', index === 1 ? 'bg-brand text-brand-foreground' : 'bg-black/65 text-white')}>{caption}</span>
+            </div>
+          ))}
+        </div>
+        <figcaption className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{block.alt}</figcaption>
+      </figure>
+    );
+  }
+  const portrait = block.after.startsWith('house') && !block.after.endsWith('-crop');
   return (
     <figure className="my-6">
-      <div className="grid grid-cols-2 gap-2">
-        {([[block.before, ctx.content.ui.withoutLabel], [block.after, block.label]] as const).map(([name, caption], index) => (
-          <div key={index} className="relative overflow-hidden rounded-xl border bg-muted">
-            <img {...image(name)} alt={index === 1 ? block.alt : ''} loading="lazy" className="block h-auto w-full" />
-            <span className={cn('absolute bottom-2 left-2 rounded-md px-2 py-0.5 text-[12px] font-medium', index === 1 ? 'bg-brand text-brand-foreground' : 'bg-black/65 text-white')}>{caption}</span>
-          </div>
-        ))}
+      <div className={cn('relative overflow-hidden rounded-xl border bg-black', portrait && 'mx-auto max-w-[420px]')}>
+        <Provider {...comparison}>
+          <Root className="image-comparison">
+            <Item item="itemOne">
+              <img {...image(block.before)} alt="" loading="lazy" decoding="async" />
+            </Item>
+            <Item item="itemTwo" className="comparison-effect">
+              <img {...image(block.after)} alt={block.alt} loading="lazy" decoding="async" />
+            </Item>
+            <HandleRoot aria-label={block.label}>
+              <Handle buttonStyle={{ width: 28, height: 28, gap: '0.2rem' }} />
+            </HandleRoot>
+          </Root>
+        </Provider>
+        <span className={cn(badge, 'left-2 bg-black/65 text-white')}>{block.beforeLabel ?? ctx.content.ui.withoutLabel}</span>
+        <span className={cn(badge, 'right-2 bg-brand text-brand-foreground')}>{block.label}</span>
       </div>
       <figcaption className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{block.alt}</figcaption>
     </figure>
@@ -490,7 +606,7 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
       );
     case 'h2':
       return (
-        <h2 id={block.id} className="group mt-12 mb-3 scroll-mt-28 text-[22px] leading-snug font-semibold tracking-[-0.01em] md:scroll-mt-20">
+        <h2 id={block.id} className="group mt-14 mb-4 scroll-mt-28 border-b-2 border-foreground pb-2.5 text-[24px] leading-snug font-bold tracking-[-0.015em] md:scroll-mt-20 [:root[lang=th]_&]:leading-[1.45] [:root[lang=th]_&]:tracking-normal">
           {block.text}
           <a href={`#${block.id}`} className="ml-2 text-muted-foreground no-underline opacity-0 group-hover:opacity-100 focus:opacity-100" aria-hidden="true" tabIndex={-1}>
             #
@@ -501,11 +617,12 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
       return (
         <ol className="my-5 flex list-none flex-col gap-3 p-0">
           {block.items.map((item, index) => (
-            <li key={index} className="flex gap-3.5">
+            <li key={index} className="group/step flex gap-3.5">
               <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-brand text-[13px] font-semibold text-brand-foreground">{index + 1}</span>
-              <span className="min-w-0 pt-0.5 text-[16px] leading-[1.7]">
+              <span className="min-w-0 flex-1 pt-0.5 text-[16px] leading-[1.7]">
                 <Text text={item} ctx={ctx} />
               </span>
+              <StepActions item={item} index={index} ctx={ctx} />
             </li>
           ))}
         </ol>
@@ -615,6 +732,19 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
       return <CameraTable ctx={ctx} />;
     case 'settings':
       return <SettingsTable block={block} ctx={ctx} />;
+    case 'facts':
+      return (
+        <dl className="my-5 grid grid-cols-1 border-y border-foreground/80 sm:grid-cols-3">
+          {block.cells.map(([label, value], index) => (
+            <div key={index} className="border-b border-border py-2.5 last:border-b-0 sm:border-b-0 sm:pr-4">
+              <dt className="text-[12px] text-muted-foreground">{label}</dt>
+              <dd className="mt-0.5 text-[15px] leading-snug font-semibold"><Text text={value} ctx={ctx} /></dd>
+            </div>
+          ))}
+        </dl>
+      );
+    case 'tabs':
+      return <CameraTabs block={block} ctx={ctx} />;
     case 'art': {
       const Art = { computer: ComputerArt, copy: CopyArt, insert: InsertArt }[block.art];
       return (
@@ -725,16 +855,24 @@ function DocsNav({ ctx, slug, onAsk }: { ctx: Ctx; slug: DocSlug; onAsk: (questi
       <div className="mb-3">
         <DocsSearch ctx={ctx} onAsk={onAsk} />
       </div>
+      {/* On a phone, the pages open from a button at the bottom, in reach of the thumb. */}
       <button
         type="button"
-        className="flex h-10 w-full items-center justify-between rounded-xl border px-3 text-[14px] font-medium lg:hidden"
+        className="fixed bottom-4 left-3 z-40 flex h-12 items-center gap-2 rounded-full border bg-background/95 px-4 text-[14px] font-semibold shadow-lg backdrop-blur lg:hidden"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
+        <ChevronDown className={cn('size-4 transition-transform', open ? 'rotate-0' : 'rotate-180')} aria-hidden="true" />
         {content.ui.browse}
-        <ChevronDown className={cn('size-4 transition-transform', open && 'rotate-180')} aria-hidden="true" />
       </button>
-      <nav className={cn('mt-2 lg:mt-0 lg:block', open ? 'block' : 'hidden')} aria-label={content.ui.docs}>
+      {open && <div className="fixed inset-0 z-30 bg-black/30 lg:hidden" aria-hidden="true" onClick={() => setOpen(false)} />}
+      <nav
+        className={cn(
+          'lg:static lg:block lg:max-h-none lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none',
+          open ? 'fixed inset-x-0 bottom-0 z-40 block max-h-[72vh] overflow-y-auto rounded-t-2xl border-t bg-background px-3 pt-3 pb-20 shadow-2xl' : 'hidden',
+        )}
+        aria-label={content.ui.docs}
+      >
         {DOC_GROUPS.map((group) => (
           <div key={group} className="mt-4 first:mt-1">
             <h2 className="px-3 text-[12px] font-semibold tracking-wide text-muted-foreground uppercase">{content.groups[group]}</h2>
@@ -745,8 +883,8 @@ function DocsNav({ ctx, slug, onAsk }: { ctx: Ctx; slug: DocSlug; onAsk: (questi
                     {...link(`docs/${page.slug}`)}
                     aria-current={page.slug === slug ? 'page' : undefined}
                     className={cn(
-                      'block rounded-lg px-3 py-1.5 text-[14px] leading-snug no-underline',
-                      page.slug === slug ? 'bg-accent font-medium text-foreground' : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
+                      'block rounded-lg px-3 py-2.5 text-[15px] leading-snug no-underline lg:py-1.5 lg:text-[14px]',
+                      page.slug === slug ? 'bg-foreground font-semibold text-background' : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
                     )}
                   >
                     {content.pages[page.slug].title}
@@ -780,11 +918,13 @@ function DocArticle({ ctx, slug, onAsk }: { ctx: Ctx; slug: DocSlug; onAsk: (que
           </a>{' '}
           / {content.groups[group]}
         </p>
-        <h1 className="mt-2 text-[clamp(30px,3.4vw,40px)] leading-[1.12] font-bold tracking-[-0.02em] text-balance [:root[lang=th]_&]:leading-[1.3] [:root[lang=th]_&]:tracking-normal">{page.title}</h1>
+        <h1 className="mt-2 text-[clamp(32px,4vw,46px)] leading-[1.08] font-extrabold tracking-[-0.025em] text-balance [:root[lang=th]_&]:leading-[1.3] [:root[lang=th]_&]:tracking-normal">{page.title}</h1>
         <p className="mt-3 text-[18px] leading-relaxed text-muted-foreground">{page.lead}</p>
         {typeof __DOCS_UPDATED__ === 'string' && (
           <p className="mt-2 text-[13px] text-muted-foreground">
             {content.ui.updated} <time dateTime={__DOCS_UPDATED__}>{__DOCS_UPDATED__}</time>
+            <span aria-hidden="true"> · </span>
+            {content.ui.readingTime.replace('${n}', String(readingMinutes(page)))}
           </p>
         )}
         <AskButton label={content.ui.askAi} onClick={ask} className="mt-5" />
@@ -818,7 +958,7 @@ function DocArticle({ ctx, slug, onAsk }: { ctx: Ctx; slug: DocSlug; onAsk: (que
             </TextLink>
           </div>
         </aside>
-        <nav className="mt-8 grid grid-cols-2 gap-3" aria-label={`${content.ui.previous} / ${content.ui.next}`}>
+        <nav className="mt-10 grid grid-cols-2 gap-3 border-t-2 border-foreground pt-5" aria-label={`${content.ui.previous} / ${content.ui.next}`}>
           {previous ? (
             <a {...link(`docs/${previous.slug}`)} className="flex flex-col gap-0.5 rounded-xl border px-4 py-3 no-underline hover:border-input hover:bg-accent/50">
               <small className="flex items-center gap-1 text-[12px] text-muted-foreground">
@@ -867,7 +1007,14 @@ function DocArticle({ ctx, slug, onAsk }: { ctx: Ctx; slug: DocSlug; onAsk: (que
 export function DocsPage({ language, page, link, onPlus, onAsk }: DocsProps) {
   const content = useDocs(language);
   const slug = docSlug(page);
-  const ctx: Ctx = { content, language, link, onPlus };
+  const title = slug ? content.pages[slug].title : content.home.title;
+  const ctx: Ctx = {
+    content,
+    language,
+    link,
+    onPlus,
+    onAskStep: (n, step) => onAsk(content.ui.askStepPrompt.replace('${title}', title).replace('${n}', String(n)).replace('${step}', step)),
+  };
   // The title of the tab: the text of the manual may arrive after the page showed.
   useEffect(() => showLanguage(language, page), [language, page, content]);
   return slug ? <DocArticle ctx={ctx} slug={slug} onAsk={onAsk} /> : <DocsHome ctx={ctx} onAsk={onAsk} />;

@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { DESIGNS, FREE_DESIGNS } from '../shutdownDesigns';
 import {
@@ -45,7 +47,8 @@ import {
 import { FONTS } from './fonts';
 import { FRAMES, photoCrop, renderDoc, type Context } from './render';
 import { FREE_STICKERS, STICKER_GROUPS, STICKERS } from './stickers';
-import { designThemes, FREE_TEMPLATES, TEMPLATES } from './templates';
+import { designThemes, findTemplate, FREE_TEMPLATES, HOLIDAY_TEMPLATES, holidaySeason, holidayYears, TEMPLATES } from './templates';
+import { ART_IDS, artUrl } from './art';
 import { STUDIO_STRINGS } from './strings';
 
 /** A 2D context that records the calls and draws nothing. */
@@ -319,9 +322,11 @@ describe('free and Plus in the Studio', () => {
   });
 });
 
+const HOLIDAY_IDS = ['xmas-santa', 'xmas-gift', 'xmas-snow', 'xmas-cocoa', 'xmas-minimal', 'ny-party', 'ny-balloons', 'ny-minimal'];
+
 describe('the library of the Studio', () => {
   it('has the templates: a blank, the 11 designs as layers, and the seasons', () => {
-    expect(TEMPLATES.map((t) => t.id)).toEqual(['blank', ...DESIGNS.map((d) => d.id), 'songkran', 'loykrathong', 'newyear', 'valentine']);
+    expect(TEMPLATES.map((t) => t.id)).toEqual(['blank', ...DESIGNS.map((d) => d.id), 'songkran', 'loykrathong', 'newyear', 'valentine', ...HOLIDAY_IDS]);
     for (const template of TEMPLATES) {
       const doc = template.build();
       expect(parse(serialize(doc), designThemes), template.id).toEqual(doc);
@@ -334,6 +339,32 @@ describe('the library of the Studio', () => {
       expect(doc.layers).toHaveLength(1);
       expect(doc.layers[0]).toMatchObject({ type: 'text', text: design.text });
     }
+  });
+
+  it('puts the Christmas and New Year pictures first from November 15 to January 15', () => {
+    expect([...HOLIDAY_TEMPLATES].sort()).toEqual([...HOLIDAY_IDS, 'newyear'].sort());
+    for (const id of HOLIDAY_TEMPLATES) expect(findTemplate(id), id).toMatchObject({ season: true, free: false });
+    const on = ['2026-11-15', '2026-11-27', '2026-12-31', '2027-01-01', '2027-01-15'];
+    const off = ['2026-11-14', '2027-01-16', '2027-04-13', '2027-10-31'];
+    for (const day of on) expect(holidaySeason(new Date(`${day}T12:00:00`)), day).toBe(true);
+    for (const day of off) expect(holidaySeason(new Date(`${day}T12:00:00`)), day).toBe(false);
+    // The pictures name the coming New Year, and the Christmas before it.
+    expect(holidayYears(new Date(2026, 10, 27))).toEqual({ christmas: 2026, newYear: 2027 });
+    expect(holidayYears(new Date(2027, 0, 10))).toEqual({ christmas: 2026, newYear: 2027 });
+    expect(holidayYears(new Date(2027, 11, 1))).toEqual({ christmas: 2027, newYear: 2028 });
+  });
+
+  it('keeps the painted background of a seasonal picture, and only a known one', () => {
+    for (const id of ART_IDS) {
+      expect(findTemplate(id)!.build().background, id).toEqual({ kind: 'art', art: id });
+      expect(existsSync(fileURLToPath(new URL(`../../public${artUrl(id)}`, import.meta.url))), id).toBe(true);
+    }
+    const doc = (art: string) => serialize({ ...emptyDoc(), background: { kind: 'art', art } });
+    expect(parse(doc('xmas-santa'), designThemes)!.background).toEqual({ kind: 'art', art: 'xmas-santa' });
+    expect(parse(doc('../x'), designThemes)!.background).toEqual(emptyDoc().background);
+    // A painted background is a part of its template: Plus, even on a document of another template.
+    expect(plusItems({ ...emptyDoc(), template: 'blank', background: { kind: 'art', art: 'ny-party' } }, catalog)).toEqual([{ kind: 'template', id: 'ny-party' }]);
+    expect(plusItems(findTemplate('ny-party')!.build(), catalog)).toEqual([{ kind: 'template', id: 'ny-party' }]);
   });
 
   it('keeps the text of every template clear of the camera text', () => {

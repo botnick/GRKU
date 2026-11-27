@@ -54,6 +54,7 @@ export const SEASON_WORDS = {
   songkran: 'สุขสันต์วันสงกรานต์',
   loykrathong: 'สุขสันต์วันลอยกระทง',
   newyear: 'สวัสดีปีใหม่',
+  christmas: 'สุขสันต์วันคริสต์มาส',
 } as const;
 
 const doc = (template: string, background: StudioDoc['background'], layers: Layer[]): StudioDoc => ({ ...emptyDoc(), background, layers, template });
@@ -123,10 +124,122 @@ const SEASONS: Template[] = [
   },
 ];
 
+/**
+ * The years that the holiday pictures name, for the season of `date`: the Christmas of this year
+ * (of last year in January), and the New Year that comes next (this one in January). The Thai
+ * picture adds 543 for the Buddhist year (2027 is 2570).
+ */
+export function holidayYears(date = new Date()): { christmas: number; newYear: number } {
+  const year = date.getFullYear();
+  return date.getMonth() === 0 ? { christmas: year - 1, newYear: year } : { christmas: year, newYear: year + 1 };
+}
+
+/**
+ * The Christmas and New Year pictures: the GRKU mascot painted for the season (`art`) under
+ * text in IBM Plex, and two plain ones. Every word sits above the bar of the shot counts.
+ */
+const HOLIDAYS: Template[] = [
+  {
+    id: 'xmas-santa',
+    free: false,
+    season: true,
+    build: () =>
+      doc('xmas-santa', { kind: 'art', art: 'xmas-santa' }, [
+        textLayer({ text: 'Merry', font: 'condensed', size: 60, color: '#FFF6EA', outline: '#A3171D', spacing: 2, x: 162, y: 168 }),
+        textLayer({ text: 'Christmas', font: 'condensed', size: 60, color: '#FFF6EA', outline: '#A3171D', spacing: 2, x: 162, y: 230 }),
+      ]),
+  },
+  {
+    id: 'xmas-gift',
+    free: false,
+    season: true,
+    build: () =>
+      doc('xmas-gift', { kind: 'art', art: 'xmas-gift' }, [
+        textLayer({ text: SEASON_WORDS.christmas, font: 'condensed', size: 40, color: '#B3262E', x: 560, y: 150, maxWidth: 300 }),
+        textLayer({ text: 'MERRY CHRISTMAS', font: 'condensed', size: 18, color: '#7A5A3A', spacing: 6, x: 560, y: 204 }),
+      ]),
+  },
+  {
+    id: 'xmas-snow',
+    free: false,
+    season: true,
+    build: () =>
+      doc('xmas-snow', { kind: 'art', art: 'xmas-snow' }, [
+        textLayer({ text: "Season's Greetings", font: 'condensed', size: 46, color: '#FFFFFF', spacing: 1, x: 300, y: 72 }),
+      ]),
+  },
+  {
+    id: 'xmas-cocoa',
+    free: false,
+    season: true,
+    build: () =>
+      doc('xmas-cocoa', { kind: 'art', art: 'xmas-cocoa' }, [
+        textLayer({ text: 'Warm wishes', font: 'condensed', size: 44, color: '#7A4E2D', x: 150, y: 150 }),
+        textLayer({ text: 'MERRY CHRISTMAS', font: 'condensed', size: 16, color: '#8A5B36', spacing: 5, x: 150, y: 194 }),
+      ]),
+  },
+  {
+    id: 'xmas-minimal',
+    free: false,
+    season: true,
+    build: () =>
+      doc('xmas-minimal', { kind: 'solid', color: '#123528' }, [
+        stickerLayer('snowflake', { x: 360, y: 86, size: 60, tint: '#D9B46A' }),
+        stickerLayer('sparkle', { x: 104, y: 126, size: 26, tint: '#D9B46A' }),
+        stickerLayer('sparkle', { x: 556, y: 232, size: 24, tint: '#D9B46A' }),
+        textLayer({ text: 'Merry Christmas', font: 'condensed', size: 62, color: '#F3E6C8', spacing: 2, x: 360, y: 182 }),
+        textLayer({ text: String(holidayYears().christmas), font: 'condensed', size: 18, color: '#D9B46A', spacing: 10, x: 360, y: 250 }),
+      ]),
+  },
+  {
+    id: 'ny-party',
+    free: false,
+    season: true,
+    build: () =>
+      doc('ny-party', { kind: 'art', art: 'ny-party' }, [
+        textLayer({ text: 'Happy New Year', font: 'condensed', size: 44, color: '#FFE8A3', x: 176, y: 84 }),
+        textLayer({ text: String(holidayYears().newYear), font: 'condensed', size: 88, color: '#FFFFFF', spacing: 4, x: 176, y: 164 }),
+      ]),
+  },
+  {
+    id: 'ny-balloons',
+    free: false,
+    season: true,
+    build: () =>
+      doc('ny-balloons', { kind: 'art', art: 'ny-balloons' }, [
+        textLayer({ text: `${SEASON_WORDS.newyear} ${holidayYears().newYear + 543}`, font: 'condensed', size: 46, color: '#B4485A', x: 520, y: 150, maxWidth: 360 }),
+        textLayer({ text: `HAPPY NEW YEAR ${holidayYears().newYear}`, font: 'condensed', size: 18, color: '#8A5A4A', spacing: 6, x: 520, y: 206 }),
+      ]),
+  },
+  {
+    id: 'ny-minimal',
+    free: false,
+    season: true,
+    build: () =>
+      doc('ny-minimal', { kind: 'solid', color: '#0F0F14' }, [
+        stickerLayer('sparkle', { x: 540, y: 74, size: 34, tint: '#E2C27A' }),
+        stickerLayer('sparkle', { x: 140, y: 222, size: 24, tint: '#E2C27A' }),
+        textLayer({ text: String(holidayYears().newYear), font: 'condensed', size: 150, color: '#E2C27A', spacing: 12, x: 360, y: 150 }),
+        textLayer({ text: 'HAPPY NEW YEAR', font: 'condensed', size: 22, color: '#F3EBDD', spacing: 12, x: 360, y: 262 }),
+      ]),
+  },
+];
+
+/** The templates that come first from November 15 to January 15 (`holidaySeason`). */
+export const HOLIDAY_TEMPLATES: ReadonlySet<string> = new Set([...HOLIDAYS.map((template) => template.id), 'newyear']);
+
+/** Whether `date` (local time) is in the season of Christmas and New Year: November 15 to January 15. */
+export function holidaySeason(date: Date): boolean {
+  const month = date.getMonth();
+  const day = date.getDate();
+  return (month === 10 && day >= 15) || month === 11 || (month === 0 && day <= 15);
+}
+
 export const TEMPLATES: readonly Template[] = [
   { id: 'blank', free: true, season: false, build: () => ({ ...emptyDoc(), template: 'blank' }) },
   ...DESIGNS.map((design) => ({ id: design.id, free: FREE_DESIGNS.includes(design.id), season: false, build: () => designDoc(design) })),
   ...SEASONS,
+  ...HOLIDAYS,
 ];
 
 export const FREE_TEMPLATES: ReadonlySet<string> = new Set(TEMPLATES.filter((template) => template.free).map((template) => template.id));

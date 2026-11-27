@@ -54,6 +54,11 @@ export const en: DocsContent = {
     defaultMark: 'default',
     withoutLabel: 'Without',
     photoBadge: 'Photo of the camera',
+    readingTime: '${n} min read',
+    copyStep: 'Copy this step',
+    copiedStep: 'Copied',
+    askStep: 'Ask AI about this step',
+    askStepPrompt: 'On the manual page "${title}", step ${n} says: "${step}". Explain this step to me simply.',
     captureBadge: 'Screen of the camera',
     drawnBadge: 'Drawn from the real menu',
     updated: 'Updated',
@@ -93,12 +98,8 @@ export const en: DocsContent = {
       keywords: 'firmware version check menu setup wrench about this device firmware info camera information update ricoh older newer fwdc bin',
       blocks: [
         { kind: 'p', text: 'Firmware is the software inside the camera, made by RICOH. Each camera shows its firmware version in the menu. Check it before you install GRKU.' },
-        { kind: 'h2', id: 'gr3', text: 'GR III and GR IIIx' },
-        { kind: 'steps', items: ['Turn the camera on.', 'Press {{MENU}}.', 'Go to the setup menu, the tab with the wrench icon, and open **About This Device**.', 'Choose **Firmware Info / Options** and press right.', 'The screen shows the firmware version, for example 2.21.'] },
-        { kind: 'path', items: ['MENU', 'Setup', 'About This Device', 'Firmware Info / Options'] },
-        { kind: 'h2', id: 'gr4', text: 'GR IV and GR IV HDF' },
-        { kind: 'steps', items: ['Turn the camera on.', 'Press {{MENU}}.', 'Go to the setup menu, the tab with the wrench icon, and choose **Camera Information**.', 'Press right.', 'The screen shows the firmware version, for example 1.21.'] },
-        { kind: 'path', items: ['MENU', 'Setup', 'Camera Information'] },
+        { kind: 'h2', id: 'check', text: 'Find the version on your camera' },
+        { kind: 'tabs', tabs: [{ label: 'GR III / GR IIIx', blocks: [{ kind: 'steps', items: ['Turn the camera on.', 'Press {{MENU}}.', 'Go to the setup menu, the tab with the wrench icon, and open **About This Device**.', 'Choose **Firmware Info / Options** and press right.', 'The screen shows the firmware version, for example 2.21.'] }, { kind: 'path', items: ['MENU', 'Setup', 'About This Device', 'Firmware Info / Options'] }] }, { label: 'GR IV', blocks: [{ kind: 'steps', items: ['Turn the camera on.', 'Press {{MENU}}.', 'Go to the setup menu, the tab with the wrench icon, and choose **Camera Information**.', 'Press right.', 'The screen shows the firmware version, for example 1.21.'] }, { kind: 'path', items: ['MENU', 'Setup', 'Camera Information'] }] }] },
         { kind: 'p', text: 'GR IV Monochrome: [RICOH\'s support page of the camera](https://www.ricoh-imaging.co.jp/english/support/digital/gr-4-mono_s.html) lists its firmware versions.' },
         { kind: 'h2', id: 'supported', text: 'Which versions does GRKU support?' },
         { kind: 'flow', steps: [{ see: 'Your version is in the table.', then: '[Install GRKU](doc:install).' }, { see: 'Your version is older.', then: 'Update the camera from RICOH first. See [below](doc:firmware#older).' }, { see: 'Your version is newer than the table.', then: 'Wait for a GRKU update. See [below](doc:firmware#newer).' }] },
@@ -203,7 +204,7 @@ export const en: DocsContent = {
       lead: 'Looks of real films and of other cameras, with a live preview, in place of Image Control.',
       keywords: 'film look effect image control lut portra classic chrome kodak fuji fujifilm finepix positive preview fn parameters film stock',
       blocks: [
-        { kind: 'path', items: ['ADJ', 'GRKU', 'Film Look'] },
+        { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Film Look'], ['JPEG', 'Takes the look'], ['DNG', 'Keeps the raw data, no look']] },
         { kind: 'steps', items: ['Press {{ADJ}}, choose **GRKU**, then **Film Look**.', 'Highlight a look. The live view shows it at once, with its look icon.', 'Press {{OK}} to keep it. Choose **Off** to shoot without a look.'] },
         { kind: 'screen', screen: 'adj', source: 'capture', alt: 'GRKU in ADJ: Film Look is the first module, and the screen shows Film Look: Off.' },
         { kind: 'compare', before: 'chairs-standard', after: 'chairs-portra', label: 'Kodak Portra 400', alt: 'Two deck chairs under a parasol, in the Standard look of the camera and with the Kodak Portra 400 film look.' },
@@ -227,7 +228,7 @@ export const en: DocsContent = {
       keywords: 'recipe สูตรสี preset save settings undo rename delete apply view white balance exposure',
       blocks: [
         { kind: 'p', text: 'A recipe holds Film Look or Image Control, Grain, Glow, Border, white balance, and the correction and exposure settings of the camera.' },
-        { kind: 'path', items: ['ADJ', 'GRKU', 'Recipes'] },
+        { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Recipes'], ['A recipe holds', 'Look, Grain, Glow, Border, white balance, exposure'], ['Limits', '64 recipes, 40 on in ADJ, 5 undos']] },
         { kind: 'h2', id: 'save', text: 'Save a recipe' },
         { kind: 'steps', items: ['Set the camera and GRKU the way you like.', 'Press {{ADJ}}, choose **GRKU**, then **Recipes**.', 'Choose **Save Settings**. Type a name with the camera keyboard and press {{OK}}.'] },
         { kind: 'h2', id: 'apply', text: 'Use a recipe' },
@@ -247,8 +248,8 @@ export const en: DocsContent = {
       lead: 'Shoot in another aspect ratio: XPan, 2.35:1, 16:9, 1:1, and more.',
       keywords: 'framing aspect ratio xpan panorama 65:24 16:9 4:3 2.35:1 1:1 5:4 7:6 3:4 mask frame lines guides only crop',
       blocks: [
-        { kind: 'path', items: ['ADJ', 'GRKU', 'Framing'] },
         { kind: 'frame', mode: 'framing', alt: 'A garden path to a stone house, shot with GRKU, with the frame of the chosen ratio.' },
+        { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Framing'], ['JPEG', 'Cropped to the ratio (Crop mode)'], ['DNG', 'Not cropped to the ratio']] },
         { kind: 'p', text: 'Highlight a ratio and the live view shows the frame. Press {{OK}} to keep it. In Crop mode the JPEG is cropped to the ratio; the DNG is not cropped to the ratio. When GR WORLD asks for smaller photos, a photo with a Framing size goes to the phone as a smaller copy, about 1920 pixels on the long side.' },
         { kind: 'settings', module: 'framing', notes: {'CORE.ASPECT':'The ratio of the photo. 3:4 is a vertical frame, like a half-frame camera.','CORE.ASPECT_MODE':'**Crop** crops the JPEG to the ratio; the DNG keeps the whole picture. **Guides Only** shows the frame and keeps the whole photo.','MASK':'How the screen shows the area outside the frame.','LABEL':'Shows the ratio on the shooting screen.'} },
         { kind: 'p', text: 'Press {{Fn}} on Framing to set **Mode** and **Mask**. 3:4 is a vertical frame, like a half-frame camera.' },
@@ -262,8 +263,8 @@ export const en: DocsContent = {
       lead: 'Shoot at a longer focal length, like a digital teleconverter, with the frame in the live view.',
       keywords: 'crop focal length 35mm 40mm 50mm 70mm 57mm 71mm 100mm zoom tele frame only mask uncropped raw',
       blocks: [
-        { kind: 'path', items: ['ADJ', 'GRKU', 'Crop'] },
         { kind: 'frame', mode: 'crop', alt: 'A garden path to a stone house, shot with GRKU, with the frame of the chosen focal length.' },
+        { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Crop'], ['Choices', '35, 40, 50, 70 mm'], ['GR IIIx', '50, 57, 71, 100 mm']] },
         { kind: 'settings', module: 'crop', notes: {'CORE.CROP':'The focal length, like a digital teleconverter. GR IIIx shows 50, 57, 71, and 100 mm instead.','CORE.CROP_MODE':'**Crop** crops the photo. **Frame Only** shows the frame and keeps the whole photo.','MASK':'How the screen shows the area outside the frame.'} },
         { kind: 'p', text: 'Press {{Fn}} on Crop to set **Mode** and **Mask**. On GR IV, a focal length chosen right after a shot waits until that photo is saved, so the last photo is never damaged; the live view shows the new crop at once. When GR WORLD asks for smaller photos, a cropped photo goes to the phone as a smaller copy, about 1920 pixels on the long side. At 35, 40, and 50 mm the live view zooms in, without a frame. At 70 mm it shows the frame in the view of 50 mm, and on GR IV 40 mm shows its frame in the view of 35 mm. In Crop mode the JPEG and the DNG are both cropped, unless **Uncropped RAW** is on. In ADJ, the live view shows the frame of the highlighted focal length. Crop works with every Framing ratio.' },
         { kind: 'note', tone: 'tip', title: 'Keep the whole picture in the DNG', text: 'Turn on **Uncropped RAW** in [GRKU Settings](doc:settings#shooting). The DNG then keeps the whole sensor picture, and Lightroom opens it with your crop, which you can undo.' },
@@ -276,8 +277,8 @@ export const en: DocsContent = {
       lead: 'Composition lines on the screen. They never show in the photo.',
       keywords: 'guides grid lines thirds center golden ratio diagonals golden spiral dynamic symmetry composition disp opacity color',
       blocks: [
-        { kind: 'path', items: ['ADJ', 'GRKU', 'Guides'] },
         { kind: 'frame', mode: 'guides', alt: 'A garden path to a stone house, shot with GRKU, with the lines of the chosen guide.' },
+        { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Guides'], ['Photo', 'Never in the photo'], ['{{Fn}}', 'Turns the golden spiral']] },
         { kind: 'settings', module: 'guides', notes: {'STYLE':'The lines on the screen. They never show in the photo.','COLOR':'The color of the lines.','OPACITY':'How strong the lines are.','DISP':'On: the lines hide when {{DISP}} hides the screen information. Off: they always show.','SPIRAL':'Where the golden spiral turns. With Golden Spiral highlighted in ADJ, {{Fn}} turns it to the next corner.'} },
         { kind: 'p', text: 'With **Golden Spiral** highlighted in ADJ, press {{Fn}} to turn the spiral to the next corner. The camera hides its own grid lines while GRKU draws guides.' },
       ],
@@ -289,11 +290,11 @@ export const en: DocsContent = {
       lead: 'Print the date on photos like a film camera, in three fonts, five colors, and with a caption.',
       keywords: 'date imprint stamp time font classic gr1s gr ii color orange size position corner caption thank you happy birthday grku glow',
       blocks: [
-        { kind: 'path', items: ['ADJ', 'GRKU', 'Date Imprint'] },
+        { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Date Imprint'], ['JPEG', 'The date is printed'], ['DNG', 'No date']] },
         { kind: 'compare', before: 'chairs-standard', after: 'chairs-date', label: 'Date Imprint: \'YY M D', alt: 'Two deck chairs under a parasol, without and with Date Imprint: \'YY M D, Film position, Bottom Right, size M, Classic font, Standard color.' },
         { kind: 'p', text: 'Highlight a date style and press {{OK}}. Press {{Fn}} for the other settings. The camera prints the date and time of its clock, so set the clock first.' },
         { kind: 'settings', module: 'date', notes: {'STYLE':'The order of the date, with or without the time. The camera prints the date and time of its clock, so set the clock first. Not a row in MENU: choose it in ADJ, or with {{Fn}} there.','POSITION':'**Film** prints it where a film camera does. **Upright** keeps it upright in a vertical photo. Not a row in MENU: set it with {{Fn}} in ADJ.','CORNER':'Where the date goes. Bottom Split puts the date at the left and the caption at the right.','SIZE':'The size of the digits.','LOOK':'The font: Classic, GR1s (dot matrix), or GR II.','COLOR':'Standard is the color of the font: orange for Classic and GR II, yellow for GR1s. Black and white photos get white.','GLOW':'A soft glow around the digits. GR II prints flat digits, without glow.','CAPTION':'A word before the date. The photo shows <3 as a heart.','ICON':'Shows the date style on the shooting screen.'} },
-        { kind: 'compare', before: 'chairs-date-crop', after: 'chairs-date-gr1s-crop', label: 'Date Font: GR1s', alt: 'The bottom right corner of the photo: the date in the Classic font (left) and in the GR1s font (right), the other settings the same.' },
+        { kind: 'compare', before: 'chairs-date-crop', after: 'chairs-date-gr1s-crop', beforeLabel: 'Date Font: Classic', label: 'Date Font: GR1s', alt: 'The bottom right corner of the photo: the date in the Classic font (left) and in the GR1s font (right), the other settings the same.' },
       ],
     },
     glow: {
@@ -303,7 +304,7 @@ export const en: DocsContent = {
       lead: 'Bloom around lights and highlights, and the red-orange Halation of motion-picture film.',
       keywords: 'glow bloom halation cinestill red orange gold white highlights lights night',
       blocks: [
-        { kind: 'path', items: ['ADJ', 'GRKU', 'Glow'] },
+        { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Glow'], ['JPEG', 'Only the JPEG'], ['Live view', 'No preview: check in playback']] },
         { kind: 'compare', before: 'daisy-standard', after: 'daisy-bloom', label: 'Bloom: Strong', alt: 'Daisies on an overcast day, without and with Bloom at Strong. Bloom shows most on bright highlights.' },
         { kind: 'p', text: 'Glow has two parts. Each has its own strength, and you can use both together.' },
         { kind: 'p', text: 'In ADJ, highlight **Bloom** or **Halation** and press {{Fn}} for its other settings, such as the color of Halation and the icon.' },
@@ -318,7 +319,7 @@ export const en: DocsContent = {
       lead: 'The marks of old film: a vignette, dust and hairs, a light leak, and scratches.',
       keywords: 'light leak vignette dust scratches faded dusty leaky expired old film lomo retro',
       blocks: [
-        { kind: 'path', items: ['ADJ', 'GRKU', 'Light Leak'] },
+        { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Light Leak'], ['JPEG', 'Only the JPEG'], ['Live view', 'No preview: check in playback']] },
         { kind: 'compare', before: 'house-standard', after: 'house-leak', label: 'Light Leak: Leaky', alt: 'A stone house and a garden path, without and with Light Leak at Leaky.' },
         { kind: 'settings', module: 'lightleak', notes: {'LOOK':'**Custom** uses your own strengths below. The others are ready-made mixes.','VIGNETTE':'Darker corners. Used with Custom.','DUST':'Dust and hairs. Used with Custom.','LEAK':'Light that fogs the film from an edge. Used with Custom.','SCRATCH':'Scratches on the film. Used with Custom.'} },
         { kind: 'p', text: 'Choose **Custom** and press {{Fn}} to set the strength of each part. Dust, the leak, and scratches fall differently on each photo. Light Leak changes the JPEG only and does not show in the live view.' },
@@ -331,7 +332,7 @@ export const en: DocsContent = {
       lead: 'The soft glow of a Black Pro-Mist filter, and the gentle softness of a film scan.',
       keywords: 'diffusion filter pro mist black mist streak anamorphic softness film softness soft dreamy',
       blocks: [
-        { kind: 'path', items: ['ADJ', 'GRKU', 'Diffusion'] },
+        { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Diffusion'], ['JPEG', 'Only the JPEG'], ['Live view', 'No preview: check in playback']] },
         { kind: 'compare', before: 'daisy-standard', after: 'daisy-diffusion', label: 'Filter: 1/2', alt: 'Daisies, without and with the Diffusion filter at 1/2.' },
         { kind: 'compare', before: 'daisy-standard', after: 'daisy-softness', label: 'Film Softness: High', alt: 'Daisies, without and with Film Softness at High.' },
         { kind: 'p', text: 'Diffusion has two parts: **Filter** and **Softness**. Each works on its own.' },
@@ -346,7 +347,7 @@ export const en: DocsContent = {
       lead: 'Film grain in four strengths and four sizes, as the camera draws it or Film-like.',
       keywords: 'grain noise film-like system size strength weak medium strong extra',
       blocks: [
-        { kind: 'path', items: ['ADJ', 'GRKU', 'Grain'] },
+        { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Grain'], ['Styles', 'System or Film-like'], ['Size Auto', 'Follows the ISO of the shot']] },
         { kind: 'compare', before: 'house-standard-crop', after: 'house-grain-crop', label: 'Grain: Strong, Size Medium, Film-like', alt: 'A close view at full size of a stone wall and an awning, without and with Grain at Strong, Size Medium, Style Film-like.' },
         { kind: 'settings', module: 'grain', notes: {'CORE.GRAIN':'How strong the grain is.','CORE.GRAIN_SIZE':'The size of the grain. Auto follows the ISO of the shot.','STYLE':'**System** is the grain of the camera. **Film-like** is the grain of a color negative print: strongest in the middle tones, none in white or black, in color on color photos.','ICON':'Shows the grain icon on the shooting screen.'} },
         { kind: 'p', text: 'Press {{Fn}} on Grain to set **Size** and **Style**. Film-like grain follows the grain model of spektrafilm by Andrea Volpato.' },
@@ -359,7 +360,7 @@ export const en: DocsContent = {
       lead: 'A white or black border around the whole photo. The photo keeps every pixel.',
       keywords: 'border frame white black thin wide instant polaroid edge',
       blocks: [
-        { kind: 'path', items: ['ADJ', 'GRKU', 'Border'] },
+        { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Border'], ['JPEG', 'Grows by the border'], ['DNG', 'No border']] },
         { kind: 'compare', before: 'house-standard', after: 'house-border-wide', label: 'Border: Wide, White', alt: 'A stone house, without and with a white Wide border.' },
         { kind: 'compare', before: 'house-standard', after: 'house-border-instant', label: 'Border: Instant, White', alt: 'A stone house, without and with a white Instant border.' },
         { kind: 'settings', module: 'border', notes: {'CORE.BORDER':'**Thin** is about 3% of the short side, **Wide** about 6%, **Instant** about 4% with a bottom three times as wide. On GR IV, a large border can be a little narrower when the camera is short of memory.','CORE.BORDER_COLOR':'The color of the border.','ICON':'Shows the border icon on the shooting screen.'} },

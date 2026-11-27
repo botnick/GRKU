@@ -36,13 +36,17 @@ export type DocBlock =
   /** `source`: a photo of the camera, a capture of its screen (the ADJ panels over a photo of GRKU, the Mode Set Command screen), or drawn after a photo of the menu with the rows of the code. */
   | { kind: 'screen'; screen: DocScreen; alt: string; source: 'photo' | 'capture' | 'drawn' }
   /** The same photo without and with one setting. */
-  | { kind: 'compare'; before: DocRender; after: DocRender; label: string; alt: string }
+  | { kind: 'compare'; before: DocRender; after: DocRender; label: string; alt: string; beforeLabel?: string }
   /** The top level of the SD card: each name and what it is. */
   | { kind: 'card'; alt: string; items: readonly (readonly [name: string, about: string])[] }
   /** Framing, Crop, or Guides over a photo, with their choices to try. */
   | { kind: 'frame'; mode: 'framing' | 'crop' | 'guides'; alt: string }
   | { kind: 'camera'; screen: CameraScreen; press: readonly CameraKey[]; alt: string }
   | { kind: 'cameras' }
+  /** A strip of short facts in columns: where a setting is, what it does to the JPEG and the DNG. */
+  | { kind: 'facts'; cells: readonly (readonly [label: string, value: Inline])[] }
+  /** One tab for each camera where the cameras differ; the page remembers the tab (localStorage). */
+  | { kind: 'tabs'; tabs: readonly { label: string; blocks: readonly DocBlock[] }[] }
   /** A drawing of a step (components/GuideArt.tsx): the computer with a card reader, the files copied to the card, the card into the camera. */
   | { kind: 'art'; art: 'computer' | 'copy' | 'insert'; alt: string }
   /** The modules with their real tile (modules/<module>/tiles/0-module.png) and a link to their page. */
@@ -111,6 +115,11 @@ export interface DocsContent {
     defaultMark: string;
     withoutLabel: string;
     photoBadge: string;
+    readingTime: string;
+    copyStep: string;
+    copiedStep: string;
+    askStep: string;
+    askStepPrompt: string;
     captureBadge: string;
     drawnBadge: string;
     updated: string;

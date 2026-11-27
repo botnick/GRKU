@@ -84,6 +84,11 @@ export const th: DocsContent = {
     "defaultMark": "ค่าเริ่มต้น",
     "withoutLabel": "ไม่มี",
     "photoBadge": "ภาพถ่ายจากกล้อง",
+    "readingTime": "${n} นาที",
+    "copyStep": "คัดลอกขั้นตอนนี้",
+    "copiedStep": "คัดลอกแล้ว",
+    "askStep": "ถาม AI เกี่ยวกับขั้นตอนนี้",
+    "askStepPrompt": "ในหน้าคู่มือ \"${title}\" ขั้นตอนที่ ${n} เขียนว่า: \"${step}\" อธิบายขั้นตอนนี้ให้เข้าใจง่ายๆ",
     "captureBadge": "ภาพหน้าจอจากกล้อง",
     "drawnBadge": "ภาพจำลองจากเมนูจริง",
     "updated": "อัปเดตแล้ว"
@@ -198,49 +203,59 @@ export const th: DocsContent = {
         },
         {
           "kind": "h2",
-          "id": "gr3",
-          "text": "GR III และ GR IIIx"
+          "id": "check",
+          "text": "หาเวอร์ชันบนกล้องของคุณ"
         },
         {
-          "kind": "steps",
-          "items": [
-            "เปิดกล้อง",
-            "กด {{MENU}}",
-            "ไปที่เมนูตั้งค่า แท็บที่มีไอคอนประแจ แล้วเปิด **About This Device**",
-            "เลือก **Firmware Info / Options** แล้วกดปุ่มขวา",
-            "หน้าจอจะแสดงเวอร์ชันเฟิร์มแวร์ เช่น 2.21"
-          ]
-        },
-        {
-          "kind": "path",
-          "items": [
-            "MENU",
-            "Setup",
-            "About This Device",
-            "Firmware Info / Options"
-          ]
-        },
-        {
-          "kind": "h2",
-          "id": "gr4",
-          "text": "GR IV และ GR IV HDF"
-        },
-        {
-          "kind": "steps",
-          "items": [
-            "เปิดกล้อง",
-            "กด {{MENU}}",
-            "ไปที่เมนูตั้งค่า แท็บที่มีไอคอนประแจ แล้วเลือก **Camera Information**",
-            "กดปุ่มขวา",
-            "หน้าจอจะแสดงเวอร์ชันเฟิร์มแวร์ เช่น 1.21"
-          ]
-        },
-        {
-          "kind": "path",
-          "items": [
-            "MENU",
-            "Setup",
-            "Camera Information"
+          "kind": "tabs",
+          "tabs": [
+            {
+              "label": "GR III / GR IIIx",
+              "blocks": [
+                {
+                  "kind": "steps",
+                  "items": [
+                    "เปิดกล้อง",
+                    "กด {{MENU}}",
+                    "ไปที่เมนูตั้งค่า แท็บที่มีไอคอนประแจ แล้วเปิด **About This Device**",
+                    "เลือก **Firmware Info / Options** แล้วกดปุ่มขวา",
+                    "หน้าจอจะแสดงเวอร์ชันเฟิร์มแวร์ เช่น 2.21"
+                  ]
+                },
+                {
+                  "kind": "path",
+                  "items": [
+                    "MENU",
+                    "Setup",
+                    "About This Device",
+                    "Firmware Info / Options"
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "GR IV",
+              "blocks": [
+                {
+                  "kind": "steps",
+                  "items": [
+                    "เปิดกล้อง",
+                    "กด {{MENU}}",
+                    "ไปที่เมนูตั้งค่า แท็บที่มีไอคอนประแจ แล้วเลือก **Camera Information**",
+                    "กดปุ่มขวา",
+                    "หน้าจอจะแสดงเวอร์ชันเฟิร์มแวร์ เช่น 1.21"
+                  ]
+                },
+                {
+                  "kind": "path",
+                  "items": [
+                    "MENU",
+                    "Setup",
+                    "Camera Information"
+                  ]
+                }
+              ]
+            }
           ]
         },
         {
@@ -566,13 +581,13 @@ export const th: DocsContent = {
           "kind": "screen",
           "screen": "menu-top",
           "source": "drawn",
-          "alt": "ส่วนบนของหัวข้อ GRKU: Enable GRKU On, GRKU Settings, Recipes, Film Look, Framing, Crop และ Guides"
+          "alt": "ส่วนบนของหัวข้อ GRKU: Enable GRKU On, GRKU Settings, สูตรสี, ฟิล์มลุค, กรอบภาพ, การครอป และ Guides"
         },
         {
           "kind": "screen",
           "screen": "menu-bottom",
           "source": "drawn",
-          "alt": "ส่วนท้ายของหัวข้อ GRKU: Guides, Date Imprint, Glow, Light Leak, Diffusion, Grain และ About GRKU พร้อมเวอร์ชัน"
+          "alt": "ส่วนท้ายของหัวข้อ GRKU: Guides, วันที่, Glow, Light Leak, Diffusion, Grain และ About GRKU พร้อมเวอร์ชัน"
         },
         {
           "kind": "p",
@@ -594,27 +609,27 @@ export const th: DocsContent = {
               "ไม่มีค่า เปิดการตั้งค่าของ GRKU เอง: Enable at Start, Shooting Settings, Display Settings, Shutdown Screen, Mode Dial และ ADJ Order ดู [GRKU Settings](doc:settings)"
             ],
             [
-              "**Recipes**",
+              "**สูตรสี**",
               "แสดงชื่อสูตรสีเมื่อกล้องจับคู่ได้ มิฉะนั้นจะไม่แสดงอะไรเลย และแสดง Off เมื่อ GRKU ปิดอยู่ เปิดดูสูตรสีของคุณ (โดยไม่มีสูตรสีใดเปิดใช้งาน มีเฉพาะ Enable และ Save Settings): ใช้, ดู, เปลี่ยนชื่อ หรือลบ และ Save Settings ดูที่ [Recipes](doc:recipes)"
             ],
             [
-              "**Film Look**",
+              "**ฟิล์มลุค**",
               "แสดงฟิล์มลุคที่กำลังใช้ หรือ Off ดูที่ [Film Look](doc:film-look)"
             ],
             [
-              "**Framing**",
+              "**กรอบภาพ**",
               "แสดงสัดส่วนภาพ หรือ Off ดูที่ [Framing](doc:framing)"
             ],
             [
-              "**Crop**",
+              "**การครอป**",
               "แสดงความยาวโฟกัส หรือ Off ดูที่ [Crop](doc:crop)"
             ],
             [
               "**Guides**",
-              "แสดงเส้นช่วยจัดองค์ประกอบ หรือ Off ดูที่ [Guides](doc:guides)"
+              "แสดงตัวช่วย หรือ Off ดูที่ [Guides](doc:guides)"
             ],
             [
-              "**Date Imprint**",
+              "**วันที่**",
               "แสดงรูปแบบวันที่ หรือ Off ดู [Date Imprint](doc:date)"
             ],
             [
@@ -780,11 +795,20 @@ export const th: DocsContent = {
       "keywords": "ฟิล์มลุค เอฟเฟกต์ โทนฟิล์ม พรีวิวสด พารามิเตอร์ film look effect image control lut portra classic chrome kodak fuji fujifilm finepix positive preview fn parameters film stock",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "Film Look"
+          "kind": "facts",
+          "cells": [
+            [
+              "เมนู",
+              "ADJ › GRKU › Film Look"
+            ],
+            [
+              "JPEG",
+              "ใช้ฟิล์มลุค"
+            ],
+            [
+              "DNG",
+              "เก็บข้อมูลดิบไว้ ไม่ใส่ฟิล์มลุค"
+            ]
           ]
         },
         {
@@ -806,14 +830,14 @@ export const th: DocsContent = {
           "before": "chairs-standard",
           "after": "chairs-portra",
           "label": "Kodak Portra 400",
-          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบระหว่างฟิล์มลุค Standard ของกล้อง กับ Kodak Portra 400"
+          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด ในฟิล์มลุค Standard ของกล้อง และในฟิล์มลุค Kodak Portra 400"
         },
         {
           "kind": "compare",
           "before": "chairs-standard",
           "after": "chairs-chrome",
           "label": "Fujifilm Classic Chrome",
-          "alt": "ภาพถ่ายเดียวกัน เปรียบเทียบระหว่าง Standard กับ Fujifilm Classic Chrome"
+          "alt": "ภาพถ่ายเดียวกันในฟิล์มลุค Standard และในฟิล์มลุค Fujifilm Classic Chrome"
         },
         {
           "kind": "h2",
@@ -897,11 +921,20 @@ export const th: DocsContent = {
           "text": "สูตรสีหนึ่งสูตรเก็บ Film Look หรือ Image Control, Grain, Glow, Border, ไวท์บาลานซ์ รวมถึงการปรับแต่งและค่าชดเชยแสงของกล้อง"
         },
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "Recipes"
+          "kind": "facts",
+          "cells": [
+            [
+              "เมนู",
+              "ADJ › GRKU › Recipes"
+            ],
+            [
+              "สูตรสีประกอบด้วย",
+              "Look, Grain, Glow, Border, สมดุลแสงขาว, ค่าแสง"
+            ],
+            [
+              "ข้อจำกัด",
+              "64 สูตรสี, เปิดใช้ใน ADJ ได้ 40, ย้อนกลับได้ 5 ครั้ง"
+            ]
           ]
         },
         {
@@ -975,17 +1008,26 @@ export const th: DocsContent = {
       "keywords": "การจัดเฟรม สัดส่วนภาพ framing aspect ratio xpan panorama 65:24 16:9 4:3 2.35:1 1:1 5:4 7:6 3:4 กรอบภาพ เส้นไกด์ mask frame lines guides only crop",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "Framing"
-          ]
-        },
-        {
           "kind": "frame",
           "mode": "framing",
           "alt": "ทางเดินในสวนไปยังบ้านหินที่ถ่ายด้วย GRKU พร้อมกรอบของสัดส่วนภาพที่เลือก"
+        },
+        {
+          "kind": "facts",
+          "cells": [
+            [
+              "เมนู",
+              "ADJ › GRKU › Framing"
+            ],
+            [
+              "JPEG",
+              "ตัดตามสัดส่วน (Crop mode)"
+            ],
+            [
+              "DNG",
+              "ไม่ตัดตามสัดส่วน"
+            ]
+          ]
         },
         {
           "kind": "p",
@@ -1025,17 +1067,26 @@ export const th: DocsContent = {
       "keywords": "crop ครอป ระยะ โฟกัส ทางยาวโฟกัส ซูม เทเล กรอบ เฟรม มาสก์ ไฟล์ดิบ focal length 35mm 40mm 50mm 70mm 57mm 71mm 100mm zoom tele frame only mask uncropped raw",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "Crop"
-          ]
-        },
-        {
           "kind": "frame",
           "mode": "crop",
           "alt": "ทางเดินในสวนไปสู่บ้านหิน ถ่ายด้วย GRKU พร้อมกรอบเฟรมตามทางยาวโฟกัสที่เลือก"
+        },
+        {
+          "kind": "facts",
+          "cells": [
+            [
+              "เมนู",
+              "ADJ › GRKU › Crop"
+            ],
+            [
+              "ตัวเลือก",
+              "35, 40, 50, 70 mm"
+            ],
+            [
+              "GR IIIx",
+              "50, 57, 71, 100 mm"
+            ]
+          ]
         },
         {
           "kind": "settings",
@@ -1069,17 +1120,26 @@ export const th: DocsContent = {
       "keywords": "เส้นจัดองค์ประกอบ ตารางเก้าช่อง จุดกึ่งกลาง สัดส่วนทองคำ เส้นทแยงมุม ก้นหอยทองคำ ไดนามิกซิมเมตรี จัดองค์ประกอบ หน้าจอ ความโปร่งใส สี guides grid lines thirds center golden ratio diagonals golden spiral dynamic symmetry composition disp opacity color",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "Guides"
-          ]
-        },
-        {
           "kind": "frame",
           "mode": "guides",
           "alt": "ทางเดินในสวนไปสู่บ้านหิน ถ่ายด้วย GRKU แสดงเส้นไกด์ที่เลือก"
+        },
+        {
+          "kind": "facts",
+          "cells": [
+            [
+              "เมนู",
+              "ADJ › GRKU › Guides"
+            ],
+            [
+              "ในภาพ",
+              "ไม่ปรากฏในภาพเลย"
+            ],
+            [
+              "{{Fn}}",
+              "หมุนเส้นเกลียวทอง"
+            ]
+          ]
         },
         {
           "kind": "settings",
@@ -1110,11 +1170,20 @@ export const th: DocsContent = {
       "keywords": "พิมพ์วันที่ วันที่ เวลา ฟอนต์ คลาสสิก gr1s gr ii สี ส้ม ขนาด ตำแหน่ง มุม คำบรรยาย ขอบคุณ สุขสันต์วันเกิด เรืองแสง date imprint stamp time font classic gr1s gr ii color orange size position corner caption thank you happy birthday grku glow",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "Date Imprint"
+          "kind": "facts",
+          "cells": [
+            [
+              "เมนู",
+              "ADJ › GRKU › Date Imprint"
+            ],
+            [
+              "JPEG",
+              "พิมพ์วันที่ลงบนภาพ"
+            ],
+            [
+              "DNG",
+              "ไม่แสดงวันที่"
+            ]
           ]
         },
         {
@@ -1122,7 +1191,7 @@ export const th: DocsContent = {
           "before": "chairs-standard",
           "after": "chairs-date",
           "label": "Date Imprint: 'YY M D",
-          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบแบบไม่ประทับวันที่ กับแบบที่ประทับวันที่ Date Imprint: 'YY M D ตำแหน่ง Film มุมขวาล่าง ขนาด M ฟอนต์ Classic สี Standard"
+          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด โดยไม่มีการประทับวันที่ และกับการประทับวันที่แบบ Date Imprint: 'YY M D ตำแหน่ง Film มุมขวาล่าง ขนาด M ฟอนต์ Classic สี Standard"
         },
         {
           "kind": "p",
@@ -1132,7 +1201,7 @@ export const th: DocsContent = {
           "kind": "settings",
           "module": "date",
           "notes": {
-            "STYLE": "ลำดับของวันที่ มีเวลาด้วยหรือไม่ก็ได้ กล้องจะพิมพ์วันที่และเวลาตามนาฬิกาของกล้อง จึงควรตั้งนาฬิกาก่อน ไม่ใช่หัวข้อใน MENU ให้เลือกใน ADJ หรือกด {{Fn}} ที่หน้านี้",
+            "STYLE": "รูปแบบวันที่ มีหรือไม่มีเวลาก็ได้ กล้องจะพิมพ์วันที่และเวลาตามนาฬิกาของกล้อง จึงควรตั้งนาฬิกาก่อน ไม่ใช่หัวข้อใน MENU ให้เลือกใน ADJ หรือกด {{Fn}} ที่หน้านี้",
             "POSITION": "**Film** พิมพ์วันที่ในตำแหน่งเดียวกับกล้องฟิล์ม **Upright** คงทิศทางให้ตั้งตรงในภาพแนวตั้ง ไม่ใช่หัวข้อใน MENU ให้ตั้งค่าโดยกด {{Fn}} ใน ADJ",
             "CORNER": "ตำแหน่งที่วางวันที่ Bottom Split วางวันที่ไว้ทางซ้ายและคำบรรยายไว้ทางขวา",
             "SIZE": "ขนาดของตัวเลข",
@@ -1147,6 +1216,7 @@ export const th: DocsContent = {
           "kind": "compare",
           "before": "chairs-date-crop",
           "after": "chairs-date-gr1s-crop",
+          "beforeLabel": "ฟอนต์วันที่: Classic",
           "label": "Date Font: GR1s",
           "alt": "มุมขวาล่างของภาพ: วันที่ในฟอนต์ Classic (ซ้าย) และในฟอนต์ GR1s (ขวา) ส่วนการตั้งค่าอื่นๆ เหมือนเดิม"
         }
@@ -1163,11 +1233,20 @@ export const th: DocsContent = {
       "keywords": "แสงฟุ้ง ฮาเลชัน ฟิล์มหนัง แดง ส้ม ทอง ขาว ไฮไลต์ ดวงไฟ กลางคืน glow bloom halation cinestill red orange gold white highlights lights night",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "Glow"
+          "kind": "facts",
+          "cells": [
+            [
+              "เมนู",
+              "ADJ › GRKU › Glow"
+            ],
+            [
+              "JPEG",
+              "เฉพาะไฟล์ JPEG"
+            ],
+            [
+              "ภาพตัวอย่างบนจอ",
+              "ไม่มีภาพตัวอย่าง: ดูตอนเปิดดูภาพแทน"
+            ]
           ]
         },
         {
@@ -1216,11 +1295,20 @@ export const th: DocsContent = {
       "keywords": "light leak vignette dust scratches faded dusty leaky expired old film lomo retro แสงรั่ว ขอบมืด ฝุ่น รอยขีดข่วน ซีด เก่า หมดอายุ ย้อนยุค",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "Light Leak"
+          "kind": "facts",
+          "cells": [
+            [
+              "เมนู",
+              "ADJ › GRKU › Light Leak"
+            ],
+            [
+              "JPEG",
+              "เฉพาะไฟล์ JPEG"
+            ],
+            [
+              "ภาพตัวอย่างบนจอ",
+              "ไม่มีภาพตัวอย่าง: ดูตอนเปิดดูภาพแทน"
+            ]
           ]
         },
         {
@@ -1258,11 +1346,20 @@ export const th: DocsContent = {
       "keywords": "ฟุ้ง ซอฟต์ ฟิลเตอร์ โกลว์ แสงแฉก นุ่มละมุน ฟิล์ม diffusion filter pro mist black mist streak anamorphic softness film softness soft dreamy",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "Diffusion"
+          "kind": "facts",
+          "cells": [
+            [
+              "เมนู",
+              "ADJ › GRKU › Diffusion"
+            ],
+            [
+              "JPEG",
+              "เฉพาะไฟล์ JPEG"
+            ],
+            [
+              "ภาพตัวอย่างบนจอ",
+              "ไม่มีภาพตัวอย่าง: ดูตอนเปิดดูภาพแทน"
+            ]
           ]
         },
         {
@@ -1312,11 +1409,20 @@ export const th: DocsContent = {
       "keywords": "เกรน นอยส์ เม็ดฟิล์ม ขนาด ความแรง อ่อน กลาง แรง พิเศษ grain noise film-like system size strength weak medium strong extra",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "Grain"
+          "kind": "facts",
+          "cells": [
+            [
+              "เมนู",
+              "ADJ › GRKU › Grain"
+            ],
+            [
+              "สไตล์",
+              "แบบระบบ หรือ แบบฟิล์ม"
+            ],
+            [
+              "ขนาดอัตโนมัติ",
+              "ปรับตาม ISO ของรูป"
+            ]
           ]
         },
         {
@@ -1355,11 +1461,20 @@ export const th: DocsContent = {
       "keywords": "ขอบ กรอบ ขาว ดำ บาง กว้าง ภาพถ่ายทันที โพลารอยด์ ขอบภาพ border frame white black thin wide instant polaroid edge",
       "blocks": [
         {
-          "kind": "path",
-          "items": [
-            "ADJ",
-            "GRKU",
-            "Border"
+          "kind": "facts",
+          "cells": [
+            [
+              "เมนู",
+              "ADJ › GRKU › Border"
+            ],
+            [
+              "JPEG",
+              "เพิ่มขนาดตามขอบ"
+            ],
+            [
+              "DNG",
+              "ไม่มีขอบ"
+            ]
           ]
         },
         {
@@ -2129,7 +2244,7 @@ export const th: DocsContent = {
           "kind": "flow",
           "steps": [
             {
-              "see": "กล้องค้างตอนกำลังเปิดเครื่อง",
+              "see": "กล้องค้างระหว่างกำลังเปิด",
               "then": "ถอดแบตเตอรี่และการ์ดออก แล้วลองเปิดเครื่องโดยไม่มีการ์ด"
             },
             {
