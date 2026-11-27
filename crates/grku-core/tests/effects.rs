@@ -560,7 +560,10 @@ fn published_cover_icons_show_the_words_of_the_effect_name() {
                 "{name}: {target}"
             );
             assert_eq!(name.rsplit(' ').next(), Some(number), "{name}");
-        } else {
+        } else if definition["effect_id"] != "positive-film-grii-v1" {
+            // GR II Positive (GRKU) keeps its box, POSITIVE GRII; its name on the camera
+            // fits 16 characters, GRII Pos. (GRKU), and the site shows the whole name
+            // (web/src/lookNames.ts).
             assert_eq!(words(&format!("{series} {number}")), words(name), "{name}");
         }
         assert!(

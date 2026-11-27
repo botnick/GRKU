@@ -21,7 +21,7 @@ Photo in the screens: [Mobnoboka](https://commons.wikimedia.org/wiki/File:Oguchi
 
 Press the ADJ lever while shooting and pick the sixth entry, GRKU. Everything GRKU does is in there, and in the GRKU section of MENU. ADJ opens on GRKU again, on the row you left, also after you turn the camera off.
 
-- **Film Look**: 152 looks of real films, 40 on the card at a time. Kodak, Fujifilm, Ilford, CineStill, Lomography, Polaroid, Agfa, Harman and Rollei, plus Positive GRII, GRKU's own look after the Positive Film of the GR II, and the ten film simulations of the FUJIFILM cameras, from Provia and Classic Chrome to Acros, which are free. Each look has a film-box icon in the colors of the real box. Fn adjusts a look; import your own LUT on the site.
+- **Film Look**: 152 looks of real films, 40 on the card at a time. Kodak, Fujifilm, Ilford, CineStill, Lomography, Polaroid, Agfa, Harman and Rollei, plus GR II Positive (GRKU), GRKU's own look after the Positive Film of the GR II, and the ten film simulations of the FUJIFILM cameras, from Provia and Classic Chrome to Acros, which are free. Each look has a film-box icon in the colors of the real box. Fn adjusts a look; import your own LUT on the site.
 - **Recipes**: save the whole look of the camera under a name, or bring popular recipes from the site, then switch Film Look or Image Control, grain, glow, white balance, corrections and exposure in one step, with Undo.
 - **Framing**: XPan, 2.35:1, 16:9, 4:3, 5:4, 7:6, 1:1, or 3:4, as a crop of the JPEG or as frame lines only. **Crop**: 35, 40, 50 or 70 mm (50 to 100 mm on GR IIIx), shown in the live view.
 - **Guides**: thirds, center, golden ratio, diagonals, golden spiral, dynamic symmetry.

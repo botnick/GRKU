@@ -1,4 +1,5 @@
 import { CATALOG_SCHEMA } from './generated/site';
+import { siteName } from './lookNames';
 import type { Input } from './import/names';
 
 export { MAX_EFFECTS } from './generated/site';
@@ -196,7 +197,7 @@ async function fetchCatalog(target: string): Promise<Catalog> {
     lutSize: data.preview.size,
     baseline: data.preview.baseline,
     baseGamma: readBaseGamma(data.base_gamma),
-    effects: data.effects,
+    effects: (data.effects as CatalogEffect[]).map((effect) => ({ ...effect, name: siteName(effect.id, effect.name) })),
   };
 }
 

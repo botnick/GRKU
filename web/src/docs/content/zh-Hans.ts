@@ -1561,7 +1561,7 @@ export const zhHans: DocsContent = {
       "blocks": [
         {
           "kind": "p",
-          "text": "[安装](site:install)第 1 步会展示完整片库：Kodak、Fujifilm、Ilford、CineStill、Polaroid、电影胶片和反转片、黑白胶片、FUJIFILM 相机的胶片模拟，以及 GRKU 自带风格（如 Positive GRII 和 FinePix CCD）。"
+          "text": "[安装](site:install)第 1 步会展示完整片库：Kodak、Fujifilm、Ilford、CineStill、Polaroid、电影胶片和反转片、黑白胶片、FUJIFILM 相机的胶片模拟，以及 GRKU 自带风格（如 GR II Positive (GRKU) 和 FinePix CCD）。"
         },
         {
           "kind": "h2",

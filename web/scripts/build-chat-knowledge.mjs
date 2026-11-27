@@ -41,6 +41,7 @@ function effects() {
 const server = await createServer({ root: web, logLevel: 'error', server: { middlewareMode: true }, appType: 'custom', optimizeDeps: { noDiscovery: true } });
 try {
   const { buildKnowledge } = await server.ssrLoadModule('/src/chat/knowledge.ts');
+  const { siteName } = await server.ssrLoadModule('/src/lookNames.ts');
   const { en } = await server.ssrLoadModule('/src/strings/en.ts');
   const { GUIDE_STRINGS } = await server.ssrLoadModule('/src/guide.ts');
   const { CAMERAS } = await server.ssrLoadModule('/src/cameras.ts');
@@ -54,7 +55,8 @@ try {
     strings: en,
     guide: GUIDE_STRINGS.en,
     cameras: CAMERAS,
-    effects: effects(),
+    // The names that the site shows (lookNames.ts), as the catalog of the page has them.
+    effects: effects().map((effect) => ({ ...effect, name: siteName(effect.id, effect.name) })),
     news: RELEASES.slice(0, 3).map((release) => ({ version: release.version, date: release.date, items: release.items.map((key) => news[key] ?? '') })),
     recovery: readFileSync(join(root, 'resources', 'RECOVERY.md'), 'utf8'),
     terms: readFileSync(join(root, 'resources', 'TERMS.md'), 'utf8'),

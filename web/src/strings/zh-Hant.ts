@@ -193,7 +193,7 @@ export const zhHant: Strings = {
     toolLead: '點選底片盒，即可在範例照片或您自己的 DNG 上預覽效果。將想要的風格加入記憶卡，接著選擇相機與模組並安裝。',
     home: '首頁',
     heroCaption: '一張照片，五種風格。拖曳分隔線，比較與原始影像處理效果的差異。',
-    shelfText: '資料庫中的每種風格都有專屬底片盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及 GRKU 自製的 Positive GRII。免費選擇十種風格存入記憶卡，隨時都能更換。',
+    shelfText: '資料庫中的每種風格都有專屬底片盒：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及 GRKU 自製的 GR II Positive (GRKU)。免費選擇十種風格存入記憶卡，隨時都能更換。',
     featuresTitle: 'GRKU 為相機增添的功能',
     recipesTitle: '色彩配方與模式轉盤',
     camerasTitle: '支援的相機型號',
@@ -250,7 +250,7 @@ export const zhHant: Strings = {
   landing: {
     fact: '開機約九秒後載入。格式化記憶卡，相機就回到原樣。',
     shelf: '底片架',
-    shelfText: '資料庫中的每種風格皆為獨立包裝：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及 GRKU 專屬的 Positive GRII。每個套件可載入 40 組風格至相機，並可隨時在此頁面進行更換。',
+    shelfText: '資料庫中的每種風格皆為獨立包裝：Kodak、Fujifilm、Ilford、Agfa、CineStill、Harman、Lomography、Rollei、Polaroid，以及 GRKU 專屬的 GR II Positive (GRKU)。每個套件可載入 40 組風格至相機，並可隨時在此頁面進行更換。',
     shelfAlt: '架上的 145 個底片盒',
     moduleListText: '每個模組是相機 GRKU 選單裡的一列。只裝你想要的。',
     install: '開始安裝',
@@ -829,6 +829,7 @@ export const zhHant: Strings = {
   cardNotInserted: '找不到這張記憶卡。請插入這張卡，或連接另一張卡。',
   cardEnable: '按住 MENU 按鈕開機，等待相機自動關機。',
   looks: {
+    'positive-film-grii-v1': "GRKU 依目測重現 GR II 正片風格。官方版本請見下方「更多理光風格」面板中的 GR II Positive。",
     'portra-400-endura-v1': 'Kodak Portra 400，Portra Endura 相紙',
     'gold-200-premier-v1': 'Kodak Gold 200，Endura Premier 相紙',
     'ektar-100-edge-v1': 'Kodak Ektar 100，Ektacolor Edge 相紙',

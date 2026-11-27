@@ -70,7 +70,7 @@ export interface Entitlement {
 export const FREE: Entitlement = { packs: [], slots: FREE_SLOTS, plus: false, paid: 0 };
 
 /**
- * The looks on the card before the first change: Positive GRII and six popular films, so the
+ * The looks on the card before the first change: GR II Positive (GRKU) and six popular films, so the
  * first visit has room to add more.
  */
 export const DEFAULT_LOOKS: readonly string[] = [
