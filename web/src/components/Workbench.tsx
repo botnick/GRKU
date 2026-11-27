@@ -544,6 +544,80 @@ export function Workbench({
     </Frame>
   );
 
+  // On a phone these two scroll with the page, so the photo above the shelf stays small.
+  const plusCard = (
+    <>
+  {/* Shown also before the catalog arrives (and in the prerendered page), so the photo
+      column keeps its height and the looks below do not move. */}
+  {!owned.plus && !requested?.imported && (
+    <button
+      type="button"
+      onClick={onPlus}
+      className="mt-3 flex w-full items-center gap-3 rounded-xl border border-brand/40 bg-brand/[0.08] px-4 py-3 text-left transition-colors hover:border-brand hover:bg-brand/[0.14]"
+    >
+      <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground">
+        <Sparkles className="size-4" aria-hidden="true" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold">
+          {t.plus.title}
+        </span>
+        <span className="block text-[13px] leading-snug text-muted-foreground">
+          {t.plus.outcomeAll(
+            catalog ? catalog.effects.length : 150,
+            MAX_EFFECTS,
+          )}
+        </span>
+      </span>
+      <span className="flex shrink-0 flex-col items-end">
+        <span className="text-lg font-semibold text-brand-text tabular-nums">
+          ฿{PRICES.plus}
+        </span>
+        {inLaunch() && REGULAR_PRICES.plus > PRICES.plus && (
+          <s className="text-[12px] text-muted-foreground tabular-nums">
+            ฿{REGULAR_PRICES.plus}
+          </s>
+        )}
+      </span>
+    </button>
+  )}
+    </>
+  );
+  const sampleStrip = (
+  <div
+    className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    role="group"
+    aria-label={t.samplePhotos}
+  >
+    {SAMPLES.map((item) => (
+      <button
+        key={item.source.key}
+        type="button"
+        className={cn(
+          "relative aspect-[3/2] w-16 shrink-0 overflow-hidden rounded-md ring-1 ring-black/20 transition-opacity hover:opacity-100 sm:w-20",
+          source === item.source
+            ? "opacity-100 ring-2 ring-brand"
+            : "opacity-60",
+        )}
+        aria-label={`${item.credit.title} · ${item.credit.camera}`}
+        aria-pressed={source === item.source}
+        onClick={() => showSample(item.source)}
+      >
+        <img
+          src={item.thumbnail.replace(/\.jpg$/, "-160.webp")}
+          alt=""
+          width="160"
+          height="107"
+          loading="lazy"
+          decoding="async"
+          fetchPriority="low"
+          className="size-full object-cover"
+        />
+      </button>
+    ))}
+  </div>
+  );
+
   return (
     <section
       className="grid gap-x-10 gap-y-6 lg:grid-cols-2 lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-x-14"
@@ -574,7 +648,7 @@ export function Workbench({
       >
         <div
           ref={setViewer}
-          className="relative [&:fullscreen]:flex [&:fullscreen]:items-center [&:fullscreen]:justify-center [&:fullscreen]:bg-black"
+          className="relative max-lg:mx-auto max-lg:max-w-[min(100%,calc(30svh*1.5))] [&:fullscreen]:max-w-none [&:fullscreen]:flex [&:fullscreen]:items-center [&:fullscreen]:justify-center [&:fullscreen]:bg-black"
         >
           {shown && previewed ? (
             <ErrorBoundary
@@ -686,40 +760,7 @@ export function Workbench({
             )}
           </div>
         </div>
-        {/* Shown also before the catalog arrives (and in the prerendered page), so the photo
-            column keeps its height and the looks below do not move. */}
-        {!owned.plus && !requested?.imported && (
-          <button
-            type="button"
-            onClick={onPlus}
-            className="mt-3 flex w-full items-center gap-3 rounded-xl border border-brand/40 bg-brand/[0.08] px-4 py-3 text-left transition-colors hover:border-brand hover:bg-brand/[0.14]"
-          >
-            <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground">
-              <Sparkles className="size-4" aria-hidden="true" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-semibold">
-                {t.plus.title}
-              </span>
-              <span className="block text-[13px] leading-snug text-muted-foreground">
-                {t.plus.outcomeAll(
-                  catalog ? catalog.effects.length : 150,
-                  MAX_EFFECTS,
-                )}
-              </span>
-            </span>
-            <span className="flex shrink-0 flex-col items-end">
-              <span className="text-lg font-semibold text-brand-text tabular-nums">
-                ฿{PRICES.plus}
-              </span>
-              {inLaunch() && REGULAR_PRICES.plus > PRICES.plus && (
-                <s className="text-[12px] text-muted-foreground tabular-nums">
-                  ฿{REGULAR_PRICES.plus}
-                </s>
-              )}
-            </span>
-          </button>
-        )}
+        <div className="hidden lg:block">{plusCard}</div>
         <div className="mt-2 hidden flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted-foreground lg:flex">
           <Button
             asChild
@@ -767,43 +808,16 @@ export function Workbench({
             <span>{t.uploadNote}</span>
           )}
         </div>
-        {/* The sample photos: a street, a tram, a neon night, a lake, a temple, a beach. */}
-        <div
-          className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          role="group"
-          aria-label={t.samplePhotos}
-        >
-          {SAMPLES.map((item) => (
-            <button
-              key={item.source.key}
-              type="button"
-              className={cn(
-                "relative aspect-[3/2] w-16 shrink-0 overflow-hidden rounded-md ring-1 ring-black/20 transition-opacity hover:opacity-100 sm:w-20",
-                source === item.source
-                  ? "opacity-100 ring-2 ring-brand"
-                  : "opacity-60",
-              )}
-              aria-label={`${item.credit.title} · ${item.credit.camera}`}
-              aria-pressed={source === item.source}
-              onClick={() => showSample(item.source)}
-            >
-              <img
-                src={item.thumbnail.replace(/\.jpg$/, "-160.webp")}
-                alt=""
-                width="160"
-                height="107"
-                loading="lazy"
-                decoding="async"
-                fetchPriority="low"
-                className="size-full object-cover"
-              />
-            </button>
-          ))}
-        </div>
+        <div className="hidden lg:block">{sampleStrip}</div>
         <p className="mt-1 hidden text-[13px] text-muted-foreground lg:block">
           {t.previewNote}
         </p>
       </aside>
+
+      <div className="-mt-3 min-w-0 lg:hidden">
+        {sampleStrip}
+        {plusCard}
+      </div>
 
       {/* The shelf. */}
       <div
