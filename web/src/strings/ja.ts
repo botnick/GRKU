@@ -453,7 +453,6 @@ export const ja: Strings = {
     sectionText: "一部のルックは、他のリコーカメラに内蔵されています。GRKUでは、リコー公式サイトからダウンロードできるファームウェアファイルから、無料でこれらのルックをコピーできます。",
     count: (count: number) => `${count} ルック`,
     get: "ルックを取得",
-    getOf: (name: string) => `${name} を取得`,
     gr4Title: "GR IV ルック",
     /** The GR IV group on GR III and GR IIIx, with the Cinema looks. */
     gr4TextColor: "GR IV の Cinema Yellow と Cinema Green、および GR IV Monochrome のモノクロルック。",

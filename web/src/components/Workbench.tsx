@@ -1507,7 +1507,7 @@ export function Workbench({
           <NativeLooks
             strings={t}
             looks={nativeLooks}
-            owned={[...imported, ...cardEffects]}
+            owned={imported}
             onOpen={(firmware) => nativeDialog.current?.open(firmware)}
           />
         )}
@@ -1570,7 +1570,7 @@ function NativeLooks({
   if (groups.length === 0) return null;
   return (
     <section className="mt-6 rounded-xl border bg-card p-4 sm:p-5" aria-labelledby="native-looks-title">
-      <h3 id="native-looks-title" className="text-base font-semibold">
+      <h3 id="native-looks-title" tabIndex={-1} className="text-base font-semibold outline-none">
         {n.sectionTitle}
       </h3>
       <p className="mt-1 max-w-prose text-sm text-muted-foreground">{n.sectionText}</p>
@@ -1606,10 +1606,10 @@ function NativeLooks({
                 type="button"
                 variant="outline"
                 className="mt-auto self-start"
-                aria-label={n.getOf(title)}
                 onClick={() => onOpen(firmware)}
               >
                 {n.get}
+                <span className="sr-only">: {title}</span>
               </Button>
             </li>
           );

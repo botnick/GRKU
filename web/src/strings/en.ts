@@ -475,7 +475,6 @@ export const en = {
     sectionText: "Some looks are built into other RICOH cameras. GRKU can copy them for free from the official firmware file that you download from RICOH.",
     count: (count: number) => (count === 1 ? '1 look' : `${count} looks`),
     get: "Get these looks",
-    getOf: (name: string) => `Get ${name}`,
     gr4Title: "GR IV looks",
     /** The GR IV group on GR III and GR IIIx, with the Cinema looks. */
     gr4TextColor: "Cinema Yellow and Cinema Green of GR IV, and the black-and-white looks of GR IV Monochrome.",

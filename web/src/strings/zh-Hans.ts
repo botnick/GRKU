@@ -452,7 +452,6 @@ export const zhHans: Strings = {
     sectionText: "部分风格来自其他理光相机。GRKU 可从您从理光官网下载的固件文件中免费提取这些风格。",
     count: (count: number) => `${count} 种风格`,
     get: "获取这些风格",
-    getOf: (name: string) => `获取 ${name}`,
     gr4Title: "GR IV 风格",
     /** The GR IV group on GR III and GR IIIx, with the Cinema looks. */
     gr4TextColor: "GR IV 的 Cinema Yellow、Cinema Green，以及 GR IV Monochrome 的黑白风格。",

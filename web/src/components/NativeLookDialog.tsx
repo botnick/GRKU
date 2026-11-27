@@ -98,6 +98,11 @@ export function NativeLookDialog({ strings: t, baseGamma, looks, onImport, ref }
   const [task] = useState(() => new TaskSlot());
   // An unmount stops a running read.
   useEffect(() => () => task.cancel(), [task]);
+  // Each open and close starts a new session: a file that a picker gives after the dialog closed
+  // or changed its firmware is not read.
+  const session = useRef(0);
+  // The button that opened the dialog, which gets the focus back after it closes.
+  const opener = useRef<HTMLElement | null>(null);
 
   const reading = status.state === 'reading';
   const text = firmwareText(t, firmware);
@@ -106,6 +111,8 @@ export function NativeLookDialog({ strings: t, baseGamma, looks, onImport, ref }
   const offered = looks.filter((look) => look.firmware === firmware);
 
   function openDialog(next: NativeFirmware) {
+    session.current += 1;
+    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     if (status.state === 'reading' && next !== firmware) task.cancel();
     if (status.state !== 'reading' || next !== firmware) setStatus({ state: 'idle' });
     setFirmware(next);
@@ -120,6 +127,7 @@ export function NativeLookDialog({ strings: t, baseGamma, looks, onImport, ref }
   }
 
   function close() {
+    session.current += 1;
     cancel();
     setDragging(false);
     setOpen(false);
@@ -149,6 +157,7 @@ export function NativeLookDialog({ strings: t, baseGamma, looks, onImport, ref }
 
   /** Opens the picker in Downloads where the browser has it, or else the file input. */
   async function pick() {
+    const started = session.current;
     const host = window as unknown as PickerHost;
     if (!host.showOpenFilePicker) {
       input.current?.click();
@@ -168,6 +177,7 @@ export function NativeLookDialog({ strings: t, baseGamma, looks, onImport, ref }
       });
       if (!handle) return;
       file = await handle.getFile();
+      if (session.current !== started) return;
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return;
       // A picker that the page cannot use, such as in a frame, leaves the file input.
@@ -220,6 +230,14 @@ export function NativeLookDialog({ strings: t, baseGamma, looks, onImport, ref }
     >
       <DialogContent
         showCloseButton={false}
+        onCloseAutoFocus={(event) => {
+          // Back to the button that opened the dialog, or to the panel when the looks are in.
+          const target = opener.current?.isConnected ? opener.current : document.getElementById('native-looks-title');
+          if (target) {
+            event.preventDefault();
+            target.focus();
+          }
+        }}
         aria-describedby={undefined}
         className="max-h-[calc(100dvh-2rem)] overflow-y-auto data-[dragging]:ring-2 data-[dragging]:ring-brand sm:max-w-lg"
         data-dragging={dragging || undefined}

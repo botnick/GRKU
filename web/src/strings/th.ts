@@ -467,7 +467,6 @@ export const th: Strings = {
     sectionText: "บางลุคมีอยู่ในกล้อง RICOH รุ่นอื่น GRKU คัดลอกมาให้ฟรีจากไฟล์เฟิร์มแวร์ทางการที่คุณดาวน์โหลดจาก RICOH",
     count: (count: number) => `${count} ลุค`,
     get: "รับลุคเหล่านี้",
-    getOf: (name: string) => `รับ ${name}`,
     gr4Title: "ลุคของ GR IV",
     /** The GR IV group on GR III and GR IIIx, with the Cinema looks. */
     gr4TextColor: "Cinema Yellow และ Cinema Green ของ GR IV รวมถึงลุคขาวดำของ GR IV Monochrome",

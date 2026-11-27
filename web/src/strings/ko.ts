@@ -452,7 +452,6 @@ export const ko: Strings = {
     sectionText: "일부 룩은 다른 리코 카메라에 내장되어 있습니다. GRKU는 리코에서 다운로드한 공식 펌웨어 파일에서 이 룩을 무료로 복사할 수 있습니다.",
     count: (count: number) => `${count}개 룩`,
     get: "이 룩 가져오기",
-    getOf: (name: string) => `${name} 가져오기`,
     gr4Title: "GR IV 룩",
     /** The GR IV group on GR III and GR IIIx, with the Cinema looks. */
     gr4TextColor: "GR IV의 Cinema Yellow, Cinema Green 및 GR IV Monochrome의 흑백 룩입니다.",
