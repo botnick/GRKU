@@ -2,4 +2,4 @@
 default: minor
 ---
 
-GRKU can run the GR IV Monochrome looks, including Solarized, and GR II Positive on GR III, GR IIIx, and GR IV, made from your own GR IV or GR II firmware file; Grainy takes the native Rough grain on GR IV, and Hi-Contrast keeps its default grain.
+The install page can get the GR IV Monochrome looks, Solarized included, and GR II Positive from your own RICOH firmware file, for GR III, GR IIIx, and GR IV.
