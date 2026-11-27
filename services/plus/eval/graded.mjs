@@ -87,8 +87,17 @@ for (const section of pack.sections) {
 }
 const lookIds = new Set(pack.looks.map((l) => l.id));
 const FIXED_LINKS = ['/', '/install/', '/install/camera/', '/install/modules/', '/install/write/', '/guide/', '/guide/#put', '/guide/#camera', '/guide/#use', '/guide/#update', '/guide/#uninstall', '/guide/#help', '/develop/', '/recovery/', '/terms/', '/#plus', '/#plus-key', '/docs/'];
-// A link as the page reads it: a path, with the slash that a page path ends with.
-const linksOf = (text) => [...text.matchAll(/\]\(\s*([^)\s]+)\s*\)/g)].map((m) => (m[1].startsWith('#') ? `/${m[1]}` : m[1])).map((l) => (/^\/[a-z-]+(\/[a-z-]+)?$/.test(l) ? `${l}/` : l));
+// The links as the page reads them (web/src/chat/render.ts repairLinks and siteLink): a link
+// written a little wrong as it was meant, a full grku.app address as its path, and the slash that
+// a page path ends with.
+const repairLinks = (text) => text
+  .replace(/\[([^[\]\n{}"]{1,80}?)\s*\(?\s*((?:\/|#)[^\s\]()]*|support@grku\.app)\s*\)?\](?!\()/g, '[$1]($2)')
+  .replace(/\]\s+\(((?:\/|#)[^)\s]*)\)/g, ']($1)')
+  .replace(/\]\(\s+([^)\s]+)\s*\)/g, ']($1)')
+  .replace(/\]\(\s*\/\s*\+?\s*#/g, '](/#')
+  .replace(/\]\(\s*\/\s*\+\s*\//g, '](/')
+  .replace(/\]\(https:\/\/(www\.)?grku\.app(?=\/)/g, '](');
+const linksOf = (text) => [...repairLinks(text).matchAll(/\]\(\s*([^)\s]+)\s*\)/g)].map((m) => (m[1].startsWith('#') ? `/${m[1]}` : m[1])).map((l) => (/^\/[a-z-]+(\/[a-z-]+)?$/.test(l) ? `${l}/` : l));
 /** The text a reader sees: link labels without their targets, so a fact cannot hide in a URL. */
 const prose = (text) => text.replace(/\]\([^)]*\)/g, ']');
 function badLink(link) {

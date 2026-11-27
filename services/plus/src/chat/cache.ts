@@ -36,9 +36,9 @@ export interface AnswerCache {
 
 /**
  * Polite endings that are never the end of another word, so cutting them keeps what the question
- * asks (not ค่า, which ends ตั้งค่า, nor นะ, which ends ชนะ). Longest first.
+ * asks (not ค่า, which ends ตั้งค่า, คับ, which ends บังคับ, nor นะ, which ends ชนะ). Longest first.
  */
-const POLITE_ENDINGS = ['นะครับ', 'นะคะ', 'คร้าบ', 'ครับ', 'ค่ะ', 'คะ', 'คับ', 'จ้า', 'thank you', 'please', 'thanks'];
+const POLITE_ENDINGS = ['คร้าบ', 'ครับ', 'ค่ะ', 'คะ', 'จ้า', 'thank you', 'please', 'thanks'];
 const POLITE_STARTS = ['สวัสดีครับ', 'สวัสดีค่ะ', 'สวัสดีคะ', 'สวัสดี', 'hello', 'hi'];
 const PUNCTUATION = new Set([' ', '?', '!', '.', ',', '~', '…', '。', '？', '！', '、']);
 
@@ -86,9 +86,11 @@ export function personal(text: string): boolean {
   if (/\d(?:[\s-]?\d){6,}/.test(t)) return true;
   // A short key: AAAA-AAA-AAAA with its dashes, or the 11 letters and digits run together.
   if (/(?<![a-z0-9])[a-z0-9]{4}-[a-z0-9]{3}-[a-z0-9]{4}(?![a-z0-9])/.test(t)) return true;
-  for (const match of t.matchAll(/(?<![a-z0-9])[a-z0-9]{11}(?![a-z0-9])/g)) {
+  // Run together, or an order id: 11 or more letters and digits with both in them, or 11 capitals.
+  for (const match of t.matchAll(/(?<![a-z0-9])[a-z0-9]{11,}(?![a-z0-9])/g)) {
     if (/\d/.test(match[0]) && /[a-z]/.test(match[0])) return true;
   }
+  if (/(?<![A-Za-z0-9])[A-Z0-9]{11}(?![A-Za-z0-9])/.test(text)) return true;
   // A long signed key of the first days: two long base64url parts with a dot between them.
   return /[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}/.test(text);
 }

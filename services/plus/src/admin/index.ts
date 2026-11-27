@@ -498,7 +498,7 @@ async function clearCache(deps: AdminDeps): Promise<Response> {
   const { DB } = deps.env;
   const [done] = await DB.batch([
     DB.prepare('DELETE FROM chat_cache WHERE k != ?').bind(CLEARED),
-    DB.prepare('INSERT INTO chat_cache (k, answer, created, hits) VALUES (?, ?, ?, 0) ON CONFLICT(k) DO UPDATE SET created = excluded.created').bind(CLEARED, '', deps.now()),
+    DB.prepare('INSERT INTO chat_cache (k, answer, created, hits) VALUES (?, ?, ?, 0) ON CONFLICT(k) DO UPDATE SET created = MAX(created, excluded.created)').bind(CLEARED, '', deps.now()),
   ]);
   return reply({ ok: true, cleared: (done as D1Result | undefined)?.meta?.changes ?? 0 });
 }

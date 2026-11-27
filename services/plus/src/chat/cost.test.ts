@@ -316,3 +316,21 @@ describe('the Thai voice', () => {
     expect(body).toContain(await signReply(SECRET, text));
   });
 });
+
+describe('after the second review', () => {
+  it('keeps the signature right when spaces stand between ครับ and a question mark', async () => {
+    const { thaiVoice } = await import('./index');
+    const raw = 'ทำได้ครับ' + ' '.repeat(55) + '?';
+    const first = thaiVoice('ทำได้ครับ' + ' '.repeat(55));
+    expect(thaiVoice(raw).startsWith(first.slice(0, first.length - 48))).toBe(true);
+    expect(thaiVoice('ใช่ไหมครับ ?')).toBe('ใช่ไหมคะ ?');
+  });
+
+  it('cuts no ending that ends a word, and refuses keys and order ids', () => {
+    expect(normalizeQuestion('วิธีบังคับ')).toBe('วิธีบังคับ');
+    expect(normalizeQuestion('ใครจะชนะครับ')).toBe('ใครจะชนะ');
+    expect(cacheableQuestion('my key ABCDEFGHJKM')).toBe(false);
+    expect(cacheableQuestion('order ab12cd34ef56gh')).toBe(false);
+    expect(cacheableQuestion('photography tips')).toBe(true);
+  });
+});

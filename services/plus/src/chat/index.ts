@@ -772,7 +772,10 @@ export async function chat(request: Request, deps: ChatDeps): Promise<Response> 
   const quick = !images.length && isQuick(messages, topics);
   const maxTokens = plus ? limits.maxOutputPlus : limits.maxOutputFree;
   // The photos go with the last turn only, to the model, and nowhere else.
-  const sent: ProviderMessage[] = [{ role: 'system', content: prompt }, ...messages.slice(0, -1), { role: 'user', content: withImages(question, images) }];
+  // Which GRKU Plus prices hold today: the facts list the launch prices and the regular ones.
+  const phase = deps.pricePhase?.();
+  const pricesNow = phase ? `\n- GRKU Plus prices that hold today: the ${phase === 'launch' ? 'launch prices' : 'regular prices'}.` : '';
+  const sent: ProviderMessage[] = [{ role: 'system', content: prompt + pricesNow }, ...messages.slice(0, -1), { role: 'user', content: withImages(question, images) }];
   const vision = images.length > 0;
   if (vision) deps.waitUntil(store.add(day, [{ key: 'img:msg', n: 1 }]).catch(() => {}));
   const upstream = await callProviders(deps, session.t, sent, maxTokens, day, quick, limits, false, vision);
@@ -961,8 +964,8 @@ export function thaiVoice(text: string): string {
   // Words that end a question when ค่ะ or ครับ follows them at once (not อะไร or ไหน: ไม่ต้องทำอะไรค่ะ is a statement).
   const question = '(ไหม|มั้ย|หรือเปล่า|หรือยัง|หรือไม่|ยังไง|เท่าไหร่|เท่าไร)';
   return text
-    .replace(new RegExp(`${question}(\\s*)(?:ครับ|ค่ะ)`, 'g'), '$1$2คะ')
-    .replace(/(?:ครับ|ค่ะ)(\s*\?)/g, 'คะ$1')
+    .replace(new RegExp(`${question}( ?)(?:ครับ|ค่ะ)`, 'g'), '$1$2คะ')
+    .replace(/(?:ครับ|ค่ะ)( ?\?)/g, 'คะ$1')
     .replace(/ครับผม|ครับ/g, 'ค่ะ');
 }
 
