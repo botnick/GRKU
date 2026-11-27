@@ -488,6 +488,32 @@ async function loadChat() {
     h('div', { class: 'scope' }, h('span', { class: 'name' }, tr('scope'), overridden('CHAT_PAID_TIERS')), scope),
     budgetForm);
 
+  // The answer cache: the switch, today's hit rate, the saved answers, and the clear button.
+  const cacheOn = eff('CHAT_ANSWER_CACHE') !== 'off';
+  const c = s.cache || { entries: 0, hitsAll: 0, hits: 0, misses: 0 };
+  const firsts = c.hits + c.misses;
+  const hitRate = firsts ? Math.round((100 * c.hits) / firsts) + '%' : '–';
+  const cacheToggle = h('button', { class: 'btn ' + (cacheOn ? 'danger' : 'primary') }, cacheOn ? tr('turnOff') : tr('turnOn'));
+  cacheToggle.addEventListener('click', () => save({ CHAT_ANSWER_CACHE: cacheOn ? 'off' : 'on' }, cacheToggle));
+  const clearButton = h('button', { class: 'btn', type: 'button' }, tr('cacheClear'));
+  clearButton.addEventListener('click', async () => {
+    if (!confirm(tr('cacheClearConfirm'))) return;
+    clearButton.disabled = true;
+    try { const r = await api('/admin/api/cache/clear', {}); toast(tr('cacheCleared', { n: num(r.cleared) })); loadChat(); }
+    catch (e) { if (e.message !== 'signed out') toast(tr('error'), true); clearButton.disabled = false; }
+  });
+  const cacheCard = h('div', { class: 'card pad' },
+    h('div', { class: 'switch' },
+      h('div', { class: 'state' }, h('span', { class: 'lamp ' + (cacheOn ? 'on' : 'off') }), cacheOn ? tr('cacheOn') : tr('cacheOff'), overridden('CHAT_ANSWER_CACHE')),
+      cacheToggle),
+    h('p', { class: 'note', style: 'margin:6px 0 16px' }, tr('cacheHint')),
+    h('div', { class: 'spend' },
+      h('div', null, h('div', { class: 'label' }, tr('cacheHitRate')), h('div', { class: 'big' }, hitRate), h('div', { class: 'note', style: 'margin:4px 0 0' }, tr('cacheHits', { hits: num(c.hits), total: num(firsts) }))),
+      h('div', null, h('div', { class: 'label' }, tr('cacheEntries')), h('div', { class: 'big' }, num(c.entries)), h('div', { class: 'note', style: 'margin:4px 0 0' }, tr('cacheServed', { n: num(c.hitsAll) })))),
+    h('div', { style: 'margin-top:14px' }, clearButton));
+  const perMessage = spent.perMessage || 0;
+  const ev = data.evaluation;
+
   // Providers and models.
   const STATE = { ok: ['paid', 'statusOk'], limited: ['open', 'statusLimited'], failing: ['bad', 'statusFailing'], idle: ['expired', 'statusIdle'] };
   const providers = (s.providers || []).map((p) => {
@@ -526,8 +552,14 @@ async function loadChat() {
       on ? null : h('div', { class: 'note', style: 'flex-basis:100%;margin:0' }, tr('chatClosedHint'))),
     h('h2', null, tr('paidTitle')),
     paidCard,
+    h('h2', null, tr('cacheTitle')),
+    cacheCard,
     h('h2', null, tr('today') + ' · ' + tr('chatDayHint')),
-    h('div', { class: 'stats four' },
+    h('div', { class: 'stats' },
+      statBox(tr('costPerMessage'), '$' + perMessage.toFixed(4), tr('costPer1000', { usd: money(perMessage * 1000) })),
+      statBox(tr('cacheHitRate'), hitRate, tr('cacheHits', { hits: num(c.hits), total: num(firsts) })),
+      statBox(tr('evalTitle'), ev ? ev.free + '%' : '–', ev ? tr('evalScore', { free: ev.free, plus: ev.plus, cases: num(ev.cases) }) + ' · ' + tr('evalDate', { date: ev.date, prompt: ev.prompt }) : tr('evalNone'))),
+    h('div', { class: 'stats four', style: 'margin-top:12px' },
       statBox(tr('messagesToday'), num(g.n), capMsgs ? tr('used', { used: num(g.n), cap: num(capMsgs) }) : null, meter(g.n, capMsgs)),
       statBox(tr('sessionsToday'), num(s.sessions), tr('visitors') + ' ' + num(s.visitors)),
       statBox(tr('tokensToday'), num(g.tokens), capTokens ? tr('used', { used: num(g.tokens), cap: num(capTokens) }) : null, meter(g.tokens, capTokens)),

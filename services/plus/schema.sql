@@ -77,3 +77,13 @@ CREATE TABLE IF NOT EXISTS chat_provider (
   err_code TEXT,
   PRIMARY KEY (name, model)
 );
+-- The assistant's answer cache (src/chat/cache.ts): the answers to first questions that many ask
+-- the same way, by a hash of the normalized question, its language, tier, page, prompt version, and
+-- knowledge pack. Never the question itself. Rows older than 7 days are pruned.
+CREATE TABLE IF NOT EXISTS chat_cache (
+  k TEXT PRIMARY KEY,
+  answer TEXT NOT NULL,
+  created INTEGER NOT NULL,
+  hits INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS chat_cache_created ON chat_cache(created);

@@ -5,7 +5,7 @@ import { en } from '../strings/en';
 import { RELEASES, newsStrings } from '../whatsNew';
 import { sseEvents } from './api';
 import { buildKnowledge, KNOWLEDGE_SCHEMA } from './knowledge';
-import { lookKey, parseReply, plainText, siteLink } from './render';
+import { lookKey, parseReply, plainText, repairLinks, siteLink } from './render';
 import { chatStrings } from './strings';
 import { launcherText } from './label';
 import { firmwareIn, forgetAll, likeLook, loadCurrent, loadMemory, loadRecent, loadSession, newConversation, saveCurrent, saveMemory, saveSession, sessionExpiry, titleOf, turnsForService } from './store';
@@ -13,6 +13,13 @@ import { checkFile, fitSize, MAX_ORIGINAL } from './image';
 import { LANGUAGES } from '../i18n';
 
 describe('links in answers', () => {
+  it('reads a link that the model wrote a little wrong as it meant it', () => {
+    expect(repairLinks('[Guide /guide/] [ใส่คีย์ (/#plus-key)] [Plus](/+#plus) [X](/ #plus) [Y] (/develop/) [Z]( /install/ )')).toBe('[Guide](/guide/) [ใส่คีย์](/#plus-key) [Plus](/#plus) [X](/#plus) [Y](/develop/) [Z](/install/)');
+    // A right link, a looks block, and text in brackets stay as they are.
+    for (const text of ['[Guide](/guide/)', '[{"id":"a","why":"ISO 400/800"}]', '[note]', 'see [this] /guide/']) expect(repairLinks(text)).toBe(text);
+    expect(parseReply('ดูที่ [คู่มือ /docs/firmware/#gr4]', 'th').links.map((l) => l.text)).toEqual(['คู่มือ']);
+  });
+
   it('turns site paths into places of the page language', () => {
     expect(siteLink('/install/', 'th')).toEqual({ kind: 'page', href: '/install/', path: '/install/' });
     expect(siteLink('/install/', 'en')).toEqual({ kind: 'page', href: '/en/install/', path: '/install/' });
@@ -192,7 +199,8 @@ describe('the knowledge pack', () => {
     expect(text('recovery')).toContain('Remove the battery.');
     expect(text('camera')).toContain('(Picture: The ADJ menu)');
     expect(text('questions')).toContain('Script - Enable');
-    expect(text('learn')).toContain('snap focus');
+    expect(text('learn-snap-focus-and-street-photography')).toContain('snap focus');
+    expect(pack.sections.filter((s) => s.id.startsWith('learn-')).length).toBeGreaterThan(8);
     expect(pack.sections.filter((s) => s.core).map((s) => s.id)).toEqual(['about', 'faq', 'questions']);
   });
 

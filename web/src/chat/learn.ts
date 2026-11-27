@@ -17,7 +17,7 @@ const TOPICS: readonly { tags: readonly string[]; text: string }[] = [
     text: 'Shutter speed and shake: a slow shutter blurs moving subjects and shows hand shake. The GR III, GR IIIx, and GR IV have shake reduction (SR) in the body, which helps you hand-hold slower shutter speeds of still subjects; it does not freeze moving people. Brace yourself, breathe out, and press the shutter gently.',
   },
   {
-    tags: ['white balance', 'wb', 'tungsten', 'indoor', 'yellow', 'blue', 'ไวท์บาลานซ์', 'สมดุลแสงขาว', 'ในร่ม', 'ติดเหลือง', 'ติดฟ้า', '白平衡', 'ホワイトバランス', '화이트'],
+    tags: ['white balance', 'wb', 'tungsten', 'indoor', 'yellow', 'blue', 'ไวท์บาลานซ์', 'สมดุลแสงขาว', 'ในร่ม', 'ในบ้าน', 'ติดเหลือง', 'ติดฟ้า', 'ติดส้ม', 'ออกส้ม', 'หลอดไฟ', 'orange', '白平衡', 'ホワイトバランス', '화이트'],
     text: 'White balance: it decides what the camera treats as neutral white. Auto works for most scenes. Daylight white balance keeps the warm glow of sunset and of indoor lamps. Under orange tungsten light, a tungsten cinema look (Vision3 500T, Eterna 500T) gives the cool, cinematic look of CineStill 800T-style night photos; in daylight the same looks turn blue. Daylight film looks (Portra, Gold, Ektar) are made for daylight and turn warm under lamps.',
   },
   {
@@ -54,3 +54,12 @@ export const LEARN = {
   tags: [...new Set(TOPICS.flatMap((topic) => topic.tags))],
   text: TOPICS.map((topic) => topic.text).join('\n'),
 };
+
+/**
+ * The Learn topics one by one, each a section of the pack with its own tags, so a question brings
+ * only the topics it is about. The id comes from the words before the colon.
+ */
+export const LEARN_TOPICS = TOPICS.map((topic) => {
+  const title = topic.text.slice(0, topic.text.indexOf(':'));
+  return { id: `learn-${title.toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '')}`, title: `Learn: ${title}`, tags: [...topic.tags], text: topic.text };
+});

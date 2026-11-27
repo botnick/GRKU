@@ -100,11 +100,26 @@ function fenced(text: string, name: string): { body: unknown; rest: string } | n
 export const lookKey = (id: string) => id.toLowerCase().replace(/[^a-z0-9]/g, '');
 
 /**
+ * Links that a small model wrote a little wrong, as it meant them: the path inside the brackets
+ * ([Guide /guide/] or [Guide (/guide/)]), a space before the round brackets, or a stray character
+ * in the path of GRKU Plus (/+#plus, / #plus). Only a site path or a mail address counts; a looks
+ * block, whose JSON holds quotes and braces, is never touched.
+ */
+export function repairLinks(text: string): string {
+  return text
+    .replace(/\[([^[\]\n{}"]{1,80}?)\s*\(?\s*((?:\/|#)[^\s\]()]*|support@grku\.app)\s*\)?\](?!\()/g, '[$1]($2)')
+    .replace(/\]\s+\(((?:\/|#)[^)\s]*)\)/g, ']($1)')
+    .replace(/\]\(\s+([^)\s]+)\s*\)/g, ']($1)')
+    .replace(/\]\(\s*\/\s*\+?\s*#/g, '](/#')
+    .replace(/\]\(\s*\/\s*\+\s*\//g, '](/');
+}
+
+/**
  * An answer, complete or still streaming, as blocks, link buttons, look cards, and quick replies.
  * `resolveLook` gives the library id of a look id, or null for a look the library does not have.
  */
 export function parseReply(text: string, language: Language, resolveLook: (id: string) => string | null = (id) => id): Reply {
-  let body = text.replace(/\r/g, '');
+  let body = repairLinks(text.replace(/\r/g, ''));
   const looks: LookPick[] = [];
   // A looks block that lost its fence: a line that is only a JSON array of {"id": …}.
   if (!body.includes('```looks')) body = body.replace(/^\s*(\[\s*\{\s*"id"[\s\S]*?\}\s*\])\s*$/m, (_, json: string) => `\`\`\`looks\n${json}\n\`\`\``);
