@@ -2230,6 +2230,31 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "h2",
+          "id": "safe-mode",
+          "text": "安全模式：不載入模組啟動 GRKU"
+        },
+        {
+          "kind": "p",
+          "text": "若相機未插入記憶卡可正常啟動，但插入後又停止運作，則可能是模組造成的問題。安全模式會在不載入任何模組的情況下啟動 GRKU，讓您可以關閉該模組。"
+        },
+        {
+          "kind": "steps",
+          "items": [
+            "將記憶卡插入電腦上的讀卡機。",
+            "在記憶卡的 `GRKU` 資料夾中，建立一個名為 `SAFE.TXT`（或 `SAFE`）的空白檔案。",
+            "將記憶卡插入相機並開啟電源。此時不會載入任何模組，且 MENU 中的 **About GRKU** 會顯示 **Safe mode**。",
+            "在 MENU、Customize (C)、GRKU 中，關閉您最後新增或修改的模組。",
+            "關閉相機，從記憶卡刪除 `SAFE` 檔案，然後再次開啟相機。"
+          ]
+        },
+        {
+          "kind": "note",
+          "tone": "tip",
+          "title": "安全模式",
+          "text": "安全模式絕不會自行啟動。只要 `SAFE` 檔案留在記憶卡上，拍攝的照片就不會套用 GRKU 效果。"
+        },
+        {
+          "kind": "h2",
           "id": "still",
           "text": "若仍無法開機"
         },
