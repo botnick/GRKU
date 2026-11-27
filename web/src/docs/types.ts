@@ -11,7 +11,7 @@ export type Inline = string;
 /** A real camera screen of GRKU (public/docs/screen-<name>.en-<width>.webp): `modeset` is the camera's own
  * framebuffer, `menu` a photo of a GR IV, `adj` the camera's ADJ panels (resources/images/grku-root.jpg)
  * over a photo of GRKU, and `modeset-back` the guide picture with the MENU button (resources/images/camera-menu.png). */
-export type DocScreen = 'adj-grku' | 'menu-grku' | 'menu-grku-end' | 'film-look' | 'recipes' | 'framing' | 'crop' | 'mode-dial-gr4' | 'grku-settings' | 'modeset-back';
+export type DocScreen = 'adj-grku' | 'menu-grku' | 'menu-grku-end' | 'film-look' | 'recipes' | 'framing' | 'crop' | 'mode-dial-gr4' | 'grku-settings' | 'guides' | 'date' | 'light-leak' | 'grain' | 'border' | 'modeset-back';
 
 /** A photo of the owner's GR IV rendered with GRKU's own code (the site's look tables and the camera's module code, as the promo renders): the Standard look,
  * and the same photo with only one setting (public/docs/render-<name>-<width>.webp). `-crop` is a part at full size. */

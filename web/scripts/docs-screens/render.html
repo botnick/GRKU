@@ -28,6 +28,7 @@ async function adj(scale, o) {
   const [c, x] = canvas(scale);
   const photo = await img(DOCS + o.photo + '-' + (o.size ?? 1200) + '.webp');
   { const k = Math.max(720 / photo.width, 480 / photo.height), w = photo.width * k, h = photo.height * k; x.drawImage(photo, (720 - w) / 2, (480 - h) / 2, w, h); }
+  if (o.grid === 'thirds') { x.strokeStyle = 'rgba(0,0,0,.5)'; x.lineWidth = 2; x.beginPath(); for (const f of [1, 2]) { x.moveTo(720 * f / 3, 0); x.lineTo(720 * f / 3, 480); x.moveTo(0, 480 * f / 3); x.lineTo(720, 480 * f / 3); } x.stroke(); }
   if (o.band) { x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(0, 0, 720, o.band[0]); x.fillRect(0, o.band[1], 720, 480 - o.band[1]); }
   label(x, o.title, 0); if (o.value) label(x, o.value, 50);
   // The ADJ. strip: four or five of the camera's settings, then GRKU.
@@ -97,6 +98,11 @@ window.SCREENS = {
   'film-look': (s) => adj(s, { photo: 'render-chairs-portra', title: 'Film Look', value: 'Portra 400', sel: 3, fn: true, scroll: [0.45, 0.12], rows: [{ icon: cut('film', 640, 70, 40, 40), dot: true }, { icon: effectIcon('ektar-100-edge-v1') }, { icon: effectIcon('pro-400h-crystal-v1') }, { icon: effectIcon('portra-400-endura-v1') }, { icon: effectIcon('portra-800-push2-v1') }, { icon: effectIcon('gold-200-premier-v1') }] }),
   framing: (s) => adj(s, { photo: 'render-chairs-standard', band: [107, 373], title: 'Framing', value: 'XPan 65:24', sel: 1, fn: true, scroll: [0, 0.6], rows: [{ icon: cut('film', 640, 70, 40, 40), dot: true }, { icon: tile('framing', '1-xpan') }, { icon: tile('framing', '4-2-35') }, { icon: tile('framing', '2-16-9') }, { icon: tile('framing', '3-4-3') }, { icon: tile('framing', '6-5-4') }] }),
   crop: (s) => adj(s, { photo: 'render-house-standard-crop', size: 900, title: 'Crop', value: '50mm', sel: 3, fn: true, listTop: 120, rows: [{ icon: cut('film', 640, 70, 40, 40), dot: true }, { icon: tile('crop', '1-35') }, { icon: tile('crop', '2-40') }, { icon: tile('crop', '3-50') }, { icon: tile('crop', '4-70') }] }),
+  guides: (s) => adj(s, { photo: 'render-chairs-standard', grid: 'thirds', title: 'Guides', value: 'Thirds', sel: 1, fn: true, scroll: [0, 0.75], rows: [{ icon: cut('film', 640, 70, 40, 40), dot: true }, { icon: tile('guides', '1-thirds') }, { icon: tile('guides', '2-center') }, { icon: tile('guides', '3-golden') }, { icon: tile('guides', '4-diagonals') }, { icon: tile('guides', '5-thirds-center') }] }),
+  date: (s) => adj(s, { photo: 'render-chairs-standard', title: 'Date Imprint', value: "'YY M D", sel: 1, fn: true, rows: [{ icon: cut('film', 640, 70, 40, 40), dot: true }, { icon: tile('date', '1-yy-m-d') }, { icon: tile('date', '2-yy-m-d-time') }, { icon: tile('date', '3-m-d-yy') }, { icon: tile('date', '4-d-m-yy') }, { icon: tile('date', '5-d-m-yy-time') }] }),
+  'light-leak': (s) => adj(s, { photo: 'render-daisy-standard', title: 'Light Leak', value: 'Faded', sel: 2, fn: true, rows: [{ icon: cut('film', 640, 70, 40, 40), dot: true }, { icon: tile('lightleak', '1-custom') }, { icon: tile('lightleak', '2-faded') }, { icon: tile('lightleak', '3-dusty') }, { icon: tile('lightleak', '4-leaky') }, { icon: tile('lightleak', '5-expired') }] }),
+  grain: (s) => adj(s, { photo: 'render-house-standard', title: 'Grain', value: 'Medium', sel: 2, fn: true, listTop: 120, rows: [{ icon: tile('grain', 'off'), dot: true }, { icon: tile('grain', '1-weak') }, { icon: tile('grain', '2-medium') }, { icon: tile('grain', '3-strong') }, { icon: tile('grain', '4-extra') }] }),
+  border: (s) => adj(s, { photo: 'render-chairs-standard', title: 'Border', value: 'Thin', sel: 1, fn: true, listTop: 180, rows: [{ icon: cut('film', 640, 70, 40, 40), dot: true }, { icon: tile('border', '1-thin') }, { icon: tile('border', '2-wide') }, { icon: tile('border', '3-instant') }] }),
   recipes: (s) => adj(s, { photo: 'render-house-standard', title: 'Recipes', value: 'Save Settings', sel: 0, listTop: 360, rows: [{ icon: tile('recipes', '2-save') }] }),
 };
 
