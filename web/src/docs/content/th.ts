@@ -663,12 +663,6 @@ export const th: DocsContent = {
           "text": "หน้าโมดูลใน MENU เริ่มด้วย **Enable** (สำหรับโมดูลนั้นเท่านั้น) จากนั้นเป็น **Options** และ **Order** ถ้ามี แล้วตามด้วยการตั้งค่า การตั้งค่าบางรายการจะอยู่ในหน้าที่ {{Fn}} เปิดใน ADJ เท่านั้น เช่น Date Style และ Date Position"
         },
         {
-          "kind": "screen",
-          "screen": "menu-photo",
-          "source": "photo",
-          "alt": "รูปส่วน GRKU บนกล้อง GR IV ที่ใช้ GRKU เวอร์ชันเก่า ซึ่ง Recipes อยู่หลัง Grain โดย Guides ถูกไฮไลต์ไว้"
-        },
-        {
           "kind": "h2",
           "id": "module-rows",
           "text": "หน้าของโมดูล"

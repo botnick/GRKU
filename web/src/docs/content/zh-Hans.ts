@@ -663,12 +663,6 @@ export const zhHans: DocsContent = {
           "text": "MENU 中的模块页面以 **启用**（仅限该模块）开头，接着是 **可选项** 和 **顺序**（如果模块有这些设置），然后是具体设置。部分设置仅在 {{Fn}} 在 ADJ 中打开的页面上可见，例如日期样式和日期位置。"
         },
         {
-          "kind": "screen",
-          "screen": "menu-photo",
-          "source": "photo",
-          "alt": "一张 GR IV 相机上 GRKU 菜单部分的截图，使用的是较早版本的 GRKU，其中配方排在颗粒感之后：指南处于高亮状态。"
-        },
-        {
           "kind": "h2",
           "id": "module-rows",
           "text": "模块页面"
