@@ -1,3 +1,13 @@
+## 1.11.1 (2026-11-27)
+
+### Fixes
+
+- Assistant: clearer answers for card troubles (a look that is not in the list is an imported LUT; what to check, in order, when GRKU is not in ADJ; what INSTALL.ERR 47 and 48 mean).
+- The assistant answers more exactly, faster, and for less: each question brings only the few manual pages and facts that match it best (Thai words are matched as words, the manual's pages win a tie, and each Learn topic stands alone), so a prompt is about a third shorter; answers give numbered steps with the exact button and menu names, link the manual section that answers them first, and use only real look ids. A first question that many people ask the same way is answered from a cache for 7 days at no cost (never a follow-up, a photo, or a question with page details or personal data; a new prompt or new site facts start it over), and free conversations send shorter older answers. The admin page shows the cost per message today, the cache hit rate with a switch and a clear button, and the last graded eval of the assistant.
+- Manual: camera screens drawn like the camera shows them on eight pages, pictures in the middle of the column; on a phone the looks page keeps only a smaller photo at the top, so the looks have room.
+- GRKU Studio has eight Christmas and New Year shutdown pictures with GRKU Plus: the GRKU mascot in a Santa hat, with a gift by the fire, beside a snowman on a snowy night, with hot cocoa by the window, at a New Year party, and with balloons and สวัสดีปีใหม่ 2570, plus a plain evergreen Christmas and a midnight-gold 2027. From November 15 to January 15 they come first in the templates, the rest of the year they wait with the other seasons. Every word sits above the camera's shot counts, and the text stays editable.
+- Thai pages load faster: the regular and bold IBM Plex Sans Thai faces are declared in the head of each Thai page, so the text no longer waits for Inter; the medium and semibold faces load after the page; the drawings of the guide and the manual use the font of the page; and long manual pages lay out below the first screen only when it comes near.
+
 ## 1.11.0 (2026-11-26)
 
 ### Features
