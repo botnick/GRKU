@@ -82,6 +82,9 @@ CHAT_HISTORY_TURNS_PLUS = "16"
 # The answer cache (src/chat/cache.ts): first questions asked the same way get the stored answer
 # for 7 days, at no cost. The admin page can turn it off and clear it.
 CHAT_ANSWER_CACHE = "on"
+# The last graded eval (eval/graded.mjs, 73 Thai-first cases, rules and a judge): the share that
+# passed for the free tier and for GRKU Plus, the prompt version it measured. The admin page shows it.
+CHAT_EVAL = '{"date":"2026-11-27","prompt":"2026-11-27.4","cases":73,"free":84,"plus":95}'
 # Provider 1: Google AI Studio, Gemini API free tier, OpenAI-compatible endpoint. Secret: CHAT_API_KEY.
 # Free: Flash-Lite with low thinking; Plus: Flash with medium thinking (graded the same as high on
 # eval/graded.mjs, 95% each, and about 3 s faster); minimal thinking on Flash-Lite lost 7 points.
