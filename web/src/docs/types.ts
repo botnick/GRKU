@@ -13,8 +13,12 @@ export type Inline = string;
  * over a photo of GRKU, and `modeset-back` the guide picture with the MENU button (resources/images/camera-menu.png). */
 export type DocScreen = 'adj' | 'menu' | 'modeset' | 'modeset-back';
 
-/** A photo of GRKU's own, shot on a GR IV (public/docs/photo-<name>-<width>.webp). */
-export type DocPhoto = 'portra-heart' | 'pro400h' | 'portra-bloom' | 'chrome-grain' | 'neg-gr1s' | 'cinestill' | 'kodachrome-leak' | 'trix' | 'chrome-white' | 'gr2-soft' | 'velvia-wide' | 'acros-instant';
+/** A photo of the owner's GR IV rendered with GRKU's own code (the site's look tables and the camera's module code, as the promo renders): the Standard look,
+ * and the same photo with only one setting (public/docs/render-<name>-<width>.webp). `-crop` is a part at full size. */
+export type DocRender =
+  | 'chairs-standard' | 'chairs-portra' | 'chairs-chrome' | 'chairs-date' | 'chairs-date-crop' | 'chairs-date-gr1s-crop' | 'chairs-standard-crop'
+  | 'daisy-standard' | 'daisy-bloom' | 'daisy-diffusion' | 'daisy-softness'
+  | 'house-standard' | 'house-standard-crop' | 'house-grain-crop' | 'house-leak' | 'house-border-wide' | 'house-border-instant';
 
 /** A screen of the camera drawing (GuideArt.tsx) and the buttons it rings. */
 export type CameraScreen = 'modeset' | 'loaded' | 'adj' | 'look';
@@ -30,13 +34,20 @@ export type DocBlock =
   | { kind: 'table'; head: readonly string[]; rows: readonly (readonly Inline[])[] }
   | { kind: 'files'; items: readonly (readonly [path: string, about: string])[] }
   | { kind: 'screen'; screen: DocScreen; alt: string }
-  | { kind: 'photo'; photo: DocPhoto; alt: string }
+  /** The same photo without and with one setting. */
+  | { kind: 'compare'; before: DocRender; after: DocRender; label: string; alt: string }
   /** The top level of the SD card: each name and what it is. */
   | { kind: 'card'; alt: string; items: readonly (readonly [name: string, about: string])[] }
   /** Framing, Crop, or Guides over a photo, with their choices to try. */
   | { kind: 'frame'; mode: 'framing' | 'crop' | 'guides'; alt: string }
   | { kind: 'camera'; screen: CameraScreen; press: readonly CameraKey[]; alt: string }
   | { kind: 'cameras' }
+  /** A drawing of a step (components/GuideArt.tsx): the computer with a card reader, the files copied to the card, the card into the camera. */
+  | { kind: 'art'; art: 'computer' | 'copy' | 'insert'; alt: string }
+  /** The modules with their real tile (modules/<module>/tiles/0-module.png) and a link to their page. */
+  | { kind: 'modules' }
+  /** What you see, and what to do: a short decision path. */
+  | { kind: 'flow'; steps: readonly { see: Inline; then: Inline }[] }
   /** The settings of a module as the camera names them, with their values and defaults, from the code
    * (docs/moduleSettings.generated.ts), and what each does (`notes`, by setting key). */
   | { kind: 'settings'; module: string; notes: Readonly<Record<string, Inline>> };
@@ -97,6 +108,7 @@ export interface DocsContent {
     settingCol: string;
     choicesCol: string;
     defaultMark: string;
+    withoutLabel: string;
     updated: string;
   };
   groups: Readonly<Record<DocGroup, string>>;

@@ -32,7 +32,7 @@ export function blockText(block: DocBlock): string {
     case 'files':
       return block.items.map(([path, about]) => `${path}: ${about}`).join('\n');
     case 'screen':
-    case 'photo':
+    case 'compare':
     case 'camera':
     case 'frame':
       return block.alt;
@@ -40,6 +40,10 @@ export function blockText(block: DocBlock): string {
       return block.items.map(([name, about]) => `${name}: ${about}`).join('\n');
     case 'settings':
       return (settingRows(block.module, 'en') ?? []).map((row) => `${row.name}: ${row.values.map((value, index) => (index === row.default ? `${value} (default)` : value)).join(', ')}. ${plainInline(block.notes[row.key] ?? '')}`).join('\n');
+    case 'art':
+      return block.alt;
+    case 'flow':
+      return block.steps.map((step) => `${plainInline(step.see)} → ${plainInline(step.then)}`).join('\n');
     case 'cameras':
       return CAMERAS.filter((camera) => camera.support).map((camera) => `${camera.name} ${camera.support!.firmware.replaceAll(' / ', ' ')} ${camera.support!.modeset}`).join('\n');
     default:

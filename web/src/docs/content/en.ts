@@ -52,6 +52,7 @@ export const en: DocsContent = {
     settingCol: 'On the camera',
     choicesCol: 'Choices and what it does',
     defaultMark: 'default',
+    withoutLabel: 'Without',
     updated: 'Updated',
   },
   groups: {
@@ -97,6 +98,7 @@ export const en: DocsContent = {
         { kind: 'path', items: ['MENU', 'Setup', 'Camera Information'] },
         { kind: 'p', text: 'GR IV Monochrome: [RICOH\'s support page of the camera](https://www.ricoh-imaging.co.jp/english/support/digital/gr-4-mono_s.html) lists its firmware versions.' },
         { kind: 'h2', id: 'supported', text: 'Which versions does GRKU support?' },
+        { kind: 'flow', steps: [{ see: 'Your version is in the table.', then: '[Install GRKU](doc:install).' }, { see: 'Your version is older.', then: 'Update the camera from RICOH first. See [below](doc:firmware#older).' }, { see: 'Your version is newer than the table.', then: 'Wait for a GRKU update. See [below](doc:firmware#newer).' }] },
         { kind: 'cameras' },
         { kind: 'p', text: 'GRKU has run on a GR IV with firmware 1.11. The builds for the other versions and models are made from the same code and checked against the firmware files of RICOH, but have not run on a camera yet.' },
         { kind: 'p', text: 'GR IV 30th Anniversary Edition cameras come with their own factory build of 1.20, which grku.app does not offer yet. Update such a camera to 1.21 from RICOH first.' },
@@ -116,15 +118,18 @@ export const en: DocsContent = {
       blocks: [
         { kind: 'h2', id: 'write', text: 'Write the card from the site' },
         { kind: 'p', text: 'Use Chrome or Edge on a computer, with the SD card in a card reader. The USB cable of the camera does not work for this.' },
+        { kind: 'art', art: 'computer', alt: 'A computer with grku.app open, and the card going into a card reader.' },
         { kind: 'steps', items: ['Open the [install page](site:install).', 'Choose your film looks, then your camera, then the modules.', 'On the last step, choose **Write to the SD card**, then press **Connect SD card**. Select the card itself, then allow editing.', 'Check the list of changes, then press **Install GRKU**. Your photos stay on the card.', 'Eject the card in the computer before you take it out.'] },
         { kind: 'p', text: 'Not sure which firmware your camera has? See [Check your firmware version](doc:firmware).' },
         { kind: 'note', tone: 'tip', title: 'If it does not look like this', text: 'No **Connect SD card** button? Open the page in Chrome or Edge on a computer. On a phone, or in Safari, use GRKU.zip below.' },
         { kind: 'h2', id: 'zip', text: 'Or copy GRKU.zip yourself' },
         { kind: 'p', text: 'For other browsers, also on a phone or a Mac with Safari. If the browser inside an app cannot save the file, open the page in the browser of your phone.' },
+        { kind: 'art', art: 'copy', alt: 'The SCRIPT folder, DEVELOP.MOD, and the ModeSet file from SD_ROOT copied to the top level of the card, beside DCIM.' },
         { kind: 'steps', items: ['On the last step of the install, press **Download GRKU.zip**.', 'The file saves as `GRKU-….zip`. Unzip it. Some browsers unzip it for you.', 'Copy the contents of `SD_ROOT`, not the folder itself, to the top level of the card.', 'The top level of the card now has the `SCRIPT` folder, `DEVELOP.MOD`, and the ModeSet file of your camera.'] },
         { kind: 'card', alt: 'The top level of the SD card after the install.', items: [['SCRIPT', 'GRKU itself. Keep it.'], ['DEVELOP.MOD', 'Goes with the ModeSet file at the first start. You may delete it after that.'], ['00078560.636', 'The ModeSet file of your camera, which turns on SD scripts: 00078350.588 on GR III, 00078490.609 on GR IIIx, 00078560.636 on GR IV. You may delete it after the first start.'], ['GRKU', 'Your settings and film looks. The site or the camera makes it.'], ['DCIM', 'Your photos. Installing GRKU does not touch them.']] },
         { kind: 'h2', id: 'first-start', text: 'First start: turn on SD scripts' },
         { kind: 'p', text: 'Do this once. The camera keeps this setting, for every card you use, and updates do not need it.' },
+        { kind: 'art', art: 'insert', alt: 'The card goes into the card slot of the camera.' },
         { kind: 'steps', items: ['Turn the camera off and insert the card.', 'Hold {{MENU}} and press the power button.', 'The screen shows **Mode Set Command**, then **Script - Enable** and **Complete**. The camera turns itself off.', 'Turn the camera on as usual. Wait until **GRKU** shows at the top of the screen. It usually takes about 8 to 10 seconds. The first start after an install can take up to about a minute.'] },
         { kind: 'note', tone: 'warning', title: 'Wait at the first start', text: 'Do not turn the camera off or take out the battery while GRKU starts for the first time. It can take up to about a minute.' },
         { kind: 'screen', screen: 'modeset-back', alt: 'The back of a GR with the MENU button circled. The screen shows Mode Set Command, Script - Enable, and Complete.' },
@@ -147,6 +152,7 @@ export const en: DocsContent = {
       blocks: [
         { kind: 'h2', id: 'adj', text: 'GRKU in ADJ' },
         { kind: 'p', text: 'While you shoot, press the {{ADJ}} lever and choose **GRKU**, usually the sixth entry. It lists the modules on your card, such as **Film Look**, **Framing**, and **Grain**.' },
+        { kind: 'modules' },
         { kind: 'table', head: ['Button', 'What it does in GRKU'], rows: [['{{ADJ}}', 'Opens ADJ. If you closed it on GRKU, it opens there again, also after power-off.'], ['Up, Down', 'Moves to a module, or highlights a choice. The live view shows it at once where it can.'], ['{{OK}}', 'Opens the highlighted module, or keeps the highlighted choice.'], ['{{Fn}}', 'Does the extra action of the row: more settings of a module, the next corner of the golden spiral, or Rename and Delete of a recipe.'], ['{{MENU}}', 'Goes back.']] },
         { kind: 'p', text: 'The **Enable** row after the modules turns GRKU on or off. On starts again each module that is turned on.' },
         { kind: 'h2', id: 'menu', text: 'GRKU in MENU' },
@@ -169,6 +175,7 @@ export const en: DocsContent = {
       keywords: 'update upgrade new version uninstall remove delete sd scripts off format card backup',
       blocks: [
         { kind: 'h2', id: 'update-site', text: 'Update from the site' },
+        { kind: 'art', art: 'computer', alt: 'A computer with grku.app open, and the card going into a card reader.' },
         { kind: 'steps', items: ['Put the card (microSD on GR IV) in a card reader and open the [install page](site:install) in Chrome or Edge.', 'On the last step, press **Connect SD card**. The page shows what changes.', 'Press **Update GRKU**.', 'Put the card in the camera and turn it on as usual.'] },
         { kind: 'p', text: 'To add or remove film looks: connect the card first, then change the looks on the site, check the list of changes, and press the write button.' },
         { kind: 'h2', id: 'update-zip', text: 'Update from GRKU.zip' },
@@ -190,8 +197,10 @@ export const en: DocsContent = {
       keywords: 'film look effect image control lut portra classic chrome kodak fuji fujifilm finepix positive preview fn parameters film stock',
       blocks: [
         { kind: 'path', items: ['ADJ', 'GRKU', 'Film Look'] },
-        { kind: 'steps', items: ['Press {{ADJ}}, choose **GRKU**, then **Film Look**.', 'Highlight a look. The live view shows it at once, with its look icon icon.', 'Press {{OK}} to keep it. Choose **Off** to shoot without a look.'] },
+        { kind: 'steps', items: ['Press {{ADJ}}, choose **GRKU**, then **Film Look**.', 'Highlight a look. The live view shows it at once, with its look icon.', 'Press {{OK}} to keep it. Choose **Off** to shoot without a look.'] },
         { kind: 'screen', screen: 'adj', alt: 'GRKU in ADJ: Film Look is the first module, and the screen shows Film Look: Off.' },
+        { kind: 'compare', before: 'chairs-standard', after: 'chairs-portra', label: 'Kodak Portra 400', alt: 'Two deck chairs under a parasol, in the Standard look of the camera and with the Kodak Portra 400 film look.' },
+        { kind: 'compare', before: 'chairs-standard', after: 'chairs-chrome', label: 'Fujifilm Classic Chrome', alt: 'The same photo in Standard and with the Fujifilm Classic Chrome look.' },
         { kind: 'h2', id: 'adjust', text: 'Adjust a look' },
         { kind: 'p', text: 'Highlight a look and press {{Fn}}. The camera opens the adjustments of the look, as for an Image Control: saturation, contrast, Shading, Clarity, and the others of your camera. Each look keeps its own adjustments.' },
         { kind: 'h2', id: 'image-control', text: 'Film Look and Image Control' },
@@ -274,10 +283,10 @@ export const en: DocsContent = {
       keywords: 'date imprint stamp time font classic gr1s gr ii color orange size position corner caption thank you happy birthday grku glow',
       blocks: [
         { kind: 'path', items: ['ADJ', 'GRKU', 'Date Imprint'] },
-        { kind: 'photo', photo: 'portra-heart', alt: 'Two deck chairs under a parasol in a garden: Kodak Portra 400 with a white Instant border, and the date with the GRKU <3 caption.' },
+        { kind: 'compare', before: 'chairs-standard', after: 'chairs-date', label: 'Date Imprint: \'YY M D', alt: 'Two deck chairs under a parasol, without and with Date Imprint: \'YY M D, Film position, Bottom Right, size M, Classic font, Standard color.' },
         { kind: 'p', text: 'Highlight a date style and press {{OK}}. Press {{Fn}} for the other settings. The camera prints the date and time of its clock, so set the clock first.' },
         { kind: 'settings', module: 'date', notes: {'STYLE':'The order of the date, with or without the time. The camera prints the date and time of its clock, so set the clock first. Not a row in MENU: choose it in ADJ, or with {{Fn}} there.','POSITION':'**Film** prints it where a film camera does. **Upright** keeps it upright in a vertical photo. Not a row in MENU: set it with {{Fn}} in ADJ.','CORNER':'Where the date goes. Bottom Split puts the date at the left and the caption at the right.','SIZE':'The size of the digits.','LOOK':'The font: Classic, GR1s (dot matrix), or GR II.','COLOR':'Standard is the color of the font: orange for Classic and GR II, yellow for GR1s. Black and white photos get white.','GLOW':'A soft glow around the digits. GR II prints flat digits, without glow.','CAPTION':'A word before the date. The photo shows <3 as a heart.','ICON':'Shows the date style on the shooting screen.'} },
-        { kind: 'photo', photo: 'neg-gr1s', alt: 'A stone house and a garden path: Classic Neg with a thin black border and the date in the GR1s font.' },
+        { kind: 'compare', before: 'chairs-date-crop', after: 'chairs-date-gr1s-crop', label: 'Date Font: GR1s', alt: 'The bottom right corner of the photo: the date in the Classic font (left) and in the GR1s font (right), the other settings the same.' },
       ],
     },
     glow: {
@@ -288,7 +297,7 @@ export const en: DocsContent = {
       keywords: 'glow bloom halation cinestill red orange gold white highlights lights night',
       blocks: [
         { kind: 'path', items: ['ADJ', 'GRKU', 'Glow'] },
-        { kind: 'photo', photo: 'portra-bloom', alt: 'Daisies: Kodak Portra 400 with Bloom Weak, Diffusion 1/4, Film Softness Low, Grain Weak, a thin white border, and the date.' },
+        { kind: 'compare', before: 'daisy-standard', after: 'daisy-bloom', label: 'Bloom: Strong', alt: 'Daisies on an overcast day, without and with Bloom at Strong. Bloom shows most on bright highlights.' },
         { kind: 'p', text: 'Glow has two parts. Each has its own strength, and you can use both together.' },
         { kind: 'p', text: 'In ADJ, highlight **Bloom** or **Halation** and press {{Fn}} for its other settings, such as the color of Halation and the icon.' },
         { kind: 'settings', module: 'glow', notes: {'BLOOM':'**Bloom**: a soft glow around bright areas.','BLOOM_ICON':'Shows the Bloom icon on the shooting screen.','HALATION':'**Halation**: a colored halo around lights, as on CineStill film.','HALATION_COLOR':'The color of the halo. Not on GR IV Monochrome.','HALATION_ICON':'Shows the Halation icon on the shooting screen.'} },
@@ -303,7 +312,7 @@ export const en: DocsContent = {
       keywords: 'light leak vignette dust scratches faded dusty leaky expired old film lomo retro',
       blocks: [
         { kind: 'path', items: ['ADJ', 'GRKU', 'Light Leak'] },
-        { kind: 'photo', photo: 'kodachrome-leak', alt: 'A stone house and a garden path, upright: Kodachrome 64 with Light Leak Faded, Grain Weak, and the date.' },
+        { kind: 'compare', before: 'house-standard', after: 'house-leak', label: 'Light Leak: Leaky', alt: 'A stone house and a garden path, without and with Light Leak at Leaky.' },
         { kind: 'settings', module: 'lightleak', notes: {'LOOK':'**Custom** uses your own strengths below. The others are ready-made mixes.','VIGNETTE':'Darker corners. Used with Custom.','DUST':'Dust and hairs. Used with Custom.','LEAK':'Light that fogs the film from an edge. Used with Custom.','SCRATCH':'Scratches on the film. Used with Custom.'} },
         { kind: 'p', text: 'Choose **Custom** and press {{Fn}} to set the strength of each part. Dust, the leak, and scratches fall differently on each photo. Light Leak changes the JPEG only and does not show in the live view.' },
       ],
@@ -316,7 +325,8 @@ export const en: DocsContent = {
       keywords: 'diffusion filter pro mist black mist streak anamorphic softness film softness soft dreamy',
       blocks: [
         { kind: 'path', items: ['ADJ', 'GRKU', 'Diffusion'] },
-        { kind: 'photo', photo: 'pro400h', alt: 'Daisies: Fujifilm Pro 400H with Diffusion 1/8, Film Softness Low, Grain Weak, and the date.' },
+        { kind: 'compare', before: 'daisy-standard', after: 'daisy-diffusion', label: 'Filter: 1/2', alt: 'Daisies, without and with the Diffusion filter at 1/2.' },
+        { kind: 'compare', before: 'daisy-standard', after: 'daisy-softness', label: 'Film Softness: High', alt: 'Daisies, without and with Film Softness at High.' },
         { kind: 'p', text: 'Diffusion has two parts: **Filter** and **Softness**. Each works on its own.' },
         { kind: 'settings', module: 'diffusion', notes: {'STRENGTH':'**Filter**: the glow of a diffusion filter, like its grades.','MIST':'**Filter**: a veil over the shadows. Works when Strength is not Off.','STREAK':'**Filter**: the horizontal flare of an anamorphic lens on point lights. Works when Strength is not Off.','SOFTNESS':'**Softness**: fine detail fades and highlights roll off, as in a film scan. Works on its own.'} },
         { kind: 'p', text: 'Diffusion changes the JPEG only and does not show in the live view.' },
@@ -330,7 +340,7 @@ export const en: DocsContent = {
       keywords: 'grain noise film-like system size strength weak medium strong extra',
       blocks: [
         { kind: 'path', items: ['ADJ', 'GRKU', 'Grain'] },
-        { kind: 'photo', photo: 'trix', alt: 'A stone house and a garden path in black and white: Kodak Tri-X 400 with Grain Medium, the date in the GR1s font, and a black Wide border.' },
+        { kind: 'compare', before: 'house-standard-crop', after: 'house-grain-crop', label: 'Grain: Strong, Size Medium, Film-like', alt: 'A close view at full size of a stone wall and an awning, without and with Grain at Strong, Size Medium, Style Film-like.' },
         { kind: 'settings', module: 'grain', notes: {'CORE.GRAIN':'How strong the grain is.','CORE.GRAIN_SIZE':'The size of the grain. Auto follows the ISO of the shot.','STYLE':'**System** is the grain of the camera. **Film-like** is the grain of a color negative print: strongest in the middle tones, none in white or black, in color on color photos.','ICON':'Shows the grain icon on the shooting screen.'} },
         { kind: 'p', text: 'Press {{Fn}} on Grain to set **Size** and **Style**. Film-like grain follows the grain model of spektrafilm by Andrea Volpato.' },
       ],
@@ -343,8 +353,8 @@ export const en: DocsContent = {
       keywords: 'border frame white black thin wide instant polaroid edge',
       blocks: [
         { kind: 'path', items: ['ADJ', 'GRKU', 'Border'] },
-        { kind: 'photo', photo: 'velvia-wide', alt: 'A stone house and a garden path: Fujifilm Velvia with a white Wide border and the date.' },
-        { kind: 'photo', photo: 'acros-instant', alt: 'A stone house in black and white, upright: Fujifilm Acros with a white Instant border and the GRKU <3 caption.' },
+        { kind: 'compare', before: 'house-standard', after: 'house-border-wide', label: 'Border: Wide, White', alt: 'A stone house, without and with a white Wide border.' },
+        { kind: 'compare', before: 'house-standard', after: 'house-border-instant', label: 'Border: Instant, White', alt: 'A stone house, without and with a white Instant border.' },
         { kind: 'settings', module: 'border', notes: {'CORE.BORDER':'**Thin** is about 3% of the short side, **Wide** about 6%, **Instant** about 4% with a bottom three times as wide. On GR IV, a large border can be a little narrower when the camera is short of memory.','CORE.BORDER_COLOR':'The color of the border.','ICON':'Shows the border icon on the shooting screen.'} },
         { kind: 'p', text: 'The JPEG grows by the border, so nothing of the photo is covered. In-camera RAW development can add a border too.' },
         { kind: 'note', tone: 'plain', title: 'Not on the card?', text: 'The install leaves Border out at first. On step 3 of the [install](site:install), turn on Border. A card holds up to 10 modules: if all 10 are on, turn off one you use less.' },
@@ -488,6 +498,7 @@ export const en: DocsContent = {
       lead: 'Check these in order, one at a time.',
       keywords: 'not showing not working missing adj no grku error install.err report boot.txt 47 48 firmware mode set',
       blocks: [
+        { kind: 'flow', steps: [{ see: 'No **GRKU** at the top of the screen after power-on.', then: 'Wait up to about a minute the first time. Then see the checks below.' }, { see: 'The camera shows a firmware update screen when you hold {{MENU}}.', then: 'Choose **Cancel**, then delete the `fwdc….bin` file from the card.' }, { see: 'No **Mode Set Command** screen when you hold {{MENU}}.', then: 'Do the [first start](doc:install#first-start) again.' }, { see: 'The camera stops at startup.', then: 'See [Camera stops at startup](doc:stuck).' }] },
         { kind: 'h2', id: 'checks', text: 'Check in order' },
         { kind: 'steps', items: ['**Wait.** GRKU loads about 8 to 10 seconds after power-on. The first start after an install can take up to about a minute: do not turn the camera off meanwhile. Photos before that have no GRKU.', '**Camera and firmware.** Open MENU and check the firmware version. It must be in [Supported cameras](doc:cameras). See [Check your firmware version](doc:firmware).', '**SD scripts.** Did you hold {{MENU}} at the first power-on, and see **Mode Set Command** and **Complete**? If not, do the [first start](doc:install#first-start) again.', '**Files at the top level.** The card must have the `SCRIPT` folder at its top level, not inside `DCIM` or another folder.', '**Card reader.** Write the card with a card reader, not through the USB cable of the camera.', '**Enable GRKU.** In MENU, Customize (C), GRKU, check that **Enable GRKU** is On, and that **Enable at Start** in GRKU Settings is not Off.'] },
         { kind: 'h2', id: 'errors', text: 'Error numbers' },
@@ -511,6 +522,7 @@ export const en: DocsContent = {
       keywords: 'stuck freeze hang frozen not start black screen brick recover recovery reset battery',
       blocks: [
         { kind: 'note', tone: 'warning', title: 'Before you start', text: 'Do not push or pull the lens barrel. Never remove the power during an official firmware update.' },
+        { kind: 'flow', steps: [{ see: 'The camera stops while it starts.', then: 'Take out the battery and the card, then start without the card.' }, { see: 'It still does not start without the card.', then: 'Start it in playback and reset the camera settings.' }, { see: 'It starts but does not turn off.', then: 'See [Shutdown picture](doc:shutdown).' }] },
         { kind: 'h2', id: 'without-card', text: 'Start without the card' },
         { kind: 'steps', items: ['Try to turn the camera off.', 'If it does not respond, remove the battery. It may be hot.', 'Remove the SD card.', 'Insert a charged battery and turn the camera on without the card.'] },
         { kind: 'h2', id: 'still', text: 'If it still does not start' },

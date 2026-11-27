@@ -11,22 +11,22 @@ import { DOCS, loadDocs } from '../docs/load';
 import { DOC_GROUPS, DOC_PAGES, docSlug, type DocSlug, type DocsSitePage } from '../docs/pages';
 import { searchDocs } from '../docs/search';
 import { settingRows } from '../docs/settingsTable';
-import type { DocBlock, DocPhoto, DocsContent, Inline } from '../docs/types';
+import type { DocBlock, DocsContent, Inline } from '../docs/types';
 import { siteUrl } from '../catalog';
 import { guideLines, type LandingGuide } from '../landing';
 import { showLanguage, type Language } from '../i18n';
 import { pathPage } from '../languagePage';
 import type { PageLink } from '../navigation';
-import { CameraBackArt } from './GuideArt';
+import { CameraBackArt, ComputerArt, CopyArt, InsertArt } from './GuideArt';
+import { MODULE_SETTINGS } from '../docs/moduleSettings.generated';
+import { cameraLanguage } from '../docs/settingsTable';
+import type { DocSlug as Slug } from '../docs/pages';
 
 /** The address of a camera screen or a photo of the manual at a width. */
 const docsImage = (name: string, width: number) => siteUrl(`docs/${name}-${width}.webp`);
 
-/** The photos that stand upright, which the manual shows narrower. */
-const UPRIGHT: ReadonlySet<DocPhoto> = new Set(['kodachrome-leak', 'trix', 'acros-instant']);
-
-/** The photo of the Framing, Crop, and Guides previews: CineStill 800T on a GR IV, without a crop. */
-const FRAME_PHOTO = 'photo-cinestill';
+/** The photo of the Framing, Crop, and Guides previews: a GR IV photo in the Standard look, without settings. */
+const FRAME_PHOTO = 'render-chairs-standard';
 
 /** A promise that `use` reads at once when it has settled (React reads `status` and `value`). */
 type Tracked<T> = Promise<T> & { status?: 'fulfilled'; value?: T };
@@ -315,7 +315,7 @@ function Frame({ block, ctx }: { block: Extract<DocBlock, { kind: 'frame' }>; ct
   return (
     <figure className="my-6">
       <div className="relative aspect-[3/2] overflow-hidden rounded-xl border bg-black">
-        <img src={docsImage(FRAME_PHOTO, 1200)} srcSet={`${docsImage(FRAME_PHOTO, 720)} 720w, ${docsImage(FRAME_PHOTO, 1200)} 1200w`} sizes="(min-width: 1024px) 720px, 100vw" alt={block.alt} width={1200} height={800} loading="lazy" className="block size-full object-cover" />
+        <img src={docsImage(FRAME_PHOTO, 1200)} srcSet={`${docsImage(FRAME_PHOTO, 600)} 600w, ${docsImage(FRAME_PHOTO, 1200)} 1200w`} sizes="(min-width: 1024px) 720px, 100vw" alt={block.alt} width={1200} height={800} loading="lazy" className="block size-full object-cover" />
         {area && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-[width,height] duration-200" style={{ ...area, ...MASKS[mask] }} />}
         {lines.length > 0 && (
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 size-full" aria-hidden="true">
@@ -332,6 +332,48 @@ function Frame({ block, ctx }: { block: Extract<DocBlock, { kind: 'frame' }>; ct
         {block.mode === 'guides' && <Chips label={t.style} items={t.guides} active={choice} onPick={setChoice} />}
         {block.mode !== 'guides' && <Chips label={t.mask} items={t.masks} active={mask} onPick={setMask} />}
       </figcaption>
+    </figure>
+  );
+}
+
+/** The page of each module, with its real tile and its name on the camera. */
+const MODULE_PAGES: Readonly<Record<string, Slug>> = { recipes: 'recipes', 'film-look': 'film-look', framing: 'framing', crop: 'crop', guides: 'guides', date: 'date', glow: 'glow', lightleak: 'light-leak', diffusion: 'diffusion', grain: 'grain', border: 'border' };
+function ModuleGrid({ ctx }: { ctx: Ctx }) {
+  const code = cameraLanguage(ctx.language);
+  const order = Object.keys(MODULE_PAGES);
+  const modules = [...MODULE_SETTINGS].sort((a, b) => order.indexOf(a.dir) - order.indexOf(b.dir));
+  return (
+    <ul className="my-6 grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-3">
+      {modules.map((module) => (
+        <li key={module.dir}>
+          <a {...ctx.link(`docs/${MODULE_PAGES[module.dir]!}`)} className="flex items-center gap-3 rounded-xl border bg-card px-3 py-2.5 no-underline hover:border-input hover:bg-accent/50">
+            <img src={siteUrl(`docs/tiles/${module.dir}.png`)} alt="" width={40} height={40} className="size-10 shrink-0 rounded-md bg-black [image-rendering:pixelated]" />
+            <span className="text-[14px] font-semibold">{module.title[code] ?? module.title.en}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** The same photo without and with one setting, side by side. */
+function Compare({ block, ctx }: { block: Extract<DocBlock, { kind: 'compare' }>; ctx: Ctx }) {
+  const image = (name: string) => {
+    const crop = name.endsWith('-crop');
+    const large = crop ? 900 : 1200;
+    return { src: docsImage(`render-${name}`, large), srcSet: `${docsImage(`render-${name}`, 600)} 600w, ${docsImage(`render-${name}`, large)} ${large}w`, sizes: '(min-width: 1024px) 360px, 50vw' };
+  };
+  return (
+    <figure className="my-6">
+      <div className="grid grid-cols-2 gap-2">
+        {([[block.before, ctx.content.ui.withoutLabel], [block.after, block.label]] as const).map(([name, caption], index) => (
+          <div key={index} className="relative overflow-hidden rounded-xl border bg-muted">
+            <img {...image(name)} alt={index === 1 ? block.alt : ''} loading="lazy" className="block h-auto w-full" />
+            <span className={cn('absolute bottom-2 left-2 rounded-md px-2 py-0.5 text-[12px] font-medium', index === 1 ? 'bg-brand text-brand-foreground' : 'bg-black/65 text-white')}>{caption}</span>
+          </div>
+        ))}
+      </div>
+      <figcaption className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{block.alt}</figcaption>
     </figure>
   );
 }
@@ -429,6 +471,9 @@ function CameraTable({ ctx }: { ctx: Ctx }) {
   );
 }
 
+/** The pose of the GRKU mascot (public/mascot) beside each kind of note. */
+const MASCOT = { plain: 'think-1', tip: 'point-0', warning: 'oops-0' } as const;
+
 const NOTE_TONES = {
   plain: 'border-border bg-muted/40',
   tip: 'border-emerald-600/30 bg-emerald-600/5',
@@ -477,10 +522,13 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
       );
     case 'note':
       return (
-        <aside className={cn('my-6 rounded-xl border px-4 py-3.5 text-[15px] leading-relaxed', NOTE_TONES[block.tone])}>
-          <strong className="block font-semibold">{block.title}</strong>
-          <span className="mt-1 block text-foreground/85">
-            <Text text={block.text} ctx={ctx} />
+        <aside className={cn('my-6 flex items-start gap-3 rounded-xl border px-4 py-3.5 text-[15px] leading-relaxed', NOTE_TONES[block.tone])}>
+          <img src={siteUrl(`mascot/${MASCOT[block.tone]}-144.webp`)} alt="" width={48} height={48} loading="lazy" className="size-12 shrink-0 object-contain" />
+          <span className="min-w-0">
+            <strong className="block font-semibold">{block.title}</strong>
+            <span className="mt-1 block text-foreground/85">
+              <Text text={block.text} ctx={ctx} />
+            </span>
           </span>
         </aside>
       );
@@ -547,17 +595,8 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
         </figure>
       );
     }
-    case 'photo': {
-      const upright = UPRIGHT.has(block.photo);
-      const [small, large] = upright ? [480, 800] : [720, 1200];
-      const name = `photo-${block.photo}`;
-      return (
-        <figure className="my-6">
-          <img src={docsImage(name, small)} srcSet={`${docsImage(name, small)} ${small}w, ${docsImage(name, large)} ${large}w`} sizes={upright ? '(min-width: 768px) 360px, 70vw' : '(min-width: 1024px) 720px, 100vw'} alt={block.alt} width={upright ? 800 : 1200} height={upright ? 1200 : 800} loading="lazy" className={cn('block h-auto rounded-xl', upright ? 'w-full max-w-[360px]' : 'w-full')} />
-          <figcaption className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{block.alt}</figcaption>
-        </figure>
-      );
-    }
+    case 'compare':
+      return <Compare block={block} ctx={ctx} />;
     case 'card':
       return <CardTree block={block} />;
     case 'frame':
@@ -573,6 +612,29 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
       return <CameraTable ctx={ctx} />;
     case 'settings':
       return <SettingsTable block={block} ctx={ctx} />;
+    case 'art': {
+      const Art = { computer: ComputerArt, copy: CopyArt, insert: InsertArt }[block.art];
+      return (
+        <figure className="my-6 max-w-[520px] rounded-xl border bg-art p-4">
+          <Art />
+          <figcaption className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{block.alt}</figcaption>
+        </figure>
+      );
+    }
+    case 'modules':
+      return <ModuleGrid ctx={ctx} />;
+    case 'flow':
+      return (
+        <ol className="my-6 flex list-none flex-col gap-2 p-0">
+          {block.steps.map((step, index) => (
+            <li key={index} className="grid gap-2 rounded-xl border bg-card p-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+              <span className="text-[15px] leading-snug"><Text text={step.see} ctx={ctx} /></span>
+              <span aria-hidden="true" className="hidden text-brand-text sm:block">→</span>
+              <span className="rounded-lg bg-brand/5 px-3 py-2 text-[15px] leading-snug font-medium"><Text text={step.then} ctx={ctx} /></span>
+            </li>
+          ))}
+        </ol>
+      );
   }
 }
 
