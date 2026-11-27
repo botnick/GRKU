@@ -707,9 +707,9 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
       const name = `screen-${block.screen}.en`;
       return (
         <figure className="my-6">
-          <img src={docsImage(name, 720)} srcSet={`${docsImage(name, 720)} 720w, ${docsImage(name, 1080)} 1080w`} sizes="(min-width: 768px) 560px, 100vw" alt={block.alt} width={720} height={480} loading="lazy" className={cn("block h-auto w-full max-w-[560px] rounded-xl", block.screen !== "modeset-back" && "border-[6px] border-[#1c1c1e] bg-black shadow-sm")} />
-          <figcaption className="mt-2 max-w-[560px] text-[13px] leading-relaxed text-muted-foreground">
-            <span className="mr-1.5 rounded border px-1.5 py-0.5 text-[11px] font-medium">{{ photo: ctx.content.ui.photoBadge, capture: ctx.content.ui.captureBadge, drawn: ctx.content.ui.drawnBadge }[block.source]}</span>
+          <img src={docsImage(name, 720)} srcSet={`${docsImage(name, 720)} 720w, ${docsImage(name, 1080)} 1080w`} sizes="(min-width: 768px) 560px, 100vw" alt={block.alt} width={720} height={480} loading="lazy" className={cn("mx-auto block h-auto w-full max-w-[560px] rounded-xl", block.screen !== "modeset-back" && "border-[6px] border-[#1c1c1e] bg-black shadow-sm")} />
+          <figcaption className="mx-auto mt-2 max-w-[560px] text-center text-[13px] leading-relaxed text-muted-foreground">
+            {block.source !== "drawn" && <span className="mr-1.5 rounded border px-1.5 py-0.5 text-[11px] font-medium">{block.source === "photo" ? ctx.content.ui.photoBadge : ctx.content.ui.captureBadge}</span>}
             {block.alt}
           </figcaption>
         </figure>
@@ -723,9 +723,9 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
       return <Frame block={block} ctx={ctx} />;
     case 'camera':
       return (
-        <figure className="my-6 max-w-[460px] rounded-xl border bg-art p-4">
+        <figure className="mx-auto my-6 max-w-[460px] rounded-xl border bg-art p-4">
           <CameraBackArt screen={block.screen} press={block.press} />
-          <figcaption className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{block.alt}</figcaption>
+          <figcaption className="mt-2 text-center text-[13px] leading-relaxed text-muted-foreground">{block.alt}</figcaption>
         </figure>
       );
     case 'cameras':
@@ -748,9 +748,9 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
     case 'art': {
       const Art = { computer: ComputerArt, copy: CopyArt, insert: InsertArt }[block.art];
       return (
-        <figure className="my-6 max-w-[520px] rounded-xl border bg-art p-4">
+        <figure className="mx-auto my-6 max-w-[520px] rounded-xl border bg-art p-4">
           <Art />
-          <figcaption className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{block.alt}</figcaption>
+          <figcaption className="mt-2 text-center text-[13px] leading-relaxed text-muted-foreground">{block.alt}</figcaption>
         </figure>
       );
     }
