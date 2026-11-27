@@ -807,7 +807,7 @@ static void write_records(const struct arrays *a, u32 pixels)
            native default grain, which Grainy also takes without Rough. */
         at(record + GRKU_RECORD_LOOK_GRAIN)[0] =
             grf_equal(profile + GRKU_GRF_ID, (const u8 *)"gr4-mono-grainy", sizeof("gr4-mono-grainy")) ? 1 :
-            grf_equal(profile + GRKU_GRF_ID, (const u8 *)"gr4-mono-high-contrast", sizeof("gr4-mono-high-contrast")) ? 2 : 0;
+            grf_equal(profile + GRKU_GRF_ID, (const u8 *)"gr4-mono-hi-contrast", sizeof("gr4-mono-hi-contrast")) ? 2 : 0;
         /* The Image Control summary in each language: the prefix, then the name. */
         for (u32 language = 0; language < GRKU_TEXT_LANGUAGES; ++language) {
             volatile u16 *summary = (volatile u16 *)at(text + GRKU_TEXT_SUMMARY +
