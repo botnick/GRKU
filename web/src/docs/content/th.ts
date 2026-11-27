@@ -1154,6 +1154,12 @@ export const th: DocsContent = {
           ]
         },
         {
+          "kind": "screen",
+          "screen": "guides",
+          "source": "drawn",
+          "alt": "เปิด Guides ในเมนู ADJ โดยเลือก Thirds เส้นแบ่งสามส่วนจะแสดงบนจอภาพสด"
+        },
+        {
           "kind": "settings",
           "module": "guides",
           "notes": {
@@ -1208,6 +1214,12 @@ export const th: DocsContent = {
         {
           "kind": "p",
           "text": "เลือกแถบรูปแบบวันที่แล้วกด {{OK}} กด {{Fn}} เพื่อดูการตั้งค่าอื่น กล้องจะพิมพ์วันที่และเวลาจากนาฬิกาของกล้อง จึงควรตั้งเวลาก่อน"
+        },
+        {
+          "kind": "screen",
+          "screen": "date",
+          "source": "drawn",
+          "alt": "เปิด Date Imprint ในเมนู ADJ โดยเลือกสไตล์ 'YY M D วันที่จะปรากฏเฉพาะในไฟล์ JPEG ไม่แสดงบนจอภาพสด"
         },
         {
           "kind": "settings",
@@ -1331,6 +1343,12 @@ export const th: DocsContent = {
           "alt": "บ้านหินและทางเดินในสวน เปรียบเทียบแบบไม่มีและใช้ Light Leak ที่ระดับ Leaky"
         },
         {
+          "kind": "screen",
+          "screen": "light-leak",
+          "source": "drawn",
+          "alt": "เปิด Light Leak ในเมนู ADJ โดยเลือก Faded"
+        },
+        {
           "kind": "settings",
           "module": "lightleak",
           "notes": {
@@ -1445,6 +1463,12 @@ export const th: DocsContent = {
           "alt": "ภาพขยายเต็มของผนังหินและกันสาด เปรียบเทียบแบบไม่มีและใช้ Grain ที่ระดับ Strong ขนาด Medium สไตล์ Film-like"
         },
         {
+          "kind": "screen",
+          "screen": "grain",
+          "source": "drawn",
+          "alt": "เปิด Grain ในเมนู ADJ โดยเลือก Medium เม็ดฟิล์มจะปรากฏในภาพถ่าย ไม่แสดงบนจอภาพสด"
+        },
+        {
           "kind": "settings",
           "module": "grain",
           "notes": {
@@ -1502,6 +1526,12 @@ export const th: DocsContent = {
           "after": "house-border-instant",
           "label": "Border: Instant, White",
           "alt": "บ้านหิน เปรียบเทียบแบบไม่มีและใช้ขอบสีขาวแบบ Instant"
+        },
+        {
+          "kind": "screen",
+          "screen": "border",
+          "source": "drawn",
+          "alt": "เปิด Border ในเมนู ADJ โดยเลือก Thin ขอบภาพจะถูกเพิ่มรอบไฟล์ JPEG"
         },
         {
           "kind": "settings",

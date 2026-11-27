@@ -1154,6 +1154,12 @@ export const ja: DocsContent = {
           ]
         },
         {
+          "kind": "screen",
+          "screen": "guides",
+          "source": "drawn",
+          "alt": "ADJメニューでGuidesを選択し、Thirdsをハイライトしています。ライブビューに三分割のガイドラインが表示されます。"
+        },
+        {
           "kind": "settings",
           "module": "guides",
           "notes": {
@@ -1208,6 +1214,12 @@ export const ja: DocsContent = {
         {
           "kind": "p",
           "text": "日付スタイルを選んで{{OK}}を押します。その他の設定は{{Fn}}を押します。カメラ内時計の日時が印字されるため、先に時計を合わせてください。"
+        },
+        {
+          "kind": "screen",
+          "screen": "date",
+          "source": "drawn",
+          "alt": "ADJメニューでDate Imprintを選択し、'YY M Dスタイルをハイライトしています。日付はライブビューには表示されず、JPEG画像にのみ焼き込まれます。"
         },
         {
           "kind": "settings",
@@ -1331,6 +1343,12 @@ export const ja: DocsContent = {
           "alt": "石造りの家と庭の小道。ライトリークなしと、「Leaky」設定での比較です。"
         },
         {
+          "kind": "screen",
+          "screen": "light-leak",
+          "source": "drawn",
+          "alt": "ADJメニューでLight Leakを選択し、Fadedをハイライトしています。"
+        },
+        {
           "kind": "settings",
           "module": "lightleak",
           "notes": {
@@ -1445,6 +1463,12 @@ export const ja: DocsContent = {
           "alt": "石壁と日よけの拡大表示。粒状感なしと、強・サイズ中・スタイルフィルム調での比較です。"
         },
         {
+          "kind": "screen",
+          "screen": "grain",
+          "source": "drawn",
+          "alt": "ADJメニューでGrainを選択し、Mediumをハイライトしています。粒子感はライブビューには表示されず、写真にのみ反映されます。"
+        },
+        {
           "kind": "settings",
           "module": "grain",
           "notes": {
@@ -1502,6 +1526,12 @@ export const ja: DocsContent = {
           "after": "house-border-instant",
           "label": "ボーダー: インスタント、白",
           "alt": "石造りの家。白いインスタントボーダーなしとありの比較です。"
+        },
+        {
+          "kind": "screen",
+          "screen": "border",
+          "source": "drawn",
+          "alt": "ADJメニューでBorderを選択し、Thinをハイライトしています。枠線はJPEG画像の周囲に追加されます。"
         },
         {
           "kind": "settings",

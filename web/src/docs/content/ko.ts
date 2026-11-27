@@ -1154,6 +1154,12 @@ export const ko: DocsContent = {
           ]
         },
         {
+          "kind": "screen",
+          "screen": "guides",
+          "source": "drawn",
+          "alt": "ADJ 메뉴에서 Guides를 선택하고 Thirds가 강조된 상태입니다. 라이브 뷰에 삼분할 선이 표시됩니다."
+        },
+        {
           "kind": "settings",
           "module": "guides",
           "notes": {
@@ -1208,6 +1214,12 @@ export const ko: DocsContent = {
         {
           "kind": "p",
           "text": "날짜 스타일을 선택한 뒤 {{OK}}를 누르세요. 다른 설정은 {{Fn}}을 눌러 열 수 있습니다. 카메라 시계의 날짜와 시간이 인쇄되므로 먼저 시계를 맞추세요."
+        },
+        {
+          "kind": "screen",
+          "screen": "date",
+          "source": "drawn",
+          "alt": "ADJ 메뉴에서 Date Imprint를 선택하고 'YY M D 스타일이 강조된 상태입니다. 날짜는 라이브 뷰에는 표시되지 않고 JPEG에만 기록됩니다."
         },
         {
           "kind": "settings",
@@ -1331,6 +1343,12 @@ export const ko: DocsContent = {
           "alt": "돌집과 정원 길, 라이트 리크 적용 전과 '빛샘' 설정 적용 후."
         },
         {
+          "kind": "screen",
+          "screen": "light-leak",
+          "source": "drawn",
+          "alt": "ADJ 메뉴에서 Light Leak을 선택하고 Faded가 강조된 상태입니다."
+        },
+        {
           "kind": "settings",
           "module": "lightleak",
           "notes": {
@@ -1445,6 +1463,12 @@ export const ko: DocsContent = {
           "alt": "돌벽과 차양을 실제 크기로 확대한 모습, 입자감 적용 전과 '강', 크기 '중', 스타일 '필름 느낌' 설정 적용 후."
         },
         {
+          "kind": "screen",
+          "screen": "grain",
+          "source": "drawn",
+          "alt": "ADJ 메뉴에서 Grain을 선택하고 Medium이 강조된 상태입니다. 입자는 라이브 뷰에는 표시되지 않고 사진에만 적용됩니다."
+        },
+        {
           "kind": "settings",
           "module": "grain",
           "notes": {
@@ -1502,6 +1526,12 @@ export const ko: DocsContent = {
           "after": "house-border-instant",
           "label": "테두리: 인스턴트, 흰색",
           "alt": "돌집, 테두리 적용 전과 흰색 '인스턴트' 테두리 적용 후."
+        },
+        {
+          "kind": "screen",
+          "screen": "border",
+          "source": "drawn",
+          "alt": "ADJ 메뉴에서 Border를 선택하고 Thin이 강조된 상태입니다. 테두리는 JPEG 주변에 추가됩니다."
         },
         {
           "kind": "settings",

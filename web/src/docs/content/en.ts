@@ -281,6 +281,7 @@ export const en: DocsContent = {
       blocks: [
         { kind: 'frame', mode: 'guides', alt: 'A garden path to a stone house, shot with GRKU, with the lines of the chosen guide.' },
         { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Guides'], ['Photo', 'Never in the photo'], ['{{Fn}}', 'Turns the golden spiral']] },
+        { kind: 'screen', screen: 'guides', source: 'drawn', alt: 'Guides in ADJ with Thirds highlighted. The live view shows the lines of the thirds.' },
         { kind: 'settings', module: 'guides', notes: {'STYLE':'The lines on the screen. They never show in the photo.','COLOR':'The color of the lines.','OPACITY':'How strong the lines are.','DISP':'On: the lines hide when {{DISP}} hides the screen information. Off: they always show.','SPIRAL':'Where the golden spiral turns. With Golden Spiral highlighted in ADJ, {{Fn}} turns it to the next corner.'} },
         { kind: 'p', text: 'With **Golden Spiral** highlighted in ADJ, press {{Fn}} to turn the spiral to the next corner. The camera hides its own grid lines while GRKU draws guides.' },
       ],
@@ -295,6 +296,7 @@ export const en: DocsContent = {
         { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Date Imprint'], ['JPEG', 'The date is printed'], ['DNG', 'No date']] },
         { kind: 'compare', before: 'chairs-standard', after: 'chairs-date', label: 'Date Imprint: \'YY M D', alt: 'Two deck chairs under a parasol, without and with Date Imprint: \'YY M D, Film position, Bottom Right, size M, Classic font, Standard color.' },
         { kind: 'p', text: 'Highlight a date style and press {{OK}}. Press {{Fn}} for the other settings. The camera prints the date and time of its clock, so set the clock first.' },
+        { kind: 'screen', screen: 'date', source: 'drawn', alt: 'Date Imprint in ADJ with the \'YY M D style highlighted. The date goes on the JPEG only, not on the live view.' },
         { kind: 'settings', module: 'date', notes: {'STYLE':'The order of the date, with or without the time. The camera prints the date and time of its clock, so set the clock first. Not a row in MENU: choose it in ADJ, or with {{Fn}} there.','POSITION':'**Film** prints it where a film camera does. **Upright** keeps it upright in a vertical photo. Not a row in MENU: set it with {{Fn}} in ADJ.','CORNER':'Where the date goes. Bottom Split puts the date at the left and the caption at the right.','SIZE':'The size of the digits.','LOOK':'The font: Classic, GR1s (dot matrix), or GR II.','COLOR':'Standard is the color of the font: orange for Classic and GR II, yellow for GR1s. Black and white photos get white.','GLOW':'A soft glow around the digits. GR II prints flat digits, without glow.','CAPTION':'A word before the date. The photo shows <3 as a heart.','ICON':'Shows the date style on the shooting screen.'} },
         { kind: 'compare', before: 'chairs-date-crop', after: 'chairs-date-gr1s-crop', beforeLabel: 'Date Font: Classic', label: 'Date Font: GR1s', alt: 'The bottom right corner of the photo: the date in the Classic font (left) and in the GR1s font (right), the other settings the same.' },
       ],
@@ -323,6 +325,7 @@ export const en: DocsContent = {
       blocks: [
         { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Light Leak'], ['JPEG', 'Only the JPEG'], ['Live view', 'No preview: check in playback']] },
         { kind: 'compare', before: 'house-standard', after: 'house-leak', label: 'Light Leak: Leaky', alt: 'A stone house and a garden path, without and with Light Leak at Leaky.' },
+        { kind: 'screen', screen: 'light-leak', source: 'drawn', alt: 'Light Leak in ADJ with Faded highlighted.' },
         { kind: 'settings', module: 'lightleak', notes: {'LOOK':'**Custom** uses your own strengths below. The others are ready-made mixes.','VIGNETTE':'Darker corners. Used with Custom.','DUST':'Dust and hairs. Used with Custom.','LEAK':'Light that fogs the film from an edge. Used with Custom.','SCRATCH':'Scratches on the film. Used with Custom.'} },
         { kind: 'p', text: 'Choose **Custom** and press {{Fn}} to set the strength of each part. Dust, the leak, and scratches fall differently on each photo. Light Leak changes the JPEG only and does not show in the live view.' },
       ],
@@ -351,6 +354,7 @@ export const en: DocsContent = {
       blocks: [
         { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Grain'], ['Styles', 'System or Film-like'], ['Size Auto', 'Follows the ISO of the shot']] },
         { kind: 'compare', before: 'house-standard-crop', after: 'house-grain-crop', label: 'Grain: Strong, Size Medium, Film-like', alt: 'A close view at full size of a stone wall and an awning, without and with Grain at Strong, Size Medium, Style Film-like.' },
+        { kind: 'screen', screen: 'grain', source: 'drawn', alt: 'Grain in ADJ with Medium highlighted. The grain shows on the photo, not on the live view.' },
         { kind: 'settings', module: 'grain', notes: {'CORE.GRAIN':'How strong the grain is.','CORE.GRAIN_SIZE':'The size of the grain. Auto follows the ISO of the shot.','STYLE':'**System** is the grain of the camera. **Film-like** is the grain of a color negative print: strongest in the middle tones, none in white or black, in color on color photos.','ICON':'Shows the grain icon on the shooting screen.'} },
         { kind: 'p', text: 'Press {{Fn}} on Grain to set **Size** and **Style**. Film-like grain follows the grain model of spektrafilm by Andrea Volpato.' },
       ],
@@ -365,6 +369,7 @@ export const en: DocsContent = {
         { kind: 'facts', cells: [['Where', 'ADJ › GRKU › Border'], ['JPEG', 'Grows by the border'], ['DNG', 'No border']] },
         { kind: 'compare', before: 'house-standard', after: 'house-border-wide', label: 'Border: Wide, White', alt: 'A stone house, without and with a white Wide border.' },
         { kind: 'compare', before: 'house-standard', after: 'house-border-instant', label: 'Border: Instant, White', alt: 'A stone house, without and with a white Instant border.' },
+        { kind: 'screen', screen: 'border', source: 'drawn', alt: 'Border in ADJ with Thin highlighted. The border is added around the JPEG.' },
         { kind: 'settings', module: 'border', notes: {'CORE.BORDER':'**Thin** is about 3% of the short side, **Wide** about 6%, **Instant** about 4% with a bottom three times as wide. On GR IV, a large border can be a little narrower when the camera is short of memory.','CORE.BORDER_COLOR':'The color of the border.','ICON':'Shows the border icon on the shooting screen.'} },
         { kind: 'p', text: 'The JPEG grows by the border, so nothing of the photo is covered. In-camera RAW development can add a border too.' },
         { kind: 'note', tone: 'plain', title: 'Not on the card?', text: 'The install leaves Border out at first. On step 3 of the [install](site:install), turn on Border. A card holds up to 10 modules: if all 10 are on, turn off one you use less.' },

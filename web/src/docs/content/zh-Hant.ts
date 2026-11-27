@@ -1154,6 +1154,12 @@ export const zhHant: DocsContent = {
           ]
         },
         {
+          "kind": "screen",
+          "screen": "guides",
+          "source": "drawn",
+          "alt": "ADJ 選單中 Guides 已開啟，Thirds 高亮顯示。即時取景畫面會顯示三分構圖線。"
+        },
+        {
           "kind": "settings",
           "module": "guides",
           "notes": {
@@ -1208,6 +1214,12 @@ export const zhHant: DocsContent = {
         {
           "kind": "p",
           "text": "反白顯示日期樣式並按下 {{OK}}。按下 {{Fn}} 可調整其他設定。相機會印出內部時鐘的日期與時間，請先設定好時鐘。"
+        },
+        {
+          "kind": "screen",
+          "screen": "date",
+          "source": "drawn",
+          "alt": "ADJ 選單中 Date Imprint 已開啟，'YY M D 樣式高亮顯示。日期僅印製在 JPEG 檔案上，不會顯示在即時取景畫面中。"
         },
         {
           "kind": "settings",
@@ -1331,6 +1343,12 @@ export const zhHant: DocsContent = {
           "alt": "石屋與花園小徑，未開啟與開啟漏光效果的對比。"
         },
         {
+          "kind": "screen",
+          "screen": "light-leak",
+          "source": "drawn",
+          "alt": "ADJ 選單中 Light Leak 已開啟，Faded 高亮顯示。"
+        },
+        {
           "kind": "settings",
           "module": "lightleak",
           "notes": {
@@ -1445,6 +1463,12 @@ export const zhHant: DocsContent = {
           "alt": "石牆與遮篷的全尺寸近拍，未開啟與開啟強粒紋感、大小中、樣式膠片質感的對比。"
         },
         {
+          "kind": "screen",
+          "screen": "grain",
+          "source": "drawn",
+          "alt": "ADJ 選單中 Grain 已開啟，Medium 高亮顯示。顆粒效果會呈現在照片上，但不會顯示在即時取景畫面中。"
+        },
+        {
           "kind": "settings",
           "module": "grain",
           "notes": {
@@ -1502,6 +1526,12 @@ export const zhHant: DocsContent = {
           "after": "house-border-instant",
           "label": "邊框：拍立得，白色",
           "alt": "石屋，未開啟與開啟白色拍立得邊框的對比。"
+        },
+        {
+          "kind": "screen",
+          "screen": "border",
+          "source": "drawn",
+          "alt": "ADJ 選單中 Border 已開啟，Thin 高亮顯示。邊框會加在 JPEG 影像周圍。"
         },
         {
           "kind": "settings",

@@ -1154,6 +1154,12 @@ export const zhHans: DocsContent = {
           ]
         },
         {
+          "kind": "screen",
+          "screen": "guides",
+          "source": "drawn",
+          "alt": "在 ADJ 中选中 Guides，高亮显示 Thirds。实时取景画面中显示三分法参考线。"
+        },
+        {
           "kind": "settings",
           "module": "guides",
           "notes": {
@@ -1208,6 +1214,12 @@ export const zhHans: DocsContent = {
         {
           "kind": "p",
           "text": "选中日期样式后按 {{OK}}。按 {{Fn}} 查看其他设置。相机会打印机内时钟的日期和时间，请先设置时钟。"
+        },
+        {
+          "kind": "screen",
+          "screen": "date",
+          "source": "drawn",
+          "alt": "在 ADJ 中选中 Date Imprint，高亮显示 'YY M D 样式。日期仅印在 JPEG 照片上，不显示在实时取景画面中。"
         },
         {
           "kind": "settings",
@@ -1331,6 +1343,12 @@ export const zhHans: DocsContent = {
           "alt": "石屋和花园小径，未开启和开启漏光效果（强度设为“漏光”）的对比。"
         },
         {
+          "kind": "screen",
+          "screen": "light-leak",
+          "source": "drawn",
+          "alt": "在 ADJ 中选中 Light Leak，高亮显示 Faded。"
+        },
+        {
           "kind": "settings",
           "module": "lightleak",
           "notes": {
@@ -1445,6 +1463,12 @@ export const zhHans: DocsContent = {
           "alt": "石墙和遮阳篷的全尺寸特写，未开启和开启颗粒感（强度强、大小中、样式胶片质感）的效果对比。"
         },
         {
+          "kind": "screen",
+          "screen": "grain",
+          "source": "drawn",
+          "alt": "在 ADJ 中选中 Grain，高亮显示 Medium。颗粒效果仅应用于照片，不显示在实时取景画面中。"
+        },
+        {
           "kind": "settings",
           "module": "grain",
           "notes": {
@@ -1502,6 +1526,12 @@ export const zhHans: DocsContent = {
           "after": "house-border-instant",
           "label": "边框：拍立得，白色",
           "alt": "石屋，未添加和添加白色拍立得边框的效果对比。"
+        },
+        {
+          "kind": "screen",
+          "screen": "border",
+          "source": "drawn",
+          "alt": "在 ADJ 中选中 Border，高亮显示 Thin。边框将添加在 JPEG 照片周围。"
         },
         {
           "kind": "settings",
