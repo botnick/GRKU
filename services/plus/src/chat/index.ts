@@ -951,6 +951,21 @@ export function stripThinking(state: { mode: 'start' | 'think' | 'text'; buffer:
   return out;
 }
 
+/**
+ * The assistant's Thai voice, made sure: a man's ครับ becomes ค่ะ (คะ after a question word or
+ * before a question mark), and ค่ะ on a question becomes คะ. The prompt asks for it; a small model
+ * sometimes slips. Each change is a few letters long, far less than HOLD, so the text already sent
+ * stays the start of the answer.
+ */
+export function thaiVoice(text: string): string {
+  // Words that end a question when ค่ะ or ครับ follows them at once (not อะไร or ไหน: ไม่ต้องทำอะไรค่ะ is a statement).
+  const question = '(ไหม|มั้ย|หรือเปล่า|หรือยัง|หรือไม่|ยังไง|เท่าไหร่|เท่าไร)';
+  return text
+    .replace(new RegExp(`${question}(\\s*)(?:ครับ|ค่ะ)`, 'g'), '$1$2คะ')
+    .replace(/(?:ครับ|ค่ะ)(\s*\?)/g, 'คะ$1')
+    .replace(/ครับผม|ครับ/g, 'ค่ะ');
+}
+
 /** The characters that the post-filter holds back, so a leak that spans two pieces is caught whole. */
 const HOLD = 48;
 
@@ -1027,6 +1042,8 @@ function relay(
     let pending = '';
     let sent = 0;
     let holding = false;
+    // The model's own text; the answer is that text in the assistant's Thai voice.
+    let raw = '';
     const release = async (all: boolean) => {
       const until = all ? attempt.answer.length : Math.max(sent, attempt.answer.length - HOLD);
       if (until > sent) {
@@ -1067,7 +1084,8 @@ function relay(
           if (typeof piece !== 'string' || !piece) continue;
           const text = stripThinking(thinking, piece);
           if (!text) continue;
-          attempt.answer += text;
+          raw += text;
+          attempt.answer = language === 'th' ? thaiVoice(raw) : raw;
           attempt.cut = postFilter(attempt.answer, PROMPT_FRAGMENTS);
           // An answer that names the firmware file may say to delete it further on: hold the rest
           // back and decide on the whole answer.

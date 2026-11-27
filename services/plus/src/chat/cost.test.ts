@@ -280,3 +280,39 @@ describe('the words of a question for the tags', () => {
     expect(systemPrompt(PACK, [{ role: 'user', content: 'ถ่ายวิวใช้ลุคไหนดี' }], 'th', {}, 'free').topics).toContain('looks');
   });
 });
+
+describe('the Thai voice', () => {
+  it('turns a slip into the woman voice, ค่ะ and คะ in their places', async () => {
+    const { thaiVoice } = await import('./index');
+    expect(thaiVoice('ทำได้ครับ กด MENU ครับผม')).toBe('ทำได้ค่ะ กด MENU ค่ะ');
+    expect(thaiVoice('เห็นหน้าจอไหมครับ')).toBe('เห็นหน้าจอไหมคะ');
+    expect(thaiVoice('เห็นอะไรค่ะ? ราคาเท่าไหร่ค่ะ')).toBe('เห็นอะไรคะ? ราคาเท่าไหร่คะ');
+    expect(thaiVoice('ไม่ต้องทำอะไรค่ะ')).toBe('ไม่ต้องทำอะไรค่ะ');
+    expect(thaiVoice('ได้ค่ะ ขอบคุณค่ะ')).toBe('ได้ค่ะ ขอบคุณค่ะ');
+  });
+
+  it('streams the fixed text, signed as sent', async () => {
+    const store = memoryStore();
+    const pending: Promise<unknown>[] = [];
+    const deps: ChatDeps = {
+      env: ENV,
+      store,
+      now: () => NOW,
+      human: async () => true,
+      plusOwner: async () => null,
+      fetch: (async () => {
+        const pieces = ['ทำได้คร', 'ับ เห็นหน้าจอไหมค', 'รับ'];
+        const lines = [...pieces.map((d) => `data: ${JSON.stringify({ choices: [{ delta: { content: d } }] })}\n\n`), `data: ${JSON.stringify({ choices: [{ delta: {}, finish_reason: 'stop' }] })}\n\n`, 'data: [DONE]\n\n'];
+        return new Response(lines.join(''), { headers: { 'Content-Type': 'text/event-stream' } });
+      }) as unknown as typeof fetch,
+      waitUntil: (promise) => void pending.push(promise),
+      knowledge: async () => PACK,
+    };
+    const token = ((await (await startSession(new Request('https://plus.test/chat/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }), deps)).json()) as { session: string }).session;
+    const response = await chat(new Request('https://plus.test/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ messages: [{ role: 'user', content: 'ทำได้ไหม' }], lang: 'th' }) }), deps);
+    const body = await response.text();
+    const text = body.split('\n\n').filter((b) => b.startsWith('data: {"d"')).map((b) => JSON.parse(b.slice(6)).d).join('');
+    expect(text).toBe('ทำได้ค่ะ เห็นหน้าจอไหมคะ');
+    expect(body).toContain(await signReply(SECRET, text));
+  });
+});

@@ -74,7 +74,7 @@ CHAT_PAID_MODELS = "google/gemini-3.1-flash-lite,google/gemini-3.8-flash,google/
 CHAT_PAID_MONTHLY_USD = "10"
 CHAT_PAID_DAILY_USD = "1"
 CHAT_PAID_FREE_SHARE = "50"
-# GRKU Plus: "flash" (Flash on the free key with high thinking, then paid Flash, then paid Pro) or
+# GRKU Plus: "flash" (Flash on the free key with medium thinking, then paid Flash, then paid Pro) or
 # "pro" (paid Pro at once). Plus never gets the free tier's models.
 CHAT_PLUS_TIER = "flash"
 CHAT_PRO_MODELS = "google/gemini-3.1-pro-preview"
@@ -83,14 +83,15 @@ CHAT_HISTORY_TURNS_PLUS = "16"
 # for 7 days, at no cost. The admin page can turn it off and clear it.
 CHAT_ANSWER_CACHE = "on"
 # Provider 1: Google AI Studio, Gemini API free tier, OpenAI-compatible endpoint. Secret: CHAT_API_KEY.
-# Free: Flash-Lite with low thinking; Plus: Flash with high thinking. _RPD is our own daily cap per
-# model, under the free quota that AI Studio shows for the project (check there).
+# Free: Flash-Lite with low thinking; Plus: Flash with medium thinking (graded the same as high on
+# eval/graded.mjs, 95% each, and about 3 s faster); minimal thinking on Flash-Lite lost 7 points.
+# _RPD is our own daily cap per model, under the free quota that AI Studio shows for the project (check there).
 CHAT_NAME = "gemini"
 CHAT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
 CHAT_MODEL_FREE = "gemini-flash-lite-latest"
 CHAT_MODEL_PLUS = "gemini-flash-latest"
 CHAT_REASONING_FREE = "low"
-CHAT_REASONING_PLUS = "high"
+CHAT_REASONING_PLUS = "medium"
 CHAT_RPD = "gemini-flash-latest=200,gemini-flash-lite-latest=900"
 # Provider 2: OpenRouter ":free" models (the code refuses any other model there), free tier only.
 # Off: on 2026-11-25 the free Gemma models answered 429 (a shared upstream pool) to every test
@@ -108,7 +109,7 @@ CHAT3_BASE_URL = "https://openrouter.ai/api/v1"
 CHAT3_MODEL_FREE = "google/gemini-3.1-flash-lite"
 CHAT3_MODEL_PLUS = "google/gemini-3.8-flash"
 CHAT3_REASONING_FREE = "low"
-CHAT3_REASONING_PLUS = "high"
+CHAT3_REASONING_PLUS = "medium"
 CHAT3_ROUTING = "google-ai-studio,google-vertex"
 CHAT3_PRICES = "google/gemini-3.1-flash-lite=0.25/1.5,google/gemini-3.8-flash=0.825/4.125,google/gemini-3.1-pro-preview=2/12"
 # Provider 4 (optional): Cloudflare Workers AI, free daily allocation. Secrets: CHAT4_BASE_URL

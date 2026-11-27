@@ -86,7 +86,7 @@ for (const section of pack.sections) {
   for (const m of section.text.matchAll(/\] (\/docs\/[a-z-]+\/#[a-z0-9-]+)/g)) docsLinks.add(m[1]);
 }
 const lookIds = new Set(pack.looks.map((l) => l.id));
-const FIXED_LINKS = ['/install/', '/install/camera/', '/install/modules/', '/install/write/', '/guide/', '/guide/#put', '/guide/#camera', '/guide/#use', '/guide/#update', '/guide/#uninstall', '/guide/#help', '/develop/', '/recovery/', '/terms/', '/#plus', '/#plus-key', '/docs/'];
+const FIXED_LINKS = ['/', '/install/', '/install/camera/', '/install/modules/', '/install/write/', '/guide/', '/guide/#put', '/guide/#camera', '/guide/#use', '/guide/#update', '/guide/#uninstall', '/guide/#help', '/develop/', '/recovery/', '/terms/', '/#plus', '/#plus-key', '/docs/'];
 // A link as the page reads it: a path, with the slash that a page path ends with.
 const linksOf = (text) => [...text.matchAll(/\]\(\s*([^)\s]+)\s*\)/g)].map((m) => (m[1].startsWith('#') ? `/${m[1]}` : m[1])).map((l) => (/^\/[a-z-]+(\/[a-z-]+)?$/.test(l) ? `${l}/` : l));
 /** The text a reader sees: link labels without their targets, so a fact cannot hide in a URL. */
