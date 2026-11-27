@@ -492,9 +492,9 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "adj",
-          "source": "capture",
-          "alt": "ADJ 畫面開啟著 GRKU 模組圖示。螢幕左上角顯示 GRKU 與 Film Look: Off。"
+          "screen": "adj-grku",
+          "source": "drawn",
+          "alt": "ADJ 在 GRKU 中開啟。左上角顯示 GRKU 與 Recipes（第一個模組），右側垂直排列各模組圖示。"
         },
         {
           "kind": "p",
@@ -579,15 +579,15 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "menu-top",
+          "screen": "menu-grku",
           "source": "drawn",
-          "alt": "GRKU 區塊頂部：Enable GRKU On、GRKU Settings、Recipes、Film Look、Framing、Crop、Guides。"
+          "alt": "MENU 中的 GRKU 區塊，位於 Customize 第 4 頁：Enable GRKU On、GRKU Settings、Recipes、Film Look、Framing、Crop 與 Guides。"
         },
         {
           "kind": "screen",
-          "screen": "menu-bottom",
+          "screen": "menu-grku-end",
           "source": "drawn",
-          "alt": "GRKU 區塊底部：輔助線、加印日期、光暈、漏光、柔光鏡、粒紋感，以及含版本的關於 GRKU。"
+          "alt": "GRKU 區塊的結尾：Guides、Date Imprint、Glow、Light Leak、Diffusion、Grain，以及附帶版本號的 About GRKU。"
         },
         {
           "kind": "p",
@@ -821,9 +821,9 @@ export const zhHant: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "adj",
-          "source": "capture",
-          "alt": "ADJ 中的 GRKU：底片風格為第一個模組，畫面顯示底片風格：關閉。"
+          "screen": "film-look",
+          "source": "drawn",
+          "alt": "ADJ 中的 Film Look，Portra 400 已選取。即時預覽顯示該風格效果，Fn 鍵可開啟其調整選項。"
         },
         {
           "kind": "compare",
@@ -951,6 +951,12 @@ export const zhHant: DocsContent = {
           ]
         },
         {
+          "kind": "screen",
+          "screen": "recipes",
+          "source": "drawn",
+          "alt": "尚未儲存任何配方時的 ADJ Recipes：左上角顯示 Save Settings。"
+        },
+        {
           "kind": "h2",
           "id": "apply",
           "text": "使用配方"
@@ -1034,6 +1040,12 @@ export const zhHant: DocsContent = {
           "text": "選取一個比例後，即時取景會顯示框線。按 {{OK}} 儲存。在裁切模式下，JPEG 會依比例裁切；DNG 則不會。當 GR WORLD 要求較小的照片時，帶有構圖比例的照片會以較小的副本傳送到手機，長邊約為 1920 像素。"
         },
         {
+          "kind": "screen",
+          "screen": "framing",
+          "source": "drawn",
+          "alt": "ADJ 中的 Framing，XPan 已選取。即時預覽將 XPan 框線外的區域變暗。"
+        },
+        {
           "kind": "settings",
           "module": "framing",
           "notes": {
@@ -1100,6 +1112,12 @@ export const zhHant: DocsContent = {
         {
           "kind": "p",
           "text": "在「裁切」上按 {{Fn}} 來設定 **模式** 和 **遮罩**。在 GR IV 上，拍攝後立即選擇的焦距會等到該照片儲存完畢才生效，因此最後一張照片絕不會受損；即時取景會立刻顯示新的裁切範圍。當 GR WORLD 要求較小的照片時，裁切後的照片會以較小的副本傳送到手機，長邊約為 1920 像素。在 35、40 和 50 mm 時，即時取景會放大，不顯示框線。在 70 mm 時，它會在 50 mm 的視角中顯示框線；而在 GR IV 上，40 mm 會在 35 mm 的視角中顯示其框線。在裁切模式下，除非 **RAW 不裁切** 已開啟，否則 JPEG 和 DNG 都會被裁切。在 ADJ 中，即時取景會顯示所選焦距的框線。裁切功能適用於所有構圖比例。"
+        },
+        {
+          "kind": "screen",
+          "screen": "crop",
+          "source": "drawn",
+          "alt": "ADJ 中的 Crop，50mm 已選取。即時預覽放大至 50mm 視角。"
         },
         {
           "kind": "note",
@@ -1538,6 +1556,12 @@ export const zhHant: DocsContent = {
           "text": "P、Av、Tv、M 與 Sn（GR IV）共用同一組 GRKU 設定。在 GR IV 上，這一頁的順序是 P、Av、Tv、Sn，接著才是 M。每個位置都可以把 GRKU 設為**開啟**或**關閉**。這些設定會在**啟用 GRKU** 為**開啟**時生效。"
         },
         {
+          "kind": "screen",
+          "screen": "mode-dial-gr4",
+          "source": "drawn",
+          "alt": "GR IV 上 GRKU Settings 的 Mode Dial 頁面：P、Av、Tv、Sn、M 與 U1 模式的 GRKU 皆為 On。"
+        },
+        {
           "kind": "h2",
           "id": "user",
           "text": "U1、U2 與 U3"
@@ -1643,6 +1667,12 @@ export const zhHant: DocsContent = {
               "設定 GRKU 清單中各模組在 ADJ 的順序。"
             ]
           ]
+        },
+        {
+          "kind": "screen",
+          "screen": "grku-settings",
+          "source": "drawn",
+          "alt": "GRKU Settings 頁面：Enable at Start、Shooting Settings、Display Settings、Shutdown Screen、Mode Dial 與 ADJ Order。"
         },
         {
           "kind": "p",

@@ -492,9 +492,9 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "adj",
-          "source": "capture",
-          "alt": "GRKU 的 ADJ 界面已打开，显示各模块图标。屏幕左上角显示 GRKU 和 Film Look: Off。"
+          "screen": "adj-grku",
+          "source": "drawn",
+          "alt": "ADJ 已打开 GRKU。左上角显示 GRKU 和 Recipes（第一个模块），右侧垂直排列各模块图标。"
         },
         {
           "kind": "p",
@@ -579,15 +579,15 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "menu-top",
+          "screen": "menu-grku",
           "source": "drawn",
-          "alt": "GRKU 区域顶部：Enable GRKU On、GRKU Settings、Recipes、Film Look、Framing、Crop 和 Guides。"
+          "alt": "MENU 中的 GRKU 部分，位于 Customize 第 4 页：Enable GRKU On、GRKU Settings、Recipes、Film Look、Framing、Crop 和 Guides。"
         },
         {
           "kind": "screen",
-          "screen": "menu-bottom",
+          "screen": "menu-grku-end",
           "source": "drawn",
-          "alt": "GRKU 区域底部：辅助线、加印日期、光晕、漏光、柔光镜、颗粒感，以及带版本号的关于 GRKU。"
+          "alt": "GRKU 部分的末尾：Guides、Date Imprint、Glow、Light Leak、Diffusion、Grain 以及带有版本号的 About GRKU。"
         },
         {
           "kind": "p",
@@ -821,9 +821,9 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "adj",
-          "source": "capture",
-          "alt": "ADJ 中的 GRKU：胶片风格为第一个模块，屏幕显示 Film Look：关闭。"
+          "screen": "film-look",
+          "source": "drawn",
+          "alt": "ADJ 中的 Film Look，Portra 400 处于高亮状态。实时取景显示该效果，Fn 键可打开其调整选项。"
         },
         {
           "kind": "compare",
@@ -951,6 +951,12 @@ export const zhHans: DocsContent = {
           ]
         },
         {
+          "kind": "screen",
+          "screen": "recipes",
+          "source": "drawn",
+          "alt": "ADJ 中的 Recipes，尚未保存任何配方时：左上角显示 Save Settings。"
+        },
+        {
           "kind": "h2",
           "id": "apply",
           "text": "使用配方"
@@ -1034,6 +1040,12 @@ export const zhHans: DocsContent = {
           "text": "选中一个比例，实时取景会显示画框。按 {{OK}} 确认。在 **裁切** 模式下，JPEG 会被裁剪成该比例；DNG 不会被裁剪。当 GR WORLD 请求较小的照片时，带有 **画幅** 尺寸的照片会以较小的副本发送到手机，长边约为 1920 像素。"
         },
         {
+          "kind": "screen",
+          "screen": "framing",
+          "source": "drawn",
+          "alt": "ADJ 中的 Framing，XPan 处于高亮状态。实时取景中 XPan 画幅以外的区域变暗。"
+        },
+        {
           "kind": "settings",
           "module": "framing",
           "notes": {
@@ -1100,6 +1112,12 @@ export const zhHans: DocsContent = {
         {
           "kind": "p",
           "text": "在 **裁切** 上按 {{Fn}} 以设置 **模式** 和 **遮罩**。在 GR IV 上，拍摄后立即选择的焦距会等待该照片保存完成，因此最后一张照片不会受损；实时取景会立即显示新的裁剪效果。当 GR WORLD 请求较小的照片时，裁剪后的照片会以较小的副本发送到手机，长边约为 1920 像素。在 35、40 和 50 mm 时，实时取景会放大，不显示边框。在 70 mm 时，它在 50 mm 的视图中显示边框；而在 GR IV 上，40 mm 会在 35 mm 的视图中显示其边框。在 **裁切** 模式下，除非开启 **RAW 不裁切**，否则 JPEG 和 DNG 都会被裁剪。在 ADJ 中，实时取景显示当前高亮焦距的边框。**裁切** 适用于所有 **画幅** 比例。"
+        },
+        {
+          "kind": "screen",
+          "screen": "crop",
+          "source": "drawn",
+          "alt": "ADJ 中的 Crop，50mm 处于高亮状态。实时取景放大至 50mm。"
         },
         {
           "kind": "note",
@@ -1538,6 +1556,12 @@ export const zhHans: DocsContent = {
           "text": "P、Av、Tv、M 和 Sn（GR IV）共用一套 GRKU 设置。在 GR IV 上，页面列出的是 P、Av、Tv、Sn，然后是 M。每个位置都可以将 GRKU 设为**开启**或**关闭**。这些设置会在**启用 GRKU**处于开启状态时生效。"
         },
         {
+          "kind": "screen",
+          "screen": "mode-dial-gr4",
+          "source": "drawn",
+          "alt": "GR IV 上 GRKU Settings 的 Mode Dial 页面：P、Av、Tv、Sn、M 和 U1 模式下 GRKU 均为 On。"
+        },
+        {
           "kind": "h2",
           "id": "user",
           "text": "U1、U2 和 U3"
@@ -1643,6 +1667,12 @@ export const zhHans: DocsContent = {
               "ADJ 中 GRKU 列表里各模块的顺序。"
             ]
           ]
+        },
+        {
+          "kind": "screen",
+          "screen": "grku-settings",
+          "source": "drawn",
+          "alt": "GRKU Settings 页面：Enable at Start、Shooting Settings、Display Settings、Shutdown Screen、Mode Dial 和 ADJ Order。"
         },
         {
           "kind": "p",

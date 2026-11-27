@@ -492,9 +492,9 @@ export const th: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "adj",
-          "source": "capture",
-          "alt": "เปิด ADJ อยู่บน GRKU และเห็นไอคอนโมดูลต่างๆ มุมซ้ายบนของหน้าจอขึ้น GRKU และ Film Look: Off"
+          "screen": "adj-grku",
+          "source": "drawn",
+          "alt": "หน้า ADJ เปิด GRKU อยู่ มุมซ้ายบนแสดงคำว่า GRKU และ Recipes ซึ่งเป็นโมดูลแรก ส่วนไอคอนของโมดูลต่างๆ เรียงกันลงมาทางขวา"
         },
         {
           "kind": "p",
@@ -579,15 +579,15 @@ export const th: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "menu-top",
+          "screen": "menu-grku",
           "source": "drawn",
-          "alt": "ส่วนบนของหัวข้อ GRKU: Enable GRKU On, GRKU Settings, สูตรสี, ฟิล์มลุค, กรอบภาพ, การครอป และ Guides"
+          "alt": "ส่วน GRKU ในเมนู MENU อยู่ที่หน้า Customize ที่ 4: Enable GRKU เป็น On, GRKU Settings, Recipes, Film Look, Framing, Crop และ Guides"
         },
         {
           "kind": "screen",
-          "screen": "menu-bottom",
+          "screen": "menu-grku-end",
           "source": "drawn",
-          "alt": "ส่วนท้ายของหัวข้อ GRKU: Guides, วันที่, Glow, Light Leak, Diffusion, Grain และ About GRKU พร้อมเวอร์ชัน"
+          "alt": "ท้ายส่วน GRKU: Guides, Date Imprint, Glow, Light Leak, Diffusion, Grain และ About GRKU พร้อมเวอร์ชัน"
         },
         {
           "kind": "p",
@@ -821,9 +821,9 @@ export const th: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "adj",
-          "source": "capture",
-          "alt": "GRKU ใน ADJ: Film Look อยู่เป็นตัวแรก และหน้าจอขึ้น Film Look: Off"
+          "screen": "film-look",
+          "source": "drawn",
+          "alt": "Film Look ในหน้า ADJ โดยเลือก Portra 400 ไว้ จอภาพสดจะแสดงฟิล์มลุคนี้ และปุ่ม Fn ใช้ปรับค่าต่างๆ ได้"
         },
         {
           "kind": "compare",
@@ -951,6 +951,12 @@ export const th: DocsContent = {
           ]
         },
         {
+          "kind": "screen",
+          "screen": "recipes",
+          "source": "drawn",
+          "alt": "Recipes ในหน้า ADJ ก่อนที่จะบันทึกสูตรสีใดๆ: มุมซ้ายบนแสดงคำว่า Save Settings"
+        },
+        {
           "kind": "h2",
           "id": "apply",
           "text": "ใช้สูตรสี"
@@ -1034,6 +1040,12 @@ export const th: DocsContent = {
           "text": "เลื่อนไปเลือกอัตราส่วน หน้าจอแสดงภาพจะเห็นกรอบตามนั้น กด {{OK}} เพื่อยืนยัน ในโหมด Crop ไฟล์ JPEG จะถูกตัดขอบตามอัตราส่วน ส่วนไฟล์ DNG จะไม่ถูกตัด เมื่อ GR WORLD ขอรูปขนาดเล็กลง รูปที่มี Framing size จะส่งเข้ามือถือเป็นสำเนาที่เล็กลง ประมาณ 1920 พิกเซลในด้านยาว"
         },
         {
+          "kind": "screen",
+          "screen": "framing",
+          "source": "drawn",
+          "alt": "Framing ในหน้า ADJ โดยเลือก XPan ไว้ จอภาพสดจะมืดลงนอกกรอบ XPan"
+        },
+        {
           "kind": "settings",
           "module": "framing",
           "notes": {
@@ -1100,6 +1112,12 @@ export const th: DocsContent = {
         {
           "kind": "p",
           "text": "กด {{Fn}} ที่เมนู Crop เพื่อตั้ง **Mode** และ **Mask** บน GR IV ถ้าเลือกทางยาวโฟกัสทันทีหลังถ่ายรูป กล้องจะรอจนกว่ารูปนั้นจะบันทึกเสร็จ จึงไม่ทำให้รูปสุดท้ายเสีย แต่หน้าจอแสดงภาพจะเปลี่ยนเป็น Crop ใหม่ทันที เมื่อ GR WORLD ขอรูปขนาดเล็กลง รูปที่ถูก Crop จะส่งเข้ามือถือเป็นสำเนาที่เล็กลง ประมาณ 1920 พิกเซลในด้านยาว ที่ระยะ 35, 40 และ 50 mm หน้าจอแสดงภาพจะซูมเข้า โดยไม่มีกรอบ ที่ระยะ 70 mm จะแสดงกรอบในมุมมองของ 50 mm และบน GR IV ระยะ 40 mm จะแสดงกรอบในมุมมองของ 35 mm ในโหมด Crop ทั้ง JPEG และ DNG จะถูกตัดขอบ เว้นแต่จะเปิด **Uncropped RAW** ใน ADJ หน้าจอแสดงภาพจะแสดงกรอบของทางยาวโฟกัสที่เลือกอยู่ Crop ใช้ได้กับทุกอัตราส่วน Framing"
+        },
+        {
+          "kind": "screen",
+          "screen": "crop",
+          "source": "drawn",
+          "alt": "Crop ในหน้า ADJ โดยเลือก 50mm ไว้ จอภาพสดจะซูมเข้าเป็นระยะ 50mm"
         },
         {
           "kind": "note",
@@ -1538,6 +1556,12 @@ export const th: DocsContent = {
           "text": "P, Av, Tv, M และ Sn (GR IV) ใช้ชุดการตั้งค่า GRKU ร่วมกัน บน GR IV หน้านี้จะเรียงเป็น P, Av, Tv, Sn แล้วตามด้วย M แต่ละตำแหน่งตั้งค่า GRKU เป็น **On** หรือ **Off** ได้ ทั้งหมดนี้จะทำงานเมื่อ **Enable GRKU** เป็น On"
         },
         {
+          "kind": "screen",
+          "screen": "mode-dial-gr4",
+          "source": "drawn",
+          "alt": "หน้า Mode Dial ใน GRKU Settings บน GR IV: GRKU เป็น On สำหรับโหมด P, Av, Tv, Sn, M และ U1"
+        },
+        {
           "kind": "h2",
           "id": "user",
           "text": "U1, U2 และ U3"
@@ -1643,6 +1667,12 @@ export const th: DocsContent = {
               "ลำดับของโมดูลในรายการ GRKU บน ADJ"
             ]
           ]
+        },
+        {
+          "kind": "screen",
+          "screen": "grku-settings",
+          "source": "drawn",
+          "alt": "หน้า GRKU Settings: Enable at Start, Shooting Settings, Display Settings, Shutdown Screen, Mode Dial และ ADJ Order"
         },
         {
           "kind": "p",

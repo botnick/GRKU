@@ -492,9 +492,9 @@ export const ja: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "adj",
-          "source": "capture",
-          "alt": "GRKUのADJ画面が開き、モジュールのアイコンが見えます。左上には「GRKU」と「Film Look: オフ」が表示されています。"
+          "screen": "adj-grku",
+          "source": "drawn",
+          "alt": "GRKUでADJを開いた状態。左上にGRKUとRecipes（最初のモジュール）が表示され、右側に各モジュールのアイコンが並んでいます。"
         },
         {
           "kind": "p",
@@ -579,15 +579,15 @@ export const ja: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "menu-top",
+          "screen": "menu-grku",
           "source": "drawn",
-          "alt": "GRKUセクションの上部：GRKUを有効、GRKU設定、レシピ、フィルムルック、フレーミング、クロップ、ガイド。"
+          "alt": "MENU内のGRKUセクション（Customizeの4ページ目）。Enable GRKUはOnに設定されており、GRKU Settings、Recipes、Film Look、Framing、Crop、Guidesが表示されています。"
         },
         {
           "kind": "screen",
-          "screen": "menu-bottom",
+          "screen": "menu-grku-end",
           "source": "drawn",
-          "alt": "GRKUセクションの下部：構図ガイド、日付入れ撮影、グロー、ライトリーク、ディフュージョン、粒状感、バージョン付きの GRKU について。"
+          "alt": "GRKUセクションの末尾。Guides、Date Imprint、Glow、Light Leak、Diffusion、Grain、About GRKU（バージョン情報付き）が表示されています。"
         },
         {
           "kind": "p",
@@ -821,9 +821,9 @@ export const ja: DocsContent = {
         },
         {
           "kind": "screen",
-          "screen": "adj",
-          "source": "capture",
-          "alt": "ADJのGRKU：1つ目のモジュールがフィルムルックで、画面にフィルムルック: オフと表示されています。"
+          "screen": "film-look",
+          "source": "drawn",
+          "alt": "ADJでFilm Lookを選択し、Portra 400をハイライトした状態。ライブビューではそのフィルムルックが適用されており、Fnボタンで調整項目を開けます。"
         },
         {
           "kind": "compare",
@@ -951,6 +951,12 @@ export const ja: DocsContent = {
           ]
         },
         {
+          "kind": "screen",
+          "screen": "recipes",
+          "source": "drawn",
+          "alt": "レシピを保存する前のADJでのRecipes画面。左上にはSave Settingsが表示されています。"
+        },
+        {
           "kind": "h2",
           "id": "apply",
           "text": "レシピを使う"
@@ -1034,6 +1040,12 @@ export const ja: DocsContent = {
           "text": "比率を選ぶとライブビューに枠が表示されます。{{OK}} を押して決定します。「クロップ」モードでは JPEG はその比率で切り取られますが、DNG は切り取られません。GR WORLD で小さい写真を要求している場合、フレーミングサイズの写真は、長辺約1920ピクセルの小さいコピーとしてスマホに送られます。"
         },
         {
+          "kind": "screen",
+          "screen": "framing",
+          "source": "drawn",
+          "alt": "ADJでFramingを選択し、XPanをハイライトした状態。ライブビューではXPanフレーム外の領域が暗くなっています。"
+        },
+        {
           "kind": "settings",
           "module": "framing",
           "notes": {
@@ -1100,6 +1112,12 @@ export const ja: DocsContent = {
         {
           "kind": "p",
           "text": "「クロップ」で {{Fn}} を押し、**Mode** と **Mask** を設定します。GR IV では、撮影直後に焦点距離を選ぶと、その写真が保存されるまで待ちます。だから最後の写真は壊れません。ライブビューには新しいクロップがすぐ表示されます。GR WORLD で小さい写真を要求している場合、クロップした写真は、長辺約1920ピクセルの小さいコピーとしてスマホに送られます。35mm、40mm、50mm では枠なしでズームします。70mm では50mm のビューに枠を表示し、GR IV の40mm では35mm のビューに枠を表示します。「クロップ」モードでは、**Uncropped RAW** がオンでない限り、JPEG も DNG も両方とも切り取られます。ADJ では、ハイライトされている焦点距離の枠がライブビューに表示されます。すべてのフレーミング比率でクロップが使えます。"
+        },
+        {
+          "kind": "screen",
+          "screen": "crop",
+          "source": "drawn",
+          "alt": "ADJでCropを選択し、50mmをハイライトした状態。ライブビューは50mm相当にズームインしています。"
         },
         {
           "kind": "note",
@@ -1538,6 +1556,12 @@ export const ja: DocsContent = {
           "text": "P、Av、Tv、M、そしてSn（GR IV）は、1つのGRKU設定を共有します。GR IVでは、このページにP、Av、Tv、Sn、Mの順に並びます。それぞれの位置でGRKUを**オン**または**オフ**にできます。**GRKU を有効**が**オン**のときに動きます。"
         },
         {
+          "kind": "screen",
+          "screen": "mode-dial-gr4",
+          "source": "drawn",
+          "alt": "GR IVのGRKU SettingsにあるMode Dialページ。P、Av、Tv、Sn、M、U1モードでGRKUがOnになっています。"
+        },
+        {
           "kind": "h2",
           "id": "user",
           "text": "U1、U2、U3"
@@ -1643,6 +1667,12 @@ export const ja: DocsContent = {
               "ADJ の GRKU リストにおけるモジュールの並び順です。"
             ]
           ]
+        },
+        {
+          "kind": "screen",
+          "screen": "grku-settings",
+          "source": "drawn",
+          "alt": "GRKU Settingsページ。Enable at Start、Shooting Settings、Display Settings、Shutdown Screen、Mode Dial、ADJ Orderが表示されています。"
         },
         {
           "kind": "p",
