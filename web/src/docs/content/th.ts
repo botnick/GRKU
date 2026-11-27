@@ -725,7 +725,7 @@ export const th: DocsContent = {
           "kind": "steps",
           "items": [
             "กด {{ADJ}} เลือก **GRKU** แล้วเลือก **Film Look**",
-            "เลือกฟิล์มลุค หน้าจอแสดงภาพจะเปลี่ยนทันที พร้อมไอคอนของฟิล์มลุคนั้น",
+            "เลือกฟิล์มลุค หน้าจอ Live View จะแสดงภาพทันที พร้อมไอคอนของฟิล์มลุคนั้น",
             "กด {{OK}} เพื่อใช้งาน เลือก **Off** หากต้องการถ่ายแบบไม่ใช้ฟิล์มลุค"
           ]
         },
@@ -739,14 +739,14 @@ export const th: DocsContent = {
           "before": "chairs-standard",
           "after": "chairs-portra",
           "label": "Kodak Portra 400",
-          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบระหว่างฟิล์มลุค Standard ของกล้อง กับ Kodak Portra 400"
+          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบระหว่าง Standard ของกล้อง กับฟิล์มลุค Kodak Portra 400"
         },
         {
           "kind": "compare",
           "before": "chairs-standard",
           "after": "chairs-chrome",
           "label": "Fujifilm Classic Chrome",
-          "alt": "ภาพเดียวกัน เปรียบเทียบระหว่าง Standard กับ Fujifilm Classic Chrome"
+          "alt": "ภาพถ่ายเดียวกัน เปรียบเทียบระหว่าง Standard กับฟิล์มลุค Fujifilm Classic Chrome"
         },
         {
           "kind": "h2",
@@ -1055,7 +1055,7 @@ export const th: DocsContent = {
           "before": "chairs-standard",
           "after": "chairs-date",
           "label": "Date Imprint: 'YY M D",
-          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบแบบไม่ประทับวันที่ และแบบประทับวันที่ Date Imprint: 'YY M D ตำแหน่ง Film มุมขวาล่าง ขนาด M ฟอนต์ Classic สี Standard"
+          "alt": "เก้าอี้ผ้าใบสองตัวใต้ร่มกันแดด เปรียบเทียบแบบไม่ประทับวันที่ กับแบบประทับวันที่ Date Imprint: 'YY M D ตำแหน่ง Film มุมขวาล่าง ขนาด M ฟอนต์ Classic สี Standard"
         },
         {
           "kind": "p",
@@ -1065,7 +1065,7 @@ export const th: DocsContent = {
           "kind": "settings",
           "module": "date",
           "notes": {
-            "STYLE": "ลำดับของวันที่ มีเวลาด้วยหรือไม่ก็ได้ กล้องจะพิมพ์วันที่และเวลาตามนาฬิกาของกล้อง จึงควรตั้งนาฬิกาก่อน ไม่ใช่หัวข้อใน MENU ให้เลือกใน ADJ หรือกด {{Fn}} ที่หน้านี้",
+            "STYLE": "ลำดับของวันที่ มีเวลาด้วยหรือไม่ก็ได้ กล้องจะพิมพ์วันที่และเวลาตามนาฬิกาของกล้อง จึงควรตั้งนาฬิกาก่อน ไม่ใช่หัวข้อใน MENU ให้เลือกใน ADJ หรือกด {{Fn}} ในนั้น",
             "POSITION": "**Film** พิมพ์วันที่ในตำแหน่งเดียวกับกล้องฟิล์ม **Upright** คงทิศทางให้ตั้งตรงในภาพแนวตั้ง ไม่ใช่หัวข้อใน MENU ให้ตั้งค่าโดยกด {{Fn}} ใน ADJ",
             "CORNER": "ตำแหน่งที่วางวันที่ Bottom Split วางวันที่ไว้ทางซ้ายและคำบรรยายไว้ทางขวา",
             "SIZE": "ขนาดของตัวเลข",
@@ -1514,7 +1514,7 @@ export const th: DocsContent = {
               "ปิดอยู่เป็นค่าเริ่มต้น ถ้าเปิดจะแสดงไอคอนแบตเตอรี่ในหน้าข้อมูลย่อของ live view ด้วย"
             ],
             [
-              "**Battery Percentage**",
+              "**เปอร์เซ็นต์แบตเตอรี่**",
               "ปิดเป็นค่าเริ่มต้น ถ้าเปิดจะแสดงระดับแบตเตอรี่เป็นตัวเลข ขยับทีละ 2%"
             ],
             [
@@ -1561,7 +1561,7 @@ export const th: DocsContent = {
       "blocks": [
         {
           "kind": "p",
-          "text": "ขั้นตอนที่ 1 ของการ [ติดตั้ง](site:install) แสดงคลังทั้งหมด: Kodak, Fujifilm, Ilford, CineStill, Polaroid, ฟิล์มหนังและฟิล์มสไลด์ ขาวดำ โทนฟิล์มของกล้อง FUJIFILM และฟิล์มลุคของ GRKU เองอย่าง GR II Positive (GRKU) และ FinePix CCD"
+          "text": "ขั้นตอนที่ 1 ของ [การติดตั้ง](site:install) จะแสดงคลังทั้งหมด ได้แก่ Kodak, Fujifilm, Ilford, CineStill, Polaroid, ฟิล์มสำหรับหนังและสไลด์, ขาวดำ, การจำลองฟิล์มของกล้อง FUJIFILM และฟิล์มลุคของ GRKU เอง เช่น GR II Positive (GRKU) และ FinePix CCD"
         },
         {
           "kind": "h2",
@@ -1628,17 +1628,17 @@ export const th: DocsContent = {
         {
           "kind": "h2",
           "id": "positive",
-          "text": "Positive GRII, GR2 Positive และ GR II Positive"
+          "text": "GR II Positive, GR II Positive (GRKU) และ GR2 Positive"
         },
         {
           "kind": "p",
-          "text": "ฟิล์มลุคสามตัวนี้มีชื่อคล้ายกับค่า **Positive Film** ของ GR II แต่ไม่ใช่ตัวเดียวกัน:"
+          "text": "ฟิล์มลุคสามตัวนี้มีชื่อคล้ายกับค่า **Positive Film** ของ GR II แต่ไม่ใช่ตัวเดียวกัน"
         },
         {
           "kind": "list",
           "items": [
-            "**Positive GRII**: ฟิล์มลุคของ GRKU ที่ทำขึ้นโดยดูจากภาพ GR II ด้วยตาเปล่า มีอยู่ในไลบรารีสำหรับทุกคน",
-            "**GR2 Positive**: ฟิล์มลุคจาก LUT ของโปรเจกต์ Imprint สำหรับ GR2 Film Look มีอยู่ในไลบรารีเช่นกัน",
+            "**GR II Positive (GRKU)**: ฟิล์มลุคของ GRKU ที่ทำขึ้นจากการดูภาพจาก GR II ด้วยตาเปล่า มีอยู่ในคลังให้ทุกคนใช้ได้ เดิมเรียกว่า Positive GRII ซึ่งค้นหาด้วยชื่อนั้นก็ยังเจอ บนกล้องจะแสดงเป็น **GRII Pos. (GRKU)**",
+            "**GR2 Positive**: ฟิล์มลุคจาก LUT ของโปรเจกต์ Imprint สำหรับ GR2 Film Look มีอยู่ในคลังเช่นกัน",
             "**GR II Positive**: ค่าที่ตั้งไว้บนตัว GR II เอง คัดลอกมาจากไฟล์เฟิร์มแวร์ของ GR II ที่คุณดาวน์โหลด รับได้ผ่าน **ลุคเพิ่มเติมจาก RICOH** ด้านบน"
           ]
         },
