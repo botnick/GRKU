@@ -591,7 +591,10 @@ function Block({ block, ctx }: { block: DocBlock; ctx: Ctx }) {
       return (
         <figure className="my-6">
           <img src={docsImage(name, 720)} srcSet={`${docsImage(name, 720)} 720w, ${docsImage(name, 1080)} 1080w`} sizes="(min-width: 768px) 560px, 100vw" alt={block.alt} width={720} height={480} loading="lazy" className={cn("block h-auto w-full max-w-[560px] rounded-xl", block.screen !== "modeset-back" && "border-[6px] border-[#1c1c1e] bg-black shadow-sm")} />
-          <figcaption className="mt-2 max-w-[560px] text-[13px] leading-relaxed text-muted-foreground">{block.alt}</figcaption>
+          <figcaption className="mt-2 max-w-[560px] text-[13px] leading-relaxed text-muted-foreground">
+            <span className="mr-1.5 rounded border px-1.5 py-0.5 text-[11px] font-medium">{{ photo: ctx.content.ui.photoBadge, capture: ctx.content.ui.captureBadge, drawn: ctx.content.ui.drawnBadge }[block.source]}</span>
+            {block.alt}
+          </figcaption>
         </figure>
       );
     }

@@ -42,7 +42,7 @@ function fakeD1(): D1Database {
 }
 
 const ORIGIN = 'https://grku-plus.test';
-const PASSWORD = '1150';
+const PASSWORD = 'test-password-not-real';
 let now = Date.parse('2026-11-25T10:00:00Z');
 let env: AdminEnv;
 let sent: string[];
@@ -145,7 +145,7 @@ describe('sign-in', () => {
     expect(await response.json()).toMatchObject({ error: 'wrong password', left: LOGIN_IP_MAX - 1 });
     expect(response.headers.get('Set-Cookie')).toBeNull();
     expect((await login('')).status).toBe(401);
-    expect((await login('1150 ')).status).toBe(401);
+    expect((await login(PASSWORD + ' ')).status).toBe(401);
   });
 
   it('is closed without ADMIN_PASSWORD', async () => {
