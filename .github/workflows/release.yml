@@ -302,6 +302,8 @@ jobs:
             fi
           done 3< "$RUNNER_TEMP/packages.tsv"
       - name: Write the release index
+        # The index is for the phone app over Wi-Fi, which GRKU does not ship yet.
+        if: vars.GRKU_WIFI == 'on'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
