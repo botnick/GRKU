@@ -1,3 +1,21 @@
+## 1.12.0 (2026-11-28)
+
+### Features
+
+- Battery Percentage in Display Settings shows the battery charge as a number in steps of 2 %.
+- The install page can get the GR IV Monochrome looks, Solarized included, and GR II Positive from your own RICOH firmware file, for GR III, GR IIIx, and GR IV.
+
+### Fixes
+
+- Assistant: clearer answers for card troubles (a look that is not in the list is an imported LUT; what to check, in order, when GRKU is not in ADJ; what INSTALL.ERR 47 and 48 mean).
+- On GR III and GR IIIx, Cinema Yellow and Cinema Green set Toning in three levels as on GR IV, also in RAW development.
+- On GR IV, a crop chosen in ADJ right after a shot waits until that photo is saved, so changing the crop never damages the last photo, and the live view still shows the highlighted crop at once.
+- Manual: camera screens on Guides, Date Imprint, Light Leak, Grain, and Border too.
+- The manual explains More looks from RICOH (the GR IV and GR II looks from your own firmware file, which camera gets which), the difference between Positive GRII, GR2 Positive, and GR II Positive, Battery Percentage, Cinema Toning on GR III, the GR IV crop that waits for the last photo, the Grain style in recipes, and the smaller copies of Framing and Crop photos for GR WORLD.
+- A recipe keeps the Grain style (System or Film-like), and Film-like grain draws only while Grain is on a level other than Off.
+- GRKU's own Positive GRII is now GR II Positive (GRKU) on the site and GRII Pos. (GRKU) on the camera, so it is not mixed up with GR II Positive from the GR II firmware file. Cards and recipes keep it.
+- Photos with a Framing or Crop size now go to GR WORLD as a smaller copy when it asks for resized photos.
+
 ## 1.11.1 (2026-11-27)
 
 ### Fixes
