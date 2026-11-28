@@ -193,16 +193,25 @@ static u32 menu_rows_controller(volatile u32 *h,u32 id) {
         settings_start(h,LISTED_PAGE);
         return SETTINGS_SUBMENU;
     }
-    /* About GRKU opens the camera information page (menu_info_fill). */
+    /* About GRKU opens the page of an update over Wi-Fi that waits, the
+       first row of GRKU Settings (runtime/menu_settings.h: update_setting),
+       else the camera information page (menu_info_fill). */
+    if(update_waiting(h)) {
+        settings_start(h,CORE_PAGE);
+        return settings_pages[0];
+    }
     services_word(h,SERVICES_MENU+MENU_ROWS_ABOUT)[0]=MENU_ABOUT_GRKU;
     return INFO_CONTROLLER;
 }
 static const u16 no_text[]={0};
-/* The value of the About GRKU row: safe mode, an effects choice for the
-   next start, or the version. */
+/* The value of the About GRKU row: safe mode, an update over Wi-Fi that
+   waits, an effects choice or a confirmed update for the next start, or the
+   version. */
 static const u16 *grku_value(volatile u32 *h) {
     if(manage_word(h,MANAGE_FLAGS)&MANAGE_SAFE_MODE) return text(h,TEXT_SAFE_MODE);
-    if(effects_changed(h)) return text(h,TEXT_RESTART);
+    if(update_waiting(h)) return update_title(h);
+    if(effects_changed(h) || h[GRKU_HOST_UPDATE/4]==GRKU_UPDATE_CONFIRMED ||
+       h[GRKU_HOST_UPDATE/4]==GRKU_UPDATE_READY) return text(h,TEXT_RESTART);
     return text(h,TEXT_ABOUT+2);
 }
 /* A filler: the label and the value of row view `row`. The views are known

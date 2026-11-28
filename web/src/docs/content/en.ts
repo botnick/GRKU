@@ -433,7 +433,7 @@ export const en: DocsContent = {
       lead: 'Pick the film looks for your card, search the library, and import your own LUT.',
       keywords: 'library choose looks search slots free 10 40 import lut cube xmp lightroom preset kinds negative slide black and white',
       blocks: [
-        { kind: 'p', text: 'Step 1 of the [install](site:install) shows the whole library: Kodak, Fujifilm, Ilford, CineStill, Polaroid, cinema and slide films, black and white, the film simulations of FUJIFILM cameras, and GRKU\'s own looks such as Positive GRII and FinePix CCD.' },
+        { kind: 'p', text: 'Step 1 of the [install](site:install) shows the whole library: Kodak, Fujifilm, Ilford, CineStill, Polaroid, cinema and slide films, black and white, the film simulations of FUJIFILM cameras, and GRKU\'s own looks such as GR II Positive (GRKU) and FinePix CCD.' },
         { kind: 'h2', id: 'pick', text: 'Pick looks' },
         { kind: 'steps', items: ['Tap a look to see it on sample photos.', 'Check the looks you want on the card. 10 are free; a card holds up to 40.', 'Search by name, brand, or kind, for example "portra", "fuji", or "ขาวดำ". A small typo in a long word is fine.'] },
         { kind: 'p', text: 'Want to see a look on your own photos first? Press **Try on your photo** to open it on the [Develop page](doc:develop).' },

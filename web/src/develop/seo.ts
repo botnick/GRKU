@@ -9,7 +9,7 @@ export const POPULAR_LOOKS = [
   { id: 'portra-400-endura-v1', name: 'Kodak Portra 400', text: 'lookPortra' },
   { id: 'gold-200-premier-v1', name: 'Kodak Gold 200', text: 'lookGold' },
   { id: 'fj-classic-chrome-v1', name: 'Fujifilm Classic Chrome', text: 'lookChrome' },
-  { id: 'positive-film-grii-v1', name: 'RICOH Positive GRII', text: 'lookGrii' },
+  { id: 'positive-film-grii-v1', name: 'GR II Positive (GRKU)', text: 'lookGrii' },
   { id: 'kodachrome-64-v1', name: 'Kodachrome 64', text: 'lookKodachrome' },
   { id: 'ff-cinestill800t-v1', name: 'CineStill 800T', text: 'lookCinestill' },
   { id: 'fj-classic-neg-v1', name: 'Fujifilm Classic Neg', text: 'lookNeg' },

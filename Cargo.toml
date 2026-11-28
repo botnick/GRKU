@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/grku-core", "crates/grku-build", "crates/grku-cli", "crates/grku-wasm", "crates/grku-firmware"]
+members = ["crates/grku-core", "crates/grku-build", "crates/grku-cli", "crates/grku-wasm", "crates/grku-firmware", "crates/grku-serve"]
 resolver = "2"
 
 [workspace.package]
@@ -15,9 +15,13 @@ ab_glyph = { version = "0.2.32", default-features = false, features = ["std"] }
 anyhow = "1"
 clap = { version = "4.5", features = ["derive"] }
 crc32fast = "1"
+# The signature of a release (grku_core::release). Without its default
+# features it has no random source, so the camera's service stays small.
+ed25519-compact = { version = "2.6.1", default-features = false }
 # The zlib backend that zip already uses, so the PNG reader adds no crates.
 flate2 = { version = "1", default-features = false, features = ["zlib-rs"] }
 hex = "0.4"
+libc = "0.2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.11"
@@ -34,6 +38,26 @@ grku-firmware = { path = "crates/grku-firmware" }
 [profile.release]
 lto = "thin"
 strip = "debuginfo"
+
+# Full debug info about doubles the size of target/. Line tables keep file and line numbers
+# in backtraces; a debugger cannot show variables.
+[profile.dev]
+debug = "line-tables-only"
+
+# Dependencies are not debugged here, so they carry no debug info.
+[profile.dev.package."*"]
+debug = false
+
+# SERVE.BIN, the service on the camera's Linux (crates/grku-serve): small,
+# because the camera keeps a copy in RAM. It unwinds, so that a panic ends only
+# the request that caused it.
+[profile.serve]
+inherits = "release"
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+panic = "unwind"
+strip = true
 
 # The LUT fit renders hundreds of thousands of colors per import, and its tests run about
 # five times slower without optimization.

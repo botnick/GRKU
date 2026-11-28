@@ -10,8 +10,9 @@
 
    The tile of recipe e has the icon ID GRKU_ICON_RECIPE(e). The installer
    keeps the tile without a caption (grku_core::artwork::
-   recipe_card_pixels) in the host icon RECIPE_CARD_BASE and
-   RECIPE_CARD_SLOTS more host icons after it, which the core writes: when
+   recipe_card_pixels) in the host slot GRKU_ICON_SLOT_RECIPE_TILE and in
+   the RECIPE_CARD_SLOTS host slots of GRKU_ICON_SLOT_RECIPE_CARDS, which
+   the core writes: when
    the camera draws the icon of a recipe, the core finds the slot with its
    abbreviation, or writes the abbreviation into the next slot in turn
    (runtime/services.h: SERVICES_CARDS). A list shows fewer rows than the
@@ -23,14 +24,8 @@
    The includer defines u8, u16, u32, HALF, and WORD, and includes
    runtime/services.h, runtime/recipes.h, and runtime/recipe_page.h. */
 #include "recipe_abbreviation.h"
-#define GRKU_ICON_RECIPE(e) (0x7e00U+(e))
-/* The host icon of the tile without a caption: after the icons that the
-   installer writes from its artwork (runtime/installer.c:
-   write_host_icons). */
-#define RECIPE_CARD_BASE 8U
-_Static_assert(RECIPE_CARD_BASE+1U+RECIPE_CARD_SLOTS==GRKU_HOST_ICON_COUNT,
-               "the host icons end with the base tile of recipes and their slots");
-_Static_assert(GRKU_RECIPE_SLOTS<=0x100U,"the icon IDs of recipes stay below the core labels");
+_Static_assert(GRKU_ICON_SLOT_RECIPE_CARDS==GRKU_ICON_SLOT_RECIPE_TILE+1U,
+               "the tiles of recipes are written from the tile without a caption before them");
 
 /* The abbreviation of recipe e: of the name that the person gave, else of
    the automatic name in English. */
@@ -99,15 +94,14 @@ static u32 recipe_card_address(volatile u32 *h,u32 e) {
     if(!grku || !h[GRKU_HOST_SERVICES/4] || e>=GRKU_RECIPE_SLOTS || !(recipe_words(h,e)[0]&RECIPE_USED)) return 0;
     cards=services_word(h,SERVICES_CARDS);
     key=recipe_card_key(h,e);
-    /* The GRKU icon is host icon 1. */
     for(k=0;k<RECIPE_CARD_SLOTS;++k)
-        if(cards[CARD_KEYS/4+k]==key) return grku+(RECIPE_CARD_BASE+k)*GRKU_ICON_STRIDE;
+        if(cards[CARD_KEYS/4+k]==key) return GRKU_HOST_ICON(h,GRKU_ICON_SLOT_RECIPE_CARDS+k);
     next=cards[CARD_NEXT/4];
     slot=next<RECIPE_CARD_SLOTS ? next : 0;
     cards[CARD_NEXT/4]=slot+1U<RECIPE_CARD_SLOTS ? slot+1U : 0;
     cards[CARD_KEYS/4+slot]=key;
-    recipe_card_write(h,(volatile u32 *)(grku+(RECIPE_CARD_BASE+slot)*GRKU_ICON_STRIDE+GRKU_ICON_STRIDE-GRKU_GRF_ICON_SIZE),
-                      (const volatile u32 *)(grku+(RECIPE_CARD_BASE-1U)*GRKU_ICON_STRIDE+GRKU_ICON_STRIDE-GRKU_GRF_ICON_SIZE),key);
-    return grku+(RECIPE_CARD_BASE+slot)*GRKU_ICON_STRIDE;
+    recipe_card_write(h,(volatile u32 *)(GRKU_HOST_ICON(h,GRKU_ICON_SLOT_RECIPE_CARDS+slot)+GRKU_ICON_STRIDE-GRKU_GRF_ICON_SIZE),
+                      (const volatile u32 *)(GRKU_HOST_ICON(h,GRKU_ICON_SLOT_RECIPE_TILE)+GRKU_ICON_STRIDE-GRKU_GRF_ICON_SIZE),key);
+    return GRKU_HOST_ICON(h,GRKU_ICON_SLOT_RECIPE_CARDS+slot);
 }
 #endif

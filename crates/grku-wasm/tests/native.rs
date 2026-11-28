@@ -28,7 +28,8 @@ fn a_gr4_file_gives_its_looks() {
         looks.iter().map(|l| l.id.as_str()).collect::<Vec<_>>(),
         grku_core::gr4_looks::LOOKS
             .iter()
-            .filter(|look| look.offered)
+            // A 1.11 file has no Solarized curve sets.
+            .filter(|look| !matches!(look.kind, grku_core::gr4_looks::Kind::Solarized(_)))
             .map(|look| look.effect_id)
             .collect::<Vec<_>>()
     );
@@ -55,4 +56,39 @@ fn a_gr4_file_gives_its_looks() {
         );
         assert_eq!(effect.native_look.is_some(), !effect.monochrome());
     }
+}
+
+/// A GR II file gives GR II Positive for GR III and for GR IV, without default tone steps. Both
+/// preview the same picture.
+#[test]
+#[ignore = "Requires local GRKU_TEST_FIRMWARE_GR2"]
+fn a_gr2_file_gives_positive_for_each_camera() {
+    let file = std::fs::read(std::env::var("GRKU_TEST_FIRMWARE_GR2").unwrap()).unwrap();
+    let looks = native_looks(&file, &base()).unwrap();
+    let ids: Vec<_> = looks
+        .iter()
+        .map(|look| (look.id.as_str(), look.version))
+        .collect();
+    assert_eq!(
+        ids,
+        [
+            ("gr2-positive-film", "3.00"),
+            ("gr2-positive-film-gr4", "3.00")
+        ]
+    );
+    assert!(looks
+        .iter()
+        .all(|look| look.tone.is_empty() && !look.monochrome));
+    let (effect, _) = effects::decode(&looks[0].blob).unwrap();
+    assert_eq!(
+        looks[0].preview,
+        site::linear_preview_lut(&base(), &effect).unwrap()
+    );
+    let differences = looks[0]
+        .preview
+        .iter()
+        .zip(&looks[1].preview)
+        .filter(|(a, b)| a != b)
+        .count();
+    assert!(differences * 100 < looks[0].preview.len(), "{differences}");
 }

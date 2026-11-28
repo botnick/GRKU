@@ -10,6 +10,8 @@ Each `CORE.BIN` file (`CORE1.BIN` and on, in a package for several firmware buil
 
 The text in the menu icons and in the live view uses the [Roboto Condensed](https://github.com/googlefonts/roboto-classic) typeface, which is licensed under the SIL Open Font License 1.1. GRKU uses its Light, Bold, and Black weights, with only the ASCII characters.
 
+The covers that the Wi-Fi service of GRKU draws (crates/grku-core/src/cover) use the outlines of the ASCII characters of [IBM Plex Sans Condensed](https://github.com/IBM/plex) Bold, which is licensed under the SIL Open Font License 1.1.
+
 The installation guide uses the [Noto Sans CJK](https://github.com/notofonts/noto-cjk) typefaces, which are licensed under the SIL Open Font License 1.1. Its code text uses DejaVu Sans Mono, which is licensed under the DejaVu Fonts License.
 
 The screenshots in the README and the installation guide show the photo [Sakiko buys a delicious soup at Kitchen Grizzly](https://www.flickr.com/photos/mujitra/53311001084/) by MIKI Yoshihito, which is licensed under [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). The photo is cropped and scaled, and the screenshot shows the GRKU menu and the Portra 400 effect over it.
@@ -50,7 +52,7 @@ CineStill 800T, CineStill 400D, Phoenix 200, Purple 400, Turquoise 400, Metropol
 
 ### GRKU looks
 
-Positive GRII is a look of this repository, in the spirit of the Positive Film image setting of the RICOH GR II: deep blacks, a hard curve, a warm cast that fades toward white, more saturation, blues toward teal, greens toward yellow-olive. `sources/make_positive_grii.py` writes its LUT (a HaldCLUT on the Standard JPEG) from parameters set by eye against GR II photographs, not from camera data; `grku effects import --input standard` fits it. It is licensed under the MIT License of GRKU. RICOH and GR are trademarks of RICOH IMAGING COMPANY, LTD.; the name says which camera setting the look follows.
+GR II Positive (GRKU), named GRII Pos. (GRKU) on the camera, is a look of this repository, in the spirit of the Positive Film image setting of the RICOH GR II: deep blacks, a hard curve, a warm cast that fades toward white, more saturation, blues toward teal, greens toward yellow-olive. `sources/make_positive_grii.py` writes its LUT (a HaldCLUT on the Standard JPEG) from parameters set by eye against GR II photographs, not from camera data; `grku effects import --input standard` fits it. It is licensed under the MIT License of GRKU. RICOH and GR are trademarks of RICOH IMAGING COMPANY, LTD.; the name says which camera setting the look follows.
 
 FinePix CCD and FinePix Bright are looks of this repository after the bright, airy daylight color that people call the FUJIFILM FinePix CCD look today: a high-key curve with deep blacks, a pale cyan sky, steel-blue water, warm skin and browns, cool clean whites, and quiet color; Bright lifts the mid-tones and highlights further. `sources/make_finepix_ccd.mjs` writes their LUTs (a .cube on the Standard JPEG) from parameters set by eye and by measurement against daylight reference photographs, and checked against JPEGs of the FinePix F10, F11, F30, F31fd, J10, and Z5fd; they are not camera data. `grku effects import --input standard` fits them. They are licensed under the MIT License of GRKU. FUJIFILM and FinePix are trademarks of FUJIFILM Corporation; the names say which cameras the looks recall, and GRKU is not affiliated with or endorsed by FUJIFILM Corporation.
 

@@ -584,9 +584,12 @@ static void grain_contract(void)
         ref_grain(long_want, pitch[c], rows[c], 3, 0x12345679U);
         assert(!memcmp(plane, long_want, size));
     }
-    /* Film-like (GRAIN.STYLE 1): the native stage blends neutral noise,
-       and the plane filter of the Grain module draws the grain. */
+    /* Film-like (GRAIN.STYLE 1) at a Grain level: the native stage blends
+       neutral noise, and the plane filter of the Grain module draws the
+       grain. */
     header[GRKU_HOST_GRAIN_SHOT / 4] = 2;
+    header[GRKU_HOST_CAPABILITIES / 4] |= GRKU_CORE_GRAIN_BIT;
+    header[GRKU_HOST_GRAIN / 4] = 2;
     settings_memory[8] = GRAIN_STYLE_ID;
     settings_memory[9] = 1;
     grain_native_fills = grain_allocations = 0;
@@ -595,6 +598,8 @@ static void grain_contract(void)
     assert(!grain_native_fills && !grain_allocations);
     for (uint32_t i = 0; i < SIZE; ++i) assert(plane[i] == 128);
     settings_memory[8] = settings_memory[9] = 0;
+    header[GRKU_HOST_GRAIN / 4] = 0;
+    header[GRKU_HOST_CAPABILITIES / 4] &= ~GRKU_CORE_GRAIN_BIT;
     /* The profile counts the microseconds of the generic timer: two reads
        24000 ticks apart at 24 MHz are 1000 us. Without the profile, nothing
        is counted. */
@@ -1110,6 +1115,7 @@ static void jpeg_xmp_contract(void)
 static void grain_style_contract(void)
 {
     reset();
+    header[GRKU_HOST_CAPABILITIES / 4] |= GRKU_CORE_GRAIN_BIT;
     header[GRKU_HOST_GRAIN / 4] = 2;
     assert(!grain_film_like() && picture_header_word(GRKU_HOST_GRAIN) == 2);
     settings_memory[8] = GRAIN_STYLE_ID;
@@ -1117,7 +1123,11 @@ static void grain_style_contract(void)
     assert(!grain_film_like());
     settings_memory[9] = 1;
     assert(grain_film_like() && picture_header_word(GRKU_HOST_GRAIN) == 2);
+    /* With the Grain module Off, the native stage keeps the grain of a look. */
+    header[GRKU_HOST_GRAIN / 4] = 0;
+    assert(!grain_film_like());
     settings_memory[8] = settings_memory[9] = 0;
+    header[GRKU_HOST_CAPABILITIES / 4] &= ~GRKU_CORE_GRAIN_BIT;
 }
 
 int main(void)
@@ -1930,8 +1940,10 @@ int main(void)
            the crop of its DNG. */
         develop_hold(header, record(2));
         develop_crops = 0;
+        header[GRKU_HOST_DEVELOP_TONED / 4] = record(2);
         picture_develop_start();
         assert(header[GRKU_HOST_DEVELOP_FILLED / 4] == 0 && header[GRKU_HOST_DEVELOP_CHANGED / 4] == 0);
+        assert(header[GRKU_HOST_DEVELOP_TONED / 4] == 0);
         assert(develop_crops == 1);
         /* The development starts from the settings that its DNG records
            (runtime/photo_xmp.h: grku:State), not from the current ones,
@@ -2032,6 +2044,38 @@ int main(void)
         BYTE(record(2), GRKU_RECORD_PARAMETERS + 0) = 0;
         BYTE(record(2), GRKU_RECORD_FN_DEFAULTS + 8) = 0;
     }
+#ifdef PARAMETER_TONING_KIND
+    /* Toning in a RAW development: the Standard set keeps the page value of
+       the Toning of the effect, a change stays with the effect as the Fn
+       adjustments do, and a native row gets the own byte back. The Toning of
+       the record does not change, and a record without Toning leaves the
+       byte as it is. */
+    {
+        reset();
+        memset(develop_set, 3, sizeof(develop_set));
+        BYTE(record(2), GRKU_RECORD_TONE_SLOT) = 1;
+        BYTE(record(2), GRKU_RECORD_TONING) = 1;
+        develop_hold(header, record(2));
+        assert(develop_set[PARAMETER_TONING_KIND] == 2);
+        develop_set[PARAMETER_TONING_KIND] = 0;
+        develop_hold(header, record(1));
+        assert(develop_set[PARAMETER_TONING_KIND] == 3);
+        assert(header[GRKU_HOST_DEVELOP_CHANGED / 4] == record(2));
+        develop_hold(header, record(2));
+        assert(develop_set[PARAMETER_TONING_KIND] == 0);
+        assert(BYTE(record(2), GRKU_RECORD_TONING) == 1);
+        develop_hold(header, 1);
+        assert(develop_set[PARAMETER_TONING_KIND] == 3);
+        /* An older value beyond the GR IV levels gives the nearest one. */
+        BYTE(record(2), GRKU_RECORD_TONING) = 7;
+        header[GRKU_HOST_DEVELOP_CHANGED / 4] = 0;
+        develop_hold(header, record(2));
+        assert(develop_set[PARAMETER_TONING_KIND] == 0);
+        develop_hold(header, 0);
+        BYTE(record(2), GRKU_RECORD_TONE_SLOT) = 0;
+        BYTE(record(2), GRKU_RECORD_TONING) = 0;
+    }
+#endif
 #endif
     /* The stage gate of the grain stage reads the shot settings before the
        parameter build of the shot. A GRKU effect gets the rule of Standard
@@ -2067,6 +2111,20 @@ int main(void)
         header[GRKU_HOST_DEVELOP / 4] = 1;
         assert(picture_gate_flag(1) == 1 && picture_gate_flag(0) == 0);
         developing = 0;
+    }
+    /* The copy for a phone: the aspect of the picture in hundredths, about
+       1920 on the long side; nothing for a picture that is no larger. */
+    {
+        static const u32 sizes[][4] = {
+            {6000, 4000, 1920, 1280}, {6000, 2216, 1888, 696}, {6000, 2552, 1920, 816},
+            {4992, 4000, 1920, 1536}, {4656, 4000, 1920, 1656}, {2216, 6000, 704, 1920},
+        };
+        for (u32 i = 0; i < sizeof(sizes) / sizeof(sizes[0]); ++i) {
+            u32 size = picture_transfer_fit(sizes[i][0], sizes[i][1]);
+            assert((size & 0xffffU) == sizes[i][2] && size >> 16 == sizes[i][3]);
+            assert(transfer_aspect(sizes[i][2], sizes[i][3]) == transfer_aspect(sizes[i][0], sizes[i][1]));
+        }
+        assert(picture_transfer_fit(1920, 1280) == 0 && picture_transfer_fit(0, 0) == 0);
     }
     /* Division helper used for reciprocals. */
     for (u32 n = 0; n < 70000; n += 37) for (u32 d = 1; d < 400; d += 13) assert(divide(n, d) == n / d);

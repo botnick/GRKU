@@ -62,7 +62,7 @@ describe('amountDue and hasTier', () => {
 });
 
 describe('DEFAULT_LOOKS', () => {
-  it('leaves free slots open, with Positive GRII on top', () => {
+  it('leaves free slots open, with GR II Positive (GRKU) on top', () => {
     expect(DEFAULT_LOOKS[0]).toBe('positive-film-grii-v1');
     expect(DEFAULT_LOOKS.length - 1).toBeLessThan(FREE_SLOTS);
   });

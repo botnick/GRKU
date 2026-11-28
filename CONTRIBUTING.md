@@ -68,7 +68,7 @@ Host tests and builds do not verify device behavior. Say in the pull request wha
 - The camera's firmware is never flashed. GRKU is files on the SD card.
 - Keep filesystem and process access out of `grku-core`.
 - Put target addresses in the target definition or its native adapter. Check the hook bytes before you patch them.
-- Do not edit `runtime/abi.h` or `web/src/generated/`. Change the layout tables in `crates/grku-core/src/abi.rs`, the capabilities in `crates/grku-core/src/capabilities.rs`, the official modules in `crates/grku-core/src/modules.rs` or the recipe tables, then regenerate with `GRKU_UPDATE_GENERATED=1 cargo test -p grku-core --test generated`.
+- Do not edit `runtime/abi.h` or `web/src/generated/`. Change the layout tables in `crates/grku-core/src/abi/`, the capabilities in `crates/grku-core/src/capabilities.rs`, the official modules in `crates/grku-core/src/modules.rs` or the recipe tables, then regenerate with `GRKU_UPDATE_GENERATED=1 cargo test -p grku-core --test generated`.
 - Keep the module ABI compatible with GRKit's SDK: a module built with GRKit's `grkit.h` still loads (the installer exports both context names).
 - `SCAN.SH` must finish well under 1.5 s on the camera, and the camera never deletes or moves folders on the card (the card file system renames files only). The computer side does migrations.
 - For independent controls in one ADJ entry, use `[page] kind = "settings"`; for separate pages under one entry, `[page] kind = "group"` with `[[page.children]]`. See [the module reference](docs/module-reference.md#page). To add a module, follow [Writing a module](docs/modules.md).

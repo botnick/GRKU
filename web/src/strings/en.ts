@@ -198,7 +198,7 @@ export const en = {
     toolLead: 'Press a box to see the look on the photo, on a sample or your own DNG. Add the ones you want to the card, then choose your camera and modules and install.',
     home: 'Home',
     heroCaption: 'One photo, five looks. Drag the line to compare with the base development.',
-    shelfText: 'Every look in the library has its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and GRKU\'s own Positive GRII. Ten go on the card for free, and you can swap them any time.',
+    shelfText: 'Every look in the library has its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and GRKU\'s own GR II Positive (GRKU). Ten go on the card for free, and you can swap them any time.',
     featuresTitle: 'What GRKU adds to the camera',
     recipesTitle: 'Recipes and the mode dial',
     camerasTitle: 'Supported cameras',
@@ -261,7 +261,7 @@ export const en = {
   landing: {
     fact: 'Loads about nine seconds after power-on. Format the card and the camera is stock again.',
     shelf: 'The film shelf',
-    shelfText: 'Every look in the library as its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and GRKU\'s own Positive GRII. A package carries 40 of them to the camera. Swap them any time from this page.',
+    shelfText: 'Every look in the library as its own box: Kodak, Fujifilm, Ilford, Agfa, CineStill, Harman, Lomography, Rollei, Polaroid, and GRKU\'s own GR II Positive (GRKU). A package carries 40 of them to the camera. Swap them any time from this page.',
     shelfAlt: '145 film boxes on shelves',
     moduleListText: 'Each module is one row of the GRKU menu on the camera. Install the ones you want.',
     install: 'Install',
@@ -469,39 +469,50 @@ export const en = {
   haldNote:
     'Download the HALD image and open it in the editor. Apply the preset with grain, sharpening, and vignette off. Export it at full size as a 16-bit TIFF or PNG in sRGB, then import the export with Standard input.',
   haldDownload: 'Download the HALD image',
-  /** The locked entry of the GR IV Cinema looks in the effects list, for GR III and GR IIIx. */
-  nativeNeeds: 'Needs your GR IV firmware',
-  nativeUnlock: 'Unlock',
-  /** The label of the locked row of one look, for screen readers. */
-  nativeUnlockOf: (name: string) => `Unlock ${name}`,
-  /** The locked group of the GR IV looks: its name and the number of looks in it. */
-  nativeGroup: 'GR IV looks',
-  nativeCount: (count: number) => (count === 1 ? '1 look' : `${count} looks`),
-  nativeTitle: 'Unlock the GR IV looks',
-  nativeIntro:
-    'Cinema Yellow and Cinema Green are the two Cinema looks built into GR IV. GRKU builds them from the GR IV firmware as film looks for GR III and GR IIIx.',
-  nativeStepDownload: 'Download the GR IV firmware from Ricoh: version 1.11, 1.20, or 1.21.',
-  nativeOpenRicoh: 'Open the Ricoh download page',
-  nativeStepChoose: 'Choose the downloaded ZIP file, or drop it here.',
-  nativeChoose: 'Choose the file',
-  nativeStepRead: 'GRKU reads the looks from it in this browser. This takes a few seconds.',
-  /** The file type in the file picker. */
-  nativeFileType: 'GR IV firmware',
-  nativeReading: 'Reading the firmware…',
-  nativeDone: (version: string) => `Found GR IV ${version}. The looks are added to your film looks.`,
-  nativeUnchecked: (max: number) =>
-    `A package holds ${max} film looks. Uncheck others to include these looks.`,
-  /** Why a file gave no looks (`NativeProblem`). */
-  nativeErrors: {
-    unsupported: 'This file does not work. Only the GR IV firmware 1.11, 1.20, and 1.21 work.',
-    notFirmware: "This is not the GR IV firmware ZIP. Choose the ZIP file from Ricoh's GR IV page.",
-    tooLarge: 'This file is too large to be the GR IV firmware.',
-    failed: 'The looks cannot be read from this file. Try again.',
-  } as Readonly<Record<NativeProblem, string>>,
-  /** The source of a native look under the previewed name. */
-  nativeFrom: (version: string) => `From the GR IV ${version} firmware`,
-  nativePrivacy: 'The file stays in this browser and is never uploaded.',
-  nativeLicense: "Use of the firmware is subject to Ricoh's software license.",
+  /** The looks that GRKU copies from the firmware file of another RICOH camera (NativeLookDialog). */
+  native: {
+    sectionTitle: "More looks from RICOH",
+    sectionText: "Some looks are built into other RICOH cameras. GRKU can copy them for free from the official firmware file that you download from RICOH.",
+    count: (count: number) => (count === 1 ? '1 look' : `${count} looks`),
+    get: "Get these looks",
+    gr4Title: "GR IV looks",
+    /** The GR IV group on GR III and GR IIIx, with the Cinema looks. */
+    gr4TextColor: "Cinema Yellow and Cinema Green of GR IV, and the black-and-white looks of GR IV Monochrome.",
+    /** The GR IV group on GR IV: the Monochrome looks only. */
+    gr4TextMono: "The black-and-white looks of GR IV Monochrome, with Solarized.",
+    gr2Title: "GR II Positive",
+    gr2Text: "The Positive Film look of GR II, with the strong colors of slide film.",
+    dialogGr4: "Get the GR IV looks",
+    dialogGr2: "Get GR II Positive",
+    stepDownloadGr4: "Download the GR IV firmware from the RICOH website. Version 1.11, 1.20, or 1.21 works. Solarized needs 1.20 or 1.21.",
+    stepDownloadGr2: "Download the GR II firmware from the RICOH website. Version 3.00 works.",
+    noUpdate: "You do not update your camera with this file. GRKU only reads the looks from it.",
+    openRicoh: "Open the RICOH download page",
+    stepChoose: "Choose the file that you downloaded, or drop it here. The ZIP file is fine: you do not need to open it.",
+    choose: "Choose the file",
+    stepRead: "GRKU copies the looks in this browser. It takes a few seconds.",
+    reading: "Reading the file…",
+    doneGr4: (version: string) => `Done. The looks of the GR IV ${version} firmware are now in your list.`,
+    doneGr2: "Done. GR II Positive is now in your list.",
+    noneForCamera: "This file works, but it has no looks for your camera.",
+    unchecked: (max: number) => `A card holds ${max} film looks. Uncheck other looks to add these.`,
+    fromGr4: (version: string) => `From the GR IV ${version} firmware`,
+    fromGr2: (version: string) => `From the GR II ${version} firmware`,
+    privacy: "The file stays on your device. It is never uploaded.",
+    license: "The firmware belongs to RICOH. Its use follows RICOH's software license.",
+    errorsGr4: {
+      unsupported: "This file does not work. Choose the GR IV firmware 1.11, 1.20, or 1.21.",
+      notFirmware: "This is not the GR IV firmware. Choose the ZIP file from the GR IV page of RICOH.",
+      tooLarge: "This file is too large to be the GR IV firmware.",
+      failed: "The looks could not be read from this file. Try again, or download the file again.",
+    } as Readonly<Record<NativeProblem, string>>,
+    errorsGr2: {
+      unsupported: "This file does not work. Choose the GR II firmware 3.00.",
+      notFirmware: "This is not the GR II firmware. Choose the ZIP file from the GR II page of RICOH.",
+      tooLarge: "This file is too large to be the GR II firmware.",
+      failed: "The looks could not be read from this file. Try again, or download the file again.",
+    } as Readonly<Record<NativeProblem, string>>,
+  },
   printFilm: (code: string) => `${code} print`,
   effectCount: 'Film Looks',
   loading: 'Loading film looks…',
@@ -888,6 +899,7 @@ export const en = {
   cardNotInserted: "Can't find that card. Insert it, or connect another card.",
   cardEnable: 'Hold MENU while you turn the camera on, then wait until it turns itself off.',
   looks: {
+    'positive-film-grii-v1': "GRKU's own take on the Positive Film of GR II, made by eye. The official GR II Positive comes from the \"More looks from RICOH\" panel below.",
     'portra-400-endura-v1': 'Kodak Portra 400 on Portra Endura paper',
     'gold-200-premier-v1': 'Kodak Gold 200 on Endura Premier paper',
     'ektar-100-edge-v1': 'Kodak Ektar 100 on Ektacolor Edge paper',

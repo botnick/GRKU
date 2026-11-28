@@ -29,25 +29,13 @@ typedef short s16;
 /* Private menu levels (GRKU_HOST_MENU_LEVEL). */
 #define MENU_ROOT 1U
 #define MENU_MODULE 2U
-/* Icon results of a page: Off, the GRKU tile of the ADJ toolbar, the icon of
-   effect n, or a module tile (GRKU_ICON_MODULE_TILE). */
-#define GRKU_ICON_OFF 0x7fffU
-#define GRKU_ICON_GRKU 0x7ffeU
-#define GRKU_ICON_EFFECT(n) (0x8000U+(n))
-/* Core live-view label n in the status row (icon kind GRKU_ICON_LABEL). */
-#define GRKU_ICON_CORE_LABEL(n) (0x7f00U+(n))
-/* The Modules tile. The installer puts it after the Version tile, then the
-   Modules tile with a line through it (Enable GRKU Off). */
-#define GRKU_ICON_MODULES 0x7ffcU
-#define GRKU_ICON_MODULES_OFF 0x7ffbU
-/* The Fn hint of a row where Fn turns a setting to its next value. The
-   installer puts it after the Modules Off tile. */
-#define GRKU_ICON_ROTATE 0x7ffaU
-/* The labels "ft" and "16" of the manual focus scale in feet
-   (runtime/distance.h), 30 x 20 pixels. The installer puts them after the
-   Fn hint. */
-#define GRKU_ICON_SCALE_FEET 0x7ff9U
-#define GRKU_ICON_SCALE_SIXTEEN 0x7ff8U
+/* Icon results of a page: Off, a host icon, the icon of effect n, or a
+   module tile. abi.h gives each icon ID (GRKU_ICON_*). */
+/* The descriptor of the host icon in slot `slot` (GRKU_ICON_SLOT_*), or 0
+   before the installer wrote the host icons. The menu addresses each one
+   from the GRKU icon, which is host slot 1. */
+#define GRKU_HOST_ICON(h,slot) ((h)[GRKU_HOST_GRKU_ICON/4] ? \
+    (h)[GRKU_HOST_GRKU_ICON/4]+((slot)-GRKU_ICON_SLOT_GRKU)*GRKU_ICON_STRIDE : 0U)
 
 /* One setting of a native settings page: its row label, its values, the
    text of a value, and the stored value. A native value page has
@@ -196,6 +184,9 @@ GRKU_MAYBE_UNUSED static u32 native_display(void);
    keeps its index. The label of Framing ratio n is framing_label(n); a
    module names it as LABEL_RATIO_AREA | n (LABEL_RATIO in the SDK). */
 #define LABEL_GRKU 0U
+/* The other texts of the load cue (grku_core::artwork::OVERLAY_LABELS). */
+#define LABEL_UPDATE_READY 22U
+#define LABEL_UPDATE_RESTART 23U
 #define LABEL_RATIO_AREA 0x100U
 #ifdef FRAMING_RATIO_LABELS
 /* The label of a Framing ratio value (FRAMING_RATIO_LABELS), or

@@ -31,8 +31,9 @@
 #define FW_CROP_SET FIRMWARE(0x532f862c)
 /* The queue completion of a crop shot (runtime/crop_queue.S): the counts
    of the recipes of a queue in states 1, 2, and 3, the recipes in states
-   2 and 3, the recipe bank and its table of a recipe ID, and the
-   completion check of the back end. */
+   2 and 3, the recipe bank and its table of a recipe ID, the
+   completion check of the back end, and the return address of its post of
+   the image completion. */
 #define FW_QUEUE_COUNT1 FIRMWARE(0x53727c44)
 #define FW_QUEUE_COUNT2 FIRMWARE(0x53727cd4)
 #define FW_QUEUE_COUNT3 FIRMWARE(0x53727d64)
@@ -40,6 +41,7 @@
 #define FW_RECIPE_BANK FIRMWARE(0x53712374)
 #define FW_RECIPE_TABLE FIRMWARE(0x5371446c)
 #define FW_QUEUE_COMPLETE FIRMWARE(0x53719940)
+#define FW_QUEUE_WRITTEN_RETURN FIRMWARE(0x53723204)
 /* The size classifier is 0x533a2820. */
 
 /* Allocation and the vector helpers of View children. */
@@ -121,6 +123,9 @@
 #define FW_MENU_ROW_VALUE FIRMWARE(0x5357a474)
 #define FW_ADJ_REFRESH FIRMWARE(0x531bf3c8)
 #define FW_ADJ_SELECT_SLOT FIRMWARE(0x531bf94c)
+/* The OK method of ADJ: it posts the request of the App task that
+   takes the camera to the shooting screen, and uses no argument. */
+#define FW_ADJ_OK FIRMWARE(0x531bbb10)
 #define FW_CHANGE_CONTROLLER FIRMWARE(0x53182e4c)
 /* The controller factory singleton, which holds one instance of each controller. */
 #define INFO_TITLE_TEXT 0x2ab
@@ -155,6 +160,10 @@
 /* Playback metadata singleton and the maker-note IFD entry setter: (entry, 0,
    value) stores a u16 value. */
 #define FW_PLAYBACK_METADATA FIRMWARE(0x5323f67c)
+/* The power report of the sub-CPU (runtime/battery_percent.h): the guard and
+   the holder of its service. */
+#define FW_POWER_GUARD FIRMWARE(0x5537d2fc)
+#define FW_POWER_HOLDER FIRMWARE(0x5537d1d8)
 #define FW_IFD_SET_SHORT FIRMWARE(0x537e7148)
 /* The TIFF writer: append an entry to an IFD, and copy the data of an
    entry (runtime/picture.c: picture_dng_xmp_add). */
@@ -313,5 +322,13 @@
    which asserts that no use is set. */
 #define FW_KEYBOARD_MODEL FIRMWARE(0x53240134)
 #define FW_KEYBOARD_SET_FUNCTION FIRMWARE(0x533e5508)
+
+/* The resize of a picture for a phone (runtime/picture.S:
+   picture_transfer_size): the setter of the size of the copy (the size
+   object, width, height), and where the size check goes on without a size
+   (the camera sends the whole file) or with one. */
+#define FW_TRANSFER_SET FIRMWARE(0x538ea168)
+#define FW_TRANSFER_MISS FIRMWARE(0x537b1f80)
+#define FW_TRANSFER_DONE FIRMWARE(0x537b223c)
 
 #endif
