@@ -1040,12 +1040,6 @@ export const zhHans: DocsContent = {
           "alt": "ADJ 中的 Framing，XPan 处于高亮状态。实时取景中 XPan 画幅以外的区域变暗。"
         },
         {
-          "kind": "screen",
-          "screen": "framing",
-          "source": "drawn",
-          "alt": "ADJ 中的 Framing，XPan 处于高亮状态。实时取景中 XPan 画幅以外的区域变暗。"
-        },
-        {
           "kind": "settings",
           "module": "framing",
           "notes": {
@@ -1112,12 +1106,6 @@ export const zhHans: DocsContent = {
         {
           "kind": "p",
           "text": "在 **裁切** 上按 {{Fn}} 以设置 **模式** 和 **遮罩**。在 GR IV 上，拍摄后立即选择的焦距会等待该照片保存完成，因此最后一张照片不会受损；实时取景会立即显示新的裁剪效果。当 GR WORLD 请求较小的照片时，裁剪后的照片会以较小的副本发送到手机，长边约为 1920 像素。在 35、40 和 50 mm 时，实时取景会放大，不显示边框。在 70 mm 时，它在 50 mm 的视图中显示边框；而在 GR IV 上，40 mm 会在 35 mm 的视图中显示其边框。在 **裁切** 模式下，除非开启 **RAW 不裁切**，否则 JPEG 和 DNG 都会被裁剪。在 ADJ 中，实时取景显示当前高亮焦距的边框。**裁切** 适用于所有 **画幅** 比例。"
-        },
-        {
-          "kind": "screen",
-          "screen": "crop",
-          "source": "drawn",
-          "alt": "ADJ 中的 Crop，50mm 处于高亮状态。实时取景放大至 50mm。"
         },
         {
           "kind": "screen",

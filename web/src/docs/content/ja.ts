@@ -1040,12 +1040,6 @@ export const ja: DocsContent = {
           "alt": "ADJでFramingを選択し、XPanをハイライトした状態。ライブビューではXPanフレーム外の領域が暗くなっています。"
         },
         {
-          "kind": "screen",
-          "screen": "framing",
-          "source": "drawn",
-          "alt": "ADJでFramingを選択し、XPanをハイライトした状態。ライブビューではXPanフレーム外の領域が暗くなっています。"
-        },
-        {
           "kind": "settings",
           "module": "framing",
           "notes": {
@@ -1112,12 +1106,6 @@ export const ja: DocsContent = {
         {
           "kind": "p",
           "text": "「クロップ」で {{Fn}} を押し、**Mode** と **Mask** を設定します。GR IV では、撮影直後に焦点距離を選ぶと、その写真が保存されるまで待ちます。だから最後の写真は壊れません。ライブビューには新しいクロップがすぐ表示されます。GR WORLD で小さい写真を要求している場合、クロップした写真は、長辺約1920ピクセルの小さいコピーとしてスマホに送られます。35mm、40mm、50mm では枠なしでズームします。70mm では50mm のビューに枠を表示し、GR IV の40mm では35mm のビューに枠を表示します。「クロップ」モードでは、**Uncropped RAW** がオンでない限り、JPEG も DNG も両方とも切り取られます。ADJ では、ハイライトされている焦点距離の枠がライブビューに表示されます。すべてのフレーミング比率でクロップが使えます。"
-        },
-        {
-          "kind": "screen",
-          "screen": "crop",
-          "source": "drawn",
-          "alt": "ADJでCropを選択し、50mmをハイライトした状態。ライブビューは50mm相当にズームインしています。"
         },
         {
           "kind": "screen",
@@ -1538,12 +1526,6 @@ export const ja: DocsContent = {
           "after": "house-border-instant",
           "label": "ボーダー: インスタント、白",
           "alt": "石造りの家。白いインスタントボーダーなしとありの比較です。"
-        },
-        {
-          "kind": "screen",
-          "screen": "border",
-          "source": "drawn",
-          "alt": "ADJメニューでBorderを選択し、Thinをハイライトしています。枠線はJPEG画像の周囲に追加されます。"
         },
         {
           "kind": "screen",

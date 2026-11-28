@@ -1040,12 +1040,6 @@ export const ko: DocsContent = {
           "alt": "ADJ에서 Framing이 선택된 상태로 XPan이 강조되어 있습니다. 라이브 뷰에서는 XPan 프레임 밖의 영역이 어둡게 처리됩니다."
         },
         {
-          "kind": "screen",
-          "screen": "framing",
-          "source": "drawn",
-          "alt": "ADJ에서 Framing이 선택된 상태로 XPan이 강조되어 있습니다. 라이브 뷰에서는 XPan 프레임 밖의 영역이 어둡게 처리됩니다."
-        },
-        {
           "kind": "settings",
           "module": "framing",
           "notes": {
@@ -1112,12 +1106,6 @@ export const ko: DocsContent = {
         {
           "kind": "p",
           "text": "크롭에서 {{Fn}}을 눌러 **모드**와 **마스크**를 설정하세요. GR IV에서는 촬영 직후 초점 거리를 선택해도 마지막 사진이 손상되지 않도록 저장이 완료될 때까지 기다립니다. 라이브 뷰에는 새 크롭이 즉시 반영됩니다. GR WORLD에서 더 작은 사진을 요청하면, 크롭된 사진은 긴 변이 약 1920픽셀인 복사본으로 폰에 전송됩니다. 35, 40, 50mm에서는 프레임 없이 라이브 뷰가 확대됩니다. 70mm에서는 50mm 화면 안에 프레임을 표시하며, GR IV의 40mm는 35mm 화면 안에 프레임을 표시합니다. 크롭 모드에서는 **Uncropped RAW**가 켜져 있지 않은 한 JPEG와 DNG 모두 잘립니다. ADJ에서는 강조된 초점 거리의 프레임이 라이브 뷰에 표시됩니다. 크롭은 모든 프레이밍 비율과 함께 작동합니다."
-        },
-        {
-          "kind": "screen",
-          "screen": "crop",
-          "source": "drawn",
-          "alt": "ADJ에서 Crop이 선택된 상태로 50mm가 강조되어 있습니다. 라이브 뷰는 50mm로 확대되어 표시됩니다."
         },
         {
           "kind": "screen",

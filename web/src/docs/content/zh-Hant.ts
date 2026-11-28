@@ -1040,12 +1040,6 @@ export const zhHant: DocsContent = {
           "alt": "ADJ 中的 Framing，XPan 已選取。即時預覽將 XPan 框線外的區域變暗。"
         },
         {
-          "kind": "screen",
-          "screen": "framing",
-          "source": "drawn",
-          "alt": "ADJ 中的 Framing，XPan 已選取。即時預覽將 XPan 框線外的區域變暗。"
-        },
-        {
           "kind": "settings",
           "module": "framing",
           "notes": {
@@ -1112,12 +1106,6 @@ export const zhHant: DocsContent = {
         {
           "kind": "p",
           "text": "在「裁切」上按 {{Fn}} 來設定 **模式** 和 **遮罩**。在 GR IV 上，拍攝後立即選擇的焦距會等到該照片儲存完畢才生效，因此最後一張照片絕不會受損；即時取景會立刻顯示新的裁切範圍。當 GR WORLD 要求較小的照片時，裁切後的照片會以較小的副本傳送到手機，長邊約為 1920 像素。在 35、40 和 50 mm 時，即時取景會放大，不顯示框線。在 70 mm 時，它會在 50 mm 的視角中顯示框線；而在 GR IV 上，40 mm 會在 35 mm 的視角中顯示其框線。在裁切模式下，除非 **RAW 不裁切** 已開啟，否則 JPEG 和 DNG 都會被裁切。在 ADJ 中，即時取景會顯示所選焦距的框線。裁切功能適用於所有構圖比例。"
-        },
-        {
-          "kind": "screen",
-          "screen": "crop",
-          "source": "drawn",
-          "alt": "ADJ 中的 Crop，50mm 已選取。即時預覽放大至 50mm 視角。"
         },
         {
           "kind": "screen",
