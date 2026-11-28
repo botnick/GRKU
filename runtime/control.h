@@ -73,6 +73,7 @@ static u32 control_dispatch(void *context,struct control_request *request,u32 *l
     case GRKU_CONTROL_MODULES_LAYOUT:
     case GRKU_CONTROL_SETTINGS_READ:
     case GRKU_CONTROL_SETTINGS_SET:
+    case GRKU_CONTROL_GOODBYE_CHECK:
         return control_modules(h,request,length);
     default: return GRKU_CONTROL_UNSUPPORTED;
     }
