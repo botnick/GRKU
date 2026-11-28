@@ -382,7 +382,7 @@ export const th: DocsContent = {
         {
           "kind": "art",
           "art": "copy",
-          "alt": "โฟลเดอร์ SCRIPT, DEVELOP.MOD และไฟล์ ModeSet จาก SD_ROOT ถูกคัดลอกไปไว้ที่ชั้นบนสุดของการ์ด ข้างๆ DCIM"
+          "alt": "โฟลเดอร์ SCRIPT ไฟล์ DEVELOP.MOD และไฟล์ ModeSet จาก SD_ROOT ถูกคัดลอกไปไว้ที่ชั้นบนสุดของการ์ด ข้างๆ โฟลเดอร์ DCIM"
         },
         {
           "kind": "steps",
@@ -840,7 +840,7 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "เลื่อนไปที่ฟิล์มลุคที่ต้องการแล้วกด {{Fn}} กล้องจะเปิดหน้าปรับแต่งของฟิล์มลุคนั้นเหมือน Image Control เช่น ความอิ่มสี คอนทราสต์ Shading Clarity และตัวอื่นๆ ของกล้องคุณ แต่ละฟิล์มลุคจะจำค่าที่ปรับไว้ของตัวเอง"
+          "text": "เลื่อนไปเลือกฟิล์มลุค แล้วกด {{Fn}} กล้องจะเปิดหน้าปรับค่าของลุคนั้น เหมือนกับ Image Control เช่น saturation, contrast, Shading, Clarity และค่าอื่นๆ ของกล้อง แต่ละลุคมีค่าการปรับของตัวเอง บน GR III และ GR IIIx ลุค Cinema Yellow และ Cinema Green ที่คุณ [รับจากไฟล์ GR IV](doc:looks#ricoh) จะมี **Toning** ให้เลือก 3 ระดับ ใช้ได้ทั้งตอนถ่ายและในการล้าง RAW ในกล้อง"
         },
         {
           "kind": "h2",
@@ -959,7 +959,8 @@ export const th: DocsContent = {
           "kind": "steps",
           "items": [
             "ใน **Recipes** เลื่อนแถบไปที่สูตรสีที่ต้องการ ภาพสดจะแสดงผลให้ดู และค่าต่าง ๆ จะขึ้นทางซ้ายของจอ",
-            "กด {{OK}} เพื่อใช้งาน ADJ จะปิดลง หรือแสดงข้อความเมื่อบางค่าของสูตรสีไม่สามารถใช้งานได้",
+            "กด {{OK}} เพื่อใช้งาน ADJ จะปิด หรือแสดงข้อความเมื่อบางค่าของสูตรสีใช้ไม่ได้",
+            "สูตรสียังเก็บค่า Grain style ไว้ด้วย ไม่ว่าจะเป็น System หรือ Film-like",
             "เปลี่ยนใจไหม เลือก **Undo** จะดึงค่ากล้องที่สูตรสีเปลี่ยนไปกลับคืนได้สูงสุด 5 สูตรสีล่าสุด"
           ]
         },
@@ -1030,7 +1031,13 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "เลื่อนไปที่สัดส่วนภาพที่ต้องการ แล้วหน้าจอจะแสดงกรอบ กด {{OK}} เพื่อยืนยัน ในโหมด Crop ไฟล์ JPEG จะถูกครอปตามสัดส่วน ส่วนไฟล์ DNG จะไม่ถูกครอป"
+          "text": "เลื่อนไปเลือกอัตราส่วน หน้าจอแสดงภาพจะเห็นกรอบตามนั้น กด {{OK}} เพื่อยืนยัน ในโหมด Crop ไฟล์ JPEG จะถูกตัดขอบตามอัตราส่วน ส่วนไฟล์ DNG จะไม่ถูกตัด เมื่อ GR WORLD ขอรูปขนาดเล็กลง รูปที่มี Framing size จะส่งเข้ามือถือเป็นสำเนาที่เล็กลง ประมาณ 1920 พิกเซลในด้านยาว"
+        },
+        {
+          "kind": "screen",
+          "screen": "framing",
+          "source": "drawn",
+          "alt": "Framing ในหน้า ADJ โดยเลือก XPan ไว้ จอภาพสดจะมืดลงนอกกรอบ XPan"
         },
         {
           "kind": "screen",
@@ -1104,7 +1111,13 @@ export const th: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "กด {{Fn}} บนหน้า Crop เพื่อตั้งค่า **Mode** และ **Mask** ที่ 35, 40 และ 50 mm ภาพบนหน้าจอจะซูมเข้าโดยไม่มีกรอบ ที่ 70 mm จะแสดงกรอบในมุมมอง 50 mm และบน GR IV 40 mm จะแสดงกรอบในมุมมอง 35 mm ในโหมด Crop ทั้ง JPEG และ DNG จะถูกครอป ยกเว้นเมื่อเปิด **Uncropped RAW** อยู่ ใน ADJ หน้าจอจะแสดงกรอบของทางยาวโฟกัสที่เลือกไว้ Crop ใช้ได้กับทุกสัดส่วนของ Framing"
+          "text": "กด {{Fn}} ที่เมนู Crop เพื่อตั้ง **Mode** และ **Mask** บน GR IV ถ้าเลือกทางยาวโฟกัสทันทีหลังถ่ายรูป กล้องจะรอจนกว่ารูปนั้นจะบันทึกเสร็จ จึงไม่ทำให้รูปสุดท้ายเสีย แต่หน้าจอแสดงภาพจะเปลี่ยนเป็น Crop ใหม่ทันที เมื่อ GR WORLD ขอรูปขนาดเล็กลง รูปที่ถูก Crop จะส่งเข้ามือถือเป็นสำเนาที่เล็กลง ประมาณ 1920 พิกเซลในด้านยาว ที่ระยะ 35, 40 และ 50 mm หน้าจอแสดงภาพจะซูมเข้า โดยไม่มีกรอบ ที่ระยะ 70 mm จะแสดงกรอบในมุมมองของ 50 mm และบน GR IV ระยะ 40 mm จะแสดงกรอบในมุมมองของ 35 mm ในโหมด Crop ทั้ง JPEG และ DNG จะถูกตัดขอบ เว้นแต่จะเปิด **Uncropped RAW** ใน ADJ หน้าจอแสดงภาพจะแสดงกรอบของทางยาวโฟกัสที่เลือกอยู่ Crop ใช้ได้กับทุกอัตราส่วน Framing"
+        },
+        {
+          "kind": "screen",
+          "screen": "crop",
+          "source": "drawn",
+          "alt": "Crop ในหน้า ADJ โดยเลือก 50mm ไว้ จอภาพสดจะซูมเข้าเป็นระยะ 50mm"
         },
         {
           "kind": "screen",
@@ -1458,7 +1471,7 @@ export const th: DocsContent = {
           "kind": "compare",
           "before": "house-standard-crop",
           "after": "house-grain-crop",
-          "label": "Grain: Strong, ขนาด Medium, สไตล์ Film-like",
+          "label": "Grain: Strong, Size Medium, Film-like",
           "alt": "ภาพขยายเต็มของผนังหินและกันสาด เปรียบเทียบแบบไม่มีและใช้ Grain ที่ระดับ Strong ขนาด Medium สไตล์ Film-like"
         },
         {
@@ -1516,14 +1529,14 @@ export const th: DocsContent = {
           "kind": "compare",
           "before": "house-standard",
           "after": "house-border-wide",
-          "label": "Border: กว้าง, สีขาว",
+          "label": "Border: Wide, White",
           "alt": "บ้านหิน เปรียบเทียบแบบไม่มีและใช้ขอบสีขาวแบบ Wide"
         },
         {
           "kind": "compare",
           "before": "house-standard",
           "after": "house-border-instant",
-          "label": "Border: Instant, สีขาว",
+          "label": "Border: Instant, White",
           "alt": "บ้านหิน เปรียบเทียบแบบไม่มีและใช้ขอบสีขาวแบบ Instant"
         },
         {
@@ -1749,6 +1762,10 @@ export const th: DocsContent = {
               "ปิดอยู่เป็นค่าเริ่มต้น ถ้าเปิดจะแสดงไอคอนแบตเตอรี่ในหน้าข้อมูลย่อของ live view ด้วย"
             ],
             [
+              "**Battery Percentage**",
+              "ปิดเป็นค่าเริ่มต้น ถ้าเปิด จะแสดงระดับแบตเตอรี่เป็นตัวเลข ทีละ 2% ไอคอนแบบเดิมจะกลับมาเมื่อแบตต่ำ เชื่อมต่อไฟภายนอก หรือกล้องอ่านค่าไม่ได้"
+            ],
+            [
               "**Effect Icons in Playback**",
               "แสดงไอคอน Grain, Bloom, Halation, Border และ Date Imprint ของรูปในหน้าแรกของข้อมูลละเอียดตอนเปิดดูรูป และแสดงส่วนที่ครอปของรูป เปิดอยู่เป็นค่าเริ่มต้น"
             ]
@@ -1792,7 +1809,7 @@ export const th: DocsContent = {
       "blocks": [
         {
           "kind": "p",
-          "text": "ขั้นตอนที่ 1 ของการ [ติดตั้ง](site:install) แสดงคลังทั้งหมด: Kodak, Fujifilm, Ilford, CineStill, Polaroid, ฟิล์มหนังและฟิล์มสไลด์ ขาวดำ โทนฟิล์มของกล้อง FUJIFILM และฟิล์มลุคของ GRKU เองอย่าง GR II Positive (GRKU) และ FinePix CCD"
+          "text": "ขั้นตอนที่ 1 ของ [การติดตั้ง](site:install) จะแสดงคลังทั้งหมด ได้แก่ Kodak, Fujifilm, Ilford, CineStill, Polaroid, ฟิล์มสำหรับหนังและสไลด์, ขาวดำ, การจำลองฟิล์มของกล้อง FUJIFILM และฟิล์มลุคของ GRKU เอง เช่น GR II Positive (GRKU) และ FinePix CCD"
         },
         {
           "kind": "h2",
@@ -1810,6 +1827,68 @@ export const th: DocsContent = {
         {
           "kind": "p",
           "text": "อยากลองดูฟิล์มลุคกับรูปของตัวเองก่อนไหม กด **ลองใช้กับรูปของคุณ** เพื่อเปิดในหน้า [ล้างรูป](doc:develop) ได้เลย"
+        },
+        {
+          "kind": "h2",
+          "id": "ricoh",
+          "text": "ลุคเพิ่มเติมจาก RICOH"
+        },
+        {
+          "kind": "p",
+          "text": "ลุคบางตัวมีอยู่ในกล้อง RICOH รุ่นอื่น GRKU สามารถคัดลอกมาใช้งานได้ฟรีจากไฟล์เฟิร์มแวร์ทางการของรุ่นนั้น ซึ่งคุณดาวน์โหลดจาก RICOH คุณไม่ต้องอัปเดตกล้องด้วยไฟล์นี้: GRKU เพียงแค่อ่านค่าลุคจากไฟล์ในเบราว์เซอร์ของคุณ ไฟล์จะไม่ถูกอัปโหลด"
+        },
+        {
+          "kind": "steps",
+          "items": [
+            "ในขั้นตอนที่ 1 ของ [หน้าติดตั้ง](site:install) ให้หา **ลุคเพิ่มเติมจาก RICOH** แล้วกด **รับลุคเหล่านี้**",
+            "ดาวน์โหลดเฟิร์มแวร์ของรุ่นนั้นจากเว็บไซต์ RICOH: GR IV เวอร์ชัน 1.11, 1.20 หรือ 1.21 สำหรับลุคของ GR IV และ GR II เวอร์ชัน 3.00 สำหรับ GR II Positive",
+            "ในหน้าต่างที่เปิดขึ้นมา เลือกไฟล์ หรือลากมาวางได้เลย ไฟล์ ZIP ใช้ได้ ไม่ต้องแตกไฟล์",
+            "รอสักครู่ ลุคเหล่านั้นจะปรากฏในรายการของคุณ ตรวจสอบได้เหมือนลุคทั่วไป"
+          ]
+        },
+        {
+          "kind": "table",
+          "head": [
+            "กล้องของคุณ",
+            "ลุคที่คุณรับได้"
+          ],
+          "rows": [
+            [
+              "GR III, GR IIIx และรุ่น HDF ของทั้งสอง",
+              "จากไฟล์ GR IV: Cinema Yellow, Cinema Green, Mono Standard, Mono Solid, Mono Soft, Mono Hi-Contrast, Mono Grainy และ Solarized 1 ถึง 3 จากไฟล์ GR II: GR II Positive"
+            ],
+            [
+              "GR IV, GR IV HDF",
+              "จากไฟล์ GR IV: ลุค Mono ต่างๆ และ Solarized 1 ถึง 3 จากไฟล์ GR II: GR II Positive"
+            ],
+            [
+              "GR IV Monochrome",
+              "ไม่มี"
+            ]
+          ]
+        },
+        {
+          "kind": "note",
+          "tone": "plain",
+          "title": "Solarized",
+          "text": "Solarized 1 ถึง 3 มีเฉพาะใน GR IV เวอร์ชันเฟิร์มแวร์ 1.20 หรือ 1.21 เท่านั้น"
+        },
+        {
+          "kind": "h2",
+          "id": "positive",
+          "text": "GR II Positive, GR II Positive (GRKU) และ GR2 Positive"
+        },
+        {
+          "kind": "p",
+          "text": "ฟิล์มลุคสามตัวนี้มีชื่อคล้ายกับค่า **Positive Film** ของ GR II แต่ไม่ใช่ตัวเดียวกัน:"
+        },
+        {
+          "kind": "list",
+          "items": [
+            "**GR II Positive (GRKU)**: ฟิล์มลุคของ GRKU ที่ทำขึ้นจากการดูภาพจาก GR II ด้วยตาเปล่า มีอยู่ในคลังให้ทุกคนใช้ได้ เดิมเรียกว่า Positive GRII ซึ่งค้นหาด้วยชื่อนั้นก็ยังเจอ บนกล้องจะแสดงเป็น **GRII Pos. (GRKU)**",
+            "**GR2 Positive**: ฟิล์มลุคจาก LUT ของโปรเจกต์ Imprint สำหรับ GR2 Film Look มีอยู่ในคลังเช่นกัน",
+            "**GR II Positive**: ค่า Positive Film ของ GR II เอง อ่านจากไฟล์ firmware ของ GR II ที่คุณดาวน์โหลดและใส่ไว้ใน Standard ของกล้อง คุณจะได้มันพร้อมกับ **ลุคเพิ่มเติมจาก RICOH** ด้านบน"
+          ]
         },
         {
           "kind": "h2",

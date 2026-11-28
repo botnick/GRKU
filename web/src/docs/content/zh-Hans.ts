@@ -114,11 +114,11 @@ export const zhHans: DocsContent = {
       "blocks": [
         {
           "kind": "p",
-          "text": "GRKU 是适用于 RICOH GR III、GR IIIx 和 GR IV 的免费插件。这里有超过 150 种胶片风格可选，单张卡最多可放入 40 款，还支持日期水印、颗粒和 XPan 画幅等配方与效果。"
+          "text": "GRKU 是适用于 RICOH GR III、GR IIIx 和 GR IV 的免费扩展。你可以从 150 多种胶片风格中挑选，单张卡最多存 40 种，还支持日期水印、颗粒感和 XPan 宽幅等配方与效果。"
         },
         {
           "kind": "p",
-          "text": "它在相机开机时从 SD 卡运行。取出卡片后，GRKU 不会加载，相机恢复为 RICOH 原厂状态。仅保留“SD 脚本”这一设置开启。GRKU 绝不修改相机固件。"
+          "text": "它在相机开机时从 SD 卡运行。若移除该卡，GRKU 不会加载，相机恢复为 RICOH 原厂状态。仅“SD 脚本”这一设置会保持开启。GRKU 绝不修改相机固件。"
         },
         {
           "kind": "h2",
@@ -154,7 +154,7 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "网站上的每一种风格都可以免费预览，你还能免费把库里的 10 种风格放到卡上。你自己导入的风格不计入数量。Develop 页面上的每个模块、配方和试用风格都免费。[GRKU Plus](doc:plus) 是可选的一次性付费升级，用来在卡上放更多风格。"
+          "text": "网站上所有风格均可免费预览，你还可以免费将库中的 10 种风格存入存储卡。你自己导入的风格不计入这 10 个名额。Develop 页面上的模块、配方和风格试用功能全部免费。[GRKU Plus](doc:plus) 是一次性付费升级，可选购以在卡上存放更多风格。"
         },
         {
           "kind": "h2",
@@ -164,11 +164,11 @@ export const zhHans: DocsContent = {
         {
           "kind": "list",
           "items": [
-            "**SD 卡**：相机用来保存照片的小存储卡。GR IV 用的是 microSD 卡。本手册里两种卡都会这样称呼。",
+            "**SD 卡**：相机用来保存照片的小存储卡。GR IV 使用 microSD 卡。本手册中统称这两种卡为“SD 卡”。",
             "**读卡器**：让电脑读取 SD 卡的小设备。",
             "**ZIP 文件**：把许多文件打包在一起的文件，打开它就能取出里面的文件。",
             "**固件**：相机内部的软件，由 RICOH 制作。GRKU 绝不会修改它。",
-            "**SD 脚本**：相机的一项设置，让相机从存储卡运行 GRKU。只需开启一次。",
+            "**SD 脚本**：相机的一项设置，允许相机从存储卡运行 GRKU。只需开启一次。",
             "**ModeSet 文件**：用来开启 SD 脚本的文件。它的文件名是一串数字，例如 `00078560.636`。",
             "**ADJ 拨杆**：GR 机身背面、屏幕旁边的小拨杆。"
           ]
@@ -218,7 +218,7 @@ export const zhHans: DocsContent = {
                     "打开相机电源。",
                     "按下 {{MENU}}。",
                     "进入设置菜单，切换到扳手图标标签页，打开 **关于本机**。",
-                    "选择 **Firmware Info / 可选项**，然后按向右。",
+                    "选择 **固件信息 / 选项**，然后按右方向键。",
                     "屏幕上会显示固件版本，例如 2.21。"
                   ]
                 },
@@ -242,7 +242,7 @@ export const zhHans: DocsContent = {
                     "打开相机电源。",
                     "按下 {{MENU}}。",
                     "进入设置菜单，切换到扳手图标标签页，选择 **相机信息**。",
-                    "按向右。",
+                    "按右方向键。",
                     "屏幕上会显示固件版本，例如 1.21。"
                   ]
                 },
@@ -276,7 +276,7 @@ export const zhHans: DocsContent = {
             },
             {
               "see": "你的版本较旧。",
-              "then": "请先从 RICOH 更新相机固件。详见[下方](doc:firmware#older)。"
+              "then": "请先在 RICOH 官网更新相机固件。详见[下方](doc:firmware#older)。"
             },
             {
               "see": "你的版本比表格中的新。",
@@ -348,14 +348,14 @@ export const zhHans: DocsContent = {
         {
           "kind": "art",
           "art": "computer",
-          "alt": "一台打开了 grku.app 的电脑，以及一张正放入读卡器的存储卡。"
+          "alt": "电脑已打开 grku.app，存储卡正放入读卡器。"
         },
         {
           "kind": "steps",
           "items": [
             "打开[安装页面](site:install)。",
             "选择胶片风格，再选择相机型号，最后选择模块。",
-            "在最后一步，选择 **写入 SD 卡**，然后按下 **连接 SD 卡**。选中 SD 卡本身，再允许编辑。",
+            "在最后一步，选择 **写入 SD 卡**，然后按下 **连接 SD 卡**。选中卡片本身，再允许编辑。",
             "检查更改列表，然后点击**安装 GRKU**。存储卡上的照片会保留。",
             "在电脑上弹出存储卡后再拔出。"
           ]
@@ -377,12 +377,12 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "其他浏览器也适用，包括手机浏览器或 Mac 上的 Safari。如果应用内的浏览器无法保存文件，请在手机浏览器中打开此页面。"
+          "text": "其他浏览器也适用，包括手机或 Mac 上的 Safari。如果应用内的浏览器无法保存文件，请在手机浏览器中打开此页面。"
         },
         {
           "kind": "art",
           "art": "copy",
-          "alt": "SCRIPT 文件夹、DEVELOP.MOD 和来自 SD_ROOT 的 ModeSet 文件已复制到存储卡根目录，位于 DCIM 旁边。"
+          "alt": "SCRIPT 文件夹、DEVELOP.MOD 和 SD_ROOT 中的模式文件已复制到存储卡根目录，与 DCIM 并列。"
         },
         {
           "kind": "steps",
@@ -415,7 +415,7 @@ export const zhHans: DocsContent = {
             ],
             [
               "DCIM",
-              "你的照片。安装 GRKU 不会影响它们。"
+              "您的照片。安装 GRKU 不会动它们。"
             ]
           ]
         },
@@ -458,13 +458,13 @@ export const zhHans: DocsContent = {
           "kind": "note",
           "tone": "tip",
           "title": "如果画面不是这样",
-          "text": "没有看到 **模式 Set Command** 屏幕？先关机。先按住 {{MENU}}，再按电源键，并一直按住 {{MENU}} 直到屏幕显示。检查 `DEVELOP.MOD` 和 ModeSet 文件是否在卡的根目录，而不是文件夹里。"
+          "text": "没有看到 **Mode Set Command** 屏幕？先关机。先按住 {{MENU}}，再按电源键，并一直按住 {{MENU}} 直到屏幕显示。检查 `DEVELOP.MOD` 和 ModeSet 文件是否在卡的根目录，而不是文件夹里。"
         },
         {
           "kind": "note",
           "tone": "warning",
           "title": "出现固件更新屏幕？",
-          "text": "卡里有相机固件文件（名称以 `fwdc` 开头的 `.bin` 文件）。选择 **Cancel** 并按下 {{OK}}，切勿选择 Execute。关机，从卡的根目录删除该文件，然后重新执行此步骤。"
+          "text": "卡里有相机固件文件（名称以 `fwdc` 开头的 `.bin` 文件）。选择 **Cancel** 并按下 {{OK}}，千万别选 Execute。关机，从卡的根目录删掉那个文件，然后重新做这一步。"
         },
         {
           "kind": "p",
@@ -479,7 +479,7 @@ export const zhHans: DocsContent = {
           "kind": "steps",
           "items": [
             "拍摄时，按下 {{ADJ}}。",
-            "选择 **GRKU**。它通常排在第 6 项；如果你在 ADJ 菜单顺序中为各模块设置了独立入口，位置会更靠右。",
+            "选择 **GRKU**。它通常排在第 6 项；如果你在 ADJ Order 里给各个模块设置了独立入口，位置会更靠右。",
             "选择一项功能，例如 **胶片风格**，高亮某个选项即可在屏幕上看到效果。",
             "按 {{OK}} 确认保留。按 {{Fn}} 查看更多设置。"
           ]
@@ -548,7 +548,7 @@ export const zhHans: DocsContent = {
             ],
             [
               "{{Fn}}",
-              "执行该行的附加操作：进入模块更多设置、切换黄金螺旋线的下一个角落，或对配方进行重命名和删除。"
+              "执行该行的附加操作：模块的更多设置、黄金螺旋线的下一个角落，或配方的重命名和删除。"
             ],
             [
               "{{MENU}}",
@@ -671,7 +671,7 @@ export const zhHans: DocsContent = {
           "kind": "list",
           "items": [
             "**启用**仅开启或关闭当前模块。",
-            "**可选项**：在支持的模块中，用来选择 ADJ 显示的胶片风格。取消勾选不用的风格，ADJ 就会跳过它。",
+            "**可选项**：在支持的模块中，选择 ADJ 里显示的胶片风格。取消勾选不用的风格，ADJ 就会跳过它。",
             "**顺序**在有该项的模块中，用来设置这些选项在 ADJ 中的排列顺序。",
             "其余行为该模块的设置，本手册各页面均有列出。"
           ]
@@ -711,7 +711,7 @@ export const zhHans: DocsContent = {
         {
           "kind": "art",
           "art": "computer",
-          "alt": "一台打开了 grku.app 的电脑，以及一张正放入读卡器的存储卡。"
+          "alt": "电脑已打开 grku.app，存储卡正放入读卡器。"
         },
         {
           "kind": "steps",
@@ -785,7 +785,7 @@ export const zhHans: DocsContent = {
         "CHANGELOG.md"
       ],
       "seo": "RICOH GR 的胶片风格：如何使用胶片风格",
-      "lead": "模拟真实胶片和其他相机的风格，支持实时预览，可替代 Image Control。",
+      "lead": "提供真实胶片和其他相机的风格，支持实时预览，可替代 Image Control。",
       "keywords": "胶片风格 效果 图像控制 实时预览 参数 胶片 反转片 film look effect image control lut portra classic chrome kodak fuji fujifilm finepix positive preview fn parameters film stock",
       "blocks": [
         {
@@ -809,7 +809,7 @@ export const zhHans: DocsContent = {
           "kind": "steps",
           "items": [
             "按下 {{ADJ}}，选择 **GRKU**，再选择 **胶片风格**。",
-            "高亮一种外观。实时取景会立即显示该外观及其图标。",
+            "选中一种外观。实时取景立即显示效果及其图标。",
             "按下 {{OK}} 确认使用；选择 **关闭** 则不使用任何风格拍摄。"
           ]
         },
@@ -824,14 +824,14 @@ export const zhHans: DocsContent = {
           "before": "chairs-standard",
           "after": "chairs-portra",
           "label": "Kodak Portra 400",
-          "alt": "遮阳伞下的两张躺椅，分别展示相机的标准效果和 Kodak Portra 400 胶片效果。"
+          "alt": "遮阳伞下的两张躺椅，分别展示相机标准外观和 Kodak Portra 400 胶片外观的效果。"
         },
         {
           "kind": "compare",
           "before": "chairs-standard",
           "after": "chairs-chrome",
           "label": "Fujifilm Classic Chrome",
-          "alt": "同一张照片，分别展示标准效果和 Fujifilm Classic Chrome 效果。"
+          "alt": "同一张照片，分别展示标准外观和 Fujifilm Classic Chrome 外观的效果。"
         },
         {
           "kind": "h2",
@@ -840,7 +840,7 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "选中一种风格并按下 {{Fn}}，相机会打开该风格的调整项，与 Image Control 类似：饱和度、对比度、暗角、清晰度以及你所用相机支持的其他项目。每种风格各自保存自己的调整设置。"
+          "text": "选中一个风格并按 {{Fn}}。相机会打开该风格的调整选项，就像图像控制一样：饱和度、对比度、色调（Shading）、清晰度以及相机中的其他选项。每个风格都会保留自己的调整设置。在 GR III 和 GR IIIx 上，从 [GR IV 文件获取](doc:looks#ricoh)的 **Cinema Yellow** 和 **Cinema Green** 风格具有三级 **色调（Toning）**，在 RAW 处理中也是如此。"
         },
         {
           "kind": "h2",
@@ -960,6 +960,7 @@ export const zhHans: DocsContent = {
           "items": [
             "在 **配方** 中高亮选中一个配方。实时取景会显示效果，屏幕左侧会显示其设置。",
             "按 {{OK}} 应用。ADJ 菜单会关闭；如果配方中的某项设置无法应用，屏幕上会显示提示信息。",
+            "配方还会保存颗粒感样式，即“系统”或“胶片质感”。",
             "改变主意了？选择 **撤销**。它会恢复配方修改过的所有相机设置，最多可撤销最近 5 个配方。"
           ]
         },
@@ -1030,7 +1031,13 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "选中某个比例，实时取景画面就会显示对应的框线。按 {{OK}} 确认使用。在裁切模式下，JPEG 会按该比例裁切，DNG 则不会裁切。"
+          "text": "选中一个比例，实时取景会显示画框。按 {{OK}} 确认。在 **裁切** 模式下，JPEG 会被裁剪成该比例；DNG 不会被裁剪。当 GR WORLD 请求较小的照片时，带有 **画幅** 尺寸的照片会以较小的副本发送到手机，长边约为 1920 像素。"
+        },
+        {
+          "kind": "screen",
+          "screen": "framing",
+          "source": "drawn",
+          "alt": "ADJ 中的 Framing，XPan 处于高亮状态。实时取景中 XPan 画幅以外的区域变暗。"
         },
         {
           "kind": "screen",
@@ -1104,7 +1111,13 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "在“裁切”上按 {{Fn}} 可设置 **模式** 和 **遮罩**。在 35、40 和 50 mm 时，实时取景会直接放大，不显示框线。在 70 mm 时，会在 50 mm 的画面中显示框线；在 GR IV 上，40 mm 会在 35 mm 的画面中显示框线。在“裁切”模式下，JPEG 和 DNG 都会被裁剪，除非开启 **RAW 不裁剪**。在 ADJ 中，实时取景会显示当前选中焦段的框线。“裁切”功能适用于所有画幅比例。"
+          "text": "在 **裁切** 上按 {{Fn}} 以设置 **模式** 和 **遮罩**。在 GR IV 上，拍摄后立即选择的焦距会等待该照片保存完成，因此最后一张照片不会受损；实时取景会立即显示新的裁剪效果。当 GR WORLD 请求较小的照片时，裁剪后的照片会以较小的副本发送到手机，长边约为 1920 像素。在 35、40 和 50 mm 时，实时取景会放大，不显示边框。在 70 mm 时，它在 50 mm 的视图中显示边框；而在 GR IV 上，40 mm 会在 35 mm 的视图中显示其边框。在 **裁切** 模式下，除非开启 **RAW 不裁切**，否则 JPEG 和 DNG 都会被裁剪。在 ADJ 中，实时取景显示当前高亮焦距的边框。**裁切** 适用于所有 **画幅** 比例。"
+        },
+        {
+          "kind": "screen",
+          "screen": "crop",
+          "source": "drawn",
+          "alt": "ADJ 中的 Crop，50mm 处于高亮状态。实时取景放大至 50mm。"
         },
         {
           "kind": "screen",
@@ -1208,7 +1221,7 @@ export const zhHans: DocsContent = {
           "before": "chairs-standard",
           "after": "chairs-date",
           "label": "加印日期：'YY M D",
-          "alt": "遮阳伞下的两张躺椅，分别未添加和添加了日期印：'YY M D，位置为胶片右下角，大小为 M，字体为经典，颜色为标准。"
+          "alt": "遮阳伞下的两张躺椅，分别未添加和添加了日期加印：'YY M D，位置为胶片右下角，大小为 M，字体为经典，颜色为标准。"
         },
         {
           "kind": "p",
@@ -1226,11 +1239,11 @@ export const zhHans: DocsContent = {
           "notes": {
             "STYLE": "日期的排列顺序，可选择是否包含时间。相机打印的是内部时钟的时间，请先校准时钟。此项不在 MENU 列表中：请在 ADJ 中选择，或在 ADJ 中按 {{Fn}} 切换。",
             "POSITION": "**胶片**会将日期打印在胶片相机常见的位置。**摆正**会在竖拍照片中保持日期方向端正。此项不在 MENU 列表中：请在 ADJ 中按 {{Fn}} 设置。",
-            "CORNER": "日期的位置。底部分列会把日期放在左侧，说明放在右侧。",
+            "CORNER": "日期显示的位置。“底部拆分”会将日期放在左侧，文字说明放在右侧。",
             "SIZE": "数字的大小。",
             "LOOK": "字体样式：Classic、GR1s（点阵）或 GR II。",
             "COLOR": "标准指字体的颜色：Classic 和 GR II 为橙色，GR1s 为黄色。黑白照片会显示为白色。",
-            "GLOW": "数字周围的柔和光晕。GR II 的数字是平面的，没有光晕。",
+            "GLOW": "数字周围的柔和光晕。GR II 的数字是平面的，没有光晕效果。",
             "CAPTION": "日期前的一个词。照片中会把 <3 显示为爱心。",
             "ICON": "在拍摄屏幕上显示日期样式。"
           }
@@ -1351,7 +1364,7 @@ export const zhHans: DocsContent = {
           "kind": "settings",
           "module": "lightleak",
           "notes": {
-            "LOOK": "**自定义**使用你在下方的设定。其他选项是预设搭配。",
+            "LOOK": "**自定义**使用你在下方设置的参数。其他选项是预设好的组合。",
             "VIGNETTE": "角落更暗。搭配**自定义**使用。",
             "DUST": "灰尘和毛发。搭配**自定义**使用。",
             "LEAK": "从边缘渗入的光线，使胶片产生雾化效果。搭配**自定义**使用。",
@@ -1403,7 +1416,7 @@ export const zhHans: DocsContent = {
           "before": "daisy-standard",
           "after": "daisy-softness",
           "label": "胶片柔和度：强",
-          "alt": "雏菊，对比未开启和开启强胶片柔和度的效果。"
+          "alt": "雏菊照片，对比未开启和开启“强”胶片柔和度的效果。"
         },
         {
           "kind": "p",
@@ -1413,10 +1426,10 @@ export const zhHans: DocsContent = {
           "kind": "settings",
           "module": "diffusion",
           "notes": {
-            "STRENGTH": "**滤镜**：柔光镜的光晕效果，类似它的不同等级。",
+            "STRENGTH": "**滤镜**：模拟柔光镜的光晕效果，类似其不同的强度等级。",
             "MIST": "**滤镜**：阴影上的一层薄雾。在**强度**不为**关闭**时生效。",
-            "STREAK": "**滤镜**：点光源上的变形镜头水平眩光。在**强度**不为**关闭**时生效。",
-            "SOFTNESS": "**柔和度**：细微细节变淡，高光过渡更柔和，就像胶片扫描一样。可单独生效。"
+            "STREAK": "**滤镜**：模拟变形镜头在点光源上产生的水平光斑。在**强度**不为**关闭**时生效。",
+            "SOFTNESS": "**柔和度**：细节变淡，高光过渡更柔和，就像胶片扫描一样。可单独使用。"
           }
         },
         {
@@ -1458,7 +1471,7 @@ export const zhHans: DocsContent = {
           "kind": "compare",
           "before": "house-standard-crop",
           "after": "house-grain-crop",
-          "label": "颗粒感：强，大小中，胶片质感",
+          "label": "颗粒感：强，大小：中，质感：胶片",
           "alt": "石墙和遮阳篷的全尺寸特写，未开启和开启颗粒感（强度强、大小中、样式胶片质感）的效果对比。"
         },
         {
@@ -1473,7 +1486,7 @@ export const zhHans: DocsContent = {
           "notes": {
             "CORE.GRAIN": "颗粒的强度。",
             "CORE.GRAIN_SIZE": "颗粒的大小。**自动**会跟随拍摄时的 ISO。",
-            "STYLE": "**系统**是相机自带的颗粒。**胶片质感**模拟彩色负片的颗粒：中间调最强，纯白或纯黑处无颗粒，在彩色照片中呈现彩色颗粒。",
+            "STYLE": "**系统**是相机的颗粒。**胶片质感**是彩色负片的颗粒：中间调最强，纯白或纯黑处没有，在彩色照片上呈彩色。",
             "ICON": "在拍摄屏幕上显示颗粒图标。"
           }
         },
@@ -1516,7 +1529,7 @@ export const zhHans: DocsContent = {
           "kind": "compare",
           "before": "house-standard",
           "after": "house-border-wide",
-          "label": "边框：宽，白色",
+          "label": "边框：宽，颜色：白色",
           "alt": "石屋，未添加和添加白色宽边框的效果对比。"
         },
         {
@@ -1536,7 +1549,7 @@ export const zhHans: DocsContent = {
           "kind": "settings",
           "module": "border",
           "notes": {
-            "CORE.BORDER": "**细**约为短边的 3%，**宽**约为 6%，**拍立得**约为 4%（底边宽度是其三倍）。在 GR IV 上，若内存不足，大边框可能会略窄。",
+            "CORE.BORDER": "**细**约为短边的 3%，**宽**约为 6%，**拍立得**约为 4%，底边宽度是它的三倍。在 GR IV 上，相机内存不足时，大边框可能会略窄一点。",
             "CORE.BORDER_COLOR": "边框的颜色。",
             "ICON": "在拍摄屏幕上显示边框图标。"
           }
@@ -1594,7 +1607,7 @@ export const zhHans: DocsContent = {
           "items": [
             "**开启**：该位置使用共用的 GRKU 设置，与 P、Av、Tv 和 M 相同。",
             "**关闭**：该位置拍摄时不使用 GRKU。",
-            "**保存当前设置**：将当前的相机和 GRKU 设置保存到此位置。覆盖用户模式前相机会先询问，并打开键盘让你输入名称。转到该位置即可恢复这两项设置。该位置会显示保存的名称。注意：不会保存 ADJ 顺序、**开机启用**、**启用 GRKU** 或 **模式转盘** 设置。"
+            "**保存当前设置**：将当前的相机设置和 GRKU 设置保存到此位置。相机在覆盖用户模式前会先询问，然后打开键盘让你输入名称。转到这个位置，两者就会一起恢复。随后该位置会显示保存的名称。它不会保存 ADJ 顺序、**开机启用**、**启用 GRKU**或**模式转盘**设置。"
           ]
         },
         {
@@ -1679,7 +1692,7 @@ export const zhHans: DocsContent = {
           "rows": [
             [
               "**开机启用**",
-              "每次开机时的 GRKU 状态：**开启**（默认）、**关闭**，或**保持上次**（即关机前的状态）。"
+              "每次开机时的 GRKU 状态：**开启**（默认）、**关闭**，或**保持上次**的状态。"
             ],
             [
               "**模式转盘**",
@@ -1724,7 +1737,7 @@ export const zhHans: DocsContent = {
           "rows": [
             [
               "**RAW 不裁切**",
-              "默认**关闭**。**开启**后，每张 DNG 保留完整传感器画面，拍摄时的裁剪作为元数据记录，可在 Lightroom 和 Camera Raw 中撤销。此时 Lightroom 可能不会应用其默认的 RAW 设置。"
+              "默认**关闭**。**开启**：每张 DNG 都会保留完整传感器画面，拍摄时的裁剪会作为设置记录下来，Lightroom 和 Camera Raw 可以撤销它。Lightroom 随后可能不会应用其默认的 RAW 设置。"
             ]
           ]
         },
@@ -1742,11 +1755,15 @@ export const zhHans: DocsContent = {
           "rows": [
             [
               "**距离单位**",
-              "快照对焦距离和手动对焦刻度显示为**米**（默认）或**英尺**。"
+              "Snap 对焦距离和手动对焦刻度显示为**米**（默认）或**英尺**。"
             ],
             [
               "**简单信息电量**",
               "默认**关闭**。**开启**后，实时取景的简化信息界面也会显示电池图标。"
+            ],
+            [
+              "**电量百分比**",
+              "默认 **关闭**。**开启** 后，电池电量以数字显示，每 2% 一档。当电量低、使用外部电源或相机无法读取电量时，会恢复显示图标。"
             ],
             [
               "**回放效果图标**",
@@ -1772,7 +1789,7 @@ export const zhHans: DocsContent = {
             ],
             [
               "**显示文字**",
-              "默认**开启**。若**关闭**，相机关机时将不显示快门次数和固件版本。"
+              "默认**开启**。若**关闭**，相机关机时不会显示快门次数和固件版本。"
             ]
           ]
         }
@@ -1792,7 +1809,7 @@ export const zhHans: DocsContent = {
       "blocks": [
         {
           "kind": "p",
-          "text": "[安装](site:install)第 1 步会展示完整片库：Kodak、Fujifilm、Ilford、CineStill、Polaroid、电影胶片和反转片、黑白胶片、FUJIFILM 相机的胶片模拟，以及 GRKU 自带风格（如 GR II Positive (GRKU) 和 FinePix CCD）。"
+          "text": "[安装](site:install) 的第 1 步会展示整个库：包括 Kodak、Fujifilm、Ilford、CineStill、Polaroid、电影和幻灯片胶片、黑白胶片、FUJIFILM 相机的胶片模拟，以及 GRKU 的自制风格（如 GR II Positive (GRKU) 和 FinePix CCD）。"
         },
         {
           "kind": "h2",
@@ -1810,6 +1827,68 @@ export const zhHans: DocsContent = {
         {
           "kind": "p",
           "text": "想先用自己的照片看看效果？点击**在自己的照片上试用**，即可在[显影页](doc:develop)打开。"
+        },
+        {
+          "kind": "h2",
+          "id": "ricoh",
+          "text": "更多理光风格"
+        },
+        {
+          "kind": "p",
+          "text": "有些风格内置于其他 RICOH 相机中。GRKU 可以从该相机的官方固件文件中免费复制这些风格，你需要从 RICOH 下载该文件。你不需要用此文件更新你的相机：GRKU 仅在浏览器中从中读取风格。该文件绝不会上传。"
+        },
+        {
+          "kind": "steps",
+          "items": [
+            "在 [安装](site:install) 的第 1 步中，找到 **更多理光风格** 并按下 **获取这些风格**。",
+            "从 RICOH 网站下载该相机的固件：对于 GR IV 风格，请选 GR IV 1.11、1.20 或 1.21；对于 GR II Positive，请选 GR II 3.00。",
+            "在弹出的窗口中，选择文件或将其拖入。ZIP 文件可直接使用：无需解压。",
+            "几秒钟后，这些风格就会出现在列表中。你可以像查看其他风格一样查看它们。"
+          ]
+        },
+        {
+          "kind": "table",
+          "head": [
+            "你的相机",
+            "可获取的风格"
+          ],
+          "rows": [
+            [
+              "GR III、GR IIIx 及其 HDF 型号",
+              "来自 GR IV 文件：Cinema Yellow、Cinema Green、Mono Standard、Mono Solid、Mono Soft、Mono Hi-Contrast、Mono Grainy 以及 Solarized 1 到 3。来自 GR II 文件：GR II Positive。"
+            ],
+            [
+              "GR IV, GR IV HDF",
+              "来自 GR IV 文件：Mono 风格和 Solarized 1 到 3。来自 GR II 文件：GR II Positive。"
+            ],
+            [
+              "GR IV Monochrome",
+              "无。"
+            ]
+          ]
+        },
+        {
+          "kind": "note",
+          "tone": "plain",
+          "title": "Solarized",
+          "text": "Solarized 1 到 3 仅来自 GR IV 固件 1.20 或 1.21。"
+        },
+        {
+          "kind": "h2",
+          "id": "positive",
+          "text": "GR II Positive、GR II Positive (GRKU) 和 GR2 Positive"
+        },
+        {
+          "kind": "p",
+          "text": "这三种风格的名称与 GR II 的**正片**设置很接近。但它们并不相同："
+        },
+        {
+          "kind": "list",
+          "items": [
+            "**GR II Positive (GRKU)**：GRKU 自制风格，通过肉眼比对 GR II 照片制作。已收录在库中供所有人使用。旧名为 Positive GRII，搜索该名称仍可找到。相机上显示为 **GRII Pos. (GRKU)**。",
+            "**GR2 Positive**：来自 Imprint 项目的 GR2 **胶片风格** LUT，同样收录在库中。",
+            "**GR II Positive**：这是 GR II 自身的 **正片** 设置，从你下载并应用到相机 **标准** 模式的 GR II 固件文件中提取。可通过上方的 **更多理光风格** 获取。"
+          ]
         },
         {
           "kind": "h2",
@@ -1869,7 +1948,7 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "任何购买均解锁完整的 GRKU Studio 及其设计。价格详见 [GRKU Plus](site:plus) 页面。之前的付款计入“全部解锁”和 25 个槽位，不计入单个套装包。首发优惠于 2027 年 1 月 1 日结束。"
+          "text": "任何购买也会解锁完整的 GRKU Studio 及其设计。价格见 [GRKU Plus](site:plus) 页面。你之前的付款会计入“全部解锁”和 25 个槽位，不会计入单个套装包。首发价格于 2027 年 1 月 1 日结束。"
         },
         {
           "kind": "h2",
@@ -2038,7 +2117,7 @@ export const zhHans: DocsContent = {
           "kind": "list",
           "items": [
             "每日可发送的消息数量有限。GRKU Plus 用户可进行更深入的对话并获得更详细的解答。",
-            "如果开启记忆功能，浏览器会记住你的相机型号、固件版本和你喜欢的风格，并在提问时一并发送。",
+            "如果开启记忆功能，浏览器会记住你的相机、固件版本和你喜欢的胶片风格，并在提问时一并发送。",
             "你的消息会发送给 AI 服务以获取回复。请勿输入个人数据。",
             "AI 回答可能出错。涉及相机固件的任何操作，请以本手册和 RICOH 官方说明为准。"
           ]
@@ -2320,7 +2399,7 @@ export const zhHans: DocsContent = {
         },
         {
           "kind": "p",
-          "text": "开机后约 8 到 10 秒（安装后首次开机最长约 1 分钟），GRKU 才会加载完成。在此之前，相机使用自身设置。请等待屏幕顶部显示 **GRKU**。"
+          "text": "开机后约 8 到 10 秒（安装后首次开机最长约 1 分钟），GRKU 尚未加载完成，相机仍使用自身设置。请等待屏幕顶部显示 **GRKU**。"
         },
         {
           "kind": "h2",
